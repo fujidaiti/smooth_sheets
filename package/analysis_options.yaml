@@ -1,0 +1,10 @@
+include: package:pedantic_mono/analysis_options.yaml
+
+linter:
+  rules:
+    always_put_control_body_on_new_line: false
+    use_setters_to_change_properties: false
+    one_member_abstracts: false
+    avoid_redundant_argument_values: false
+    require_trailing_commas: false
+    prefer_int_literals: false

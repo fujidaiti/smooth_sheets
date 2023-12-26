@@ -1,0 +1,16 @@
+[config]
+skip_core_tasks = true
+
+[tasks.flutter-build]
+script = '''
+flutter pub get
+'''
+
+[tasks.build-all]
+script_runner = "@duckscript"
+script = '''
+cd ./package
+cm_run_task flutter-build
+cd ../cookbook
+cm_run_task flutter-build
+'''

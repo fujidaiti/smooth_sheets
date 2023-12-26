@@ -1,0 +1,78 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AI Playlist Generator",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/showcase/ai_playlist_generator.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Airbnb Mobile App",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/showcase/airbnb_mobile_app.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Scrollable Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/scrollable_sheet.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Draggable Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/draggable_sheet.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Declarative Navigation Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/declarative_navigation_sheet.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Imperative Navigation Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/imperative_navigation_sheet.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Sheet Physics",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/sheet_physics.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Modal Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/modal_sheet.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Sheet Content Scaffold",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/sheet_content_scaffold.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Sheet Controller",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/sheet_controller.dart",
+      "cwd": "./cookbook"
+    }
+  ]
+}
