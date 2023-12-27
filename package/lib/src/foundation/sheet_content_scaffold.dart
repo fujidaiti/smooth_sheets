@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:smooth_sheets/src/draggable/sheet_draggable.dart';
 import 'package:smooth_sheets/src/foundation/framework.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 
@@ -11,6 +12,7 @@ class SheetContentScaffold extends StatelessWidget {
     this.primary = false,
     this.extendBody = false,
     this.extendBodyBehindAppBar = false,
+    this.appbarDraggable = true,
     this.backgroundColor,
     this.requiredMinExtentForBottomBar = const Extent.pixels(0),
     this.appBar,
@@ -22,6 +24,7 @@ class SheetContentScaffold extends StatelessWidget {
   final bool primary;
   final bool extendBody;
   final bool extendBodyBehindAppBar;
+  final bool appbarDraggable;
   final Color? backgroundColor;
   final PreferredSizeWidget? appBar;
   final Widget body;
@@ -31,7 +34,11 @@ class SheetContentScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final backgroundColor = this.backgroundColor ??
         Theme.of(context).colorScheme.secondaryContainer;
-        
+
+    final appBar = this.appBar != null && appbarDraggable
+        ? _AppBarDraggable(appBar: this.appBar!)
+        : this.appBar;
+
     var bottomBar = this.bottomBar;
     if (this.bottomBar != null) {
       bottomBar = _PersistentBottomBar(
@@ -75,6 +82,22 @@ class SheetContentScaffold extends StatelessWidget {
     }
 
     return result;
+  }
+}
+
+class _AppBarDraggable extends StatelessWidget implements PreferredSizeWidget {
+  const _AppBarDraggable({
+    required this.appBar,
+  });
+
+  final PreferredSizeWidget appBar;
+
+  @override
+  Size get preferredSize => appBar.preferredSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return SheetDraggable(child: appBar);
   }
 }
 
