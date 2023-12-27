@@ -32,8 +32,8 @@ class SheetContentScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = this.backgroundColor ??
-        Theme.of(context).colorScheme.secondaryContainer;
+    final backgroundColor =
+        this.backgroundColor ?? Theme.of(context).colorScheme.surface;
 
     final appBar = this.appBar != null && appbarDraggable
         ? _AppBarDraggable(appBar: this.appBar!)
