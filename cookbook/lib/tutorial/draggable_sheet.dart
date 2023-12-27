@@ -44,7 +44,7 @@ class _MySheet extends StatelessWidget {
 
     // Then, wrap the content in DraggableSheet.
     // Note that DraggableSheet does not work with scrollable widgets.
-    // If you want to use a scrollable widget as content,
+    // If you want to use a scrollable widget as its content,
     // use ScrollableSheet instead.
     return DraggableSheet(
       child: buildSheetBackground(context, content),
