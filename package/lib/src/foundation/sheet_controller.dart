@@ -1,17 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 
 class SheetController extends ChangeNotifier
-    implements ValueListenable<double> {
+    implements ValueListenable<double?> {
   SheetExtent? _client;
 
   @override
-  double get value {
-    assert(_client != null && _client!.hasPixels);
-    return _client!.pixels!;
-  }
+  double? get value => _client?.pixels;
 
   SheetMetrics? get metrics {
     return _client?.hasPixels == true ? _client!.metrics : null;
@@ -63,6 +61,7 @@ class SheetController extends ChangeNotifier
   }
 }
 
+@internal
 class SheetControllerScope extends InheritedWidget {
   const SheetControllerScope({
     super.key,
@@ -85,5 +84,49 @@ class SheetControllerScope extends InheritedWidget {
   @override
   bool updateShouldNotify(SheetControllerScope oldWidget) {
     return controller != oldWidget.controller;
+  }
+}
+
+class DefaultSheetController extends StatefulWidget {
+  const DefaultSheetController({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  State<DefaultSheetController> createState() => _DefaultSheetControllerState();
+
+  static SheetController of(BuildContext context) {
+    return SheetControllerScope.of(context);
+  }
+
+  static SheetController? maybeOf(BuildContext context) {
+    return SheetControllerScope.maybeOf(context);
+  }
+}
+
+class _DefaultSheetControllerState extends State<DefaultSheetController> {
+  late final SheetController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = SheetController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SheetControllerScope(
+      controller: _controller,
+      child: widget.child,
+    );
   }
 }

@@ -1,10 +1,11 @@
 export 'src/draggable/draggable_sheet.dart';
 export 'src/draggable/sheet_draggable.dart';
+export 'src/foundation/animation.dart';
 export 'src/foundation/framework.dart';
 export 'src/foundation/modal_sheet.dart';
 export 'src/foundation/sheet_activity.dart';
 export 'src/foundation/sheet_content_scaffold.dart';
-export 'src/foundation/sheet_controller.dart';
+export 'src/foundation/sheet_controller.dart' hide SheetControllerScope;
 export 'src/foundation/sheet_extent.dart'
     hide
         // TODO: Export these classes when they are ready.
