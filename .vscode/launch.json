@@ -54,13 +54,6 @@
       "cwd": "./cookbook"
     },
     {
-      "name": "Modal Sheet",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/tutorial/modal_sheet.dart",
-      "cwd": "./cookbook"
-    },
-    {
       "name": "Sheet Content Scaffold",
       "request": "launch",
       "type": "dart",
