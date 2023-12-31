@@ -73,6 +73,13 @@
       "type": "dart",
       "program": "lib/tutorial/sheet_controller.dart",
       "cwd": "./cookbook"
-    }
+    },
+    {
+      "name": "Declarative Modal Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/declarative_modal_sheet.dart",
+      "cwd": "./cookbook"
+    },
   ]
 }
