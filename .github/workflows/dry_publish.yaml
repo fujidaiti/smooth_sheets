@@ -1,6 +1,5 @@
-name: Validation
+name: Dry Publish
 on:
-  pull_request:
   push:
     branches: [main]
 
@@ -8,8 +7,8 @@ env:
   package_dir: ./package
 
 jobs:
-  validation:
-    name: Validation
+  dry-publish:
+    name: Dry Publish
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,11 +19,10 @@ jobs:
         with:
           channel: "stable"
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
         working-directory: ${{ env.package_dir }}
 
-      - uses: axel-op/dart-package-analyzer@v3
+      - uses: axel-op/dart-package-analyzer@master
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
@@ -33,8 +31,10 @@ jobs:
       - uses: fujidaiti/dart-package-inspector@v1
         with:
           report: ${{ steps.analysis.outputs.json_output }}
-          min-pub-points: 130
+          min-convention-points: 30
+          min-platform-points: 20
+          min-analysis-points: 50
+          min-dependency-points: 20
           supported-platforms: ios, android
 
-      - name: Dry publish
-        run: flutter pub publish --dry-run
+      - run: flutter pub publish --dry-run
