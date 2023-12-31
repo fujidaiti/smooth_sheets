@@ -34,6 +34,9 @@ final router = GoRouter(
         GoRoute(
           path: '/a',
           pageBuilder: (context, state) {
+            // Use DraggableNavigationSheetPage for a draggable page.
+            // If the page contains scrollable widget(s), consider using
+            // ScrollableNavigationSheetPage instead.
             return DraggableNavigationSheetPage(
               key: state.pageKey,
               child: const _ExampleSheetContent(

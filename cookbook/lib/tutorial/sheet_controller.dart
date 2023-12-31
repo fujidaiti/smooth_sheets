@@ -46,6 +46,8 @@ class _ExampleHomeState extends State<_ExampleHome> {
           SafeArea(
             child: Align(
               alignment: Alignment.topCenter,
+              // Like ScrollController for scrollable widgets,
+              // SheetController can be used to observe changes in the sheet extent.
               child: ValueListenableBuilder(
                 valueListenable: controller,
                 builder: (context, value, child) {
@@ -67,6 +69,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         child: const Icon(Icons.arrow_downward_rounded),
         onPressed: () {
+          // SheetController can also be used to animate the sheet extent.
           controller.animateTo(const Extent.proportional(0.5));
         },
       ),
