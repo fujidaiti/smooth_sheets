@@ -14,13 +14,13 @@ class SheetContentScaffold extends StatelessWidget {
     this.extendBodyBehindAppBar = false,
     this.appbarDraggable = true,
     this.backgroundColor,
-    this.requiredMinExtentForBottomBar = const Extent.pixels(0),
+    this.requiredMinExtentForStickyBottomBar = const Extent.pixels(0),
     this.appBar,
     required this.body,
     this.bottomBar,
   });
 
-  final Extent requiredMinExtentForBottomBar;
+  final Extent requiredMinExtentForStickyBottomBar;
   final bool primary;
   final bool extendBody;
   final bool extendBodyBehindAppBar;
@@ -43,7 +43,7 @@ class SheetContentScaffold extends StatelessWidget {
     if (this.bottomBar != null) {
       bottomBar = _PersistentBottomBar(
         extent: SheetExtentScope.of(context),
-        requiredMinExtent: requiredMinExtentForBottomBar,
+        requiredMinExtent: requiredMinExtentForStickyBottomBar,
         child: this.bottomBar,
       );
     }
