@@ -75,6 +75,13 @@
       "cwd": "./cookbook"
     },
     {
+      "name": "Sheet Draggable",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/sheet_draggable.dart",
+      "cwd": "./cookbook"
+    },
+    {
       "name": "Declarative Modal Sheet",
       "request": "launch",
       "type": "dart",
