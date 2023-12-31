@@ -81,5 +81,12 @@
       "program": "lib/tutorial/declarative_modal_sheet.dart",
       "cwd": "./cookbook"
     },
+    {
+      "name": "Imperative Modal Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/imperative_modal_sheet.dart",
+      "cwd": "./cookbook"
+    }
   ]
 }
