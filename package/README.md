@@ -10,7 +10,7 @@
 
 - **Supports nested navigation**: A sheet is able to have multiple pages and to navigate between the pages with motion animation for transitions.
 
-- **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packges like go_route as well.
+- **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packages like go_route as well.
 
 - **Highly flexible**: Not restricted to a specific design. Both modal and persistent styles are supported, as well as scrollable and non-scrollable widgets.
 
@@ -27,7 +27,7 @@
       <p>Used components:</p>
       <ul>
         <li>NavigationSheet</li>
-        <li>ModalSheetRoute</li>
+        <li>ModalSheetPage</li>
         <li>SheetContentScaffold</li>
         <li>SheetPhysics</li>
       </ul>
@@ -36,7 +36,7 @@
   <tr>
     <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/5fd398dd-aa5d-4f7f-ac33-bf00355f7d1e"/></td>
     <td>
-      <h3>Airbmb mobile app clone</h3>
+      <h3>Airbnb mobile app clone</h3>
       <p>A partial clone of  the Airbnb mobile app. The user can drag the house list down to reveal the map behind it. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/airbnb_mobile_app.dart">the cookbook</a> for more details.</p>
       <p>Used components:</p>
       <ul>
@@ -54,7 +54,7 @@
 
 ## Why use this?
 
-There are few packages on pub.dev that supports nested navigation with motion animation for page transitions. One of the great choices for this usecase is [wolt_modal_sheet](https://github.com/woltapp/wolt_modal_sheet), which this package is inspired by. Althought smooth_sheet has similar features with wolt_modal_sheet, it does not intended to be a replacement of that package. Here is some differences between those 2 packages:
+There are few packages on pub.dev that supports nested navigation with motion animation for page transitions. One of the great choices for this usecase is [wolt_modal_sheet](https://github.com/woltapp/wolt_modal_sheet), which this package is inspired by. Although smooth_sheet has similar features with wolt_modal_sheet, it does not intended to be a replacement of that package. Here is some differences between those 2 packages:
 
 |                        |                       wolt_modal_sheet                       |                        smooth_sheets                         |
 | :--------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
@@ -78,105 +78,157 @@ Several resources are available for learning the functionalities of this package
 
 ## Ingredients
 
-This section provides descriptions for each core component and links to related resources for futher learning.
+This section provides descriptions for each core component and links to related resources for further learning.
+
+<br/>
+
+## Extent
+
+Extent represents the visible height of the sheet. It is used in a variety of situations, for example, to specify how much area of a sheet is initially visible at first build, or to limit the range of sheet dragging.
+
+<br/>
 
 ### DraggableSheet
 
-<table>
-  <tr>
-    <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/58890f44-65f1-4b22-b723-2a960a572324"/></td>
-    <td>
-      <p>A sheet that can be draggaed.</p>
-      <p>See also:</p>
-      <ul>
-        <li><a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/draggable_sheet.dart">draggable_sheet.dart</a>: A tutorial code</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
-### ScrollableSheet
-
-<table>
-  <tr>
-    <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/b022cd48-6473-47c9-bd89-285a094637c3"/></td>
-    <td>
-      <p>A sheet that can be draggaed.</p>
-      <p>See also:</p>
-      <ul>
-        <li><a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/scrollable_sheet.dart">scrollable_sheet.dart</a>: A tutorial code</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
-### NavigationSheet
-<table>
-  <tr>
-    <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/d2b0c338-f158-4284-96fa-4620d0d04e9d"/></td>
-    <td>
-      <p>A sheet that can be draggaed.</p>
-      <p>See also:</p>
-      <ul>
-        <li><a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_navigation_sheet.dart">declarative_navigation_sheet.dart</a>: A tutorial of integration with Navigator 2.0 using <a herf="https://pub.dev/packages/go_router">go_router</a> package</li>
-        <li><a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_navigation_sheet.dart">imperative_navigation_sheet.dart</a>: A tutorial of integration with imperative Navigator API</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
-### ModalSheetRoute
-
 <div align="center">
-  <video width="200" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/36343f1b-e7d4-4608-8a75-6feb9ec74fa5"/>
+  <video width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/58890f44-65f1-4b22-b723-2a960a572324"/>
 </div>
+
+A sheet that can be dragged. The height will be equal to the content. The behavior of the sheet when over-dragged or under-dragged is determined by [SheetPhysics](#sheetphysics). Note that this widget does not work with scrollable widgets. Instead, use [ScrollableSheet](#scrollablesheet) for this usecase.
+
+
 
 See also:
 
-- [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_modal_sheet.dart): A tutorial of integration with Navigator 2.0 using [go_router](https://pub.dev/packages/go_router) package
+- [draggable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/draggable_sheet.dart): A tutorial code
+
+<br/>
+
+### ScrollableSheet
+
+<div align="center">
+  <video width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/b022cd48-6473-47c9-bd89-285a094637c3"/>
+</div>
+
+A sheet that is similar to [DraggableSheet](#draggablesheet), but specifically designed to be integrated with scrollable widgets. It will begin to be dragged when the content is over-scrolled or under-scrolled.
+
+
+
+See also:
+
+- [scrollable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/scrollable_sheet.dart): A tutorial code
+
+<br/>
+
+### NavigationSheet
+
+<div align="center">
+  <video width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/d2b0c338-f158-4284-96fa-4620d0d04e9d"/>
+</div>
+
+A sheet that is able to have multiple pages and performs graceful motion animation when page transitions. It supports both of imperative Navigator API such as `Navigator.push`, and declarative API (Navigator 2.0). 
+
+
+
+See also:
+
+- [declarative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_navigation_sheet.dart): A tutorial of integration with Navigator 2.0 using [go_router](https://pub.dev/packages/go_router) package
+- [imperative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_navigation_sheet.dart): A tutorial of integration with imperative Navigator API
+
+<br/>
+
+### ModalSheets
+
+<div align="center">
+  <video width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/36343f1b-e7d4-4608-8a75-6feb9ec74fa5"/>
+</div>
+
+A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. A modal sheet offers the *pull-to-dismiss* action; the user can dismiss the sheet by swiping it down.
+
+
+
+See also:
+
+- [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_modal_sheet.dart): A tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package
 - [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_modal_sheet.dart): A tutorial of integration with imperative Navigator API
+
+<br/>
 
 ### SheetPhysics
 
 <div align="center">
-  <video width="200" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/6e6ea314-c973-4d54-aa87-dc8a4e71238f"/>
+  <video width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/6e6ea314-c973-4d54-aa87-dc8a4e71238f"/>
 </div>
+
+A physics determines how the sheet will behave when over-dragged or under-dragged, or when the user stops dragging. There are 3 predefined physics:
+
+- ClampingSheetPhysics: Prevents the sheet from reaching beyond the draggable bounds
+- StretchingSheetPhysics: Allows the sheet to go beyond the draggable bounds, but then bounce the sheet back to the edge of those bounds
+- SnappingSheetPhysics: Automatically snaps the sheet to a certain extent when the user stops dragging
+
+These physics can be combined with to create more complex behavior (e.g. stretching behavior + snapping behavior).
+
+
 
 See also:
 
 - [sheet_physics.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_physics.dart): A tutorial code
 
+<br/>
+
 ### SheetController
 
 <div align="center">
-  <video width="200" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/3baa1180-ad0c-4b07-bca7-5f3a1a559191"/>
+  <video width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/3baa1180-ad0c-4b07-bca7-5f3a1a559191"/>
 </div>
+
+Like [ScrollController](https://api.flutter.dev/flutter/widgets/ScrollController-class.html) for scrollable widget, the SheetController can be used to animate or observe the extent of a sheet.
+
+
 
 See also:
 
 - [sheet_controller.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_controller.dart): A tutorial code
 
+<br/>
+
 ### SheetContentScaffold
 
 <div align="center">
-  <video width="200" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/a5e3f531-fbf2-4b5a-a79d-89a2fef8ecf7"/>
+  <video width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/a5e3f531-fbf2-4b5a-a79d-89a2fef8ecf7"/>
 </div>
+
+A special kind of [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html) designed for use in a sheet. It has slots for an app bar and a sticky bottom bar, similar to Scaffold. However, it differs in that its height reduces to fit the content widget.
+
+
 
 See also:
 
 - [sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_content_scaffold.dart): A tutorial code
 
+<br/>
+
 ### SheetDraggable
 
 <div align="center">
-  <video width="200" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/809ffb44-f7a1-4dcf-bd03-8759879cc0c5"/>
+  <video width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/809ffb44-f7a1-4dcf-bd03-8759879cc0c5"/>
 </div>
+SheetDraggable enables its child widget to act as a drag handle for the sheet. Typically, you will want to use this widget when placing non-scrollable widget(s) in a [ScrollableSheet](#scrollablesheet), since it only works with scrollable widgets, so you can't drag the sheet by touching a non-scrollable area. Try removing SheetDraggable and you will see that the drag handle doesn't work as it should.
+Note that SheetDraggable is not needed when using DraggableSheet since it implicitly wraps the child widget with SheetDraggable.
+
+
 
 See also:
 
 - [sheet_draggable.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_draggable.dart): A tutorial code
 
+<br/>
+
 ### ExtentDrivenAnimation
+
+It is easy to create sheet extent driven animations by using ExtentDrivenAnimation, a special kind of [Animation](https://api.flutter.dev/flutter/animation/Animation-class.html) whose value changes from 0 to 1 as the sheet extent changes from 'startExtent' to 'endExtent'.
+
+
 
 See also:
 
@@ -193,6 +245,12 @@ See also:
 - [ ] feat: Provide a way to interrupt a modal route popping
 - [ ] feat: Support shared appbars in NavigationSheet
 - [ ] feat: Dispatch a [Notification](https://api.flutter.dev/flutter/widgets/Notification-class.html) when the sheet extent changes
+
+<br/>
+
+## Questions
+
+If you have any questions, feel free to ask them on [the discussions page](https://github.com/fujidaiti/smooth_sheets/discussions).
 
 <br/>
 
