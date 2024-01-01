@@ -20,7 +20,7 @@
 
 <table>
   <tr>
-    <td width="300"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/5fd398dd-aa5d-4f7f-ac33-bf00355f7d1e"/></td>
+    <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/5fd398dd-aa5d-4f7f-ac33-bf00355f7d1e"/></td>
     <td>
       <h3>AI Playlist Generator</h3>
       <p>An AI assistant that helps create a music playlist based on the user's preferences. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/ai_playlist_generator.dart">the cookbook</a> for more details.</p>
@@ -34,7 +34,7 @@
     </td>
   </tr>
   <tr>
-    <td width="300"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/851d9efb-c1fd-4dd1-b4e5-2cacc385dc7e"/></td>
+    <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/5fd398dd-aa5d-4f7f-ac33-bf00355f7d1e"/></td>
     <td>
       <h3>Airbmb mobile app clone</h3>
       <p>A partial clone of  the Airbnb mobile app. The user can drag the house list down to reveal the map behind it. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/airbnb_mobile_app.dart">the cookbook</a> for more details.</p>
@@ -82,34 +82,48 @@ This section provides descriptions for each core component and links to related 
 
 ### DraggableSheet
 
-<div align="center">
-  <video width="200" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/58890f44-65f1-4b22-b723-2a960a572324"/>
-</div>
-
-See also:
-
-- [draggable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/draggable_sheet.dart): A tutorial code
+<table>
+  <tr>
+    <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/58890f44-65f1-4b22-b723-2a960a572324"/></td>
+    <td>
+      <p>A sheet that can be draggaed.</p>
+      <p>See also:</p>
+      <ul>
+        <li><a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/draggable_sheet.dart">draggable_sheet.dart</a>: A tutorial code</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 ### ScrollableSheet
 
-<div align="center">
-  <video width="200" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/b022cd48-6473-47c9-bd89-285a094637c3"/>
-</div>
-
-See also:
-
-- [scrollable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/scrollable_sheet.dart): A tutorial code
+<table>
+  <tr>
+    <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/b022cd48-6473-47c9-bd89-285a094637c3"/></td>
+    <td>
+      <p>A sheet that can be draggaed.</p>
+      <p>See also:</p>
+      <ul>
+        <li><a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/scrollable_sheet.dart">scrollable_sheet.dart</a>: A tutorial code</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 ### NavigationSheet
-
-<div align="center">
-  <video width="200" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/d2b0c338-f158-4284-96fa-4620d0d04e9d"/>
-</div>
-
-See also:
-
-- [declarative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_navigation_sheet.dart): A tutorial of integration with Navigator 2.0 using [go_router](https://pub.dev/packages/go_router) package
-- [imperative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_navigation_sheet.dart): A tutorial of integration with imperative Navigator API
+<table>
+  <tr>
+    <td width="30%"><video src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/d2b0c338-f158-4284-96fa-4620d0d04e9d"/></td>
+    <td>
+      <p>A sheet that can be draggaed.</p>
+      <p>See also:</p>
+      <ul>
+        <li><a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_navigation_sheet.dart">declarative_navigation_sheet.dart</a>: A tutorial of integration with Navigator 2.0 using <a herf="https://pub.dev/packages/go_router">go_router</a> package</li>
+        <li><a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_navigation_sheet.dart">imperative_navigation_sheet.dart</a>: A tutorial of integration with imperative Navigator API</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 ### ModalSheetRoute
 
