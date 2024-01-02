@@ -11,10 +11,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install cargo-make
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --debug cargo-make
+        uses: taiki-e/install-action@cargo-make
 
       - name: Install Flutter SDK
         uses: subosito/flutter-action@v2
@@ -26,7 +23,4 @@ jobs:
         run: flutter --version
 
       - name: Run task 'check-all'
-        uses: actions-rs/cargo@v1
-        with:
-          command: make
-          args: check-all
+        run: cargo make check-all
