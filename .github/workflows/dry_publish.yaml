@@ -3,13 +3,16 @@ on:
   push:
     branches: [main]
 
+env:
+  package_dir: ./package
+
 jobs:
   dry-publish:
     name: Dry Publish
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: package
+        working-directory: ${{ env.package_dir }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,6 +30,7 @@ jobs:
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: ${{ env.package_dir }}
 
       - uses: fujidaiti/dart-package-inspector@v1
         with:
