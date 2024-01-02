@@ -3,13 +3,13 @@ on:
   push:
     branches: [main]
 
-env:
-  package_dir: ./package
-
 jobs:
   dry-publish:
     name: Dry Publish
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: package
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -20,17 +20,13 @@ jobs:
           channel: stable
           flutter-version: 3.x
 
-      - name: Flutter version
-        run: flutter --version
-
+      - run: flutter --version
       - run: flutter pub get
-        working-directory: ${{ env.package_dir }}
 
       - uses: axel-op/dart-package-analyzer@master
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: ${{ env.package_dir }}
 
       - uses: fujidaiti/dart-package-inspector@v1
         with:
