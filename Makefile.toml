@@ -3,8 +3,18 @@ skip_core_tasks = true
 
 [tasks.flutter-build]
 script = '''
+flutter clean
 flutter pub get
 '''
+
+[tasks.flutter-analyze]
+script = '''
+dart format . -o none --set-exit-if-changed
+dart analyze
+'''
+
+[tasks.flutter-check]
+run_task = { name = ['flutter-build', 'flutter-analyze'] }
 
 [tasks.build-all]
 script_runner = "@duckscript"
@@ -13,4 +23,13 @@ cd ./package
 cm_run_task flutter-build
 cd ../cookbook
 cm_run_task flutter-build
+'''
+
+[tasks.check-all]
+script_runner = "@duckscript"
+script = '''
+cd ./package
+cm_run_task flutter-check
+cd ../cookbook
+cm_run_task flutter-check
 '''
