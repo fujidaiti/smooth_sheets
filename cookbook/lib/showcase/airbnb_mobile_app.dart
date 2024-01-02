@@ -38,11 +38,11 @@ class _Home extends StatelessWidget {
     final systemUiInsets = MediaQuery.of(context).padding;
 
     final result = Scaffold(
-      // Enable this flag since we want the sheet handle to be drawn
-      // behind the tab bar when the sheet is fully expanded.
-      extendBody: true,
       // Enable this flag since the navigation bar
       // will be hidden when the sheet is dragged down.
+      extendBody: true,
+      // Enable this flag since we want the sheet handle to be drawn
+      // behind the tab bar when the sheet is fully expanded.
       extendBodyBehindAppBar: true,
       appBar: const _AppBar(),
       body: Stack(
