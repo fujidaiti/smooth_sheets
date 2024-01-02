@@ -8,3 +8,4 @@ linter:
     avoid_redundant_argument_values: false
     require_trailing_commas: false
     prefer_int_literals: false
+    flutter_style_todos: false
