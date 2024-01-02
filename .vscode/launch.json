@@ -87,6 +87,13 @@
       "type": "dart",
       "program": "lib/tutorial/imperative_modal_sheet.dart",
       "cwd": "./cookbook"
+    },
+    {
+      "name": "Extent Driven Animation",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/extent_driven_animation.dart",
+      "cwd": "./cookbook"
     }
   ]
 }
