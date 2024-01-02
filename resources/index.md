@@ -1,35 +1,12 @@
-<!-- cookbook-ai-playlist-generator.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/5fd398dd-aa5d-4f7f-ac33-bf00355f7d1e
-
-<!-- cookbook-airbnb.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/851d9efb-c1fd-4dd1-b4e5-2cacc385dc7e
-
-<!-- cookbook-sheet-physics.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/6e6ea314-c973-4d54-aa87-dc8a4e71238f
-
-<!-- cookbook-sheet-draggable.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/809ffb44-f7a1-4dcf-bd03-8759879cc0c5
-
-<!-- cookbook-sheet-controller.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/3baa1180-ad0c-4b07-bca7-5f3a1a559191
-
-<!-- cookbook-sheet-content-scaffold.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/a5e3f531-fbf2-4b5a-a79d-89a2fef8ecf7
-
-<!-- cookbook-scrollable-sheet.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/b022cd48-6473-47c9-bd89-285a094637c3
-
-<!-- cookbook-imperative-navigation-sheet.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/d2b0c338-f158-4284-96fa-4620d0d04e9d
-
-<!-- cookbook-imperative-navigation-sheet.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/13378fb0-d3cc-4060-8fd1-becd8e932d6b
-
-<!--  cookbook-draggable-sheet.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/58890f44-65f1-4b22-b723-2a960a572324
-
-<!-- cookbook-declarative-navigation-sheet.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/baba39d1-b5be-4cef-b7c0-7785b89a4792
-
-<!-- cookbook-declarative-modal-sheet.mp4 -->
-https://github.com/fujidaiti/smooth_sheets/assets/68946713/36343f1b-e7d4-4608-8a75-6feb9ec74fa5
+![cookbook-ai-playlist-generator](https://github.com/fujidaiti/smooth_sheets/assets/68946713/f34ad8f7-2435-4bed-adbf-2d61c659c803)
+![cookbook-sheet-physics](https://github.com/fujidaiti/smooth_sheets/assets/68946713/e08e3f58-cc98-4858-8b76-6e84a7e9e416)
+![cookbook-sheet-draggable](https://github.com/fujidaiti/smooth_sheets/assets/68946713/aacc7b27-3d6f-4314-8672-d6f99fafabed)
+![cookbook-sheet-controller](https://github.com/fujidaiti/smooth_sheets/assets/68946713/40f3fba5-9fec-40e8-a5cf-8f0312b57288)
+![cookbook-sheet-content-scaffold](https://github.com/fujidaiti/smooth_sheets/assets/68946713/52a0de82-b85c-4b2f-b10a-eb882b849900)
+![cookbook-scrollable-sheet](https://github.com/fujidaiti/smooth_sheets/assets/68946713/28cf4760-de78-425b-a64e-c2ac6fb6817c)
+![cookbook-imperative-navigation-sheet](https://github.com/fujidaiti/smooth_sheets/assets/68946713/2f56696c-5086-4235-88a8-a2ce60cd8637)
+![cookbook-imerative-modal-sheet](https://github.com/fujidaiti/smooth_sheets/assets/68946713/47e7c7a8-cf1a-451c-bc6b-b0fcb3fbf4aa)
+![cookbook-draggable-sheet](https://github.com/fujidaiti/smooth_sheets/assets/68946713/51c483a0-5d1d-49d1-bff1-0051d1d3d937)
+![cookbook-declerative-modal-sheet](https://github.com/fujidaiti/smooth_sheets/assets/68946713/67128764-e809-4bff-ae2d-b0884928a2da)
+![cookbook-declarative-navigation-sheet](https://github.com/fujidaiti/smooth_sheets/assets/68946713/3367d3bc-a895-42be-8154-2f6fc83b30b5)
+![cookbook-airbnb-mobile-app](https://github.com/fujidaiti/smooth_sheets/assets/68946713/1fb3f047-c993-42be-9a7e-b3efc89be635)
