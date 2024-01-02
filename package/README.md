@@ -173,7 +173,7 @@ A physics determines how the sheet will behave when over-dragged or under-dragge
 - StretchingSheetPhysics: Allows the sheet to go beyond the draggable bounds, but then bounce the sheet back to the edge of those bounds
 - SnappingSheetPhysics: Automatically snaps the sheet to a certain extent when the user stops dragging
 
-These physics can be combined with to create more complex behavior (e.g. stretching behavior + snapping behavior).
+These physics can be combined to create more complex behavior (e.g. stretching behavior + snapping behavior).
 
 
 
