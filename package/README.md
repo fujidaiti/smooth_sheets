@@ -84,7 +84,7 @@ This section provides descriptions for each core component and links to related 
 
 <br/>
 
-## Extent
+### Extent
 
 Extent represents the visible height of the sheet. It is used in a variety of situations, for example, to specify how much area of a sheet is initially visible at first build, or to limit the range of sheet dragging.
 
