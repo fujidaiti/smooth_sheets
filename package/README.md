@@ -255,11 +255,11 @@ See also:
 
 - [ ] doc: Provide documentation
 - [ ] doc: Add more showcases
-
 - [ ] feat: Sheet decoration; a way to place an extra widget above the sheet
 - [ ] feat: Provide a way to interrupt a modal route popping
 - [ ] feat: Support shared appbars in NavigationSheet
 - [ ] feat: Dispatch a [Notification](https://api.flutter.dev/flutter/widgets/Notification-class.html) when the sheet extent changes
+- [ ] feat: Implement modal sheet route adapted for iOS
 
 <br/>
 
