@@ -1,15 +1,36 @@
 import 'package:flutter/widgets.dart';
+import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
 
+/// A widget that makes its child as a drag-handle for a sheet.
+///
+/// Typically, this widget is used when placing non-scrollable widget(s)
+/// in a [ScrollableSheet], since it only works with scrollable widgets,
+/// so you can't drag the sheet by touching a non-scrollable area.
+///
+/// Note that [SheetDraggable] is not needed when using [DraggableSheet]
+/// since it implicitly wraps the child widget with [SheetDraggable].
+///
+/// See also:
+/// - [A tutorial](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_draggable.dart),
+///   in which a [SheetDraggable] is used to create a drag-handle for
+///   a [ScrollableSheet].
 class SheetDraggable extends StatefulWidget {
+  /// Creates a drag-handle for a sheet.
+  ///
+  /// The [behavior] defaults to [HitTestBehavior.translucent].
   const SheetDraggable({
     super.key,
     this.behavior = HitTestBehavior.translucent,
     required this.child,
   });
 
+  /// How to behave during hit testing.
   final HitTestBehavior behavior;
+
+  /// The widget below this widget in the tree.
   final Widget child;
 
   @override
