@@ -1,39 +1,70 @@
 import 'package:flutter/widgets.dart';
+import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
+import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
+import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 
-/// Visible area of the sheet.
+/// A representation of a visible height of the sheet.
+///
+/// It is used in a variety of situations, for example, to specify
+/// how much area of a sheet is initially visible at first build,
+/// or to limit the range of sheet dragging.
+///
+/// See also:
+/// - [ProportionalExtent], which is proportional to the content height.
+/// - [FixedExtent], which is defined by a concrete value in pixels.
 abstract interface class Extent {
+  /// {@macro fixed_extent}
   const factory Extent.pixels(double pixels) = FixedExtent;
+
+  /// {@macro proportional_extent}
   const factory Extent.proportional(double size) = ProportionalExtent;
 
+  /// Resolves the extent to a concrete value in pixels.
+  ///
+  /// Do not cache the value of [contentDimensions] because
+  /// it may change over time.
   double resolve(Size contentDimensions);
 }
 
+/// An extent that is proportional to the content height.
 class ProportionalExtent implements Extent {
-  const ProportionalExtent(this.size) : assert(size >= 0);
+  /// {@template proportional_extent}
+  /// Creates an extent that is proportional to the content height.
+  ///
+  /// The [factor] must be greater than or equal to 0.
+  /// This extent will resolve to `contentDimensions.height * factor`.
+  /// {@endtemplate}
+  const ProportionalExtent(this.factor) : assert(factor >= 0);
 
-  final double size;
+  /// The fraction of the content height.
+  final double factor;
 
   @override
-  double resolve(Size contentDimensions) => contentDimensions.height * size;
+  double resolve(Size contentDimensions) => contentDimensions.height * factor;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProportionalExtent &&
           runtimeType == other.runtimeType &&
-          size == other.size);
+          factor == other.factor);
 
   @override
-  int get hashCode => Object.hash(runtimeType, size);
+  int get hashCode => Object.hash(runtimeType, factor);
 }
 
+/// An extent that has an concrete value in pixels.
 class FixedExtent implements Extent {
+  /// {@template fixed_extent}
+  /// Creates an extent from a concrete value in pixels.
+  /// {@endtemplate}
   const FixedExtent(this.pixels) : assert(pixels >= 0);
 
+  /// The value in pixels.
   final double pixels;
 
   @override
@@ -50,8 +81,33 @@ class FixedExtent implements Extent {
   int get hashCode => Object.hash(runtimeType, pixels);
 }
 
-// TODO: Mention in the documentation that this notifier may notify the listeners during build or layout phase.
+/// Manages the extent of a sheet.
+///
+/// This object is much like [ScrollPosition] for scrollable widgets.
+/// The [pixels] value determines the visible height of a sheet. As this value
+/// changes, the sheet translates its position, which changes the visible area
+/// of the content. The [minPixels] and [maxPixels] values limit the range of
+/// the [pixels], but it can be outside of the range if the [physics] allows it.
+///
+/// The current [activity] is responsible for how the [pixels] changes
+/// over time, for example, [DrivenSheetActivity] animates the [pixels] to
+/// a target value, and [IdleSheetActivity] keeps the [pixels] unchanged.
+/// [SheetExtent] starts with [IdleSheetActivity] as the initial activity,
+/// and it can be changed by calling [beginActivity].
+///
+/// This object is [Listenable] that notifies its listeners when [pixels]
+/// changes, even during build or layout phase. For listeners that can cause
+/// any widget to rebuild, consider using [SheetController], which is also
+/// [Listenable] of the extent, but only notifies its listeners between frames.
+///
+/// See also:
+/// - [DraggableSheetExtent], which is a sheet extent for [DraggableSheet].
+/// - [ScrollableSheetExtent], which is a sheet extent for [ScrollableSheet].
+/// - [SheetController], which can be attached to a sheet to control its extent.
+/// - [SheetExtentScope], which creates a [SheetExtent], manages its lifecycle,
+///   and exposes it to the descendant widgets.
 abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
+  /// Creates an object that manages the extent of a sheet.
   SheetExtent({
     required this.context,
     required this.physics,
@@ -63,8 +119,21 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   }
 
   final SheetContext context;
+
+  /// How the sheet extent should respond to user input.
+  ///
+  /// This determines how the sheet will behave when over-dragged or
+  /// under-dragged, or when the user stops dragging.
   final SheetPhysics physics;
+
+  /// The minimum extent of the sheet.
+  ///
+  /// The sheet may below this extent if the [physics] allows it.
   final Extent minExtent;
+
+  /// The maximum extent of the sheet.
+  ///
+  /// The sheet may exceed this extent if the [physics] allows it.
   final Extent maxExtent;
 
   SheetActivity? _activity;
@@ -76,6 +145,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   late final _SheetMetricsRef _metrics;
   SheetMetrics get metrics => _metrics;
 
+  /// A snapshot of the current metrics.
   SheetMetricsSnapshot get snapshot {
     assert(hasPixels);
     return SheetMetricsSnapshot.from(metrics);
@@ -96,6 +166,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   @override
   ViewportDimensions? get viewportDimensions => _viewportDimensions;
 
+  /// The current activity of the sheet.
   SheetActivity get activity => _activity!;
 
   void _invalidateBoundaryConditions() {
@@ -249,6 +320,11 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     super.dispose();
   }
 
+  /// Animates the extent to the given value.
+  ///
+  /// The returned future completes when the animation ends,
+  /// whether it completed successfully or whether it was
+  /// interrupted prematurely.
   Future<void> animateTo(
     Extent newExtent, {
     Curve curve = Curves.easeInOut,
@@ -302,9 +378,16 @@ class ViewportDimensions {
 }
 
 mixin MaybeSheetMetrics {
+  /// The current extent of the sheet.
   double? get pixels;
+
+  /// The minimum extent of the sheet.
   double? get minPixels;
+
+  /// The maximum extent of the sheet.
   double? get maxPixels;
+
+  /// The dimensions of the sheet's content.
   Size? get contentDimensions;
   ViewportDimensions? get viewportDimensions;
 
@@ -325,6 +408,10 @@ mixin MaybeSheetMetrics {
         _ => null,
       };
 
+  /// Whether the all metrics are available.
+  ///
+  /// Returns `true` if all of [pixels], [minPixels], [maxPixels],
+  /// [contentDimensions] and [viewportDimensions] are not `null`.
   bool get hasPixels =>
       pixels != null &&
       minPixels != null &&
@@ -494,7 +581,10 @@ abstract class SheetExtentFactory {
   SheetExtent create({required SheetContext context});
 }
 
+/// A widget that creates a [SheetExtent], manages its lifecycle,
+/// and exposes it to the descendant widgets.
 class SheetExtentScope extends StatefulWidget {
+  /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
     required this.factory,
@@ -503,14 +593,34 @@ class SheetExtentScope extends StatefulWidget {
     required this.child,
   });
 
+  /// The [SheetController] that will be attached to the created [SheetExtent].
   final SheetController? controller;
+
+  /// The factory that creates the [SheetExtent].
+  ///
+  /// The [SheetExtentScope] will recreate the [SheetExtent] whenever
+  /// it is rebuilt with a [factory] that is not identical to the previous one.
   final SheetExtentFactory factory;
+
+  /// Called whenever the [SheetExtent] changes.
+  ///
+  /// This callback will be called in lifecycle methods such as
+  /// [State.initState], [State.didUpdateWidget] or [State.dispose].
+  /// The passed [SheetExtent] will be `null` when it is called
+  /// in [State.dispose].
   final ValueChanged<SheetExtent?>? onExtentChanged;
+
+  /// The widget below this widget in the tree.
   final Widget child;
 
   @override
   State<SheetExtentScope> createState() => _SheetExtentScopeState();
 
+  /// Retrieves the [SheetExtent] from the closest [SheetExtentScope]
+  /// that encloses the given context, if any.
+  ///
+  /// Use of this method will cause the given context to rebuild any time
+  /// that the [factory] property of the ancestor [SheetExtentScope] changes.
   // TODO: Add 'useRoot' option
   static SheetExtent? maybeOf(BuildContext context) {
     return context
@@ -518,6 +628,11 @@ class SheetExtentScope extends StatefulWidget {
         ?.extent;
   }
 
+  /// Retrieves the [SheetExtent] from the closest [SheetExtentScope]
+  /// that encloses the given context.
+  ///
+  /// Use of this method will cause the given context to rebuild any time
+  /// that the [factory] property of the ancestor [SheetExtentScope] changes.
   static SheetExtent of(BuildContext context) {
     return maybeOf(context)!;
   }
