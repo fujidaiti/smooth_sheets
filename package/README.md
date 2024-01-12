@@ -255,6 +255,7 @@ See also:
 
 - [ ] doc: Provide documentation
 - [ ] doc: Add more showcases
+- [ ] doc: Add an example of `NavigationSheet` using [auto_route](https://pub.dev/packages/auto_route)
 - [ ] feat: Sheet decoration; a way to place an extra widget above the sheet
 - [ ] feat: Provide a way to interrupt a modal route popping
 - [ ] feat: Support shared appbars in NavigationSheet
