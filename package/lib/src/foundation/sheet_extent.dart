@@ -337,25 +337,6 @@ abstract class SheetExtentFactory {
   SheetExtent create({required SheetContext context});
 }
 
-sealed class SheetNotification extends Notification {
-  const SheetNotification({required this.metrics});
-
-  final MaybeSheetMetrics metrics;
-}
-
-class SheetExtentUpdateNotification extends SheetNotification {
-  const SheetExtentUpdateNotification({required super.metrics});
-}
-
-class SheetOverflowNotification extends SheetNotification {
-  const SheetOverflowNotification({
-    required super.metrics,
-    required this.overflow,
-  });
-
-  final double overflow;
-}
-
 class SheetExtentScope extends StatefulWidget {
   const SheetExtentScope({
     super.key,
