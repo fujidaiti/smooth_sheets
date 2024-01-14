@@ -15,6 +15,7 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
   const NavigationSheet({
     super.key,
     required this.transitionObserver,
+    this.resizeToAvoidBottomInset = true,
     this.controller,
     required this.child,
   });
@@ -22,6 +23,7 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
   @override
   final NavigationSheetTransitionObserver transitionObserver;
 
+  final bool resizeToAvoidBottomInset;
   final SheetController? controller;
   final Widget child;
 
@@ -92,6 +94,7 @@ class NavigationSheetState extends State<NavigationSheet>
   @override
   Widget build(BuildContext context) {
     return SheetContainer(
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       factory: const _NavigationSheetExtentFactory(),
       controller: widget.controller,
       onExtentChanged: (extent) {

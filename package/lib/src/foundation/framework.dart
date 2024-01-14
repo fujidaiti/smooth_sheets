@@ -9,17 +9,19 @@ class SheetContainer extends StatelessWidget {
     this.controller,
     this.onExtentChanged,
     required this.factory,
+    this.resizeToAvoidBottomInset = true,
     required this.child,
   });
 
   final SheetController? controller;
   final ValueChanged<SheetExtent?>? onExtentChanged;
   final SheetExtentFactory factory;
+  final bool resizeToAvoidBottomInset;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return SheetExtentScope(
+    Widget result = SheetExtentScope(
       factory: factory,
       controller: controller ?? SheetControllerScope.maybeOf(context),
       onExtentChanged: onExtentChanged,
@@ -32,6 +34,17 @@ class SheetContainer extends StatelessWidget {
         },
       ),
     );
+
+    if (resizeToAvoidBottomInset) {
+      result = Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.maybeViewInsetsOf(context)?.bottom ?? 0,
+        ),
+        child: result,
+      );
+    }
+
+    return result;
   }
 }
 

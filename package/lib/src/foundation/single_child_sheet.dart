@@ -30,9 +30,11 @@ abstract class SingleChildSheetExtentFactory extends SheetExtentFactory {
   final SheetPhysics physics;
 }
 
+/// A base class for sheets that have a single content.
 abstract class SingleChildSheet extends StatefulWidget {
   const SingleChildSheet({
     super.key,
+    this.resizeToAvoidBottomInset = true,
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
@@ -43,6 +45,7 @@ abstract class SingleChildSheet extends StatefulWidget {
     required this.child,
   });
 
+  final bool resizeToAvoidBottomInset;
   final Extent initialExtent;
   final Extent minExtent;
   final Extent maxExtent;
@@ -83,6 +86,7 @@ abstract class SingleChildSheetState<T extends SingleChildSheet>
     return SheetContainer(
       factory: factory,
       controller: widget.controller,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       child: buildContent(context),
     );
   }
