@@ -110,7 +110,7 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
   NavigationSheetExtentDelegate get pageExtent;
 }
 
-// TODO: What a ugly face!
+// TODO: What a ugly interface!
 abstract class NavigationSheetExtentDelegate implements Listenable {
   Size? get contentDimensions;
   double? get pixels;
@@ -244,6 +244,7 @@ class _TransitionSheetActivity extends SheetActivity {
     final endPixels = destinationExtent.pixels;
     if (startPixels != null && endPixels != null) {
       setPixels(lerpDouble(startPixels, endPixels, _curvedAnimation.value)!);
+      dispatchUpdateNotification();
     }
   }
 }

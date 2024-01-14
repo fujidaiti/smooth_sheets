@@ -189,7 +189,6 @@ class _ContentScrollDrivenSheetActivity extends SheetActivity
 
     if (pixels! != oldPixels) {
       notifyListeners();
-      dispatchExtentUpdateNotification();
     }
 
     final overflow = delegate.physics.computeOverflow(delta, delegate.metrics);
@@ -212,7 +211,13 @@ class _ContentScrollDrivenSheetActivity extends SheetActivity
       return const DelegationResult.notHandled();
     }
 
+    final oldPixels = pixels!;
     final overscroll = _applyOffset(delta, position);
+
+    if (pixels != oldPixels) {
+      dispatchUpdateNotification();
+    }
+
     if (delegate.physics.shouldGoBallistic(velocity, delegate.metrics)) {
       position.goBallistic(velocity);
     }
@@ -229,7 +234,13 @@ class _ContentScrollDrivenSheetActivity extends SheetActivity
       return const DelegationResult.notHandled();
     }
 
+    final oldPixels = pixels!;
     _applyOffset(-1 * delta, position);
+
+    if (pixels != oldPixels) {
+      dispatchDragUpdateNotification(delta: pixels! - oldPixels);
+    }
+
     return const DelegationResult.handled(null);
   }
 

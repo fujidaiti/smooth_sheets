@@ -239,7 +239,7 @@ mixin SheetMetrics implements MaybeSheetMetrics {
       ).toString();
 }
 
-class SheetMetricsSnapshot with MaybeSheetMetrics {
+class SheetMetricsSnapshot with SheetMetrics {
   const SheetMetricsSnapshot({
     required this.pixels,
     required this.minPixels,
@@ -248,7 +248,7 @@ class SheetMetricsSnapshot with MaybeSheetMetrics {
     required this.viewportDimensions,
   });
 
-  factory SheetMetricsSnapshot.from(MaybeSheetMetrics other) {
+  factory SheetMetricsSnapshot.from(SheetMetrics other) {
     return SheetMetricsSnapshot(
       pixels: other.pixels,
       minPixels: other.minPixels,
@@ -259,19 +259,19 @@ class SheetMetricsSnapshot with MaybeSheetMetrics {
   }
 
   @override
-  final double? pixels;
+  final double pixels;
 
   @override
-  final double? minPixels;
+  final double minPixels;
 
   @override
-  final double? maxPixels;
+  final double maxPixels;
 
   @override
-  final Size? contentDimensions;
+  final Size contentDimensions;
 
   @override
-  final Size? viewportDimensions;
+  final Size viewportDimensions;
 
   @override
   bool operator ==(Object other) {
@@ -335,25 +335,6 @@ abstract class SheetContext {
 abstract class SheetExtentFactory {
   const SheetExtentFactory();
   SheetExtent create({required SheetContext context});
-}
-
-sealed class SheetNotification extends Notification {
-  const SheetNotification({required this.metrics});
-
-  final MaybeSheetMetrics metrics;
-}
-
-class SheetExtentUpdateNotification extends SheetNotification {
-  const SheetExtentUpdateNotification({required super.metrics});
-}
-
-class SheetOverflowNotification extends SheetNotification {
-  const SheetOverflowNotification({
-    required super.metrics,
-    required this.overflow,
-  });
-
-  final double overflow;
 }
 
 class SheetExtentScope extends StatefulWidget {

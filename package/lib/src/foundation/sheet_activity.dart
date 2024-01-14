@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:smooth_sheets/src/foundation/notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 
 abstract class SheetActivity extends ChangeNotifier {
@@ -38,23 +40,52 @@ abstract class SheetActivity extends ChangeNotifier {
     correctPixels(pixels);
     if (_pixels != oldPixels) {
       notifyListeners();
-      dispatchExtentUpdateNotification();
     }
   }
 
-  void dispatchExtentUpdateNotification() {
-    // TODO: Support notifications.
-    // SheetExtentUpdateNotification(
-    //   metrics: SheetMetricsSnapshot.from(delegate),
-    // ).dispatch(delegate.context.notificationContext);
+  void dispatchUpdateNotification() {
+    if (delegate.hasPixels) {
+      dispatchNotification(
+        SheetUpdateNotification(metrics: delegate.snapshot),
+      );
+    }
+  }
+
+  void dispatchDragUpdateNotification({required double delta}) {
+    if (delegate.hasPixels) {
+      dispatchNotification(
+        SheetDragUpdateNotification(
+          metrics: delegate.snapshot,
+          delta: delta,
+        ),
+      );
+    }
   }
 
   void dispatchOverflowNotification(double overflow) {
-    // TODO: Support notifications.
-    // SheetOverflowNotification(
-    //   metrics: SheetMetricsSnapshot.from(delegate),
-    //   overflow: overflow,
-    // ).dispatch(delegate.context.notificationContext);
+    if (delegate.hasPixels) {
+      dispatchNotification(
+        SheetOverflowNotification(
+          metrics: delegate.snapshot,
+          overflow: overflow,
+        ),
+      );
+    }
+  }
+
+  void dispatchNotification(SheetNotification notification) {
+    // Avoid dispatching a notification in the middle of a build.
+    switch (SchedulerBinding.instance.schedulerPhase) {
+      case SchedulerPhase.postFrameCallbacks:
+        notification.dispatch(delegate.context.notificationContext);
+      case SchedulerPhase.idle:
+      case SchedulerPhase.midFrameMicrotasks:
+      case SchedulerPhase.persistentCallbacks:
+      case SchedulerPhase.transientCallbacks:
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          notification.dispatch(delegate.context.notificationContext);
+        });
+    }
   }
 
   void takeOver(SheetActivity other) {
@@ -109,7 +140,13 @@ class DrivenSheetActivity extends SheetActivity {
   }
 
   @protected
-  void onAnimationTick() => setPixels(_animation.value);
+  void onAnimationTick() {
+    final oldPixels = pixels;
+    setPixels(_animation.value);
+    if (pixels != oldPixels) {
+      dispatchUpdateNotification();
+    }
+  }
 
   @protected
   void onAnimationEnd() => delegate.goBallistic(0);
@@ -140,7 +177,11 @@ class BallisticSheetActivity extends SheetActivity {
   }
 
   void onTick() {
+    final oldPixels = pixels;
     setPixels(controller.value);
+    if (pixels != oldPixels) {
+      dispatchUpdateNotification();
+    }
   }
 
   void onEnd() {

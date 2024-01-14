@@ -251,6 +251,31 @@ See also:
 
 <br/>
 
+### SheetNotification
+
+A sheet dispatches a [SheetNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetNotification-class.html) when its extent changes. This can be used to observe the extent of a descendant sheet from an ancestor widget.
+
+```dart
+NotificationListener<SheetNotification>(
+  onNotification: (notification) {
+    debugPrint('$notification');
+    return false;
+  },
+  child: DraggableSheet(...),
+),
+```
+
+
+
+See also:
+
+- [SheetDragUpdateNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetDragUpdateNotification-class.html), which is dispatched when the sheet is dragged by the user.
+- [SheetUpdateNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetUpdateNotification-class.html), which is dispatched when the sheet extent is updated by other than user interaction such as animation.
+- [SheetOverflowNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetOverflowNotification-class.html), which is dispatched when the user tries to drag the sheet beyond its draggable bounds but the sheet has not changed its extent because its [SheetPhysics](#sheetphysics) does not allow it to be.
+- [NotificationListener](https://api.flutter.dev/flutter/widgets/NotificationListener-class.html), which can be used to listen for the notifications in a subtree.
+
+<br/>
+
 ## Roadmap
 
 - [ ] doc: Provide documentation
@@ -259,7 +284,7 @@ See also:
 - [ ] feat: Sheet decoration; a way to place an extra widget above the sheet
 - [ ] feat: Provide a way to interrupt a modal route popping
 - [ ] feat: Support shared appbars in NavigationSheet
-- [ ] feat: Dispatch a [Notification](https://api.flutter.dev/flutter/widgets/Notification-class.html) when the sheet extent changes
+- [x] feat: Dispatch a [Notification](https://api.flutter.dev/flutter/widgets/Notification-class.html) when the sheet extent changes
 - [ ] feat: Implement modal sheet route adapted for iOS
 
 <br/>
