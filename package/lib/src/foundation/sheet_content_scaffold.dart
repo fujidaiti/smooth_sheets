@@ -68,6 +68,7 @@ class SheetContentScaffold extends StatelessWidget {
       primary: primary,
       appBar: appBar,
       bottomNavigationBar: bottomBar,
+      resizeToAvoidBottomInset: false,
       body: SheetContentViewport(
         child: body,
       ),
