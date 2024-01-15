@@ -6,6 +6,7 @@ class DraggableSheet extends SingleChildSheet {
   const DraggableSheet({
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
+    super.keyboardDismissBehavior,
     super.resizeToAvoidBottomInset,
     super.initialExtent,
     super.minExtent,

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/framework.dart';
+import 'package:smooth_sheets/src/foundation/keyboard_dismissible.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
@@ -15,6 +16,7 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
   const NavigationSheet({
     super.key,
     required this.transitionObserver,
+    this.keyboardDismissBehavior,
     this.resizeToAvoidBottomInset = true,
     this.controller,
     required this.child,
@@ -23,6 +25,7 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
   @override
   final NavigationSheetTransitionObserver transitionObserver;
 
+  final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
   final bool resizeToAvoidBottomInset;
   final SheetController? controller;
   final Widget child;
@@ -93,7 +96,7 @@ class NavigationSheetState extends State<NavigationSheet>
 
   @override
   Widget build(BuildContext context) {
-    return SheetContainer(
+    Widget result = SheetContainer(
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       factory: const _NavigationSheetExtentFactory(),
       controller: widget.controller,
@@ -102,6 +105,15 @@ class NavigationSheetState extends State<NavigationSheet>
       },
       child: widget.child,
     );
+
+    if (widget.keyboardDismissBehavior != null) {
+      result = SheetKeyboardDismissible(
+        dismissBehavior: widget.keyboardDismissBehavior!,
+        child: result,
+      );
+    }
+
+    return result;
   }
 }
 

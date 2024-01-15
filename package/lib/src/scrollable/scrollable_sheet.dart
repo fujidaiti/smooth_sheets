@@ -9,6 +9,7 @@ import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 class ScrollableSheet extends SingleChildSheet {
   const ScrollableSheet({
     super.key,
+    super.keyboardDismissBehavior,
     super.resizeToAvoidBottomInset,
     super.initialExtent,
     super.minExtent,
