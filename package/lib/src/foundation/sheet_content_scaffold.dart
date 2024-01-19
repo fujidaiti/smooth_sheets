@@ -41,7 +41,7 @@ class SheetContentScaffold extends StatelessWidget {
 
     var bottomBar = this.bottomBar;
     if (this.bottomBar != null) {
-      bottomBar = _PersistentBottomBar(
+      bottomBar = _StickyBottomBar(
         extent: SheetExtentScope.of(context),
         requiredMinExtent: requiredMinExtentForStickyBottomBar,
         child: this.bottomBar,
@@ -102,8 +102,8 @@ class _AppBarDraggable extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class _PersistentBottomBar extends SingleChildRenderObjectWidget {
-  const _PersistentBottomBar({
+class _StickyBottomBar extends SingleChildRenderObjectWidget {
+  const _StickyBottomBar({
     required super.child,
     required this.extent,
     required this.requiredMinExtent,
@@ -114,7 +114,7 @@ class _PersistentBottomBar extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderPersistentBottomBar(
+    return _RenderStickyBottomBar(
       extent: extent,
       requiredMinExtent: requiredMinExtent,
     );
@@ -123,15 +123,15 @@ class _PersistentBottomBar extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    _RenderPersistentBottomBar renderObject,
+    _RenderStickyBottomBar renderObject,
   ) {
     super.updateRenderObject(context, renderObject);
     renderObject.extent = extent;
   }
 }
 
-class _RenderPersistentBottomBar extends RenderTransform {
-  _RenderPersistentBottomBar({
+class _RenderStickyBottomBar extends RenderTransform {
+  _RenderStickyBottomBar({
     required SheetExtent extent,
     required Extent requiredMinExtent,
   })  : _extent = extent,
