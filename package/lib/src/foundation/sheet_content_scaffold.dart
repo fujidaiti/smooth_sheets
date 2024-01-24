@@ -13,6 +13,7 @@ class SheetContentScaffold extends StatelessWidget {
     this.extendBody = false,
     this.extendBodyBehindAppBar = false,
     this.appbarDraggable = true,
+    this.resizeToAvoidBottomInset = true,
     this.backgroundColor,
     this.requiredMinExtentForStickyBottomBar = const Extent.pixels(0),
     this.appBar,
@@ -25,6 +26,7 @@ class SheetContentScaffold extends StatelessWidget {
   final bool extendBody;
   final bool extendBodyBehindAppBar;
   final bool appbarDraggable;
+  final bool resizeToAvoidBottomInset;
   final Color? backgroundColor;
   final PreferredSizeWidget? appBar;
   final Widget body;
@@ -48,6 +50,10 @@ class SheetContentScaffold extends StatelessWidget {
       );
     }
 
+    final mediaQueryData = MediaQuery.of(context);
+    final viewPadding = mediaQueryData.viewPadding;
+    final viewInsets = mediaQueryData.viewInsets;
+
     var body = this.body;
     final useTopSafeArea = appBar != null && !extendBodyBehindAppBar;
     final useBottomSafeArea = bottomBar != null && !extendBody;
@@ -61,28 +67,37 @@ class SheetContentScaffold extends StatelessWidget {
       );
     }
 
-    Widget result = Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      backgroundColor: backgroundColor,
-      primary: primary,
-      appBar: appBar,
-      bottomNavigationBar: bottomBar,
-      resizeToAvoidBottomInset: false,
-      body: SheetContentViewport(
-        child: body,
-      ),
-    );
-
-    if (!primary) {
-      result = MediaQuery.removePadding(
-        removeTop: true,
-        context: context,
-        child: result,
+    if (resizeToAvoidBottomInset) {
+      body = Padding(
+        padding: EdgeInsets.only(
+          bottom: viewInsets.bottom,
+        ),
+        child: SheetContentViewport(
+          child: body,
+        ),
       );
     }
 
-    return result;
+    return MediaQuery(
+      data: mediaQueryData.copyWith(
+        viewPadding: viewPadding.copyWith(
+          top: primary ? viewPadding.top : 0.0,
+          // Gradually reduce the bottom padding
+          // as the onscreen keyboard slides in.
+          bottom: max(0.0, viewPadding.bottom - viewInsets.bottom),
+        ),
+      ),
+      child: Scaffold(
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        resizeToAvoidBottomInset: false,
+        backgroundColor: backgroundColor,
+        primary: primary,
+        appBar: appBar,
+        body: body,
+        bottomNavigationBar: bottomBar,
+      ),
+    );
   }
 }
 

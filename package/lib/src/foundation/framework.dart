@@ -9,42 +9,30 @@ class SheetContainer extends StatelessWidget {
     this.controller,
     this.onExtentChanged,
     required this.factory,
-    this.resizeToAvoidBottomInset = true,
     required this.child,
   });
 
   final SheetController? controller;
   final ValueChanged<SheetExtent?>? onExtentChanged;
   final SheetExtentFactory factory;
-  final bool resizeToAvoidBottomInset;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    Widget result = SheetExtentScope(
+    return SheetExtentScope(
       factory: factory,
       controller: controller ?? SheetControllerScope.maybeOf(context),
       onExtentChanged: onExtentChanged,
       child: Builder(
         builder: (context) {
           return SheetViewport(
+            bottomViewInset: MediaQuery.viewInsetsOf(context).bottom,
             extent: SheetExtentScope.of(context),
             child: SheetContentViewport(child: child),
           );
         },
       ),
     );
-
-    if (resizeToAvoidBottomInset) {
-      result = Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.maybeViewInsetsOf(context)?.bottom ?? 0,
-        ),
-        child: result,
-      );
-    }
-
-    return result;
   }
 }
 
@@ -52,25 +40,30 @@ class SheetViewport extends SingleChildRenderObjectWidget {
   const SheetViewport({
     super.key,
     required this.extent,
+    required this.bottomViewInset,
     required super.child,
   });
 
   final SheetExtent extent;
+  final double bottomViewInset;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderSheetViewport(extent);
+    return _RenderSheetViewport(extent, bottomViewInset);
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderSheetViewport).extent = extent;
+    (renderObject as _RenderSheetViewport)
+      ..extent = extent
+      ..bottomInset = bottomViewInset;
   }
 }
 
 class _RenderSheetViewport extends RenderTransform {
-  _RenderSheetViewport(SheetExtent extent)
+  _RenderSheetViewport(SheetExtent extent, double bottomInset)
       : _extent = extent,
+        _bottomInset = bottomInset,
         super(transform: Matrix4.zero(), transformHitTests: true) {
     _extent.addListener(_invalidateTranslationValue);
   }
@@ -86,6 +79,15 @@ class _RenderSheetViewport extends RenderTransform {
       _extent.removeListener(_invalidateTranslationValue);
       _extent = value..addListener(_invalidateTranslationValue);
       markNeedsLayout();
+    }
+  }
+
+  double _bottomInset;
+  // ignore: avoid_setters_without_getters
+  set bottomInset(double value) {
+    if (_bottomInset != value) {
+      _bottomInset = value;
+      _invalidateTranslationValue();
     }
   }
 
@@ -124,7 +126,7 @@ class _RenderSheetViewport extends RenderTransform {
     final currentExtent = _extent.pixels;
     final viewportSize = _lastMeasuredSize;
     if (currentExtent != null && viewportSize != null) {
-      final dy = viewportSize.height - currentExtent;
+      final dy = viewportSize.height - _bottomInset - currentExtent;
       // Update the translation value and mark this render object
       // as needing to be repainted.
       transform = Matrix4.translationValues(0, dy, 0);

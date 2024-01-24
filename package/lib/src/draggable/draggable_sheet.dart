@@ -7,7 +7,6 @@ class DraggableSheet extends SingleChildSheet {
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
     super.keyboardDismissBehavior,
-    super.resizeToAvoidBottomInset,
     super.initialExtent,
     super.minExtent,
     super.maxExtent,

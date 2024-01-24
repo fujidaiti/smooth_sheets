@@ -10,7 +10,6 @@ class ScrollableSheet extends SingleChildSheet {
   const ScrollableSheet({
     super.key,
     super.keyboardDismissBehavior,
-    super.resizeToAvoidBottomInset,
     super.initialExtent,
     super.minExtent,
     super.maxExtent,

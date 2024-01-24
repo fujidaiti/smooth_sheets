@@ -36,7 +36,6 @@ abstract class SingleChildSheet extends StatefulWidget {
   const SingleChildSheet({
     super.key,
     this.keyboardDismissBehavior,
-    this.resizeToAvoidBottomInset = true,
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
@@ -48,7 +47,6 @@ abstract class SingleChildSheet extends StatefulWidget {
   });
 
   final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
-  final bool resizeToAvoidBottomInset;
   final Extent initialExtent;
   final Extent minExtent;
   final Extent maxExtent;
@@ -89,7 +87,6 @@ abstract class SingleChildSheetState<T extends SingleChildSheet>
     Widget result = SheetContainer(
       factory: factory,
       controller: widget.controller,
-      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       child: buildContent(context),
     );
     

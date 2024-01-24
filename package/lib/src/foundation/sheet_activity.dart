@@ -101,6 +101,7 @@ abstract class SheetActivity extends ChangeNotifier {
         delegate.physics
             .adjustPixelsForNewBoundaryConditions(pixels!, delegate.metrics),
       );
+      delegate.goBallistic(0);
     }
   }
 
