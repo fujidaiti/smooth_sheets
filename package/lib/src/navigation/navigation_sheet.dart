@@ -128,7 +128,7 @@ abstract class NavigationSheetExtentDelegate implements Listenable {
   double? get pixels;
   double? get minPixels;
   double? get maxPixels;
-  void applyNewViewportDimensions(Size viewportDimensions);
+  void applyNewViewportDimensions(ViewportDimensions viewportDimensions);
   void beginActivity(SheetActivity activity);
 }
 
@@ -183,7 +183,7 @@ class _NavigationSheetExtent extends SheetExtent {
   }
 
   @override
-  void applyNewViewportDimensions(Size viewportDimensions) {
+  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
     super.applyNewViewportDimensions(viewportDimensions);
     _dispatchViewportDimensions();
   }
@@ -301,5 +301,6 @@ class _ProxySheetActivity extends SheetActivity {
   }
 
   @override
-  void didChangeContentDimensions() => _syncPixelsImplicitly();
+  void didChangeContentDimensions(Size? oldDimensions) =>
+      _syncPixelsImplicitly();
 }

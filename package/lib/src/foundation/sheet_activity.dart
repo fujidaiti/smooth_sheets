@@ -94,9 +94,8 @@ abstract class SheetActivity extends ChangeNotifier {
     }
   }
 
-  void didChangeContentDimensions() {
+  void didChangeContentDimensions(Size? oldDimensions) {
     if (pixels != null) {
-      // TODO: Animate to the new pixels.
       setPixels(
         delegate.physics
             .adjustPixelsForNewBoundaryConditions(pixels!, delegate.metrics),
@@ -105,7 +104,7 @@ abstract class SheetActivity extends ChangeNotifier {
     }
   }
 
-  void didChangeViewportDimensions() {/* No-op */}
+  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {}
 }
 
 class DrivenSheetActivity extends SheetActivity {

@@ -259,7 +259,11 @@ class StretchingSheetPhysics extends SheetPhysics {
     final minPixels = metrics.minPixels;
     final maxPixels = metrics.maxPixels;
 
-    if (!currentPixels.isOutOfRange(minPixels, maxPixels)) {
+    if (currentPixels.isInRange(minPixels, maxPixels) ||
+        (currentPixels > maxPixels && offset < 0) ||
+        (currentPixels < minPixels && offset > 0)) {
+      // The friction is not applied if the current 'pixels' is within the range
+      // or the motion direction is towards the range.
       return offset;
     }
 

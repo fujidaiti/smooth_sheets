@@ -70,7 +70,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   double? _minPixels;
   double? _maxPixels;
   Size? _contentDimensions;
-  Size? _viewportDimensions;
+  ViewportDimensions? _viewportDimensions;
 
   late final _SheetMetricsBox _metrics;
   SheetMetrics get metrics => _metrics;
@@ -93,7 +93,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   Size? get contentDimensions => _contentDimensions;
 
   @override
-  Size? get viewportDimensions => _viewportDimensions;
+  ViewportDimensions? get viewportDimensions => _viewportDimensions;
 
   SheetActivity get activity => _activity!;
 
@@ -117,17 +117,19 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   @mustCallSuper
   void applyNewContentDimensions(Size contentDimensions) {
     if (_contentDimensions != contentDimensions) {
+      final oldDimensions = _contentDimensions;
       _contentDimensions = contentDimensions;
       _invalidateBoundaryConditions();
-      _activity!.didChangeContentDimensions();
+      _activity!.didChangeContentDimensions(oldDimensions);
     }
   }
 
   @mustCallSuper
-  void applyNewViewportDimensions(Size viewportDimensions) {
+  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
     if (_viewportDimensions != viewportDimensions) {
+      final oldDimensions = _viewportDimensions;
       _viewportDimensions = viewportDimensions;
-      _activity!.didChangeViewportDimensions();
+      _activity!.didChangeViewportDimensions(oldDimensions);
     }
   }
 
@@ -184,12 +186,41 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   }
 }
 
+class ViewportDimensions {
+  const ViewportDimensions({
+    required this.width,
+    required this.height,
+    required this.insets,
+  });
+
+  final double width;
+  final double height;
+  final EdgeInsets insets;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ViewportDimensions &&
+          runtimeType == other.runtimeType &&
+          width == other.width &&
+          height == other.height &&
+          insets == other.insets);
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        width,
+        height,
+        insets,
+      );
+}
+
 mixin MaybeSheetMetrics {
   double? get pixels;
   double? get minPixels;
   double? get maxPixels;
   Size? get contentDimensions;
-  Size? get viewportDimensions;
+  ViewportDimensions? get viewportDimensions;
 
   bool get hasPixels =>
       pixels != null &&
@@ -223,7 +254,7 @@ mixin SheetMetrics implements MaybeSheetMetrics {
   Size get contentDimensions;
 
   @override
-  Size get viewportDimensions;
+  ViewportDimensions get viewportDimensions;
 
   @override
   bool get hasPixels => true;
@@ -271,7 +302,7 @@ class SheetMetricsSnapshot with SheetMetrics {
   final Size contentDimensions;
 
   @override
-  final Size viewportDimensions;
+  final ViewportDimensions viewportDimensions;
 
   @override
   bool operator ==(Object other) {
@@ -324,7 +355,7 @@ class _SheetMetricsBox with SheetMetrics {
   Size get contentDimensions => _source.contentDimensions!;
 
   @override
-  Size get viewportDimensions => _source.viewportDimensions!;
+  ViewportDimensions get viewportDimensions => _source.viewportDimensions!;
 }
 
 abstract class SheetContext {
