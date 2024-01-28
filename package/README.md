@@ -316,7 +316,7 @@ See also:
 ## Roadmap
 
 - [ ] doc: Provide more documentation
-- [ ] doc: Add a showcase that uses a TextField in a sheet
+- [x] doc: Add a showcase that uses a TextField in a sheet
 - [ ] doc: Add an example of `NavigationSheet` using [auto_route](https://pub.dev/packages/auto_route)
 - [ ] feat: Sheet decoration; a way to place an extra widget above the sheet
 - [ ] feat: Provide a way to interrupt a modal route popping
