@@ -26,6 +26,7 @@ class SheetContainer extends StatelessWidget {
       child: Builder(
         builder: (context) {
           return SheetViewport(
+            insets: MediaQuery.viewInsetsOf(context),
             extent: SheetExtentScope.of(context),
             child: SheetContentViewport(child: child),
           );
@@ -39,25 +40,30 @@ class SheetViewport extends SingleChildRenderObjectWidget {
   const SheetViewport({
     super.key,
     required this.extent,
+    required this.insets,
     required super.child,
   });
 
   final SheetExtent extent;
+  final EdgeInsets insets;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderSheetViewport(extent);
+    return _RenderSheetViewport(extent, insets);
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderSheetViewport).extent = extent;
+    (renderObject as _RenderSheetViewport)
+      ..extent = extent
+      ..insets = insets;
   }
 }
 
 class _RenderSheetViewport extends RenderTransform {
-  _RenderSheetViewport(SheetExtent extent)
+  _RenderSheetViewport(SheetExtent extent, EdgeInsets insets)
       : _extent = extent,
+        _insets = insets,
         super(transform: Matrix4.zero(), transformHitTests: true) {
     _extent.addListener(_invalidateTranslationValue);
   }
@@ -76,6 +82,24 @@ class _RenderSheetViewport extends RenderTransform {
     }
   }
 
+  EdgeInsets _insets;
+  // ignore: avoid_setters_without_getters
+  set insets(EdgeInsets value) {
+    if (value != _insets) {
+      _insets = value;
+
+      if (_lastMeasuredSize != null) {
+        _extent.applyNewViewportDimensions(ViewportDimensions(
+          width: _lastMeasuredSize!.width,
+          height: _lastMeasuredSize!.height,
+          insets: value,
+        ));
+
+        _invalidateTranslationValue();
+      }
+    }
+  }
+
   @override
   void performLayout() {
     // We can assume that the viewport will always be as big as possible.
@@ -83,7 +107,11 @@ class _RenderSheetViewport extends RenderTransform {
     // Notify the SheetExtent about the viewport size changes
     // before performing the layout so that the descendant widgets
     // can use the viewport size during the layout phase.
-    _extent.applyNewViewportDimensions(_lastMeasuredSize!);
+    _extent.applyNewViewportDimensions(ViewportDimensions(
+      width: _lastMeasuredSize!.width,
+      height: _lastMeasuredSize!.height,
+      insets: _insets,
+    ));
     super.performLayout();
 
     assert(
@@ -111,7 +139,7 @@ class _RenderSheetViewport extends RenderTransform {
     final currentExtent = _extent.pixels;
     final viewportSize = _lastMeasuredSize;
     if (currentExtent != null && viewportSize != null) {
-      final dy = viewportSize.height - currentExtent;
+      final dy = viewportSize.height - _insets.bottom - currentExtent;
       // Update the translation value and mark this render object
       // as needing to be repainted.
       transform = Matrix4.translationValues(0, dy, 0);

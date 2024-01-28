@@ -18,6 +18,8 @@ extension DoubleUtils on double {
   bool isOutOfRange(double min, double max) =>
       isLessThan(min) || isGreaterThan(max);
 
+  bool isInRange(double min, double max) => !isOutOfRange(min, max);
+
   double clampAbs(double norm) => min(max(-norm, this), norm);
 
   double nearest(double a, double b) =>

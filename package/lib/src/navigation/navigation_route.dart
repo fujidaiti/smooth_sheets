@@ -101,7 +101,7 @@ class _SheetExtentBox extends ChangeNotifier
     }
   }
 
-  Size? _viewportDimensions;
+  ViewportDimensions? _viewportDimensions;
 
   @override
   void dispose() {
@@ -122,7 +122,7 @@ class _SheetExtentBox extends ChangeNotifier
   Size? get contentDimensions => _source?.contentDimensions;
 
   @override
-  void applyNewViewportDimensions(Size viewportDimensions) {
+  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
     // Keep the given value in case the source is not set yet.
     _viewportDimensions = viewportDimensions;
     _source?.applyNewViewportDimensions(viewportDimensions);

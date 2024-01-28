@@ -19,6 +19,13 @@
       "cwd": "./cookbook"
     },
     {
+      "name": "Todo List",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/showcase/todo_list/main.dart",
+      "cwd": "./cookbook"
+    },
+    {
       "name": "Scrollable Sheet",
       "request": "launch",
       "type": "dart",
@@ -93,6 +100,13 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/tutorial/extent_driven_animation.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Keyboard Dismiss Behavior",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/keyboard_dismiss_behavior.dart",
       "cwd": "./cookbook"
     }
   ]

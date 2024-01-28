@@ -68,16 +68,8 @@ class _SheetDraggableState extends State<SheetDraggable> {
 }
 
 class UserDragSheetActivity extends SheetActivity {
-  bool _isDisposed = false;
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    super.dispose();
-  }
-
   void onDragUpdate(DragUpdateDetails details) {
-    if (_isDisposed) return;
+    if (!mounted) return;
     final delta = -1 * details.primaryDelta!;
     final physicsAppliedDelta =
         delegate.physics.applyPhysicsToOffset(delta, delegate.metrics);
@@ -88,13 +80,31 @@ class UserDragSheetActivity extends SheetActivity {
   }
 
   void onDragEnd(DragEndDetails details) {
-    if (_isDisposed) return;
+    if (!mounted) return;
     // TODO: Support fling gestures
     delegate.goBallistic(0);
   }
 
   void onDragCancel() {
-    if (_isDisposed) return;
+    if (!mounted) return;
     delegate.goBallistic(0);
+  }
+
+  @override
+  void didChangeContentDimensions(Size? oldDimensions) {
+    // This body is intentionally left blank to disable the default behavior.
+  }
+
+  @override
+  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {
+    final oldInsets = oldDimensions?.insets;
+    final insets = delegate.metrics.viewportDimensions.insets;
+    if (pixels != null &&
+        oldInsets != null &&
+        insets.bottom != oldInsets.bottom) {
+      // Append a delta of the bottom inset (typically the keyboard height)
+      // to keep the visual position of the sheet unchanged.
+      setPixels(pixels! + (oldInsets.bottom - insets.bottom));
+    }
   }
 }

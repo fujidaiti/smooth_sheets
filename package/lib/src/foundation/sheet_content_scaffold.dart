@@ -13,6 +13,7 @@ class SheetContentScaffold extends StatelessWidget {
     this.extendBody = false,
     this.extendBodyBehindAppBar = false,
     this.appbarDraggable = true,
+    this.resizeToAvoidBottomInset = true,
     this.backgroundColor,
     this.requiredMinExtentForStickyBottomBar = const Extent.pixels(0),
     this.appBar,
@@ -25,6 +26,7 @@ class SheetContentScaffold extends StatelessWidget {
   final bool extendBody;
   final bool extendBodyBehindAppBar;
   final bool appbarDraggable;
+  final bool resizeToAvoidBottomInset;
   final Color? backgroundColor;
   final PreferredSizeWidget? appBar;
   final Widget body;
@@ -41,12 +43,16 @@ class SheetContentScaffold extends StatelessWidget {
 
     var bottomBar = this.bottomBar;
     if (this.bottomBar != null) {
-      bottomBar = _PersistentBottomBar(
+      bottomBar = _StickyBottomBar(
         extent: SheetExtentScope.of(context),
         requiredMinExtent: requiredMinExtentForStickyBottomBar,
         child: this.bottomBar,
       );
     }
+
+    final mediaQueryData = MediaQuery.of(context);
+    final viewPadding = mediaQueryData.viewPadding;
+    final viewInsets = mediaQueryData.viewInsets;
 
     var body = this.body;
     final useTopSafeArea = appBar != null && !extendBodyBehindAppBar;
@@ -61,27 +67,37 @@ class SheetContentScaffold extends StatelessWidget {
       );
     }
 
-    Widget result = Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      backgroundColor: backgroundColor,
-      primary: primary,
-      appBar: appBar,
-      bottomNavigationBar: bottomBar,
-      body: SheetContentViewport(
-        child: body,
-      ),
-    );
-
-    if (!primary) {
-      result = MediaQuery.removePadding(
-        removeTop: true,
-        context: context,
-        child: result,
+    if (resizeToAvoidBottomInset) {
+      body = Padding(
+        padding: EdgeInsets.only(
+          bottom: viewInsets.bottom,
+        ),
+        child: SheetContentViewport(
+          child: body,
+        ),
       );
     }
 
-    return result;
+    return MediaQuery(
+      data: mediaQueryData.copyWith(
+        viewPadding: viewPadding.copyWith(
+          top: primary ? viewPadding.top : 0.0,
+          // Gradually reduce the bottom padding
+          // as the onscreen keyboard slides in.
+          bottom: max(0.0, viewPadding.bottom - viewInsets.bottom),
+        ),
+      ),
+      child: Scaffold(
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        resizeToAvoidBottomInset: false,
+        backgroundColor: backgroundColor,
+        primary: primary,
+        appBar: appBar,
+        body: body,
+        bottomNavigationBar: bottomBar,
+      ),
+    );
   }
 }
 
@@ -101,8 +117,8 @@ class _AppBarDraggable extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class _PersistentBottomBar extends SingleChildRenderObjectWidget {
-  const _PersistentBottomBar({
+class _StickyBottomBar extends SingleChildRenderObjectWidget {
+  const _StickyBottomBar({
     required super.child,
     required this.extent,
     required this.requiredMinExtent,
@@ -113,7 +129,7 @@ class _PersistentBottomBar extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderPersistentBottomBar(
+    return _RenderStickyBottomBar(
       extent: extent,
       requiredMinExtent: requiredMinExtent,
     );
@@ -122,15 +138,15 @@ class _PersistentBottomBar extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    _RenderPersistentBottomBar renderObject,
+    _RenderStickyBottomBar renderObject,
   ) {
     super.updateRenderObject(context, renderObject);
     renderObject.extent = extent;
   }
 }
 
-class _RenderPersistentBottomBar extends RenderTransform {
-  _RenderPersistentBottomBar({
+class _RenderStickyBottomBar extends RenderTransform {
+  _RenderStickyBottomBar({
     required SheetExtent extent,
     required Extent requiredMinExtent,
   })  : _extent = extent,

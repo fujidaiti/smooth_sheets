@@ -51,7 +51,21 @@
       </ul>
     </td>
   </tr>
+  <tr>
+    <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/b1e0f8d0-7037-48c5-ab4e-80a2c43df43b"/></td>
+    <td>
+      <h3>Todo List</h3>
+      <p>A simple Todo app that shows how a sheet handles the on-screen keyboard. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/todo_list/main.dart">the cookbook</a> for more details.</p>
+      <p>Used components:</p>
+      <ul>
+        <li>ScrollableSheet</li>
+        <li>SheetContentScaffold</li>
+        <li>SheetKeyboardDismissBehavior</li>
+      </ul>
+    </td>
+  </tr>
 </table>
+
 <br/>
 
 ## Why use this?
@@ -276,10 +290,34 @@ See also:
 
 <br/>
 
+### SheetKeyboardDismissBehavior
+
+<div align="center">
+  <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/728d31d1-d2cd-4097-90cb-943d2d0d4d3d"/>
+</div>
+
+<br/>
+
+[SheetKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/SheetKeyboardDismissBehavior-class.html) determines when the sheet should dismiss the on-screen keyboard. This feature is similar to [ScrollViewKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/ScrollViewKeyboardDismissBehavior.html) for scrollable widgets. 
+
+Although it is easy to create custom behaviors by implementing SheetKeyboardDismissBehavior interface, there are 3 types of predefined behaviors for convenience.
+
+- [DragSheetKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/DragSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard when the sheet is dragged.
+- [DragDownSheetKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/DragSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard only when the sheet is dragged down.
+- [DragUpSheetKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/DragSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard only when the sheet is dragged up.
+
+
+
+See also:
+
+- [tutorial/keyboard_dismiss_behavior.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/keyboard_dismiss_behavior.dart) for basic usage.
+
+<br/>
+
 ## Roadmap
 
-- [ ] doc: Provide documentation
-- [ ] doc: Add more showcases
+- [ ] doc: Provide more documentation
+- [ ] doc: Add a showcase that uses a TextField in a sheet
 - [ ] doc: Add an example of `NavigationSheet` using [auto_route](https://pub.dev/packages/auto_route)
 - [ ] feat: Sheet decoration; a way to place an extra widget above the sheet
 - [ ] feat: Provide a way to interrupt a modal route popping

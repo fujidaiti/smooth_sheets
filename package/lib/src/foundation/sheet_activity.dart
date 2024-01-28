@@ -7,6 +7,9 @@ import 'package:smooth_sheets/src/foundation/notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 
 abstract class SheetActivity extends ChangeNotifier {
+  bool _mounted = false;
+  bool get mounted => _mounted;
+
   double? _pixels;
   double? get pixels => _pixels;
 
@@ -27,6 +30,7 @@ abstract class SheetActivity extends ChangeNotifier {
     );
 
     _delegate = delegate;
+    _mounted = true;
   }
 
   @protected
@@ -41,6 +45,12 @@ abstract class SheetActivity extends ChangeNotifier {
     if (_pixels != oldPixels) {
       notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _mounted = false;
+    super.dispose();
   }
 
   void dispatchUpdateNotification() {
@@ -94,17 +104,17 @@ abstract class SheetActivity extends ChangeNotifier {
     }
   }
 
-  void didChangeContentDimensions() {
+  void didChangeContentDimensions(Size? oldDimensions) {
     if (pixels != null) {
-      // TODO: Animate to the new pixels.
       setPixels(
         delegate.physics
             .adjustPixelsForNewBoundaryConditions(pixels!, delegate.metrics),
       );
+      delegate.goBallistic(0);
     }
   }
 
-  void didChangeViewportDimensions() {/* No-op */}
+  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {}
 }
 
 class DrivenSheetActivity extends SheetActivity {

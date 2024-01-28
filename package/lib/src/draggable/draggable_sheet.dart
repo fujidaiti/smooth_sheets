@@ -6,6 +6,7 @@ class DraggableSheet extends SingleChildSheet {
   const DraggableSheet({
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
+    super.keyboardDismissBehavior,
     super.initialExtent,
     super.minExtent,
     super.maxExtent,
@@ -89,11 +90,11 @@ class _IdleDraggableSheetActivity extends IdleSheetActivity {
   final Extent initialExtent;
 
   @override
-  void didChangeContentDimensions() {
+  void didChangeContentDimensions(Size? oldDimensions) {
     if (pixels == null) {
       setPixels(initialExtent.resolve(delegate.contentDimensions!));
     } else {
-      super.didChangeContentDimensions();
+      super.didChangeContentDimensions(oldDimensions);
     }
   }
 }
