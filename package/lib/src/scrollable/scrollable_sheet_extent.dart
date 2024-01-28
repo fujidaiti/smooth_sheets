@@ -291,7 +291,7 @@ class _ContentUserScrollDrivenSheetActivity
     if (pixels != null &&
         oldInsets != null &&
         insets.bottom != oldInsets.bottom) {
-      // Append the delta of the bottom inset (typically the keyboard height)
+      // Append a delta of the bottom inset (typically the keyboard height)
       // to keep the visual position of the sheet unchanged.
       setPixels(pixels! + (oldInsets.bottom - insets.bottom));
     }
