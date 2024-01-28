@@ -18,7 +18,7 @@ dart format . -o none --set-exit-if-changed
 echo "Running dart analyze"
 dart analyze
 echo "Running disallowed patterns check"
-sh $SCRIPTS_DIR/pattern_checker.sh "*.dart" "--" "debugPrint"
+bash $SCRIPTS_DIR/pattern_checker.sh "*.dart" "--" "debugPrint"
 '''
 
 [tasks.flutter-check]
