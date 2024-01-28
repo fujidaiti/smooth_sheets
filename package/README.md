@@ -51,7 +51,21 @@
       </ul>
     </td>
   </tr>
+  <tr>
+    <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/b1e0f8d0-7037-48c5-ab4e-80a2c43df43b"/></td>
+    <td>
+      <h3>Todo List</h3>
+      <p>A simple Todo app that shows how a sheet handles the on-screen keyboard. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/todo_list/main.dart">the cookbook</a> for more details.</p>
+      <p>Used components:</p>
+      <ul>
+        <li>ScrollableSheet</li>
+        <li>SheetContentScaffold</li>
+        <li>SheetKeyboardDismissBehavior</li>
+      </ul>
+    </td>
+  </tr>
 </table>
+
 <br/>
 
 ## Why use this?

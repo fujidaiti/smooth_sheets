@@ -1,3 +1,0 @@
-/**
- * WORK IN PROGRESS
- */

@@ -19,6 +19,13 @@
       "cwd": "./cookbook"
     },
     {
+      "name": "Todo List",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/showcase/todo_list/main.dart",
+      "cwd": "./cookbook"
+    },
+    {
       "name": "Scrollable Sheet",
       "request": "launch",
       "type": "dart",
