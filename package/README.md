@@ -295,16 +295,15 @@ See also:
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/728d31d1-d2cd-4097-90cb-943d2d0d4d3d"/>
 </div>
-
 <br/>
 
-[SheetKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/SheetKeyboardDismissBehavior-class.html) determines when the sheet should dismiss the on-screen keyboard. This feature is similar to [ScrollViewKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/ScrollViewKeyboardDismissBehavior.html) for scrollable widgets. 
+[SheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetKeyboardDismissBehavior-class.html) determines when the sheet should dismiss the on-screen keyboard. This feature is similar to [ScrollViewKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/ScrollViewKeyboardDismissBehavior.html) for scrollable widgets. 
 
 Although it is easy to create custom behaviors by implementing SheetKeyboardDismissBehavior interface, there are 3 types of predefined behaviors for convenience.
 
-- [DragSheetKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/DragSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard when the sheet is dragged.
-- [DragDownSheetKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/DragSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard only when the sheet is dragged down.
-- [DragUpSheetKeyboardDismissBehavior](https://api.flutter.dev/flutter/widgets/DragSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard only when the sheet is dragged up.
+- [DragSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard when the sheet is dragged.
+- [DragDownSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragDownSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard only when the sheet is dragged down.
+- [DragUpSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragUpSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard only when the sheet is dragged up.
 
 
 
@@ -317,7 +316,7 @@ See also:
 ## Roadmap
 
 - [ ] doc: Provide more documentation
-- [ ] doc: Add a showcase that uses a TextField in a sheet
+- [x] doc: Add a showcase that uses a TextField in a sheet
 - [ ] doc: Add an example of `NavigationSheet` using [auto_route](https://pub.dev/packages/auto_route)
 - [ ] feat: Sheet decoration; a way to place an extra widget above the sheet
 - [ ] feat: Provide a way to interrupt a modal route popping

@@ -1,7 +1,7 @@
 name: Dry Publish
 on:
   push:
-    branches: [main]
+    branches: [main, "v*.*.*"]
 
 env:
   package_dir: ./package
