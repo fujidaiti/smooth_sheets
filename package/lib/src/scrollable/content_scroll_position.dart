@@ -24,8 +24,8 @@ class NotHandled<T> extends DelegationResult<T> {
 
 @internal
 mixin SheetContentScrollPositionDelegate {
-  void onDrag(DragStartDetails details) {}
-
+  void onDragStart(DragStartDetails details) {}
+  void onDragEnd() {}
   void onWillBallisticScrollCancel() {}
 
   DelegationResult<void> applyUserScrollOffset(
@@ -38,6 +38,12 @@ mixin SheetContentScrollPositionDelegate {
   DelegationResult<double> applyBallisticScrollOffset(
     double delta,
     double velocity,
+    SheetContentScrollPosition position,
+  ) {
+    return const DelegationResult.notHandled();
+  }
+
+  DelegationResult<ScrollActivity> goIdleScroll(
     SheetContentScrollPosition position,
   ) {
     return const DelegationResult.notHandled();
@@ -91,6 +97,16 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
   }
 
   @override
+  void goIdle() {
+    switch (_delegate?.goIdleScroll(this)) {
+      case null || NotHandled():
+        super.goIdle();
+      case Handled(value: final activity):
+        beginActivity(activity);
+    }
+  }
+
+  @override
   void goBallistic(double velocity) {
     final shouldIgnorePointer = activity?.shouldIgnorePointer ?? true;
     final result =
@@ -112,11 +128,17 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-    if (_delegate != null) {
-      _delegate!.onDrag(details);
-    }
+    switch (_delegate) {
+      case null:
+        return super.drag(details, dragCancelCallback);
 
-    return super.drag(details, dragCancelCallback);
+      case final delegate:
+        delegate.onDragStart(details);
+        return super.drag(details, () {
+          _delegate?.onDragEnd();
+          dragCancelCallback();
+        });
+    }
   }
 }
 
