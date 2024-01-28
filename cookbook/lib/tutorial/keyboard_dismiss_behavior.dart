@@ -48,8 +48,10 @@ class _ExampleHome extends StatefulWidget {
 }
 
 class _ExampleHomeState extends State<_ExampleHome> {
-  _KeyboardDismissBehaviorKind selectedBehavior = _KeyboardDismissBehaviorKind.none;
+  _KeyboardDismissBehaviorKind selectedBehavior =
+      _KeyboardDismissBehaviorKind.none;
   bool isContentScrollAware = false;
+  bool isFullScreen = false;
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +98,15 @@ class _ExampleHomeState extends State<_ExampleHome> {
                   setState(() => isContentScrollAware = value!);
                 },
               ),
+              const Divider(),
+              CheckboxListTile(
+                value: isFullScreen,
+                title: const Text('isFullScreen'),
+                onChanged: (value) {
+                  setState(() => isFullScreen = value!);
+                },
+              ),
+              const SizedBox(height: 100),
             ],
           ),
         ),
@@ -112,18 +123,22 @@ class _ExampleHomeState extends State<_ExampleHome> {
     // This object determines when the sheet should dismisses the on-screen keyboard.
     final keyboardDismissBehavior = switch (selectedBehavior) {
       _KeyboardDismissBehaviorKind.none => null,
-      _KeyboardDismissBehaviorKind.onDrag => SheetKeyboardDismissBehavior.onDrag(
-          isContentScrollAware: isContentScrollAware),
-      _KeyboardDismissBehaviorKind.onDragDown => SheetKeyboardDismissBehavior.onDragDown(
-          isContentScrollAware: isContentScrollAware),
-      _KeyboardDismissBehaviorKind.onDragUp => SheetKeyboardDismissBehavior.onDragUp(
-          isContentScrollAware: isContentScrollAware),
+      _KeyboardDismissBehaviorKind.onDrag =>
+        SheetKeyboardDismissBehavior.onDrag(
+            isContentScrollAware: isContentScrollAware),
+      _KeyboardDismissBehaviorKind.onDragDown =>
+        SheetKeyboardDismissBehavior.onDragDown(
+            isContentScrollAware: isContentScrollAware),
+      _KeyboardDismissBehaviorKind.onDragUp =>
+        SheetKeyboardDismissBehavior.onDragUp(
+            isContentScrollAware: isContentScrollAware),
     };
 
     Navigator.push(
       context,
       ModalSheetRoute(
         builder: (context) => _ExampleSheet(
+          isFullScreen: isFullScreen,
           keyboardDismissBehavior: keyboardDismissBehavior,
         ),
       ),
@@ -133,27 +148,48 @@ class _ExampleHomeState extends State<_ExampleHome> {
 
 class _ExampleSheet extends StatelessWidget {
   const _ExampleSheet({
+    required this.isFullScreen,
     required this.keyboardDismissBehavior,
   });
 
+  final bool isFullScreen;
   final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
 
   @override
   Widget build(BuildContext context) {
+    Widget body = const SingleChildScrollView(
+      child: TextField(
+        maxLines: null,
+        decoration: InputDecoration(
+          hintText: 'Enter some text...',
+        ),
+      ),
+    );
+
+    if (isFullScreen) {
+      body = SizedBox.expand(child: body);
+    }
+
     return SafeArea(
       bottom: false,
       child: ScrollableSheet(
         keyboardDismissBehavior: keyboardDismissBehavior,
         child: SheetContentScaffold(
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16).copyWith(
-              bottom: 16 + MediaQuery.paddingOf(context).bottom,
-            ),
-            child: const TextField(
-              maxLines: null,
-              decoration: InputDecoration(
-                hintText: 'Enter some text...',
-              ),
+          appBar: AppBar(),
+          body: body,
+          bottomBar: BottomAppBar(
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.menu),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.more_vert),
+                ),
+              ],
             ),
           ),
         ),
