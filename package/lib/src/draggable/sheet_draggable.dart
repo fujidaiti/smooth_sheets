@@ -68,16 +68,8 @@ class _SheetDraggableState extends State<SheetDraggable> {
 }
 
 class UserDragSheetActivity extends SheetActivity {
-  bool _isDisposed = false;
-
-  @override
-  void dispose() {
-    _isDisposed = true;
-    super.dispose();
-  }
-
   void onDragUpdate(DragUpdateDetails details) {
-    if (_isDisposed) return;
+    if (!mounted) return;
     final delta = -1 * details.primaryDelta!;
     final physicsAppliedDelta =
         delegate.physics.applyPhysicsToOffset(delta, delegate.metrics);
@@ -88,13 +80,13 @@ class UserDragSheetActivity extends SheetActivity {
   }
 
   void onDragEnd(DragEndDetails details) {
-    if (_isDisposed) return;
+    if (!mounted) return;
     // TODO: Support fling gestures
     delegate.goBallistic(0);
   }
 
   void onDragCancel() {
-    if (_isDisposed) return;
+    if (!mounted) return;
     delegate.goBallistic(0);
   }
 
