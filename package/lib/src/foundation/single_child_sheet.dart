@@ -89,14 +89,14 @@ abstract class SingleChildSheetState<T extends SingleChildSheet>
       controller: widget.controller,
       child: buildContent(context),
     );
-    
+
     if (widget.keyboardDismissBehavior != null) {
       result = SheetKeyboardDismissible(
         dismissBehavior: widget.keyboardDismissBehavior!,
         child: result,
       );
     }
-    
+
     return result;
   }
 
