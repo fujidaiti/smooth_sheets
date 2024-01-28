@@ -79,7 +79,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
               const ListTile(
                 title: Text('keyboardDismissBehavior'),
                 subtitle: Text(
-                  'Determines when the sheet should dismisses the on-screen keyboard.',
+                  'Determines when the sheet should dismiss the on-screen keyboard.',
                 ),
               ),
               ...options,
