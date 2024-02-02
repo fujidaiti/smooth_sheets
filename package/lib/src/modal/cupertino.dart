@@ -24,6 +24,27 @@ class _TransitionController extends ValueNotifier<double> {
   }
 }
 
+class _ClipRRectTransition extends AnimatedWidget {
+  const _ClipRRectTransition({
+    required Animation<BorderRadius?> borderRadius,
+    required this.child,
+  }) : super(listenable: borderRadius);
+
+  final Widget child;
+
+  Animation<BorderRadius?> get borderRadius =>
+      listenable as Animation<BorderRadius?>;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: borderRadius.value ?? BorderRadius.zero,
+      clipBehavior: Clip.antiAlias,
+      child: child,
+    );
+  }
+}
+
 class _VerticalTranslateTransition extends MatrixTransition {
   const _VerticalTranslateTransition({
     required Animation<double> delta,
@@ -123,9 +144,11 @@ class _CupertinoModalStackedTransitionState
 class CupertinoStackedTransition extends StatefulWidget {
   const CupertinoStackedTransition({
     super.key,
+    this.borderRadius,
     required this.child,
   });
 
+  final Tween<BorderRadius?>? borderRadius;
   final Widget child;
 
   @override
@@ -139,6 +162,25 @@ class _CupertinoStackedTransitionState extends State<CupertinoStackedTransition>
   Widget build(BuildContext context) {
     final topViewPadding = MediaQuery.viewPaddingOf(context).top;
 
+    final child = switch (widget.borderRadius) {
+      // Some optimizations to avoid unnecessary animations.
+      null => widget.child,
+      Tween(begin: null, end: null) => widget.child,
+      Tween(begin: BorderRadius.zero, end: BorderRadius.zero) => widget.child,
+      Tween(:final begin, :final end) when begin == end => ClipRRect(
+          borderRadius: begin ?? BorderRadius.zero,
+          clipBehavior: Clip.antiAlias,
+          child: widget.child,
+        ),
+      final borderRadius => _ClipRRectTransition(
+          borderRadius: Animation.fromValueListenable(_controller).drive(
+            borderRadius
+                .chain(CurveTween(curve: _cupertinoStackedTransitionCurve)),
+          ),
+          child: widget.child,
+        ),
+    };
+
     return _VerticalTranslateTransition(
       delta: Animation.fromValueListenable(_controller).drive(
         Tween(begin: 0.0, end: topViewPadding)
@@ -150,7 +192,7 @@ class _CupertinoStackedTransitionState extends State<CupertinoStackedTransition>
           Tween(begin: 1.0, end: _minimizedViewportScale)
               .chain(CurveTween(curve: _cupertinoStackedTransitionCurve)),
         ),
-        child: widget.child,
+        child: child,
       ),
     );
   }
