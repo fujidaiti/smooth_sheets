@@ -137,6 +137,20 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   @override
   bool get opaque => false;
 
+  late final SheetController sheetController;
+
+  @override
+  void install() {
+    super.install();
+    sheetController = SheetController();
+  }
+
+  @override
+  void dispose() {
+    sheetController.dispose();
+    super.dispose();
+  }
+
   Widget buildContent(BuildContext context);
 
   @override
@@ -145,15 +159,21 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    return switch (enablePullToDismiss) {
-      true => _SheetDismissible(
-          transitionAnimation: controller!,
-          transitionDuration: transitionDuration,
-          navigator: navigator!,
-          child: buildContent(context),
-        ),
-      false => buildContent(context),
-    };
+    var content = buildContent(context);
+
+    if (enablePullToDismiss) {
+      content = _SheetDismissible(
+        transitionAnimation: controller!,
+        transitionDuration: transitionDuration,
+        navigator: navigator!,
+        child: content,
+      );
+    }
+
+    return SheetControllerScope(
+      controller: sheetController,
+      child: content,
+    );
   }
 
   @override
@@ -211,7 +231,7 @@ class _SheetDismissible extends StatefulWidget {
 }
 
 class _SheetDismissibleState extends State<_SheetDismissible> {
-  late final SheetController _sheetController;
+  late SheetController _sheetController;
   late final _PullToDismissGestureRecognizer _gestureRecognizer;
   ScrollMetrics? _lastReportedScrollMetrics;
   AsyncValueGetter<bool>? _shouldDismissCallback;
@@ -219,7 +239,6 @@ class _SheetDismissibleState extends State<_SheetDismissible> {
   @override
   void initState() {
     super.initState();
-    _sheetController = SheetController();
     _gestureRecognizer = _PullToDismissGestureRecognizer(target: this)
       ..onStart = _handleDragStart
       ..onUpdate = handleDragUpdate
@@ -228,17 +247,17 @@ class _SheetDismissibleState extends State<_SheetDismissible> {
   }
 
   @override
+  void dispose() {
+    _gestureRecognizer.dispose();
+    super.dispose();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _gestureRecognizer.gestureSettings =
         MediaQuery.maybeGestureSettingsOf(context);
-  }
-
-  @override
-  void dispose() {
-    _sheetController.dispose();
-    _gestureRecognizer.dispose();
-    super.dispose();
+    _sheetController = DefaultSheetController.of(context);
   }
 
   double _draggedDistance = 0;
@@ -336,10 +355,7 @@ class _SheetDismissibleState extends State<_SheetDismissible> {
       children: [
         NotificationListener<ScrollNotification>(
           onNotification: _handleScrollUpdate,
-          child: SheetControllerScope(
-            controller: _sheetController,
-            child: widget.child,
-          ),
+          child: widget.child,
         ),
         Listener(
           behavior: HitTestBehavior.translucent,
