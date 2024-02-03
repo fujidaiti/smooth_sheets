@@ -227,6 +227,11 @@ mixin MaybeSheetMetrics {
   Size? get contentDimensions;
   ViewportDimensions? get viewportDimensions;
 
+  double? get viewPixels => switch ((pixels, viewportDimensions)) {
+        (final pixels?, final viewport?) => pixels + viewport.insets.bottom,
+        _ => null,
+      };
+
   bool get hasPixels =>
       pixels != null &&
       minPixels != null &&
@@ -245,7 +250,7 @@ mixin MaybeSheetMetrics {
       ).toString();
 }
 
-mixin SheetMetrics implements MaybeSheetMetrics {
+mixin SheetMetrics on MaybeSheetMetrics {
   @override
   double get pixels;
 
@@ -262,20 +267,10 @@ mixin SheetMetrics implements MaybeSheetMetrics {
   ViewportDimensions get viewportDimensions;
 
   @override
-  bool get hasPixels => true;
-
-  @override
-  String toString() => (
-        hasPixels: hasPixels,
-        pixels: pixels,
-        minPixels: minPixels,
-        maxPixels: maxPixels,
-        contentDimensions: contentDimensions,
-        viewportDimensions: viewportDimensions,
-      ).toString();
+  double get viewPixels => super.viewPixels!;
 }
 
-class SheetMetricsSnapshot with SheetMetrics {
+class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
   const SheetMetricsSnapshot({
     required this.pixels,
     required this.minPixels,
@@ -310,6 +305,9 @@ class SheetMetricsSnapshot with SheetMetrics {
   final ViewportDimensions viewportDimensions;
 
   @override
+  bool get hasPixels => true;
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
@@ -342,7 +340,7 @@ class SheetMetricsSnapshot with SheetMetrics {
       ).toString();
 }
 
-class _SheetMetricsBox with SheetMetrics {
+class _SheetMetricsBox with MaybeSheetMetrics, SheetMetrics {
   _SheetMetricsBox(this._source);
 
   final MaybeSheetMetrics _source;
