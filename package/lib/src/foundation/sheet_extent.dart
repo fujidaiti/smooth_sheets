@@ -127,9 +127,15 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   @mustCallSuper
   void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
     if (_viewportDimensions != viewportDimensions) {
+      final oldPixels = pixels;
+      final oldViewPixels = viewPixels;
       final oldDimensions = _viewportDimensions;
+
       _viewportDimensions = viewportDimensions;
       _activity!.didChangeViewportDimensions(oldDimensions);
+      if (oldPixels != pixels || oldViewPixels != viewPixels) {
+        notifyListeners();
+      }
     }
   }
 

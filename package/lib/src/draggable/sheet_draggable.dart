@@ -104,7 +104,7 @@ class UserDragSheetActivity extends SheetActivity {
         insets.bottom != oldInsets.bottom) {
       // Append a delta of the bottom inset (typically the keyboard height)
       // to keep the visual position of the sheet unchanged.
-      setPixels(pixels! + (oldInsets.bottom - insets.bottom));
+      correctPixels(pixels! + (oldInsets.bottom - insets.bottom));
     }
   }
 }
