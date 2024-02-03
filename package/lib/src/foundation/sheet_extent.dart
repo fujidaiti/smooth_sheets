@@ -174,15 +174,20 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     Duration duration = const Duration(milliseconds: 300),
   }) {
     assert(hasPixels);
-    final activity = DrivenSheetActivity(
-      from: pixels!,
-      to: newExtent.resolve(contentDimensions!),
-      duration: duration,
-      curve: curve,
-    );
+    final destination = newExtent.resolve(contentDimensions!);
+    if (pixels == destination) {
+      return Future.value();
+    } else {
+      final activity = DrivenSheetActivity(
+        from: pixels!,
+        to: destination,
+        duration: duration,
+        curve: curve,
+      );
 
-    beginActivity(activity);
-    return activity.done;
+      beginActivity(activity);
+      return activity.done;
+    }
   }
 }
 
