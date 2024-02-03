@@ -163,7 +163,15 @@ See also:
 </div>
 
 
+
 A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. A modal sheet offers the *pull-to-dismiss* action; the user can dismiss the sheet by swiping it down.
+
+<div align="center">
+  <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/242a8d32-a355-4d4a-8248-4572a03c64eb"/>
+</div>
+
+Furthermore, the modal sheets in the style of iOS 15 are also supported. For imperative navigation, use CupertinoModalSheetRoute, and for declarative navigation, use CupertinoModalSheetPage, respectively.
+
 
 
 
@@ -171,6 +179,7 @@ See also:
 
 - [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
 - [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
+- [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
 
 <br/>
 
@@ -322,7 +331,7 @@ See also:
 - [ ] feat: Provide a way to interrupt a modal route popping
 - [ ] feat: Support shared appbars in NavigationSheet
 - [x] feat: Dispatch a [Notification](https://api.flutter.dev/flutter/widgets/Notification-class.html) when the sheet extent changes
-- [ ] feat: Implement modal sheet route adapted for iOS
+- [x] feat: Implement modal sheet route adapted for iOS
 
 <br/>
 
