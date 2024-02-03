@@ -170,7 +170,7 @@ A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative n
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/242a8d32-a355-4d4a-8248-4572a03c64eb"/>
 </div>
 
-Furthermore, the modal sheets in the style of iOS 15 are also supported. For imperative navigation, use CupertinoModalSheetRoute, and for declarative navigation, use CupertinoModalSheetPage, respectively.
+Furthermore, [the modal sheets in the style of iOS 15](https://medium.com/surf-dev/bottomsheet-in-ios-15-uisheetpresentationcontroller-and-its-capabilities-5e913661c9f) are also supported. For imperative navigation, use CupertinoModalSheetRoute, and for declarative navigation, use CupertinoModalSheetPage, respectively.
 
 
 
