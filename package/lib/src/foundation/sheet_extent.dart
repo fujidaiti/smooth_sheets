@@ -243,6 +243,7 @@ mixin MaybeSheetMetrics {
   String toString() => (
         hasPixels: hasPixels,
         pixels: pixels,
+        viewPixels: viewPixels,
         minPixels: minPixels,
         maxPixels: maxPixels,
         contentDimensions: contentDimensions,
