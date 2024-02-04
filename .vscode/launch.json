@@ -26,6 +26,13 @@
       "cwd": "./cookbook"
     },
     {
+      "name": "Safari",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/showcase/safari/main.dart",
+      "cwd": "./cookbook"
+    },
+    {
       "name": "Scrollable Sheet",
       "request": "launch",
       "type": "dart",
