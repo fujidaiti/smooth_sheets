@@ -269,12 +269,16 @@ class _CupertinoModalStackedTransitionState
       padding: EdgeInsets.only(
         top: MediaQuery.viewPaddingOf(context).top + extraMargin,
       ),
-      child: _TransformTransition(
-        animation: Animation.fromValueListenable(_controller)
-            .drive(CurveTween(curve: _cupertinoStackedTransitionCurve)),
-        offset: Tween(begin: 0.0, end: -extraMargin),
-        scaleFactor: Tween(begin: 1.0, end: _minimizedViewportScale),
-        child: widget.child,
+      child: MediaQuery.removeViewPadding(
+        context: context,
+        removeTop: true,
+        child: _TransformTransition(
+          animation: Animation.fromValueListenable(_controller)
+              .drive(CurveTween(curve: _cupertinoStackedTransitionCurve)),
+          offset: Tween(begin: 0.0, end: -extraMargin),
+          scaleFactor: Tween(begin: 1.0, end: _minimizedViewportScale),
+          child: widget.child,
+        ),
       ),
     );
   }

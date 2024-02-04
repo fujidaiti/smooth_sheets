@@ -16,23 +16,19 @@ class EditActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery.removeViewPadding(
-      context: context,
-      removeTop: true,
-      child: ScrollableSheet(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: SheetContentScaffold(
-            backgroundColor: CupertinoColors.systemGroupedBackground,
-            appBar: CupertinoAppBar(
-              title: const Text('Edit Actions'),
-              trailing: CupertinoButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Done'),
-              ),
+    return ScrollableSheet(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: SheetContentScaffold(
+          backgroundColor: CupertinoColors.systemGroupedBackground,
+          appBar: CupertinoAppBar(
+            title: const Text('Edit Actions'),
+            trailing: CupertinoButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Done'),
             ),
-            body: const _ActionList(),
           ),
+          body: const _ActionList(),
         ),
       ),
     );

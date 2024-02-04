@@ -20,34 +20,30 @@ class MenuSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const halfWayExtent = Extent.proportional(0.5);
-    return MediaQuery.removeViewPadding(
-      context: context,
-      removeTop: true,
-      child: ScrollableSheet(
-        initialExtent: halfWayExtent,
-        minExtent: halfWayExtent,
-        physics: const StretchingSheetPhysics(
-          parent: SnappingSheetPhysics(
-            snappingBehavior: SnapToNearest(
-              snapTo: [halfWayExtent, Extent.proportional(1)],
-            ),
+    return ScrollableSheet(
+      initialExtent: halfWayExtent,
+      minExtent: halfWayExtent,
+      physics: const StretchingSheetPhysics(
+        parent: SnappingSheetPhysics(
+          snappingBehavior: SnapToNearest(
+            snapTo: [halfWayExtent, Extent.proportional(1)],
           ),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: const SheetContentScaffold(
-            backgroundColor: CupertinoColors.systemGroupedBackground,
-            body: Column(
-              children: [
-                _TopBar(
-                  pageTitle: 'Apple',
-                  displayUrl: 'apple.com',
-                  faviconUrl: 'https://www.apple.com/favicon.ico',
-                ),
-                Divider(height: 1, color: CupertinoColors.systemGrey5),
-                Expanded(child: _MenuList()),
-              ],
-            ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: const SheetContentScaffold(
+          backgroundColor: CupertinoColors.systemGroupedBackground,
+          body: Column(
+            children: [
+              _TopBar(
+                pageTitle: 'Apple',
+                displayUrl: 'apple.com',
+                faviconUrl: 'https://www.apple.com/favicon.ico',
+              ),
+              Divider(height: 1, color: CupertinoColors.systemGrey5),
+              Expanded(child: _MenuList()),
+            ],
           ),
         ),
       ),
