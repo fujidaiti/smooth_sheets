@@ -12,3 +12,4 @@
 ![cookbook-airbnb-mobile-app](https://github.com/fujidaiti/smooth_sheets/assets/68946713/1fb3f047-c993-42be-9a7e-b3efc89be635)
 ![cookbook-extent-driven-animation](https://github.com/fujidaiti/smooth_sheets/assets/68946713/8b9ed0ef-675e-4468-8a3f-cd3f1ed3dfb0)
 ![cookbook-cupertino-modal-sheet](https://github.com/fujidaiti/smooth_sheets/assets/68946713/242a8d32-a355-4d4a-8248-4572a03c64eb)
+![cookbook-safari](https://github.com/fujidaiti/smooth_sheets/assets/68946713/ad3f0ec1-fd7b-45d3-94a3-0b17c12b5889)

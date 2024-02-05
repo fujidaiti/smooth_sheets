@@ -17,6 +17,10 @@
 >
 > This library is currently in the experimental stage. The API may undergo changes without prior notice. 
 
+> [!NOTE]
+> 
+> For documentation of the latest published version, please visit the [package page](https://pub.dev/packages/smooth_sheets) on pub.dev.
+
 <br/>
 
 ## Showcases
@@ -27,12 +31,24 @@
     <td>
       <h3>AI Playlist Generator</h3>
       <p>An AI assistant that helps create a music playlist based on the user's preferences. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/ai_playlist_generator.dart">the cookbook</a> for more details.</p>
-      <p>Used components:</p>
+      <p>Key components:</p>
       <ul>
         <li>NavigationSheet</li>
         <li>ModalSheetPage</li>
-        <li>SheetContentScaffold</li>
-        <li>SheetPhysics</li>
+        <li>DraggableNavigationSheetPage</li>
+        <li>ScrollableNavigationSheetPage</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/ad3f0ec1-fd7b-45d3-94a3-0b17c12b5889"/></td>
+    <td>
+      <h3>Safari app</h3>
+      <p>A practical example of ios-style modal sheets. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/safari">the cookbook</a> for more details.</p>
+      <p>Key components:</p>
+      <ul>
+        <li>CupertinoStackedTransition</li>
+        <li>CupertinoModalSheetRoute</li>
       </ul>
     </td>
   </tr>
@@ -40,13 +56,12 @@
     <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/1fb3f047-c993-42be-9a7e-b3efc89be635"/></td>
     <td>
       <h3>Airbnb mobile app clone</h3>
-      <p>A partial clone of  the Airbnb mobile app. The user can drag the house list down to reveal the map behind it. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/airbnb_mobile_app.dart">the cookbook</a> for more details.</p>
-      <p>Used components:</p>
+      <p>A partial clone of the Airbnb mobile app. The user can drag the house list down to reveal the map behind it. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/airbnb_mobile_app.dart">the cookbook</a> for more details.</p>
+      <p>Key components:</p>
       <ul>
         <li>ScrollableSheet</li>
         <li>SheetPhysics</li>
         <li>SheetController</li>
-        <li>SheetDraggable</li>
         <li>ExtentDrivenAnimation</li>
       </ul>
     </td>
@@ -55,7 +70,7 @@
     <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/b1e0f8d0-7037-48c5-ab4e-80a2c43df43b"/></td>
     <td>
       <h3>Todo List</h3>
-      <p>A simple Todo app that shows how a sheet handles the on-screen keyboard. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/todo_list/main.dart">the cookbook</a> for more details.</p>
+      <p>A simple Todo app that shows how a sheet handles the on-screen keyboard. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/todo_list">the cookbook</a> for more details.</p>
       <p>Used components:</p>
       <ul>
         <li>ScrollableSheet</li>
