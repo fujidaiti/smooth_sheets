@@ -8,11 +8,33 @@ class SheetController extends ChangeNotifier
     implements ValueListenable<double?> {
   SheetExtent? _client;
 
+  /// A notifier which notifies listeners immediately when the [_client] fires.
+  ///
+  /// This is necessary to keep separate the listeners that should be
+  /// notified immediately when the [_client] fires, and the ones that should
+  /// not be notified during the middle of a frame.
+  final _immediateListeners = ChangeNotifier();
+
   @override
   double? get value => _client?.pixels;
 
   SheetMetrics? get metrics {
     return _client?.hasPixels == true ? _client!.metrics : null;
+  }
+
+  @override
+  void addListener(VoidCallback listener, {bool fireImmediately = false}) {
+    if (fireImmediately) {
+      _immediateListeners.addListener(listener);
+    } else {
+      super.addListener(listener);
+    }
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    _immediateListeners.removeListener(listener);
+    super.removeListener(listener);
   }
 
   void attach(SheetExtent extent) {
@@ -47,6 +69,8 @@ class SheetController extends ChangeNotifier
 
   @override
   void notifyListeners() {
+    _immediateListeners.notifyListeners();
+
     // Avoid notifying listeners during the middle of a frame.
     switch (SchedulerBinding.instance.schedulerPhase) {
       case SchedulerPhase.idle:
@@ -56,7 +80,9 @@ class SheetController extends ChangeNotifier
 
       case SchedulerPhase.persistentCallbacks:
       case SchedulerPhase.midFrameMicrotasks:
-        break;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          super.notifyListeners();
+        });
     }
   }
 }

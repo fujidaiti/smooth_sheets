@@ -26,6 +26,13 @@
       "cwd": "./cookbook"
     },
     {
+      "name": "Safari",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/showcase/safari/main.dart",
+      "cwd": "./cookbook"
+    },
+    {
       "name": "Scrollable Sheet",
       "request": "launch",
       "type": "dart",
@@ -93,6 +100,13 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/tutorial/imperative_modal_sheet.dart",
+      "cwd": "./cookbook"
+    },
+    {
+      "name": "Cupertino Modal Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/cupertino_modal_sheet.dart",
       "cwd": "./cookbook"
     },
     {

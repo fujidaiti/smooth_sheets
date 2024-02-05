@@ -25,3 +25,7 @@ extension DoubleUtils on double {
   double nearest(double a, double b) =>
       (a - this).abs() < (b - this).abs() ? a : b;
 }
+
+double inverseLerp(double min, double max, double value) {
+  return min == max ? 1.0 : (value - min) / (max - min);
+}
