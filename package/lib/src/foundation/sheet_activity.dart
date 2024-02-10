@@ -105,16 +105,22 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void didChangeContentDimensions(Size? oldDimensions) {
-    if (pixels != null) {
-      setPixels(
-        delegate.physics
-            .adjustPixelsForNewBoundaryConditions(pixels!, delegate.metrics),
-      );
+    if (delegate.hasPixels) {
       delegate.goBallistic(0);
     }
   }
 
-  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {}
+  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {
+    final oldInsets = oldDimensions?.insets;
+    final insets = delegate.metrics.viewportDimensions.insets;
+    if (pixels != null &&
+        oldInsets != null &&
+        insets.bottom != oldInsets.bottom) {
+      // Append a delta of the bottom inset (typically the keyboard height)
+      // to keep the visual position of the sheet unchanged.
+      correctPixels(pixels! + (oldInsets.bottom - insets.bottom));
+    }
+  }
 }
 
 class DrivenSheetActivity extends SheetActivity {
@@ -167,6 +173,13 @@ class DrivenSheetActivity extends SheetActivity {
     _animation.dispose();
     super.dispose();
   }
+  
+  @override
+  void didChangeContentDimensions(Size? oldDimensions) {
+    if (delegate.hasPixels) {
+      delegate.goBallistic(_animation.velocity);
+    }
+  }
 }
 
 class BallisticSheetActivity extends SheetActivity {
@@ -202,6 +215,13 @@ class BallisticSheetActivity extends SheetActivity {
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeContentDimensions(Size? oldDimensions) {
+    if (delegate.hasPixels) {
+      delegate.goBallistic(controller.velocity);
+    }
   }
 }
 

@@ -283,19 +283,6 @@ class _ContentUserScrollDrivenSheetActivity
   void didChangeContentDimensions(Size? oldDimensions) {
     // This body is intentionally left blank to disable the default behavior.
   }
-
-  @override
-  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {
-    final oldInsets = oldDimensions?.insets;
-    final insets = delegate.metrics.viewportDimensions.insets;
-    if (pixels != null &&
-        oldInsets != null &&
-        insets.bottom != oldInsets.bottom) {
-      // Append a delta of the bottom inset (typically the keyboard height)
-      // to keep the visual position of the sheet unchanged.
-      correctPixels(pixels! + (oldInsets.bottom - insets.bottom));
-    }
-  }
 }
 
 class _ContentBallisticScrollDrivenSheetActivity
