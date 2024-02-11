@@ -121,6 +121,8 @@ abstract class SheetActivity extends ChangeNotifier {
       correctPixels(pixels! + (oldInsets.bottom - insets.bottom));
     }
   }
+
+  void didFinalizeDimensions() {}
 }
 
 class DrivenSheetActivity extends SheetActivity {
@@ -173,7 +175,7 @@ class DrivenSheetActivity extends SheetActivity {
     _animation.dispose();
     super.dispose();
   }
-  
+
   @override
   void didChangeContentDimensions(Size? oldDimensions) {
     if (delegate.hasPixels) {

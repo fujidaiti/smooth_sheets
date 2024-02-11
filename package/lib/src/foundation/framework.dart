@@ -104,6 +104,7 @@ class _RenderSheetViewport extends RenderTransform {
   void performLayout() {
     // We can assume that the viewport will always be as big as possible.
     _lastMeasuredSize = constraints.biggest;
+    _extent.markAsDimensionsWillChange();
     // Notify the SheetExtent about the viewport size changes
     // before performing the layout so that the descendant widgets
     // can use the viewport size during the layout phase.
@@ -121,11 +122,12 @@ class _RenderSheetViewport extends RenderTransform {
     );
 
     assert(
-      _extent.contentDimensions != null && _extent.pixels != null,
-      'The sheet extent and its content dimensions '
+      _extent.hasPixels,
+      'The sheet extent and the dimensions values '
       'must be finalized during the layout phase.',
     );
 
+    _extent.markAsDimensionsChanged();
     _invalidateTranslationValue();
   }
 
@@ -283,9 +285,11 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
 
   @override
   void performLayout() {
+    _extent?.markAsDimensionsWillChange();
     super.performLayout();
     if (child != null && _isPrimary()) {
       _extent?.applyNewContentDimensions(child!.size);
     }
+    _extent?.markAsDimensionsChanged();
   }
 }

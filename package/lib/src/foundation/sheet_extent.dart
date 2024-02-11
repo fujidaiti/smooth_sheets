@@ -139,6 +139,54 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     }
   }
 
+  int _markAsDimensionsWillChangeCallCount = 0;
+
+  @mustCallSuper
+  void markAsDimensionsWillChange() {
+    assert(() {
+      if (_markAsDimensionsWillChangeCallCount == 0) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          assert(
+            _markAsDimensionsWillChangeCallCount == 0,
+            _markAsDimensionsWillChangeCallCount > 0
+                ? 'markAsDimensionsWillChange() was called more times'
+                    'than markAsDimensionsChanged() in a frame.'
+                : 'markAsDimensionsChanged() was called more times'
+                    'than markAsDimensionsWillChange() in a frame.',
+          );
+        });
+      }
+      return true;
+    }());
+
+    _markAsDimensionsWillChangeCallCount++;
+  }
+
+  @mustCallSuper
+  void markAsDimensionsChanged() {
+    assert(
+      _markAsDimensionsWillChangeCallCount > 0,
+      'markAsDimensionsChanged() called without '
+      'a matching call to markAsDimensionsWillChange().',
+    );
+
+    _markAsDimensionsWillChangeCallCount--;
+    if (_markAsDimensionsWillChangeCallCount == 0) {
+      onDimensionsFinalized();
+    }
+  }
+
+  @protected
+  @mustCallSuper
+  void onDimensionsFinalized() {
+    assert(
+      _markAsDimensionsWillChangeCallCount == 0,
+      'Do not call this method until all dimensions changes are finalized.',
+    );
+
+    _activity!.didFinalizeDimensions();
+  }
+
   @mustCallSuper
   void beginActivity(SheetActivity activity) {
     final oldActivity = _activity?..removeListener(notifyListeners);
