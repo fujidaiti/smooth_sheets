@@ -57,7 +57,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     required this.minExtent,
     required this.maxExtent,
   }) {
-    _metrics = _SheetMetricsBox(this);
+    _metrics = _SheetMetricsRef(this);
     beginActivity(IdleSheetActivity());
   }
 
@@ -72,7 +72,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   Size? _contentDimensions;
   ViewportDimensions? _viewportDimensions;
 
-  late final _SheetMetricsBox _metrics;
+  late final _SheetMetricsRef _metrics;
   SheetMetrics get metrics => _metrics;
 
   SheetMetricsSnapshot get snapshot {
@@ -347,8 +347,8 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
       ).toString();
 }
 
-class _SheetMetricsBox with MaybeSheetMetrics, SheetMetrics {
-  _SheetMetricsBox(this._source);
+class _SheetMetricsRef with MaybeSheetMetrics, SheetMetrics {
+  _SheetMetricsRef(this._source);
 
   final MaybeSheetMetrics _source;
 
