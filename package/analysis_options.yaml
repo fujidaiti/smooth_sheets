@@ -9,3 +9,4 @@ linter:
     require_trailing_commas: false
     prefer_int_literals: false
     flutter_style_todos: false
+    cascade_invocations: false
