@@ -160,8 +160,9 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 }
 
-class DrivenSheetActivity extends SheetActivity with DrivenSheetActivityMixin {
-  DrivenSheetActivity({
+class AnimatedSheetActivity extends SheetActivity
+    with DrivenSheetActivityMixin {
+  AnimatedSheetActivity({
     required this.from,
     required this.to,
     required this.duration,

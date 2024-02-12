@@ -232,7 +232,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     if (pixels == destination) {
       return Future.value();
     } else {
-      final activity = DrivenSheetActivity(
+      final activity = AnimatedSheetActivity(
         from: pixels!,
         to: destination,
         duration: duration,
