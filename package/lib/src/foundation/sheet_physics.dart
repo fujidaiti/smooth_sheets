@@ -18,17 +18,6 @@ abstract class SheetPhysics {
     return _spring ?? const ScrollPhysics().spring;
   }
 
-  double adjustPixelsForNewBoundaryConditions(
-    double pixels,
-    SheetMetrics metrics,
-  ) {
-    if (parent != null) {
-      return parent!.adjustPixelsForNewBoundaryConditions(pixels, metrics);
-    }
-
-    return pixels.clamp(metrics.minPixels, metrics.maxPixels);
-  }
-
   double computeOverflow(double offset, SheetMetrics metrics) {
     if (parent != null) {
       return parent!.computeOverflow(offset, metrics);
