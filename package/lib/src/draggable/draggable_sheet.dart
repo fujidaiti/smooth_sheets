@@ -91,10 +91,9 @@ class _IdleDraggableSheetActivity extends IdleSheetActivity {
 
   @override
   void didChangeContentDimensions(Size? oldDimensions) {
+    super.didChangeContentDimensions(oldDimensions);
     if (pixels == null) {
       setPixels(initialExtent.resolve(delegate.contentDimensions!));
-    } else {
-      super.didChangeContentDimensions(oldDimensions);
     }
   }
 }

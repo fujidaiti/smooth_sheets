@@ -286,6 +286,18 @@ mixin MaybeSheetMetrics {
         _ => null,
       };
 
+  double? get minViewPixels => switch ((minPixels, viewportDimensions)) {
+        (final minPixels?, final viewport?) =>
+          minPixels + viewport.insets.bottom,
+        _ => null,
+      };
+
+  double? get maxViewPixels => switch ((maxPixels, viewportDimensions)) {
+        (final maxPixels?, final viewport?) =>
+          maxPixels + viewport.insets.bottom,
+        _ => null,
+      };
+
   bool get hasPixels =>
       pixels != null &&
       minPixels != null &&
@@ -297,9 +309,11 @@ mixin MaybeSheetMetrics {
   String toString() => (
         hasPixels: hasPixels,
         pixels: pixels,
-        viewPixels: viewPixels,
         minPixels: minPixels,
         maxPixels: maxPixels,
+        viewPixels: viewPixels,
+        minViewPixels: minViewPixels,
+        maxViewPixels: maxViewPixels,
         contentDimensions: contentDimensions,
         viewportDimensions: viewportDimensions,
       ).toString();
@@ -323,6 +337,12 @@ mixin SheetMetrics on MaybeSheetMetrics {
 
   @override
   double get viewPixels => super.viewPixels!;
+
+  @override
+  double get minViewPixels => super.minViewPixels!;
+
+  @override
+  double get maxViewPixels => super.maxViewPixels!;
 }
 
 class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {

@@ -89,9 +89,4 @@ class UserDragSheetActivity extends SheetActivity {
     if (!mounted) return;
     delegate.goBallistic(0);
   }
-
-  @override
-  void didChangeContentDimensions(Size? oldDimensions) {
-    // This body is intentionally left blank to disable the default behavior.
-  }
 }

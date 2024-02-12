@@ -238,10 +238,9 @@ class _ContentIdleScrollDrivenSheetActivity
 
   @override
   void didChangeContentDimensions(Size? oldDimensions) {
+    super.didChangeContentDimensions(oldDimensions);
     if (pixels == null) {
       setPixels(initialExtent.resolve(delegate.contentDimensions!));
-    } else {
-      super.didChangeContentDimensions(oldDimensions);
     }
   }
 
@@ -277,11 +276,6 @@ class _ContentUserScrollDrivenSheetActivity
     if (mounted) {
       delegate.goBallistic(0);
     }
-  }
-
-  @override
-  void didChangeContentDimensions(Size? oldDimensions) {
-    // This body is intentionally left blank to disable the default behavior.
   }
 }
 
