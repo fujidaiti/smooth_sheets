@@ -252,7 +252,8 @@ class _ContentIdleScrollDrivenSheetActivity
 }
 
 class _ContentUserScrollDrivenSheetActivity
-    extends _ContentScrollDrivenSheetActivity {
+    extends _ContentScrollDrivenSheetActivity
+    with UserControlledSheetActivityMixin {
   @override
   DelegationResult<void> applyUserScrollOffset(
     double delta,
@@ -300,7 +301,7 @@ class _ContentBallisticScrollDrivenSheetActivity
     }
 
     if (delegate.physics.shouldGoBallistic(velocity, delegate.metrics)) {
-      position.goBallistic(velocity);
+      delegate.goBallistic(velocity);
     }
 
     return DelegationResult.handled(overscroll);
@@ -333,17 +334,6 @@ class _DragInterruptibleBallisticSheetActivity extends BallisticSheetActivity
   void onDragStart(DragStartDetails details) {
     _cancelSimulation();
     delegate.beginActivity(_ContentUserScrollDrivenSheetActivity());
-  }
-
-  @override
-  DelegationResult<ScrollActivity> goBallisticScroll(
-    double velocity,
-    bool shouldIgnorePointer,
-    SheetContentScrollPosition position,
-  ) {
-    _cancelSimulation();
-    delegate.goIdle();
-    return const DelegationResult.notHandled();
   }
 }
 

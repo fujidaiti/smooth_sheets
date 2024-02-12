@@ -5,7 +5,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 
 abstract class SheetActivity extends ChangeNotifier {
   bool _mounted = false;
@@ -22,6 +21,8 @@ abstract class SheetActivity extends ChangeNotifier {
     );
     return _delegate!;
   }
+
+  double get velocity => 0.0;
 
   @mustCallSuper
   void initWith(SheetExtent delegate) {
@@ -103,31 +104,28 @@ abstract class SheetActivity extends ChangeNotifier {
     if (other.pixels != null) {
       correctPixels(other.pixels!);
     }
-    _oldContentDimensions = other._oldContentDimensions;
-    _oldViewportDimensions = other._oldViewportDimensions;
   }
 
-  Size? _oldContentDimensions;
-  ViewportDimensions? _oldViewportDimensions;
+  void didChangeContentDimensions(Size? oldDimensions) {}
 
-  @mustCallSuper
-  void didChangeContentDimensions(Size? oldDimensions) {
-    _oldContentDimensions = oldDimensions;
-  }
+  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {}
 
-  @mustCallSuper
-  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {
-    _oldViewportDimensions = oldDimensions;
-  }
-
-  void didFinalizeDimensions() {
+  void didFinalizeDimensions(
+    Size? oldContentDimensions,
+    ViewportDimensions? oldViewportDimensions,
+  ) {
     assert(pixels != null);
     assert(delegate.hasPixels);
+
+    if (oldContentDimensions == null && oldViewportDimensions == null) {
+      // The sheet was laid out, but not changed in size.
+      return;
+    }
 
     final oldPixels = pixels!;
     final metrics = delegate.metrics;
     final newInsets = metrics.viewportDimensions.insets;
-    final oldInsets = _oldViewportDimensions?.insets ?? newInsets;
+    final oldInsets = oldViewportDimensions?.insets ?? newInsets;
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
 
     switch (deltaInsetBottom) {
@@ -144,19 +142,7 @@ abstract class SheetActivity extends ChangeNotifier {
         );
     }
 
-    if (metrics.contentDimensions != _oldContentDimensions ||
-        metrics.viewportDimensions != _oldViewportDimensions) {
-      // delegate.goBallistic(0.0);
-
-      final parentPhysics = delegate.physics.parent;
-      final detent = (parentPhysics! as SnappingSheetPhysics)
-          .snappingBehavior
-          .findSnapPixels(0, delegate.metrics);
-      if (detent != null) {
-        delegate.animateTo(Extent.pixels(detent),
-            duration: const Duration(milliseconds: 200), curve: Curves.linear);
-      }
-    }
+    delegate.settle();
   }
 }
 
@@ -181,7 +167,7 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  TickerFuture startAnimation() {
+  TickerFuture onAnimationStart() {
     return controller.animateTo(to, duration: duration, curve: curve);
   }
 
@@ -205,15 +191,16 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  TickerFuture startAnimation() {
+  TickerFuture onAnimationStart() {
     return controller.animateWith(simulation);
   }
 
   @override
   void onAnimationEnd() {
-    delegate.goIdle();
+    delegate.settle();
   }
 }
+
 
 class IdleSheetActivity extends SheetActivity {}
 
@@ -225,15 +212,18 @@ mixin DrivenSheetActivityMixin on SheetActivity {
   Future<void> get done => _completer.future;
 
   AnimationController createAnimationController();
-  TickerFuture startAnimation();
+  TickerFuture onAnimationStart();
   void onAnimationEnd() {}
+
+  @override
+  double get velocity => controller.velocity;
 
   @override
   void initWith(SheetExtent delegate) {
     super.initWith(delegate);
     controller = createAnimationController()..addListener(onAnimationTick);
     // Won't trigger if we dispose 'animation' first.
-    startAnimation().whenComplete(onAnimationEnd);
+    onAnimationStart().whenComplete(onAnimationEnd);
     _lastAnimatedValue = controller.value;
   }
 
@@ -253,5 +243,61 @@ mixin DrivenSheetActivityMixin on SheetActivity {
     controller.dispose();
     _completer.complete();
     super.dispose();
+  }
+
+  @override
+  void didFinalizeDimensions(
+    Size? oldContentDimensions,
+    ViewportDimensions? oldViewportDimensions,
+  ) {
+    assert(pixels != null);
+    assert(delegate.hasPixels);
+
+    if (oldContentDimensions == null && oldViewportDimensions == null) {
+      // The sheet was laid out, but not changed in size.
+      return;
+    }
+
+    final oldPixels = pixels!;
+    final metrics = delegate.metrics;
+    final newInsets = metrics.viewportDimensions.insets;
+    final oldInsets = oldViewportDimensions?.insets ?? newInsets;
+    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+
+    switch (deltaInsetBottom) {
+      case > 0:
+        // Prevents the sheet from being pushed off the screen by the keyboard.
+        final correction = min(0.0, metrics.maxViewPixels - metrics.viewPixels);
+        setPixels(oldPixels + correction);
+
+      case < 0:
+        // Appends the delta of the bottom inset (typically the keyboard height)
+        // to keep the visual sheet position unchanged.
+        setPixels(
+          min(oldPixels - deltaInsetBottom, delegate.metrics.maxPixels),
+        );
+    }
+
+    delegate.settle();
+  }
+}
+
+mixin UserControlledSheetActivityMixin on SheetActivity {
+  @override
+  void didFinalizeDimensions(
+    Size? oldContentDimensions,
+    ViewportDimensions? oldViewportDimensions,
+  ) {
+    assert(pixels != null);
+    assert(delegate.hasPixels);
+
+    final newInsets = delegate.viewportDimensions!.insets;
+    final oldInsets = oldViewportDimensions?.insets ?? newInsets;
+    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+    // Appends the delta of the bottom inset (typically the keyboard height)
+    // to keep the visual sheet position unchanged.
+    setPixels(pixels! - deltaInsetBottom);
+    // We don't call `goSettling` here because the user is still
+    // manually controlling the sheet position.
   }
 }

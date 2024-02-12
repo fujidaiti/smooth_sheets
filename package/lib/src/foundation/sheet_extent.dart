@@ -117,10 +117,10 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   @mustCallSuper
   void applyNewContentDimensions(Size contentDimensions) {
     if (_contentDimensions != contentDimensions) {
-      final oldDimensions = _contentDimensions;
+      _oldContentDimensions = _contentDimensions;
       _contentDimensions = contentDimensions;
       _invalidateBoundaryConditions();
-      _activity!.didChangeContentDimensions(oldDimensions);
+      _activity!.didChangeContentDimensions(_oldContentDimensions);
     }
   }
 
@@ -129,16 +129,17 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     if (_viewportDimensions != viewportDimensions) {
       final oldPixels = pixels;
       final oldViewPixels = viewPixels;
-      final oldDimensions = _viewportDimensions;
-
+      _oldViewportDimensions = _viewportDimensions;
       _viewportDimensions = viewportDimensions;
-      _activity!.didChangeViewportDimensions(oldDimensions);
+      _activity!.didChangeViewportDimensions(_oldViewportDimensions);
       if (oldPixels != pixels || oldViewPixels != viewPixels) {
         notifyListeners();
       }
     }
   }
 
+  Size? _oldContentDimensions;
+  ViewportDimensions? _oldViewportDimensions;
   int _markAsDimensionsWillChangeCallCount = 0;
 
   @mustCallSuper
@@ -176,7 +177,6 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     }
   }
 
-  @protected
   @mustCallSuper
   void onDimensionsFinalized() {
     assert(
@@ -184,7 +184,13 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
       'Do not call this method until all dimensions changes are finalized.',
     );
 
-    _activity!.didFinalizeDimensions();
+    _activity!.didFinalizeDimensions(
+      _oldContentDimensions,
+      _oldViewportDimensions,
+    );
+
+    _oldContentDimensions = null;
+    _oldViewportDimensions = null;
   }
 
   @mustCallSuper
@@ -203,13 +209,27 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     }
   }
 
-  void goIdle() => beginActivity(IdleSheetActivity());
+  void goIdle() {
+    beginActivity(IdleSheetActivity());
+  }
 
   void goBallistic(double velocity) {
     assert(hasPixels);
     final simulation = physics.createBallisticSimulation(velocity, metrics);
     if (simulation != null) {
       beginActivity(BallisticSheetActivity(simulation: simulation));
+    } else {
+      goIdle();
+    }
+  }
+
+  void settle() {
+    assert(hasPixels);
+    final simulation = physics.createSettlingSimulation(metrics);
+    if (simulation != null) {
+      beginActivity(BallisticSheetActivity(simulation: simulation));
+    } else {
+      goIdle();
     }
   }
 

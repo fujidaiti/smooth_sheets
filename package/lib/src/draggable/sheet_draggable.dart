@@ -67,7 +67,8 @@ class _SheetDraggableState extends State<SheetDraggable> {
   }
 }
 
-class UserDragSheetActivity extends SheetActivity {
+class UserDragSheetActivity extends SheetActivity
+    with UserControlledSheetActivityMixin {
   void onDragUpdate(DragUpdateDetails details) {
     if (!mounted) return;
     final delta = -1 * details.primaryDelta!;
