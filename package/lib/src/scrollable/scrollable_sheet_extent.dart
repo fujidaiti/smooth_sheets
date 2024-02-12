@@ -59,7 +59,8 @@ class ScrollableSheetExtent extends SingleChildSheetExtent {
 
   @override
   void goIdle() => beginActivity(
-      _ContentIdleScrollDrivenSheetActivity(initialExtent: initialExtent));
+        _ContentIdleScrollDrivenSheetActivity(initialExtent: initialExtent),
+      );
 
   @override
   void goBallistic(double velocity) {
