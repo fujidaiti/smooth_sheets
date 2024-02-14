@@ -57,7 +57,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     required this.minExtent,
     required this.maxExtent,
   }) {
-    _metrics = _SheetMetricsBox(this);
+    _metrics = _SheetMetricsRef(this);
     beginActivity(IdleSheetActivity());
   }
 
@@ -72,7 +72,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   Size? _contentDimensions;
   ViewportDimensions? _viewportDimensions;
 
-  late final _SheetMetricsBox _metrics;
+  late final _SheetMetricsRef _metrics;
   SheetMetrics get metrics => _metrics;
 
   SheetMetricsSnapshot get snapshot {
@@ -117,10 +117,10 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   @mustCallSuper
   void applyNewContentDimensions(Size contentDimensions) {
     if (_contentDimensions != contentDimensions) {
-      final oldDimensions = _contentDimensions;
+      _oldContentDimensions = _contentDimensions;
       _contentDimensions = contentDimensions;
       _invalidateBoundaryConditions();
-      _activity!.didChangeContentDimensions(oldDimensions);
+      _activity!.didChangeContentDimensions(_oldContentDimensions);
     }
   }
 
@@ -129,14 +129,68 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     if (_viewportDimensions != viewportDimensions) {
       final oldPixels = pixels;
       final oldViewPixels = viewPixels;
-      final oldDimensions = _viewportDimensions;
-
+      _oldViewportDimensions = _viewportDimensions;
       _viewportDimensions = viewportDimensions;
-      _activity!.didChangeViewportDimensions(oldDimensions);
+      _activity!.didChangeViewportDimensions(_oldViewportDimensions);
       if (oldPixels != pixels || oldViewPixels != viewPixels) {
         notifyListeners();
       }
     }
+  }
+
+  Size? _oldContentDimensions;
+  ViewportDimensions? _oldViewportDimensions;
+  int _markAsDimensionsWillChangeCallCount = 0;
+
+  @mustCallSuper
+  void markAsDimensionsWillChange() {
+    assert(() {
+      if (_markAsDimensionsWillChangeCallCount == 0) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          assert(
+            _markAsDimensionsWillChangeCallCount == 0,
+            _markAsDimensionsWillChangeCallCount > 0
+                ? 'markAsDimensionsWillChange() was called more times'
+                    'than markAsDimensionsChanged() in a frame.'
+                : 'markAsDimensionsChanged() was called more times'
+                    'than markAsDimensionsWillChange() in a frame.',
+          );
+        });
+      }
+      return true;
+    }());
+
+    _markAsDimensionsWillChangeCallCount++;
+  }
+
+  @mustCallSuper
+  void markAsDimensionsChanged() {
+    assert(
+      _markAsDimensionsWillChangeCallCount > 0,
+      'markAsDimensionsChanged() called without '
+      'a matching call to markAsDimensionsWillChange().',
+    );
+
+    _markAsDimensionsWillChangeCallCount--;
+    if (_markAsDimensionsWillChangeCallCount == 0) {
+      onDimensionsFinalized();
+    }
+  }
+
+  @mustCallSuper
+  void onDimensionsFinalized() {
+    assert(
+      _markAsDimensionsWillChangeCallCount == 0,
+      'Do not call this method until all dimensions changes are finalized.',
+    );
+
+    _activity!.didFinalizeDimensions(
+      _oldContentDimensions,
+      _oldViewportDimensions,
+    );
+
+    _oldContentDimensions = null;
+    _oldViewportDimensions = null;
   }
 
   @mustCallSuper
@@ -155,13 +209,27 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     }
   }
 
-  void goIdle() => beginActivity(IdleSheetActivity());
+  void goIdle() {
+    beginActivity(IdleSheetActivity());
+  }
 
   void goBallistic(double velocity) {
     assert(hasPixels);
     final simulation = physics.createBallisticSimulation(velocity, metrics);
     if (simulation != null) {
       beginActivity(BallisticSheetActivity(simulation: simulation));
+    } else {
+      goIdle();
+    }
+  }
+
+  void settle() {
+    assert(hasPixels);
+    final simulation = physics.createSettlingSimulation(metrics);
+    if (simulation != null) {
+      beginActivity(BallisticSheetActivity(simulation: simulation));
+    } else {
+      goIdle();
     }
   }
 
@@ -184,7 +252,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     if (pixels == destination) {
       return Future.value();
     } else {
-      final activity = DrivenSheetActivity(
+      final activity = AnimatedSheetActivity(
         from: pixels!,
         to: destination,
         duration: duration,
@@ -238,6 +306,18 @@ mixin MaybeSheetMetrics {
         _ => null,
       };
 
+  double? get minViewPixels => switch ((minPixels, viewportDimensions)) {
+        (final minPixels?, final viewport?) =>
+          minPixels + viewport.insets.bottom,
+        _ => null,
+      };
+
+  double? get maxViewPixels => switch ((maxPixels, viewportDimensions)) {
+        (final maxPixels?, final viewport?) =>
+          maxPixels + viewport.insets.bottom,
+        _ => null,
+      };
+
   bool get hasPixels =>
       pixels != null &&
       minPixels != null &&
@@ -249,9 +329,11 @@ mixin MaybeSheetMetrics {
   String toString() => (
         hasPixels: hasPixels,
         pixels: pixels,
-        viewPixels: viewPixels,
         minPixels: minPixels,
         maxPixels: maxPixels,
+        viewPixels: viewPixels,
+        minViewPixels: minViewPixels,
+        maxViewPixels: maxViewPixels,
         contentDimensions: contentDimensions,
         viewportDimensions: viewportDimensions,
       ).toString();
@@ -275,6 +357,12 @@ mixin SheetMetrics on MaybeSheetMetrics {
 
   @override
   double get viewPixels => super.viewPixels!;
+
+  @override
+  double get minViewPixels => super.minViewPixels!;
+
+  @override
+  double get maxViewPixels => super.maxViewPixels!;
 }
 
 class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
@@ -347,8 +435,8 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
       ).toString();
 }
 
-class _SheetMetricsBox with MaybeSheetMetrics, SheetMetrics {
-  _SheetMetricsBox(this._source);
+class _SheetMetricsRef with MaybeSheetMetrics, SheetMetrics {
+  _SheetMetricsRef(this._source);
 
   final MaybeSheetMetrics _source;
 

@@ -67,7 +67,10 @@ class _SheetDraggableState extends State<SheetDraggable> {
   }
 }
 
-class UserDragSheetActivity extends SheetActivity {
+// TODO: Move this class to sheet_activity.dart
+// TODO: Add constructor with `DragGestureRecognizer` parameter
+class UserDragSheetActivity extends SheetActivity
+    with UserControlledSheetActivityMixin {
   void onDragUpdate(DragUpdateDetails details) {
     if (!mounted) return;
     final delta = -1 * details.primaryDelta!;
@@ -88,23 +91,5 @@ class UserDragSheetActivity extends SheetActivity {
   void onDragCancel() {
     if (!mounted) return;
     delegate.goBallistic(0);
-  }
-
-  @override
-  void didChangeContentDimensions(Size? oldDimensions) {
-    // This body is intentionally left blank to disable the default behavior.
-  }
-
-  @override
-  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {
-    final oldInsets = oldDimensions?.insets;
-    final insets = delegate.metrics.viewportDimensions.insets;
-    if (pixels != null &&
-        oldInsets != null &&
-        insets.bottom != oldInsets.bottom) {
-      // Append a delta of the bottom inset (typically the keyboard height)
-      // to keep the visual position of the sheet unchanged.
-      correctPixels(pixels! + (oldInsets.bottom - insets.bottom));
-    }
   }
 }

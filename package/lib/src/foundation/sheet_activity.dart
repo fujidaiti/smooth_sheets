@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 
-import 'package:flutter/animation.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 
@@ -21,6 +21,8 @@ abstract class SheetActivity extends ChangeNotifier {
     );
     return _delegate!;
   }
+
+  double get velocity => 0.0;
 
   @mustCallSuper
   void initWith(SheetExtent delegate) {
@@ -104,21 +106,49 @@ abstract class SheetActivity extends ChangeNotifier {
     }
   }
 
-  void didChangeContentDimensions(Size? oldDimensions) {
-    if (pixels != null) {
-      setPixels(
-        delegate.physics
-            .adjustPixelsForNewBoundaryConditions(pixels!, delegate.metrics),
-      );
-      delegate.goBallistic(0);
-    }
-  }
+  void didChangeContentDimensions(Size? oldDimensions) {}
 
   void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {}
+
+  void didFinalizeDimensions(
+    Size? oldContentDimensions,
+    ViewportDimensions? oldViewportDimensions,
+  ) {
+    assert(pixels != null);
+    assert(delegate.hasPixels);
+
+    if (oldContentDimensions == null && oldViewportDimensions == null) {
+      // The sheet was laid out, but not changed in size.
+      return;
+    }
+
+    final oldPixels = pixels!;
+    final metrics = delegate.metrics;
+    final newInsets = metrics.viewportDimensions.insets;
+    final oldInsets = oldViewportDimensions?.insets ?? newInsets;
+    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+
+    switch (deltaInsetBottom) {
+      case > 0:
+        // Prevents the sheet from being pushed off the screen by the keyboard.
+        final correction = min(0.0, metrics.maxViewPixels - metrics.viewPixels);
+        setPixels(oldPixels + correction);
+
+      case < 0:
+        // Appends the delta of the bottom inset (typically the keyboard height)
+        // to keep the visual sheet position unchanged.
+        setPixels(
+          min(oldPixels - deltaInsetBottom, delegate.metrics.maxPixels),
+        );
+    }
+
+    delegate.settle();
+  }
 }
 
-class DrivenSheetActivity extends SheetActivity {
-  DrivenSheetActivity({
+class AnimatedSheetActivity extends SheetActivity
+    with DrivenSheetActivityMixin {
+  AnimatedSheetActivity({
     required this.from,
     required this.to,
     required this.duration,
@@ -130,79 +160,107 @@ class DrivenSheetActivity extends SheetActivity {
   final Duration duration;
   final Curve curve;
 
-  late final AnimationController _animation;
-
-  final _completer = Completer<void>();
-
-  Future<void> get done => _completer.future;
-
   @override
-  void initWith(SheetExtent delegate) {
-    super.initWith(delegate);
-    _animation = AnimationController.unbounded(
-      value: from,
-      vsync: delegate.context.vsync,
-    )
-      ..addListener(onAnimationTick)
-      ..animateTo(to, duration: duration, curve: curve)
-          // Won't trigger if we dispose 'animation' first.
-          .whenComplete(onAnimationEnd);
+  AnimationController createAnimationController() {
+    return AnimationController.unbounded(
+        value: from, vsync: delegate.context.vsync);
   }
 
-  @protected
-  void onAnimationTick() {
-    final oldPixels = pixels;
-    setPixels(_animation.value);
-    if (pixels != oldPixels) {
-      dispatchUpdateNotification();
-    }
+  @override
+  TickerFuture onAnimationStart() {
+    return controller.animateTo(to, duration: duration, curve: curve);
   }
 
-  @protected
-  void onAnimationEnd() => delegate.goBallistic(0);
-
   @override
-  void dispose() {
-    _completer.complete();
-    _animation.dispose();
-    super.dispose();
+  void onAnimationEnd() {
+    delegate.goBallistic(0);
   }
 }
 
-class BallisticSheetActivity extends SheetActivity {
+class BallisticSheetActivity extends SheetActivity
+    with DrivenSheetActivityMixin {
   BallisticSheetActivity({
     required this.simulation,
   });
 
   final Simulation simulation;
+
+  @override
+  AnimationController createAnimationController() {
+    return AnimationController.unbounded(vsync: delegate.context.vsync);
+  }
+
+  @override
+  TickerFuture onAnimationStart() {
+    return controller.animateWith(simulation);
+  }
+
+  @override
+  void onAnimationEnd() {
+    delegate.settle();
+  }
+}
+
+class IdleSheetActivity extends SheetActivity {}
+
+mixin DrivenSheetActivityMixin on SheetActivity {
   late final AnimationController controller;
+  late double _lastAnimatedValue;
+
+  final _completer = Completer<void>();
+  Future<void> get done => _completer.future;
+
+  AnimationController createAnimationController();
+  TickerFuture onAnimationStart();
+  void onAnimationEnd() {}
+
+  @override
+  double get velocity => controller.velocity;
 
   @override
   void initWith(SheetExtent delegate) {
     super.initWith(delegate);
-
-    controller = AnimationController.unbounded(vsync: delegate.context.vsync)
-      ..addListener(onTick)
-      ..animateWith(simulation).whenComplete(onEnd);
+    controller = createAnimationController()..addListener(onAnimationTick);
+    // Won't trigger if we dispose 'animation' first.
+    onAnimationStart().whenComplete(onAnimationEnd);
+    _lastAnimatedValue = controller.value;
   }
 
-  void onTick() {
-    final oldPixels = pixels;
-    setPixels(controller.value);
-    if (pixels != oldPixels) {
-      dispatchUpdateNotification();
+  void onAnimationTick() {
+    if (mounted) {
+      final oldPixels = pixels;
+      setPixels(pixels! + controller.value - _lastAnimatedValue);
+      if (pixels != oldPixels) {
+        dispatchUpdateNotification();
+      }
+      _lastAnimatedValue = controller.value;
     }
-  }
-
-  void onEnd() {
-    delegate.goIdle();
   }
 
   @override
   void dispose() {
     controller.dispose();
+    _completer.complete();
     super.dispose();
   }
 }
 
-class IdleSheetActivity extends SheetActivity {}
+mixin UserControlledSheetActivityMixin on SheetActivity {
+  @override
+  void didFinalizeDimensions(
+    Size? oldContentDimensions,
+    ViewportDimensions? oldViewportDimensions,
+  ) {
+    assert(pixels != null);
+    assert(delegate.hasPixels);
+
+    final newInsets = delegate.viewportDimensions!.insets;
+    final oldInsets = oldViewportDimensions?.insets ?? newInsets;
+    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+    // Appends the delta of the bottom inset (typically the keyboard height)
+    // to keep the visual sheet position unchanged.
+    setPixels(pixels! - deltaInsetBottom);
+    // We don't call `goSettling` here because the user is still
+    // manually controlling the sheet position.
+  }
+}

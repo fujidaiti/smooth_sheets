@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
 
+// logical pixels per second
+const _defaultSettlingSpeed = 1000.0;
+
 abstract class SheetPhysics {
   const SheetPhysics({
     this.parent,
@@ -16,17 +19,6 @@ abstract class SheetPhysics {
   final SpringDescription? _spring;
   SpringDescription get spring {
     return _spring ?? const ScrollPhysics().spring;
-  }
-
-  double adjustPixelsForNewBoundaryConditions(
-    double pixels,
-    SheetMetrics metrics,
-  ) {
-    if (parent != null) {
-      return parent!.adjustPixelsForNewBoundaryConditions(pixels, metrics);
-    }
-
-    return pixels.clamp(metrics.minPixels, metrics.maxPixels);
   }
 
   double computeOverflow(double offset, SheetMetrics metrics) {
@@ -61,12 +53,32 @@ abstract class SheetPhysics {
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
     if (parent != null) {
       return parent!.createBallisticSimulation(velocity, metrics);
-    } else if (metrics.pixels < metrics.minPixels) {
+    } else if (metrics.pixels.isLessThan(metrics.minPixels)) {
       return ScrollSpringSimulation(
           spring, metrics.pixels, metrics.minPixels, velocity);
-    } else if (metrics.pixels > metrics.maxPixels) {
+    } else if (metrics.pixels.isGreaterThan(metrics.maxPixels)) {
       return ScrollSpringSimulation(
           spring, metrics.pixels, metrics.maxPixels, velocity);
+    } else {
+      return null;
+    }
+  }
+
+  Simulation? createSettlingSimulation(SheetMetrics metrics) {
+    if (parent != null) {
+      return parent!.createSettlingSimulation(metrics);
+    } else if (metrics.pixels.isLessThan(metrics.minPixels)) {
+      return UniformLinearSimulation(
+        position: metrics.pixels,
+        detent: metrics.minPixels,
+        speed: _defaultSettlingSpeed,
+      );
+    } else if (metrics.pixels.isGreaterThan(metrics.maxPixels)) {
+      return UniformLinearSimulation(
+        position: metrics.pixels,
+        detent: metrics.minPixels,
+        speed: _defaultSettlingSpeed,
+      );
     } else {
       return null;
     }
@@ -89,6 +101,40 @@ abstract class SheetPhysics {
 
   @override
   int get hashCode => Object.hash(runtimeType, parent);
+}
+
+class UniformLinearSimulation extends Simulation {
+  UniformLinearSimulation({
+    required this.position,
+    required this.detent,
+    required double speed,
+  }) : assert(speed > 0) {
+    velocity = (detent - position).sign * speed;
+    duration = (detent - position) / velocity;
+  }
+
+  final double position;
+  final double detent;
+  late final double velocity;
+  late final double duration;
+
+  @override
+  double dx(double time) {
+    return velocity;
+  }
+
+  @override
+  double x(double time) {
+    return switch (time < duration) {
+      true => position + velocity * time,
+      false => detent,
+    };
+  }
+
+  @override
+  bool isDone(double time) {
+    return x(time).isApprox(detent);
+  }
 }
 
 typedef SnapPixelsProvider = double? Function(
@@ -191,13 +237,25 @@ class SnappingSheetPhysics extends SheetPhysics {
   @override
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
     final snapPixels = snappingBehavior.findSnapPixels(velocity, metrics);
-    final currentPixels = metrics.pixels;
-
-    if (snapPixels != null && !currentPixels.isApprox(snapPixels)) {
+    if (snapPixels != null && !metrics.pixels.isApprox(snapPixels)) {
       return ScrollSpringSimulation(
-          spring, currentPixels, snapPixels, velocity);
+          spring, metrics.pixels, snapPixels, velocity);
     } else {
       return super.createBallisticSimulation(velocity, metrics);
+    }
+  }
+
+  @override
+  Simulation? createSettlingSimulation(SheetMetrics metrics) {
+    final snapPixels = snappingBehavior.findSnapPixels(0, metrics);
+    if (snapPixels != null && !metrics.pixels.isApprox(snapPixels)) {
+      return UniformLinearSimulation(
+        position: metrics.pixels,
+        detent: snapPixels,
+        speed: _defaultSettlingSpeed,
+      );
+    } else {
+      return super.createSettlingSimulation(metrics);
     }
   }
 

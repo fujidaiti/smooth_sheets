@@ -59,7 +59,8 @@ class ScrollableSheetExtent extends SingleChildSheetExtent {
 
   @override
   void goIdle() => beginActivity(
-      _ContentIdleScrollDrivenSheetActivity(initialExtent: initialExtent));
+        _ContentIdleScrollDrivenSheetActivity(initialExtent: initialExtent),
+      );
 
   @override
   void goBallistic(double velocity) {
@@ -238,10 +239,9 @@ class _ContentIdleScrollDrivenSheetActivity
 
   @override
   void didChangeContentDimensions(Size? oldDimensions) {
+    super.didChangeContentDimensions(oldDimensions);
     if (pixels == null) {
       setPixels(initialExtent.resolve(delegate.contentDimensions!));
-    } else {
-      super.didChangeContentDimensions(oldDimensions);
     }
   }
 
@@ -252,7 +252,8 @@ class _ContentIdleScrollDrivenSheetActivity
 }
 
 class _ContentUserScrollDrivenSheetActivity
-    extends _ContentScrollDrivenSheetActivity {
+    extends _ContentScrollDrivenSheetActivity
+    with UserControlledSheetActivityMixin {
   @override
   DelegationResult<void> applyUserScrollOffset(
     double delta,
@@ -278,24 +279,6 @@ class _ContentUserScrollDrivenSheetActivity
       delegate.goBallistic(0);
     }
   }
-
-  @override
-  void didChangeContentDimensions(Size? oldDimensions) {
-    // This body is intentionally left blank to disable the default behavior.
-  }
-
-  @override
-  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {
-    final oldInsets = oldDimensions?.insets;
-    final insets = delegate.metrics.viewportDimensions.insets;
-    if (pixels != null &&
-        oldInsets != null &&
-        insets.bottom != oldInsets.bottom) {
-      // Append a delta of the bottom inset (typically the keyboard height)
-      // to keep the visual position of the sheet unchanged.
-      correctPixels(pixels! + (oldInsets.bottom - insets.bottom));
-    }
-  }
 }
 
 class _ContentBallisticScrollDrivenSheetActivity
@@ -318,7 +301,7 @@ class _ContentBallisticScrollDrivenSheetActivity
     }
 
     if (delegate.physics.shouldGoBallistic(velocity, delegate.metrics)) {
-      position.goBallistic(velocity);
+      delegate.goBallistic(velocity);
     }
 
     return DelegationResult.handled(overscroll);
@@ -351,17 +334,6 @@ class _DragInterruptibleBallisticSheetActivity extends BallisticSheetActivity
   void onDragStart(DragStartDetails details) {
     _cancelSimulation();
     delegate.beginActivity(_ContentUserScrollDrivenSheetActivity());
-  }
-
-  @override
-  DelegationResult<ScrollActivity> goBallisticScroll(
-    double velocity,
-    bool shouldIgnorePointer,
-    SheetContentScrollPosition position,
-  ) {
-    _cancelSimulation();
-    delegate.goIdle();
-    return const DelegationResult.notHandled();
   }
 }
 
