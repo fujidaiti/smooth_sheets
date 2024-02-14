@@ -67,6 +67,8 @@ class _SheetDraggableState extends State<SheetDraggable> {
   }
 }
 
+// TODO: Move this class to sheet_activity.dart
+// TODO: Add constructor with `DragGestureRecognizer` parameter
 class UserDragSheetActivity extends SheetActivity
     with UserControlledSheetActivityMixin {
   void onDragUpdate(DragUpdateDetails details) {
