@@ -302,7 +302,7 @@ class _ProxySheetActivity extends SheetActivity {
 
   @override
   void didChangeContentDimensions(Size? oldDimensions) {
-      super.didChangeContentDimensions(oldDimensions);
-      _syncPixelsImplicitly();
+    super.didChangeContentDimensions(oldDimensions);
+    _syncPixelsImplicitly();
   }
 }

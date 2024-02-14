@@ -201,7 +201,6 @@ class BallisticSheetActivity extends SheetActivity
   }
 }
 
-
 class IdleSheetActivity extends SheetActivity {}
 
 mixin DrivenSheetActivityMixin on SheetActivity {
