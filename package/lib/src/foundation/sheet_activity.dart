@@ -243,42 +243,6 @@ mixin DrivenSheetActivityMixin on SheetActivity {
     _completer.complete();
     super.dispose();
   }
-
-  @override
-  void didFinalizeDimensions(
-    Size? oldContentDimensions,
-    ViewportDimensions? oldViewportDimensions,
-  ) {
-    assert(pixels != null);
-    assert(delegate.hasPixels);
-
-    if (oldContentDimensions == null && oldViewportDimensions == null) {
-      // The sheet was laid out, but not changed in size.
-      return;
-    }
-
-    final oldPixels = pixels!;
-    final metrics = delegate.metrics;
-    final newInsets = metrics.viewportDimensions.insets;
-    final oldInsets = oldViewportDimensions?.insets ?? newInsets;
-    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
-
-    switch (deltaInsetBottom) {
-      case > 0:
-        // Prevents the sheet from being pushed off the screen by the keyboard.
-        final correction = min(0.0, metrics.maxViewPixels - metrics.viewPixels);
-        setPixels(oldPixels + correction);
-
-      case < 0:
-        // Appends the delta of the bottom inset (typically the keyboard height)
-        // to keep the visual sheet position unchanged.
-        setPixels(
-          min(oldPixels - deltaInsetBottom, delegate.metrics.maxPixels),
-        );
-    }
-
-    delegate.settle();
-  }
 }
 
 mixin UserControlledSheetActivityMixin on SheetActivity {
