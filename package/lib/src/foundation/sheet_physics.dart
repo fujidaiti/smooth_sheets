@@ -156,7 +156,6 @@ class SnapToNearest implements SnappingSheetBehavior {
   final List<Extent> snapTo;
   final double maxFlingVelocityToSnap;
 
-  // TODO: Cache the result in a Expando.
   ({double min, double max}) _getSnapRange(SheetMetrics metrics) {
     var minPixels = double.infinity;
     var maxPixels = double.negativeInfinity;
@@ -180,7 +179,6 @@ class SnapToNearest implements SnappingSheetBehavior {
 
   double _findNearestPixelsIn(List<Extent> snapTo, SheetMetrics metrics) {
     assert(snapTo.isNotEmpty);
-    // TODO: Cache the snap positions in a Expando.
     return snapTo
         .map((extent) => extent.resolve(metrics.contentDimensions))
         .reduce((nearest, next) => metrics.pixels.nearest(nearest, next));
