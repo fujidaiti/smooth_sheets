@@ -22,6 +22,7 @@ class ModalSheetPage<T> extends Page<T> {
     this.maintainState = true,
     this.enablePullToDismiss = true,
     this.barrierDismissible = true,
+    this.fullscreenDialog = false,
     this.barrierLabel,
     this.barrierColor = Colors.black54,
     this.transitionDuration = const Duration(milliseconds: 300),
@@ -34,6 +35,8 @@ class ModalSheetPage<T> extends Page<T> {
 
   /// {@macro flutter.widgets.ModalRoute.maintainState}
   final bool maintainState;
+
+  final bool fullscreenDialog;
 
   final Color? barrierColor;
 
@@ -49,7 +52,10 @@ class ModalSheetPage<T> extends Page<T> {
 
   @override
   Route<T> createRoute(BuildContext context) {
-    return _PageBasedModalSheetRoute(page: this);
+    return _PageBasedModalSheetRoute(
+      page: this,
+      fullscreenDialog: fullscreenDialog,
+    );
   }
 }
 
@@ -57,6 +63,7 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
     with ModalSheetRouteMixin<T> {
   _PageBasedModalSheetRoute({
     required ModalSheetPage<T> page,
+    super.fullscreenDialog,
   }) : super(settings: page);
 
   ModalSheetPage<T> get _page => settings as ModalSheetPage<T>;
@@ -91,6 +98,8 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
 
 class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   ModalSheetRoute({
+    super.settings,
+    super.fullscreenDialog,
     required this.builder,
     this.enablePullToDismiss = true,
     this.maintainState = true,

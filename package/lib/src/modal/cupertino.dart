@@ -335,7 +335,10 @@ class _CupertinoStackedTransitionState extends State<CupertinoStackedTransition>
 
 abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     with ModalSheetRouteMixin<T> {
-  _BaseCupertinoModalSheetRoute({super.settings});
+  _BaseCupertinoModalSheetRoute({
+    super.settings,
+    super.fullscreenDialog,
+  });
 
   PageRoute<dynamic>? _previousRoute;
 
@@ -407,6 +410,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.maintainState = true,
     this.enablePullToDismiss = true,
     this.barrierDismissible = true,
+    this.fullscreenDialog = false,
     this.barrierLabel,
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
@@ -419,6 +423,8 @@ class CupertinoModalSheetPage<T> extends Page<T> {
 
   /// {@macro flutter.widgets.ModalRoute.maintainState}
   final bool maintainState;
+
+  final bool fullscreenDialog;
 
   final Color? barrierColor;
 
@@ -434,7 +440,10 @@ class CupertinoModalSheetPage<T> extends Page<T> {
 
   @override
   Route<T> createRoute(BuildContext context) {
-    return _PageBasedCupertinoModalSheetRoute(page: this);
+    return _PageBasedCupertinoModalSheetRoute(
+      page: this,
+      fullscreenDialog: fullscreenDialog,
+    );
   }
 }
 
@@ -442,6 +451,7 @@ class _PageBasedCupertinoModalSheetRoute<T>
     extends _BaseCupertinoModalSheetRoute<T> {
   _PageBasedCupertinoModalSheetRoute({
     required CupertinoModalSheetPage<T> page,
+    super.fullscreenDialog,
   }) : super(settings: page);
 
   CupertinoModalSheetPage<T> get _page =>
@@ -477,6 +487,8 @@ class _PageBasedCupertinoModalSheetRoute<T>
 
 class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   CupertinoModalSheetRoute({
+    super.settings,
+    super.fullscreenDialog,
     required this.builder,
     this.enablePullToDismiss = true,
     this.maintainState = true,
