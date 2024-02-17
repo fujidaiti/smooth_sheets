@@ -148,7 +148,7 @@ typedef SnapPixelsProvider = double? Function(
 );
 
 abstract interface class SnappingSheetBehavior {
-  double? findSnapPixels(double scrollVelocity, SheetMetrics metrics);
+  double? findSnapPixels(double velocity, SheetMetrics metrics);
 }
 
 /// A [SnappingSheetBehavior] that snaps to either [SheetExtent.minPixels]
@@ -177,10 +177,10 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
   final double minFlingGestureSpeed;
 
   @override
-  double? findSnapPixels(double scrollVelocity, SheetMetrics metrics) {
-    if (scrollVelocity.abs() < minFlingGestureSpeed) {
+  double? findSnapPixels(double velocity, SheetMetrics metrics) {
+    if (velocity.abs() < minFlingGestureSpeed) {
       return metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
-    } else if (scrollVelocity < 0) {
+    } else if (velocity < 0) {
       return metrics.minPixels;
     } else {
       return metrics.maxPixels;
