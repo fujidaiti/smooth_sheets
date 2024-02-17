@@ -8,6 +8,10 @@ import 'package:smooth_sheets/src/internal/double_utils.dart';
 // logical pixels per second
 const _defaultSettlingSpeed = 1000.0;
 
+/// The default lowest speed (in logical pixels per second)
+/// at which a gesture is considered to be a fling.
+const _defaultMinFlingGestureSpeed = 500.0;
+
 abstract class SheetPhysics {
   const SheetPhysics({
     this.parent,
@@ -147,6 +151,40 @@ abstract interface class SnappingSheetBehavior {
   double? findSnapPixels(double scrollVelocity, SheetMetrics metrics);
 }
 
+/// A [SnappingSheetBehavior] that snaps to either [SheetExtent.minPixels]
+/// or [SheetExtent.maxPixels] based on the current position and the gesture
+/// velocity.
+///
+/// If the absolute value of the gesture velocity is less than
+/// [minFlingGestureSpeed], the sheet will snap to the nearest of
+/// [SheetExtent.minPixels] and [SheetExtent.maxPixels].
+///
+/// Otherwise, the gesture is considered to be a fling, and the sheet will snap
+/// towards the direction of the fling. For example, if the sheet is flung up,
+/// it will snap to [SheetExtent.maxPixels].
+class SnapToNearestEdge implements SnappingSheetBehavior {
+  /// Creates a [SnappingSheetBehavior] that snaps to either
+  /// [SheetExtent.minPixels] or [SheetExtent.maxPixels].
+  const SnapToNearestEdge({
+    this.minFlingGestureSpeed = _defaultMinFlingGestureSpeed,
+  });
+
+  /// The lowest speed (in logical pixels per second)
+  /// at which a gesture is considered to be a fling.
+  final double minFlingGestureSpeed;
+
+  @override
+  double? findSnapPixels(double scrollVelocity, SheetMetrics metrics) {
+    if (scrollVelocity.abs() < minFlingGestureSpeed) {
+      return metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
+    } else if (scrollVelocity < 0) {
+      return metrics.minPixels;
+    } else {
+      return metrics.maxPixels;
+    }
+  }
+}
+
 class SnapToNearest implements SnappingSheetBehavior {
   const SnapToNearest({
     this.snapTo = const [Extent.proportional(1)],
@@ -214,7 +252,7 @@ class SnappingSheetPhysics extends SheetPhysics {
   const SnappingSheetPhysics({
     super.parent,
     super.spring,
-    this.snappingBehavior = const SnapToNearest(),
+    this.snappingBehavior = const SnapToNearestEdge(),
   });
 
   final SnappingSheetBehavior snappingBehavior;

@@ -24,11 +24,7 @@ class MenuSheet extends StatelessWidget {
       initialExtent: halfWayExtent,
       minExtent: halfWayExtent,
       physics: const StretchingSheetPhysics(
-        parent: SnappingSheetPhysics(
-          snappingBehavior: SnapToNearest(
-            snapTo: [halfWayExtent, Extent.proportional(1)],
-          ),
-        ),
+        parent: SnappingSheetPhysics(),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),

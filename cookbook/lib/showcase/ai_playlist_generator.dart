@@ -107,14 +107,7 @@ final _confirmRoute = GoRoute(
       initialExtent: Extent.proportional(0.7),
       minExtent: Extent.proportional(0.7),
       physics: StretchingSheetPhysics(
-        parent: SnappingSheetPhysics(
-          snappingBehavior: SnapToNearest(
-            snapTo: [
-              Extent.proportional(0.7),
-              Extent.proportional(1),
-            ],
-          ),
-        ),
+        parent: SnappingSheetPhysics(),
       ),
       child: _ConfirmPage(),
     );
