@@ -153,7 +153,7 @@ abstract interface class SnappingSheetBehavior {
 /// the gesture velocity.
 ///
 /// If the absolute value of the gesture velocity is less than
-/// [minFlingGestureSpeed], the sheet will snap to the nearest of
+/// [minFlingSpeed], the sheet will snap to the nearest of
 /// [SheetExtent.minPixels] and [SheetExtent.maxPixels].
 /// Otherwise, the gesture is considered to be a fling, and the sheet will snap
 /// towards the direction of the fling. For example, if the sheet is flung up,
@@ -166,19 +166,19 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
   /// Creates a [SnappingSheetBehavior] that snaps to either
   /// [SheetExtent.minPixels] or [SheetExtent.maxPixels].
   ///
-  /// The [minFlingGestureSpeed] defaults to [kMinFlingVelocity],
+  /// The [minFlingSpeed] defaults to [kMinFlingVelocity],
   /// and must be non-negative.
   const SnapToNearestEdge({
-    this.minFlingGestureSpeed = kMinFlingVelocity,
-  }) : assert(minFlingGestureSpeed >= 0);
+    this.minFlingSpeed = kMinFlingVelocity,
+  }) : assert(minFlingSpeed >= 0);
 
   /// The lowest speed (in logical pixels per second)
   /// at which a gesture is considered to be a fling.
-  final double minFlingGestureSpeed;
+  final double minFlingSpeed;
 
   @override
   double? findSnapPixels(double velocity, SheetMetrics metrics) {
-    if (velocity.abs() < minFlingGestureSpeed) {
+    if (velocity.abs() < minFlingSpeed) {
       return metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
     } else if (velocity < 0) {
       return metrics.minPixels;
@@ -192,24 +192,24 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
       identical(this, other) ||
       (other is SnapToNearestEdge &&
           runtimeType == other.runtimeType &&
-          minFlingGestureSpeed == other.minFlingGestureSpeed);
+          minFlingSpeed == other.minFlingSpeed);
 
   @override
   int get hashCode => Object.hash(
         runtimeType,
-        minFlingGestureSpeed,
+        minFlingSpeed,
       );
 }
 
 class SnapToNearest implements SnappingSheetBehavior {
   SnapToNearest({
     required this.snapTo,
-    this.minFlingGestureSpeed = kMinFlingVelocity,
+    this.minFlingSpeed = kMinFlingVelocity,
   })  : assert(snapTo.isNotEmpty),
-        assert(minFlingGestureSpeed >= 0);
+        assert(minFlingSpeed >= 0);
 
   final List<Extent> snapTo;
-  final double minFlingGestureSpeed;
+  final double minFlingSpeed;
 
   /// Cached results of [Extent.resolve] for each snap position in [snapTo].
   ///
@@ -265,7 +265,7 @@ class SnapToNearest implements SnappingSheetBehavior {
       }
     }
 
-    if (velocity.abs() < minFlingGestureSpeed) {
+    if (velocity.abs() < minFlingSpeed) {
       return metrics.pixels.nearest(nearestSmaller, nearestGreater);
     } else if (velocity < 0) {
       return nearestSmaller;
@@ -284,13 +284,13 @@ class SnapToNearest implements SnappingSheetBehavior {
       identical(this, other) ||
       (other is SnapToNearest &&
           runtimeType == other.runtimeType &&
-          minFlingGestureSpeed == other.minFlingGestureSpeed &&
+          minFlingSpeed == other.minFlingSpeed &&
           const DeepCollectionEquality().equals(snapTo, other.snapTo));
 
   @override
   int get hashCode => Object.hash(
         runtimeType,
-        minFlingGestureSpeed,
+        minFlingSpeed,
         snapTo,
       );
 }
