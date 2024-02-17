@@ -1,16 +1,13 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
 
 // logical pixels per second
 const _defaultSettlingSpeed = 1000.0;
-
-/// The default lowest speed (in logical pixels per second)
-/// at which a gesture is considered to be a fling.
-const _defaultMinFlingGestureSpeed = 500.0;
 
 abstract class SheetPhysics {
   const SheetPhysics({
@@ -168,9 +165,12 @@ abstract interface class SnappingSheetBehavior {
 class SnapToNearestEdge implements SnappingSheetBehavior {
   /// Creates a [SnappingSheetBehavior] that snaps to either
   /// [SheetExtent.minPixels] or [SheetExtent.maxPixels].
+  ///
+  /// The [minFlingGestureSpeed] defaults to [kMinFlingVelocity],
+  /// and must be non-negative.
   const SnapToNearestEdge({
-    this.minFlingGestureSpeed = _defaultMinFlingGestureSpeed,
-  }): assert(minFlingGestureSpeed >= 0);
+    this.minFlingGestureSpeed = kMinFlingVelocity,
+  }) : assert(minFlingGestureSpeed >= 0);
 
   /// The lowest speed (in logical pixels per second)
   /// at which a gesture is considered to be a fling.
@@ -204,7 +204,7 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
 class SnapToNearest implements SnappingSheetBehavior {
   SnapToNearest({
     required this.snapTo,
-    this.minFlingGestureSpeed = _defaultMinFlingGestureSpeed,
+    this.minFlingGestureSpeed = kMinFlingVelocity,
   })  : assert(snapTo.isNotEmpty),
         assert(minFlingGestureSpeed >= 0);
 
@@ -252,7 +252,7 @@ class SnapToNearest implements SnappingSheetBehavior {
       return snapTo.first;
     } else if (metrics.pixels.isGreaterThan(snapTo.last)) {
       return snapTo.last;
-  }
+    }
 
     var nearestSmaller = snapTo[0];
     var nearestGreater = snapTo[1];
