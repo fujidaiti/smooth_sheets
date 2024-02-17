@@ -43,13 +43,13 @@ class _ExampleSheet extends StatelessWidget {
       bottomBar: buildBottomBar(),
     );
 
-    const physics = StretchingSheetPhysics(
+    final physics = StretchingSheetPhysics(
       parent: SnappingSheetPhysics(
         snappingBehavior: SnapToNearest(
           snapTo: [
-            Extent.proportional(0.2),
-            Extent.proportional(0.5),
-            Extent.proportional(1),
+            const Extent.proportional(0.2),
+            const Extent.proportional(0.5),
+            const Extent.proportional(1),
           ],
         ),
       ),
