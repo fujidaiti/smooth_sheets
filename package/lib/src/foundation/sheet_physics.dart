@@ -56,10 +56,10 @@ abstract class SheetPhysics {
       return parent!.createBallisticSimulation(velocity, metrics);
     } else if (metrics.pixels.isLessThan(metrics.minPixels)) {
       return ScrollSpringSimulation(
-          spring, metrics.pixels, metrics.minPixels, velocity);
+          spring, metrics.pixels, metrics.minPixels, 0);
     } else if (metrics.pixels.isGreaterThan(metrics.maxPixels)) {
       return ScrollSpringSimulation(
-          spring, metrics.pixels, metrics.maxPixels, velocity);
+          spring, metrics.pixels, metrics.maxPixels, 0);
     } else {
       return null;
     }
@@ -178,7 +178,9 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
 
   @override
   double? findSnapPixels(double velocity, SheetMetrics metrics) {
-    if (velocity.abs() < minFlingSpeed) {
+    if (metrics.pixels.isOutOfRange(metrics.minPixels, metrics.maxPixels)) {
+      return null;
+    } else if (velocity.abs() < minFlingSpeed) {
       return metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
     } else if (velocity < 0) {
       return metrics.minPixels;
@@ -274,9 +276,11 @@ class SnapToNearest implements SnappingSheetBehavior {
     }
   }
 
-  bool _shouldSnap(double scrollVelocity, SheetMetrics metrics) {
-    // TODO: Implement this.
-    return true;
+  bool _shouldSnap(double velocity, SheetMetrics metrics) {
+    return metrics.pixels.isInRange(
+      _cachedSnapPixelsList.first,
+      _cachedSnapPixelsList.last,
+    );
   }
 
   @override
