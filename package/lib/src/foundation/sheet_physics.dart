@@ -170,7 +170,7 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
   /// [SheetExtent.minPixels] or [SheetExtent.maxPixels].
   const SnapToNearestEdge({
     this.minFlingGestureSpeed = _defaultMinFlingGestureSpeed,
-  });
+  }): assert(minFlingGestureSpeed >= 0);
 
   /// The lowest speed (in logical pixels per second)
   /// at which a gesture is considered to be a fling.
