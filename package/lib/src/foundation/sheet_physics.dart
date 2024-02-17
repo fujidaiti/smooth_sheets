@@ -152,8 +152,8 @@ abstract interface class SnappingSheetBehavior {
 }
 
 /// A [SnappingSheetBehavior] that snaps to either [SheetExtent.minPixels]
-/// or [SheetExtent.maxPixels] based on the current position and the gesture
-/// velocity.
+/// or [SheetExtent.maxPixels] based on the current sheet position and
+/// the gesture velocity.
 ///
 /// If the absolute value of the gesture velocity is less than
 /// [minFlingGestureSpeed], the sheet will snap to the nearest of
