@@ -205,7 +205,8 @@ sealed class _ContentScrollDrivenSheetActivity extends SheetActivity
       return const DelegationResult.notHandled();
     }
 
-    if (delegate.physics.shouldGoBallistic(velocity, delegate.metrics)) {
+    if (position.pixels.isApprox(position.minScrollExtent) &&
+        delegate.physics.shouldGoBallistic(velocity, delegate.metrics)) {
       delegate.goBallistic(velocity);
       return DelegationResult.handled(IdleScrollActivity(position));
     }
