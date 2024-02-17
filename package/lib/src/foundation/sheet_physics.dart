@@ -186,6 +186,19 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
       return metrics.maxPixels;
     }
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SnapToNearestEdge &&
+          runtimeType == other.runtimeType &&
+          minFlingGestureSpeed == other.minFlingGestureSpeed);
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        minFlingGestureSpeed,
+      );
 }
 
 class SnapToNearest implements SnappingSheetBehavior {
