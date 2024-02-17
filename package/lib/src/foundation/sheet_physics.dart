@@ -151,6 +151,33 @@ abstract interface class SnappingSheetBehavior {
   double? findSnapPixels(double velocity, SheetMetrics metrics);
 }
 
+mixin _SnapToNearestMixin implements SnappingSheetBehavior {
+  /// The lowest speed (in logical pixels per second)
+  /// at which a gesture is considered to be a fling.
+  double get minFlingSpeed;
+
+  @protected
+  ({double left, double right}) _findSnapRangeContains(SheetMetrics metrics);
+
+  @override
+  double? findSnapPixels(double velocity, SheetMetrics metrics) {
+    assert(minFlingSpeed >= 0);
+
+    if (metrics.pixels.isOutOfRange(metrics.minPixels, metrics.maxPixels)) {
+      return null;
+    }
+
+    final snapRange = _findSnapRangeContains(metrics);
+    if (velocity.abs() < minFlingSpeed) {
+      return metrics.pixels.nearest(snapRange.left, snapRange.right);
+    } else if (velocity < 0) {
+      return snapRange.left;
+    } else {
+      return snapRange.right;
+    }
+  }
+}
+
 /// A [SnappingSheetBehavior] that snaps to either [SheetExtent.minPixels]
 /// or [SheetExtent.maxPixels] based on the current sheet position and
 /// the gesture velocity.
@@ -165,7 +192,7 @@ abstract interface class SnappingSheetBehavior {
 /// Using this behavior is functionally identical to using [SnapToNearest]
 /// with the snap positions of [SheetExtent.minExtent] and
 /// [SheetExtent.maxExtent], but more simplified and efficient.
-class SnapToNearestEdge implements SnappingSheetBehavior {
+class SnapToNearestEdge with _SnapToNearestMixin {
   /// Creates a [SnappingSheetBehavior] that snaps to either
   /// [SheetExtent.minPixels] or [SheetExtent.maxPixels].
   ///
@@ -175,21 +202,12 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
     this.minFlingSpeed = kMinFlingVelocity,
   }) : assert(minFlingSpeed >= 0);
 
-  /// The lowest speed (in logical pixels per second)
-  /// at which a gesture is considered to be a fling.
+  @override
   final double minFlingSpeed;
 
   @override
-  double? findSnapPixels(double velocity, SheetMetrics metrics) {
-    if (metrics.pixels.isOutOfRange(metrics.minPixels, metrics.maxPixels)) {
-      return null;
-    } else if (velocity.abs() < minFlingSpeed) {
-      return metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
-    } else if (velocity < 0) {
-      return metrics.minPixels;
-    } else {
-      return metrics.maxPixels;
-    }
+  ({double left, double right}) _findSnapRangeContains(SheetMetrics metrics) {
+    return (left: metrics.minPixels, right: metrics.maxPixels);
   }
 
   @override
@@ -206,7 +224,7 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
       );
 }
 
-class SnapToNearest implements SnappingSheetBehavior {
+class SnapToNearest with _SnapToNearestMixin {
   SnapToNearest({
     required this.snapTo,
     this.minFlingSpeed = kMinFlingVelocity,
@@ -214,19 +232,21 @@ class SnapToNearest implements SnappingSheetBehavior {
         assert(minFlingSpeed >= 0);
 
   final List<Extent> snapTo;
+
+  @override
   final double minFlingSpeed;
 
   /// Cached results of [Extent.resolve] for each snap position in [snapTo].
   ///
   /// Always call [_ensureCacheIsValid] before accessing this list
   /// to ensure that the cache is up-to-date and sorted in ascending order.
-  List<double> _cachedSnapPixelsList = const [];
+  List<double> _snapTo = const [];
   Size? _cachedContentDimensions;
 
   void _ensureCacheIsValid(SheetMetrics metrics) {
     if (_cachedContentDimensions != metrics.contentDimensions) {
       _cachedContentDimensions = metrics.contentDimensions;
-      _cachedSnapPixelsList = snapTo
+      _snapTo = snapTo
           .map((e) => e.resolve(metrics.contentDimensions))
           .toList(growable: false)
         ..sort();
@@ -234,56 +254,24 @@ class SnapToNearest implements SnappingSheetBehavior {
   }
 
   @override
-  double? findSnapPixels(double scrollVelocity, SheetMetrics metrics) {
+  ({double left, double right}) _findSnapRangeContains(SheetMetrics metrics) {
     _ensureCacheIsValid(metrics);
-    if (_shouldSnap(scrollVelocity, metrics)) {
-      return _findNearestPixelsIn(
-          scrollVelocity, _cachedSnapPixelsList, metrics);
-    } else {
-      return null;
-    }
-  }
-
-  double _findNearestPixelsIn(
-    double velocity,
-    List<double> snapTo,
-    SheetMetrics metrics,
-  ) {
-    assert(snapTo.isNotEmpty);
-
-    if (snapTo.length == 1) {
-      return snapTo.first;
-    } else if (metrics.pixels.isLessThan(snapTo.first)) {
-      return snapTo.first;
-    } else if (metrics.pixels.isGreaterThan(snapTo.last)) {
-      return snapTo.last;
+    if (_snapTo.length == 1) {
+      return (left: _snapTo.first, right: _snapTo.first);
     }
 
-    var nearestSmaller = snapTo[0];
-    var nearestGreater = snapTo[1];
-    for (var index = 0; index < snapTo.length - 1; index++) {
-      if (snapTo[index].isLessThan(metrics.pixels)) {
-        nearestSmaller = snapTo[index];
-        nearestGreater = snapTo[index + 1];
+    var nearestSmaller = _snapTo[0];
+    var nearestGreater = _snapTo[1];
+    for (var index = 0; index < _snapTo.length - 1; index++) {
+      if (_snapTo[index].isLessThan(metrics.pixels)) {
+        nearestSmaller = _snapTo[index];
+        nearestGreater = _snapTo[index + 1];
       } else {
         break;
       }
     }
 
-    if (velocity.abs() < minFlingSpeed) {
-      return metrics.pixels.nearest(nearestSmaller, nearestGreater);
-    } else if (velocity < 0) {
-      return nearestSmaller;
-    } else {
-      return nearestGreater;
-    }
-  }
-
-  bool _shouldSnap(double velocity, SheetMetrics metrics) {
-    return metrics.pixels.isInRange(
-      _cachedSnapPixelsList.first,
-      _cachedSnapPixelsList.last,
-    );
+    return (left: nearestSmaller, right: nearestGreater);
   }
 
   @override
