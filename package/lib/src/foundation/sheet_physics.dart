@@ -158,10 +158,13 @@ abstract interface class SnappingSheetBehavior {
 /// If the absolute value of the gesture velocity is less than
 /// [minFlingGestureSpeed], the sheet will snap to the nearest of
 /// [SheetExtent.minPixels] and [SheetExtent.maxPixels].
-///
 /// Otherwise, the gesture is considered to be a fling, and the sheet will snap
 /// towards the direction of the fling. For example, if the sheet is flung up,
 /// it will snap to [SheetExtent.maxPixels].
+///
+/// Using this behavior is functionally identical to using [SnapToNearest]
+/// with the snap positions of [SheetExtent.minExtent] and
+/// [SheetExtent.maxExtent], but more simplified and efficient.
 class SnapToNearestEdge implements SnappingSheetBehavior {
   /// Creates a [SnappingSheetBehavior] that snaps to either
   /// [SheetExtent.minPixels] or [SheetExtent.maxPixels].
