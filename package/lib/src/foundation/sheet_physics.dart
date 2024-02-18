@@ -23,8 +23,8 @@ abstract class SheetPhysics {
   }
 
   double computeOverflow(double offset, SheetMetrics metrics) {
-    if (parent != null) {
-      return parent!.computeOverflow(offset, metrics);
+    if (parent case final parent?) {
+      return parent.computeOverflow(offset, metrics);
     }
 
     final newPixels = metrics.pixels + offset;
@@ -38,8 +38,8 @@ abstract class SheetPhysics {
   }
 
   double applyPhysicsToOffset(double offset, SheetMetrics metrics) {
-    if (parent != null) {
-      return parent!.applyPhysicsToOffset(offset, metrics);
+    if (parent case final parent?) {
+      return parent.applyPhysicsToOffset(offset, metrics);
     } else if (offset > 0 && metrics.pixels < metrics.maxPixels) {
       // Prevent the pixels from going beyond the maximum value.
       return min(metrics.maxPixels, metrics.pixels + offset) - metrics.pixels;
@@ -52,8 +52,8 @@ abstract class SheetPhysics {
   }
 
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
-    if (parent != null) {
-      return parent!.createBallisticSimulation(velocity, metrics);
+    if (parent case final parent?) {
+      return parent.createBallisticSimulation(velocity, metrics);
     } else if (metrics.pixels.isLessThan(metrics.minPixels)) {
       // The simulation velocity is intentionally set to 0
       // as flinging an over-dragged/under-dragged sheet
@@ -69,8 +69,8 @@ abstract class SheetPhysics {
   }
 
   Simulation? createSettlingSimulation(SheetMetrics metrics) {
-    if (parent != null) {
-      return parent!.createSettlingSimulation(metrics);
+    if (parent case final parent?) {
+      return parent.createSettlingSimulation(metrics);
     } else if (metrics.pixels.isLessThan(metrics.minPixels)) {
       return UniformLinearSimulation(
         position: metrics.pixels,
