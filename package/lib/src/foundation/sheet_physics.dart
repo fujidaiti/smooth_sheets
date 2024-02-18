@@ -54,18 +54,20 @@ abstract class SheetPhysics {
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.createBallisticSimulation(velocity, metrics);
-    } else if (metrics.pixels.isLessThan(metrics.minPixels)) {
-      // The simulation velocity is intentionally set to 0
-      // as flinging an over-dragged/under-dragged sheet
-      // tends to make unstable motion.
-      return ScrollSpringSimulation(
-          spring, metrics.pixels, metrics.minPixels, 0);
+    }
+
+    final double destination;
+    if (metrics.pixels.isLessThan(metrics.minPixels)) {
+      destination = metrics.minPixels;
     } else if (metrics.pixels.isGreaterThan(metrics.maxPixels)) {
-      return ScrollSpringSimulation(
-          spring, metrics.pixels, metrics.maxPixels, 0);
+      destination = metrics.maxPixels;
     } else {
       return null;
     }
+
+    // The simulation velocity is intentionally set to 0 as flinging
+    // an over-dragged/under-dragged sheet tends to make unstable motion.
+    return ScrollSpringSimulation(spring, metrics.pixels, destination, 0);
   }
 
   Simulation? createSettlingSimulation(SheetMetrics metrics) {
