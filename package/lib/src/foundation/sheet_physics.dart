@@ -207,6 +207,7 @@ class SnapToNearestEdge with _SnapToNearestMixin {
 
   @override
   (double, double) _findSnapRangeContains(SheetMetrics metrics) {
+    assert(metrics.pixels.isInRange(metrics.minPixels, metrics.maxPixels));
     return (metrics.minPixels, metrics.maxPixels);
   }
 
@@ -250,6 +251,13 @@ class SnapToNearest with _SnapToNearestMixin {
           .map((e) => e.resolve(metrics.contentDimensions))
           .toList(growable: false)
         ..sort();
+
+      assert(
+        _snapTo.first.isGreaterThanOrApprox(metrics.minPixels) &&
+            _snapTo.last.isLessThanOrApprox(metrics.maxPixels),
+        'The snap positions must be within the range of '
+        "'SheetExtent.minPixels' and 'SheetExtent.maxPixels'.",
+      );
     }
   }
 
