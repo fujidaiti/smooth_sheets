@@ -157,7 +157,7 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
   double get minFlingSpeed;
 
   @protected
-  ({double left, double right}) _findSnapRangeContains(SheetMetrics metrics);
+  (double, double) _findSnapRangeContains(SheetMetrics metrics);
 
   @override
   double? findSnapPixels(double velocity, SheetMetrics metrics) {
@@ -167,13 +167,13 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
       return null;
     }
 
-    final snapRange = _findSnapRangeContains(metrics);
+    final (nearestSmaller, nearestGreater) = _findSnapRangeContains(metrics);
     if (velocity.abs() < minFlingSpeed) {
-      return metrics.pixels.nearest(snapRange.left, snapRange.right);
+      return metrics.pixels.nearest(nearestSmaller, nearestGreater);
     } else if (velocity < 0) {
-      return snapRange.left;
+      return nearestSmaller;
     } else {
-      return snapRange.right;
+      return nearestGreater;
     }
   }
 }
@@ -206,8 +206,8 @@ class SnapToNearestEdge with _SnapToNearestMixin {
   final double minFlingSpeed;
 
   @override
-  ({double left, double right}) _findSnapRangeContains(SheetMetrics metrics) {
-    return (left: metrics.minPixels, right: metrics.maxPixels);
+  (double, double) _findSnapRangeContains(SheetMetrics metrics) {
+    return (metrics.minPixels, metrics.maxPixels);
   }
 
   @override
@@ -254,10 +254,10 @@ class SnapToNearest with _SnapToNearestMixin {
   }
 
   @override
-  ({double left, double right}) _findSnapRangeContains(SheetMetrics metrics) {
+  (double, double) _findSnapRangeContains(SheetMetrics metrics) {
     _ensureCacheIsValid(metrics);
     if (_snapTo.length == 1) {
-      return (left: _snapTo.first, right: _snapTo.first);
+      return (_snapTo.first, _snapTo.first);
     }
 
     var nearestSmaller = _snapTo[0];
@@ -271,7 +271,7 @@ class SnapToNearest with _SnapToNearestMixin {
       }
     }
 
-    return (left: nearestSmaller, right: nearestGreater);
+    return (nearestSmaller, nearestGreater);
   }
 
   @override
