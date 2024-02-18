@@ -141,12 +141,6 @@ class UniformLinearSimulation extends Simulation {
   }
 }
 
-typedef SnapPixelsProvider = double? Function(
-  Iterable<Extent> snapTo,
-  double velocity,
-  SheetMetrics metrics,
-);
-
 abstract interface class SnappingSheetBehavior {
   double? findSnapPixels(double velocity, SheetMetrics metrics);
 }
