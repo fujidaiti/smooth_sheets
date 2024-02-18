@@ -89,11 +89,10 @@ abstract class SheetPhysics {
   }
 
   bool shouldGoBallistic(double velocity, SheetMetrics metrics) {
-    if (parent != null) {
-      return parent!.shouldGoBallistic(velocity, metrics);
-    }
-
-    return metrics.pixels.isOutOfRange(metrics.minPixels, metrics.maxPixels);
+    return switch (parent) {
+      null => metrics.pixels.isOutOfRange(metrics.minPixels, metrics.maxPixels),
+      final parent => parent.shouldGoBallistic(velocity, metrics),
+    };
   }
 
   @override
