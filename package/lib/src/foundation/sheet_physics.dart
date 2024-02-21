@@ -7,6 +7,9 @@ import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
 
+const _minSettlingDuration = Duration(milliseconds: 160);
+const _defaultSettlingSpeed = 600.0; // logical pixels per second
+
 abstract class SheetPhysics {
   const SheetPhysics({
     this.parent,
@@ -86,8 +89,8 @@ abstract class SheetPhysics {
       end: settleTo,
       curve: Curves.easeInOut,
       durationInSeconds: max(
-        (metrics.pixels - settleTo).abs() / defaultSettlingSpeed,
-        minSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
+        (metrics.pixels - settleTo).abs() / _defaultSettlingSpeed,
+        _minSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
       ),
     );
   }
@@ -110,9 +113,6 @@ abstract class SheetPhysics {
   @override
   int get hashCode => Object.hash(runtimeType, parent);
 }
-
-const minSettlingDuration = Duration(milliseconds: 160);
-const defaultSettlingSpeed = 600.0; // logical pixels per second
 
 class _InterpolationSimulation extends Simulation {
   _InterpolationSimulation({
