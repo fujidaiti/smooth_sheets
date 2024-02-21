@@ -411,4 +411,19 @@ class StretchingSheetPhysics extends SheetPhysics {
 
     return newPixels - currentPixels;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StretchingSheetPhysics &&
+          stretchingRange == other.stretchingRange &&
+          frictionCurve == other.frictionCurve &&
+          super == other);
+
+  @override
+  int get hashCode => Object.hash(
+        stretchingRange,
+        frictionCurve,
+        super.hashCode,
+      );
 }
