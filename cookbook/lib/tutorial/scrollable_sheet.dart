@@ -45,6 +45,20 @@ class _MySheet extends StatelessWidget {
     // Just wrap the content in a ScrollableSheet!
     final sheet = ScrollableSheet(
       child: buildSheetBackground(context, content),
+      // Optional: Comment out the following lines to add multiple stop positions.
+      //
+      // minExtent: const Extent.proportional(0.2),
+      // physics: StretchingSheetPhysics(
+      //   parent: SnappingSheetPhysics(
+      //     snappingBehavior: SnapToNearest(
+      //       snapTo: [
+      //         const Extent.proportional(0.2),
+      //         const Extent.proportional(0.5),
+      //         const Extent.proportional(1),
+      //       ],
+      //     ),
+      //   ),
+      // ),
     );
 
     return SafeArea(bottom: false, child: sheet);
