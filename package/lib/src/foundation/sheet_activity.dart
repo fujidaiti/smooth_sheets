@@ -197,7 +197,7 @@ class BallisticSheetActivity extends SheetActivity
 
   @override
   void onAnimationEnd() {
-    delegate.settle();
+    delegate.goBallistic(0);
   }
 }
 

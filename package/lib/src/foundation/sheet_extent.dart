@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/internal/double_utils.dart';
 
 /// Visible area of the sheet.
 abstract interface class Extent {
@@ -227,6 +228,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     assert(hasPixels);
     final simulation = physics.createSettlingSimulation(metrics);
     if (simulation != null) {
+      // TODO: Begin a SettlingSheetActivity
       beginActivity(BallisticSheetActivity(simulation: simulation));
     } else {
       goIdle();
@@ -324,6 +326,11 @@ mixin MaybeSheetMetrics {
       maxPixels != null &&
       contentDimensions != null &&
       viewportDimensions != null;
+
+  bool get isPixelsInBounds =>
+      hasPixels && pixels!.isInBounds(minPixels!, maxPixels!);
+
+  bool get isPixelsOutOfBounds => !isPixelsInBounds;
 
   @override
   String toString() => (

@@ -1,13 +1,11 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
-
-// logical pixels per second
-const _defaultSettlingSpeed = 1000.0;
 
 abstract class SheetPhysics {
   const SheetPhysics({
@@ -54,45 +52,51 @@ abstract class SheetPhysics {
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.createBallisticSimulation(velocity, metrics);
-    }
-
-    final double destination;
-    if (metrics.pixels.isLessThan(metrics.minPixels)) {
-      destination = metrics.minPixels;
-    } else if (metrics.pixels.isGreaterThan(metrics.maxPixels)) {
-      destination = metrics.maxPixels;
-    } else {
+    } else if (metrics.isPixelsInBounds) {
       return null;
     }
 
-    // The simulation velocity is intentionally set to 0 as flinging
-    // an over-dragged/under-dragged sheet tends to make unstable motion.
-    return ScrollSpringSimulation(spring, metrics.pixels, destination, 0);
+    final destination =
+        metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
+    final direction = (destination - metrics.pixels).sign;
+
+    return ScrollSpringSimulation(
+      spring,
+      metrics.pixels,
+      destination,
+      // The simulation velocity is intentionally set to 0 if the velocity is
+      // is in the opposite direction of the destination, as flinging up an
+      // over-dragged sheet or flinging down an under-dragged sheet tends to
+      // cause unstable motion.
+      velocity.sign == direction ? velocity : 0.0,
+    );
   }
 
   Simulation? createSettlingSimulation(SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.createSettlingSimulation(metrics);
-    } else if (metrics.pixels.isLessThan(metrics.minPixels)) {
-      return UniformLinearSimulation(
-        position: metrics.pixels,
-        detent: metrics.minPixels,
-        speed: _defaultSettlingSpeed,
-      );
-    } else if (metrics.pixels.isGreaterThan(metrics.maxPixels)) {
-      return UniformLinearSimulation(
-        position: metrics.pixels,
-        detent: metrics.minPixels,
-        speed: _defaultSettlingSpeed,
-      );
-    } else {
+    } else if (metrics.isPixelsInBounds) {
       return null;
     }
+    final settleTo =
+        metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
+    
+
+    return _InterpolationSimulation(
+      start: metrics.pixels,
+      end: settleTo,
+      curve: Curves.easeInOut,
+      durationInSeconds: max(
+        (metrics.pixels - settleTo).abs() / defaultSettlingSpeed,
+        minSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
+      ),
+    );
   }
 
   bool shouldGoBallistic(double velocity, SheetMetrics metrics) {
     return switch (parent) {
-      null => metrics.pixels.isOutOfRange(metrics.minPixels, metrics.maxPixels),
+      null =>
+        metrics.pixels.isOutOfBounds(metrics.minPixels, metrics.maxPixels),
       final parent => parent.shouldGoBallistic(velocity, metrics),
     };
   }
@@ -108,37 +112,38 @@ abstract class SheetPhysics {
   int get hashCode => Object.hash(runtimeType, parent);
 }
 
-class UniformLinearSimulation extends Simulation {
-  UniformLinearSimulation({
-    required this.position,
-    required this.detent,
-    required double speed,
-  }) : assert(speed > 0) {
-    velocity = (detent - position).sign * speed;
-    duration = (detent - position) / velocity;
-  }
+const minSettlingDuration = Duration(milliseconds: 160);
+const defaultSettlingSpeed = 600.0; // logical pixels per second
 
-  final double position;
-  final double detent;
-  late final double velocity;
-  late final double duration;
+class _InterpolationSimulation extends Simulation {
+  _InterpolationSimulation({
+    required this.start,
+    required this.end,
+    required this.curve,
+    required this.durationInSeconds,
+  })  : assert(start != end),
+        assert(durationInSeconds > 0);
+
+  final double start;
+  final double end;
+  final Curve curve;
+  late final double durationInSeconds;
 
   @override
   double dx(double time) {
-    return velocity;
+    final epsilon = tolerance.time;
+    return (x(time + epsilon) - x(time - epsilon)) / (2 * epsilon);
   }
 
   @override
   double x(double time) {
-    return switch (time < duration) {
-      true => position + velocity * time,
-      false => detent,
-    };
+    final t = curve.transform((time / durationInSeconds).clamp(0, 1));
+    return lerpDouble(start, end, t)!;
   }
 
   @override
   bool isDone(double time) {
-    return x(time).isApprox(detent);
+    return x(time).isApprox(end);
   }
 }
 
@@ -152,17 +157,17 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
   double get minFlingSpeed;
 
   @protected
-  (double, double) _findSnapRangeContains(SheetMetrics metrics);
+  (double, double) _getSnapBoundsContains(SheetMetrics metrics);
 
   @override
   double? findSnapPixels(double velocity, SheetMetrics metrics) {
     assert(minFlingSpeed >= 0);
 
-    if (metrics.pixels.isOutOfRange(metrics.minPixels, metrics.maxPixels)) {
+    if (metrics.pixels.isOutOfBounds(metrics.minPixels, metrics.maxPixels)) {
       return null;
     }
 
-    final (nearestSmaller, nearestGreater) = _findSnapRangeContains(metrics);
+    final (nearestSmaller, nearestGreater) = _getSnapBoundsContains(metrics);
     if (velocity.abs() < minFlingSpeed) {
       return metrics.pixels.nearest(nearestSmaller, nearestGreater);
     } else if (velocity < 0) {
@@ -201,8 +206,8 @@ class SnapToNearestEdge with _SnapToNearestMixin {
   final double minFlingSpeed;
 
   @override
-  (double, double) _findSnapRangeContains(SheetMetrics metrics) {
-    assert(metrics.pixels.isInRange(metrics.minPixels, metrics.maxPixels));
+  (double, double) _getSnapBoundsContains(SheetMetrics metrics) {
+    assert(metrics.pixels.isInBounds(metrics.minPixels, metrics.maxPixels));
     return (metrics.minPixels, metrics.maxPixels);
   }
 
@@ -257,7 +262,7 @@ class SnapToNearest with _SnapToNearestMixin {
   }
 
   @override
-  (double, double) _findSnapRangeContains(SheetMetrics metrics) {
+  (double, double) _getSnapBoundsContains(SheetMetrics metrics) {
     _ensureCacheIsValid(metrics);
     if (_snapTo.length == 1) {
       return (_snapTo.first, _snapTo.first);
@@ -326,20 +331,6 @@ class SnappingSheetPhysics extends SheetPhysics {
   }
 
   @override
-  Simulation? createSettlingSimulation(SheetMetrics metrics) {
-    final snapPixels = snappingBehavior.findSnapPixels(0, metrics);
-    if (snapPixels != null && !metrics.pixels.isApprox(snapPixels)) {
-      return UniformLinearSimulation(
-        position: metrics.pixels,
-        detent: snapPixels,
-        speed: _defaultSettlingSpeed,
-      );
-    } else {
-      return super.createSettlingSimulation(metrics);
-    }
-  }
-
-  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SnappingSheetPhysics &&
@@ -384,7 +375,7 @@ class StretchingSheetPhysics extends SheetPhysics {
     final minPixels = metrics.minPixels;
     final maxPixels = metrics.maxPixels;
 
-    if (currentPixels.isInRange(minPixels, maxPixels) ||
+    if (currentPixels.isInBounds(minPixels, maxPixels) ||
         (currentPixels > maxPixels && offset < 0) ||
         (currentPixels < minPixels && offset > 0)) {
       // The friction is not applied if the current 'pixels' is within the range

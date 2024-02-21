@@ -15,10 +15,10 @@ extension DoubleUtils on double {
   bool isGreaterThanOrApprox(double value) =>
       isGreaterThan(value) || isApprox(value);
 
-  bool isOutOfRange(double min, double max) =>
+  bool isOutOfBounds(double min, double max) =>
       isLessThan(min) || isGreaterThan(max);
 
-  bool isInRange(double min, double max) => !isOutOfRange(min, max);
+  bool isInBounds(double min, double max) => !isOutOfBounds(min, max);
 
   double clampAbs(double norm) => min(max(-norm, this), norm);
 
