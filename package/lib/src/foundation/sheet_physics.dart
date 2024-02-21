@@ -80,7 +80,6 @@ abstract class SheetPhysics {
     }
     final settleTo =
         metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
-    
 
     return _InterpolationSimulation(
       start: metrics.pixels,
