@@ -5,8 +5,15 @@ on:
 
 jobs:
   publish:
+    name: Publish to pub.dev
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      working-directory: package
+    steps:
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.x
+      - run: flutter --version
+      - run: flutter pub publish --force
