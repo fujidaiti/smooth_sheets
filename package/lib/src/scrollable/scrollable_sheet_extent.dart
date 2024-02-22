@@ -69,15 +69,10 @@ class ScrollableSheetExtent extends SingleChildSheetExtent {
       );
 
   @override
-  void goBallistic(double velocity) {
-    final simulation = physics.createBallisticSimulation(velocity, metrics);
-    if (simulation != null) {
-      beginActivity(
-        _DragInterruptibleBallisticSheetActivity(simulation: simulation),
-      );
-    } else {
-      goIdle();
-    }
+  void goBallisticWith(Simulation simulation) {
+    beginActivity(
+      _DragInterruptibleBallisticSheetActivity(simulation: simulation),
+    );
   }
 
   @override
@@ -211,10 +206,13 @@ sealed class _ContentScrollDrivenSheetActivity extends SheetActivity
       return const DelegationResult.notHandled();
     }
 
-    if (position.pixels.isApprox(position.minScrollExtent) &&
-        delegate.physics.shouldGoBallistic(velocity, delegate.metrics)) {
-      delegate.goBallistic(velocity);
-      return DelegationResult.handled(IdleScrollActivity(position));
+    if (position.pixels.isApprox(position.minScrollExtent)) {
+      final simulation = delegate.physics
+          .createBallisticSimulation(velocity, delegate.metrics);
+      if (simulation != null) {
+        delegate.goBallisticWith(simulation);
+        return DelegationResult.handled(IdleScrollActivity(position));
+      }
     }
 
     final scrollSimulation = position.physics.createBallisticSimulation(

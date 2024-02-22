@@ -95,14 +95,6 @@ abstract class SheetPhysics {
     );
   }
 
-  bool shouldGoBallistic(double velocity, SheetMetrics metrics) {
-    return switch (parent) {
-      null =>
-        metrics.pixels.isOutOfBounds(metrics.minPixels, metrics.maxPixels),
-      final parent => parent.shouldGoBallistic(velocity, metrics),
-    };
-  }
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -305,18 +297,6 @@ class SnappingSheetPhysics extends SheetPhysics {
   });
 
   final SnappingSheetBehavior snappingBehavior;
-
-  @override
-  bool shouldGoBallistic(double velocity, SheetMetrics metrics) {
-    final snapPixels = snappingBehavior.findSnapPixels(velocity, metrics);
-    final currentPixels = metrics.pixels;
-
-    if (snapPixels != null && !currentPixels.isApprox(snapPixels)) {
-      return true;
-    } else {
-      return super.shouldGoBallistic(velocity, metrics);
-    }
-  }
 
   @override
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {

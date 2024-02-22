@@ -218,10 +218,15 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     assert(hasPixels);
     final simulation = physics.createBallisticSimulation(velocity, metrics);
     if (simulation != null) {
-      beginActivity(BallisticSheetActivity(simulation: simulation));
+      goBallisticWith(simulation);
     } else {
       goIdle();
     }
+  }
+
+  void goBallisticWith(Simulation simulation) {
+    assert(hasPixels);
+    beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
   void settle() {
@@ -229,7 +234,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     final simulation = physics.createSettlingSimulation(metrics);
     if (simulation != null) {
       // TODO: Begin a SettlingSheetActivity
-      beginActivity(BallisticSheetActivity(simulation: simulation));
+      goBallisticWith(simulation);
     } else {
       goIdle();
     }
