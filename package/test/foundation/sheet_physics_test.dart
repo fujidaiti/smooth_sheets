@@ -178,4 +178,59 @@ void main() {
       );
     });
   });
+
+  group('$SnapToNearestEdge', () {
+    late SnapToNearestEdge behaviorUnderTest;
+
+    setUp(() {
+      behaviorUnderTest = const SnapToNearestEdge(minFlingSpeed: 50);
+    });
+
+    test('snaps to the nearest edge if the velocity is small enough', () {
+      final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels - 50,
+      );
+      final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.minPixels + 50,
+      );
+
+      expect(
+        behaviorUnderTest.findSnapPixels(0, positionAtNearTopEdge),
+        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
+      );
+      expect(
+        behaviorUnderTest.findSnapPixels(0, positionAtNearBottomEdge),
+        moreOrLessEquals(_referenceSheetMetrics.minPixels),
+      );
+    });
+
+    test('is aware of fling gesture direction', () {
+      expect(
+        behaviorUnderTest.findSnapPixels(50, _positionAtBottomEdge),
+        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
+      );
+      expect(
+        behaviorUnderTest.findSnapPixels(-50, _positionAtTopEdge),
+        moreOrLessEquals(_referenceSheetMetrics.minPixels),
+      );
+    });
+
+    test('is disabled if position is out of bounds', () {
+      final overDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels + 10,
+      );
+      final underDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.minPixels - 10,
+      );
+
+      expect(
+        behaviorUnderTest.findSnapPixels(0, overDraggedPosition),
+        isNull,
+      );
+      expect(
+        behaviorUnderTest.findSnapPixels(0, underDraggedPosition),
+        isNull,
+      );
+    });
+  });
 }
