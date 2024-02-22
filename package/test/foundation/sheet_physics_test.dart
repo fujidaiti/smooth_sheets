@@ -1,0 +1,181 @@
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
+
+class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics {
+  const _SheetPhysicsWithDefaultConfiguration();
+}
+
+const _referenceSheetMetrics = SheetMetricsSnapshot(
+  minPixels: 0,
+  maxPixels: 600,
+  pixels: 600,
+  contentDimensions: Size(360, 600),
+  viewportDimensions: ViewportDimensions(
+    width: 360,
+    height: 700,
+    insets: EdgeInsets.zero,
+  ),
+);
+
+final _positionAtTopEdge =
+    _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.maxPixels);
+
+final _positionAtBottomEdge =
+    _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.minPixels);
+
+final _positionAtMiddle = _referenceSheetMetrics.copyWith(
+  pixels: (_positionAtTopEdge.pixels + _positionAtBottomEdge.pixels) / 2,
+);
+
+void main() {
+  group('Default configuration of $SheetPhysics', () {
+    late SheetPhysics physicsUnderTest;
+
+    setUp(() {
+      physicsUnderTest = const _SheetPhysicsWithDefaultConfiguration();
+    });
+
+    test('does not allow over/under dragging', () {
+      expect(
+        physicsUnderTest.computeOverflow(10, _positionAtTopEdge),
+        moreOrLessEquals(10),
+      );
+      expect(
+        physicsUnderTest.computeOverflow(-10, _positionAtBottomEdge),
+        moreOrLessEquals(-10),
+      );
+    });
+
+    test('does not apply any resistance if the position is in bounds', () {
+      final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
+          pixels: _referenceSheetMetrics.maxPixels - 10);
+      final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
+          pixels: _referenceSheetMetrics.minPixels + 10);
+
+      expect(
+        physicsUnderTest.applyPhysicsToOffset(10, _positionAtMiddle),
+        moreOrLessEquals(10),
+      );
+      expect(
+        physicsUnderTest.applyPhysicsToOffset(10, positionAtNearTopEdge),
+        moreOrLessEquals(10),
+      );
+      expect(
+        physicsUnderTest.applyPhysicsToOffset(-10, positionAtNearBottomEdge),
+        moreOrLessEquals(-10),
+      );
+    });
+
+    test('prevents position from going out of bounds', () {
+      expect(
+        physicsUnderTest.applyPhysicsToOffset(10, _positionAtTopEdge),
+        moreOrLessEquals(0),
+      );
+      expect(
+        physicsUnderTest.applyPhysicsToOffset(-10, _positionAtBottomEdge),
+        moreOrLessEquals(0),
+      );
+    });
+
+    test('creates no ballistic simulation if the position is in bounds', () {
+      expect(
+        physicsUnderTest.createBallisticSimulation(0, _positionAtMiddle),
+        isNull,
+      );
+      expect(
+        physicsUnderTest.createBallisticSimulation(0, _positionAtTopEdge),
+        isNull,
+      );
+      expect(
+        physicsUnderTest.createBallisticSimulation(0, _positionAtBottomEdge),
+        isNull,
+      );
+    });
+
+    test('creates ballistic simulation which ends at the nearest edge', () {
+      final overDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels + 10,
+      );
+      final underDragPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.minPixels - 10,
+      );
+      final overDragSimulation =
+          physicsUnderTest.createBallisticSimulation(0, overDraggedPosition);
+      final underDraggedSimulation =
+          physicsUnderTest.createBallisticSimulation(0, underDragPosition);
+
+      expect(overDragSimulation, isNotNull);
+      expect(
+        overDragSimulation!.x(5), // 5s passed
+        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
+      );
+      expect(
+        overDragSimulation.dx(5), // 5s passed
+        moreOrLessEquals(0),
+      );
+
+      expect(underDraggedSimulation, isNotNull);
+      expect(
+        underDraggedSimulation!.x(5), // 5s passed
+        moreOrLessEquals(_referenceSheetMetrics.minPixels),
+      );
+      expect(
+        underDraggedSimulation.dx(5), // 5s passed
+        moreOrLessEquals(0),
+      );
+    });
+
+    test('creates no settling simulation if the position is in bounds', () {
+      expect(
+        physicsUnderTest.createSettlingSimulation(_positionAtMiddle),
+        isNull,
+      );
+      expect(
+        physicsUnderTest.createSettlingSimulation(_positionAtTopEdge),
+        isNull,
+      );
+      expect(
+        physicsUnderTest.createSettlingSimulation(_positionAtBottomEdge),
+        isNull,
+      );
+    });
+
+    test('creates settling simulation which ends at the nearest edge', () {
+      final moreOverDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels + 200,
+      );
+      final lessOverDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels + 10,
+      );
+      final moreOverDragSimulation =
+          physicsUnderTest.createSettlingSimulation(moreOverDraggedPosition);
+      final lessOverDragSimulation =
+          physicsUnderTest.createSettlingSimulation(lessOverDraggedPosition);
+
+      // The settling simulation runs with the average velocity of 600px/s
+      // if the starting position is far enough from the edge.
+      expect(moreOverDragSimulation, isNotNull);
+      expect(
+        moreOverDragSimulation!.x(0.170), // 170ms passed
+        greaterThan(_referenceSheetMetrics.maxPixels),
+      );
+      expect(
+        moreOverDragSimulation.x(0.334), // 334ms passed (≈ 200px / 600px/s)
+        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
+      );
+
+      // The default behavior ensures that the settling simulation runs for
+      // at least 160ms even if the starting position is too close to the edge.
+      expect(lessOverDragSimulation, isNotNull);
+      expect(
+        lessOverDragSimulation!.x(0.08), // 80ms passed
+        greaterThan(_referenceSheetMetrics.maxPixels),
+      );
+      expect(
+        lessOverDragSimulation.x(0.16), // 160ms passed
+        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
+      );
+    });
+  });
+}
