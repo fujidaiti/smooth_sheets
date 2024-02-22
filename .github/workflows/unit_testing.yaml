@@ -18,7 +18,7 @@ jobs:
       run:
         working-directory: package/
     env:
-      FLUTTER_TEST_REPORT: flutter-test-report.json
+      FLUTTER_TEST_REPORT: ${{github.workspace}}/flutter-test-report.json
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,6 +28,9 @@ jobs:
         with:
           channel: stable
           flutter-version: 3.x
+      
+      - name: Flutter version
+        run: flutter --version
 
       - name: Get dependencies
         run: flutter pub get
