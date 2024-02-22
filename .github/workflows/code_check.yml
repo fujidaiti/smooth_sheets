@@ -1,6 +1,10 @@
 name: Code Checking
 on:
   push:
+    branches: main
+  pull_request:
+    paths:
+      - "**.dart"
 
 jobs:
   code-check:
