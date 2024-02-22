@@ -6,10 +6,6 @@ on:
       - "package/lib/**"
       - "package/test/**"
 
-env:
-  FLUTTER_TEST_REPORT: flutter-test-report.json
-  PKG_DIR: package
-
 jobs:
   test:
     name: Unit Tests
@@ -18,6 +14,11 @@ jobs:
       contents: read
       actions: read
       checks: write
+    defaults:
+      run:
+        working-directory: package/
+    env:
+      FLUTTER_TEST_REPORT: flutter-test-report.json
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,12 +34,11 @@ jobs:
 
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
-        working-directory: ${{ env.PKG_DIR }}}
 
       - name: Write test report
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
           name: Unit Tests
-          path: ${{env.PKG_DIR}}/${{ env.FLUTTER_TEST_REPORT }}
+          path: ${{ env.FLUTTER_TEST_REPORT }}
           reporter: flutter-json
