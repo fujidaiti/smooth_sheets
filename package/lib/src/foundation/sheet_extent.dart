@@ -409,6 +409,22 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
   @override
   bool get hasPixels => true;
 
+  SheetMetricsSnapshot copyWith({
+    double? pixels,
+    double? minPixels,
+    double? maxPixels,
+    Size? contentDimensions,
+    ViewportDimensions? viewportDimensions,
+  }) {
+    return SheetMetricsSnapshot(
+      pixels: pixels ?? this.pixels,
+      minPixels: minPixels ?? this.minPixels,
+      maxPixels: maxPixels ?? this.maxPixels,
+      contentDimensions: contentDimensions ?? this.contentDimensions,
+      viewportDimensions: viewportDimensions ?? this.viewportDimensions,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
