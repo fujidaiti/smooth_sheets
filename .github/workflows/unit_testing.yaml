@@ -42,6 +42,6 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: Unit Tests
+          name: Test Report
           path: ${{ env.FLUTTER_TEST_REPORT }}
           reporter: flutter-json
