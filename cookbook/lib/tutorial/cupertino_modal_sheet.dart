@@ -68,14 +68,7 @@ class _HalfScreenSheet extends StatelessWidget {
       initialExtent: Extent.proportional(0.5),
       minExtent: Extent.proportional(0.5),
       physics: StretchingSheetPhysics(
-        parent: SnappingSheetPhysics(
-          snappingBehavior: SnapToNearest(
-            snapTo: [
-              Extent.proportional(0.5),
-              Extent.proportional(1),
-            ],
-          ),
-        ),
+        parent: SnappingSheetPhysics(),
       ),
       child: _SheetContent(),
     );

@@ -170,10 +170,6 @@ class _ContentSheet extends StatelessWidget {
                 minSheetExtent,
                 const Extent.proportional(1),
               ],
-              // The greater 'maxFlingVelocityToSnap' is, the more likely
-              // the sheet will snap to the nearest stop position while scrolling.
-              // Try to increase/decrease this value to see the difference.
-              maxFlingVelocityToSnap: 4000,
             ),
           ),
         );

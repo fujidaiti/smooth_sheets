@@ -90,14 +90,7 @@ class _ExampleSheet extends StatelessWidget {
       controller: controller,
       minExtent: const Extent.proportional(0.5),
       physics: const StretchingSheetPhysics(
-        parent: SnappingSheetPhysics(
-          snappingBehavior: SnapToNearest(
-            snapTo: [
-              Extent.proportional(0.5),
-              Extent.proportional(1),
-            ],
-          ),
-        ),
+        parent: SnappingSheetPhysics(),
       ),
       child: Card(
         margin: EdgeInsets.zero,

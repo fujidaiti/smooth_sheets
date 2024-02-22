@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/internal/double_utils.dart';
 
 /// Visible area of the sheet.
 abstract interface class Extent {
@@ -217,17 +218,23 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     assert(hasPixels);
     final simulation = physics.createBallisticSimulation(velocity, metrics);
     if (simulation != null) {
-      beginActivity(BallisticSheetActivity(simulation: simulation));
+      goBallisticWith(simulation);
     } else {
       goIdle();
     }
+  }
+
+  void goBallisticWith(Simulation simulation) {
+    assert(hasPixels);
+    beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
   void settle() {
     assert(hasPixels);
     final simulation = physics.createSettlingSimulation(metrics);
     if (simulation != null) {
-      beginActivity(BallisticSheetActivity(simulation: simulation));
+      // TODO: Begin a SettlingSheetActivity
+      goBallisticWith(simulation);
     } else {
       goIdle();
     }
@@ -325,6 +332,11 @@ mixin MaybeSheetMetrics {
       contentDimensions != null &&
       viewportDimensions != null;
 
+  bool get isPixelsInBounds =>
+      hasPixels && pixels!.isInBounds(minPixels!, maxPixels!);
+
+  bool get isPixelsOutOfBounds => !isPixelsInBounds;
+
   @override
   String toString() => (
         hasPixels: hasPixels,
@@ -401,6 +413,22 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
 
   @override
   bool get hasPixels => true;
+
+  SheetMetricsSnapshot copyWith({
+    double? pixels,
+    double? minPixels,
+    double? maxPixels,
+    Size? contentDimensions,
+    ViewportDimensions? viewportDimensions,
+  }) {
+    return SheetMetricsSnapshot(
+      pixels: pixels ?? this.pixels,
+      minPixels: minPixels ?? this.minPixels,
+      maxPixels: maxPixels ?? this.maxPixels,
+      contentDimensions: contentDimensions ?? this.contentDimensions,
+      viewportDimensions: viewportDimensions ?? this.viewportDimensions,
+    );
+  }
 
   @override
   bool operator ==(Object other) {

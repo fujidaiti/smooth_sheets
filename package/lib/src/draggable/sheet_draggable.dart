@@ -84,8 +84,7 @@ class UserDragSheetActivity extends SheetActivity
 
   void onDragEnd(DragEndDetails details) {
     if (!mounted) return;
-    // TODO: Support fling gestures
-    delegate.goBallistic(0);
+    delegate.goBallistic(-1 * details.velocity.pixelsPerSecond.dy);
   }
 
   void onDragCancel() {

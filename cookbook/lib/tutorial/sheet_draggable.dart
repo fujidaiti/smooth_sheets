@@ -67,14 +67,7 @@ class _ExampleSheet extends StatelessWidget {
 
     const minExtent = Extent.proportional(0.5);
     const physics = StretchingSheetPhysics(
-      parent: SnappingSheetPhysics(
-        snappingBehavior: SnapToNearest(
-          snapTo: [
-            minExtent,
-            Extent.proportional(1),
-          ],
-        ),
-      ),
+      parent: SnappingSheetPhysics(),
     );
 
     return SafeArea(

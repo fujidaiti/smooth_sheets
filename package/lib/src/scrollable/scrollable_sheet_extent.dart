@@ -3,10 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 import 'package:smooth_sheets/src/foundation/single_child_sheet.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
 import 'package:smooth_sheets/src/internal/into.dart';
 import 'package:smooth_sheets/src/scrollable/content_scroll_position.dart';
+import 'package:smooth_sheets/src/scrollable/scrollable_sheet_physics.dart';
 
 class ScrollableSheetExtentFactory extends SingleChildSheetExtentFactory {
   const ScrollableSheetExtentFactory({
@@ -33,9 +35,13 @@ class ScrollableSheetExtent extends SingleChildSheetExtent {
     required super.initialExtent,
     required super.minExtent,
     required super.maxExtent,
-    required super.physics,
     required super.context,
-  }) {
+    required SheetPhysics physics,
+  }) : super(
+          physics: physics is ScrollableSheetPhysics
+              ? physics
+              : ScrollableSheetPhysics(parent: physics),
+        ) {
     goIdle();
   }
 
@@ -63,15 +69,10 @@ class ScrollableSheetExtent extends SingleChildSheetExtent {
       );
 
   @override
-  void goBallistic(double velocity) {
-    final simulation = physics.createBallisticSimulation(velocity, metrics);
-    if (simulation != null) {
-      beginActivity(
-        _DragInterruptibleBallisticSheetActivity(simulation: simulation),
-      );
-    } else {
-      goIdle();
-    }
+  void goBallisticWith(Simulation simulation) {
+    beginActivity(
+      _DragInterruptibleBallisticSheetActivity(simulation: simulation),
+    );
   }
 
   @override
@@ -205,9 +206,13 @@ sealed class _ContentScrollDrivenSheetActivity extends SheetActivity
       return const DelegationResult.notHandled();
     }
 
-    if (delegate.physics.shouldGoBallistic(velocity, delegate.metrics)) {
-      delegate.goBallistic(velocity);
-      return DelegationResult.handled(IdleScrollActivity(position));
+    if (position.pixels.isApprox(position.minScrollExtent)) {
+      final simulation = delegate.physics
+          .createBallisticSimulation(velocity, delegate.metrics);
+      if (simulation != null) {
+        delegate.goBallisticWith(simulation);
+        return DelegationResult.handled(IdleScrollActivity(position));
+      }
     }
 
     final scrollSimulation = position.physics.createBallisticSimulation(
@@ -300,8 +305,12 @@ class _ContentBallisticScrollDrivenSheetActivity
       dispatchUpdateNotification();
     }
 
-    if (delegate.physics.shouldGoBallistic(velocity, delegate.metrics)) {
-      delegate.goBallistic(velocity);
+    final physics = delegate.physics;
+    if (((position.extentBefore.isApprox(0) && velocity < 0) ||
+            (position.extentAfter.isApprox(0) && velocity > 0)) &&
+        physics is ScrollableSheetPhysics &&
+        physics.shouldInterruptBallisticScroll(velocity, delegate.metrics)) {
+      delegate.goBallistic(0);
     }
 
     return DelegationResult.handled(overscroll);
