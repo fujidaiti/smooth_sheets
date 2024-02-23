@@ -6,6 +6,7 @@ on:
     branches:
       - "release-*"
       - "hotfix-*"
+  workflow_dispatch:
 
 env:
   PKG_DIR: ./package
