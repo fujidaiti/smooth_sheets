@@ -8,7 +8,6 @@ on:
 
 jobs:
   analysis:
-    name: Analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,7 +29,6 @@ jobs:
         run: cargo make check-all
 
   testing:
-    name: Testing
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -12,7 +12,6 @@ env:
 
 jobs:
   dry-publish:
-    name: Dry Publish
     runs-on: ubuntu-latest
     defaults:
       run:
