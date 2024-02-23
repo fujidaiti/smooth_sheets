@@ -1,36 +1,27 @@
 name: Dry Publish
 on:
   push:
-    branches: [main, "release/*"]
-
-env:
-  package_dir: ./package
+    branches: main
+  pull_request:
+    branches: main
 
 jobs:
   dry-publish:
-    name: Dry Publish
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.package_dir }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Flutter SDK
-        uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: ./.github/actions/setup_flutter
         with:
-          channel: stable
-          flutter-version: 3.x
-
-      - run: flutter --version
-      - run: flutter pub get
+          target: package
 
       - uses: axel-op/dart-package-analyzer@master
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: ${{ env.package_dir }}
+          relativePath: package
 
       - uses: fujidaiti/dart-package-inspector@v1
         with:
@@ -42,3 +33,4 @@ jobs:
           supported-platforms: ios, android
 
       - run: flutter pub publish --dry-run
+        working-directory: package

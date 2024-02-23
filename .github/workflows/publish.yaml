@@ -5,7 +5,6 @@ on:
 
 jobs:
   publish:
-    name: Publish
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -13,14 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Flutter SDK
-        uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: ./.github/actions/setup_flutter
         with:
-          channel: stable
-          flutter-version: 3.x
-
-      - name: Flutter version
-        run: flutter --version
+          target: package
 
       - name: Publish to pub.dev
         run: flutter pub publish --force
+        working-directory: package

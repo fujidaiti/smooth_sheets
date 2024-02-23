@@ -1,0 +1,84 @@
+name: Code Check
+on:
+  push:
+    branches: main
+  pull_request:
+
+env:
+  FLUTTER_TEST_REPORT: ${{github.workspace}}/flutter-test-report.json
+  PATTERN_CHECKER: ${{github.workspace}}/scripts/pattern_checker.sh
+
+jobs:
+  # Change detection
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      dart-files: ${{ steps.filter.outputs.dart-files }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            dart-files:
+              - '**.dart'
+
+  # Static code analysis
+  analysis:
+    needs: changes
+    if: ${{ needs.changes.outputs.dart-files == 'true' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [package, cookbook]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup_flutter
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Format
+        run: dart format . -o none --set-exit-if-changed
+        working-directory: ${{ matrix.target }}
+
+      - name: Analyze
+        run: dart analyze
+        working-directory: ${{ matrix.target }}
+
+      - name: Disallowed patterns check
+        run: bash ${{ env.PATTERN_CHECKER }} "*.dart" "--" "debugPrint"
+        working-directory: ${{ matrix.target }}
+
+  # Unit testing
+  testing:
+    needs: changes
+    if: ${{ needs.changes.outputs.dart-files == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      checks: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup_flutter
+        with:
+          target: package
+
+      - name: Run unit tests
+        run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
+        working-directory: package
+
+      - name: Write test report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Test Report
+          path: ${{ env.FLUTTER_TEST_REPORT }}
+          reporter: flutter-json
