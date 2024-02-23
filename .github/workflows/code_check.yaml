@@ -7,6 +7,10 @@ on:
       - "**.dart"
   workflow_dispatch:
 
+env:
+  FLUTTER_TEST_REPORT: ${{github.workspace}}/flutter-test-report.json
+  PATTERN_CHECKER: ${{github.workspace}}/scripts/pattern_checker.sh
+
 jobs:
   # Static code analysis
   analysis:
@@ -32,7 +36,7 @@ jobs:
         working-directory: ${{ matrix.target }}
 
       - name: Disallowed patterns check
-        run: bash ./scripts/pattern_checker.sh "*.dart" "--" "debugPrint"
+        run: bash ${{ env.PATTERN_CHECKER }} "*.dart" "--" "debugPrint"
         working-directory: ${{ matrix.target }}
 
   # Unit testing
@@ -42,8 +46,6 @@ jobs:
       contents: read
       actions: read
       checks: write
-    env:
-      FLUTTER_TEST_REPORT: ${{github.workspace}}/flutter-test-report.json
     steps:
       - name: Checkout
         uses: actions/checkout@v4
