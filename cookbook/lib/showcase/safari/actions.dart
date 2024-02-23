@@ -6,7 +6,11 @@ void showEditActionsSheet(BuildContext context) {
   Navigator.push(
     context,
     CupertinoModalSheetRoute(
-      builder: (context) => const EditActionsSheet(),
+      builder: (context) {
+        return const SheetDismissible(
+          child: EditActionsSheet(),
+        );
+      },
     ),
   );
 }

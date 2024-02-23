@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
@@ -20,7 +19,6 @@ class ModalSheetPage<T> extends Page<T> {
     super.arguments,
     super.restorationId,
     this.maintainState = true,
-    this.enablePullToDismiss = true,
     this.barrierDismissible = true,
     this.fullscreenDialog = false,
     this.barrierLabel,
@@ -43,8 +41,6 @@ class ModalSheetPage<T> extends Page<T> {
   final bool barrierDismissible;
 
   final String? barrierLabel;
-
-  final bool enablePullToDismiss;
 
   final Duration transitionDuration;
 
@@ -81,9 +77,6 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   bool get barrierDismissible => _page.barrierDismissible;
 
   @override
-  bool get enablePullToDismiss => _page.enablePullToDismiss;
-
-  @override
   Curve get transitionCurve => _page.transitionCurve;
 
   @override
@@ -101,7 +94,6 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     super.settings,
     super.fullscreenDialog,
     required this.builder,
-    this.enablePullToDismiss = true,
     this.maintainState = true,
     this.barrierDismissible = true,
     this.barrierLabel,
@@ -122,9 +114,6 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final String? barrierLabel;
 
   @override
-  final bool enablePullToDismiss;
-
-  @override
   final bool maintainState;
 
   @override
@@ -140,13 +129,16 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
 }
 
 mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
-  bool get enablePullToDismiss;
   Curve get transitionCurve;
 
   @override
   bool get opaque => false;
 
+  @protected
   late final SheetController sheetController;
+
+  /// Re-exposed [ModalRoute.controller] for use in [SheetDismissible].
+  AnimationController get _transitionController => controller!;
 
   @override
   void install() {
@@ -168,20 +160,9 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    var content = buildContent(context);
-
-    if (enablePullToDismiss) {
-      content = _SheetDismissible(
-        transitionAnimation: controller!,
-        transitionDuration: transitionDuration,
-        navigator: navigator!,
-        child: content,
-      );
-    }
-
     return SheetControllerScope(
       controller: sheetController,
-      child: content,
+      child: buildContent(context),
     );
   }
 
@@ -206,44 +187,28 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   }
 }
 
-// TODO: Implement this.
-// class PopSheetScope extends InheritedWidget {
-//   const PopSheetScope({
-//     super.key,
-//     required this.onWillPop,
-//     required super.child,
-//   });
-
-//   final AsyncValueGetter<bool> onWillPop;
-
-//   @override
-//   bool updateShouldNotify(PopSheetScope oldWidget) {
-//     return onWillPop != oldWidget.onWillPop;
-//   }
-// }
-
-class _SheetDismissible extends StatefulWidget {
-  const _SheetDismissible({
-    required this.transitionAnimation,
-    required this.transitionDuration,
-    required this.navigator,
+class SheetDismissible extends StatefulWidget {
+  const SheetDismissible({
+    super.key,
+    this.onDismiss,
     required this.child,
   });
 
-  final AnimationController transitionAnimation;
-  final Duration transitionDuration;
-  final NavigatorState navigator;
+  final ValueGetter<bool>? onDismiss;
   final Widget child;
 
   @override
-  State<_SheetDismissible> createState() => _SheetDismissibleState();
+  State<SheetDismissible> createState() => _SheetDismissibleState();
 }
 
-class _SheetDismissibleState extends State<_SheetDismissible> {
+class _SheetDismissibleState extends State<SheetDismissible> {
   late SheetController _sheetController;
+  late ModalSheetRouteMixin<dynamic> _parentRoute;
   late final _PullToDismissGestureRecognizer _gestureRecognizer;
   ScrollMetrics? _lastReportedScrollMetrics;
-  AsyncValueGetter<bool>? _shouldDismissCallback;
+
+  AnimationController get _transitionController =>
+      _parentRoute._transitionController;
 
   @override
   void initState() {
@@ -267,72 +232,80 @@ class _SheetDismissibleState extends State<_SheetDismissible> {
     _gestureRecognizer.gestureSettings =
         MediaQuery.maybeGestureSettingsOf(context);
     _sheetController = DefaultSheetController.of(context);
+
+    assert(
+      ModalRoute.of(context) is ModalSheetRouteMixin<dynamic>,
+      '$SheetDismissible must be a descendant of a $ModalRoute '
+      'that mixins $ModalSheetRouteMixin.',
+    );
+
+    _parentRoute = ModalRoute.of(context)! as ModalSheetRouteMixin<dynamic>;
   }
 
   double _draggedDistance = 0;
 
   void _handleDragStart(DragStartDetails details) {
     _draggedDistance = 0;
-    widget.navigator.didStartUserGesture();
+    _parentRoute.navigator!.didStartUserGesture();
   }
 
   void handleDragUpdate(DragUpdateDetails details) {
     _draggedDistance += details.delta.dy;
     final animationDelta = details.delta.dy / context.size!.height;
-    widget.transitionAnimation.value =
-        (widget.transitionAnimation.value - animationDelta).clamp(0, 1);
+    _transitionController.value =
+        (_parentRoute.animation!.value - animationDelta).clamp(0, 1);
   }
 
   Future<void> handleDragEnd(DragEndDetails details) async {
     final velocity = details.velocity.pixelsPerSecond.dy / context.size!.height;
+    final shouldDismissCallback = widget.onDismiss ?? () => true;
 
     final bool willPop;
     if (velocity > 0) {
       // Flings down.
       willPop = velocity.abs() > _minFlingVelocityToDismiss &&
-          !widget.transitionAnimation.isAnimating &&
-          (_shouldDismissCallback == null || await _shouldDismissCallback!());
+          !_transitionController.isAnimating &&
+          shouldDismissCallback();
     } else if (velocity.isApprox(0)) {
       willPop = _draggedDistance.abs() > _minDragDistanceToDismiss &&
-          !widget.transitionAnimation.isAnimating &&
-          (_shouldDismissCallback == null || await _shouldDismissCallback!());
+          !_transitionController.isAnimating &&
+          shouldDismissCallback();
     } else {
       // Flings up.
       willPop = false;
     }
 
     if (willPop) {
-      widget.navigator.pop();
-    } else if (!widget.transitionAnimation.isCompleted) {
+      _parentRoute.navigator!.pop();
+    } else if (!_transitionController.isCompleted) {
       // The route won't be popped, so animate the transition
       // back to the origin.
-      final fraction = 1.0 - widget.transitionAnimation.value;
+      final fraction = 1.0 - _transitionController.value;
       final animationTime = max(
-        (widget.transitionDuration.inMilliseconds * fraction).floor(),
+        (_parentRoute.transitionDuration.inMilliseconds * fraction).floor(),
         _minReleasedPageForwardAnimationTime,
       );
 
       const completedAnimationValue = 1.0;
-      unawaited(widget.transitionAnimation.animateTo(
+      unawaited(_transitionController.animateTo(
         completedAnimationValue,
         duration: Duration(milliseconds: animationTime),
         curve: _releasedPageForwardAnimationCurve,
       ));
     }
 
-    if (widget.transitionAnimation.isAnimating) {
+    if (_transitionController.isAnimating) {
       // Keep the userGestureInProgress in true state so we don't change the
       // curve of the page transition mid-flight since the route's transition
       // depends on userGestureInProgress.
       late final AnimationStatusListener animationStatusCallback;
       animationStatusCallback = (AnimationStatus status) {
-        widget.navigator.didStopUserGesture();
-        widget.transitionAnimation
-            .removeStatusListener(animationStatusCallback);
+        _parentRoute.navigator!.didStopUserGesture();
+        _transitionController.removeStatusListener(animationStatusCallback);
       };
-      widget.transitionAnimation.addStatusListener(animationStatusCallback);
+      _transitionController.addStatusListener(animationStatusCallback);
     } else {
-      widget.navigator.didStopUserGesture();
+      _parentRoute.navigator!.didStopUserGesture();
     }
 
     _draggedDistance = 0;
@@ -340,8 +313,8 @@ class _SheetDismissibleState extends State<_SheetDismissible> {
 
   void handleDragCancel() {
     _draggedDistance = 0;
-    if (widget.navigator.userGestureInProgress) {
-      widget.navigator.didStopUserGesture();
+    if (_parentRoute.navigator!.userGestureInProgress) {
+      _parentRoute.navigator!.didStopUserGesture();
     }
   }
 
@@ -410,7 +383,7 @@ class _PullToDismissGestureRecognizer extends VerticalDragGestureRecognizer {
   }
 
   bool _shouldStartDismissGesture() {
-    if (target.widget.transitionAnimation.isAnimating) {
+    if (target._transitionController.isAnimating) {
       return false;
     }
 

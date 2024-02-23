@@ -83,3 +83,17 @@ jobs:
           name: Test Report
           path: ${{ env.FLUTTER_TEST_REPORT }}
           reporter: flutter-json
+
+  # Final results (Used for status checks)
+  code-check:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    needs: [analysis, testing]
+    steps:
+      # Fails if any of the previous jobs failed.
+      - run: exit 1
+        if: >-
+          ${{
+               contains(needs.*.result, 'failure')
+            || contains(needs.*.result, 'cancelled')
+          }}
