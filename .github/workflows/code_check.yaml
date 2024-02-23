@@ -88,7 +88,6 @@ jobs:
   code-check:
     if: ${{ always() }}
     runs-on: ubuntu-latest
-    name: Final Results
     needs: [analysis, testing]
     steps:
       # Fails if any of the previous jobs failed.
