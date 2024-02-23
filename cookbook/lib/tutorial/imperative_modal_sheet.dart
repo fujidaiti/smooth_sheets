@@ -47,18 +47,52 @@ class _ExampleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableSheet(
-      child: Card(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const SizedBox(
-          height: 500,
-          width: double.infinity,
+    // Wrap your sheet with a SheetDismissible to make it
+    // dismissible by dragging it down.
+    return SheetDismissible(
+      // This callback is called when the user tries to dismiss the sheet
+      // by dragging it down. Return true to dismiss the sheet immediately,
+      // or false otherwise. This is useful when, for example, you want to
+      // show a confirmation dialog before dismissing the sheet.
+      onDismiss: () {
+        showConfirmDialog(context);
+        return false;
+      },
+      child: DraggableSheet(
+        child: Card(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const SizedBox(
+            height: 500,
+            width: double.infinity,
+          ),
         ),
       ),
+    );
+  }
+
+  void showConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.popUntil(context, (route) => route.isFirst),
+              child: const Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('No'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

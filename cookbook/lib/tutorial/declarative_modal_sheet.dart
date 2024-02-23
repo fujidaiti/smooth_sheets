@@ -24,7 +24,11 @@ final _router = GoRouter(
             // It works with any *Sheet provided by this package!
             return ModalSheetPage(
               key: state.pageKey,
-              child: const _ExampleSheet(),
+              // Wrap your sheet with a SheetDismissible to make it
+              // dismissible by dragging it down.
+              child: const SheetDismissible(
+                child: _ExampleSheet(),
+              ),
             );
           },
         ),
