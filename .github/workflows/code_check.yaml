@@ -8,8 +8,12 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Static code analysis
   analysis:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [package, cookbook]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,12 +21,19 @@ jobs:
       - name: Setup Flutter toolchains
         uses: ./.github/actions/setup_flutter
 
-      - name: Install cargo-make
-        uses: taiki-e/install-action@cargo-make
+      - name: Format
+        run: dart format . -o none --set-exit-if-changed
+        working-directory: ${{ matrix.target }}
 
-      - name: Run task 'check-all'
-        run: cargo make check-all
+      - name: Analyze
+        run: dart analyze
+        working-directory: ${{ matrix.target }}
 
+      - name: Disallowed patterns check
+        run: bash ./scripts/pattern_checker.sh "*.dart" "--" "debugPrint"
+        working-directory: ${{ matrix.target }}
+
+  # Unit testing
   testing:
     runs-on: ubuntu-latest
     permissions:
