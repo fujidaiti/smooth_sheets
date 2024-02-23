@@ -34,6 +34,36 @@ class _TodoEditorState extends State<TodoEditor> {
     super.dispose();
   }
 
+  bool onDismiss() {
+    if (!controller.canCompose.value) {
+      // Dismiss immediately if there are no unsaved changes.
+      return true;
+    }
+
+    // Show a confirmation dialog.
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Discard changes?'),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.popUntil(context, (route) => route.isFirst),
+              child: const Text('Discard'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final titleInput = _MultiLineInput(
@@ -103,16 +133,20 @@ class _TodoEditorState extends State<TodoEditor> {
 
     return SafeArea(
       bottom: false,
-      child: ScrollableSheet(
-        keyboardDismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(
-          isContentScrollAware: true,
-        ),
-        child: Container(
-          clipBehavior: Clip.antiAlias,
-          decoration: sheetShape,
-          child: SheetContentScaffold(
-            body: body,
-            bottomBar: bottomBar,
+      child: SheetDismissible(
+        onDismiss: onDismiss,
+        child: ScrollableSheet(
+          keyboardDismissBehavior:
+              const SheetKeyboardDismissBehavior.onDragDown(
+            isContentScrollAware: true,
+          ),
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: sheetShape,
+            child: SheetContentScaffold(
+              body: body,
+              bottomBar: bottomBar,
+            ),
           ),
         ),
       ),
