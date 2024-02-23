@@ -1,0 +1,22 @@
+# A workaround for the dilemma between the status checks and the path filters.
+# https://github.com/orgs/community/discussions/26251#discussioncomment-3250964
+name: Passing
+
+on:
+  push:
+    branches: main
+  pull_request:
+
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0
+  dry-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0
