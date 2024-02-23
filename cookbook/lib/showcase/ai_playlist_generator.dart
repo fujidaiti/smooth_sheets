@@ -56,12 +56,9 @@ final _sheetShellRoute = ShellRoute(
   pageBuilder: (context, state, navigator) {
     // Use ModalSheetPage to show a modal sheet.
     return ModalSheetPage(
-      child: SafeArea(
-        bottom: false,
-        child: NavigationSheet(
-          transitionObserver: sheetTransitionObserver,
-          child: _SheetShell(navigator: navigator),
-        ),
+      child: _SheetShell(
+        navigator: navigator,
+        transitionObserver: sheetTransitionObserver,
       ),
     );
   },
@@ -143,19 +140,61 @@ class _Root extends StatelessWidget {
 
 class _SheetShell extends StatelessWidget {
   const _SheetShell({
+    required this.transitionObserver,
     required this.navigator,
   });
 
+  final NavigationSheetTransitionObserver transitionObserver;
   final Widget navigator;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      // Add circular corners to the sheet.
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      color: Theme.of(context).colorScheme.surface,
-      child: navigator,
+    void showCancelDialog() {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Are you sure?'),
+            content:
+                const Text('Do you want to cancel the playlist generation?'),
+            actions: [
+              TextButton(
+                onPressed: () => context.go('/'),
+                child: const Text('Yes'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('No'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    return SafeArea(
+      bottom: false,
+      // Wrap the sheet in a SheetDismissible to enable pull-to-dismiss action.
+      child: SheetDismissible(
+        // This callback is invoked when the user tries
+        // to dismiss the sheet by dragging it down.
+        onDismiss: () {
+          // Prompt the user to confirm if they want to dismiss the sheet.
+          showCancelDialog();
+          // Returns false to disable automatic modal sheet popping.
+          return false;
+        },
+        child: NavigationSheet(
+          transitionObserver: sheetTransitionObserver,
+          child: Material(
+            // Add circular corners to the sheet.
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
+            color: Theme.of(context).colorScheme.surface,
+            child: navigator,
+          ),
+        ),
+      ),
     );
   }
 }
