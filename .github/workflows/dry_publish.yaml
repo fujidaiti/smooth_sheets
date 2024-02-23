@@ -6,7 +6,6 @@ on:
     branches:
       - "release-*"
       - "hotfix-*"
-  workflow_dispatch:
 
 jobs:
   dry-publish:

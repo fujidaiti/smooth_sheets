@@ -3,17 +3,31 @@ on:
   push:
     branches: main
   pull_request:
-    paths:
-      - "**.dart"
-  workflow_dispatch:
 
 env:
   FLUTTER_TEST_REPORT: ${{github.workspace}}/flutter-test-report.json
   PATTERN_CHECKER: ${{github.workspace}}/scripts/pattern_checker.sh
 
 jobs:
+  # Change detection
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      dart-files: ${{ steps.filter.outputs.dart-files }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            dart-files:
+              - '**.dart'
+
   # Static code analysis
   analysis:
+    needs: changes
+    if: ${{ needs.changes.outputs.dart-files == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -41,6 +55,8 @@ jobs:
 
   # Unit testing
   testing:
+    needs: changes
+    if: ${{ needs.changes.outputs.dart-files == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
