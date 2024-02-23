@@ -12,8 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Flutter toolchains
+      - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
+        with:
+          target: package
 
       - name: Publish to pub.dev
         run: flutter pub publish --force
+        working-directory: package

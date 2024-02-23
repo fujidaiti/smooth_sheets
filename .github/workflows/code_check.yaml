@@ -18,8 +18,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Flutter toolchains
+      - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
+        with:
+          target: ${{ matrix.target }}
 
       - name: Format
         run: dart format . -o none --set-exit-if-changed
@@ -40,20 +42,20 @@ jobs:
       contents: read
       actions: read
       checks: write
-    defaults:
-      run:
-        working-directory: package/
     env:
       FLUTTER_TEST_REPORT: ${{github.workspace}}/flutter-test-report.json
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Flutter toolchains
+      - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
+        with:
+          target: package
 
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
+        working-directory: package
 
       - name: Write test report
         uses: dorny/test-reporter@v1

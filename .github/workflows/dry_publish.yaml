@@ -8,27 +8,23 @@ on:
       - "hotfix-*"
   workflow_dispatch:
 
-env:
-  PKG_DIR: ./package
-
 jobs:
   dry-publish:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.PKG_DIR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Flutter toolchains
+      - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
+        with:
+          target: package
 
       - uses: axel-op/dart-package-analyzer@master
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: ${{ env.PKG_DIR }}
+          relativePath: package
 
       - uses: fujidaiti/dart-package-inspector@v1
         with:
@@ -40,3 +36,4 @@ jobs:
           supported-platforms: ios, android
 
       - run: flutter pub publish --dry-run
+        working-directory: package

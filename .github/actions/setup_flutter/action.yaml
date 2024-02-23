@@ -1,5 +1,12 @@
 name: Setup Flutter
 description: Setup flutter project and toolchains for subsequent actions.
+
+inputs:
+  target:
+    description: "The working directory where the Flutter project is located."
+    required: false
+    default: "."
+
 runs:
   using: "composite"
   steps:
@@ -17,3 +24,4 @@ runs:
     - name: Install dependencies
       run: flutter pub get
       shell: bash
+      working-directory: ${{ inputs.target }}
