@@ -1,7 +1,11 @@
 name: Dry Publish
 on:
   push:
-    branches: [main, "release/*"]
+    branches: main
+  pull_request:
+    branches:
+      - "release-*"
+      - "hotfix-*"
 
 env:
   package_dir: ./package
