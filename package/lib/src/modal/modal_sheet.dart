@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
@@ -20,7 +19,6 @@ class ModalSheetPage<T> extends Page<T> {
     super.arguments,
     super.restorationId,
     this.maintainState = true,
-    this.enablePullToDismiss = true,
     this.barrierDismissible = true,
     this.fullscreenDialog = false,
     this.barrierLabel,
@@ -43,8 +41,6 @@ class ModalSheetPage<T> extends Page<T> {
   final bool barrierDismissible;
 
   final String? barrierLabel;
-
-  final bool enablePullToDismiss;
 
   final Duration transitionDuration;
 
@@ -81,9 +77,6 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   bool get barrierDismissible => _page.barrierDismissible;
 
   @override
-  bool get enablePullToDismiss => _page.enablePullToDismiss;
-
-  @override
   Curve get transitionCurve => _page.transitionCurve;
 
   @override
@@ -101,7 +94,6 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     super.settings,
     super.fullscreenDialog,
     required this.builder,
-    this.enablePullToDismiss = true,
     this.maintainState = true,
     this.barrierDismissible = true,
     this.barrierLabel,
@@ -122,9 +114,6 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final String? barrierLabel;
 
   @override
-  final bool enablePullToDismiss;
-
-  @override
   final bool maintainState;
 
   @override
@@ -140,7 +129,6 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
 }
 
 mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
-  bool get enablePullToDismiss;
   Curve get transitionCurve;
 
   @override
@@ -172,17 +160,9 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    var content = buildContent(context);
-
-    if (enablePullToDismiss) {
-      content = SheetDismissible(
-        child: content,
-      );
-    }
-
     return SheetControllerScope(
       controller: sheetController,
-      child: content,
+      child: buildContent(context),
     );
   }
 
