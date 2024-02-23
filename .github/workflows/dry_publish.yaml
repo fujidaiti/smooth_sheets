@@ -8,7 +8,7 @@ on:
       - "hotfix-*"
 
 env:
-  package_dir: ./package
+  PKG_DIR: ./package
 
 jobs:
   dry-publish:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ env.package_dir }}
+        working-directory: ${{ env.PKG_DIR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -34,7 +34,7 @@ jobs:
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: ${{ env.package_dir }}
+          relativePath: ${{ env.PKG_DIR }}
 
       - uses: fujidaiti/dart-package-inspector@v1
         with:
