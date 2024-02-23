@@ -5,7 +5,7 @@ on:
 
 jobs:
   publish:
-    name: Publish to pub.dev
+    name: Publish
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -18,5 +18,9 @@ jobs:
         with:
           channel: stable
           flutter-version: 3.x
-      - run: flutter --version
-      - run: flutter pub publish --force
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Publish to pub.dev
+        run: flutter pub publish --force
