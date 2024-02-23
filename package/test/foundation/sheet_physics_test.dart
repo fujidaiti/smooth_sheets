@@ -47,7 +47,7 @@ void main() {
       );
     });
 
-    test('does not apply any resistance if the position is in bounds', () {
+    test('does not apply any resistance if position is in bounds', () {
       final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
           pixels: _referenceSheetMetrics.maxPixels - 10);
       final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
@@ -78,7 +78,7 @@ void main() {
       );
     });
 
-    test('creates no ballistic simulation if the position is in bounds', () {
+    test('creates no ballistic simulation if position is in bounds', () {
       expect(
         physicsUnderTest.createBallisticSimulation(0, _positionAtMiddle),
         isNull,
@@ -141,7 +141,7 @@ void main() {
       );
     });
 
-    test('creates settling simulation which ends at the nearest edge', () {
+    test('creates settling simulation which ends at nearest edge', () {
       final moreOverDraggedPosition = _referenceSheetMetrics.copyWith(
         pixels: _referenceSheetMetrics.maxPixels + 200,
       );
@@ -186,7 +186,7 @@ void main() {
       behaviorUnderTest = const SnapToNearestEdge(minFlingSpeed: 50);
     });
 
-    test('snaps to the nearest edge if the velocity is small enough', () {
+    test('snaps to nearest edge if velocity is small enough', () {
       final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
         pixels: _referenceSheetMetrics.maxPixels - 50,
       );
@@ -212,6 +212,92 @@ void main() {
       expect(
         behaviorUnderTest.findSnapPixels(-50, _positionAtTopEdge),
         moreOrLessEquals(_referenceSheetMetrics.minPixels),
+      );
+    });
+
+    test('is disabled if position is out of bounds', () {
+      final overDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels + 10,
+      );
+      final underDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.minPixels - 10,
+      );
+
+      expect(
+        behaviorUnderTest.findSnapPixels(0, overDraggedPosition),
+        isNull,
+      );
+      expect(
+        behaviorUnderTest.findSnapPixels(0, underDraggedPosition),
+        isNull,
+      );
+    });
+  });
+  group('$SnapToNearest', () {
+    late SnapToNearest behaviorUnderTest;
+
+    setUp(() {
+      behaviorUnderTest = SnapToNearest(
+        minFlingSpeed: 50,
+        snapTo: [
+          Extent.pixels(_positionAtBottomEdge.pixels),
+          Extent.pixels(_positionAtMiddle.pixels),
+          Extent.pixels(_positionAtTopEdge.pixels),
+        ],
+      );
+    });
+
+    test('snaps to nearest edge if velocity is small enough', () {
+      final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels - 50,
+      );
+      final positionAtNearMiddle = _referenceSheetMetrics.copyWith(
+        pixels: _positionAtMiddle.pixels + 50,
+      );
+      final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.minPixels + 50,
+      );
+
+      expect(
+        behaviorUnderTest.findSnapPixels(0, positionAtNearTopEdge),
+        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
+      );
+      expect(
+        behaviorUnderTest.findSnapPixels(0, positionAtNearMiddle),
+        moreOrLessEquals(_positionAtMiddle.pixels),
+      );
+      expect(
+        behaviorUnderTest.findSnapPixels(0, positionAtNearBottomEdge),
+        moreOrLessEquals(_referenceSheetMetrics.minPixels),
+      );
+    });
+
+    test('is aware of fling gesture direction', () {
+      final positionAtAboveMiddle = _positionAtMiddle.copyWith(
+        pixels: _positionAtMiddle.pixels + 10,
+      );
+      final positionAtBelowMiddle = _positionAtMiddle.copyWith(
+        pixels: _positionAtMiddle.pixels - 10,
+      );
+      // Flings up at the bottom edge
+      expect(
+        behaviorUnderTest.findSnapPixels(50, _positionAtBottomEdge),
+        moreOrLessEquals(_positionAtMiddle.pixels),
+      );
+      // Flings up at the slightly above the middle position
+      expect(
+        behaviorUnderTest.findSnapPixels(50, positionAtAboveMiddle),
+        moreOrLessEquals(_positionAtTopEdge.pixels),
+      );
+      // Flings down at the top edge
+      expect(
+        behaviorUnderTest.findSnapPixels(-50, _positionAtTopEdge),
+        moreOrLessEquals(_positionAtMiddle.pixels),
+      );
+      // Flings down at the slightly below the middle position
+      expect(
+        behaviorUnderTest.findSnapPixels(-50, positionAtBelowMiddle),
+        moreOrLessEquals(_positionAtBottomEdge.pixels),
       );
     });
 
