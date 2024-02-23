@@ -5,8 +5,22 @@ on:
 
 jobs:
   publish:
+    name: Publish
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      working-directory: package
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.x
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Publish to pub.dev
+        run: flutter pub publish --force
