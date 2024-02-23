@@ -1,5 +1,5 @@
 name: Setup Flutter
-description: Setup flutter toolchains for subsequent actions.
+description: Setup flutter project and toolchains for subsequent actions.
 runs:
   using: "composite"
   steps:
@@ -12,3 +12,6 @@ runs:
 
     - name: Flutter version
       run: flutter --version
+
+    - name: Install dependencies
+      run: flutter pub get

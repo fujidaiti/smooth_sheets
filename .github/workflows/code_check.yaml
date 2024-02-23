@@ -41,9 +41,6 @@ jobs:
       - name: Setup Flutter toolchains
         uses: ./.github/actions/setup_flutter
 
-      - name: Get dependencies
-        run: flutter pub get
-
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
 
