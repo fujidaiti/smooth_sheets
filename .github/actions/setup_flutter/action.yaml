@@ -12,6 +12,8 @@ runs:
 
     - name: Flutter version
       run: flutter --version
+      shell: bash
 
     - name: Install dependencies
       run: flutter pub get
+      shell: bash
