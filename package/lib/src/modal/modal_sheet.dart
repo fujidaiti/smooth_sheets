@@ -190,9 +190,11 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
 class SheetDismissible extends StatefulWidget {
   const SheetDismissible({
     super.key,
+    this.onDismiss,
     required this.child,
   });
 
+  final ValueGetter<bool>? onDismiss;
   final Widget child;
 
   @override
@@ -204,7 +206,6 @@ class _SheetDismissibleState extends State<SheetDismissible> {
   late ModalSheetRouteMixin<dynamic> _parentRoute;
   late final _PullToDismissGestureRecognizer _gestureRecognizer;
   ScrollMetrics? _lastReportedScrollMetrics;
-  AsyncValueGetter<bool>? _shouldDismissCallback;
 
   AnimationController get _transitionController =>
       _parentRoute._transitionController;
@@ -257,17 +258,18 @@ class _SheetDismissibleState extends State<SheetDismissible> {
 
   Future<void> handleDragEnd(DragEndDetails details) async {
     final velocity = details.velocity.pixelsPerSecond.dy / context.size!.height;
+    final shouldDismissCallback = widget.onDismiss ?? () => true;
 
     final bool willPop;
     if (velocity > 0) {
       // Flings down.
       willPop = velocity.abs() > _minFlingVelocityToDismiss &&
           !_transitionController.isAnimating &&
-          (_shouldDismissCallback == null || await _shouldDismissCallback!());
+          shouldDismissCallback();
     } else if (velocity.isApprox(0)) {
       willPop = _draggedDistance.abs() > _minDragDistanceToDismiss &&
           !_transitionController.isAnimating &&
-          (_shouldDismissCallback == null || await _shouldDismissCallback!());
+          shouldDismissCallback();
     } else {
       // Flings up.
       willPop = false;
