@@ -3,9 +3,7 @@ on:
   push:
     branches: main
   pull_request:
-    branches:
-      - "release-*"
-      - "hotfix-*"
+    branches: main
 
 jobs:
   dry-publish:
