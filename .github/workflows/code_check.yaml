@@ -17,6 +17,7 @@ jobs:
     outputs:
       dart-files: ${{ steps.filter.outputs.dart-files }}
     steps:
+      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
