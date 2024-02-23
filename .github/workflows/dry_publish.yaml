@@ -21,14 +21,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Flutter SDK
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: 3.x
-
-      - run: flutter --version
-      - run: flutter pub get
+      - name: Setup Flutter toolchains
+        uses: ./.github/actions/setup_flutter
 
       - uses: axel-op/dart-package-analyzer@master
         id: analysis

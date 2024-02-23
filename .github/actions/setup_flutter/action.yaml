@@ -1,0 +1,14 @@
+name: Setup Flutter
+description: Setup flutter toolchains for subsequent actions.
+runs:
+  using: "composite"
+  steps:
+    - name: Install Flutter SDK
+      uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        flutter-version: 3.x
+        cache: true
+
+    - name: Flutter version
+      run: flutter --version

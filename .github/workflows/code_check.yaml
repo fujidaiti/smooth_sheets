@@ -14,17 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Flutter toolchains
+        uses: ./.github/actions/setup_flutter
+
       - name: Install cargo-make
         uses: taiki-e/install-action@cargo-make
-
-      - name: Install Flutter SDK
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: 3.x
-
-      - name: Flutter version
-        run: flutter --version
 
       - name: Run task 'check-all'
         run: cargo make check-all
@@ -44,14 +38,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: 3.x
-
-      - name: Flutter version
-        run: flutter --version
+      - name: Setup Flutter toolchains
+        uses: ./.github/actions/setup_flutter
 
       - name: Get dependencies
         run: flutter pub get
