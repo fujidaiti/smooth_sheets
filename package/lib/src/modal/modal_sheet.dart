@@ -146,6 +146,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   @override
   bool get opaque => false;
 
+  @protected
   late final SheetController sheetController;
 
   /// Re-exposed [ModalRoute.controller] for use in [SheetDismissible].
