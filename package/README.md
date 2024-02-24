@@ -1,15 +1,12 @@
 # smooth_sheets
 
-> *Sheet widgets with smooth motion and great flexibility*
-
-<br/>
-
-**smooth_sheets** package offers modal and persistent sheet widgets for Flutter apps. The key features are:
+**smooth_sheets** offers modal and persistent sheet widgets for Flutter apps. The key features are:
 
 - **Smooth motion**: The sheets respond to user interaction with smooth, graceful motion.
 - **Highly flexible**: Not restricted to a specific design. Both modal and persistent styles are supported, as well as scrollable and non-scrollable widgets.
 - **Supports nested navigation**: A sheet is able to have multiple pages and to navigate between the pages with motion animation for transitions.
 - **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packages like go_route as well.
+- **iOS flavor**: The modal sheets in the style of iOS 15 are supported.
 
 <br/>
 
@@ -19,7 +16,7 @@
 
 > [!NOTE]
 > 
-> For documentation of the latest published version, please visit the [package page](https://pub.dev/packages/smooth_sheets) on pub.dev.
+> For documentation of the latest published version, please visit the [package site](https://pub.dev/packages/smooth_sheets) on pub.dev.
 
 <br/>
 
@@ -37,6 +34,7 @@
         <li>ModalSheetPage</li>
         <li>DraggableNavigationSheetPage</li>
         <li>ScrollableNavigationSheetPage</li>
+        <li>SheetDismissible</li>
       </ul>
     </td>
   </tr>
@@ -76,10 +74,12 @@
         <li>ScrollableSheet</li>
         <li>SheetContentScaffold</li>
         <li>SheetKeyboardDismissBehavior</li>
+        <li>SheetDismissible</li>
       </ul>
     </td>
   </tr>
 </table>
+
 
 
 <br/>
@@ -181,7 +181,7 @@ See also:
 
 
 
-A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. A modal sheet offers the *pull-to-dismiss* action; the user can dismiss the sheet by swiping it down.
+A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. To enable the *pull-to-dismiss* action, which allows the user to dismiss the sheet with a swiping-down gesture, wrap the sheet in a SheetDismissible.
 
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/242a8d32-a355-4d4a-8248-4572a03c64eb"/>
@@ -197,6 +197,7 @@ See also:
 - [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
 - [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
 - [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
+- [showcase/todo_list](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/todo_list), which uses SheetDismissible to show a confirmation dialog when the user tries to discard the todo editing sheet without saving the content.
 
 <br/>
 
@@ -339,19 +340,6 @@ See also:
 
 <br/>
 
-## Roadmap
-
-- [ ] doc: Provide more documentation
-- [x] doc: Add a showcase that uses a TextField in a sheet
-- [ ] doc: Add an example of `NavigationSheet` using [auto_route](https://pub.dev/packages/auto_route)
-- [ ] feat: Sheet decoration; a way to place an extra widget above the sheet
-- [ ] feat: Provide a way to interrupt a modal route popping
-- [ ] feat: Support shared appbars in NavigationSheet
-- [x] feat: Dispatch a [Notification](https://api.flutter.dev/flutter/widgets/Notification-class.html) when the sheet extent changes
-- [x] feat: Implement modal sheet route adapted for iOS
-
-<br/>
-
 ## Questions
 
 If you have any questions, feel free to ask them on [the discussions page](https://github.com/fujidaiti/smooth_sheets/discussions).
@@ -370,6 +358,15 @@ Don't forget to give the project a star! Thanks again!
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+<br/>
+
+## Links
+
+- [Roadmap](https://github.com/fujidaiti/smooth_sheets/issues?q=is%3Aissue+is%3Aopen+label%3A%22feature+request%22)
+- [API Documentation](https://pub.dev/documentation/smooth_sheets/latest/)
+- [pub.dev](https://pub.dev/packages/smooth_sheets)
+- [norelease.dev](https://pub.dev/publishers/norelease.dev/packages)
 
 <br/>
 
