@@ -340,6 +340,14 @@ See also:
 
 <br/>
 
+## Migration guide
+
+- [0.2.x to 0.3.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.3.x.md)
+
+See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older versions.
+
+<br/>
+
 ## Questions
 
 If you have any questions, feel free to ask them on [the discussions page](https://github.com/fujidaiti/smooth_sheets/discussions).
