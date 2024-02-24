@@ -27,7 +27,7 @@
 
 <table>
   <tr>
-    <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/f34ad8f7-2435-4bed-adbf-2d61c659c803"/></td>
+    <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/636d5ca8-2883-4447-ad75-47fcb210718c"/></td>
     <td>
       <h3>AI Playlist Generator</h3>
       <p>An AI assistant that helps create a music playlist based on the user's preferences. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/ai_playlist_generator.dart">the cookbook</a> for more details.</p>
@@ -41,7 +41,7 @@
     </td>
   </tr>
   <tr>
-    <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/ad3f0ec1-fd7b-45d3-94a3-0b17c12b5889"/></td>
+    <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/cfbc79d1-4290-4dec-88bd-a355a27726ea"/></td>
     <td>
       <h3>Safari app</h3>
       <p>A practical example of ios-style modal sheets. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/safari">the cookbook</a> for more details.</p>
@@ -80,6 +80,7 @@
     </td>
   </tr>
 </table>
+
 
 <br/>
 
@@ -174,8 +175,9 @@ See also:
 ### ModalSheets
 
 <div align="center">
-  <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/67128764-e809-4bff-ae2d-b0884928a2da"/>
+  <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/f2212362-e193-4dab-8f8b-f24942051775"/>
 </div>
+
 
 
 
