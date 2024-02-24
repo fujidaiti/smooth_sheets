@@ -11,7 +11,10 @@ class _TodoListExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: _Home());
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: _Home(),
+    );
   }
 }
 

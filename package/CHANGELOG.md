@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0 Feb 24, 2024
+
+- Add iOS 15 style modal sheet transition (#21)
+- Improve the sheet motion while opening/closing the keyboard (#27)
+- Add `settings` and `fullscreenDialog` params to the constructors of modal sheet routes and pages (#28)
+- Physics improvements (#32)
+- Add conditional modal sheet popping feature (#39)
+- Remove `enablePullToDismiss` (#44)
+
 ## 0.2.0 Jan 29, 2024
 
 - Add a showcase that uses TextFields in a sheet (#2)
