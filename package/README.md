@@ -20,6 +20,14 @@
 
 <br/>
 
+## Migration guide
+
+- [0.2.x to 0.3.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.3.x.md) 🆕
+
+See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older versions.
+
+<br/>
+
 ## Showcases
 
 <table>
@@ -337,14 +345,6 @@ Although it is easy to create custom behaviors by implementing SheetKeyboardDism
 See also:
 
 - [tutorial/keyboard_dismiss_behavior.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/keyboard_dismiss_behavior.dart) for basic usage.
-
-<br/>
-
-## Migration guide
-
-- [0.2.x to 0.3.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.3.x.md)
-
-See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older versions.
 
 <br/>
 
