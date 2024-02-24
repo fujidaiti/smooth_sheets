@@ -9,7 +9,11 @@ void showMenuSheet(BuildContext context) {
   Navigator.push(
     context,
     CupertinoModalSheetRoute(
-      builder: (context) => const MenuSheet(),
+      builder: (context) {
+        return const SheetDismissible(
+          child: MenuSheet(),
+        );
+      },
     ),
   );
 }

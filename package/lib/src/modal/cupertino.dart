@@ -470,9 +470,6 @@ class _PageBasedCupertinoModalSheetRoute<T>
   bool get barrierDismissible => _page.barrierDismissible;
 
   @override
-  bool get enablePullToDismiss => _page.enablePullToDismiss;
-
-  @override
   Curve get transitionCurve => _page.transitionCurve;
 
   @override
@@ -490,7 +487,6 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     super.settings,
     super.fullscreenDialog,
     required this.builder,
-    this.enablePullToDismiss = true,
     this.maintainState = true,
     this.barrierDismissible = true,
     this.barrierLabel,
@@ -509,9 +505,6 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   final String? barrierLabel;
-
-  @override
-  final bool enablePullToDismiss;
 
   @override
   final bool maintainState;
