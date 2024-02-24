@@ -408,7 +408,6 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     super.arguments,
     super.restorationId,
     this.maintainState = true,
-    this.enablePullToDismiss = true,
     this.barrierDismissible = true,
     this.fullscreenDialog = false,
     this.barrierLabel,
@@ -431,8 +430,6 @@ class CupertinoModalSheetPage<T> extends Page<T> {
   final bool barrierDismissible;
 
   final String? barrierLabel;
-
-  final bool enablePullToDismiss;
 
   final Duration transitionDuration;
 
