@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 Feb 26, 2024
+
+Documentation updates.
+
 ## 0.3.0 Feb 24, 2024
 
 - Add iOS 15 style modal sheet transition (#21)
