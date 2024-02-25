@@ -90,7 +90,7 @@ class FixedExtent implements Extent {
 /// the [pixels], but it can be outside of the range if the [physics] allows it.
 ///
 /// The current [activity] is responsible for how the [pixels] changes
-/// over time, for example, [DrivenSheetActivity] animates the [pixels] to
+/// over time, for example, [AnimatedSheetActivity] animates the [pixels] to
 /// a target value, and [IdleSheetActivity] keeps the [pixels] unchanged.
 /// [SheetExtent] starts with [IdleSheetActivity] as the initial activity,
 /// and it can be changed by calling [beginActivity].
@@ -118,6 +118,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     beginActivity(IdleSheetActivity());
   }
 
+  /// A handle to the owner of this object.
   final SheetContext context;
 
   /// How the sheet extent should respond to user input.
@@ -142,8 +143,12 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   Size? _contentDimensions;
   ViewportDimensions? _viewportDimensions;
 
-  late final _SheetMetricsRef _metrics;
+  /// A view of [SheetMetrics] backed by this object.
+  ///
+  /// Useful for treating this object as a [SheetMetrics] without
+  /// creating an intermediate object.
   SheetMetrics get metrics => _metrics;
+  late final _SheetMetricsRef _metrics;
 
   /// A snapshot of the current metrics.
   SheetMetricsSnapshot get snapshot {
@@ -348,6 +353,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   }
 }
 
+/// The dimensions of the viewport that hosts the sheet.
 class ViewportDimensions {
   const ViewportDimensions({
     required this.width,
@@ -355,8 +361,15 @@ class ViewportDimensions {
     required this.insets,
   });
 
+  /// The width of the viewport.
   final double width;
+
+  /// The height of the viewport.
   final double height;
+
+  /// The insets of the viewport.
+  ///
+  /// This is the same as [MediaQueryData.viewInsets].
   final EdgeInsets insets;
 
   @override
@@ -377,6 +390,7 @@ class ViewportDimensions {
       );
 }
 
+/// A description of the state of a sheet.
 mixin MaybeSheetMetrics {
   /// The current extent of the sheet.
   double? get pixels;
@@ -389,19 +403,29 @@ mixin MaybeSheetMetrics {
 
   /// The dimensions of the sheet's content.
   Size? get contentDimensions;
+
+  /// The dimensions of the viewport that hosts the sheet.
   ViewportDimensions? get viewportDimensions;
 
+  /// The visible height of the sheet measured from the bottom of the viewport.
+  ///
+  /// If the on-screen keyboard is visible, this value is the sum of
+  /// [pixels] and the keyboard's height. Otherwise, it is equal to [pixels].
   double? get viewPixels => switch ((pixels, viewportDimensions)) {
         (final pixels?, final viewport?) => pixels + viewport.insets.bottom,
         _ => null,
       };
 
+  /// The minimum visible height of the sheet measured from the bottom
+  /// of the viewport.
   double? get minViewPixels => switch ((minPixels, viewportDimensions)) {
         (final minPixels?, final viewport?) =>
           minPixels + viewport.insets.bottom,
         _ => null,
       };
 
+  /// The maximum visible height of the sheet measured from the bottom
+  /// of the viewport.
   double? get maxViewPixels => switch ((maxPixels, viewportDimensions)) {
         (final maxPixels?, final viewport?) =>
           maxPixels + viewport.insets.bottom,
@@ -419,9 +443,12 @@ mixin MaybeSheetMetrics {
       contentDimensions != null &&
       viewportDimensions != null;
 
+  /// Whether the sheet is within the range of [minPixels] and [maxPixels]
+  /// (inclusive of both bounds).
   bool get isPixelsInBounds =>
       hasPixels && pixels!.isInBounds(minPixels!, maxPixels!);
 
+  /// Whether the sheet is outside the range of [minPixels] and [maxPixels].
   bool get isPixelsOutOfBounds => !isPixelsInBounds;
 
   @override
@@ -438,6 +465,7 @@ mixin MaybeSheetMetrics {
       ).toString();
 }
 
+/// Non-nullable version of [MaybeSheetMetrics].
 mixin SheetMetrics on MaybeSheetMetrics {
   @override
   double get pixels;
@@ -464,7 +492,9 @@ mixin SheetMetrics on MaybeSheetMetrics {
   double get maxViewPixels => super.maxViewPixels!;
 }
 
+/// An immutable object that implements [SheetMetrics].
 class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
+  /// Creates an immutable description of the sheet's state.
   const SheetMetricsSnapshot({
     required this.pixels,
     required this.minPixels,
@@ -473,6 +503,7 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
     required this.viewportDimensions,
   });
 
+  /// Creates a snapshot of the given [SheetMetrics].
   factory SheetMetricsSnapshot.from(SheetMetrics other) {
     return SheetMetricsSnapshot(
       pixels: other.pixels,
@@ -501,6 +532,7 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
   @override
   bool get hasPixels => true;
 
+  /// Creates a copy of this object with the given fields replaced.
   SheetMetricsSnapshot copyWith({
     double? pixels,
     double? minPixels,
@@ -571,11 +603,15 @@ class _SheetMetricsRef with MaybeSheetMetrics, SheetMetrics {
   ViewportDimensions get viewportDimensions => _source.viewportDimensions!;
 }
 
+/// An interface that provides the necessary context to a [SheetExtent].
+///
+/// Typically, [State]s that host a [SheetExtent] will implement this interface.
 abstract class SheetContext {
   TickerProvider get vsync;
   BuildContext? get notificationContext;
 }
 
+/// A factory that creates a [SheetExtent].
 abstract class SheetExtentFactory {
   const SheetExtentFactory();
   SheetExtent create({required SheetContext context});
