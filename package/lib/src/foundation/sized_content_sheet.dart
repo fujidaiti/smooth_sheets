@@ -5,8 +5,8 @@ import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 
-abstract class SingleChildSheetExtent extends SheetExtent {
-  SingleChildSheetExtent({
+abstract class SizedContentSheetExtent extends SheetExtent {
+  SizedContentSheetExtent({
     required super.context,
     required super.physics,
     required super.minExtent,
@@ -17,8 +17,8 @@ abstract class SingleChildSheetExtent extends SheetExtent {
   final Extent initialExtent;
 }
 
-abstract class SingleChildSheetExtentFactory extends SheetExtentFactory {
-  const SingleChildSheetExtentFactory({
+abstract class SizedContentSheetExtentFactory extends SheetExtentFactory {
+  const SizedContentSheetExtentFactory({
     required this.initialExtent,
     required this.minExtent,
     required this.maxExtent,
@@ -32,8 +32,8 @@ abstract class SingleChildSheetExtentFactory extends SheetExtentFactory {
 }
 
 /// A base class for sheets that have a single content.
-abstract class SingleChildSheet extends StatefulWidget {
-  const SingleChildSheet({
+abstract class SizedContentSheet extends StatefulWidget {
+  const SizedContentSheet({
     super.key,
     this.keyboardDismissBehavior,
     this.initialExtent = const Extent.proportional(1),
@@ -55,10 +55,10 @@ abstract class SingleChildSheet extends StatefulWidget {
   final Widget child;
 
   @override
-  SingleChildSheetState createState();
+  SizedContentSheetState createState();
 }
 
-abstract class SingleChildSheetState<T extends SingleChildSheet>
+abstract class SizedContentSheetState<T extends SizedContentSheet>
     extends State<T> {
   late SheetExtentFactory _factory;
   SheetExtentFactory get factory => _factory;
@@ -103,7 +103,7 @@ abstract class SingleChildSheetState<T extends SingleChildSheet>
   /// Builds the content of the sheet.
   ///
   /// Consider overriding this method if you want to
-  /// insert widgets above the [SingleChildSheet.child].
+  /// insert widgets above the [SizedContentSheet.child].
   @protected
   Widget buildContent(BuildContext context) {
     return widget.child;

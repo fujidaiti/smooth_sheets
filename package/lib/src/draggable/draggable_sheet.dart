@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/single_child_sheet.dart';
+import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 
-class DraggableSheet extends SingleChildSheet {
+class DraggableSheet extends SizedContentSheet {
   const DraggableSheet({
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
@@ -18,12 +18,12 @@ class DraggableSheet extends SingleChildSheet {
   final HitTestBehavior hitTestBehavior;
 
   @override
-  SingleChildSheetState<SingleChildSheet> createState() {
+  SizedContentSheetState<SizedContentSheet> createState() {
     return _DraggableSheetState();
   }
 }
 
-class _DraggableSheetState extends SingleChildSheetState<DraggableSheet> {
+class _DraggableSheetState extends SizedContentSheetState<DraggableSheet> {
   @override
   SheetExtentFactory createExtentFactory() {
     return DraggableSheetExtentFactory(
@@ -43,7 +43,7 @@ class _DraggableSheetState extends SingleChildSheetState<DraggableSheet> {
   }
 }
 
-class DraggableSheetExtentFactory extends SingleChildSheetExtentFactory {
+class DraggableSheetExtentFactory extends SizedContentSheetExtentFactory {
   const DraggableSheetExtentFactory({
     required super.initialExtent,
     required super.minExtent,
@@ -63,7 +63,7 @@ class DraggableSheetExtentFactory extends SingleChildSheetExtentFactory {
   }
 }
 
-class DraggableSheetExtent extends SingleChildSheetExtent {
+class DraggableSheetExtent extends SizedContentSheetExtent {
   DraggableSheetExtent({
     required super.context,
     required super.physics,

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/foundation/single_child_sheet.dart';
+import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 import 'package:smooth_sheets/src/internal/into.dart';
 import 'package:smooth_sheets/src/scrollable/content_scroll_position.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 
-class ScrollableSheet extends SingleChildSheet {
+class ScrollableSheet extends SizedContentSheet {
   const ScrollableSheet({
     super.key,
     super.keyboardDismissBehavior,
@@ -19,12 +19,12 @@ class ScrollableSheet extends SingleChildSheet {
   });
 
   @override
-  SingleChildSheetState<SingleChildSheet> createState() {
+  SizedContentSheetState<SizedContentSheet> createState() {
     return _ScrollableSheetState();
   }
 }
 
-class _ScrollableSheetState extends SingleChildSheetState<ScrollableSheet> {
+class _ScrollableSheetState extends SizedContentSheetState<ScrollableSheet> {
   @override
   SheetExtentFactory createExtentFactory() {
     return ScrollableSheetExtentFactory(

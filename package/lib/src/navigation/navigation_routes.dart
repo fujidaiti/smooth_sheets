@@ -3,7 +3,7 @@ import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
 import 'package:smooth_sheets/src/draggable/sheet_draggable.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
-import 'package:smooth_sheets/src/foundation/single_child_sheet.dart';
+import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 import 'package:smooth_sheets/src/navigation/navigation_route.dart';
 import 'package:smooth_sheets/src/navigation/navigation_sheet.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
@@ -39,7 +39,7 @@ abstract class SingleChildNavigationSheetRoute<T>
   final WidgetBuilder builder;
 
   @override
-  SingleChildSheetExtentFactory get pageExtentFactory;
+  SizedContentSheetExtentFactory get pageExtentFactory;
 
   @override
   Widget buildTransitions(
@@ -102,8 +102,8 @@ abstract class PageBasedSingleChildNavigationSheetRoute<T,
   Duration get transitionDuration => page.transitionDuration;
 
   @override
-  SingleChildSheetExtentFactory get pageExtentFactory => _pageExtentFactory!;
-  SingleChildSheetExtentFactory? _pageExtentFactory;
+  SizedContentSheetExtentFactory get pageExtentFactory => _pageExtentFactory!;
+  SizedContentSheetExtentFactory? _pageExtentFactory;
 
   @override
   void changedInternalState() {
@@ -113,7 +113,7 @@ abstract class PageBasedSingleChildNavigationSheetRoute<T,
     }
   }
 
-  SingleChildSheetExtentFactory createPageExtentFactory();
+  SizedContentSheetExtentFactory createPageExtentFactory();
 
   bool shouldUpdatePageExtentFactory() {
     return page.initialExtent != _pageExtentFactory?.initialExtent ||
@@ -223,7 +223,7 @@ class _PageBasedScrollableNavigationSheetRoute<T>
   _PageBasedScrollableNavigationSheetRoute({required super.page});
 
   @override
-  SingleChildSheetExtentFactory createPageExtentFactory() {
+  SizedContentSheetExtentFactory createPageExtentFactory() {
     return ScrollableSheetExtentFactory(
       initialExtent: page.initialExtent,
       minExtent: page.minExtent,
@@ -269,7 +269,7 @@ class _PageBasedDraggableNavigationSheetRoute<T>
   _PageBasedDraggableNavigationSheetRoute({required super.page});
 
   @override
-  SingleChildSheetExtentFactory createPageExtentFactory() {
+  SizedContentSheetExtentFactory createPageExtentFactory() {
     return DraggableSheetExtentFactory(
       initialExtent: page.initialExtent,
       minExtent: page.minExtent,
