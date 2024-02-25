@@ -16,6 +16,9 @@ jobs:
         uses: ./.github/actions/setup_flutter
         with:
           target: package
+      
+      - name: Setup OIDC token
+        uses: dart-lang/setup-dart@v1
 
       - name: Publish to pub.dev
         run: flutter pub publish --force
