@@ -10,13 +10,9 @@
 
 <br/>
 
-> [!CAUTION]
->
-> This library is currently in the experimental stage. The API may undergo changes without prior notice. 
+**CAUTION🚨**
 
-> [!NOTE]
-> 
-> For documentation of the latest published version, please visit the [package site](https://pub.dev/packages/smooth_sheets) on pub.dev.
+This library is currently in the experimental stage. The API may undergo changes without prior notice. For documentation of the latest published version, please visit the [package site](https://pub.dev/packages/smooth_sheets) on pub.dev.
 
 <br/>
 

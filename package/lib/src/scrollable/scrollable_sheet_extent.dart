@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
-import 'package:smooth_sheets/src/foundation/single_child_sheet.dart';
+import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
 import 'package:smooth_sheets/src/internal/into.dart';
 import 'package:smooth_sheets/src/scrollable/content_scroll_position.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_physics.dart';
 
-class ScrollableSheetExtentFactory extends SingleChildSheetExtentFactory {
+class ScrollableSheetExtentFactory extends SizedContentSheetExtentFactory {
   const ScrollableSheetExtentFactory({
     required super.initialExtent,
     required super.minExtent,
@@ -30,7 +30,7 @@ class ScrollableSheetExtentFactory extends SingleChildSheetExtentFactory {
   }
 }
 
-class ScrollableSheetExtent extends SingleChildSheetExtent {
+class ScrollableSheetExtent extends SizedContentSheetExtent {
   ScrollableSheetExtent({
     required super.initialExtent,
     required super.minExtent,
