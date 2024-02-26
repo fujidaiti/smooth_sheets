@@ -17,7 +17,7 @@ jobs:
         with:
           target: package
 
-      - uses: axel-op/dart-package-analyzer@master
+      - uses: axel-op/dart-package-analyzer@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
