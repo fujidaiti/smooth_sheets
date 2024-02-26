@@ -121,20 +121,26 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   /// A handle to the owner of this object.
   final SheetContext context;
 
+  /// {@template SheetExtent.physics}
   /// How the sheet extent should respond to user input.
   ///
   /// This determines how the sheet will behave when over-dragged or
   /// under-dragged, or when the user stops dragging.
+  /// {@endtemplate}
   final SheetPhysics physics;
 
+  /// {@template SheetExtent.minExtent}
   /// The minimum extent of the sheet.
   ///
   /// The sheet may below this extent if the [physics] allows it.
+  /// {@endtemplate}
   final Extent minExtent;
 
+  /// {@template SheetExtent.maxExtent}
   /// The maximum extent of the sheet.
   ///
   /// The sheet may exceed this extent if the [physics] allows it.
+  /// {@endtemplate}
   final Extent maxExtent;
 
   SheetActivity? _activity;
