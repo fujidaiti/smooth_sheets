@@ -2,7 +2,23 @@ import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 
+/// A sheet that can be dragged.
+///
+/// Note that this widget does not work with scrollable widgets.
+/// Instead, use [ScrollableSheet] for this usecase.
 class DraggableSheet extends SizedContentSheet {
+  /// Creates a sheet that can be dragged.
+  ///
+  /// The maximum height will be equal to the [child]'s height.
+  ///
+  /// The [physics] determines how the sheet will behave when over-dragged
+  /// or under-dragged, or when the user stops dragging.
+  ///
+  /// The [hitTestBehavior] defaults to [HitTestBehavior.translucent].
+  ///
+  /// See also:
+  /// - [A tutorial](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/draggable_sheet.dart),
+  ///  minimal code to use a draggable sheet.
   const DraggableSheet({
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
@@ -15,6 +31,9 @@ class DraggableSheet extends SizedContentSheet {
     required super.child,
   });
 
+  /// How to behave during hit testing.
+  ///
+  /// This value will be passed to the constructor of internal [SheetDraggable].
   final HitTestBehavior hitTestBehavior;
 
   @override
@@ -43,6 +62,7 @@ class _DraggableSheetState extends SizedContentSheetState<DraggableSheet> {
   }
 }
 
+/// Factory of [DraggableSheetExtent].
 class DraggableSheetExtentFactory extends SizedContentSheetExtentFactory {
   const DraggableSheetExtentFactory({
     required super.initialExtent,
@@ -63,6 +83,7 @@ class DraggableSheetExtentFactory extends SizedContentSheetExtentFactory {
   }
 }
 
+/// [SheetExtent] for a [DraggableSheet].
 class DraggableSheetExtent extends SizedContentSheetExtent {
   DraggableSheetExtent({
     required super.context,
