@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 Feb 27, 2024
+
+Documentation updates.
+
 ## 0.3.1 Feb 26, 2024
 
 Documentation updates.
