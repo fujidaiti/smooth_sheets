@@ -82,6 +82,8 @@ class _FullScreenSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Wrap the sheet with `SheetDismissible` to
+    // enable the pull-to-dismiss action.
     return const SheetDismissible(
       child: DraggableSheet(
         child: _SheetContent(),
