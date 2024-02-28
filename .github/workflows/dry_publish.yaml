@@ -9,6 +9,9 @@ jobs:
   dry-publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Add workspace to safe directory # Workaround for #59
+        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+
       - name: Checkout
         uses: actions/checkout@v4
 
