@@ -64,13 +64,15 @@ class _HalfScreenSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     // `CupertinoStackedTransition` won't start the transition animation until
     // the visible height of a modal sheet (the extent) exceeds 50% of the screen height.
-    return const DraggableSheet(
-      initialExtent: Extent.proportional(0.5),
-      minExtent: Extent.proportional(0.5),
-      physics: StretchingSheetPhysics(
-        parent: SnappingSheetPhysics(),
+    return const SheetDismissible(
+      child: DraggableSheet(
+        initialExtent: Extent.proportional(0.5),
+        minExtent: Extent.proportional(0.5),
+        physics: StretchingSheetPhysics(
+          parent: SnappingSheetPhysics(),
+        ),
+        child: _SheetContent(),
       ),
-      child: _SheetContent(),
     );
   }
 }
@@ -80,8 +82,10 @@ class _FullScreenSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const DraggableSheet(
-      child: _SheetContent(),
+    return const SheetDismissible(
+      child: DraggableSheet(
+        child: _SheetContent(),
+      ),
     );
   }
 }
