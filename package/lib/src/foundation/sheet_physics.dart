@@ -84,7 +84,7 @@ abstract class SheetPhysics {
     final settleTo =
         metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
 
-    return _InterpolationSimulation(
+    return InterpolationSimulation(
       start: metrics.pixels,
       end: settleTo,
       curve: Curves.easeInOut,
@@ -106,8 +106,14 @@ abstract class SheetPhysics {
   int get hashCode => Object.hash(runtimeType, parent);
 }
 
-class _InterpolationSimulation extends Simulation {
-  _InterpolationSimulation({
+/// A [Simulation] that interpolates between two values over a given duration.
+class InterpolationSimulation extends Simulation {
+  /// Creates a [Simulation] that interpolates between two values
+  /// over a given duration.
+  ///
+  /// Make sure that [start] and [end] are not equal, and the
+  /// [durationInSeconds] must be greater than 0.
+  InterpolationSimulation({
     required this.start,
     required this.end,
     required this.curve,
@@ -115,9 +121,16 @@ class _InterpolationSimulation extends Simulation {
   })  : assert(start != end),
         assert(durationInSeconds > 0);
 
+  /// The start value of the interpolation.
   final double start;
+
+  /// The end value of the interpolation.
   final double end;
+
+  /// The curve to use for the interpolation.
   final Curve curve;
+
+  /// The duration of the interpolation in seconds.
   late final double durationInSeconds;
 
   @override
