@@ -1,12 +1,16 @@
 # Changelog
 
+## 0.3.3 Feb 29, 2024
+
+- Add `InterpolationSimulation` (#55)
+
 ## 0.3.2 Feb 27, 2024
 
-Documentation updates.
+- Documentation updates
 
 ## 0.3.1 Feb 26, 2024
 
-Documentation updates.
+- Documentation updates
 
 ## 0.3.0 Feb 24, 2024
 
@@ -25,4 +29,4 @@ Documentation updates.
 
 ## 0.1.0
 
-Initial release.
+- Initial release
