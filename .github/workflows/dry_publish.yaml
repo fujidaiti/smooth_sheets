@@ -23,7 +23,7 @@ jobs:
       - name: Run pana
         id: analysis
         run: |
-          JSON_OUTPUT=$(pana --json package)
+          JSON_OUTPUT=$(pana --json 2>&1 | grep -v '^{"logName"')
           echo "::set-output name=json_output::$JSON_OUTPUT"
 
       - uses: fujidaiti/dart-package-inspector@v1
