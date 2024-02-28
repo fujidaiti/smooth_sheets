@@ -17,11 +17,15 @@ jobs:
         with:
           target: package
 
-      - uses: axel-op/dart-package-analyzer@master
+      - name: Install pana
+        run: dart pub global activate pana
+
+      - name: Run pana
         id: analysis
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: package
+        run: |
+          pana --json package 2>&1 | grep -v '^{"logName"' > pana-report.json
+          JSON_OUTPUT=$(cat pana-report.json | jq -c .)
+          echo "::set-output name=json_output::$JSON_OUTPUT"
 
       - uses: fujidaiti/dart-package-inspector@v1
         with:
