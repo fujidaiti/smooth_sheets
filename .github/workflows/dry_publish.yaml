@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add workspace to safe directory # Workaround for #59
-        run: git config --global --add safe.directory "${GITHUB_WORKSPACE}"
+        run: git config --global --add safe.directory /github/workspace
 
       - name: Checkout
         uses: actions/checkout@v4
