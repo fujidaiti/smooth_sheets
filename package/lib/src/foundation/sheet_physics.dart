@@ -123,13 +123,13 @@ class InterpolationSimulation extends Simulation {
 
   /// The start value of the interpolation.
   final double start;
-  
+
   /// The end value of the interpolation.
   final double end;
-  
+
   /// The curve to use for the interpolation.
   final Curve curve;
-  
+
   /// The duration of the interpolation in seconds.
   late final double durationInSeconds;
 
