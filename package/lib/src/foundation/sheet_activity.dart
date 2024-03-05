@@ -147,7 +147,7 @@ abstract class SheetActivity extends ChangeNotifier {
 }
 
 class AnimatedSheetActivity extends SheetActivity
-    with DrivenSheetActivityMixin {
+    with ControlledSheetActivityMixin {
   AnimatedSheetActivity({
     required this.from,
     required this.to,
@@ -178,7 +178,7 @@ class AnimatedSheetActivity extends SheetActivity
 }
 
 class BallisticSheetActivity extends SheetActivity
-    with DrivenSheetActivityMixin {
+    with ControlledSheetActivityMixin {
   BallisticSheetActivity({
     required this.simulation,
   });
@@ -203,7 +203,7 @@ class BallisticSheetActivity extends SheetActivity
 
 class IdleSheetActivity extends SheetActivity {}
 
-mixin DrivenSheetActivityMixin on SheetActivity {
+mixin ControlledSheetActivityMixin on SheetActivity {
   late final AnimationController controller;
   late double _lastAnimatedValue;
 
