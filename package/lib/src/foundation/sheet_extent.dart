@@ -1,11 +1,7 @@
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
-import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 
 /// A representation of a visible height of the sheet.
 ///
@@ -161,6 +157,9 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     assert(hasPixels);
     return SheetMetricsSnapshot.from(metrics);
   }
+
+  @override
+  SheetStatus get status => _activity!.status;
 
   @override
   double? get pixels => _activity!.pixels;
@@ -398,6 +397,9 @@ class ViewportDimensions {
 
 /// A description of the state of a sheet.
 mixin MaybeSheetMetrics {
+  /// The current status of the sheet.
+  SheetStatus get status;
+
   /// The current extent of the sheet.
   double? get pixels;
 
@@ -502,6 +504,7 @@ mixin SheetMetrics on MaybeSheetMetrics {
 class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
   /// Creates an immutable description of the sheet's state.
   const SheetMetricsSnapshot({
+    required this.status,
     required this.pixels,
     required this.minPixels,
     required this.maxPixels,
@@ -512,6 +515,7 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
   /// Creates a snapshot of the given [SheetMetrics].
   factory SheetMetricsSnapshot.from(SheetMetrics other) {
     return SheetMetricsSnapshot(
+      status: other.status,
       pixels: other.pixels,
       minPixels: other.minPixels,
       maxPixels: other.maxPixels,
@@ -519,6 +523,9 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
       viewportDimensions: other.viewportDimensions,
     );
   }
+
+  @override
+  final SheetStatus status;
 
   @override
   final double pixels;
@@ -539,7 +546,9 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
   bool get hasPixels => true;
 
   /// Creates a copy of this object with the given fields replaced.
+
   SheetMetricsSnapshot copyWith({
+    SheetStatus? status,
     double? pixels,
     double? minPixels,
     double? maxPixels,
@@ -547,6 +556,7 @@ class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
     ViewportDimensions? viewportDimensions,
   }) {
     return SheetMetricsSnapshot(
+      status: status ?? this.status,
       pixels: pixels ?? this.pixels,
       minPixels: minPixels ?? this.minPixels,
       maxPixels: maxPixels ?? this.maxPixels,
@@ -592,6 +602,9 @@ class _SheetMetricsRef with MaybeSheetMetrics, SheetMetrics {
   _SheetMetricsRef(this._source);
 
   final MaybeSheetMetrics _source;
+
+  @override
+  SheetStatus get status => _source.status;
 
   @override
   double get pixels => _source.pixels!;

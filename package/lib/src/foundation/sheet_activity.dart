@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
 abstract class SheetActivity extends ChangeNotifier {
   bool _mounted = false;
@@ -23,6 +24,8 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   double get velocity => 0.0;
+
+  SheetStatus get status;
 
   @mustCallSuper
   void initWith(SheetExtent delegate) {
@@ -201,7 +204,10 @@ class BallisticSheetActivity extends SheetActivity
   }
 }
 
-class IdleSheetActivity extends SheetActivity {}
+class IdleSheetActivity extends SheetActivity {
+  @override
+  SheetStatus get status => SheetStatus.stable;
+}
 
 mixin ControlledSheetActivityMixin on SheetActivity {
   late final AnimationController controller;
@@ -216,6 +222,9 @@ mixin ControlledSheetActivityMixin on SheetActivity {
 
   @override
   double get velocity => controller.velocity;
+
+  @override
+  SheetStatus get status => SheetStatus.controlled;
 
   @override
   void initWith(SheetExtent delegate) {
@@ -246,6 +255,9 @@ mixin ControlledSheetActivityMixin on SheetActivity {
 }
 
 mixin UserControlledSheetActivityMixin on SheetActivity {
+  @override
+  SheetStatus get status => SheetStatus.userControlled;
+
   @override
   void didFinalizeDimensions(
     Size? oldContentDimensions,
