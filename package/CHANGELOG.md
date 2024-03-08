@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4 Mar 9, 2024
+
+- Fix crash when clicking on the modal barrier while dragging the sheet (#54)
+
 ## 0.3.3 Feb 29, 2024
 
 - Add `InterpolationSimulation` (#55)
