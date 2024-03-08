@@ -1,9 +1,12 @@
 # smooth_sheets
 
+[![GitHub Repo stars](https://img.shields.io/github/stars/fujidaiti/smooth_sheets)](https://github.com/fujidaiti/smooth_sheets) [![Pub Version](https://img.shields.io/pub/v/smooth_sheets)](https://pub.dev/packages/smooth_sheets) ![Pub Likes](https://img.shields.io/pub/likes/smooth_sheets) ![Pub Points](https://img.shields.io/pub/points/smooth_sheets) ![Pub Popularity](https://img.shields.io/pub/popularity/smooth_sheets)
+
+
 **smooth_sheets** offers modal and persistent sheet widgets for Flutter apps. The key features are:
 
 - **Smooth motion**: The sheets respond to user interaction with smooth, graceful motion.
-- **Highly flexible**: Not restricted to a specific design. Both modal and persistent styles are supported, as well as scrollable and non-scrollable widgets.
+- **Highly flexible**: Not restricted to a specific design. Both modal and persistent styles are supp/orted, as well as scrollable and non-scrollable widgets.
 - **Supports nested navigation**: A sheet is able to have multiple pages and to navigate between the pages with motion animation for transitions.
 - **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packages like go_route as well.
 - **iOS flavor**: The modal sheets in the style of iOS 15 are supported.
