@@ -1,6 +1,6 @@
 # smooth_sheets
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/fujidaiti/smooth_sheets)](https://github.com/fujidaiti/smooth_sheets)[![Pub Version](https://img.shields.io/pub/v/smooth_sheets)](https://pub.dev/packages/smooth_sheets)![Pub Likes](https://img.shields.io/pub/likes/smooth_sheets)![Pub Points](https://img.shields.io/pub/points/smooth_sheets)![Pub Popularity](https://img.shields.io/pub/popularity/smooth_sheets)
+[![GitHub Repo stars](https://img.shields.io/github/stars/fujidaiti/smooth_sheets)](https://github.com/fujidaiti/smooth_sheets) [![Pub Version](https://img.shields.io/pub/v/smooth_sheets)](https://pub.dev/packages/smooth_sheets) ![Pub Likes](https://img.shields.io/pub/likes/smooth_sheets) ![Pub Points](https://img.shields.io/pub/points/smooth_sheets) ![Pub Popularity](https://img.shields.io/pub/popularity/smooth_sheets)
 
 
 **smooth_sheets** offers modal and persistent sheet widgets for Flutter apps. The key features are:
