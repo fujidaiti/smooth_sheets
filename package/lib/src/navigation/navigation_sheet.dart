@@ -8,6 +8,7 @@ import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/internal/transition_observer.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
@@ -128,6 +129,7 @@ abstract class NavigationSheetExtentDelegate implements Listenable {
   double? get pixels;
   double? get minPixels;
   double? get maxPixels;
+  SheetStatus get status;
   void applyNewViewportDimensions(ViewportDimensions viewportDimensions);
   void beginActivity(SheetActivity activity);
 }
@@ -238,6 +240,9 @@ class _TransitionSheetActivity extends SheetActivity {
   late final Animation<double> _curvedAnimation;
 
   @override
+  SheetStatus get status => SheetStatus.controlled;
+
+  @override
   void initWith(SheetExtent target) {
     super.initWith(target);
     _curvedAnimation = animation.drive(
@@ -267,6 +272,9 @@ class _ProxySheetActivity extends SheetActivity {
   });
 
   final NavigationSheetExtentDelegate target;
+
+  @override
+  SheetStatus get status => target.status;
 
   @override
   double? get pixels {

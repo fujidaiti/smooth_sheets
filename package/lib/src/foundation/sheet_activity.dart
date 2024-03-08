@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
 abstract class SheetActivity extends ChangeNotifier {
   bool _mounted = false;
@@ -23,6 +24,8 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   double get velocity => 0.0;
+
+  SheetStatus get status;
 
   @mustCallSuper
   void initWith(SheetExtent delegate) {
@@ -147,7 +150,7 @@ abstract class SheetActivity extends ChangeNotifier {
 }
 
 class AnimatedSheetActivity extends SheetActivity
-    with DrivenSheetActivityMixin {
+    with ControlledSheetActivityMixin {
   AnimatedSheetActivity({
     required this.from,
     required this.to,
@@ -178,7 +181,7 @@ class AnimatedSheetActivity extends SheetActivity
 }
 
 class BallisticSheetActivity extends SheetActivity
-    with DrivenSheetActivityMixin {
+    with ControlledSheetActivityMixin {
   BallisticSheetActivity({
     required this.simulation,
   });
@@ -201,9 +204,12 @@ class BallisticSheetActivity extends SheetActivity
   }
 }
 
-class IdleSheetActivity extends SheetActivity {}
+class IdleSheetActivity extends SheetActivity {
+  @override
+  SheetStatus get status => SheetStatus.stable;
+}
 
-mixin DrivenSheetActivityMixin on SheetActivity {
+mixin ControlledSheetActivityMixin on SheetActivity {
   late final AnimationController controller;
   late double _lastAnimatedValue;
 
@@ -216,6 +222,9 @@ mixin DrivenSheetActivityMixin on SheetActivity {
 
   @override
   double get velocity => controller.velocity;
+
+  @override
+  SheetStatus get status => SheetStatus.controlled;
 
   @override
   void initWith(SheetExtent delegate) {
@@ -246,6 +255,9 @@ mixin DrivenSheetActivityMixin on SheetActivity {
 }
 
 mixin UserControlledSheetActivityMixin on SheetActivity {
+  @override
+  SheetStatus get status => SheetStatus.userControlled;
+
   @override
   void didFinalizeDimensions(
     Size? oldContentDimensions,
