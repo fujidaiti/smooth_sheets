@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
 import 'package:smooth_sheets/src/internal/monodrag.dart';
 
@@ -185,6 +186,40 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       child: child,
     );
   }
+
+  @override
+  Widget buildModalBarrier() {
+    void onDismiss() {
+      if (animation!.status == AnimationStatus.completed &&
+          sheetController.metrics?.status == SheetStatus.stable) {
+        navigator?.maybePop();
+      }
+    }
+
+    final barrierColor = this.barrierColor;
+    if (barrierColor != null && barrierColor.alpha != 0 && !offstage) {
+      assert(barrierColor != barrierColor.withOpacity(0.0));
+      return AnimatedModalBarrier(
+        onDismiss: onDismiss,
+        dismissible: barrierDismissible,
+        semanticsLabel: barrierLabel,
+        barrierSemanticsDismissible: semanticsDismissible,
+        color: animation!.drive(
+          ColorTween(
+            begin: barrierColor.withOpacity(0.0),
+            end: barrierColor,
+          ).chain(CurveTween(curve: barrierCurve)),
+        ),
+      );
+    } else {
+      return ModalBarrier(
+        onDismiss: onDismiss,
+        dismissible: barrierDismissible,
+        semanticsLabel: barrierLabel,
+        barrierSemanticsDismissible: semanticsDismissible,
+      );
+    }
+  }
 }
 
 class SheetDismissible extends StatefulWidget {
@@ -231,7 +266,7 @@ class _SheetDismissibleState extends State<SheetDismissible> {
     super.didChangeDependencies();
     _gestureRecognizer.gestureSettings =
         MediaQuery.maybeGestureSettingsOf(context);
-    _sheetController = DefaultSheetController.of(context);
+    _sheetController = SheetControllerScope.of(context);
 
     assert(
       ModalRoute.of(context) is ModalSheetRouteMixin<dynamic>,
