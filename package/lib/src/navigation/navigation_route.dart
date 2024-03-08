@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/foundation/framework.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/navigation/navigation_sheet.dart';
 
 mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
@@ -108,6 +109,9 @@ class _SheetExtentBox extends ChangeNotifier
     source = null;
     super.dispose();
   }
+
+  @override
+  SheetStatus get status => _source?.status ?? SheetStatus.stable;
 
   @override
   double? get pixels => _source?.pixels;

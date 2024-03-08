@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
 import 'package:smooth_sheets/src/internal/into.dart';
@@ -243,6 +244,9 @@ class _ContentIdleScrollDrivenSheetActivity
   final Extent initialExtent;
 
   @override
+  SheetStatus get status => SheetStatus.stable;
+
+  @override
   void didChangeContentDimensions(Size? oldDimensions) {
     super.didChangeContentDimensions(oldDimensions);
     if (pixels == null) {
@@ -288,6 +292,9 @@ class _ContentUserScrollDrivenSheetActivity
 
 class _ContentBallisticScrollDrivenSheetActivity
     extends _ContentScrollDrivenSheetActivity {
+  @override
+  SheetStatus get status => SheetStatus.controlled;
+
   @override
   DelegationResult<double> applyBallisticScrollOffset(
     double delta,
