@@ -15,13 +15,11 @@ class SheetContentScaffold extends StatelessWidget {
     this.appbarDraggable = true,
     this.resizeToAvoidBottomInset = true,
     this.backgroundColor,
-    this.requiredMinExtentForStickyBottomBar = const Extent.pixels(0),
     this.appBar,
     required this.body,
     this.bottomBar,
   });
 
-  final Extent requiredMinExtentForStickyBottomBar;
   final bool primary;
   final bool extendBody;
   final bool extendBodyBehindAppBar;
@@ -43,9 +41,7 @@ class SheetContentScaffold extends StatelessWidget {
 
     var bottomBar = this.bottomBar;
     if (this.bottomBar != null) {
-      bottomBar = _StickyBottomBar(
-        extent: SheetExtentScope.of(context),
-        requiredMinExtent: requiredMinExtentForStickyBottomBar,
+      bottomBar = _BottomBarContainer(
         child: this.bottomBar,
       );
     }
@@ -83,7 +79,7 @@ class SheetContentScaffold extends StatelessWidget {
         viewPadding: viewPadding.copyWith(
           top: primary ? viewPadding.top : 0.0,
           // Gradually reduce the bottom padding
-          // as the onscreen keyboard slides in.
+          // as the onscreen keyboard slides in/out.
           bottom: max(0.0, viewPadding.bottom - viewInsets.bottom),
         ),
       ),
@@ -117,40 +113,32 @@ class _AppBarDraggable extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class _StickyBottomBar extends SingleChildRenderObjectWidget {
-  const _StickyBottomBar({
+class _BottomBarContainer extends SingleChildRenderObjectWidget {
+  const _BottomBarContainer({
     required super.child,
-    required this.extent,
-    required this.requiredMinExtent,
   });
-
-  final SheetExtent extent;
-  final Extent requiredMinExtent;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderStickyBottomBar(
-      extent: extent,
-      requiredMinExtent: requiredMinExtent,
+    return _RenderBottomBarContainer(
+      extent: SheetExtentScope.of(context),
     );
   }
 
   @override
   void updateRenderObject(
     BuildContext context,
-    _RenderStickyBottomBar renderObject,
+    _RenderBottomBarContainer renderObject,
   ) {
     super.updateRenderObject(context, renderObject);
-    renderObject.extent = extent;
+    renderObject.extent = SheetExtentScope.of(context);
   }
 }
 
-class _RenderStickyBottomBar extends RenderTransform {
-  _RenderStickyBottomBar({
+class _RenderBottomBarContainer extends RenderTransform {
+  _RenderBottomBarContainer({
     required SheetExtent extent,
-    required Extent requiredMinExtent,
   })  : _extent = extent,
-        _requiredMinExtent = requiredMinExtent,
         super(transform: Matrix4.zero(), transformHitTests: true) {
     _extent.addListener(_invalidateOffset);
   }
@@ -161,15 +149,6 @@ class _RenderStickyBottomBar extends RenderTransform {
     if (_extent != value) {
       _extent.removeListener(_invalidateOffset);
       _extent = value..addListener(_invalidateOffset);
-      markNeedsPaint();
-    }
-  }
-
-  Extent _requiredMinExtent;
-  // ignore: avoid_setters_without_getters
-  set requiredMinExtent(Extent value) {
-    if (_requiredMinExtent != value) {
-      _requiredMinExtent = value;
       markNeedsPaint();
     }
   }
@@ -187,12 +166,8 @@ class _RenderStickyBottomBar extends RenderTransform {
   void _invalidateOffset() {
     if (_extent.hasPixels) {
       final metrics = _extent.metrics;
-      final minPixels = max(
-        _requiredMinExtent.resolve(metrics.contentDimensions),
-        _lastMeasuredSize.height,
-      );
-      final translation =
-          max(metrics.pixels, minPixels) - metrics.viewportDimensions.height;
+      final translation = max(metrics.pixels, _lastMeasuredSize.height) -
+          metrics.viewportDimensions.height;
       transform = Matrix4.translationValues(0, min(0.0, translation), 0);
     }
   }

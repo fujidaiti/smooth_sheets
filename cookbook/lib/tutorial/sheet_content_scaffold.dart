@@ -33,9 +33,6 @@ class _ExampleSheet extends StatelessWidget {
     // However, it differs in that its height reduces to fit the 'body' widget.
     final content = SheetContentScaffold(
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      // The bottom bar sticks to the bottom unless the sheet extent becomes
-      // smaller than this threshold extent.
-      requiredMinExtentForStickyBottomBar: const Extent.proportional(0.5),
       // With the following configuration, the sheet height will be
       // 500px + (app bar height) + (bottom bar height).
       body: Container(height: 500),
