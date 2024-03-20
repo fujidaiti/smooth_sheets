@@ -12,6 +12,7 @@ class _SheetContentScaffoldExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
             Placeholder(),
@@ -33,14 +34,24 @@ class _ExampleSheet extends StatelessWidget {
     // However, it differs in that its height reduces to fit the 'body' widget.
     final content = SheetContentScaffold(
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      // The bottom bar sticks to the bottom unless the sheet extent becomes
-      // smaller than this threshold extent.
-      requiredMinExtentForStickyBottomBar: const Extent.proportional(0.5),
       // With the following configuration, the sheet height will be
       // 500px + (app bar height) + (bottom bar height).
       body: Container(height: 500),
       appBar: buildAppBar(context),
-      bottomBar: buildBottomBar(),
+      // BottomBarVisibility widgets can be used to control the visibility
+      // of the bottom bar based on the sheet's position.
+      // For example, the following configuration keeps the bottom bar visible
+      // as long as the keyboard is closed and at least 50% of the sheet is visible.
+      bottomBar: ConditionalStickyBottomBarVisibility(
+        // This callback is called whenever the sheet's metrics changes.
+        getIsVisible: (metrics) {
+          return metrics.viewportDimensions.insets.bottom == 0 &&
+              metrics.pixels >
+                  const Extent.proportional(0.5)
+                      .resolve(metrics.contentDimensions);
+        },
+        child: buildBottomBar(),
+      ),
     );
 
     final physics = StretchingSheetPhysics(

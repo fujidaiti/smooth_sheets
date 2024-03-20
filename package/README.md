@@ -21,7 +21,9 @@ This library is currently in the experimental stage. The API may undergo changes
 
 ## Migration guide
 
-- [0.2.x to 0.3.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.3.x.md) 🆕
+- [0.3.x to 0.4.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.4.x.md) 🆕
+
+- [0.2.x to 0.3.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.3.x.md)
 
 See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older versions.
 
@@ -82,10 +84,12 @@ See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older
         <li>SheetContentScaffold</li>
         <li>SheetKeyboardDismissBehavior</li>
         <li>SheetDismissible</li>
+        <li>StickyBottomBarVisibility</li>
       </ul>
     </td>
   </tr>
 </table>
+
 
 
 
@@ -255,13 +259,15 @@ See also:
 </div>
 
 
-A special kind of [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html) designed for use in a sheet. It has slots for an app bar and a sticky bottom bar, similar to Scaffold. However, it differs in that its height reduces to fit the content widget.
+A special kind of [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html) designed for use in a sheet. It has slots for an app bar and a bottom bar, similar to Scaffold. However, it differs in that its height reduces to fit the content widget.
 
 
 
 See also:
 
-- [sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_content_scaffold.dart) for basic usage.
+- [tutorial/sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_content_scaffold.dart), which shows the basic usage of this widget.
+- [SheetContentScaffold](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetContentScaffold-class.html), the API documentation.
+- [BottomBarVisibility](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BottomBarVisibility-class.html), which can be used to control the visibility of the bottom bar based on the sheet position.
 
 <br/>
 

@@ -234,7 +234,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
             _markAsDimensionsWillChangeCallCount > 0
                 ? 'markAsDimensionsWillChange() was called more times'
                     'than markAsDimensionsChanged() in a frame.'
-                : 'markAsDimensionsChanged() was called more times'
+                : 'markAsDimensionsChanged() was called more times '
                     'than markAsDimensionsWillChange() in a frame.',
           );
         });

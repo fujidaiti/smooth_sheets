@@ -137,9 +137,11 @@ class _ExampleHomeState extends State<_ExampleHome> {
     Navigator.push(
       context,
       ModalSheetRoute(
-        builder: (context) => _ExampleSheet(
-          isFullScreen: isFullScreen,
-          keyboardDismissBehavior: keyboardDismissBehavior,
+        builder: (context) => SheetDismissible(
+          child: _ExampleSheet(
+            isFullScreen: isFullScreen,
+            keyboardDismissBehavior: keyboardDismissBehavior,
+          ),
         ),
       ),
     );
@@ -177,19 +179,21 @@ class _ExampleSheet extends StatelessWidget {
         child: SheetContentScaffold(
           appBar: AppBar(),
           body: body,
-          bottomBar: BottomAppBar(
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.menu),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_vert),
-                ),
-              ],
+          bottomBar: StickyBottomBarVisibility(
+            child: BottomAppBar(
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.menu),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.more_vert),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -627,27 +627,29 @@ class _BottomActionBar extends StatelessWidget {
     // Insert bottom padding only if there's no system viewport bottom inset.
     final systemBottomInset = MediaQuery.of(context).padding.bottom;
 
-    return ColoredBox(
-      color: Theme.of(context).colorScheme.surface,
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showDivider) const Divider(height: 1),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                verticalPadding,
-                horizontalPadding,
-                systemBottomInset == 0 ? verticalPadding : 0,
+    return StickyBottomBarVisibility(
+      child: ColoredBox(
+        color: Theme.of(context).colorScheme.surface,
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showDivider) const Divider(height: 1),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  verticalPadding,
+                  horizontalPadding,
+                  systemBottomInset == 0 ? verticalPadding : 0,
+                ),
+                child: FilledButton(
+                  onPressed: onPressed,
+                  style: _largeFilledButtonStyle,
+                  child: Text(label),
+                ),
               ),
-              child: FilledButton(
-                onPressed: onPressed,
-                style: _largeFilledButtonStyle,
-                child: Text(label),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -115,13 +115,15 @@ class _TodoEditorState extends State<TodoEditor> {
       ),
     );
 
-    final bottomBar = BottomAppBar(
-      child: Row(
-        children: [
-          _FolderSelector(controller),
-          const Spacer(),
-          _SubmitButton(controller),
-        ],
+    final bottomBar = StickyBottomBarVisibility(
+      child: BottomAppBar(
+        child: Row(
+          children: [
+            _FolderSelector(controller),
+            const Spacer(),
+            _SubmitButton(controller),
+          ],
+        ),
       ),
     );
 
@@ -144,6 +146,10 @@ class _TodoEditorState extends State<TodoEditor> {
             clipBehavior: Clip.antiAlias,
             decoration: sheetShape,
             child: SheetContentScaffold(
+              resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
+                // Make the bottom bar visible when the keyboard is open.
+                maintainBottomBar: true,
+              ),
               body: body,
               bottomBar: bottomBar,
             ),

@@ -10,3 +10,4 @@ linter:
     prefer_int_literals: false
     flutter_style_todos: false
     cascade_invocations: false
+    join_return_with_assignment: false
