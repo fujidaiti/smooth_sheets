@@ -265,9 +265,10 @@ A special kind of [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-c
 
 See also:
 
-- [tutorial/sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_content_scaffold.dart), which shows the basic usage of this widget.
 - [SheetContentScaffold](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetContentScaffold-class.html), the API documentation.
 - [BottomBarVisibility](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BottomBarVisibility-class.html), which can be used to control the visibility of the bottom bar based on the sheet position.
+- [tutorial/sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_content_scaffold.dart), which shows the basic usage of SheetContentScaffold.
+- [tutorial/bottom_bar_visibility.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/bottom_bar_visibility.dart), which shows the basic usage of BottomBarVisibility widgets.
 
 <br/>
 
