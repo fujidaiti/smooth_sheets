@@ -194,8 +194,10 @@ class _ScaffoldBodyContainer extends StatelessWidget {
 ///
 /// Intended to be used as the [SheetContentScaffold.bottomBar].
 /// For example, the [StickyBottomBarVisibility] can be used to keep
-/// the [child] always visible regardless of the sheet position
-/// including when the onscreen keyboard is open.
+/// the [child] always visible regardless of the sheet position. You may want
+/// to use the [ResizeScaffoldBehavior.avoidBottomInset] with setting
+/// `maintainBottomBar` to true to keep the bottom bar visible even when
+/// the onscreen keyboard is open.
 ///
 /// {@macro StickyBottomBarVisibility:example}
 ///
@@ -352,8 +354,11 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
 /// Intended to be used as the [SheetContentScaffold.bottomBar].
 ///
 /// The following example shows the [StickyBottomBarVisibility],
-/// which keeps the enclosed [BottomAppBar] always visible including
-/// when the onscreen keyboard is open.
+/// which keeps the enclosed [BottomAppBar] always visible regardless
+/// of the sheet position. You may want to use the
+/// [ResizeScaffoldBehavior.avoidBottomInset] with setting `maintainBottomBar`
+/// to true to keep the bottom bar visible even when the onscreen keyboard
+/// is open.
 ///
 /// {@template StickyBottomBarVisibility:example}
 /// ```dart
@@ -496,7 +501,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 /// the [curve].
 ///
 /// The following example shows the [ConditionalStickyBottomBarVisibility],
-/// which keeps the enclosed [BottomAppBar] visible as long as the onscreen
+/// which keeps the enclosed [BottomAppBar] visible as long as the keyboard
 /// is hidden (`insets.bottom == 0`) and at least 50% of the sheet is visible.
 ///
 /// ```dart

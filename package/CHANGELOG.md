@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 Mar 20, 2024
+
+- Fix mistakes in the documentation of `BottomBarVisibility` and `ConditionalStickyBottomBarVisibility` which may mislead readers.
+
 ## 0.4.0 Mar 20, 2024
 
 - Add `BottomBarVisibility` widgets (#15, #19)
