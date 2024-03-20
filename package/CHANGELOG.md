@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.0 Mar 17, 2024
+## 0.4.0 Mar 20, 2024
 
 - Add `BottomBarVisibility` widgets (#15, #19)
 
