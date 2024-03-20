@@ -31,3 +31,28 @@ SheetContentScaffold(
   ),
 );
 ```
+
+## resizeToAvoidBottomInset removed from SheetContentScaffold
+
+The `resizeBehavior` property has been added to the `SheetContentScaffold` to replace the `resizeToAvoidBottomInset` property which is less flexible. See [the API documentation](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/ResizeScaffoldBehavior-class.html) for more details.
+
+**BEFORE:**
+
+```dart
+SheetContentScaffold(
+  resizeToAvoidBottomInset: true,
+  body: SizedBox.expand(),
+);
+```
+
+**AFTER:**
+
+```dart
+SheetContentScaffold(
+  resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
+    // Make the bottom bar visible even when the keyboard is open.
+    maintainBottomBar: true,
+  ),
+  body: SizedBox.expand(),
+);
+```
