@@ -10,8 +10,8 @@ class SheetContentScaffold extends StatelessWidget {
     this.primary = false,
     this.extendBody = false,
     this.extendBodyBehindAppBar = false,
+    this.resizeBehavior = const ResizeScaffoldBehavior.avoidBottomInset(),
     this.appbarDraggable = true,
-    this.resizeToAvoidBottomInset = true,
     this.backgroundColor,
     this.appBar,
     required this.body,
@@ -22,7 +22,7 @@ class SheetContentScaffold extends StatelessWidget {
   final bool extendBody;
   final bool extendBodyBehindAppBar;
   final bool appbarDraggable;
-  final bool resizeToAvoidBottomInset;
+  final ResizeScaffoldBehavior resizeBehavior;
   final Color? backgroundColor;
   final PreferredSizeWidget? appBar;
   final Widget body;
@@ -37,52 +37,38 @@ class SheetContentScaffold extends StatelessWidget {
         ? _AppBarDraggable(appBar: this.appBar!)
         : this.appBar;
 
-    final mediaQueryData = MediaQuery.of(context);
-    final viewPadding = mediaQueryData.viewPadding;
-    final viewInsets = mediaQueryData.viewInsets;
-
-    var body = this.body;
-    final useTopSafeArea = appBar != null && !extendBodyBehindAppBar;
-    final useBottomSafeArea = bottomBar != null && !extendBody;
-    if (useTopSafeArea || useBottomSafeArea) {
-      body = SafeArea(
-        left: false,
-        right: false,
-        top: useTopSafeArea,
-        bottom: useBottomSafeArea,
-        child: body,
-      );
-    }
-
-    if (resizeToAvoidBottomInset) {
-      body = Padding(
-        padding: EdgeInsets.only(
-          bottom: viewInsets.bottom,
-        ),
-        child: SheetContentViewport(
-          child: body,
-        ),
-      );
-    }
+    final mediaQuery = MediaQuery.of(context);
 
     return MediaQuery(
-      data: mediaQueryData.copyWith(
-        viewPadding: viewPadding.copyWith(
-          top: primary ? viewPadding.top : 0.0,
-          // Gradually reduce the bottom padding
-          // as the onscreen keyboard slides in/out.
-          bottom: max(0.0, viewPadding.bottom - viewInsets.bottom),
+      data: mediaQuery.copyWith(
+        viewPadding: mediaQuery.viewPadding.copyWith(
+          top: primary ? mediaQuery.viewPadding.top : 0.0,
+          // Gradually reduce the bottom view-padding, typically a notch,
+          // as the onscreen keyboard slides in/out. This may also reduce the
+          // bottom bar height.
+          bottom: max(
+            mediaQuery.viewPadding.bottom - mediaQuery.viewInsets.bottom,
+            0.0,
+          ),
         ),
       ),
-      child: Scaffold(
-        extendBody: true,
-        extendBodyBehindAppBar: true,
-        resizeToAvoidBottomInset: false,
-        backgroundColor: backgroundColor,
-        primary: primary,
-        appBar: appBar,
-        body: body,
-        bottomNavigationBar: bottomBar,
+      child: _ResizeScaffoldBehaviorScope(
+        resizeBehavior: resizeBehavior,
+        child: Scaffold(
+          extendBody: true,
+          extendBodyBehindAppBar: true,
+          resizeToAvoidBottomInset: false,
+          backgroundColor: backgroundColor,
+          primary: primary,
+          appBar: appBar,
+          bottomNavigationBar: bottomBar,
+          body: _ScaffoldBodyContainer(
+            insetTop: appBar != null && extendBodyBehindAppBar,
+            insetBottom: bottomBar != null && extendBody,
+            resizeBehavior: resizeBehavior,
+            child: body,
+          ),
+        ),
       ),
     );
   }
@@ -101,6 +87,105 @@ class _AppBarDraggable extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return SheetDraggable(child: appBar);
+  }
+}
+
+/// Describes how a [SheetContentScaffold] should resize its body
+/// to avoid overlapping the onscreen keyboard.
+sealed class ResizeScaffoldBehavior {
+  const ResizeScaffoldBehavior._();
+
+  /// The [SheetContentScaffold] resizes its body to avoid overlapping
+  /// the onscreen keyboard.
+  ///
+  /// If the [maintainBottomBar] is true, the bottom bar will be visible
+  /// even when the keyboard is open. (Defaults to false.)
+  const factory ResizeScaffoldBehavior.avoidBottomInset({
+    bool maintainBottomBar,
+  }) = _AvoidBottomInset;
+
+  // TODO: Implement ResizeScaffoldBehavior.doNotResize
+  // static const ResizeScaffoldBehavior doNotResize = _DoNotResize();
+}
+
+// class _DoNotResize extends ResizeScaffoldBehavior {
+//   const _DoNotResize();
+// }
+
+class _AvoidBottomInset extends ResizeScaffoldBehavior {
+  const _AvoidBottomInset({this.maintainBottomBar = false}) : super._();
+  final bool maintainBottomBar;
+}
+
+class _ResizeScaffoldBehaviorScope extends InheritedWidget {
+  const _ResizeScaffoldBehaviorScope({
+    required this.resizeBehavior,
+    required super.child,
+  });
+
+  final ResizeScaffoldBehavior resizeBehavior;
+
+  @override
+  bool updateShouldNotify(_ResizeScaffoldBehaviorScope oldWidget) {
+    return resizeBehavior != oldWidget.resizeBehavior;
+  }
+
+  static ResizeScaffoldBehavior of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_ResizeScaffoldBehaviorScope>()!
+        .resizeBehavior;
+  }
+}
+
+class _ScaffoldBodyContainer extends StatelessWidget {
+  const _ScaffoldBodyContainer({
+    required this.insetTop,
+    required this.insetBottom,
+    required this.resizeBehavior,
+    required this.child,
+  });
+
+  final bool insetTop;
+  final bool insetBottom;
+  final ResizeScaffoldBehavior resizeBehavior;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (insetBottom && insetTop) {
+      return child;
+    }
+
+    final mediaQuery = MediaQuery.of(context);
+    final topPadding = mediaQuery.padding.top;
+    final bottomPadding = switch (resizeBehavior) {
+      _AvoidBottomInset(maintainBottomBar: true) => mediaQuery.padding.bottom,
+      _AvoidBottomInset(maintainBottomBar: false) =>
+        max(0.0, mediaQuery.padding.bottom - mediaQuery.viewInsets.bottom),
+    };
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: mediaQuery.viewInsets.bottom,
+      ),
+      child: SheetContentViewport(
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: insetTop ? 0.0 : topPadding,
+            bottom: insetBottom ? 0.0 : bottomPadding,
+          ),
+          child: MediaQuery(
+            data: mediaQuery.copyWith(
+              padding: mediaQuery.padding.copyWith(
+                top: insetTop ? topPadding : 0.0,
+                bottom: insetBottom ? bottomPadding : 0.0,
+              ),
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -188,13 +273,12 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 ///
 /// The following example shows the [FixedBottomBarVisibility],
 /// which keeps the enclosed [BottomAppBar] always at the bottom
-/// of the sheet, including when the onscreen keyboard is open.
+/// of the sheet.
 ///
 /// ```dart
 /// final scaffold = SheetContentScaffold(
 ///   body: SizedBox.expand(),
 ///   bottomBar: FixedBottomBarVisibility(
-///     showOnKeyboard: true,
 ///     child: BottomAppBar(),
 ///   ),
 /// );
@@ -203,23 +287,16 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
     implements BottomBarVisibility {
   /// Creates a widget that places the [child] always at the bottom
   /// of the sheet.
-  ///
-  /// Set [showOnKeyboard] to true to keep the bottom bar visible when
-  /// the onscreen keyboard is open.
   const FixedBottomBarVisibility({
     super.key,
-    this.showOnKeyboard = false,
     required super.child,
   });
-
-  /// Whether the [child] should be shown when the onscreen keyboard is open.
-  final bool showOnKeyboard;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderFixedBottomBarVisibility(
       extent: SheetExtentScope.of(context),
-      showOnKeyboard: showOnKeyboard,
+      resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
 
@@ -228,21 +305,21 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderFixedBottomBarVisibility)
       ..extent = SheetExtentScope.of(context)
-      ..showOnKeyboard = showOnKeyboard;
+      ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
   }
 }
 
 class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderFixedBottomBarVisibility({
     required super.extent,
-    required bool showOnKeyboard,
-  }) : _showOnKeyboard = showOnKeyboard;
+    required ResizeScaffoldBehavior resizeBehavior,
+  }) : _resizeBehavior = resizeBehavior;
 
-  bool _showOnKeyboard;
+  ResizeScaffoldBehavior _resizeBehavior;
   // ignore: avoid_setters_without_getters
-  set showOnKeyboard(bool value) {
-    if (_showOnKeyboard != value) {
-      _showOnKeyboard = value;
+  set resizeBehavior(ResizeScaffoldBehavior value) {
+    if (_resizeBehavior != value) {
+      _resizeBehavior = value;
       invalidateVisibility();
     }
   }
@@ -257,12 +334,15 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
         max(0.0, bottomBarSize.height - invisibleSheetHeight);
     final visibility = visibleBarHeight / bottomBarSize.height;
 
-    if (_showOnKeyboard) {
-      return visibility;
-    }
+    switch (_resizeBehavior) {
+      case _AvoidBottomInset(maintainBottomBar: false):
+        final bottomInset = sheetMetrics.viewportDimensions.insets.bottom;
+        return (visibility - bottomInset / bottomBarSize.height)
+            .clamp(0.0, 1.0);
 
-    final bottomInset = sheetMetrics.viewportDimensions.insets.bottom;
-    return (visibility - bottomInset / bottomBarSize.height).clamp(0.0, 1.0);
+      case _AvoidBottomInset(maintainBottomBar: true):
+        return visibility;
+    }
   }
 }
 
@@ -278,9 +358,11 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
 /// {@template StickyBottomBarVisibility:example}
 /// ```dart
 /// final scaffold = SheetContentScaffold(
+///   resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
+///     maintainBottomBar: true,
+///   ),
 ///   body: SizedBox.expand(),
 ///   bottomBar: StickyBottomBarVisibility(
-///     showOnKeyboard: true,
 ///     child: BottomAppBar(),
 ///   ),
 /// );
@@ -290,23 +372,16 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
     implements BottomBarVisibility {
   /// Creates a widget that keeps the [child] always visible
   /// regardless of the sheet position.
-  ///
-  /// Set [showOnKeyboard] to true to keep the bottom bar visible when
-  /// the onscreen keyboard is open.
   const StickyBottomBarVisibility({
     super.key,
-    this.showOnKeyboard = false,
     required super.child,
   });
-
-  /// Whether the [child] should be shown when the onscreen keyboard is open.
-  final bool showOnKeyboard;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderStickyBottomBarVisibility(
       extent: SheetExtentScope.of(context),
-      showOnKeyboard: showOnKeyboard,
+      resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
 
@@ -315,33 +390,35 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderStickyBottomBarVisibility)
       ..extent = SheetExtentScope.of(context)
-      ..showOnKeyboard = showOnKeyboard;
+      ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
   }
 }
 
 class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderStickyBottomBarVisibility({
     required super.extent,
-    required bool showOnKeyboard,
-  }) : _showOnKeyboard = showOnKeyboard;
+    required ResizeScaffoldBehavior resizeBehavior,
+  }) : _resizeBehavior = resizeBehavior;
 
-  bool _showOnKeyboard;
+  ResizeScaffoldBehavior _resizeBehavior;
   // ignore: avoid_setters_without_getters
-  set showOnKeyboard(bool value) {
-    if (_showOnKeyboard != value) {
-      _showOnKeyboard = value;
+  set resizeBehavior(ResizeScaffoldBehavior value) {
+    if (_resizeBehavior != value) {
+      _resizeBehavior = value;
       invalidateVisibility();
     }
   }
 
   @override
   double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize) {
-    if (_showOnKeyboard) {
-      return 1.0;
-    }
+    switch (_resizeBehavior) {
+      case _AvoidBottomInset(maintainBottomBar: true):
+        return 1.0;
 
-    final bottomInset = sheetMetrics.viewportDimensions.insets.bottom;
-    return (1 - bottomInset / bottomBarSize.height).clamp(0.0, 1.0);
+      case _AvoidBottomInset(maintainBottomBar: false):
+        final bottomInset = sheetMetrics.viewportDimensions.insets.bottom;
+        return (1 - bottomInset / bottomBarSize.height).clamp(0.0, 1.0);
+    }
   }
 }
 
