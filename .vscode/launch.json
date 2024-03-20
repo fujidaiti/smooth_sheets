@@ -75,6 +75,13 @@
       "cwd": "./cookbook"
     },
     {
+      "name": "Bottom Bar Visibility",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/bottom_bar_visibility.dart",
+      "cwd": "./cookbook"
+    },
+    {
       "name": "Sheet Controller",
       "request": "launch",
       "type": "dart",
