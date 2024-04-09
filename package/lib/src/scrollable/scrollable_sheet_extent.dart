@@ -62,12 +62,6 @@ class ScrollableSheetExtent extends SizedContentSheetExtent {
       _DragInterruptibleBallisticSheetActivity(simulation: simulation),
     );
   }
-
-  @override
-  void beginActivity(SheetActivity activity) {
-    // TODO: Stop the content scrolling when the new activity is not '_ContentScrollDrivenSheetActivity'.
-    super.beginActivity(activity);
-  }
 }
 
 sealed class _ContentScrollDrivenSheetActivity extends SheetActivity
