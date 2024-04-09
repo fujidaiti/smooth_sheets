@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
-import 'package:smooth_sheets/src/internal/into.dart';
 import 'package:smooth_sheets/src/scrollable/content_scroll_position.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 
@@ -94,22 +93,32 @@ class SheetContentScrollControllerScope extends StatefulWidget {
 
 class _SheetContentScrollControllerScopeState
     extends State<SheetContentScrollControllerScope> {
-  late final SheetContentScrollController _scrollController;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = SheetContentScrollController(
-      debugLabel: widget.debugLabel,
-      initialScrollOffset: widget.initialScrollOffset,
-      keepScrollOffset: widget.keepScrollOffset,
-    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _scrollController.extent = SheetExtentScope.maybeOf(context)?.intoOrNull();
+    final extent = SheetExtentScope.maybeOf(context);
+    _scrollController = switch (extent) {
+      final ScrollableSheetExtent extent => SheetContentScrollController(
+          getDelegate: () => extent.scrollPositionDelegate,
+          debugLabel: widget.debugLabel,
+          initialScrollOffset: widget.initialScrollOffset,
+          keepScrollOffset: widget.keepScrollOffset,
+        ),
+      // If this widget is not a descendant of a SheetExtentScope,
+      // then create a normal ScrollController for stubbing.
+      _ => ScrollController(
+          debugLabel: widget.debugLabel,
+          initialScrollOffset: widget.initialScrollOffset,
+          keepScrollOffset: widget.keepScrollOffset,
+        ),
+    };
   }
 
   @override

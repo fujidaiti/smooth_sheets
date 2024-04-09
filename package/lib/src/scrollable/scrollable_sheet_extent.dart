@@ -7,7 +7,6 @@ import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
-import 'package:smooth_sheets/src/internal/into.dart';
 import 'package:smooth_sheets/src/scrollable/content_scroll_position.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_physics.dart';
 
@@ -46,23 +45,11 @@ class ScrollableSheetExtent extends SizedContentSheetExtent {
     goIdle();
   }
 
-  final Set<SheetContentScrollPosition> _contentScrollPositions = {};
-
-  void attach(SheetContentScrollPosition position) {
-    _contentScrollPositions.add(position);
-    position.delegate = () => activity.intoOrNull();
-  }
-
-  void detach(SheetContentScrollPosition position) {
-    _contentScrollPositions.remove(position);
-    position.delegate = null;
-  }
-
-  @override
-  void dispose() {
-    [..._contentScrollPositions].forEach(detach);
-    super.dispose();
-  }
+  SheetContentScrollPositionDelegate? get scrollPositionDelegate =>
+      switch (activity) {
+        final SheetContentScrollPositionDelegate delegate => delegate,
+        _ => null,
+      };
 
   @override
   void goIdle() => beginActivity(

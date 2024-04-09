@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 
 @internal
 sealed class DelegationResult<T> {
@@ -68,10 +67,11 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
     super.initialPixels,
     super.debugLabel,
     super.keepScrollOffset,
+    required this.getDelegate,
   });
 
-  ValueGetter<SheetContentScrollPositionDelegate?>? delegate;
-  SheetContentScrollPositionDelegate? get _delegate => delegate?.call();
+  final ValueGetter<SheetContentScrollPositionDelegate?> getDelegate;
+  SheetContentScrollPositionDelegate? get _delegate => getDelegate();
 
   @override
   void applyUserOffset(double delta) {
@@ -148,27 +148,10 @@ class SheetContentScrollController extends ScrollController {
     super.debugLabel,
     super.initialScrollOffset,
     super.keepScrollOffset,
+    required this.getDelegate,
   });
 
-  ScrollableSheetExtent? _extent;
-  // ignore: avoid_setters_without_getters
-  set extent(ScrollableSheetExtent? newExtent) {
-    if (_extent == newExtent) return;
-
-    if (_extent != null) {
-      positions
-          .whereType<SheetContentScrollPosition>()
-          .forEach(_extent!.detach);
-    }
-
-    if (newExtent != null) {
-      positions
-          .whereType<SheetContentScrollPosition>()
-          .forEach(newExtent.attach);
-    }
-
-    _extent = newExtent;
-  }
+  final ValueGetter<SheetContentScrollPositionDelegate?> getDelegate;
 
   @override
   ScrollPosition createScrollPosition(
@@ -177,6 +160,7 @@ class SheetContentScrollController extends ScrollController {
     ScrollPosition? oldPosition,
   ) {
     return SheetContentScrollPosition(
+      getDelegate: getDelegate,
       initialPixels: initialScrollOffset,
       keepScrollOffset: keepScrollOffset,
       debugLabel: debugLabel,
@@ -187,23 +171,5 @@ class SheetContentScrollController extends ScrollController {
         _ => AlwaysScrollableScrollPhysics(parent: physics),
       },
     );
-  }
-
-  @override
-  void attach(ScrollPosition position) {
-    if (position is SheetContentScrollPosition) {
-      _extent?.attach(position);
-    }
-
-    super.attach(position);
-  }
-
-  @override
-  void detach(ScrollPosition position) {
-    if (position is SheetContentScrollPosition) {
-      _extent?.detach(position);
-    }
-
-    super.detach(position);
   }
 }
