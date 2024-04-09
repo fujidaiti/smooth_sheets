@@ -242,7 +242,10 @@ class _ContentIdleScrollDrivenSheetActivity
   }
 
   @override
-  void onDragStart(DragStartDetails details) {
+  void onDragStart(
+    DragStartDetails details,
+    SheetContentScrollPosition position,
+  ) {
     delegate.beginActivity(_ContentUserScrollDrivenSheetActivity());
   }
 }
@@ -270,7 +273,7 @@ class _ContentUserScrollDrivenSheetActivity
   }
 
   @override
-  void onDragEnd() {
+  void onDragCancel(SheetContentScrollPosition position) {
     if (mounted) {
       delegate.goBallistic(0);
     }
@@ -311,12 +314,15 @@ class _ContentBallisticScrollDrivenSheetActivity
   }
 
   @override
-  void onWillBallisticScrollCancel() {
+  void onWillBallisticScrollCancel(SheetContentScrollPosition position) {
     delegate.goBallistic(0);
   }
 
   @override
-  void onDragStart(DragStartDetails details) {
+  void onDragStart(
+    DragStartDetails details,
+    SheetContentScrollPosition position,
+  ) {
     delegate.beginActivity(_ContentUserScrollDrivenSheetActivity());
   }
 }
@@ -334,7 +340,10 @@ class _DragInterruptibleBallisticSheetActivity extends BallisticSheetActivity
   }
 
   @override
-  void onDragStart(DragStartDetails details) {
+  void onDragStart(
+    DragStartDetails details,
+    SheetContentScrollPosition position,
+  ) {
     _cancelSimulation();
     delegate.beginActivity(_ContentUserScrollDrivenSheetActivity());
   }

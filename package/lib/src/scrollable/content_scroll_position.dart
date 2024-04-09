@@ -23,9 +23,28 @@ class NotHandled<T> extends DelegationResult<T> {
 
 @internal
 mixin SheetContentScrollPositionDelegate {
-  void onDragStart(DragStartDetails details) {}
-  void onDragEnd() {}
-  void onWillBallisticScrollCancel() {}
+  void onDragStart(
+    DragStartDetails details,
+    SheetContentScrollPosition position,
+  ) {}
+
+  void onDragUpdate(
+    DragUpdateDetails details,
+    SheetContentScrollPosition position,
+  ) {}
+
+  void onDragEnd(
+    DragEndDetails details,
+    SheetContentScrollPosition position,
+  ) {}
+
+  void onDragCancel(
+    SheetContentScrollPosition position,
+  ) {}
+
+  void onWillBallisticScrollCancel(
+    SheetContentScrollPosition position,
+  ) {}
 
   DelegationResult<void> applyUserScrollOffset(
     double delta,
@@ -122,22 +141,50 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   void onWillBallisticCancel() {
     if (_delegate != null) {
-      _delegate!.onWillBallisticScrollCancel();
+      _delegate!.onWillBallisticScrollCancel(this);
     }
   }
 
   @override
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-    switch (_delegate) {
-      case null:
-        return super.drag(details, dragCancelCallback);
+    _delegate?.onDragStart(details, this);
+    return _DragProxy(
+      target: super.drag(details, dragCancelCallback),
+      onUpdate: (details) => _delegate?.onDragUpdate(details, this),
+      onEnd: (details) => _delegate?.onDragEnd(details, this),
+      onCancel: () => _delegate?.onDragCancel(this),
+    );
+  }
+}
 
-      case final delegate:
-        delegate.onDragStart(details);
-        return super.drag(details, () {
-          _delegate?.onDragEnd();
-          dragCancelCallback();
-        });
-    }
+class _DragProxy extends Drag {
+  _DragProxy({
+    required this.target,
+    required this.onUpdate,
+    required this.onEnd,
+    required this.onCancel,
+  });
+
+  final Drag target;
+  final void Function(DragUpdateDetails) onUpdate;
+  final void Function(DragEndDetails) onEnd;
+  final VoidCallback onCancel;
+
+  @override
+  void update(DragUpdateDetails details) {
+    onUpdate(details);
+    target.update(details);
+  }
+
+  @override
+  void end(DragEndDetails details) {
+    onEnd(details);
+    target.end(details);
+  }
+
+  @override
+  void cancel() {
+    onCancel();
+    target.cancel();
   }
 }
