@@ -141,35 +141,3 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
     }
   }
 }
-
-@internal
-class SheetContentScrollController extends ScrollController {
-  SheetContentScrollController({
-    super.debugLabel,
-    super.initialScrollOffset,
-    super.keepScrollOffset,
-    required this.getDelegate,
-  });
-
-  final ValueGetter<SheetContentScrollPositionDelegate?> getDelegate;
-
-  @override
-  ScrollPosition createScrollPosition(
-    ScrollPhysics physics,
-    ScrollContext context,
-    ScrollPosition? oldPosition,
-  ) {
-    return SheetContentScrollPosition(
-      getDelegate: getDelegate,
-      initialPixels: initialScrollOffset,
-      keepScrollOffset: keepScrollOffset,
-      debugLabel: debugLabel,
-      context: context,
-      oldPosition: oldPosition,
-      physics: switch (physics) {
-        AlwaysScrollableScrollPhysics() => physics,
-        _ => AlwaysScrollableScrollPhysics(parent: physics),
-      },
-    );
-  }
-}

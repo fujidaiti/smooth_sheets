@@ -105,7 +105,7 @@ class _SheetContentScrollControllerScopeState
     super.didChangeDependencies();
     final extent = SheetExtentScope.maybeOf(context);
     _scrollController = switch (extent) {
-      final ScrollableSheetExtent extent => SheetContentScrollController(
+      final ScrollableSheetExtent extent => _SheetContentScrollController(
           getDelegate: () => extent.scrollPositionDelegate,
           debugLabel: widget.debugLabel,
           initialScrollOffset: widget.initialScrollOffset,
@@ -130,4 +130,35 @@ class _SheetContentScrollControllerScopeState
   @override
   Widget build(BuildContext context) =>
       widget.builder(context, _scrollController);
+}
+
+class _SheetContentScrollController extends ScrollController {
+  _SheetContentScrollController({
+    super.debugLabel,
+    super.initialScrollOffset,
+    super.keepScrollOffset,
+    required this.getDelegate,
+  });
+
+  final ValueGetter<SheetContentScrollPositionDelegate?> getDelegate;
+
+  @override
+  ScrollPosition createScrollPosition(
+    ScrollPhysics physics,
+    ScrollContext context,
+    ScrollPosition? oldPosition,
+  ) {
+    return SheetContentScrollPosition(
+      getDelegate: getDelegate,
+      initialPixels: initialScrollOffset,
+      keepScrollOffset: keepScrollOffset,
+      debugLabel: debugLabel,
+      context: context,
+      oldPosition: oldPosition,
+      physics: switch (physics) {
+        AlwaysScrollableScrollPhysics() => physics,
+        _ => AlwaysScrollableScrollPhysics(parent: physics),
+      },
+    );
+  }
 }
