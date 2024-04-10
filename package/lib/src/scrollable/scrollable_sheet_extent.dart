@@ -171,15 +171,15 @@ sealed class _ContentScrollDrivenSheetActivity extends SheetActivity
   }
 
   @override
-  DelegationResult<ScrollActivity> goIdleScroll(
+  DelegationResult<ScrollActivity> onContentGoIdle(
     SheetContentScrollPosition position,
   ) {
     delegate.goIdle();
-    return super.goIdleScroll(position);
+    return super.onContentGoIdle(position);
   }
 
   @override
-  DelegationResult<ScrollActivity> goBallisticScroll(
+  DelegationResult<ScrollActivity> onContentGoBallistic(
     double velocity,
     bool shouldIgnorePointer,
     SheetContentScrollPosition position,
@@ -236,7 +236,7 @@ class _ContentIdleScrollDrivenSheetActivity
   }
 
   @override
-  void onDragStart(
+  void onContentDragStart(
     DragStartDetails details,
     SheetContentScrollPosition position,
   ) {
@@ -248,7 +248,7 @@ class _ContentUserScrollDrivenSheetActivity
     extends _ContentScrollDrivenSheetActivity
     with UserControlledSheetActivityMixin {
   @override
-  DelegationResult<void> applyUserScrollOffset(
+  DelegationResult<void> onApplyUserScrollOffsetToContent(
     double delta,
     SheetContentScrollPosition position,
   ) {
@@ -267,7 +267,7 @@ class _ContentUserScrollDrivenSheetActivity
   }
 
   @override
-  void onDragCancel(SheetContentScrollPosition position) {
+  void onContentDragCancel(SheetContentScrollPosition position) {
     if (mounted) {
       delegate.goBallistic(0);
     }
@@ -280,7 +280,7 @@ class _ContentBallisticScrollDrivenSheetActivity
   SheetStatus get status => SheetStatus.controlled;
 
   @override
-  DelegationResult<double> applyBallisticScrollOffset(
+  DelegationResult<double> onApplyBallisticScrollOffsetToContent(
     double delta,
     double velocity,
     SheetContentScrollPosition position,
@@ -308,12 +308,12 @@ class _ContentBallisticScrollDrivenSheetActivity
   }
 
   @override
-  void onWillBallisticScrollCancel(SheetContentScrollPosition position) {
+  void onWillContentBallisticScrollCancel(SheetContentScrollPosition position) {
     delegate.goBallistic(0);
   }
 
   @override
-  void onDragStart(
+  void onContentDragStart(
     DragStartDetails details,
     SheetContentScrollPosition position,
   ) {
@@ -334,7 +334,7 @@ class _DragInterruptibleBallisticSheetActivity extends BallisticSheetActivity
   }
 
   @override
-  void onDragStart(
+  void onContentDragStart(
     DragStartDetails details,
     SheetContentScrollPosition position,
   ) {

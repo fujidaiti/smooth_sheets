@@ -23,37 +23,37 @@ class NotHandled<T> extends DelegationResult<T> {
 
 @internal
 mixin SheetContentScrollPositionDelegate {
-  void onDragStart(
+  void onContentDragStart(
     DragStartDetails details,
     SheetContentScrollPosition position,
   ) {}
 
-  void onDragUpdate(
+  void onContentDragUpdate(
     DragUpdateDetails details,
     SheetContentScrollPosition position,
   ) {}
 
-  void onDragEnd(
+  void onContentDragEnd(
     DragEndDetails details,
     SheetContentScrollPosition position,
   ) {}
 
-  void onDragCancel(
+  void onContentDragCancel(
     SheetContentScrollPosition position,
   ) {}
 
-  void onWillBallisticScrollCancel(
+  void onWillContentBallisticScrollCancel(
     SheetContentScrollPosition position,
   ) {}
 
-  DelegationResult<void> applyUserScrollOffset(
+  DelegationResult<void> onApplyUserScrollOffsetToContent(
     double delta,
     SheetContentScrollPosition position,
   ) {
     return const DelegationResult.notHandled();
   }
 
-  DelegationResult<double> applyBallisticScrollOffset(
+  DelegationResult<double> onApplyBallisticScrollOffsetToContent(
     double delta,
     double velocity,
     SheetContentScrollPosition position,
@@ -61,13 +61,13 @@ mixin SheetContentScrollPositionDelegate {
     return const DelegationResult.notHandled();
   }
 
-  DelegationResult<ScrollActivity> goIdleScroll(
+  DelegationResult<ScrollActivity> onContentGoIdle(
     SheetContentScrollPosition position,
   ) {
     return const DelegationResult.notHandled();
   }
 
-  DelegationResult<ScrollActivity> goBallisticScroll(
+  DelegationResult<ScrollActivity> onContentGoBallistic(
     double velocity,
     // ignore: avoid_positional_boolean_parameters
     bool shouldIgnorePointer,
@@ -98,7 +98,7 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
       delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse,
     );
 
-    final result = _delegate?.applyUserScrollOffset(delta, this);
+    final result = _delegate?.onApplyUserScrollOffsetToContent(delta, this);
     switch (result) {
       case NotHandled():
         setPixels(pixels - physics.applyPhysicsToUserOffset(this, delta));
@@ -108,7 +108,8 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
   }
 
   double applyBallisticOffset(double delta, double velocity) {
-    final result = _delegate?.applyBallisticScrollOffset(delta, velocity, this);
+    final result =
+        _delegate?.onApplyBallisticScrollOffsetToContent(delta, velocity, this);
     return switch (result) {
       Handled(value: final overscroll) => overscroll,
       null || NotHandled() => physics.applyPhysicsToUserOffset(this, delta),
@@ -117,7 +118,7 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void goIdle() {
-    switch (_delegate?.goIdleScroll(this)) {
+    switch (_delegate?.onContentGoIdle(this)) {
       case null || NotHandled():
         super.goIdle();
       case Handled(value: final activity):
@@ -129,7 +130,7 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
   void goBallistic(double velocity) {
     final shouldIgnorePointer = activity?.shouldIgnorePointer ?? true;
     final result =
-        _delegate?.goBallisticScroll(velocity, shouldIgnorePointer, this);
+        _delegate?.onContentGoBallistic(velocity, shouldIgnorePointer, this);
 
     switch (result) {
       case Handled(value: final activity):
@@ -141,18 +142,18 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   void onWillBallisticCancel() {
     if (_delegate != null) {
-      _delegate!.onWillBallisticScrollCancel(this);
+      _delegate!.onWillContentBallisticScrollCancel(this);
     }
   }
 
   @override
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-    _delegate?.onDragStart(details, this);
+    _delegate?.onContentDragStart(details, this);
     return _DragProxy(
       target: super.drag(details, dragCancelCallback),
-      onUpdate: (details) => _delegate?.onDragUpdate(details, this),
-      onEnd: (details) => _delegate?.onDragEnd(details, this),
-      onCancel: () => _delegate?.onDragCancel(this),
+      onUpdate: (details) => _delegate?.onContentDragUpdate(details, this),
+      onEnd: (details) => _delegate?.onContentDragEnd(details, this),
+      onCancel: () => _delegate?.onContentDragCancel(this),
     );
   }
 }
