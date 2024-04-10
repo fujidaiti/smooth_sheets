@@ -86,7 +86,7 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
       ),
     );
   }
-  
+
   @override
   DelegationResult<ScrollActivity> onContentGoIdle(
     SheetContentScrollPosition position,
