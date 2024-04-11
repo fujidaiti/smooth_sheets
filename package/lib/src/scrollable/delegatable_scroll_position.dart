@@ -22,33 +22,33 @@ class NotHandled<T> extends DelegationResult<T> {
 }
 
 @internal
-mixin SheetContentScrollPositionDelegate {
+mixin ScrollPositionDelegate {
   void onContentDragStart(
     DragStartDetails details,
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {}
 
   void onContentDragUpdate(
     DragUpdateDetails details,
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {}
 
   void onContentDragEnd(
     DragEndDetails details,
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {}
 
   void onContentDragCancel(
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {}
 
   void onWillContentBallisticScrollCancel(
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {}
 
   DelegationResult<void> onApplyUserScrollOffsetToContent(
     double delta,
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {
     return const DelegationResult.notHandled();
   }
@@ -56,13 +56,13 @@ mixin SheetContentScrollPositionDelegate {
   DelegationResult<double> onApplyBallisticScrollOffsetToContent(
     double delta,
     double velocity,
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {
     return const DelegationResult.notHandled();
   }
 
   DelegationResult<ScrollActivity> onContentGoIdle(
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {
     return const DelegationResult.notHandled();
   }
@@ -71,15 +71,15 @@ mixin SheetContentScrollPositionDelegate {
     double velocity,
     // ignore: avoid_positional_boolean_parameters
     bool shouldIgnorePointer,
-    SheetContentScrollPosition position,
+    DelegatableScrollPosition position,
   ) {
     return const DelegationResult.notHandled();
   }
 }
 
 @internal
-class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
-  SheetContentScrollPosition({
+class DelegatableScrollPosition extends ScrollPositionWithSingleContext {
+  DelegatableScrollPosition({
     required super.physics,
     required super.context,
     super.oldPosition,
@@ -89,8 +89,8 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
     required this.getDelegate,
   });
 
-  final ValueGetter<SheetContentScrollPositionDelegate?> getDelegate;
-  SheetContentScrollPositionDelegate? get _delegate => getDelegate();
+  final ValueGetter<ScrollPositionDelegate?> getDelegate;
+  ScrollPositionDelegate? get _delegate => getDelegate();
 
   @override
   void applyUserOffset(double delta) {
