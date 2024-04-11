@@ -1,12 +1,7 @@
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 
-mixin ScrollableSheetPhysicsMixin on SheetPhysics {
-  bool shouldInterruptBallisticScroll(double velocity, SheetMetrics metrics);
-}
-
-class ScrollableSheetPhysics extends SheetPhysics
-    with ScrollableSheetPhysicsMixin {
+class ScrollableSheetPhysics extends SheetPhysics {
   const ScrollableSheetPhysics({
     super.parent,
     super.spring,
@@ -15,7 +10,6 @@ class ScrollableSheetPhysics extends SheetPhysics
 
   final double maxScrollSpeedToInterrupt;
 
-  @override
   bool shouldInterruptBallisticScroll(double velocity, SheetMetrics metrics) {
     return velocity.abs() < maxScrollSpeedToInterrupt;
   }
