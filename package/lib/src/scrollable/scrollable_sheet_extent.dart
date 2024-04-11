@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
@@ -45,7 +46,7 @@ class ScrollableSheetExtent extends SizedContentSheetExtent {
     goIdle();
   }
 
-  SheetContentScrollPositionDelegate? get scrollPositionDelegate {
+  SheetContentScrollPositionDelegate? get _scrollPositionDelegate {
     return switch (activity) {
       final SheetContentScrollPositionDelegate delegate => delegate,
       _ => null,
@@ -67,6 +68,38 @@ class ScrollableSheetExtent extends SizedContentSheetExtent {
       _DragInterruptibleBallisticSheetActivity(
         simulation: simulation,
       ),
+    );
+  }
+}
+
+@internal
+class SheetContentScrollController extends ScrollController {
+  SheetContentScrollController({
+    super.debugLabel,
+    super.initialScrollOffset,
+    super.keepScrollOffset,
+    required this.extent,
+  });
+  
+  final ScrollableSheetExtent extent;
+
+  @override
+  ScrollPosition createScrollPosition(
+    ScrollPhysics physics,
+    ScrollContext context,
+    ScrollPosition? oldPosition,
+  ) {
+    return SheetContentScrollPosition(
+      getDelegate: () => extent._scrollPositionDelegate,
+      initialPixels: initialScrollOffset,
+      keepScrollOffset: keepScrollOffset,
+      debugLabel: debugLabel,
+      context: context,
+      oldPosition: oldPosition,
+      physics: switch (physics) {
+        AlwaysScrollableScrollPhysics() => physics,
+        _ => AlwaysScrollableScrollPhysics(parent: physics),
+      },
     );
   }
 }

@@ -21,4 +21,5 @@ export 'src/navigation/navigation_routes.dart';
 export 'src/navigation/navigation_sheet.dart';
 export 'src/scrollable/scrollable_sheet.dart'
     hide PrimarySheetContentScrollController;
-export 'src/scrollable/scrollable_sheet_extent.dart';
+export 'src/scrollable/scrollable_sheet_extent.dart'
+    hide SheetContentScrollController;

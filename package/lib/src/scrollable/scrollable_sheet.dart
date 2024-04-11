@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
-import 'package:smooth_sheets/src/scrollable/content_scroll_position.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 
 class ScrollableSheet extends SizedContentSheet {
@@ -89,12 +88,10 @@ class SheetScrollable extends StatefulWidget {
   final ScrollableWidgetBuilder builder;
 
   @override
-  State<SheetScrollable> createState() =>
-      _SheetScrollableState();
+  State<SheetScrollable> createState() => _SheetScrollableState();
 }
 
-class _SheetScrollableState
-    extends State<SheetScrollable> {
+class _SheetScrollableState extends State<SheetScrollable> {
   late ScrollController _scrollController;
 
   @override
@@ -107,8 +104,8 @@ class _SheetScrollableState
     super.didChangeDependencies();
     final extent = SheetExtentScope.maybeOf(context);
     _scrollController = switch (extent) {
-      final ScrollableSheetExtent extent => _SheetContentScrollController(
-          getDelegate: () => extent.scrollPositionDelegate,
+      final ScrollableSheetExtent extent => SheetContentScrollController(
+          extent: extent,
           debugLabel: widget.debugLabel,
           initialScrollOffset: widget.initialScrollOffset,
           keepScrollOffset: widget.keepScrollOffset,
@@ -132,35 +129,4 @@ class _SheetScrollableState
   @override
   Widget build(BuildContext context) =>
       widget.builder(context, _scrollController);
-}
-
-class _SheetContentScrollController extends ScrollController {
-  _SheetContentScrollController({
-    super.debugLabel,
-    super.initialScrollOffset,
-    super.keepScrollOffset,
-    required this.getDelegate,
-  });
-
-  final ValueGetter<SheetContentScrollPositionDelegate?> getDelegate;
-
-  @override
-  ScrollPosition createScrollPosition(
-    ScrollPhysics physics,
-    ScrollContext context,
-    ScrollPosition? oldPosition,
-  ) {
-    return SheetContentScrollPosition(
-      getDelegate: getDelegate,
-      initialPixels: initialScrollOffset,
-      keepScrollOffset: keepScrollOffset,
-      debugLabel: debugLabel,
-      context: context,
-      oldPosition: oldPosition,
-      physics: switch (physics) {
-        AlwaysScrollableScrollPhysics() => physics,
-        _ => AlwaysScrollableScrollPhysics(parent: physics),
-      },
-    );
-  }
 }
