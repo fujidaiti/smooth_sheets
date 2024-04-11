@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 import 'package:smooth_sheets/src/scrollable/content_scroll_position.dart';
@@ -42,6 +43,7 @@ class _ScrollableSheetState extends SizedContentSheetState<ScrollableSheet> {
   }
 }
 
+@internal
 class PrimarySheetContentScrollController extends StatelessWidget {
   const PrimarySheetContentScrollController({
     super.key,
