@@ -60,7 +60,7 @@ class PrimarySheetContentScrollController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScrollControllerScope(
+    return SheetScrollable(
       debugLabel: debugLabel,
       keepScrollOffset: keepScrollOffset,
       initialScrollOffset: initialScrollOffset,
@@ -74,8 +74,8 @@ class PrimarySheetContentScrollController extends StatelessWidget {
   }
 }
 
-class SheetContentScrollControllerScope extends StatefulWidget {
-  const SheetContentScrollControllerScope({
+class SheetScrollable extends StatefulWidget {
+  const SheetScrollable({
     super.key,
     this.debugLabel,
     this.keepScrollOffset = true,
@@ -89,12 +89,12 @@ class SheetContentScrollControllerScope extends StatefulWidget {
   final ScrollableWidgetBuilder builder;
 
   @override
-  State<SheetContentScrollControllerScope> createState() =>
-      _SheetContentScrollControllerScopeState();
+  State<SheetScrollable> createState() =>
+      _SheetScrollableState();
 }
 
-class _SheetContentScrollControllerScopeState
-    extends State<SheetContentScrollControllerScope> {
+class _SheetScrollableState
+    extends State<SheetScrollable> {
   late ScrollController _scrollController;
 
   @override
