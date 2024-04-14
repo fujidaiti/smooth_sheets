@@ -367,6 +367,7 @@ class _ContentUserScrollDrivenSheetActivity
 
   @override
   void onContentDragCancel(DelegatableScrollPosition position) {
+    super.onContentDragCancel(position);
     if (identical(position, contentScrollPosition)) {
       delegate.goBallistic(0);
     }
