@@ -108,6 +108,7 @@ class SheetContentScrollController extends ScrollController {
 /// of the scrollable content within the sheet.
 abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     with ScrollPositionDelegate {
+  @mustCallSuper
   @override
   void onContentDragStart(
     DragStartDetails details,
@@ -118,6 +119,23 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
         contentScrollPosition: position,
       ),
     );
+
+    dispatchDragStartNotification(details);
+  }
+
+  @mustCallSuper
+  @override
+  void onContentDragEnd(
+    DragEndDetails details,
+    DelegatableScrollPosition position,
+  ) {
+    dispatchDragEndNotification(details);
+  }
+
+  @mustCallSuper
+  @override
+  void onContentDragCancel(DelegatableScrollPosition position) {
+    dispatchDragCancelNotification();
   }
 
   @override

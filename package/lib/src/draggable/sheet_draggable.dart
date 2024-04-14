@@ -58,6 +58,7 @@ class _SheetDraggableState extends State<SheetDraggable> {
     if (_extent != null) {
       _activity = UserDragSheetActivity();
       _extent!.beginActivity(_activity!);
+      _activity!.onDragStart(details);
     }
   }
 
@@ -92,6 +93,11 @@ class _SheetDraggableState extends State<SheetDraggable> {
 // TODO: Add constructor with `DragGestureRecognizer` parameter
 class UserDragSheetActivity extends SheetActivity
     with UserControlledSheetActivityMixin {
+  void onDragStart(DragStartDetails details) {
+    if (!mounted) return;
+    dispatchDragStartNotification(details);
+  }
+
   void onDragUpdate(DragUpdateDetails details) {
     if (!mounted) return;
     final delta = -1 * details.primaryDelta!;
@@ -105,11 +111,13 @@ class UserDragSheetActivity extends SheetActivity
 
   void onDragEnd(DragEndDetails details) {
     if (!mounted) return;
+    dispatchDragEndNotification(details);
     delegate.goBallistic(-1 * details.velocity.pixelsPerSecond.dy);
   }
 
   void onDragCancel() {
     if (!mounted) return;
+    dispatchDragCancelNotification();
     delegate.goBallistic(0);
   }
 }

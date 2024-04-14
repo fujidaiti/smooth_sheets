@@ -3,8 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/src/foundation/notifications.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
 abstract class SheetActivity extends ChangeNotifier {
@@ -61,7 +60,31 @@ abstract class SheetActivity extends ChangeNotifier {
   void dispatchUpdateNotification() {
     if (delegate.hasPixels) {
       dispatchNotification(
-        SheetUpdateNotification(metrics: delegate.snapshot),
+        SheetUpdateNotification(
+          metrics: delegate.snapshot,
+        ),
+      );
+    }
+  }
+
+  void dispatchDragStartNotification(DragStartDetails details) {
+    if (delegate.hasPixels) {
+      dispatchNotification(
+        SheetDragStartNotification(
+          metrics: delegate.snapshot,
+          dragDetails: details,
+        ),
+      );
+    }
+  }
+
+  void dispatchDragEndNotification(DragEndDetails details) {
+    if (delegate.hasPixels) {
+      dispatchNotification(
+        SheetDragEndNotification(
+          metrics: delegate.snapshot,
+          dragDetails: details,
+        ),
       );
     }
   }
@@ -72,6 +95,16 @@ abstract class SheetActivity extends ChangeNotifier {
         SheetDragUpdateNotification(
           metrics: delegate.snapshot,
           delta: delta,
+        ),
+      );
+    }
+  }
+  
+  void dispatchDragCancelNotification() {
+    if (delegate.hasPixels) {
+      dispatchNotification(
+        SheetDragCancelNotification(
+          metrics: delegate.snapshot,
         ),
       );
     }
