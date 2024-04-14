@@ -100,7 +100,7 @@ abstract class SheetActivity extends ChangeNotifier {
       );
     }
   }
-  
+
   void dispatchDragCancelNotification() {
     if (delegate.hasPixels) {
       dispatchNotification(
@@ -295,7 +295,6 @@ class UserDragSheetActivity extends SheetActivity
     delegate.goBallistic(0);
   }
 }
-
 
 mixin ControlledSheetActivityMixin on SheetActivity {
   late final AnimationController controller;
