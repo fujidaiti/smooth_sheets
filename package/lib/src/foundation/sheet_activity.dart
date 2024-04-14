@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -241,6 +242,60 @@ class IdleSheetActivity extends SheetActivity {
   @override
   SheetStatus get status => SheetStatus.stable;
 }
+
+class UserDragSheetActivity extends SheetActivity
+    with UserControlledSheetActivityMixin {
+  UserDragSheetActivity({
+    required this.gestureRecognizer,
+  });
+
+  final DragGestureRecognizer gestureRecognizer;
+
+  @override
+  void initWith(SheetExtent delegate) {
+    super.initWith(delegate);
+    gestureRecognizer
+      ..onUpdate = onDragUpdate
+      ..onEnd = onDragEnd
+      ..onCancel = onDragCancel;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    gestureRecognizer
+      ..onUpdate = null
+      ..onEnd = null
+      ..onCancel = null;
+  }
+
+  @protected
+  void onDragUpdate(DragUpdateDetails details) {
+    if (!mounted) return;
+    final delta = -1 * details.primaryDelta!;
+    final physicsAppliedDelta =
+        delegate.physics.applyPhysicsToOffset(delta, delegate.metrics);
+    if (physicsAppliedDelta != 0) {
+      setPixels(pixels! + physicsAppliedDelta);
+      dispatchDragUpdateNotification(delta: physicsAppliedDelta);
+    }
+  }
+
+  @protected
+  void onDragEnd(DragEndDetails details) {
+    if (!mounted) return;
+    dispatchDragEndNotification(details);
+    delegate.goBallistic(-1 * details.velocity.pixelsPerSecond.dy);
+  }
+
+  @protected
+  void onDragCancel() {
+    if (!mounted) return;
+    dispatchDragCancelNotification();
+    delegate.goBallistic(0);
+  }
+}
+
 
 mixin ControlledSheetActivityMixin on SheetActivity {
   late final AnimationController controller;
