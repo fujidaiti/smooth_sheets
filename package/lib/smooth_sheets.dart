@@ -8,7 +8,7 @@ export 'src/draggable/sheet_draggable.dart';
 export 'src/foundation/animation.dart';
 export 'src/foundation/framework.dart';
 export 'src/foundation/keyboard_dismissible.dart';
-export 'src/foundation/notification.dart';
+export 'src/foundation/notifications.dart';
 export 'src/foundation/sheet_activity.dart';
 export 'src/foundation/sheet_content_scaffold.dart';
 export 'src/foundation/sheet_controller.dart' hide SheetControllerScope;

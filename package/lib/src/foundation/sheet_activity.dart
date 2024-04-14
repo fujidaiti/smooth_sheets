@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/src/foundation/notification.dart';
+import 'package:smooth_sheets/src/foundation/notifications.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
