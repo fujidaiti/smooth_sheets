@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
@@ -39,7 +41,7 @@ class SheetDraggable extends StatefulWidget {
 
 class _SheetDraggableState extends State<SheetDraggable> {
   SheetExtent? _extent;
-  UserDragSheetActivity? _activity;
+  VerticalDragGestureRecognizer? _dragRecognizer;
 
   @override
   void didChangeDependencies() {
@@ -50,66 +52,39 @@ class _SheetDraggableState extends State<SheetDraggable> {
   @override
   void dispose() {
     _extent = null;
+    _dragRecognizer = null;
     super.dispose();
   }
 
   void _handleDragStart(DragStartDetails details) {
-    assert(_activity == null);
-    if (_extent != null) {
-      _activity = UserDragSheetActivity();
-      _extent!.beginActivity(_activity!);
+    final extent = _extent;
+    final recognizer = _dragRecognizer;
+    if (extent != null && recognizer != null) {
+      extent.activity.dispatchDragStartNotification(details);
+      extent.beginActivity(
+        UserDragSheetActivity(
+          gestureRecognizer: recognizer,
+        ),
+      );
     }
-  }
-
-  void _handleDragUpdate(DragUpdateDetails details) {
-    _activity?.onDragUpdate(details);
-  }
-
-  void _handleDragEnd(DragEndDetails details) {
-    _activity?.onDragEnd(details);
-    _activity = null;
-  }
-
-  void _handleDragCancel() {
-    _activity?.onDragCancel();
-    _activity = null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: widget.behavior,
-      onVerticalDragCancel: _handleDragCancel,
-      onVerticalDragStart: _handleDragStart,
-      onVerticalDragUpdate: _handleDragUpdate,
-      onVerticalDragEnd: _handleDragEnd,
+    return RawGestureDetector(
+      gestures: {
+        VerticalDragGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
+          () => VerticalDragGestureRecognizer(
+            debugOwner: kDebugMode ? runtimeType : null,
+            supportedDevices: const {PointerDeviceKind.touch},
+          ),
+          (instance) {
+            _dragRecognizer = instance..onStart = _handleDragStart;
+          },
+        ),
+      },
       child: widget.child,
     );
-  }
-}
-
-// TODO: Move this class to sheet_activity.dart
-// TODO: Add constructor with `DragGestureRecognizer` parameter
-class UserDragSheetActivity extends SheetActivity
-    with UserControlledSheetActivityMixin {
-  void onDragUpdate(DragUpdateDetails details) {
-    if (!mounted) return;
-    final delta = -1 * details.primaryDelta!;
-    final physicsAppliedDelta =
-        delegate.physics.applyPhysicsToOffset(delta, delegate.metrics);
-    if (physicsAppliedDelta != 0) {
-      setPixels(pixels! + physicsAppliedDelta);
-      dispatchDragUpdateNotification(delta: physicsAppliedDelta);
-    }
-  }
-
-  void onDragEnd(DragEndDetails details) {
-    if (!mounted) return;
-    delegate.goBallistic(-1 * details.velocity.pixelsPerSecond.dy);
-  }
-
-  void onDragCancel() {
-    if (!mounted) return;
-    delegate.goBallistic(0);
   }
 }
