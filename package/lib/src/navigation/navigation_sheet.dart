@@ -9,6 +9,7 @@ import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
+import 'package:smooth_sheets/src/foundation/theme.dart';
 import 'package:smooth_sheets/src/internal/transition_observer.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
@@ -95,6 +96,10 @@ class NavigationSheetState extends State<NavigationSheet>
 
   @override
   Widget build(BuildContext context) {
+    final theme = SheetTheme.maybeOf(context);
+    final keyboardDismissBehavior =
+        widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+
     Widget result = SheetContainer(
       factory: const _NavigationSheetExtentFactory(),
       controller: widget.controller,
@@ -104,9 +109,9 @@ class NavigationSheetState extends State<NavigationSheet>
       child: widget.child,
     );
 
-    if (widget.keyboardDismissBehavior != null) {
+    if (keyboardDismissBehavior != null) {
       result = SheetKeyboardDismissible(
-        dismissBehavior: widget.keyboardDismissBehavior!,
+        dismissBehavior: keyboardDismissBehavior,
         child: result,
       );
     }
