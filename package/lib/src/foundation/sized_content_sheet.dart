@@ -4,6 +4,7 @@ import 'package:smooth_sheets/src/foundation/keyboard_dismissible.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/foundation/theme.dart';
 
 /// [SheetExtent] for a [SizedContentSheet].
 abstract class SizedContentSheetExtent extends SheetExtent {
@@ -118,15 +119,19 @@ abstract class SizedContentSheetState<T extends SizedContentSheet>
 
   @override
   Widget build(BuildContext context) {
+    final theme = SheetTheme.maybeOf(context);
+    final keyboardDismissBehavior =
+        widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+
     Widget result = SheetContainer(
       factory: factory,
       controller: widget.controller,
       child: buildContent(context),
     );
 
-    if (widget.keyboardDismissBehavior != null) {
+    if (keyboardDismissBehavior != null) {
       result = SheetKeyboardDismissible(
-        dismissBehavior: widget.keyboardDismissBehavior!,
+        dismissBehavior: keyboardDismissBehavior,
         child: result,
       );
     }
