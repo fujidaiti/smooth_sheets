@@ -13,7 +13,7 @@ export 'src/foundation/sheet_activity.dart';
 export 'src/foundation/sheet_content_scaffold.dart';
 export 'src/foundation/sheet_controller.dart' hide SheetControllerScope;
 export 'src/foundation/sheet_extent.dart';
-export 'src/foundation/sheet_physics.dart';
+export 'src/foundation/physics.dart';
 export 'src/foundation/theme.dart';
 export 'src/modal/cupertino.dart';
 export 'src/modal/modal_sheet.dart';

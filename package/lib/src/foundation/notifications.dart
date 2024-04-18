@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/foundation/physics.dart';
 
 /// A [Notification] that is dispatched when the sheet extent changes.
 ///

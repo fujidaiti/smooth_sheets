@@ -1,5 +1,5 @@
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/foundation/physics.dart';
 
 class ScrollableSheetPhysics extends SheetPhysics {
   const ScrollableSheetPhysics({
