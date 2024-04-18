@@ -5,7 +5,7 @@ library smooth_sheets;
 
 export 'src/draggable/draggable_sheet.dart';
 export 'src/draggable/sheet_draggable.dart';
-export 'src/foundation/animation.dart';
+export 'src/foundation/animations.dart';
 export 'src/foundation/framework.dart';
 export 'src/foundation/keyboard_dismissible.dart';
 export 'src/foundation/notifications.dart';
