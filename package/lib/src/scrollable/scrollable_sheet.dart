@@ -47,7 +47,7 @@ class ScrollableSheet extends StatelessWidget {
 
     Widget result = SheetContainer(
       controller: controller,
-      factory: ScrollableSheetExtentFactory(
+      config: ScrollableSheetExtentConfig(
         initialExtent: initialExtent,
         minExtent: minExtent,
         maxExtent: maxExtent,

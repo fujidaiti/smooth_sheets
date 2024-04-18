@@ -66,7 +66,7 @@ class DraggableSheet extends StatelessWidget {
 
     Widget result = SheetContainer(
       controller: controller,
-      factory: DraggableSheetExtentFactory(
+      config: DraggableSheetExtentConfig(
         initialExtent: initialExtent,
         minExtent: minExtent,
         maxExtent: maxExtent,
@@ -89,9 +89,9 @@ class DraggableSheet extends StatelessWidget {
   }
 }
 
-/// Factory of [DraggableSheetExtent].
-class DraggableSheetExtentFactory extends SheetExtentFactory {
-  const DraggableSheetExtentFactory({
+/// A configuration of a [DraggableSheetExtent].
+class DraggableSheetExtentConfig extends SheetExtentConfig {
+  const DraggableSheetExtentConfig({
     required this.initialExtent,
     required this.minExtent,
     required this.maxExtent,

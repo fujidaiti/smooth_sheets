@@ -630,9 +630,9 @@ abstract class SheetContext {
   BuildContext? get notificationContext;
 }
 
-/// A factory that creates a [SheetExtent].
-abstract class SheetExtentFactory {
-  const SheetExtentFactory();
+/// Configuration of a [SheetExtent].
+abstract class SheetExtentConfig {
+  const SheetExtentConfig();
   SheetExtent build(BuildContext context, SheetContext sheetContext);
   bool shouldRebuild(BuildContext context, SheetExtent oldExtent);
 }
@@ -643,7 +643,7 @@ class SheetExtentScope extends StatefulWidget {
   /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
-    required this.factory,
+    required this.config,
     this.controller,
     this.onExtentChanged,
     required this.child,
@@ -652,11 +652,11 @@ class SheetExtentScope extends StatefulWidget {
   /// The [SheetController] that will be attached to the created [SheetExtent].
   final SheetController? controller;
 
-  /// The factory that creates the [SheetExtent].
+  /// The configuration of the [SheetExtent] manged by this widget.
   ///
   /// The [SheetExtentScope] will recreate the [SheetExtent] whenever
-  /// it is rebuilt with a [factory] that is not identical to the previous one.
-  final SheetExtentFactory factory;
+  /// it is rebuilt with a [config] that is not identical to the previous one.
+  final SheetExtentConfig config;
 
   /// Called whenever the [SheetExtent] changes.
   ///
@@ -676,7 +676,7 @@ class SheetExtentScope extends StatefulWidget {
   /// that encloses the given context, if any.
   ///
   /// Use of this method will cause the given context to rebuild any time
-  /// that the [factory] property of the ancestor [SheetExtentScope] changes.
+  /// that the [config] property of the ancestor [SheetExtentScope] changes.
   // TODO: Add 'useRoot' option
   static SheetExtent? maybeOf(BuildContext context) {
     return context
@@ -688,7 +688,7 @@ class SheetExtentScope extends StatefulWidget {
   /// that encloses the given context.
   ///
   /// Use of this method will cause the given context to rebuild any time
-  /// that the [factory] property of the ancestor [SheetExtentScope] changes.
+  /// that the [config] property of the ancestor [SheetExtentScope] changes.
   static SheetExtent of(BuildContext context) {
     return maybeOf(context)!;
   }
@@ -718,8 +718,8 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
   void didChangeDependencies() {
     super.didChangeDependencies();
     final oldExtent = _extent;
-    if (oldExtent == null || widget.factory.shouldRebuild(context, oldExtent)) {
-      final newExtent = widget.factory.build(context, this);
+    if (oldExtent == null || widget.config.shouldRebuild(context, oldExtent)) {
+      final newExtent = widget.config.build(context, this);
       widget.controller?.attach(newExtent);
       widget.onExtentChanged?.call(newExtent);
       _extent = newExtent;
@@ -732,8 +732,8 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
     assert(_extent != null);
     final oldExtent = _extent!;
 
-    if (widget.factory.shouldRebuild(context, oldExtent)) {
-      _extent = widget.factory.build(context, this)..takeOver(oldExtent);
+    if (widget.config.shouldRebuild(context, oldExtent)) {
+      _extent = widget.config.build(context, this)..takeOver(oldExtent);
       widget.onExtentChanged?.call(_extent);
     }
 

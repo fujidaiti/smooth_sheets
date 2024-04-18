@@ -14,7 +14,7 @@ class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
     this.physics = const StretchingSheetPhysics(parent: SnappingSheetPhysics()),
     this.transitionsBuilder,
     required this.builder,
-  }) : pageExtentFactory = ScrollableSheetExtentFactory(
+  }) : pageExtentConfig = ScrollableSheetExtentConfig(
           initialExtent: initialExtent,
           minExtent: minExtent,
           maxExtent: maxExtent,
@@ -22,7 +22,7 @@ class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
         );
 
   @override
-  final ScrollableSheetExtentFactory pageExtentFactory;
+  final ScrollableSheetExtentConfig pageExtentConfig;
 
   final Extent initialExtent;
   final Extent minExtent;
@@ -70,7 +70,7 @@ class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
     this.physics = const StretchingSheetPhysics(parent: SnappingSheetPhysics()),
     this.transitionsBuilder,
     required this.builder,
-  }) : pageExtentFactory = DraggableSheetExtentFactory(
+  }) : pageExtentConfig = DraggableSheetExtentConfig(
           initialExtent: initialExtent,
           minExtent: minExtent,
           maxExtent: maxExtent,
@@ -93,7 +93,7 @@ class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
   final WidgetBuilder builder;
 
   @override
-  final DraggableSheetExtentFactory pageExtentFactory;
+  final DraggableSheetExtentConfig pageExtentConfig;
 
   @override
   Widget buildContent(BuildContext context) {
@@ -168,17 +168,17 @@ class _PageBasedScrollableNavigationSheetRoute<T>
   Duration get transitionDuration => page.transitionDuration;
 
   @override
-  ScrollableSheetExtentFactory get pageExtentFactory => _pageExtentFactory!;
-  ScrollableSheetExtentFactory? _pageExtentFactory;
+  ScrollableSheetExtentConfig get pageExtentConfig => _pageExtentConfig!;
+  ScrollableSheetExtentConfig? _pageExtentConfig;
 
   @override
   void changedInternalState() {
     super.changedInternalState();
-    if (page.initialExtent != _pageExtentFactory?.initialExtent ||
-        page.minExtent != _pageExtentFactory?.minExtent ||
-        page.maxExtent != _pageExtentFactory?.maxExtent ||
-        page.physics != _pageExtentFactory?.physics) {
-      _pageExtentFactory = ScrollableSheetExtentFactory(
+    if (page.initialExtent != _pageExtentConfig?.initialExtent ||
+        page.minExtent != _pageExtentConfig?.minExtent ||
+        page.maxExtent != _pageExtentConfig?.maxExtent ||
+        page.physics != _pageExtentConfig?.physics) {
+      _pageExtentConfig = ScrollableSheetExtentConfig(
         initialExtent: page.initialExtent,
         minExtent: page.minExtent,
         maxExtent: page.maxExtent,
@@ -260,17 +260,17 @@ class _PageBasedDraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
   Duration get transitionDuration => page.transitionDuration;
 
   @override
-  DraggableSheetExtentFactory get pageExtentFactory => _pageExtentFactory!;
-  DraggableSheetExtentFactory? _pageExtentFactory;
+  DraggableSheetExtentConfig get pageExtentConfig => _pageExtentConfig!;
+  DraggableSheetExtentConfig? _pageExtentConfig;
 
   @override
   void changedInternalState() {
     super.changedInternalState();
-    if (page.initialExtent != _pageExtentFactory?.initialExtent ||
-        page.minExtent != _pageExtentFactory?.minExtent ||
-        page.maxExtent != _pageExtentFactory?.maxExtent ||
-        page.physics != _pageExtentFactory?.physics) {
-      _pageExtentFactory = DraggableSheetExtentFactory(
+    if (page.initialExtent != _pageExtentConfig?.initialExtent ||
+        page.minExtent != _pageExtentConfig?.minExtent ||
+        page.maxExtent != _pageExtentConfig?.maxExtent ||
+        page.physics != _pageExtentConfig?.physics) {
+      _pageExtentConfig = DraggableSheetExtentConfig(
         initialExtent: page.initialExtent,
         minExtent: page.minExtent,
         maxExtent: page.maxExtent,

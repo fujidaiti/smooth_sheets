@@ -10,8 +10,8 @@ import 'package:smooth_sheets/src/internal/double_utils.dart';
 import 'package:smooth_sheets/src/scrollable/delegatable_scroll_position.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_physics.dart';
 
-class ScrollableSheetExtentFactory extends SheetExtentFactory {
-  const ScrollableSheetExtentFactory({
+class ScrollableSheetExtentConfig extends SheetExtentConfig {
+  const ScrollableSheetExtentConfig({
     required this.initialExtent,
     required this.minExtent,
     required this.maxExtent,

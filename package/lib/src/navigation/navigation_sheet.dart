@@ -101,7 +101,7 @@ class NavigationSheetState extends State<NavigationSheet>
         widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
 
     Widget result = SheetContainer(
-      factory: const _NavigationSheetExtentFactory(),
+      config: const _NavigationSheetExtentConfig(),
       controller: widget.controller,
       onExtentChanged: (extent) {
         _extent = extent as _NavigationSheetExtent?;
@@ -139,8 +139,8 @@ abstract class NavigationSheetExtentDelegate implements Listenable {
   void beginActivity(SheetActivity activity);
 }
 
-class _NavigationSheetExtentFactory extends SheetExtentFactory {
-  const _NavigationSheetExtentFactory();
+class _NavigationSheetExtentConfig extends SheetExtentConfig {
+  const _NavigationSheetExtentConfig();
 
   @override
   bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {

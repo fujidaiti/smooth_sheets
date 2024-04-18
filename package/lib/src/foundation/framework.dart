@@ -8,19 +8,19 @@ class SheetContainer extends StatelessWidget {
     super.key,
     this.controller,
     this.onExtentChanged,
-    required this.factory,
+    required this.config,
     required this.child,
   });
 
   final SheetController? controller;
   final ValueChanged<SheetExtent?>? onExtentChanged;
-  final SheetExtentFactory factory;
+  final SheetExtentConfig config;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return SheetExtentScope(
-      factory: factory,
+      config: config,
       controller: controller ?? SheetControllerScope.maybeOf(context),
       onExtentChanged: onExtentChanged,
       child: Builder(
