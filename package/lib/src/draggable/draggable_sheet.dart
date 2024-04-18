@@ -72,13 +72,22 @@ class DraggableSheetExtentFactory extends SizedContentSheetExtentFactory {
   });
 
   @override
-  SheetExtent create({required SheetContext context}) {
+  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
+    return oldExtent is! DraggableSheetExtent ||
+        oldExtent.minExtent != minExtent ||
+        oldExtent.maxExtent != maxExtent ||
+        oldExtent.initialExtent != initialExtent ||
+        oldExtent.physics != physics;
+  }
+
+  @override
+  SheetExtent build(BuildContext context, SheetContext sheetContext) {
     return DraggableSheetExtent(
+      context: sheetContext,
       initialExtent: initialExtent,
       minExtent: minExtent,
       maxExtent: maxExtent,
       physics: physics,
-      context: context,
     );
   }
 }

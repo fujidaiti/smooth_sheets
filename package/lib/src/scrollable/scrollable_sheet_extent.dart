@@ -20,13 +20,22 @@ class ScrollableSheetExtentFactory extends SizedContentSheetExtentFactory {
   });
 
   @override
-  SheetExtent create({required SheetContext context}) {
+  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
+    return oldExtent is! ScrollableSheetExtent ||
+        oldExtent.initialExtent != initialExtent ||
+        oldExtent.minExtent != minExtent ||
+        oldExtent.maxExtent != maxExtent ||
+        oldExtent.physics != physics;
+  }
+
+  @override
+  SheetExtent build(BuildContext context, SheetContext sheetContext) {
     return ScrollableSheetExtent(
+      context: sheetContext,
       initialExtent: initialExtent,
       minExtent: minExtent,
       maxExtent: maxExtent,
       physics: physics,
-      context: context,
     );
   }
 }

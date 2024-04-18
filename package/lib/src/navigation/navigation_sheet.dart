@@ -143,9 +143,14 @@ class _NavigationSheetExtentFactory extends SheetExtentFactory {
   const _NavigationSheetExtentFactory();
 
   @override
-  SheetExtent create({required SheetContext context}) {
+  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
+    return oldExtent is! _NavigationSheetExtent;
+  }
+
+  @override
+  SheetExtent build(BuildContext context, SheetContext sheetContext) {
     return _NavigationSheetExtent(
-      context: context,
+      context: sheetContext,
       // TODO: Use more appropriate physics.
       physics: const ClampingSheetPhysics(),
     );
