@@ -2,43 +2,68 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 
-class ScrollableSheet extends SizedContentSheet {
+class ScrollableSheet extends StatelessWidget {
   const ScrollableSheet({
     super.key,
-    super.keyboardDismissBehavior,
-    super.initialExtent,
-    super.minExtent,
-    super.maxExtent,
-    super.physics,
-    super.controller,
-    required super.child,
+    this.keyboardDismissBehavior,
+    this.initialExtent = const Extent.proportional(1),
+    this.minExtent = const Extent.proportional(1),
+    this.maxExtent = const Extent.proportional(1),
+    this.physics = const StretchingSheetPhysics(
+      parent: SnappingSheetPhysics(),
+    ),
+    this.controller,
+    required this.child,
   });
 
-  @override
-  SizedContentSheetState<SizedContentSheet> createState() {
-    return _ScrollableSheetState();
-  }
-}
+  /// The strategy to dismiss the on-screen keyboard when the sheet is dragged.
+  final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
 
-class _ScrollableSheetState extends SizedContentSheetState<ScrollableSheet> {
-  @override
-  SheetExtentFactory createExtentFactory() {
-    return ScrollableSheetExtentFactory(
-      initialExtent: widget.initialExtent,
-      minExtent: widget.minExtent,
-      maxExtent: widget.maxExtent,
-      physics: widget.physics,
-    );
-  }
+  /// {@macro ScrollableSheetExtent.initialExtent}
+  final Extent initialExtent;
+
+  /// {@macro SheetExtent.minExtent}
+  final Extent minExtent;
+
+  /// {@macro SheetExtent.maxExtent}
+  final Extent maxExtent;
+
+  /// {@macro SheetExtent.physics}
+  final SheetPhysics physics;
+
+  /// An object that can be used to control and observe the sheet height.
+  final SheetController? controller;
+
+  /// The content of the sheet.
+  final Widget child;
 
   @override
-  Widget buildContent(BuildContext context) {
-    return PrimarySheetContentScrollController(
-      child: super.buildContent(context),
+  Widget build(BuildContext context) {
+    final theme = SheetTheme.maybeOf(context);
+    final keyboardDismissBehavior =
+        this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+
+    Widget result = SheetContainer(
+      controller: controller,
+      factory: ScrollableSheetExtentFactory(
+        initialExtent: initialExtent,
+        minExtent: minExtent,
+        maxExtent: maxExtent,
+        physics: physics,
+      ),
+      child: PrimarySheetContentScrollController(child: child),
     );
+
+    if (keyboardDismissBehavior != null) {
+      result = SheetKeyboardDismissible(
+        dismissBehavior: keyboardDismissBehavior,
+        child: result,
+      );
+    }
+
+    return result;
   }
 }
 

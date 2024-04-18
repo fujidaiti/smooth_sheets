@@ -6,18 +6,29 @@ import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
-import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
 import 'package:smooth_sheets/src/internal/double_utils.dart';
 import 'package:smooth_sheets/src/scrollable/delegatable_scroll_position.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_physics.dart';
 
-class ScrollableSheetExtentFactory extends SizedContentSheetExtentFactory {
+class ScrollableSheetExtentFactory extends SheetExtentFactory {
   const ScrollableSheetExtentFactory({
-    required super.initialExtent,
-    required super.minExtent,
-    required super.maxExtent,
-    required super.physics,
+    required this.initialExtent,
+    required this.minExtent,
+    required this.maxExtent,
+    required this.physics,
   });
+
+  /// {@macro ScrollableSheetExtent.initialExtent}
+  final Extent initialExtent;
+
+  /// {@macro SheetExtent.minExtent}
+  final Extent minExtent;
+
+  /// {@macro SheetExtent.maxExtent}
+  final Extent maxExtent;
+
+  /// {@macro SheetExtent.physics}
+  final SheetPhysics physics;
 
   @override
   bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
@@ -40,9 +51,9 @@ class ScrollableSheetExtentFactory extends SizedContentSheetExtentFactory {
   }
 }
 
-class ScrollableSheetExtent extends SizedContentSheetExtent {
+class ScrollableSheetExtent extends SheetExtent {
   ScrollableSheetExtent({
-    required super.initialExtent,
+    required this.initialExtent,
     required super.minExtent,
     required super.maxExtent,
     required super.context,
@@ -54,6 +65,11 @@ class ScrollableSheetExtent extends SizedContentSheetExtent {
         ) {
     goIdle();
   }
+
+  /// {@template ScrollableSheetExtent.initialExtent}
+  /// The initial extent of the sheet when it is first shown.
+  /// {@endtemplate}
+  final Extent initialExtent;
 
   ScrollPositionDelegate? get _scrollPositionDelegate {
     return switch (activity) {
