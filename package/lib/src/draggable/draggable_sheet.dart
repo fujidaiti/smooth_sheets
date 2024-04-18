@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
+import '../../smooth_sheets.dart';
 
 /// A sheet that can be dragged.
 ///

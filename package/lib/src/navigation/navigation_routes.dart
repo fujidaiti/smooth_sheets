@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
+import '../../smooth_sheets.dart';
+import '../scrollable/scrollable_sheet.dart';
 
 class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
     with NavigationSheetRouteMixin<T> {

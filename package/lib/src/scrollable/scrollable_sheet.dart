@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
+import '../../smooth_sheets.dart';
+import 'scrollable_sheet_extent.dart';
 
 class ScrollableSheet extends StatelessWidget {
   const ScrollableSheet({

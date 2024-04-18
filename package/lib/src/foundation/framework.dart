@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'sheet_controller.dart';
+import 'sheet_extent.dart';
 
 class SheetContainer extends StatelessWidget {
   const SheetContainer({

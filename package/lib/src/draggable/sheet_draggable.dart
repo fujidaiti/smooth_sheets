@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
-import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
+
+import '../foundation/sheet_activity.dart';
+import '../foundation/sheet_extent.dart';
+import '../scrollable/scrollable_sheet.dart';
+import 'draggable_sheet.dart';
 
 /// A widget that makes its child as a drag-handle for a sheet.
 ///

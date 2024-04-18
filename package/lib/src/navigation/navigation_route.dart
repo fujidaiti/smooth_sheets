@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:smooth_sheets/src/foundation/framework.dart';
-import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
-import 'package:smooth_sheets/src/navigation/navigation_sheet.dart';
+import '../foundation/framework.dart';
+import '../foundation/sheet_activity.dart';
+import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_status.dart';
+import 'navigation_sheet.dart';
 
 mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
   SheetExtentConfig get pageExtentConfig;

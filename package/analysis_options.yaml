@@ -11,3 +11,4 @@ linter:
     flutter_style_todos: false
     cascade_invocations: false
     join_return_with_assignment: false
+    prefer_relative_imports: true

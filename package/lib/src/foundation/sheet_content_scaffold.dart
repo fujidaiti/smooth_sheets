@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
+import '../../smooth_sheets.dart';
 
 class SheetContentScaffold extends StatelessWidget {
   const SheetContentScaffold({

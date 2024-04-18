@@ -1,7 +1,8 @@
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
-import 'package:smooth_sheets/src/internal/double_utils.dart';
+
+import '../../smooth_sheets.dart';
+import '../internal/double_utils.dart';
+import 'sheet_status.dart';
 
 /// A representation of a visible height of the sheet.
 ///
