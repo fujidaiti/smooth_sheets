@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/physics.dart';
-import '../foundation/sheet_activity.dart';
+import '../foundation/activities.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
 import '../internal/double_utils.dart';

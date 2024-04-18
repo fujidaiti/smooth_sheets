@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-import '../foundation/sheet_activity.dart';
+import '../foundation/activities.dart';
 import '../foundation/sheet_extent.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'draggable_sheet.dart';

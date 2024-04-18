@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import '../foundation/framework.dart';
 import '../foundation/keyboard_dismissible.dart';
 import '../foundation/physics.dart';
-import '../foundation/sheet_activity.dart';
+import '../foundation/activities.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/theme.dart';
