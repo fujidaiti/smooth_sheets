@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../../smooth_sheets.dart';
+
 import '../internal/double_utils.dart';
 import 'modal_sheet.dart';
 

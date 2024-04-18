@@ -1,7 +1,12 @@
 import 'package:flutter/widgets.dart';
 
-import '../../smooth_sheets.dart';
+import '../draggable/draggable_sheet.dart';
 import '../internal/double_utils.dart';
+import '../scrollable/scrollable_sheet.dart';
+import '../scrollable/scrollable_sheet_extent.dart';
+import 'physics.dart';
+import 'sheet_activity.dart';
+import 'sheet_controller.dart';
 import 'sheet_status.dart';
 
 /// A representation of a visible height of the sheet.

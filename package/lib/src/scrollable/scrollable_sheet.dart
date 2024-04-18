@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import '../../smooth_sheets.dart';
+import '../foundation/framework.dart';
+import '../foundation/keyboard_dismissible.dart';
+import '../foundation/physics.dart';
+import '../foundation/sheet_controller.dart';
+import '../foundation/sheet_extent.dart';
+import '../foundation/theme.dart';
 import 'scrollable_sheet_extent.dart';
 
 class ScrollableSheet extends StatelessWidget {
