@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/internal/double_utils.dart';
-import 'package:smooth_sheets/src/modal/modal_sheet.dart';
+
+import '../internal/double_utils.dart';
+import 'modal_sheet.dart';
 
 const _minimizedViewportScale = 0.92;
 const _cupertinoBarrierColor = Color(0x18000000);

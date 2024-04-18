@@ -4,8 +4,9 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/internal/double_utils.dart';
+
+import '../internal/double_utils.dart';
+import 'sheet_extent.dart';
 
 const _minSettlingDuration = Duration(milliseconds: 160);
 const _defaultSettlingSpeed = 600.0; // logical pixels per second

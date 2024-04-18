@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:smooth_sheets/src/foundation/framework.dart';
-import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
-import 'package:smooth_sheets/src/navigation/navigation_sheet.dart';
+
+import '../foundation/activities.dart';
+import '../foundation/framework.dart';
+import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_status.dart';
+import 'navigation_sheet.dart';
 
 mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
-  SheetExtentFactory get pageExtentFactory;
+  SheetExtentConfig get pageExtentConfig;
 
   @override
   NavigationSheetExtentDelegate get pageExtent => _pageExtent;
@@ -39,7 +40,7 @@ mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
     Animation<double> secondaryAnimation,
   ) {
     return SheetExtentScope(
-      factory: pageExtentFactory,
+      config: pageExtentConfig,
       onExtentChanged: (extent) => _pageExtent.source = extent,
       child: SheetContentViewport(
         child: buildContent(context),

@@ -4,8 +4,9 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
+import 'notifications.dart';
+import 'sheet_extent.dart';
+import 'sheet_status.dart';
 
 abstract class SheetActivity extends ChangeNotifier {
   bool _mounted = false;

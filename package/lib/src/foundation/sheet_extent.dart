@@ -1,7 +1,13 @@
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
-import 'package:smooth_sheets/src/internal/double_utils.dart';
+
+import '../draggable/draggable_sheet.dart';
+import '../internal/double_utils.dart';
+import '../scrollable/scrollable_sheet.dart';
+import '../scrollable/scrollable_sheet_extent.dart';
+import 'activities.dart';
+import 'physics.dart';
+import 'sheet_controller.dart';
+import 'sheet_status.dart';
 
 /// A representation of a visible height of the sheet.
 ///
@@ -630,10 +636,11 @@ abstract class SheetContext {
   BuildContext? get notificationContext;
 }
 
-/// A factory that creates a [SheetExtent].
-abstract class SheetExtentFactory {
-  const SheetExtentFactory();
-  SheetExtent create({required SheetContext context});
+/// Configuration of a [SheetExtent].
+abstract class SheetExtentConfig {
+  const SheetExtentConfig();
+  SheetExtent build(BuildContext context, SheetContext sheetContext);
+  bool shouldRebuild(BuildContext context, SheetExtent oldExtent);
 }
 
 /// A widget that creates a [SheetExtent], manages its lifecycle,
@@ -642,7 +649,7 @@ class SheetExtentScope extends StatefulWidget {
   /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
-    required this.factory,
+    required this.config,
     this.controller,
     this.onExtentChanged,
     required this.child,
@@ -651,11 +658,11 @@ class SheetExtentScope extends StatefulWidget {
   /// The [SheetController] that will be attached to the created [SheetExtent].
   final SheetController? controller;
 
-  /// The factory that creates the [SheetExtent].
+  /// The configuration of the [SheetExtent] manged by this widget.
   ///
   /// The [SheetExtentScope] will recreate the [SheetExtent] whenever
-  /// it is rebuilt with a [factory] that is not identical to the previous one.
-  final SheetExtentFactory factory;
+  /// it is rebuilt with a [config] that is not identical to the previous one.
+  final SheetExtentConfig config;
 
   /// Called whenever the [SheetExtent] changes.
   ///
@@ -675,7 +682,7 @@ class SheetExtentScope extends StatefulWidget {
   /// that encloses the given context, if any.
   ///
   /// Use of this method will cause the given context to rebuild any time
-  /// that the [factory] property of the ancestor [SheetExtentScope] changes.
+  /// that the [config] property of the ancestor [SheetExtentScope] changes.
   // TODO: Add 'useRoot' option
   static SheetExtent? maybeOf(BuildContext context) {
     return context
@@ -687,7 +694,7 @@ class SheetExtentScope extends StatefulWidget {
   /// that encloses the given context.
   ///
   /// Use of this method will cause the given context to rebuild any time
-  /// that the [factory] property of the ancestor [SheetExtentScope] changes.
+  /// that the [config] property of the ancestor [SheetExtentScope] changes.
   static SheetExtent of(BuildContext context) {
     return maybeOf(context)!;
   }
@@ -696,7 +703,7 @@ class SheetExtentScope extends StatefulWidget {
 class _SheetExtentScopeState extends State<SheetExtentScope>
     with TickerProviderStateMixin
     implements SheetContext {
-  late SheetExtent _extent;
+  SheetExtent? _extent;
 
   @override
   TickerProvider get vsync => this;
@@ -705,34 +712,40 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
   BuildContext? get notificationContext => mounted ? context : null;
 
   @override
-  void initState() {
-    super.initState();
-    _extent = widget.factory.create(context: this);
-    widget.controller?.attach(_extent);
-    widget.onExtentChanged?.call(_extent);
+  void dispose() {
+    assert(_extent != null);
+    widget.onExtentChanged?.call(null);
+    widget.controller?.detach(_extent);
+    _extent!.dispose();
+    super.dispose();
   }
 
   @override
-  void dispose() {
-    widget.onExtentChanged?.call(null);
-    widget.controller?.detach(_extent);
-    _extent.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final oldExtent = _extent;
+    if (oldExtent == null || widget.config.shouldRebuild(context, oldExtent)) {
+      final newExtent = widget.config.build(context, this);
+      widget.controller?.attach(newExtent);
+      widget.onExtentChanged?.call(newExtent);
+      _extent = newExtent;
+    }
   }
 
   @override
   void didUpdateWidget(SheetExtentScope oldWidget) {
     super.didUpdateWidget(oldWidget);
+    assert(_extent != null);
+    final oldExtent = _extent!;
 
-    final oldExtent = _extent;
-    if (widget.factory != oldWidget.factory) {
-      _extent = widget.factory.create(context: this)..takeOver(_extent);
+    if (widget.config.shouldRebuild(context, oldExtent)) {
+      _extent = widget.config.build(context, this)..takeOver(oldExtent);
       widget.onExtentChanged?.call(_extent);
     }
 
     if (widget.controller != oldWidget.controller || _extent != oldExtent) {
       oldWidget.controller?.detach(oldExtent);
-      widget.controller?.attach(_extent);
+      widget.controller?.attach(_extent!);
     }
 
     if (oldExtent != _extent) {
@@ -742,8 +755,9 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
 
   @override
   Widget build(BuildContext context) {
+    assert(_extent != null);
     return _InheritedSheetExtent(
-      extent: _extent,
+      extent: _extent!,
       child: widget.child,
     );
   }

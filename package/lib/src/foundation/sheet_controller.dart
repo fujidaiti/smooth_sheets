@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'sheet_extent.dart';
 
 class SheetController extends ChangeNotifier
     implements ValueListenable<double?> {

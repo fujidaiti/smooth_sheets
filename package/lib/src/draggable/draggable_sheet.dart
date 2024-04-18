@@ -1,12 +1,20 @@
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sized_content_sheet.dart';
+
+import '../foundation/activities.dart';
+import '../foundation/framework.dart';
+import '../foundation/keyboard_dismissible.dart';
+import '../foundation/physics.dart';
+import '../foundation/sheet_controller.dart';
+import '../foundation/sheet_extent.dart';
+import '../foundation/theme.dart';
+import '../scrollable/scrollable_sheet.dart';
+import 'sheet_draggable.dart';
 
 /// A sheet that can be dragged.
 ///
 /// Note that this widget does not work with scrollable widgets.
 /// Instead, use [ScrollableSheet] for this usecase.
-class DraggableSheet extends SizedContentSheet {
+class DraggableSheet extends StatelessWidget {
   /// Creates a sheet that can be dragged.
   ///
   /// The maximum height will be equal to the [child]'s height.
@@ -22,14 +30,37 @@ class DraggableSheet extends SizedContentSheet {
   const DraggableSheet({
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
-    super.keyboardDismissBehavior,
-    super.initialExtent,
-    super.minExtent,
-    super.maxExtent,
-    super.physics,
-    super.controller,
-    required super.child,
+    this.keyboardDismissBehavior,
+    this.initialExtent = const Extent.proportional(1),
+    this.minExtent = const Extent.proportional(1),
+    this.maxExtent = const Extent.proportional(1),
+    this.physics = const StretchingSheetPhysics(
+      parent: SnappingSheetPhysics(),
+    ),
+    required this.child,
+    this.controller,
   });
+
+  /// The strategy to dismiss the on-screen keyboard when the sheet is dragged.
+  final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
+
+  /// {@macro SizedContentSheetExtent.initialExtent}
+  final Extent initialExtent;
+
+  /// {@macro SheetExtent.minExtent}
+  final Extent minExtent;
+
+  /// {@macro SheetExtent.maxExtent}
+  final Extent maxExtent;
+
+  /// {@macro SheetExtent.physics}
+  final SheetPhysics physics;
+
+  /// An object that can be used to control and observe the sheet height.
+  final SheetController? controller;
+
+  /// The content of the sheet.
+  final Widget child;
 
   /// How to behave during hit testing.
   ///
@@ -37,63 +68,94 @@ class DraggableSheet extends SizedContentSheet {
   final HitTestBehavior hitTestBehavior;
 
   @override
-  SizedContentSheetState<SizedContentSheet> createState() {
-    return _DraggableSheetState();
+  Widget build(BuildContext context) {
+    final theme = SheetTheme.maybeOf(context);
+    final keyboardDismissBehavior =
+        this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+
+    Widget result = SheetContainer(
+      controller: controller,
+      config: DraggableSheetExtentConfig(
+        initialExtent: initialExtent,
+        minExtent: minExtent,
+        maxExtent: maxExtent,
+        physics: physics,
+      ),
+      child: SheetDraggable(
+        behavior: hitTestBehavior,
+        child: child,
+      ),
+    );
+
+    if (keyboardDismissBehavior != null) {
+      result = SheetKeyboardDismissible(
+        dismissBehavior: keyboardDismissBehavior,
+        child: result,
+      );
+    }
+
+    return result;
   }
 }
 
-class _DraggableSheetState extends SizedContentSheetState<DraggableSheet> {
-  @override
-  SheetExtentFactory createExtentFactory() {
-    return DraggableSheetExtentFactory(
-      initialExtent: widget.initialExtent,
-      minExtent: widget.minExtent,
-      maxExtent: widget.maxExtent,
-      physics: widget.physics,
-    );
-  }
-
-  @override
-  Widget buildContent(BuildContext context) {
-    return SheetDraggable(
-      behavior: widget.hitTestBehavior,
-      child: super.buildContent(context),
-    );
-  }
-}
-
-/// Factory of [DraggableSheetExtent].
-class DraggableSheetExtentFactory extends SizedContentSheetExtentFactory {
-  const DraggableSheetExtentFactory({
-    required super.initialExtent,
-    required super.minExtent,
-    required super.maxExtent,
-    required super.physics,
+/// A configuration of a [DraggableSheetExtent].
+class DraggableSheetExtentConfig extends SheetExtentConfig {
+  const DraggableSheetExtentConfig({
+    required this.initialExtent,
+    required this.minExtent,
+    required this.maxExtent,
+    required this.physics,
   });
 
+  /// {@macro DraggableSheetExtent.initialExtent}
+  final Extent initialExtent;
+
+  /// {@macro SheetExtent.minExtent}
+  final Extent minExtent;
+
+  /// {@macro SheetExtent.maxExtent}
+  final Extent maxExtent;
+
+  /// {@macro SheetExtent.physics}
+  final SheetPhysics physics;
+
   @override
-  SheetExtent create({required SheetContext context}) {
+  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
+    return oldExtent is! DraggableSheetExtent ||
+        oldExtent.minExtent != minExtent ||
+        oldExtent.maxExtent != maxExtent ||
+        oldExtent.initialExtent != initialExtent ||
+        oldExtent.physics != physics;
+  }
+
+  @override
+  SheetExtent build(BuildContext context, SheetContext sheetContext) {
     return DraggableSheetExtent(
+      context: sheetContext,
       initialExtent: initialExtent,
       minExtent: minExtent,
       maxExtent: maxExtent,
       physics: physics,
-      context: context,
     );
   }
 }
 
 /// [SheetExtent] for a [DraggableSheet].
-class DraggableSheetExtent extends SizedContentSheetExtent {
+class DraggableSheetExtent extends SheetExtent {
   DraggableSheetExtent({
     required super.context,
     required super.physics,
     required super.minExtent,
     required super.maxExtent,
-    required super.initialExtent,
+    required this.initialExtent,
   }) {
     goIdle();
   }
+
+  /// {@template DraggableSheetExtent.initialExtent}
+  /// The initial extent of the sheet when it is first shown.
+  /// {@endtemplate}
+  final Extent initialExtent;
 
   @override
   void goIdle() {

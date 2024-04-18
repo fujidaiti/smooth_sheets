@@ -3,10 +3,10 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
-import 'package:smooth_sheets/src/internal/double_utils.dart';
-import 'package:smooth_sheets/src/internal/monodrag.dart';
+import '../foundation/sheet_controller.dart';
+import '../foundation/sheet_status.dart';
+import '../internal/double_utils.dart';
+import '../internal/monodrag.dart';
 
 const _minFlingVelocityToDismiss = 1.0;
 const _minDragDistanceToDismiss = 100.0; // Logical pixels.

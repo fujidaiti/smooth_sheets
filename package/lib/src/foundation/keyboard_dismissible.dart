@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
-import 'package:smooth_sheets/src/foundation/notifications.dart';
+import '../draggable/draggable_sheet.dart';
+import 'notifications.dart';
 
 /// A widget that dismisses the on-screen keyboard when the user
 /// drags the sheet below this widget.

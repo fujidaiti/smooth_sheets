@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/src/foundation/keyboard_dismissible.dart';
+import 'keyboard_dismissible.dart';
 
 /// A theme for descendant sheets.
 ///

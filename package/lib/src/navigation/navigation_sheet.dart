@@ -2,15 +2,16 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:smooth_sheets/src/foundation/framework.dart';
-import 'package:smooth_sheets/src/foundation/keyboard_dismissible.dart';
-import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
-import 'package:smooth_sheets/src/foundation/theme.dart';
-import 'package:smooth_sheets/src/internal/transition_observer.dart';
+
+import '../foundation/activities.dart';
+import '../foundation/framework.dart';
+import '../foundation/keyboard_dismissible.dart';
+import '../foundation/physics.dart';
+import '../foundation/sheet_controller.dart';
+import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_status.dart';
+import '../foundation/theme.dart';
+import '../internal/transition_observer.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
 
@@ -101,7 +102,7 @@ class NavigationSheetState extends State<NavigationSheet>
         widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
 
     Widget result = SheetContainer(
-      factory: const _NavigationSheetExtentFactory(),
+      config: const _NavigationSheetExtentConfig(),
       controller: widget.controller,
       onExtentChanged: (extent) {
         _extent = extent as _NavigationSheetExtent?;
@@ -139,13 +140,18 @@ abstract class NavigationSheetExtentDelegate implements Listenable {
   void beginActivity(SheetActivity activity);
 }
 
-class _NavigationSheetExtentFactory extends SheetExtentFactory {
-  const _NavigationSheetExtentFactory();
+class _NavigationSheetExtentConfig extends SheetExtentConfig {
+  const _NavigationSheetExtentConfig();
 
   @override
-  SheetExtent create({required SheetContext context}) {
+  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
+    return oldExtent is! _NavigationSheetExtent;
+  }
+
+  @override
+  SheetExtent build(BuildContext context, SheetContext sheetContext) {
     return _NavigationSheetExtent(
-      context: context,
+      context: sheetContext,
       // TODO: Use more appropriate physics.
       physics: const ClampingSheetPhysics(),
     );

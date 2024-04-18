@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
+import 'sheet_controller.dart';
+import 'sheet_extent.dart';
 
 class SheetContainer extends StatelessWidget {
   const SheetContainer({
     super.key,
     this.controller,
     this.onExtentChanged,
-    required this.factory,
+    required this.config,
     required this.child,
   });
 
   final SheetController? controller;
   final ValueChanged<SheetExtent?>? onExtentChanged;
-  final SheetExtentFactory factory;
+  final SheetExtentConfig config;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return SheetExtentScope(
-      factory: factory,
+      config: config,
       controller: controller ?? SheetControllerScope.maybeOf(context),
       onExtentChanged: onExtentChanged,
       child: Builder(
