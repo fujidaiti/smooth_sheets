@@ -5,6 +5,11 @@ import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
 class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics {
   const _SheetPhysicsWithDefaultConfiguration();
+
+  @override
+  SheetPhysics copyWith({SheetPhysics? parent, SpringDescription? spring}) {
+    return const _SheetPhysicsWithDefaultConfiguration();
+  }
 }
 
 const _referenceSheetMetrics = SheetMetricsSnapshot(
