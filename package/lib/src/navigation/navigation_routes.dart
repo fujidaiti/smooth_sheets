@@ -175,6 +175,7 @@ class _PageBasedScrollableNavigationSheetRoute<T>
   Duration get transitionDuration => page.transitionDuration;
 
   @override
+  // TODO: Prefer to directly create a config object than storing it in a field.
   ScrollableSheetExtentConfig get pageExtentConfig => _pageExtentConfig!;
   ScrollableSheetExtentConfig? _pageExtentConfig;
 
@@ -267,6 +268,7 @@ class _PageBasedDraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
   Duration get transitionDuration => page.transitionDuration;
 
   @override
+  // TODO: Prefer to directly create a config object than storing it in a field.
   DraggableSheetExtentConfig get pageExtentConfig => _pageExtentConfig!;
   DraggableSheetExtentConfig? _pageExtentConfig;
 
