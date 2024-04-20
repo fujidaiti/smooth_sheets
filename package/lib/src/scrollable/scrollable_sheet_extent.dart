@@ -75,6 +75,7 @@ class ScrollableSheetExtent extends SheetExtent {
     required super.context,
     required SheetPhysics physics,
   }) : super(
+          // TODO: Do this in the build method of ExtentConfig
           physics: physics is ScrollableSheetPhysics
               ? physics
               : ScrollableSheetPhysics(parent: physics),

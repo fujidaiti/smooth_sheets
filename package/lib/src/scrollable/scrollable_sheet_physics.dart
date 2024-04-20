@@ -3,14 +3,18 @@ import 'package:flutter/physics.dart';
 import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
 
-class ScrollableSheetPhysics extends SheetPhysics {
+class ScrollableSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const ScrollableSheetPhysics({
     super.parent,
-    super.spring,
+    this.spring = kDefaultSheetSpring,
     this.maxScrollSpeedToInterrupt = double.infinity,
   }) : assert(maxScrollSpeedToInterrupt >= 0);
 
+  // TODO: Expose this from the ScrollableSheet's constructor
   final double maxScrollSpeedToInterrupt;
+
+  @override
+  final SpringDescription spring;
 
   @override
   SheetPhysics copyWith({

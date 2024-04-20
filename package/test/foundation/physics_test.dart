@@ -4,7 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
-class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics {
+class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
+    with SheetPhysicsMixin {
   const _SheetPhysicsWithDefaultConfiguration();
 
   @override
