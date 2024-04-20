@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
@@ -54,16 +53,6 @@ abstract class SheetPhysics {
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics);
 
   Simulation? createSettlingSimulation(SheetMetrics metrics);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SheetPhysics &&
-          runtimeType == other.runtimeType &&
-          parent == other.parent);
-
-  @override
-  int get hashCode => Object.hash(runtimeType, parent);
 }
 
 mixin SheetPhysicsMixin on SheetPhysics {
@@ -254,19 +243,6 @@ class SnapToNearestEdge with _SnapToNearestMixin {
     assert(metrics.pixels.isInBounds(metrics.minPixels, metrics.maxPixels));
     return (metrics.minPixels, metrics.maxPixels);
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SnapToNearestEdge &&
-          runtimeType == other.runtimeType &&
-          minFlingSpeed == other.minFlingSpeed);
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        minFlingSpeed,
-      );
 }
 
 class SnapToNearest with _SnapToNearestMixin {
@@ -325,21 +301,6 @@ class SnapToNearest with _SnapToNearestMixin {
 
     return (nearestSmaller, nearestGreater);
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SnapToNearest &&
-          runtimeType == other.runtimeType &&
-          minFlingSpeed == other.minFlingSpeed &&
-          const DeepCollectionEquality().equals(snapTo, other.snapTo));
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        minFlingSpeed,
-        snapTo,
-      );
 }
 
 class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
@@ -381,16 +342,6 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       return super.createBallisticSimulation(velocity, metrics);
     }
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SnappingSheetPhysics &&
-          snappingBehavior == other.snappingBehavior &&
-          super == other);
-
-  @override
-  int get hashCode => Object.hash(snappingBehavior, super.hashCode);
 }
 
 class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
@@ -491,19 +442,4 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
     return newPixels - currentPixels;
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is StretchingSheetPhysics &&
-          stretchingRange == other.stretchingRange &&
-          frictionCurve == other.frictionCurve &&
-          super == other);
-
-  @override
-  int get hashCode => Object.hash(
-        stretchingRange,
-        frictionCurve,
-        super.hashCode,
-      );
 }
