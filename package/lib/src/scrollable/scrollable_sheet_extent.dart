@@ -7,6 +7,7 @@ import '../foundation/activities.dart';
 import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
+import '../foundation/theme.dart';
 import '../internal/double_utils.dart';
 import 'delegatable_scroll_position.dart';
 import 'scrollable_sheet_physics.dart';
@@ -29,7 +30,7 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
   final Extent maxExtent;
 
   /// {@macro SheetExtent.physics}
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   @override
   bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
@@ -37,7 +38,7 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
         oldExtent.initialExtent != initialExtent ||
         oldExtent.minExtent != minExtent ||
         oldExtent.maxExtent != maxExtent ||
-        oldExtent.physics != physics;
+        oldExtent.physics != _resolvePhysics(context);
   }
 
   @override
@@ -47,8 +48,22 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
       initialExtent: initialExtent,
       minExtent: minExtent,
       maxExtent: maxExtent,
-      physics: physics,
+      physics: _resolvePhysics(context),
     );
+  }
+
+  SheetPhysics _resolvePhysics(BuildContext context) {
+    const fallback = StretchingSheetPhysics(parent: SnappingSheetPhysics());
+    final theme = SheetTheme.maybeOf(context);
+    final base = theme?.basePhysics;
+    if (physics case final physics?) {
+      return base != null ? physics.applyTo(base) : physics;
+    } else if (theme?.physics case final inherited?) {
+      // Do not apply the base physics to the inherited physics.
+      return inherited;
+    } else {
+      return base != null ? fallback.applyTo(base) : fallback;
+    }
   }
 }
 

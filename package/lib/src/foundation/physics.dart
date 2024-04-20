@@ -24,6 +24,24 @@ abstract class SheetPhysics {
     return _spring ?? const ScrollPhysics().spring;
   }
 
+  /// Create a copy of this object appending the [ancestor] to
+  /// the physics chain, much like [ScrollPhysics.applyTo].
+  ///
+  /// Can be used to dynamically create an inheritance relationship
+  /// between [SheetPhysics] objects. For example, [SheetPhysics] `x`
+  /// and `y` in the following code will have the same behavior.
+  /// ```dart
+  /// final x = FooSheetPhysics().applyTo(BarSheetPhysics());
+  /// final y = FooSheetPhysics(parent: BarSheetPhysics());
+  /// ```
+  SheetPhysics applyTo(SheetPhysics ancestor) {
+    return copyWith(parent: parent?.applyTo(ancestor) ?? ancestor);
+  }
+
+  /// Create a copy of this object with the given fields replaced
+  /// by the new values.
+  SheetPhysics copyWith({SheetPhysics? parent, SpringDescription? spring});
+
   double computeOverflow(double offset, SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.computeOverflow(offset, metrics);
@@ -313,6 +331,19 @@ class SnappingSheetPhysics extends SheetPhysics {
   final SnappingSheetBehavior snappingBehavior;
 
   @override
+  SheetPhysics copyWith({
+    SheetPhysics? parent,
+    SpringDescription? spring,
+    SnappingSheetBehavior? snappingBehavior,
+  }) {
+    return SnappingSheetPhysics(
+      parent: parent ?? this.parent,
+      spring: spring ?? this.spring,
+      snappingBehavior: snappingBehavior ?? this.snappingBehavior,
+    );
+  }
+
+  @override
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
     final snapPixels = snappingBehavior.findSnapPixels(velocity, metrics);
     if (snapPixels != null && !metrics.pixels.isApprox(snapPixels)) {
@@ -338,6 +369,11 @@ class ClampingSheetPhysics extends SheetPhysics {
   const ClampingSheetPhysics({
     super.parent,
   });
+
+  @override
+  SheetPhysics copyWith({SheetPhysics? parent, SpringDescription? spring}) {
+    return ClampingSheetPhysics(parent: parent ?? this.parent);
+  }
 }
 
 class StretchingSheetPhysics extends SheetPhysics {
@@ -349,6 +385,20 @@ class StretchingSheetPhysics extends SheetPhysics {
 
   final Extent stretchingRange;
   final Curve frictionCurve;
+
+  @override
+  SheetPhysics copyWith({
+    SheetPhysics? parent,
+    SpringDescription? spring,
+    Extent? stretchingRange,
+    Curve? frictionCurve,
+  }) {
+    return StretchingSheetPhysics(
+      parent: parent ?? this.parent,
+      stretchingRange: stretchingRange ?? this.stretchingRange,
+      frictionCurve: frictionCurve ?? this.frictionCurve,
+    );
+  }
 
   @override
   double computeOverflow(double offset, SheetMetrics metrics) {

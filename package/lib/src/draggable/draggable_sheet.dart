@@ -34,9 +34,7 @@ class DraggableSheet extends StatelessWidget {
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
-    this.physics = const StretchingSheetPhysics(
-      parent: SnappingSheetPhysics(),
-    ),
+    this.physics,
     required this.child,
     this.controller,
   });
@@ -54,7 +52,7 @@ class DraggableSheet extends StatelessWidget {
   final Extent maxExtent;
 
   /// {@macro SheetExtent.physics}
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
   final SheetController? controller;
@@ -117,7 +115,7 @@ class DraggableSheetExtentConfig extends SheetExtentConfig {
   final Extent maxExtent;
 
   /// {@macro SheetExtent.physics}
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   @override
   bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
@@ -125,7 +123,7 @@ class DraggableSheetExtentConfig extends SheetExtentConfig {
         oldExtent.minExtent != minExtent ||
         oldExtent.maxExtent != maxExtent ||
         oldExtent.initialExtent != initialExtent ||
-        oldExtent.physics != physics;
+        oldExtent.physics != _resolvePhysics(context);
   }
 
   @override
@@ -135,8 +133,22 @@ class DraggableSheetExtentConfig extends SheetExtentConfig {
       initialExtent: initialExtent,
       minExtent: minExtent,
       maxExtent: maxExtent,
-      physics: physics,
+      physics: _resolvePhysics(context),
     );
+  }
+
+  SheetPhysics _resolvePhysics(BuildContext context) {
+    const fallback = StretchingSheetPhysics(parent: SnappingSheetPhysics());
+    final theme = SheetTheme.maybeOf(context);
+    final base = theme?.basePhysics;
+    if (physics case final physics?) {
+      return base != null ? physics.applyTo(base) : physics;
+    } else if (theme?.physics case final inherited?) {
+      // Do not apply the base physics to the inherited physics.
+      return inherited;
+    } else {
+      return base != null ? fallback.applyTo(base) : fallback;
+    }
   }
 }
 
