@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../draggable/draggable_sheet.dart';
 import '../draggable/sheet_draggable.dart';
 import '../foundation/physics.dart';
@@ -17,7 +18,7 @@ class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
-    this.physics = const StretchingSheetPhysics(parent: SnappingSheetPhysics()),
+    this.physics,
     this.transitionsBuilder,
     required this.builder,
   }) : pageExtentConfig = ScrollableSheetExtentConfig(
@@ -33,7 +34,7 @@ class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
   final Extent initialExtent;
   final Extent minExtent;
   final Extent maxExtent;
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   @override
   final bool maintainState;
@@ -73,7 +74,7 @@ class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
-    this.physics = const StretchingSheetPhysics(parent: SnappingSheetPhysics()),
+    this.physics,
     this.transitionsBuilder,
     required this.builder,
   }) : pageExtentConfig = DraggableSheetExtentConfig(
@@ -86,7 +87,7 @@ class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
   final Extent initialExtent;
   final Extent minExtent;
   final Extent maxExtent;
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   @override
   final bool maintainState;
@@ -131,7 +132,7 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
-    this.physics = const StretchingSheetPhysics(parent: SnappingSheetPhysics()),
+    this.physics,
     this.transitionsBuilder,
     required this.child,
   });
@@ -145,7 +146,7 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
   final Extent minExtent;
   final Extent maxExtent;
 
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   final RouteTransitionsBuilder? transitionsBuilder;
 
@@ -223,7 +224,7 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
-    this.physics = const StretchingSheetPhysics(parent: SnappingSheetPhysics()),
+    this.physics,
     this.transitionsBuilder,
     required this.child,
   });
@@ -237,7 +238,7 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
   final Extent minExtent;
   final Extent maxExtent;
 
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   final RouteTransitionsBuilder? transitionsBuilder;
 

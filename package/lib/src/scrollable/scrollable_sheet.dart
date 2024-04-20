@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+
 import '../foundation/framework.dart';
 import '../foundation/keyboard_dismissible.dart';
 import '../foundation/physics.dart';
@@ -16,9 +17,7 @@ class ScrollableSheet extends StatelessWidget {
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
-    this.physics = const StretchingSheetPhysics(
-      parent: SnappingSheetPhysics(),
-    ),
+    this.physics,
     this.controller,
     required this.child,
   });
@@ -36,7 +35,7 @@ class ScrollableSheet extends StatelessWidget {
   final Extent maxExtent;
 
   /// {@macro SheetExtent.physics}
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
   final SheetController? controller;

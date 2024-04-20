@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
+
 import 'keyboard_dismissible.dart';
+import 'physics.dart';
 
 /// A theme for descendant sheets.
 ///
@@ -48,19 +50,35 @@ class SheetThemeData {
   /// behavior of a sheet.
   const SheetThemeData({
     this.keyboardDismissBehavior,
+    this.physics,
+    this.basePhysics,
   });
 
   /// Determines when the on-screen keyboard should be dismissed.
   final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
 
+  /// The physics that are used by the sheet.
+  final SheetPhysics? physics;
+
+  /// The parent of the [SheetPhysics] that are used by the sheet.
+  ///
+  /// If the sheet's physics has no explicit parent, then this physics
+  /// is used as the default parent. Note that this value does not affect
+  /// the parent of the [SheetThemeData.physics].
+  final SheetPhysics? basePhysics;
+
   /// Creates a copy of this object but with the given fields replaced with
   /// the new values.
   SheetThemeData copyWith({
     SheetKeyboardDismissBehavior? keyboardDismissBehavior,
+    SheetPhysics? physics,
+    SheetPhysics? basePhysics,
   }) =>
       SheetThemeData(
         keyboardDismissBehavior:
             keyboardDismissBehavior ?? this.keyboardDismissBehavior,
+        physics: physics ?? this.physics,
+        basePhysics: basePhysics ?? this.basePhysics,
       );
 
   @override
@@ -68,11 +86,15 @@ class SheetThemeData {
       identical(this, other) ||
       other is SheetThemeData &&
           runtimeType == other.runtimeType &&
-          keyboardDismissBehavior == other.keyboardDismissBehavior;
+          keyboardDismissBehavior == other.keyboardDismissBehavior &&
+          physics == other.physics &&
+          basePhysics == other.basePhysics;
 
   @override
   int get hashCode => Object.hash(
         runtimeType,
         keyboardDismissBehavior,
+        physics,
+        basePhysics,
       );
 }
