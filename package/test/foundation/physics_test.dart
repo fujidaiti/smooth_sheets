@@ -1,3 +1,4 @@
+// ignore_for_file: lines_longer_than_80_chars
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -36,6 +37,36 @@ final _positionAtMiddle = _referenceSheetMetrics.copyWith(
 );
 
 void main() {
+  group('$SheetPhysics subclasses', () {
+    test('can create dynamic inheritance relationships', () {
+      const clamp = ClampingSheetPhysics();
+      const stretch = StretchingSheetPhysics();
+      const snap = SnappingSheetPhysics();
+
+      List<Type> getChain(SheetPhysics physics) {
+        return switch (physics.parent) {
+          null => [physics.runtimeType],
+          final parent => [physics.runtimeType, ...getChain(parent)],
+        };
+      }
+
+      expect(
+        getChain(clamp.applyTo(stretch).applyTo(snap)).join(' -> '),
+        'ClampingSheetPhysics -> StretchingSheetPhysics -> SnappingSheetPhysics',
+      );
+
+      expect(
+        getChain(snap.applyTo(stretch).applyTo(clamp)).join(' -> '),
+        'SnappingSheetPhysics -> StretchingSheetPhysics -> ClampingSheetPhysics',
+      );
+
+      expect(
+        getChain(stretch.applyTo(clamp).applyTo(snap)).join(' -> '),
+        'StretchingSheetPhysics -> ClampingSheetPhysics -> SnappingSheetPhysics',
+      );
+    });
+  });
+
   group('Default configuration of $SheetPhysics', () {
     late SheetPhysics physicsUnderTest;
 
