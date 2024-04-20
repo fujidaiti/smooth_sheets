@@ -355,7 +355,10 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   SheetPhysics copyWith({SheetPhysics? parent, SpringDescription? spring}) {
-    return ClampingSheetPhysics(parent: parent ?? this.parent);
+    return ClampingSheetPhysics(
+      parent: parent ?? this.parent,
+      spring: spring ?? this.spring,
+    );
   }
 }
 
@@ -382,6 +385,7 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   }) {
     return StretchingSheetPhysics(
       parent: parent ?? this.parent,
+      spring: spring ?? this.spring,
       stretchingRange: stretchingRange ?? this.stretchingRange,
       frictionCurve: frictionCurve ?? this.frictionCurve,
     );
