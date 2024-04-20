@@ -57,14 +57,13 @@ class SheetThemeData {
   /// Determines when the on-screen keyboard should be dismissed.
   final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
 
-  /// The physics that are used by the sheet.
+  /// The physics that is used by the sheet.
   final SheetPhysics? physics;
 
-  /// The parent of the [SheetPhysics] that are used by the sheet.
+  /// The most distant ancestor of the physics that is used by the sheet.
   ///
-  /// If the sheet's physics has no explicit parent, then this physics
-  /// is used as the default parent. Note that this value does not affect
-  /// the parent of the [SheetThemeData.physics].
+  /// Note that this value is ignored if the sheet uses [SheetThemeData.physics]
+  /// as its physics.
   final SheetPhysics? basePhysics;
 
   /// Creates a copy of this object but with the given fields replaced with
