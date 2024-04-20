@@ -8,21 +8,26 @@ import 'package:flutter/widgets.dart';
 import '../internal/double_utils.dart';
 import 'sheet_extent.dart';
 
+/// The default [SpringDescription] used by [SheetPhysics] subclasses.
+///
+/// This spring has the same configuration as the resulting spring
+/// from the [SpringDescription.withDampingRatio] constructor with
+/// a ratio of `1.1`, a mass of `0.5`, and a stiffness of `100.0`.
+const kDefaultSheetSpring = SpringDescription(
+  mass: 0.5,
+  stiffness: 100.0,
+  // Use a pre-calculated value to define the spring as a const variable.
+  // See the implementation of withDampingRatio() for the formula.
+  damping: 15.5563491861,
+);
+
 const _minSettlingDuration = Duration(milliseconds: 160);
 const _defaultSettlingSpeed = 600.0; // logical pixels per second
 
 abstract class SheetPhysics {
-  const SheetPhysics({
-    this.parent,
-    SpringDescription? spring,
-  }) : _spring = spring;
+  const SheetPhysics({this.parent});
 
   final SheetPhysics? parent;
-
-  final SpringDescription? _spring;
-  SpringDescription get spring {
-    return _spring ?? const ScrollPhysics().spring;
-  }
 
   /// Create a copy of this object appending the [ancestor] to
   /// the physics chain, much like [ScrollPhysics.applyTo].
@@ -42,6 +47,29 @@ abstract class SheetPhysics {
   /// by the new values.
   SheetPhysics copyWith({SheetPhysics? parent, SpringDescription? spring});
 
+  double computeOverflow(double offset, SheetMetrics metrics);
+
+  double applyPhysicsToOffset(double offset, SheetMetrics metrics);
+
+  Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics);
+
+  Simulation? createSettlingSimulation(SheetMetrics metrics);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SheetPhysics &&
+          runtimeType == other.runtimeType &&
+          parent == other.parent);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, parent);
+}
+
+mixin SheetPhysicsMixin on SheetPhysics {
+  SpringDescription get spring => kDefaultSheetSpring;
+
+  @override
   double computeOverflow(double offset, SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.computeOverflow(offset, metrics);
@@ -57,6 +85,7 @@ abstract class SheetPhysics {
     }
   }
 
+  @override
   double applyPhysicsToOffset(double offset, SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.applyPhysicsToOffset(offset, metrics);
@@ -71,6 +100,7 @@ abstract class SheetPhysics {
     }
   }
 
+  @override
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.createBallisticSimulation(velocity, metrics);
@@ -94,6 +124,7 @@ abstract class SheetPhysics {
     );
   }
 
+  @override
   Simulation? createSettlingSimulation(SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.createSettlingSimulation(metrics);
@@ -113,16 +144,6 @@ abstract class SheetPhysics {
       ),
     );
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SheetPhysics &&
-          runtimeType == other.runtimeType &&
-          parent == other.parent);
-
-  @override
-  int get hashCode => Object.hash(runtimeType, parent);
 }
 
 /// A [Simulation] that interpolates between two values over a given duration.
@@ -321,14 +342,17 @@ class SnapToNearest with _SnapToNearestMixin {
       );
 }
 
-class SnappingSheetPhysics extends SheetPhysics {
+class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const SnappingSheetPhysics({
     super.parent,
-    super.spring,
+    this.spring = kDefaultSheetSpring,
     this.snappingBehavior = const SnapToNearestEdge(),
   });
 
   final SnappingSheetBehavior snappingBehavior;
+
+  @override
+  final SpringDescription spring;
 
   @override
   SheetPhysics copyWith({
@@ -348,7 +372,11 @@ class SnappingSheetPhysics extends SheetPhysics {
     final snapPixels = snappingBehavior.findSnapPixels(velocity, metrics);
     if (snapPixels != null && !metrics.pixels.isApprox(snapPixels)) {
       return ScrollSpringSimulation(
-          spring, metrics.pixels, snapPixels, velocity);
+        spring,
+        metrics.pixels,
+        snapPixels,
+        velocity,
+      );
     } else {
       return super.createBallisticSimulation(velocity, metrics);
     }
@@ -365,10 +393,14 @@ class SnappingSheetPhysics extends SheetPhysics {
   int get hashCode => Object.hash(snappingBehavior, super.hashCode);
 }
 
-class ClampingSheetPhysics extends SheetPhysics {
+class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const ClampingSheetPhysics({
     super.parent,
+    this.spring = kDefaultSheetSpring,
   });
+
+  @override
+  final SpringDescription spring;
 
   @override
   SheetPhysics copyWith({SheetPhysics? parent, SpringDescription? spring}) {
@@ -376,15 +408,19 @@ class ClampingSheetPhysics extends SheetPhysics {
   }
 }
 
-class StretchingSheetPhysics extends SheetPhysics {
+class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const StretchingSheetPhysics({
     super.parent,
     this.stretchingRange = const Extent.proportional(0.12),
     this.frictionCurve = Curves.easeOutSine,
+    this.spring = kDefaultSheetSpring,
   });
 
   final Extent stretchingRange;
   final Curve frictionCurve;
+
+  @override
+  final SpringDescription spring;
 
   @override
   SheetPhysics copyWith({
