@@ -12,7 +12,7 @@ class ScrollableSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   // TODO: Expose this from the ScrollableSheet's constructor
   final double maxScrollSpeedToInterrupt;
-  
+
   @override
   final SpringDescription spring;
 
