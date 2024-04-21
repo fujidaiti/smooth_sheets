@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2 Apr 21, 2024
+
+- Add new SheetNotifications for drag events (#92)
+- Add SheetTheme (#93)
+- Add a way to specify default physics and default ancestor physics (#96)
+
 ## 0.4.1 Mar 20, 2024
 
 - Fix mistakes in the documentation of `BottomBarVisibility` and `ConditionalStickyBottomBarVisibility` which may mislead readers.
