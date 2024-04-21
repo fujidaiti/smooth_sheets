@@ -17,7 +17,7 @@ const kDefaultSheetSpring = SpringDescription(
   stiffness: 100.0,
   // Use a pre-calculated value to define the spring as a const variable.
   // See the implementation of withDampingRatio() for the formula.
-  damping: 15.5563491861,
+  damping: 15.5563491861, // 1.1 * 2.0 * sqrt(0.5 * 100.0)
 );
 
 const _minSettlingDuration = Duration(milliseconds: 160);
