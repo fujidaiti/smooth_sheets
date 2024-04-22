@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+
 import 'sheet_extent.dart';
 
 class SheetController extends ChangeNotifier
@@ -110,6 +111,40 @@ class SheetControllerScope extends InheritedWidget {
   @override
   bool updateShouldNotify(SheetControllerScope oldWidget) {
     return controller != oldWidget.controller;
+  }
+}
+
+/// A widget that ensures that a [SheetController] is available in the subtree.
+///
+/// The [builder] callback will be called with the [controller] if it is
+/// explicitly provided and is not null, or a [SheetController] that is hosted
+/// in the nearest ancestor [SheetControllerScope]. If neither is found, a newly
+/// created [SheetController] hosted in a [DefaultSheetController] will be
+/// used as a fallback.
+@internal
+class ImplicitSheetControllerScope extends StatelessWidget {
+  const ImplicitSheetControllerScope({
+    super.key,
+    this.controller,
+    required this.builder,
+  });
+
+  final SheetController? controller;
+  final Widget Function(BuildContext, SheetController) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (controller ?? DefaultSheetController.maybeOf(context)) {
+      final controller? => builder(context, controller),
+      null => DefaultSheetController(
+          child: Builder(
+            builder: (context) {
+              final controller = DefaultSheetController.of(context);
+              return builder(context, controller);
+            },
+          ),
+        ),
+    };
   }
 }
 

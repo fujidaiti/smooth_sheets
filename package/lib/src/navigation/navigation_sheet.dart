@@ -101,13 +101,18 @@ class NavigationSheetState extends State<NavigationSheet>
     final keyboardDismissBehavior =
         widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
 
-    Widget result = SheetContainer(
-      config: const _NavigationSheetExtentConfig(),
+    Widget result = ImplicitSheetControllerScope(
       controller: widget.controller,
-      onExtentChanged: (extent) {
-        _extent = extent as _NavigationSheetExtent?;
+      builder: (context, controller) {
+        return SheetContainer(
+          config: const _NavigationSheetExtentConfig(),
+          controller: widget.controller ?? DefaultSheetController.of(context),
+          onExtentChanged: (extent) {
+            _extent = extent as _NavigationSheetExtent?;
+          },
+          child: widget.child,
+        );
       },
-      child: widget.child,
     );
 
     if (keyboardDismissBehavior != null) {

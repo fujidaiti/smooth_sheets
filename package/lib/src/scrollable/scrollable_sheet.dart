@@ -49,15 +49,20 @@ class ScrollableSheet extends StatelessWidget {
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
 
-    Widget result = SheetContainer(
+    Widget result = ImplicitSheetControllerScope(
       controller: controller,
-      config: ScrollableSheetExtentConfig(
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        physics: physics,
-      ),
-      child: PrimarySheetContentScrollController(child: child),
+      builder: (context, controller) {
+        return SheetContainer(
+          controller: controller,
+          config: ScrollableSheetExtentConfig(
+            initialExtent: initialExtent,
+            minExtent: minExtent,
+            maxExtent: maxExtent,
+            physics: physics,
+          ),
+          child: PrimarySheetContentScrollController(child: child),
+        );
+      },
     );
 
     if (keyboardDismissBehavior != null) {
