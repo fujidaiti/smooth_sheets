@@ -71,18 +71,23 @@ class DraggableSheet extends StatelessWidget {
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
 
-    Widget result = SheetContainer(
+    Widget result = ImplicitSheetControllerScope(
       controller: controller,
-      config: DraggableSheetExtentConfig(
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        physics: physics,
-      ),
-      child: SheetDraggable(
-        behavior: hitTestBehavior,
-        child: child,
-      ),
+      builder: (context, controller) {
+        return SheetContainer(
+          controller: controller,
+          config: DraggableSheetExtentConfig(
+            initialExtent: initialExtent,
+            minExtent: minExtent,
+            maxExtent: maxExtent,
+            physics: physics,
+          ),
+          child: SheetDraggable(
+            behavior: hitTestBehavior,
+            child: child,
+          ),
+        );
+      },
     );
 
     if (keyboardDismissBehavior != null) {

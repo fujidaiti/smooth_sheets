@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
+
 import 'sheet_controller.dart';
 import 'sheet_extent.dart';
 
 class SheetContainer extends StatelessWidget {
   const SheetContainer({
     super.key,
-    this.controller,
     this.onExtentChanged,
+    required this.controller,
     required this.config,
     required this.child,
   });
 
-  final SheetController? controller;
+  final SheetController controller;
   final ValueChanged<SheetExtent?>? onExtentChanged;
   final SheetExtentConfig config;
   final Widget child;
@@ -21,7 +23,7 @@ class SheetContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return SheetExtentScope(
       config: config,
-      controller: controller ?? SheetControllerScope.maybeOf(context),
+      controller: controller,
       onExtentChanged: onExtentChanged,
       child: Builder(
         builder: (context) {
