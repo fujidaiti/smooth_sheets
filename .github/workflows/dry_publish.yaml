@@ -27,7 +27,7 @@ jobs:
           JSON_OUTPUT=$(cat pana-report.json | jq -c .)
           echo "::set-output name=json_output::$JSON_OUTPUT"
 
-      - uses: fujidaiti/dart-package-inspector@v1
+      - uses: fujidaiti/dart-package-inspector@v2
         with:
           report: ${{ steps.analysis.outputs.json_output }}
           min-convention-points: 30
