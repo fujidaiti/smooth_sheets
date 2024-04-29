@@ -38,7 +38,7 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
 class NavigationSheetState extends State<NavigationSheet>
     with TransitionAwareStateMixin, TickerProviderStateMixin
     implements SheetContext {
-  _NavigationSheetExtent? _extent;
+  _NavigationSheetExtentProxy? _extent;
 
   @override
   TickerProvider get vsync => this;
@@ -105,10 +105,18 @@ class NavigationSheetState extends State<NavigationSheet>
       controller: widget.controller,
       builder: (context, controller) {
         return SheetContainer(
-          config: const _NavigationSheetExtentConfig(),
-          controller: widget.controller ?? DefaultSheetController.of(context),
-          onExtentChanged: (extent) {
-            _extent = extent as _NavigationSheetExtent?;
+          controller: controller,
+          config: const SheetExtentConfig(
+            minExtent: Extent.pixels(0),
+            maxExtent: Extent.proportional(1),
+            // TODO: Use more appropriate physics.
+            physics: ClampingSheetPhysics(),
+            debugLabel: 'NavigationSheet',
+          ),
+          initializer: (extent) {
+            final proxy = _NavigationSheetExtentProxy(inner: extent);
+            _extent = proxy;
+            return proxy;
           },
           child: widget.child,
         );
@@ -145,32 +153,26 @@ abstract class NavigationSheetExtentDelegate implements Listenable {
   void beginActivity(SheetActivity activity);
 }
 
-class _NavigationSheetExtentConfig extends SheetExtentConfig {
-  const _NavigationSheetExtentConfig();
+// class _NavigationSheetExtentConfig extends SheetExtentConfig {
+//   const _NavigationSheetExtentConfig();
 
-  @override
-  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
-    return oldExtent is! _NavigationSheetExtent;
-  }
+//   @override
+//   bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
+//     return oldExtent is! _NavigationSheetExtent;
+//   }
 
-  @override
-  SheetExtent build(BuildContext context, SheetContext sheetContext) {
-    return _NavigationSheetExtent(
-      context: sheetContext,
-      // TODO: Use more appropriate physics.
-      physics: const ClampingSheetPhysics(),
-    );
-  }
-}
+//   @override
+//   SheetExtent build(BuildContext context, SheetContext sheetContext) {
+//     return _NavigationSheetExtent(
+//       context: sheetContext,
+//       // TODO: Use more appropriate physics.
+//       physics: const ClampingSheetPhysics(),
+//     );
+//   }
+// }
 
-class _NavigationSheetExtent extends SheetExtent {
-  _NavigationSheetExtent({
-    required super.context,
-    required super.physics,
-  }) : super(
-          minExtent: const Extent.pixels(0),
-          maxExtent: const Extent.proportional(1),
-        );
+class _NavigationSheetExtentProxy extends _SheetExtentProxy {
+  const _NavigationSheetExtentProxy({required super.inner});
 
   @override
   Size? get contentDimensions {
@@ -329,4 +331,135 @@ class _ProxySheetActivity extends SheetActivity {
     super.didChangeContentDimensions(oldDimensions);
     _syncPixelsImplicitly();
   }
+}
+
+class _SheetExtentProxy implements SheetExtent {
+  const _SheetExtentProxy({required this.inner});
+
+  final SheetExtent inner;
+
+  @override
+  SheetActivity get activity => inner.activity;
+
+  @override
+  SheetExtentConfig get config => inner.config;
+
+  @override
+  Size? get contentDimensions => inner.contentDimensions;
+
+  @override
+  SheetContext get context => inner.context;
+
+  @override
+  SheetExtentDelegate get delegate => inner.delegate;
+
+  @override
+  bool get hasListeners => inner.hasListeners;
+
+  @override
+  bool get hasPixels => inner.hasPixels;
+
+  @override
+  bool get isPixelsInBounds => inner.isPixelsInBounds;
+
+  @override
+  bool get isPixelsOutOfBounds => inner.isPixelsOutOfBounds;
+
+  @override
+  Extent get maxExtent => inner.maxExtent;
+
+  @override
+  double? get maxPixels => inner.maxPixels;
+
+  @override
+  double? get maxViewPixels => inner.maxViewPixels;
+
+  @override
+  SheetMetrics get metrics => inner.metrics;
+
+  @override
+  Extent get minExtent => inner.minExtent;
+
+  @override
+  double? get minPixels => inner.minPixels;
+
+  @override
+  double? get minViewPixels => inner.minViewPixels;
+
+  @override
+  SheetPhysics get physics => inner.physics;
+
+  @override
+  double? get pixels => inner.pixels;
+
+  @override
+  SheetMetricsSnapshot get snapshot => inner.snapshot;
+
+  @override
+  SheetStatus get status => inner.status;
+
+  @override
+  double? get viewPixels => inner.viewPixels;
+
+  @override
+  ViewportDimensions? get viewportDimensions => inner.viewportDimensions;
+
+  @override
+  void addListener(VoidCallback listener) => inner.addListener(listener);
+
+  @override
+  void notifyListeners() => inner.notifyListeners();
+
+  @override
+  void removeListener(VoidCallback listener) => inner.removeListener(listener);
+
+  @override
+  Future<void> animateTo(
+    Extent newExtent, {
+    Curve curve = Curves.easeInOut,
+    Duration duration = const Duration(milliseconds: 300),
+  }) =>
+      inner.animateTo(newExtent, curve: curve, duration: duration);
+
+  @override
+  void applyNewConfig(SheetExtentConfig config) => inner.applyNewConfig(config);
+
+  @override
+  void applyNewContentDimensions(Size contentDimensions) =>
+      inner.applyNewContentDimensions(contentDimensions);
+
+  @override
+  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) =>
+      inner.applyNewViewportDimensions(viewportDimensions);
+
+  @override
+  void beginActivity(SheetActivity activity) => inner.beginActivity(activity);
+
+  @override
+  void dispose() => inner.dispose();
+
+  @override
+  void goBallistic(double velocity) => inner.goBallistic(velocity);
+
+  @override
+  void goBallisticWith(Simulation simulation) =>
+      inner.goBallisticWith(simulation);
+
+  @override
+  void goIdle() => inner.goIdle();
+
+  @override
+  void settle() => settle();
+
+  @override
+  void takeOver(SheetExtent other) => inner.takeOver(other);
+
+  @override
+  void markAsDimensionsChanged() => inner.markAsDimensionsChanged();
+
+  @override
+  void markAsDimensionsWillChange() => inner.markAsDimensionsWillChange();
+
+  @override
+  void onDimensionsFinalized() => inner.onDimensionsFinalized();
 }

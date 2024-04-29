@@ -68,6 +68,7 @@ class DraggableSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
+    final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
 
@@ -76,11 +77,13 @@ class DraggableSheet extends StatelessWidget {
       builder: (context, controller) {
         return SheetContainer(
           controller: controller,
+          delegate: const DraggableSheetExtentDelegate(),
           config: DraggableSheetExtentConfig(
             initialExtent: initialExtent,
             minExtent: minExtent,
             maxExtent: maxExtent,
             physics: physics,
+            debugLabel: 'DraggableSheet',
           ),
           child: SheetDraggable(
             behavior: hitTestBehavior,
@@ -101,99 +104,47 @@ class DraggableSheet extends StatelessWidget {
   }
 }
 
-/// A configuration of a [DraggableSheetExtent].
+class DraggableSheetExtentDelegate with SheetExtentDelegate {
+  const DraggableSheetExtentDelegate();
+
+  @override
+  SheetActivity createIdleActivity() {
+    return _IdleDraggableSheetActivity();
+  }
+}
+
 class DraggableSheetExtentConfig extends SheetExtentConfig {
   const DraggableSheetExtentConfig({
     required this.initialExtent,
-    required this.minExtent,
-    required this.maxExtent,
-    required this.physics,
-  });
-
-  /// {@macro DraggableSheetExtent.initialExtent}
-  final Extent initialExtent;
-
-  /// {@macro SheetExtent.minExtent}
-  final Extent minExtent;
-
-  /// {@macro SheetExtent.maxExtent}
-  final Extent maxExtent;
-
-  /// {@macro SheetExtent.physics}
-  final SheetPhysics? physics;
-
-  @override
-  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
-    return oldExtent is! DraggableSheetExtent ||
-        oldExtent.minExtent != minExtent ||
-        oldExtent.maxExtent != maxExtent ||
-        oldExtent.initialExtent != initialExtent ||
-        oldExtent.physics != _resolvePhysics(context);
-  }
-
-  @override
-  SheetExtent build(BuildContext context, SheetContext sheetContext) {
-    return DraggableSheetExtent(
-      context: sheetContext,
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
-      physics: _resolvePhysics(context),
-    );
-  }
-
-  SheetPhysics _resolvePhysics(BuildContext context) {
-    const fallback = StretchingSheetPhysics(parent: SnappingSheetPhysics());
-    final theme = SheetTheme.maybeOf(context);
-    final base = theme?.basePhysics;
-    if (physics case final physics?) {
-      return base != null ? physics.applyTo(base) : physics;
-    } else if (theme?.physics case final inherited?) {
-      // Do not apply the base physics to the inherited physics.
-      return inherited;
-    } else {
-      return base != null ? fallback.applyTo(base) : fallback;
-    }
-  }
-}
-
-/// [SheetExtent] for a [DraggableSheet].
-class DraggableSheetExtent extends SheetExtent {
-  DraggableSheetExtent({
-    required super.context,
-    required super.physics,
     required super.minExtent,
     required super.maxExtent,
-    required this.initialExtent,
-  }) {
-    goIdle();
-  }
+    required super.physics,
+    super.debugLabel,
+  });
 
-  /// {@template DraggableSheetExtent.initialExtent}
-  /// The initial extent of the sheet when it is first shown.
-  /// {@endtemplate}
   final Extent initialExtent;
 
   @override
-  void goIdle() {
-    beginActivity(_IdleDraggableSheetActivity(
-      initialExtent: initialExtent,
-    ));
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is DraggableSheetExtentConfig &&
+        other.initialExtent == initialExtent &&
+        super == other;
   }
+
+  @override
+  int get hashCode => Object.hash(initialExtent, super.hashCode);
 }
 
 class _IdleDraggableSheetActivity extends IdleSheetActivity {
-  _IdleDraggableSheetActivity({
-    required this.initialExtent,
-  });
-
-  final Extent initialExtent;
+  _IdleDraggableSheetActivity();
 
   @override
   void didChangeContentDimensions(Size? oldDimensions) {
     super.didChangeContentDimensions(oldDimensions);
-    if (pixels == null) {
-      setPixels(initialExtent.resolve(delegate.contentDimensions!));
+    final config = delegate.config;
+    if (pixels == null && config is DraggableSheetExtentConfig) {
+      setPixels(config.initialExtent.resolve(delegate.contentDimensions!));
     }
   }
 }

@@ -5,18 +5,21 @@ import 'package:flutter/widgets.dart';
 import 'sheet_controller.dart';
 import 'sheet_extent.dart';
 
+// TODO: Move this class to a separate file.
 class SheetContainer extends StatelessWidget {
   const SheetContainer({
     super.key,
-    this.onExtentChanged,
+    this.initializer,
     required this.controller,
     required this.config,
     required this.child,
+    this.delegate = const SheetExtentDelegate(),
   });
 
   final SheetController controller;
-  final ValueChanged<SheetExtent?>? onExtentChanged;
   final SheetExtentConfig config;
+  final SheetExtentDelegate delegate;
+  final SheetExtentInitializer? initializer;
   final Widget child;
 
   @override
@@ -24,7 +27,8 @@ class SheetContainer extends StatelessWidget {
     return SheetExtentScope(
       config: config,
       controller: controller,
-      onExtentChanged: onExtentChanged,
+      initializer: initializer,
+      delegate: delegate,
       child: Builder(
         builder: (context) {
           return SheetViewport(

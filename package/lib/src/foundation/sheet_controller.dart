@@ -53,6 +53,18 @@ class SheetController extends ChangeNotifier
     }
   }
 
+  SheetExtent createSheetExtent({
+    required SheetContext context,
+    required SheetExtentConfig config,
+    required SheetExtentDelegate delegate,
+  }) {
+    return SheetExtent(
+      context: context,
+      config: config,
+      delegate: delegate,
+    );
+  }
+
   @override
   void dispose() {
     detach(_client);

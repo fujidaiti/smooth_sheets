@@ -1,9 +1,8 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../draggable/draggable_sheet.dart';
 import '../internal/double_utils.dart';
-import '../scrollable/scrollable_sheet.dart';
-import '../scrollable/scrollable_sheet_extent.dart';
 import 'activities.dart';
 import 'physics.dart';
 import 'sheet_controller.dart';
@@ -103,25 +102,26 @@ class FixedExtent implements Extent {
 /// [Listenable] of the extent, but only notifies its listeners between frames.
 ///
 /// See also:
-/// - [DraggableSheetExtent], which is a sheet extent for [DraggableSheet].
-/// - [ScrollableSheetExtent], which is a sheet extent for [ScrollableSheet].
 /// - [SheetController], which can be attached to a sheet to control its extent.
 /// - [SheetExtentScope], which creates a [SheetExtent], manages its lifecycle,
 ///   and exposes it to the descendant widgets.
-abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
+// TODO: Reimplement this class as ValueListenable<SheetMetrics?>
+class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   /// Creates an object that manages the extent of a sheet.
   SheetExtent({
     required this.context,
-    required this.physics,
-    required this.minExtent,
-    required this.maxExtent,
-  }) {
+    required this.delegate,
+    required SheetExtentConfig config,
+  }) : _config = config {
     _metrics = _SheetMetricsRef(this);
-    beginActivity(IdleSheetActivity());
+    goIdle();
   }
 
   /// A handle to the owner of this object.
   final SheetContext context;
+
+  SheetExtentConfig get config => _config;
+  SheetExtentConfig _config;
 
   /// {@template SheetExtent.physics}
   /// How the sheet extent should respond to user input.
@@ -129,21 +129,23 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   /// This determines how the sheet will behave when over-dragged or
   /// under-dragged, or when the user stops dragging.
   /// {@endtemplate}
-  final SheetPhysics physics;
+  SheetPhysics get physics => config.physics;
 
   /// {@template SheetExtent.minExtent}
   /// The minimum extent of the sheet.
   ///
   /// The sheet may below this extent if the [physics] allows it.
   /// {@endtemplate}
-  final Extent minExtent;
+  Extent get minExtent => config.minExtent;
 
   /// {@template SheetExtent.maxExtent}
   /// The maximum extent of the sheet.
   ///
   /// The sheet may exceed this extent if the [physics] allows it.
   /// {@endtemplate}
-  final Extent maxExtent;
+  Extent get maxExtent => config.maxExtent;
+
+  final SheetExtentDelegate delegate;
 
   SheetActivity? _activity;
   double? _minPixels;
@@ -226,6 +228,19 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     }
   }
 
+  @mustCallSuper
+  void applyNewConfig(SheetExtentConfig config) {
+    if (_config != config) {
+      final oldMinPixels = minPixels;
+      final oldMaxPixels = maxPixels;
+      _config = config;
+      _invalidateBoundaryConditions();
+      if (oldMinPixels != minPixels || oldMaxPixels != maxPixels) {
+        _activity!.didChangeContentDimensions(_oldContentDimensions);
+      }
+    }
+  }
+
   Size? _oldContentDimensions;
   ViewportDimensions? _oldViewportDimensions;
   int _markAsDimensionsWillChangeCallCount = 0;
@@ -234,14 +249,20 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   void markAsDimensionsWillChange() {
     assert(() {
       if (_markAsDimensionsWillChangeCallCount == 0) {
+        // Ensure that the number of calls to markAsDimensionsWillChange()
+        // matches the number of calls to markAsDimensionsChanged().
         WidgetsBinding.instance.addPostFrameCallback((_) {
           assert(
             _markAsDimensionsWillChangeCallCount == 0,
             _markAsDimensionsWillChangeCallCount > 0
-                ? 'markAsDimensionsWillChange() was called more times'
-                    'than markAsDimensionsChanged() in a frame.'
-                : 'markAsDimensionsChanged() was called more times '
+                ? _debugMessage(
+                    'markAsDimensionsWillChange() was called more times '
+                    'than markAsDimensionsChanged() in a frame.',
+                  )
+                : _debugMessage(
+                    'markAsDimensionsChanged() was called more times '
                     'than markAsDimensionsWillChange() in a frame.',
+                  ),
           );
         });
       }
@@ -255,8 +276,10 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   void markAsDimensionsChanged() {
     assert(
       _markAsDimensionsWillChangeCallCount > 0,
-      'markAsDimensionsChanged() called without '
-      'a matching call to markAsDimensionsWillChange().',
+      _debugMessage(
+        'markAsDimensionsChanged() called without '
+        'a matching call to markAsDimensionsWillChange().',
+      ),
     );
 
     _markAsDimensionsWillChangeCallCount--;
@@ -269,7 +292,9 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   void onDimensionsFinalized() {
     assert(
       _markAsDimensionsWillChangeCallCount == 0,
-      'Do not call this method until all dimensions changes are finalized.',
+      _debugMessage(
+        'Do not call this method until all dimensions changes are finalized.',
+      ),
     );
 
     _activity!.didFinalizeDimensions(
@@ -298,7 +323,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   }
 
   void goIdle() {
-    beginActivity(IdleSheetActivity());
+    beginActivity(delegate.createIdleActivity());
   }
 
   void goBallistic(double velocity) {
@@ -312,8 +337,7 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   }
 
   void goBallisticWith(Simulation simulation) {
-    assert(hasPixels);
-    beginActivity(BallisticSheetActivity(simulation: simulation));
+    beginActivity(delegate.createBallisticActivity(simulation));
   }
 
   void settle() {
@@ -361,6 +385,59 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
       beginActivity(activity);
       return activity.done;
     }
+  }
+
+  String _debugMessage(String message) {
+    return switch (config.debugLabel) {
+      null => message,
+      final debugLabel => '$debugLabel: $message',
+    };
+  }
+}
+
+class SheetExtentConfig {
+  const SheetExtentConfig({
+    required this.minExtent,
+    required this.maxExtent,
+    required this.physics,
+    this.debugLabel,
+  });
+
+  final Extent minExtent;
+  final Extent maxExtent;
+  final SheetPhysics physics;
+  final String? debugLabel;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other is SheetExtentConfig &&
+            runtimeType == other.runtimeType &&
+            minExtent == other.minExtent &&
+            maxExtent == other.maxExtent &&
+            physics == other.physics &&
+            debugLabel == other.debugLabel);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        minExtent,
+        maxExtent,
+        physics,
+        debugLabel,
+      );
+}
+
+mixin class SheetExtentDelegate {
+  const SheetExtentDelegate();
+
+  SheetActivity createBallisticActivity(Simulation simulation) {
+    return BallisticSheetActivity(simulation: simulation);
+  }
+
+  SheetActivity createIdleActivity() {
+    return IdleSheetActivity();
   }
 }
 
@@ -636,12 +713,14 @@ abstract class SheetContext {
   BuildContext? get notificationContext;
 }
 
-/// Configuration of a [SheetExtent].
-abstract class SheetExtentConfig {
-  const SheetExtentConfig();
-  SheetExtent build(BuildContext context, SheetContext sheetContext);
-  bool shouldRebuild(BuildContext context, SheetExtent oldExtent);
-}
+// /// Configuration of a [SheetExtent].
+// abstract class SheetExtentConfig {
+//   const SheetExtentConfig();
+//   SheetExtent build(BuildContext context, SheetContext sheetContext);
+//   bool shouldRebuild(BuildContext context, SheetExtent oldExtent);
+// }
+
+typedef SheetExtentInitializer = SheetExtent Function(SheetExtent);
 
 /// A widget that creates a [SheetExtent], manages its lifecycle,
 /// and exposes it to the descendant widgets.
@@ -649,28 +728,24 @@ class SheetExtentScope extends StatefulWidget {
   /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
+    required this.controller,
+    this.initializer,
+    this.isPrimary = true,
     required this.config,
-    this.controller,
-    this.onExtentChanged,
+    this.delegate = const SheetExtentDelegate(),
     required this.child,
   });
 
   /// The [SheetController] that will be attached to the created [SheetExtent].
-  final SheetController? controller;
+  final SheetController controller;
 
-  /// The configuration of the [SheetExtent] manged by this widget.
-  ///
-  /// The [SheetExtentScope] will recreate the [SheetExtent] whenever
-  /// it is rebuilt with a [config] that is not identical to the previous one.
   final SheetExtentConfig config;
 
-  /// Called whenever the [SheetExtent] changes.
-  ///
-  /// This callback will be called in lifecycle methods such as
-  /// [State.initState], [State.didUpdateWidget] or [State.dispose].
-  /// The passed [SheetExtent] will be `null` when it is called
-  /// in [State.dispose].
-  final ValueChanged<SheetExtent?>? onExtentChanged;
+  final SheetExtentDelegate delegate;
+
+  final SheetExtentInitializer? initializer;
+
+  final bool isPrimary;
 
   /// The widget below this widget in the tree.
   final Widget child;
@@ -686,7 +761,7 @@ class SheetExtentScope extends StatefulWidget {
   // TODO: Add 'useRoot' option
   static SheetExtent? maybeOf(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<_InheritedSheetExtent>()
+        .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>()
         ?.extent;
   }
 
@@ -703,7 +778,7 @@ class SheetExtentScope extends StatefulWidget {
 class _SheetExtentScopeState extends State<SheetExtentScope>
     with TickerProviderStateMixin
     implements SheetContext {
-  SheetExtent? _extent;
+  late SheetExtent _extent;
 
   @override
   TickerProvider get vsync => this;
@@ -712,66 +787,97 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
   BuildContext? get notificationContext => mounted ? context : null;
 
   @override
+  void initState() {
+    super.initState();
+    _extent = _createExtent();
+  }
+
+  @override
   void dispose() {
-    assert(_extent != null);
-    widget.onExtentChanged?.call(null);
-    widget.controller?.detach(_extent);
-    _extent!.dispose();
+    _discard(_extent);
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final oldExtent = _extent;
-    if (oldExtent == null || widget.config.shouldRebuild(context, oldExtent)) {
-      final newExtent = widget.config.build(context, this);
-      widget.controller?.attach(newExtent);
-      widget.onExtentChanged?.call(newExtent);
-      _extent = newExtent;
-    }
+    _invalidateExtentOwnership();
   }
 
   @override
   void didUpdateWidget(SheetExtentScope oldWidget) {
     super.didUpdateWidget(oldWidget);
-    assert(_extent != null);
-    final oldExtent = _extent!;
-
-    if (widget.config.shouldRebuild(context, oldExtent)) {
-      _extent = widget.config.build(context, this)..takeOver(oldExtent);
-      widget.onExtentChanged?.call(_extent);
+    final oldExtent = _extent;
+    if (widget.controller != oldWidget.controller ||
+        widget.delegate != oldWidget.delegate) {
+      _extent = _createExtent()..takeOver(oldExtent);
+      _discard(oldExtent);
+    } else if (widget.config != oldWidget.config) {
+      _extent.applyNewConfig(widget.config);
     }
+    _invalidateExtentOwnership();
+  }
 
-    if (widget.controller != oldWidget.controller || _extent != oldExtent) {
-      oldWidget.controller?.detach(oldExtent);
-      widget.controller?.attach(_extent!);
-    }
+  SheetExtent _createExtent() {
+    final extent = widget.controller.createSheetExtent(
+      context: this,
+      config: widget.config,
+      delegate: widget.delegate,
+    );
 
-    if (oldExtent != _extent) {
-      oldExtent.dispose();
+    return switch (widget.initializer) {
+      null => extent,
+      final initializer => initializer(extent),
+    };
+  }
+
+  void _discard(SheetExtent extent) {
+    widget.controller.detach(extent);
+    extent.dispose();
+  }
+
+  void _invalidateExtentOwnership() {
+    assert(
+      () {
+        final parentScope = context
+            .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>();
+        return !widget.isPrimary ||
+            parentScope == null ||
+            !parentScope.isPrimary;
+      }(),
+      'Nesting SheetExtentScope widgets that are marked as primary '
+      'is not allowed. Typically, this error occurs when you try to nest '
+      'sheet widgets such as DraggableSheet or ScrollableSheet.',
+    );
+
+    if (widget.isPrimary) {
+      widget.controller.attach(_extent);
+    } else {
+      widget.controller.detach(_extent);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    assert(_extent != null);
-    return _InheritedSheetExtent(
-      extent: _extent!,
+    return _InheritedSheetExtentScope(
+      extent: _extent,
+      isPrimary: widget.isPrimary,
       child: widget.child,
     );
   }
 }
 
-class _InheritedSheetExtent extends InheritedWidget {
-  const _InheritedSheetExtent({
+class _InheritedSheetExtentScope extends InheritedWidget {
+  const _InheritedSheetExtentScope({
     required this.extent,
+    required this.isPrimary,
     required super.child,
   });
 
   final SheetExtent extent;
+  final bool isPrimary;
 
   @override
-  bool updateShouldNotify(_InheritedSheetExtent oldWidget) =>
-      extent != oldWidget.extent;
+  bool updateShouldNotify(_InheritedSheetExtentScope oldWidget) =>
+      extent != oldWidget.extent || isPrimary != oldWidget.isPrimary;
 }

@@ -64,6 +64,7 @@ class SheetThemeData {
   ///
   /// Note that this value is ignored if the sheet uses [SheetThemeData.physics]
   /// as its physics.
+  // TODO: Remove this
   final SheetPhysics? basePhysics;
 
   /// Creates a copy of this object but with the given fields replaced with

@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/activities.dart';
-import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
-import '../foundation/theme.dart';
 import '../internal/double_utils.dart';
 import 'delegatable_scroll_position.dart';
 import 'scrollable_sheet_physics.dart';
@@ -15,102 +13,40 @@ import 'scrollable_sheet_physics.dart';
 class ScrollableSheetExtentConfig extends SheetExtentConfig {
   const ScrollableSheetExtentConfig({
     required this.initialExtent,
-    required this.minExtent,
-    required this.maxExtent,
-    required this.physics,
-  });
-
-  /// {@macro ScrollableSheetExtent.initialExtent}
-  final Extent initialExtent;
-
-  /// {@macro SheetExtent.minExtent}
-  final Extent minExtent;
-
-  /// {@macro SheetExtent.maxExtent}
-  final Extent maxExtent;
-
-  /// {@macro SheetExtent.physics}
-  final SheetPhysics? physics;
-
-  @override
-  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
-    return oldExtent is! ScrollableSheetExtent ||
-        oldExtent.initialExtent != initialExtent ||
-        oldExtent.minExtent != minExtent ||
-        oldExtent.maxExtent != maxExtent ||
-        oldExtent.physics != _resolvePhysics(context);
-  }
-
-  @override
-  SheetExtent build(BuildContext context, SheetContext sheetContext) {
-    return ScrollableSheetExtent(
-      context: sheetContext,
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
-      physics: _resolvePhysics(context),
-    );
-  }
-
-  SheetPhysics _resolvePhysics(BuildContext context) {
-    const fallback = StretchingSheetPhysics(parent: SnappingSheetPhysics());
-    final theme = SheetTheme.maybeOf(context);
-    final base = theme?.basePhysics;
-    if (physics case final physics?) {
-      return base != null ? physics.applyTo(base) : physics;
-    } else if (theme?.physics case final inherited?) {
-      // Do not apply the base physics to the inherited physics.
-      return inherited;
-    } else {
-      return base != null ? fallback.applyTo(base) : fallback;
-    }
-  }
-}
-
-class ScrollableSheetExtent extends SheetExtent {
-  ScrollableSheetExtent({
-    required this.initialExtent,
     required super.minExtent,
     required super.maxExtent,
-    required super.context,
-    required SheetPhysics physics,
-  }) : super(
-          // TODO: Do this in the build method of ExtentConfig
-          physics: physics is ScrollableSheetPhysics
-              ? physics
-              : ScrollableSheetPhysics(parent: physics),
-        ) {
-    goIdle();
-  }
+    required super.physics,
+    super.debugLabel,
+  });
 
-  /// {@template ScrollableSheetExtent.initialExtent}
-  /// The initial extent of the sheet when it is first shown.
-  /// {@endtemplate}
   final Extent initialExtent;
 
-  ScrollPositionDelegate? get _scrollPositionDelegate {
-    return switch (activity) {
-      final ScrollPositionDelegate delegate => delegate,
-      _ => null,
-    };
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ScrollableSheetExtentConfig &&
+        other.initialExtent == initialExtent &&
+        super == other;
   }
 
   @override
-  void goIdle() {
-    beginActivity(
-      _ContentIdleScrollDrivenSheetActivity(
-        initialExtent: initialExtent,
-      ),
-    );
+  int get hashCode => Object.hash(
+        initialExtent,
+        super.hashCode,
+      );
+}
+
+class ScrollableSheetExtentDelegate with SheetExtentDelegate {
+  const ScrollableSheetExtentDelegate();
+
+  @override
+  SheetActivity createIdleActivity() {
+    return _ContentIdleScrollDrivenSheetActivity();
   }
 
   @override
-  void goBallisticWith(Simulation simulation) {
-    beginActivity(
-      _DragInterruptibleBallisticSheetActivity(
-        simulation: simulation,
-      ),
-    );
+  SheetActivity createBallisticActivity(Simulation simulation) {
+    return _DragInterruptibleBallisticSheetActivity(simulation: simulation);
   }
 }
 
@@ -123,7 +59,7 @@ class SheetContentScrollController extends ScrollController {
     required this.extent,
   });
 
-  final ScrollableSheetExtent extent;
+  final SheetExtent extent;
 
   @override
   ScrollPosition createScrollPosition(
@@ -132,7 +68,10 @@ class SheetContentScrollController extends ScrollController {
     ScrollPosition? oldPosition,
   ) {
     return DelegatableScrollPosition(
-      getDelegate: () => extent._scrollPositionDelegate,
+      getDelegate: () => switch (extent.activity) {
+        final ScrollPositionDelegate delegate => delegate,
+        _ => null,
+      },
       initialPixels: initialScrollOffset,
       keepScrollOffset: keepScrollOffset,
       debugLabel: debugLabel,
@@ -363,11 +302,7 @@ abstract class _SingleContentScrollDrivenSheetActivity
 
 class _ContentIdleScrollDrivenSheetActivity
     extends _ContentScrollDrivenSheetActivity {
-  _ContentIdleScrollDrivenSheetActivity({
-    required this.initialExtent,
-  });
-
-  final Extent initialExtent;
+  _ContentIdleScrollDrivenSheetActivity();
 
   @override
   SheetStatus get status => SheetStatus.stable;
@@ -375,8 +310,9 @@ class _ContentIdleScrollDrivenSheetActivity
   @override
   void didChangeContentDimensions(Size? oldDimensions) {
     super.didChangeContentDimensions(oldDimensions);
-    if (pixels == null) {
-      setPixels(initialExtent.resolve(delegate.contentDimensions!));
+    final config = delegate.config;
+    if (pixels == null && config is ScrollableSheetExtentConfig) {
+      setPixels(config.initialExtent.resolve(delegate.contentDimensions!));
     }
   }
 }

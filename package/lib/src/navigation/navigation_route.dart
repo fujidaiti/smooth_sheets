@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../foundation/activities.dart';
 import '../foundation/framework.dart';
+import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
 import 'navigation_sheet.dart';
 
 mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
   SheetExtentConfig get pageExtentConfig;
+  SheetExtentDelegate get pageExtentDelegate;
 
   @override
   NavigationSheetExtentDelegate get pageExtent => _pageExtent;
@@ -40,8 +42,11 @@ mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
     Animation<double> secondaryAnimation,
   ) {
     return SheetExtentScope(
+      isPrimary: false,
       config: pageExtentConfig,
-      onExtentChanged: (extent) => _pageExtent.source = extent,
+      delegate: pageExtentDelegate,
+      controller: SheetControllerScope.of(context),
+      initializer: (extent) => _pageExtent.source = extent,
       child: SheetContentViewport(
         child: buildContent(context),
       ),

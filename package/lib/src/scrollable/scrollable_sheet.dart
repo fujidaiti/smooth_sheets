@@ -9,6 +9,7 @@ import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/theme.dart';
 import 'scrollable_sheet_extent.dart';
+import 'scrollable_sheet_physics.dart';
 
 class ScrollableSheet extends StatelessWidget {
   const ScrollableSheet({
@@ -46,6 +47,7 @@ class ScrollableSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
+    final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
 
@@ -54,11 +56,16 @@ class ScrollableSheet extends StatelessWidget {
       builder: (context, controller) {
         return SheetContainer(
           controller: controller,
+          delegate: const ScrollableSheetExtentDelegate(),
           config: ScrollableSheetExtentConfig(
             initialExtent: initialExtent,
             minExtent: minExtent,
             maxExtent: maxExtent,
-            physics: physics,
+            physics: switch (physics) {
+              final ScrollableSheetPhysics physics => physics,
+              _ => ScrollableSheetPhysics(parent: physics),
+            },
+            debugLabel: 'ScrollableSheet',
           ),
           child: PrimarySheetContentScrollController(child: child),
         );
@@ -138,15 +145,15 @@ class _SheetScrollableState extends State<SheetScrollable> {
     super.didChangeDependencies();
     final extent = SheetExtentScope.maybeOf(context);
     _scrollController = switch (extent) {
-      final ScrollableSheetExtent extent => SheetContentScrollController(
-          extent: extent,
+      // If this widget is not a descendant of a SheetExtentScope,
+      // then create a normal ScrollController for stubbing.
+      null => ScrollController(
           debugLabel: widget.debugLabel,
           initialScrollOffset: widget.initialScrollOffset,
           keepScrollOffset: widget.keepScrollOffset,
         ),
-      // If this widget is not a descendant of a SheetExtentScope,
-      // then create a normal ScrollController for stubbing.
-      _ => ScrollController(
+      final extent => SheetContentScrollController(
+          extent: extent,
           debugLabel: widget.debugLabel,
           initialScrollOffset: widget.initialScrollOffset,
           keepScrollOffset: widget.keepScrollOffset,

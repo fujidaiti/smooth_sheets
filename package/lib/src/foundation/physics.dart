@@ -20,8 +20,12 @@ const kDefaultSheetSpring = SpringDescription(
   damping: 15.5563491861, // 1.1 * 2.0 * sqrt(0.5 * 100.0)
 );
 
-const _minSettlingDuration = Duration(milliseconds: 160);
-const _defaultSettlingSpeed = 600.0; // logical pixels per second
+const _kMinSettlingDuration = Duration(milliseconds: 160);
+const _kDefaultSettlingSpeed = 600.0; // logical pixels per second
+
+/// The default [SheetPhysics] used by sheet widgets.
+const kDefaultSheetPhysics =
+    StretchingSheetPhysics(parent: SnappingSheetPhysics());
 
 abstract class SheetPhysics {
   const SheetPhysics({this.parent});
@@ -128,8 +132,8 @@ mixin SheetPhysicsMixin on SheetPhysics {
       end: settleTo,
       curve: Curves.easeInOut,
       durationInSeconds: max(
-        (metrics.pixels - settleTo).abs() / _defaultSettlingSpeed,
-        _minSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
+        (metrics.pixels - settleTo).abs() / _kDefaultSettlingSpeed,
+        _kMinSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
       ),
     );
   }
