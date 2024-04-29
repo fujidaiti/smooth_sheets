@@ -212,11 +212,8 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         ),
       );
     } else {
-      return ModalBarrier(
-        onDismiss: onDismiss,
-        dismissible: barrierDismissible,
-        semanticsLabel: barrierLabel,
-        barrierSemanticsDismissible: semanticsDismissible,
+      return GestureDetector(
+        behavior: HitTestBehavior.translucent,
       );
     }
   }
