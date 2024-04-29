@@ -89,7 +89,7 @@ class _AppBarDraggable extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetDraggable(child: appBar);
+    return SheetDraggable(alwaysDraggable: true, child: appBar,);
   }
 }
 

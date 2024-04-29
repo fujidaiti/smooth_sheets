@@ -3,10 +3,11 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import '../foundation/sheet_controller.dart';
-import '../foundation/sheet_status.dart';
-import '../internal/double_utils.dart';
-import '../internal/monodrag.dart';
+import 'package:smooth_sheets/src/draggable/sheet_draggable.dart';
+import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
+import 'package:smooth_sheets/src/internal/double_utils.dart';
+import 'package:smooth_sheets/src/internal/monodrag.dart';
 
 const _minFlingVelocityToDismiss = 1.0;
 const _minDragDistanceToDismiss = 100.0; // Logical pixels.
@@ -391,9 +392,12 @@ class _PullToDismissGestureRecognizer extends VerticalDragGestureRecognizer {
 
   final _SheetDismissibleState target;
 
+  Offset? _lastReportedPointerPosition;
+
   @override
   void addPointer(PointerDownEvent event) {
     if (_isPointerOnSheet(event.localPosition)) {
+      _lastReportedPointerPosition = event.position;
       super.addPointer(event);
     }
   }
@@ -422,15 +426,44 @@ class _PullToDismissGestureRecognizer extends VerticalDragGestureRecognizer {
       return false;
     }
 
+    final ignoreContentScrollable = _shouldIgnoreContentScrollable();
     final contentScrollableDistance =
         target._lastReportedScrollMetrics?.extentBefore;
     final currentExtent = target._sheetController.metrics?.pixels;
     final threshold = target._sheetController.metrics?.minPixels;
 
-    return (contentScrollableDistance == null ||
+    return (ignoreContentScrollable ||
+            contentScrollableDistance == null ||
             contentScrollableDistance.isApprox(0)) &&
         currentExtent != null &&
         threshold != null &&
         currentExtent <= threshold;
+  }
+
+  bool _shouldIgnoreContentScrollable() {
+    var ignore = false;
+
+    final pointerPosition = _lastReportedPointerPosition;
+    if (pointerPosition != null) {
+      // Search & hit-test [SheetDraggable] with `alwaysDraggable` enabled
+      void visitor(Element element) {
+        final widget = element.widget;
+        if (widget is SheetDraggable && widget.alwaysDraggable) {
+          final renderObject = (element as StatefulElement).renderObject;
+          if (renderObject != null) {
+            final box = renderObject as RenderBox;
+            final pointerLocalPosition = box.globalToLocal(pointerPosition);
+            ignore = box.paintBounds.contains(pointerLocalPosition);
+            if (ignore) return;
+          }
+        } else {
+          element.visitChildren(visitor);
+        }
+      }
+
+      target.context.visitChildElements(visitor);
+    }
+
+    return ignore;
   }
 }

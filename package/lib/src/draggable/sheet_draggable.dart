@@ -27,11 +27,15 @@ class SheetDraggable extends StatefulWidget {
   const SheetDraggable({
     super.key,
     this.behavior = HitTestBehavior.translucent,
+    this.alwaysDraggable = false,
     required this.child,
   });
 
   /// How to behave during hit testing.
   final HitTestBehavior behavior;
+
+  /// React to drag gesture even when scrollable widget can be scrolled down
+  final bool alwaysDraggable;
 
   /// The widget below this widget in the tree.
   final Widget child;
