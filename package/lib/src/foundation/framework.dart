@@ -95,11 +95,10 @@ class _RenderSheetViewport extends RenderTransform {
       _insets = value;
 
       if (_lastMeasuredSize != null) {
-        _extent.applyNewViewportDimensions(ViewportDimensions(
-          width: _lastMeasuredSize!.width,
-          height: _lastMeasuredSize!.height,
-          insets: value,
-        ));
+        _extent.applyNewViewportDimensions(
+          Size(_lastMeasuredSize!.width, _lastMeasuredSize!.height),
+          value,
+        );
 
         _invalidateTranslationValue();
       }
@@ -114,11 +113,11 @@ class _RenderSheetViewport extends RenderTransform {
     // Notify the SheetExtent about the viewport size changes
     // before performing the layout so that the descendant widgets
     // can use the viewport size during the layout phase.
-    _extent.applyNewViewportDimensions(ViewportDimensions(
-      width: _lastMeasuredSize!.width,
-      height: _lastMeasuredSize!.height,
-      insets: _insets,
-    ));
+    _extent.applyNewViewportDimensions(
+      Size(_lastMeasuredSize!.width, _lastMeasuredSize!.height),
+      _insets,
+    );
+
     super.performLayout();
 
     assert(

@@ -102,12 +102,16 @@ class _SheetExtentBox extends ChangeNotifier
     if (_source == value) return;
     _source?.removeListener(notifyListeners);
     _source = value?..addListener(notifyListeners);
-    if (_viewportDimensions != null) {
-      _source?.applyNewViewportDimensions(_viewportDimensions!);
+    if (_viewportSize != null && _viewportInsets != null) {
+      _source?.applyNewViewportDimensions(
+        _viewportSize!,
+        _viewportInsets!,
+      );
     }
   }
 
-  ViewportDimensions? _viewportDimensions;
+  Size? _viewportSize;
+  EdgeInsets? _viewportInsets;
 
   @override
   void dispose() {
@@ -119,10 +123,11 @@ class _SheetExtentBox extends ChangeNotifier
   SheetMetrics get metrics => _source?.metrics ?? SheetMetrics.empty;
 
   @override
-  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
+  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
     // Keep the given value in case the source is not set yet.
-    _viewportDimensions = viewportDimensions;
-    _source?.applyNewViewportDimensions(viewportDimensions);
+    _viewportSize = size;
+    _viewportInsets = insets;
+    _source?.applyNewViewportDimensions(size, insets);
   }
 
   @override

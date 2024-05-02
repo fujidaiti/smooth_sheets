@@ -258,9 +258,8 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
     final size = _bottomBarSize;
     if (size != null && _extent.metrics.hasDimensions) {
       final metrics = _extent.metrics;
-      final baseTransition =
-          (metrics.pixels - metrics.viewportDimensions.height)
-              .clamp(size.height - metrics.viewportDimensions.height, 0.0);
+      final baseTransition = (metrics.pixels - metrics.viewportSize.height)
+          .clamp(size.height - metrics.viewportSize.height, 0.0);
       final visibility = computeVisibility(metrics, size);
       assert(0 <= visibility && visibility <= 1);
       final invisibleHeight = size.height * (1 - visibility);
@@ -341,7 +340,7 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
 
     switch (_resizeBehavior) {
       case _AvoidBottomInset(maintainBottomBar: false):
-        final bottomInset = sheetMetrics.viewportDimensions.insets.bottom;
+        final bottomInset = sheetMetrics.viewportInsets.bottom;
         return (visibility - bottomInset / bottomBarSize.height)
             .clamp(0.0, 1.0);
 
@@ -424,7 +423,7 @@ class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
         return 1.0;
 
       case _AvoidBottomInset(maintainBottomBar: false):
-        final bottomInset = sheetMetrics.viewportDimensions.insets.bottom;
+        final bottomInset = sheetMetrics.viewportInsets.bottom;
         return (1 - bottomInset / bottomBarSize.height).clamp(0.0, 1.0);
     }
   }
@@ -512,7 +511,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 ///   body: SizedBox.expand(),
 ///   bottomBar: ConditionalStickyBottomBarVisibility(
 ///     getIsVisible: (metrics) =>
-///         metrics.viewportDimensions.insets.bottom == 0 &&
+///         metrics.viewportInsets.bottom == 0 &&
 ///         metrics.pixels >
 ///             const Extent.proportional(0.5)
 ///                 .resolve(metrics.contentSize),

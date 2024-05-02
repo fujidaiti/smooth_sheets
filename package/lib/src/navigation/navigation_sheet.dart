@@ -145,7 +145,7 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
 // TODO: What a ugly interface!
 abstract class NavigationSheetExtentDelegate implements Listenable {
   SheetMetrics get metrics;
-  void applyNewViewportDimensions(ViewportDimensions viewportDimensions);
+  void applyNewViewportDimensions(Size size, EdgeInsets insets);
   void beginActivity(SheetActivity activity);
 }
 
@@ -178,8 +178,8 @@ class _NavigationSheetExtentProxy extends _SheetExtentProxy {
       };
 
   @override
-  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
-    super.applyNewViewportDimensions(viewportDimensions);
+  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
+    super.applyNewViewportDimensions(size, insets);
     _dispatchViewportDimensions();
   }
 
@@ -206,14 +206,20 @@ class _NavigationSheetExtentProxy extends _SheetExtentProxy {
     if (metrics.hasDimensions) {
       switch (activity) {
         case final _ProxySheetActivity activity:
-          activity.target
-              .applyNewViewportDimensions(metrics.viewportDimensions);
+          activity.target.applyNewViewportDimensions(
+            metrics.viewportSize,
+            metrics.viewportInsets,
+          );
 
         case final _TransitionSheetActivity activity:
-          activity.originExtent
-              .applyNewViewportDimensions(metrics.viewportDimensions);
-          activity.destinationExtent
-              .applyNewViewportDimensions(metrics.viewportDimensions);
+          activity.originExtent.applyNewViewportDimensions(
+            metrics.viewportSize,
+            metrics.viewportInsets,
+          );
+          activity.destinationExtent.applyNewViewportDimensions(
+            metrics.viewportSize,
+            metrics.viewportInsets,
+          );
       }
     }
   }
@@ -359,8 +365,8 @@ class _SheetExtentProxy implements SheetExtent {
       inner.applyNewContentSize(contentSize);
 
   @override
-  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) =>
-      inner.applyNewViewportDimensions(viewportDimensions);
+  void applyNewViewportDimensions(Size size, EdgeInsets insets) =>
+      inner.applyNewViewportDimensions(size, insets);
 
   @override
   void beginActivity(SheetActivity activity) => inner.beginActivity(activity);

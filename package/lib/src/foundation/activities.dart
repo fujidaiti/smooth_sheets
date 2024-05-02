@@ -147,8 +147,7 @@ abstract class SheetActivity extends ChangeNotifier {
 
   void didChangeContentSize(Size? oldSize) {}
 
-  // TODO: Rename to 'didChangeViewportSize'
-  void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {}
+  void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {}
 
   void didChangeBoundaryConstraints(
     double? oldMinPixels,
@@ -157,20 +156,21 @@ abstract class SheetActivity extends ChangeNotifier {
 
   void didFinalizeDimensions(
     Size? oldContentSize,
-    ViewportDimensions? oldViewportDimensions,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
   ) {
     assert(pixels != null);
     assert(delegate.metrics.hasDimensions);
 
-    if (oldContentSize == null && oldViewportDimensions == null) {
+    if (oldContentSize == null && oldViewportSize == null) {
       // The sheet was laid out, but not changed in size.
       return;
     }
 
     final oldPixels = pixels!;
     final metrics = delegate.metrics;
-    final newInsets = metrics.viewportDimensions.insets;
-    final oldInsets = oldViewportDimensions?.insets ?? newInsets;
+    final newInsets = metrics.viewportInsets;
+    final oldInsets = oldViewportInsets ?? newInsets;
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
 
     switch (deltaInsetBottom) {
@@ -356,13 +356,14 @@ mixin UserControlledSheetActivityMixin on SheetActivity {
   @override
   void didFinalizeDimensions(
     Size? oldContentSize,
-    ViewportDimensions? oldViewportDimensions,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
   ) {
     assert(pixels != null);
     assert(delegate.metrics.hasDimensions);
 
-    final newInsets = delegate.metrics.viewportDimensions.insets;
-    final oldInsets = oldViewportDimensions?.insets ?? newInsets;
+    final newInsets = delegate.metrics.viewportInsets;
+    final oldInsets = oldViewportInsets ?? newInsets;
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
     // Appends the delta of the bottom inset (typically the keyboard height)
     // to keep the visual sheet position unchanged.

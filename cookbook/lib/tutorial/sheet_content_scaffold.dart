@@ -45,7 +45,7 @@ class _ExampleSheet extends StatelessWidget {
       bottomBar: ConditionalStickyBottomBarVisibility(
         // This callback is called whenever the sheet's metrics changes.
         getIsVisible: (metrics) {
-          return metrics.viewportDimensions.insets.bottom == 0 &&
+          return metrics.viewportInsets.bottom == 0 &&
               metrics.pixels >
                   const Extent.proportional(0.5).resolve(metrics.contentSize);
         },

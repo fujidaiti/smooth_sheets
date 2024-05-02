@@ -20,11 +20,8 @@ const _referenceSheetMetrics = SheetMetrics(
   maxPixels: 600,
   pixels: 600,
   contentSize: Size(360, 600),
-  viewportDimensions: ViewportDimensions(
-    width: 360,
-    height: 700,
-    insets: EdgeInsets.zero,
-  ),
+  viewportSize: Size(360, 700),
+  viewportInsets: EdgeInsets.zero,
 );
 
 final _positionAtTopEdge =

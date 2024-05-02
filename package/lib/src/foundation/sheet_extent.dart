@@ -139,7 +139,10 @@ class SheetExtent extends ChangeNotifier
 
   @mustCallSuper
   void takeOver(SheetExtent other) {
-    applyNewViewportDimensions(other.metrics.viewportDimensions);
+    applyNewViewportDimensions(
+      other.metrics.viewportSize,
+      other.metrics.viewportInsets,
+    );
     applyNewContentSize(other.metrics.contentSize);
     activity.takeOver(other.activity);
   }
@@ -164,11 +167,19 @@ class SheetExtent extends ChangeNotifier
   }
 
   @mustCallSuper
-  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
-    if (metrics.maybeViewportDimensions != viewportDimensions) {
-      _oldViewportDimensions = metrics.maybeViewportDimensions;
-      _metrics = metrics.copyWith(viewportDimensions: viewportDimensions);
-      activity.didChangeViewportDimensions(_oldViewportDimensions);
+  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
+    if (metrics.maybeViewportSize != size ||
+        metrics.maybeViewportInsets != insets) {
+      _oldViewportSize = metrics.maybeViewportSize;
+      _oldViewportInsets = metrics.maybeViewportInsets;
+      _metrics = metrics.copyWith(
+        viewportSize: size,
+        viewportInsets: insets,
+      );
+      activity.didChangeViewportDimensions(
+        _oldViewportSize,
+        _oldViewportInsets,
+      );
     }
   }
 
@@ -190,7 +201,8 @@ class SheetExtent extends ChangeNotifier
   }
 
   Size? _oldContentSize;
-  ViewportDimensions? _oldViewportDimensions;
+  Size? _oldViewportSize;
+  EdgeInsets? _oldViewportInsets;
   int _markAsDimensionsWillChangeCallCount = 0;
 
   @mustCallSuper
@@ -245,10 +257,15 @@ class SheetExtent extends ChangeNotifier
       ),
     );
 
-    _activity!.didFinalizeDimensions(_oldContentSize, _oldViewportDimensions);
+    _activity!.didFinalizeDimensions(
+      _oldContentSize,
+      _oldViewportSize,
+      _oldViewportInsets,
+    );
 
     _oldContentSize = null;
-    _oldViewportDimensions = null;
+    _oldViewportSize = null;
+    _oldViewportInsets = null;
   }
 
   @mustCallSuper
@@ -411,44 +428,6 @@ mixin class SheetExtentDelegate {
   }
 }
 
-/// The dimensions of the viewport that hosts the sheet.
-// TODO: Prefer to use Size class
-class ViewportDimensions {
-  const ViewportDimensions({
-    required this.width,
-    required this.height,
-    required this.insets,
-  });
-
-  /// The width of the viewport.
-  final double width;
-
-  /// The height of the viewport.
-  final double height;
-
-  /// The insets of the viewport.
-  ///
-  /// This is the same as [MediaQueryData.viewInsets].
-  final EdgeInsets insets;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ViewportDimensions &&
-          runtimeType == other.runtimeType &&
-          width == other.width &&
-          height == other.height &&
-          insets == other.insets);
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        width,
-        height,
-        insets,
-      );
-}
-
 /// An immutable snapshot of the sheet's state.
 class SheetMetrics {
   /// Creates an immutable snapshot of the sheet's state.
@@ -458,13 +437,15 @@ class SheetMetrics {
     required double? minPixels,
     required double? maxPixels,
     required Size? contentSize,
-    required ViewportDimensions? viewportDimensions,
+    required Size? viewportSize,
+    required EdgeInsets? viewportInsets,
   })  : maybeStatus = status,
         maybePixels = pixels,
         maybeMinPixels = minPixels,
         maybeMaxPixels = maxPixels,
         maybeContentSize = contentSize,
-        maybeViewportDimensions = viewportDimensions;
+        maybeViewportSize = viewportSize,
+        maybeViewportInsets = viewportInsets;
 
   static const empty = SheetMetrics(
     status: null,
@@ -472,7 +453,8 @@ class SheetMetrics {
     minPixels: null,
     maxPixels: null,
     contentSize: null,
-    viewportDimensions: null,
+    viewportSize: null,
+    viewportInsets: null,
   );
 
   final SheetStatus? maybeStatus;
@@ -480,7 +462,8 @@ class SheetMetrics {
   final double? maybeMinPixels;
   final double? maybeMaxPixels;
   final Size? maybeContentSize;
-  final ViewportDimensions? maybeViewportDimensions;
+  final Size? maybeViewportSize;
+  final EdgeInsets? maybeViewportInsets;
 
   /// The current status of the sheet.
   // TODO: Move this to SheetNotification
@@ -514,41 +497,44 @@ class SheetMetrics {
   }
 
   /// The size of the viewport that hosts the sheet.
-  ViewportDimensions get viewportDimensions {
-    assert(_debugAssertHasProperty(
-      'viewportDimensions',
-      maybeViewportDimensions,
-    ));
-    return maybeViewportDimensions!;
+  Size get viewportSize {
+    assert(_debugAssertHasProperty('viewportSize', maybeViewportSize));
+    return maybeViewportSize!;
+  }
+
+  EdgeInsets get viewportInsets {
+    assert(_debugAssertHasProperty('viewportInsets', maybeViewportInsets));
+    return maybeViewportInsets!;
   }
 
   /// The visible height of the sheet measured from the bottom of the viewport.
   ///
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [pixels] and the keyboard's height. Otherwise, it is equal to [pixels].
-  double get viewPixels => pixels + viewportDimensions.insets.bottom;
+  double get viewPixels => pixels + viewportInsets.bottom;
   double? get maybeViewPixels => hasDimensions ? viewPixels : null;
 
   /// The minimum visible height of the sheet measured from the bottom
   /// of the viewport.
-  double get minViewPixels => minPixels + viewportDimensions.insets.bottom;
+  double get minViewPixels => minPixels + viewportInsets.bottom;
   double? get maybeMinViewPixels => hasDimensions ? minViewPixels : null;
 
   /// The maximum visible height of the sheet measured from the bottom
   /// of the viewport.
-  double get maxViewPixels => maxPixels + viewportDimensions.insets.bottom;
+  double get maxViewPixels => maxPixels + viewportInsets.bottom;
   double? get maybeMaxViewPixels => hasDimensions ? maxViewPixels : null;
 
   /// Whether the all metrics are available.
   ///
   /// Returns true if all of [pixels], [minPixels], [maxPixels],
-  /// [contentSize], and [viewportDimensions] are not null.
+  /// [contentSize], [viewportInsets], and [viewportSize] are not null.
   bool get hasDimensions =>
       maybePixels != null &&
       maybeMinPixels != null &&
       maybeMaxPixels != null &&
       maybeContentSize != null &&
-      maybeViewportDimensions != null;
+      maybeViewportSize != null &&
+      maybeViewportInsets != null;
 
   /// Whether the sheet is within the range of [minPixels] and [maxPixels]
   /// (inclusive of both bounds).
@@ -581,7 +567,8 @@ class SheetMetrics {
     double? minPixels,
     double? maxPixels,
     Size? contentSize,
-    ViewportDimensions? viewportDimensions,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
   }) {
     return SheetMetrics(
       status: status ?? maybeStatus,
@@ -589,7 +576,8 @@ class SheetMetrics {
       minPixels: minPixels ?? maybeMinPixels,
       maxPixels: maxPixels ?? maybeMaxPixels,
       contentSize: contentSize ?? maybeContentSize,
-      viewportDimensions: viewportDimensions ?? maybeViewportDimensions,
+      viewportSize: viewportSize ?? maybeViewportSize,
+      viewportInsets: viewportInsets ?? maybeViewportInsets,
     );
   }
 
@@ -603,7 +591,8 @@ class SheetMetrics {
           maybeMinPixels == other.minPixels &&
           maybeMaxPixels == other.maxPixels &&
           maybeContentSize == other.contentSize &&
-          maybeViewportDimensions == other.viewportDimensions);
+          maybeViewportSize == other.viewportSize &&
+          maybeViewportInsets == other.viewportInsets);
 
   @override
   int get hashCode => Object.hash(
@@ -613,7 +602,8 @@ class SheetMetrics {
         maybeMinPixels,
         maybeMaxPixels,
         maybeContentSize,
-        maybeViewportDimensions,
+        maybeViewportSize,
+        maybeViewportInsets,
       );
 
   @override
@@ -627,7 +617,8 @@ class SheetMetrics {
         minViewPixels: maybeMinViewPixels,
         maxViewPixels: maybeMaxViewPixels,
         contentSize: maybeContentSize,
-        viewportDimensions: maybeViewportDimensions,
+        viewportSize: maybeViewportSize,
+        viewportInsets: maybeViewportInsets,
       ).toString();
 }
 
