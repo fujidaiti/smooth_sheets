@@ -282,7 +282,7 @@ class UserDragSheetActivity extends SheetActivity
     if (!mounted) return;
     final delta = -1 * details.primaryDelta!;
     final physicsAppliedDelta =
-        delegate.physics.applyPhysicsToOffset(delta, delegate.metrics);
+        delegate.config.physics.applyPhysicsToOffset(delta, delegate.metrics);
     if (physicsAppliedDelta != 0) {
       setPixels(pixels! + physicsAppliedDelta);
       dispatchDragUpdateNotification(delta: physicsAppliedDelta);

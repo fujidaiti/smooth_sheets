@@ -138,7 +138,7 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     }
 
     if (position.pixels.isApprox(position.minScrollExtent)) {
-      final simulation = delegate.physics
+      final simulation = delegate.config.physics
           .createBallisticSimulation(velocity, delegate.metrics);
       if (simulation != null) {
         delegate.goBallisticWith(simulation);
@@ -197,7 +197,8 @@ abstract class _SingleContentScrollDrivenSheetActivity
   final DelegatableScrollPosition contentScrollPosition;
 
   double _applyPhysicsToOffset(double offset) {
-    return delegate.physics.applyPhysicsToOffset(offset, delegate.metrics);
+    return delegate.config.physics
+        .applyPhysicsToOffset(offset, delegate.metrics);
   }
 
   double _applyScrollOffset(double offset) {
@@ -269,7 +270,8 @@ abstract class _SingleContentScrollDrivenSheetActivity
       notifyListeners();
     }
 
-    final overflow = delegate.physics.computeOverflow(delta, delegate.metrics);
+    final overflow =
+        delegate.config.physics.computeOverflow(delta, delegate.metrics);
     if (overflow.abs() > 0) {
       position.didOverscrollBy(overflow);
       dispatchOverflowNotification(overflow);
@@ -382,7 +384,7 @@ class _ContentBallisticScrollDrivenSheetActivity
       dispatchUpdateNotification();
     }
 
-    final physics = delegate.physics;
+    final physics = delegate.config.physics;
     if (((position.extentBefore.isApprox(0) && velocity < 0) ||
             (position.extentAfter.isApprox(0) && velocity > 0)) &&
         physics is ScrollableSheetPhysics &&

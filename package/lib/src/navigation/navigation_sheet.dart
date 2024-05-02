@@ -341,9 +341,6 @@ class _SheetExtentProxy implements SheetExtent {
   Extent get minExtent => inner.minExtent;
 
   @override
-  SheetPhysics get physics => inner.physics;
-
-  @override
   void addListener(VoidCallback listener) => inner.addListener(listener);
 
   @override

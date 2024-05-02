@@ -90,7 +90,7 @@ class FixedExtent implements Extent {
 /// As this value changes, the sheet translates its position, which changes the
 /// visible area of the content. The [SheetMetrics.minPixels] and
 /// [SheetMetrics.maxPixels] values limit the range of the *pixels*, but it can
-/// be outside of the range if the [physics] allows it.
+/// be outside of the range if the [SheetExtentConfig.physics] allows it.
 ///
 /// The current [activity] is responsible for how the *pixels* changes
 /// over time, for example, [AnimatedSheetActivity] animates the *pixels* to
@@ -126,9 +126,6 @@ class SheetExtent extends ChangeNotifier
 
   SheetExtentConfig get config => _config;
   SheetExtentConfig _config;
-
-  // TODO: Remove this
-  SheetPhysics get physics => config.physics;
 
   // TODO: Remove this
   Extent get minExtent => config.minExtent;
@@ -287,7 +284,8 @@ class SheetExtent extends ChangeNotifier
 
   void goBallistic(double velocity) {
     assert(metrics.hasDimensions);
-    final simulation = physics.createBallisticSimulation(velocity, metrics);
+    final simulation =
+        config.physics.createBallisticSimulation(velocity, metrics);
     if (simulation != null) {
       goBallisticWith(simulation);
     } else {
@@ -301,7 +299,7 @@ class SheetExtent extends ChangeNotifier
 
   void settle() {
     assert(metrics.hasDimensions);
-    final simulation = physics.createSettlingSimulation(metrics);
+    final simulation = config.physics.createSettlingSimulation(metrics);
     if (simulation != null) {
       // TODO: Begin a SettlingSheetActivity
       goBallisticWith(simulation);
