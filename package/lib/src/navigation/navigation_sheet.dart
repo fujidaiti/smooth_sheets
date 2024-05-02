@@ -332,9 +332,6 @@ class _SheetExtentProxy implements SheetExtent {
   bool get hasListeners => inner.hasListeners;
 
   @override
-  Extent get maxExtent => inner.maxExtent;
-
-  @override
   SheetMetrics get metrics => inner.metrics;
 
   @override

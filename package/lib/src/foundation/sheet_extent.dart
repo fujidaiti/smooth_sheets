@@ -127,9 +127,6 @@ class SheetExtent extends ChangeNotifier
   SheetExtentConfig get config => _config;
   SheetExtentConfig _config;
 
-  // TODO: Remove this
-  Extent get maxExtent => config.maxExtent;
-
   final SheetExtentDelegate delegate;
 
   /// Snapshot of the current sheet's state.
