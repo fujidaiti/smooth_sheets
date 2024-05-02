@@ -17,11 +17,12 @@ class SheetController extends ChangeNotifier
   final _immediateListeners = ChangeNotifier();
 
   @override
-  double? get value => _client?.pixels;
+  double? get value => metrics?.pixels;
 
-  SheetMetrics? get metrics {
-    return _client?.hasPixels == true ? _client!.metrics : null;
-  }
+  SheetMetrics? get metrics => switch (_client?.metrics) {
+    final metrics? when metrics.hasPixels => metrics,
+    _ => null,
+  }; 
 
   @override
   void addListener(VoidCallback listener, {bool fireImmediately = false}) {

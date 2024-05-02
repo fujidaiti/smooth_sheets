@@ -256,7 +256,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 
   void invalidateVisibility() {
     final size = _bottomBarSize;
-    if (size != null && _extent.hasPixels) {
+    if (size != null && _extent.metrics.hasPixels) {
       final metrics = _extent.metrics;
       final baseTransition =
           (metrics.pixels - metrics.viewportDimensions.height)
@@ -606,7 +606,7 @@ class _ConditionalStickyBottomBarVisibilityState
 
   void _didSheetMetricsChanged() {
     final isVisible =
-        _extent!.hasPixels && widget.getIsVisible(_extent!.metrics);
+        _extent!.metrics.hasPixels && widget.getIsVisible(_extent!.metrics);
 
     if (isVisible) {
       if (_controller.status != AnimationStatus.forward) {

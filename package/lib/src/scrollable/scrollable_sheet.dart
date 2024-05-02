@@ -29,13 +29,13 @@ class ScrollableSheet extends StatelessWidget {
   /// {@macro ScrollableSheetExtent.initialExtent}
   final Extent initialExtent;
 
-  /// {@macro SheetExtent.minExtent}
+  /// {@macro SheetExtentConfig.minExtent}
   final Extent minExtent;
 
-  /// {@macro SheetExtent.maxExtent}
+  /// {@macro SheetExtentConfig.maxExtent}
   final Extent maxExtent;
 
-  /// {@macro SheetExtent.physics}
+  /// {@macro SheetExtentConfig.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.

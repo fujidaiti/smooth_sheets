@@ -4,7 +4,6 @@ import '../foundation/activities.dart';
 import '../foundation/framework.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
-import '../foundation/sheet_status.dart';
 import 'navigation_sheet.dart';
 
 mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
@@ -117,19 +116,7 @@ class _SheetExtentBox extends ChangeNotifier
   }
 
   @override
-  SheetStatus get status => _source?.status ?? SheetStatus.stable;
-
-  @override
-  double? get pixels => _source?.pixels;
-
-  @override
-  double? get minPixels => _source?.minPixels;
-
-  @override
-  double? get maxPixels => _source?.maxPixels;
-
-  @override
-  Size? get contentDimensions => _source?.contentDimensions;
+  SheetMetrics get metrics => _source?.metrics ?? SheetMetrics.empty;
 
   @override
   void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+
 import 'notifications.dart';
 import 'sheet_extent.dart';
 import 'sheet_status.dart';
@@ -60,20 +61,20 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchUpdateNotification() {
-    if (delegate.hasPixels) {
+    if (delegate.metrics.hasPixels) {
       dispatchNotification(
         SheetUpdateNotification(
-          metrics: delegate.snapshot,
+          metrics: delegate.metrics,
         ),
       );
     }
   }
 
   void dispatchDragStartNotification(DragStartDetails details) {
-    if (delegate.hasPixels) {
+    if (delegate.metrics.hasPixels) {
       dispatchNotification(
         SheetDragStartNotification(
-          metrics: delegate.snapshot,
+          metrics: delegate.metrics,
           dragDetails: details,
         ),
       );
@@ -81,10 +82,10 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragEndNotification(DragEndDetails details) {
-    if (delegate.hasPixels) {
+    if (delegate.metrics.hasPixels) {
       dispatchNotification(
         SheetDragEndNotification(
-          metrics: delegate.snapshot,
+          metrics: delegate.metrics,
           dragDetails: details,
         ),
       );
@@ -92,10 +93,10 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragUpdateNotification({required double delta}) {
-    if (delegate.hasPixels) {
+    if (delegate.metrics.hasPixels) {
       dispatchNotification(
         SheetDragUpdateNotification(
-          metrics: delegate.snapshot,
+          metrics: delegate.metrics,
           delta: delta,
         ),
       );
@@ -103,20 +104,20 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragCancelNotification() {
-    if (delegate.hasPixels) {
+    if (delegate.metrics.hasPixels) {
       dispatchNotification(
         SheetDragCancelNotification(
-          metrics: delegate.snapshot,
+          metrics: delegate.metrics,
         ),
       );
     }
   }
 
   void dispatchOverflowNotification(double overflow) {
-    if (delegate.hasPixels) {
+    if (delegate.metrics.hasPixels) {
       dispatchNotification(
         SheetOverflowNotification(
-          metrics: delegate.snapshot,
+          metrics: delegate.metrics,
           overflow: overflow,
         ),
       );
@@ -144,16 +145,23 @@ abstract class SheetActivity extends ChangeNotifier {
     }
   }
 
+  // TODO: Rename to 'didChangeContentSize'
   void didChangeContentDimensions(Size? oldDimensions) {}
 
+  // TODO: Rename to 'didChangeViewportSize'
   void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {}
+
+  void didChangeBoundaryConstraints(
+    double? oldMinPixels,
+    double? oldMaxPixels,
+  ) {}
 
   void didFinalizeDimensions(
     Size? oldContentDimensions,
     ViewportDimensions? oldViewportDimensions,
   ) {
     assert(pixels != null);
-    assert(delegate.hasPixels);
+    assert(delegate.metrics.hasPixels);
 
     if (oldContentDimensions == null && oldViewportDimensions == null) {
       // The sheet was laid out, but not changed in size.
@@ -352,9 +360,9 @@ mixin UserControlledSheetActivityMixin on SheetActivity {
     ViewportDimensions? oldViewportDimensions,
   ) {
     assert(pixels != null);
-    assert(delegate.hasPixels);
+    assert(delegate.metrics.hasPixels);
 
-    final newInsets = delegate.viewportDimensions!.insets;
+    final newInsets = delegate.metrics.viewportDimensions.insets;
     final oldInsets = oldViewportDimensions?.insets ?? newInsets;
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
     // Appends the delta of the bottom inset (typically the keyboard height)

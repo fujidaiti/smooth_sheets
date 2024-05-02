@@ -42,16 +42,15 @@ class DraggableSheet extends StatelessWidget {
   /// The strategy to dismiss the on-screen keyboard when the sheet is dragged.
   final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
 
-  /// {@macro SizedContentSheetExtent.initialExtent}
   final Extent initialExtent;
 
-  /// {@macro SheetExtent.minExtent}
+  /// {@macro SheetExtentConfig.minExtent}
   final Extent minExtent;
 
-  /// {@macro SheetExtent.maxExtent}
+  /// {@macro SheetExtentConfig.maxExtent}
   final Extent maxExtent;
 
-  /// {@macro SheetExtent.physics}
+  /// {@macro SheetExtentConfig.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
@@ -143,8 +142,9 @@ class _IdleDraggableSheetActivity extends IdleSheetActivity {
   void didChangeContentDimensions(Size? oldDimensions) {
     super.didChangeContentDimensions(oldDimensions);
     final config = delegate.config;
+    final metrics = delegate.metrics;
     if (pixels == null && config is DraggableSheetExtentConfig) {
-      setPixels(config.initialExtent.resolve(delegate.contentDimensions!));
+      setPixels(config.initialExtent.resolve(metrics.contentDimensions));
     }
   }
 }

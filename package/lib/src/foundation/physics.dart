@@ -215,23 +215,23 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
   }
 }
 
-/// A [SnappingSheetBehavior] that snaps to either [SheetExtent.minPixels]
-/// or [SheetExtent.maxPixels] based on the current sheet position and
+/// A [SnappingSheetBehavior] that snaps to either [SheetMetrics.minPixels]
+/// or [SheetMetrics.maxPixels] based on the current sheet position and
 /// the gesture velocity.
 ///
 /// If the absolute value of the gesture velocity is less than
 /// [minFlingSpeed], the sheet will snap to the nearest of
-/// [SheetExtent.minPixels] and [SheetExtent.maxPixels].
+/// [SheetMetrics.minPixels] and [SheetMetrics.maxPixels].
 /// Otherwise, the gesture is considered to be a fling, and the sheet will snap
 /// towards the direction of the fling. For example, if the sheet is flung up,
-/// it will snap to [SheetExtent.maxPixels].
+/// it will snap to [SheetMetrics.maxPixels].
 ///
 /// Using this behavior is functionally identical to using [SnapToNearest]
 /// with the snap positions of [SheetExtent.minExtent] and
 /// [SheetExtent.maxExtent], but more simplified and efficient.
 class SnapToNearestEdge with _SnapToNearestMixin {
   /// Creates a [SnappingSheetBehavior] that snaps to either
-  /// [SheetExtent.minPixels] or [SheetExtent.maxPixels].
+  /// [SheetMetrics.minPixels] or [SheetMetrics.maxPixels].
   ///
   /// The [minFlingSpeed] defaults to [kMinFlingVelocity],
   /// and must be non-negative.
@@ -280,7 +280,7 @@ class SnapToNearest with _SnapToNearestMixin {
         _snapTo.first.isGreaterThanOrApprox(metrics.minPixels) &&
             _snapTo.last.isLessThanOrApprox(metrics.maxPixels),
         'The snap positions must be within the range of '
-        "'SheetExtent.minPixels' and 'SheetExtent.maxPixels'.",
+        "'SheetMetrics.minPixels' and 'SheetMetrics.maxPixels'.",
       );
     }
   }

@@ -14,7 +14,7 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
   }
 }
 
-const _referenceSheetMetrics = SheetMetricsSnapshot(
+const _referenceSheetMetrics = SheetMetrics(
   status: SheetStatus.stable,
   minPixels: 0,
   maxPixels: 600,

@@ -144,11 +144,7 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
 
 // TODO: What a ugly interface!
 abstract class NavigationSheetExtentDelegate implements Listenable {
-  Size? get contentDimensions;
-  double? get pixels;
-  double? get minPixels;
-  double? get maxPixels;
-  SheetStatus get status;
+  SheetMetrics get metrics;
   void applyNewViewportDimensions(ViewportDimensions viewportDimensions);
   void beginActivity(SheetActivity activity);
 }
@@ -175,32 +171,11 @@ class _NavigationSheetExtentProxy extends _SheetExtentProxy {
   const _NavigationSheetExtentProxy({required super.inner});
 
   @override
-  Size? get contentDimensions {
-    return switch (activity) {
-      _ProxySheetActivity(target: final target) => target.contentDimensions,
-      _TransitionSheetActivity(:final originExtent) =>
-        originExtent.contentDimensions,
-      _ => super.contentDimensions,
-    };
-  }
-
-  @override
-  double? get minPixels {
-    return switch (activity) {
-      _ProxySheetActivity(target: final target) => target.minPixels,
-      _TransitionSheetActivity(:final originExtent) => originExtent.minPixels,
-      _ => super.minPixels,
-    };
-  }
-
-  @override
-  double? get maxPixels {
-    return switch (activity) {
-      _ProxySheetActivity(target: final target) => target.maxPixels,
-      _TransitionSheetActivity(:final originExtent) => originExtent.maxPixels,
-      _ => super.maxPixels,
-    };
-  }
+  SheetMetrics get metrics => switch (activity) {
+        _ProxySheetActivity(target: final target) => target.metrics,
+        _TransitionSheetActivity(:final originExtent) => originExtent.metrics,
+        _ => super.metrics,
+      };
 
   @override
   void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
@@ -228,15 +203,17 @@ class _NavigationSheetExtentProxy extends _SheetExtentProxy {
   }
 
   void _dispatchViewportDimensions() {
-    if (viewportDimensions != null) {
+    if (metrics.hasPixels) {
       switch (activity) {
         case final _ProxySheetActivity activity:
-          activity.target.applyNewViewportDimensions(viewportDimensions!);
+          activity.target
+              .applyNewViewportDimensions(metrics.viewportDimensions);
 
         case final _TransitionSheetActivity activity:
-          activity.originExtent.applyNewViewportDimensions(viewportDimensions!);
+          activity.originExtent
+              .applyNewViewportDimensions(metrics.viewportDimensions);
           activity.destinationExtent
-              .applyNewViewportDimensions(viewportDimensions!);
+              .applyNewViewportDimensions(metrics.viewportDimensions);
       }
     }
   }
@@ -275,9 +252,9 @@ class _TransitionSheetActivity extends SheetActivity {
   }
 
   void _onAnimationTick() {
-    final startPixels = originExtent.pixels;
-    final endPixels = destinationExtent.pixels;
-    if (startPixels != null && endPixels != null) {
+    if (originExtent.metrics.hasPixels && destinationExtent.metrics.hasPixels) {
+      final startPixels = originExtent.metrics.pixels;
+      final endPixels = destinationExtent.metrics.pixels;
       setPixels(lerpDouble(startPixels, endPixels, _curvedAnimation.value)!);
       dispatchUpdateNotification();
     }
@@ -292,13 +269,13 @@ class _ProxySheetActivity extends SheetActivity {
   final NavigationSheetExtentDelegate target;
 
   @override
-  SheetStatus get status => target.status;
+  SheetStatus get status => target.metrics.status;
 
   @override
   double? get pixels {
-    if (target.pixels != null) {
+    if (target.metrics.hasPixels) {
       // Sync the pixels to the delegate's pixels.
-      correctPixels(target.pixels!);
+      correctPixels(target.metrics.pixels);
     }
     return super.pixels;
   }
@@ -317,12 +294,12 @@ class _ProxySheetActivity extends SheetActivity {
   }
 
   void _didChangeTargetExtent() {
-    setPixels(target.pixels!);
+    setPixels(target.metrics.pixels);
   }
 
   void _syncPixelsImplicitly() {
-    if (target.pixels case final pixels?) {
-      correctPixels(pixels);
+    if (target.metrics.hasPixels) {
+      correctPixels(target.metrics.pixels);
     }
   }
 
@@ -345,9 +322,6 @@ class _SheetExtentProxy implements SheetExtent {
   SheetExtentConfig get config => inner.config;
 
   @override
-  Size? get contentDimensions => inner.contentDimensions;
-
-  @override
   SheetContext get context => inner.context;
 
   @override
@@ -357,22 +331,7 @@ class _SheetExtentProxy implements SheetExtent {
   bool get hasListeners => inner.hasListeners;
 
   @override
-  bool get hasPixels => inner.hasPixels;
-
-  @override
-  bool get isPixelsInBounds => inner.isPixelsInBounds;
-
-  @override
-  bool get isPixelsOutOfBounds => inner.isPixelsOutOfBounds;
-
-  @override
   Extent get maxExtent => inner.maxExtent;
-
-  @override
-  double? get maxPixels => inner.maxPixels;
-
-  @override
-  double? get maxViewPixels => inner.maxViewPixels;
 
   @override
   SheetMetrics get metrics => inner.metrics;
@@ -381,28 +340,7 @@ class _SheetExtentProxy implements SheetExtent {
   Extent get minExtent => inner.minExtent;
 
   @override
-  double? get minPixels => inner.minPixels;
-
-  @override
-  double? get minViewPixels => inner.minViewPixels;
-
-  @override
   SheetPhysics get physics => inner.physics;
-
-  @override
-  double? get pixels => inner.pixels;
-
-  @override
-  SheetMetricsSnapshot get snapshot => inner.snapshot;
-
-  @override
-  SheetStatus get status => inner.status;
-
-  @override
-  double? get viewPixels => inner.viewPixels;
-
-  @override
-  ViewportDimensions? get viewportDimensions => inner.viewportDimensions;
 
   @override
   void addListener(VoidCallback listener) => inner.addListener(listener);
@@ -462,4 +400,7 @@ class _SheetExtentProxy implements SheetExtent {
 
   @override
   void onDimensionsFinalized() => inner.onDimensionsFinalized();
+
+  @override
+  SheetMetrics get value => inner.value;
 }

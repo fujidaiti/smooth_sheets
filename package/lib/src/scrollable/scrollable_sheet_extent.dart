@@ -133,7 +133,7 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     bool shouldIgnorePointer,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.hasPixels) {
+    if (!delegate.metrics.hasPixels) {
       return const DelegationResult.notHandled();
     }
 
@@ -147,8 +147,9 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     }
 
     final scrolledDistance = position.pixels;
-    final draggedDistance = pixels! - delegate.minPixels!;
-    final draggableDistance = delegate.maxPixels! - delegate.minPixels!;
+    final draggedDistance = pixels! - delegate.metrics.minPixels;
+    final draggableDistance =
+        delegate.metrics.maxPixels - delegate.metrics.minPixels;
     final scrollableDistance =
         position.maxScrollExtent - position.minScrollExtent;
     final pixelsForScrollPhysics = scrolledDistance + draggedDistance;
@@ -203,7 +204,7 @@ abstract class _SingleContentScrollDrivenSheetActivity
     if (offset.isApprox(0)) return 0;
 
     final position = contentScrollPosition;
-    final maxPixels = delegate.maxPixels!;
+    final maxPixels = delegate.metrics.maxPixels;
     final oldPixels = pixels!;
     final oldScrollPixels = position.pixels;
     final minScrollPixels = position.minScrollExtent;
@@ -311,8 +312,9 @@ class _ContentIdleScrollDrivenSheetActivity
   void didChangeContentDimensions(Size? oldDimensions) {
     super.didChangeContentDimensions(oldDimensions);
     final config = delegate.config;
+    final metrics = delegate.metrics;
     if (pixels == null && config is ScrollableSheetExtentConfig) {
-      setPixels(config.initialExtent.resolve(delegate.contentDimensions!));
+      setPixels(config.initialExtent.resolve(metrics.contentDimensions));
     }
   }
 }
@@ -329,7 +331,8 @@ class _ContentUserScrollDrivenSheetActivity
     double delta,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.hasPixels || !identical(position, contentScrollPosition)) {
+    if (!delegate.metrics.hasPixels ||
+        !identical(position, contentScrollPosition)) {
       return const DelegationResult.notHandled();
     }
 
@@ -367,7 +370,8 @@ class _ContentBallisticScrollDrivenSheetActivity
     double velocity,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.hasPixels || !identical(position, contentScrollPosition)) {
+    if (!delegate.metrics.hasPixels ||
+        !identical(position, contentScrollPosition)) {
       return const DelegationResult.notHandled();
     }
 
