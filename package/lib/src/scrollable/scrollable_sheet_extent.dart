@@ -133,7 +133,7 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     bool shouldIgnorePointer,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.metrics.hasPixels) {
+    if (!delegate.metrics.hasDimensions) {
       return const DelegationResult.notHandled();
     }
 
@@ -331,7 +331,7 @@ class _ContentUserScrollDrivenSheetActivity
     double delta,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.metrics.hasPixels ||
+    if (!delegate.metrics.hasDimensions ||
         !identical(position, contentScrollPosition)) {
       return const DelegationResult.notHandled();
     }
@@ -370,7 +370,7 @@ class _ContentBallisticScrollDrivenSheetActivity
     double velocity,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.metrics.hasPixels ||
+    if (!delegate.metrics.hasDimensions ||
         !identical(position, contentScrollPosition)) {
       return const DelegationResult.notHandled();
     }

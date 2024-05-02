@@ -61,7 +61,7 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchUpdateNotification() {
-    if (delegate.metrics.hasPixels) {
+    if (delegate.metrics.hasDimensions) {
       dispatchNotification(
         SheetUpdateNotification(
           metrics: delegate.metrics,
@@ -71,7 +71,7 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragStartNotification(DragStartDetails details) {
-    if (delegate.metrics.hasPixels) {
+    if (delegate.metrics.hasDimensions) {
       dispatchNotification(
         SheetDragStartNotification(
           metrics: delegate.metrics,
@@ -82,7 +82,7 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragEndNotification(DragEndDetails details) {
-    if (delegate.metrics.hasPixels) {
+    if (delegate.metrics.hasDimensions) {
       dispatchNotification(
         SheetDragEndNotification(
           metrics: delegate.metrics,
@@ -93,7 +93,7 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragUpdateNotification({required double delta}) {
-    if (delegate.metrics.hasPixels) {
+    if (delegate.metrics.hasDimensions) {
       dispatchNotification(
         SheetDragUpdateNotification(
           metrics: delegate.metrics,
@@ -104,7 +104,7 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragCancelNotification() {
-    if (delegate.metrics.hasPixels) {
+    if (delegate.metrics.hasDimensions) {
       dispatchNotification(
         SheetDragCancelNotification(
           metrics: delegate.metrics,
@@ -114,7 +114,7 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchOverflowNotification(double overflow) {
-    if (delegate.metrics.hasPixels) {
+    if (delegate.metrics.hasDimensions) {
       dispatchNotification(
         SheetOverflowNotification(
           metrics: delegate.metrics,
@@ -161,7 +161,7 @@ abstract class SheetActivity extends ChangeNotifier {
     ViewportDimensions? oldViewportDimensions,
   ) {
     assert(pixels != null);
-    assert(delegate.metrics.hasPixels);
+    assert(delegate.metrics.hasDimensions);
 
     if (oldContentDimensions == null && oldViewportDimensions == null) {
       // The sheet was laid out, but not changed in size.
@@ -360,7 +360,7 @@ mixin UserControlledSheetActivityMixin on SheetActivity {
     ViewportDimensions? oldViewportDimensions,
   ) {
     assert(pixels != null);
-    assert(delegate.metrics.hasPixels);
+    assert(delegate.metrics.hasDimensions);
 
     final newInsets = delegate.metrics.viewportDimensions.insets;
     final oldInsets = oldViewportDimensions?.insets ?? newInsets;

@@ -203,7 +203,7 @@ class _NavigationSheetExtentProxy extends _SheetExtentProxy {
   }
 
   void _dispatchViewportDimensions() {
-    if (metrics.hasPixels) {
+    if (metrics.hasDimensions) {
       switch (activity) {
         case final _ProxySheetActivity activity:
           activity.target
@@ -252,7 +252,8 @@ class _TransitionSheetActivity extends SheetActivity {
   }
 
   void _onAnimationTick() {
-    if (originExtent.metrics.hasPixels && destinationExtent.metrics.hasPixels) {
+    if (originExtent.metrics.hasDimensions &&
+        destinationExtent.metrics.hasDimensions) {
       final startPixels = originExtent.metrics.pixels;
       final endPixels = destinationExtent.metrics.pixels;
       setPixels(lerpDouble(startPixels, endPixels, _curvedAnimation.value)!);
@@ -273,7 +274,7 @@ class _ProxySheetActivity extends SheetActivity {
 
   @override
   double? get pixels {
-    if (target.metrics.hasPixels) {
+    if (target.metrics.hasDimensions) {
       // Sync the pixels to the delegate's pixels.
       correctPixels(target.metrics.pixels);
     }
@@ -298,7 +299,7 @@ class _ProxySheetActivity extends SheetActivity {
   }
 
   void _syncPixelsImplicitly() {
-    if (target.metrics.hasPixels) {
+    if (target.metrics.hasDimensions) {
       correctPixels(target.metrics.pixels);
     }
   }

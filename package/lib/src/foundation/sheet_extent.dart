@@ -289,7 +289,7 @@ class SheetExtent extends ChangeNotifier
   }
 
   void goBallistic(double velocity) {
-    assert(metrics.hasPixels);
+    assert(metrics.hasDimensions);
     final simulation = physics.createBallisticSimulation(velocity, metrics);
     if (simulation != null) {
       goBallisticWith(simulation);
@@ -303,7 +303,7 @@ class SheetExtent extends ChangeNotifier
   }
 
   void settle() {
-    assert(metrics.hasPixels);
+    assert(metrics.hasDimensions);
     final simulation = physics.createSettlingSimulation(metrics);
     if (simulation != null) {
       // TODO: Begin a SettlingSheetActivity
@@ -332,7 +332,7 @@ class SheetExtent extends ChangeNotifier
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    assert(metrics.hasPixels);
+    assert(metrics.hasDimensions);
     final destination = newExtent.resolve(metrics.contentDimensions);
     if (metrics.pixels == destination) {
       return Future.value();
@@ -543,24 +543,23 @@ class SheetMetrics {
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [pixels] and the keyboard's height. Otherwise, it is equal to [pixels].
   double get viewPixels => pixels + viewportDimensions.insets.bottom;
-  double? get maybeViewPixels => hasPixels ? viewPixels : null;
+  double? get maybeViewPixels => hasDimensions ? viewPixels : null;
 
   /// The minimum visible height of the sheet measured from the bottom
   /// of the viewport.
   double get minViewPixels => minPixels + viewportDimensions.insets.bottom;
-  double? get maybeMinViewPixels => hasPixels ? minViewPixels : null;
+  double? get maybeMinViewPixels => hasDimensions ? minViewPixels : null;
 
   /// The maximum visible height of the sheet measured from the bottom
   /// of the viewport.
   double get maxViewPixels => maxPixels + viewportDimensions.insets.bottom;
-  double? get maybeMaxViewPixels => hasPixels ? maxViewPixels : null;
+  double? get maybeMaxViewPixels => hasDimensions ? maxViewPixels : null;
 
   /// Whether the all metrics are available.
   ///
   /// Returns true if all of [pixels], [minPixels], [maxPixels],
   /// [contentDimensions], and [viewportDimensions] are not null.
-  // TODO: Rename to 'hasPixels'
-  bool get hasPixels =>
+  bool get hasDimensions =>
       maybePixels != null &&
       maybeMinPixels != null &&
       maybeMaxPixels != null &&
@@ -570,7 +569,7 @@ class SheetMetrics {
   /// Whether the sheet is within the range of [minPixels] and [maxPixels]
   /// (inclusive of both bounds).
   bool get isPixelsInBounds =>
-      hasPixels && pixels.isInBounds(minPixels, maxPixels);
+      hasDimensions && pixels.isInBounds(minPixels, maxPixels);
 
   /// Whether the sheet is outside the range of [minPixels] and [maxPixels].
   bool get isPixelsOutOfBounds => !isPixelsInBounds;
@@ -636,7 +635,7 @@ class SheetMetrics {
   @override
   String toString() => (
         status: maybeStatus,
-        hasPixels: hasPixels,
+        hasPixels: hasDimensions,
         pixels: maybePixels,
         minPixels: maybeMinPixels,
         maxPixels: maybeMaxPixels,

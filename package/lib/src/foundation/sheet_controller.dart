@@ -20,9 +20,9 @@ class SheetController extends ChangeNotifier
   double? get value => metrics?.pixels;
 
   SheetMetrics? get metrics => switch (_client?.metrics) {
-    final metrics? when metrics.hasPixels => metrics,
-    _ => null,
-  }; 
+        final metrics? when metrics.hasDimensions => metrics,
+        _ => null,
+      };
 
   @override
   void addListener(VoidCallback listener, {bool fireImmediately = false}) {

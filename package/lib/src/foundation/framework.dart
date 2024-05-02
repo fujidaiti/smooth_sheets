@@ -128,7 +128,7 @@ class _RenderSheetViewport extends RenderTransform {
     );
 
     assert(
-      _extent.metrics.hasPixels,
+      _extent.metrics.hasDimensions,
       'The sheet extent and the dimensions values '
       'must be finalized during the layout phase.',
     );
