@@ -128,9 +128,6 @@ class SheetExtent extends ChangeNotifier
   SheetExtentConfig _config;
 
   // TODO: Remove this
-  Extent get minExtent => config.minExtent;
-
-  // TODO: Remove this
   Extent get maxExtent => config.maxExtent;
 
   final SheetExtentDelegate delegate;

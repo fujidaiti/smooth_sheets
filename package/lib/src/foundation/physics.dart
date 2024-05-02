@@ -227,7 +227,7 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
 /// it will snap to [SheetMetrics.maxPixels].
 ///
 /// Using this behavior is functionally identical to using [SnapToNearest]
-/// with the snap positions of [SheetExtent.minExtent] and
+/// with the snap positions of [SheetExtentConfig.minExtent] and
 /// [SheetExtent.maxExtent], but more simplified and efficient.
 class SnapToNearestEdge with _SnapToNearestMixin {
   /// Creates a [SnappingSheetBehavior] that snaps to either
