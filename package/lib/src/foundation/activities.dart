@@ -145,8 +145,7 @@ abstract class SheetActivity extends ChangeNotifier {
     }
   }
 
-  // TODO: Rename to 'didChangeContentSize'
-  void didChangeContentDimensions(Size? oldDimensions) {}
+  void didChangeContentSize(Size? oldSize) {}
 
   // TODO: Rename to 'didChangeViewportSize'
   void didChangeViewportDimensions(ViewportDimensions? oldDimensions) {}
@@ -157,13 +156,13 @@ abstract class SheetActivity extends ChangeNotifier {
   ) {}
 
   void didFinalizeDimensions(
-    Size? oldContentDimensions,
+    Size? oldContentSize,
     ViewportDimensions? oldViewportDimensions,
   ) {
     assert(pixels != null);
     assert(delegate.metrics.hasDimensions);
 
-    if (oldContentDimensions == null && oldViewportDimensions == null) {
+    if (oldContentSize == null && oldViewportDimensions == null) {
       // The sheet was laid out, but not changed in size.
       return;
     }
@@ -356,7 +355,7 @@ mixin UserControlledSheetActivityMixin on SheetActivity {
 
   @override
   void didFinalizeDimensions(
-    Size? oldContentDimensions,
+    Size? oldContentSize,
     ViewportDimensions? oldViewportDimensions,
   ) {
     assert(pixels != null);

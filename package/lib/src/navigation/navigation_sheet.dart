@@ -305,8 +305,8 @@ class _ProxySheetActivity extends SheetActivity {
   }
 
   @override
-  void didChangeContentDimensions(Size? oldDimensions) {
-    super.didChangeContentDimensions(oldDimensions);
+  void didChangeContentSize(Size? oldSize) {
+    super.didChangeContentSize(oldSize);
     _syncPixelsImplicitly();
   }
 }
@@ -364,8 +364,8 @@ class _SheetExtentProxy implements SheetExtent {
   void applyNewConfig(SheetExtentConfig config) => inner.applyNewConfig(config);
 
   @override
-  void applyNewContentDimensions(Size contentDimensions) =>
-      inner.applyNewContentDimensions(contentDimensions);
+  void applyNewContentSize(Size contentSize) =>
+      inner.applyNewContentSize(contentSize);
 
   @override
   void applyNewViewportDimensions(ViewportDimensions viewportDimensions) =>

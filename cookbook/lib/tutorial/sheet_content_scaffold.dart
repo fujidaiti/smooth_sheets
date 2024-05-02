@@ -47,8 +47,7 @@ class _ExampleSheet extends StatelessWidget {
         getIsVisible: (metrics) {
           return metrics.viewportDimensions.insets.bottom == 0 &&
               metrics.pixels >
-                  const Extent.proportional(0.5)
-                      .resolve(metrics.contentDimensions);
+                  const Extent.proportional(0.5).resolve(metrics.contentSize);
         },
         child: buildBottomBar(),
       ),

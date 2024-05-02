@@ -38,7 +38,7 @@ sealed class SheetNotification extends Notification {
       ..add('minExtent: ${metrics.minPixels}')
       ..add('maxExtent: ${metrics.maxPixels}')
       ..add('viewportDimensions: ${metrics.viewportDimensions}')
-      ..add('contentDimensions: ${metrics.contentDimensions}');
+      ..add('contentSize: ${metrics.contentSize}');
   }
 }
 

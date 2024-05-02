@@ -27,9 +27,9 @@ abstract interface class Extent {
 
   /// Resolves the extent to a concrete value in pixels.
   ///
-  /// Do not cache the value of [contentDimensions] because
+  /// Do not cache the value of [contentSize] because
   /// it may change over time.
-  double resolve(Size contentDimensions);
+  double resolve(Size contentSize);
 }
 
 /// An extent that is proportional to the content height.
@@ -38,7 +38,7 @@ class ProportionalExtent implements Extent {
   /// Creates an extent that is proportional to the content height.
   ///
   /// The [factor] must be greater than or equal to 0.
-  /// This extent will resolve to `contentDimensions.height * factor`.
+  /// This extent will resolve to `contentSize.height * factor`.
   /// {@endtemplate}
   const ProportionalExtent(this.factor) : assert(factor >= 0);
 
@@ -46,7 +46,7 @@ class ProportionalExtent implements Extent {
   final double factor;
 
   @override
-  double resolve(Size contentDimensions) => contentDimensions.height * factor;
+  double resolve(Size contentSize) => contentSize.height * factor;
 
   @override
   bool operator ==(Object other) =>
@@ -70,7 +70,7 @@ class FixedExtent implements Extent {
   final double pixels;
 
   @override
-  double resolve(Size contentDimensions) => pixels;
+  double resolve(Size contentSize) => pixels;
 
   @override
   bool operator ==(Object other) =>
@@ -149,22 +149,22 @@ class SheetExtent extends ChangeNotifier
   @mustCallSuper
   void takeOver(SheetExtent other) {
     applyNewViewportDimensions(other.metrics.viewportDimensions);
-    applyNewContentDimensions(other.metrics.contentDimensions);
+    applyNewContentSize(other.metrics.contentSize);
     activity.takeOver(other.activity);
   }
 
   @mustCallSuper
-  void applyNewContentDimensions(Size contentDimensions) {
-    if (metrics.maybeContentDimensions != contentDimensions) {
+  void applyNewContentSize(Size contentSize) {
+    if (metrics.maybeContentSize != contentSize) {
       final oldMaxPixels = metrics.maybeMaxPixels;
       final oldMinPixels = metrics.maybeMinPixels;
-      _oldContentDimensions = metrics.maybeContentDimensions;
+      _oldContentSize = metrics.maybeContentSize;
       _metrics = metrics.copyWith(
-        contentDimensions: contentDimensions,
-        minPixels: config.minExtent.resolve(contentDimensions),
-        maxPixels: config.maxExtent.resolve(contentDimensions),
+        contentSize: contentSize,
+        minPixels: config.minExtent.resolve(contentSize),
+        maxPixels: config.maxExtent.resolve(contentSize),
       );
-      activity.didChangeContentDimensions(_oldContentDimensions);
+      activity.didChangeContentSize(_oldContentSize);
       if (oldMinPixels != metrics.minPixels ||
           oldMaxPixels != metrics.maxPixels) {
         activity.didChangeBoundaryConstraints(oldMinPixels, oldMaxPixels);
@@ -188,8 +188,8 @@ class SheetExtent extends ChangeNotifier
       final oldMaxPixels = metrics.maxPixels;
       final oldMinPixels = metrics.minPixels;
       _metrics = metrics.copyWith(
-        minPixels: config.minExtent.resolve(metrics.contentDimensions),
-        maxPixels: config.maxExtent.resolve(metrics.contentDimensions),
+        minPixels: config.minExtent.resolve(metrics.contentSize),
+        maxPixels: config.maxExtent.resolve(metrics.contentSize),
       );
       if (oldMinPixels != metrics.minPixels ||
           oldMaxPixels != metrics.maxPixels) {
@@ -198,7 +198,7 @@ class SheetExtent extends ChangeNotifier
     }
   }
 
-  Size? _oldContentDimensions;
+  Size? _oldContentSize;
   ViewportDimensions? _oldViewportDimensions;
   int _markAsDimensionsWillChangeCallCount = 0;
 
@@ -254,12 +254,9 @@ class SheetExtent extends ChangeNotifier
       ),
     );
 
-    _activity!.didFinalizeDimensions(
-      _oldContentDimensions,
-      _oldViewportDimensions,
-    );
+    _activity!.didFinalizeDimensions(_oldContentSize, _oldViewportDimensions);
 
-    _oldContentDimensions = null;
+    _oldContentSize = null;
     _oldViewportDimensions = null;
   }
 
@@ -333,7 +330,7 @@ class SheetExtent extends ChangeNotifier
     Duration duration = const Duration(milliseconds: 300),
   }) {
     assert(metrics.hasDimensions);
-    final destination = newExtent.resolve(metrics.contentDimensions);
+    final destination = newExtent.resolve(metrics.contentSize);
     if (metrics.pixels == destination) {
       return Future.value();
     } else {
@@ -468,13 +465,13 @@ class SheetMetrics {
     required double? pixels,
     required double? minPixels,
     required double? maxPixels,
-    required Size? contentDimensions,
+    required Size? contentSize,
     required ViewportDimensions? viewportDimensions,
   })  : maybeStatus = status,
         maybePixels = pixels,
         maybeMinPixels = minPixels,
         maybeMaxPixels = maxPixels,
-        maybeContentDimensions = contentDimensions,
+        maybeContentSize = contentSize,
         maybeViewportDimensions = viewportDimensions;
 
   static const empty = SheetMetrics(
@@ -482,7 +479,7 @@ class SheetMetrics {
     pixels: null,
     minPixels: null,
     maxPixels: null,
-    contentDimensions: null,
+    contentSize: null,
     viewportDimensions: null,
   );
 
@@ -490,7 +487,7 @@ class SheetMetrics {
   final double? maybePixels;
   final double? maybeMinPixels;
   final double? maybeMaxPixels;
-  final Size? maybeContentDimensions;
+  final Size? maybeContentSize;
   final ViewportDimensions? maybeViewportDimensions;
 
   /// The current status of the sheet.
@@ -518,18 +515,13 @@ class SheetMetrics {
     return maybeMaxPixels!;
   }
 
-  /// The dimensions of the sheet's content.
-  // TODO: Rename to 'contentSize'
-  Size get contentDimensions {
-    assert(_debugAssertHasProperty(
-      'contentDimensions',
-      maybeContentDimensions,
-    ));
-    return maybeContentDimensions!;
+  /// The size of the sheet's content.
+  Size get contentSize {
+    assert(_debugAssertHasProperty('contentSize', maybeContentSize));
+    return maybeContentSize!;
   }
 
-  /// The dimensions of the viewport that hosts the sheet.
-  // TODO: Rename to 'viewportSize'
+  /// The size of the viewport that hosts the sheet.
   ViewportDimensions get viewportDimensions {
     assert(_debugAssertHasProperty(
       'viewportDimensions',
@@ -558,12 +550,12 @@ class SheetMetrics {
   /// Whether the all metrics are available.
   ///
   /// Returns true if all of [pixels], [minPixels], [maxPixels],
-  /// [contentDimensions], and [viewportDimensions] are not null.
+  /// [contentSize], and [viewportDimensions] are not null.
   bool get hasDimensions =>
       maybePixels != null &&
       maybeMinPixels != null &&
       maybeMaxPixels != null &&
-      maybeContentDimensions != null &&
+      maybeContentSize != null &&
       maybeViewportDimensions != null;
 
   /// Whether the sheet is within the range of [minPixels] and [maxPixels]
@@ -596,7 +588,7 @@ class SheetMetrics {
     double? pixels,
     double? minPixels,
     double? maxPixels,
-    Size? contentDimensions,
+    Size? contentSize,
     ViewportDimensions? viewportDimensions,
   }) {
     return SheetMetrics(
@@ -604,7 +596,7 @@ class SheetMetrics {
       pixels: pixels ?? maybePixels,
       minPixels: minPixels ?? maybeMinPixels,
       maxPixels: maxPixels ?? maybeMaxPixels,
-      contentDimensions: contentDimensions ?? maybeContentDimensions,
+      contentSize: contentSize ?? maybeContentSize,
       viewportDimensions: viewportDimensions ?? maybeViewportDimensions,
     );
   }
@@ -618,7 +610,7 @@ class SheetMetrics {
           maybePixels == other.pixels &&
           maybeMinPixels == other.minPixels &&
           maybeMaxPixels == other.maxPixels &&
-          maybeContentDimensions == other.contentDimensions &&
+          maybeContentSize == other.contentSize &&
           maybeViewportDimensions == other.viewportDimensions);
 
   @override
@@ -628,7 +620,7 @@ class SheetMetrics {
         maybePixels,
         maybeMinPixels,
         maybeMaxPixels,
-        maybeContentDimensions,
+        maybeContentSize,
         maybeViewportDimensions,
       );
 
@@ -642,7 +634,7 @@ class SheetMetrics {
         viewPixels: maybeViewPixels,
         minViewPixels: maybeMinViewPixels,
         maxViewPixels: maybeMaxViewPixels,
-        contentDimensions: maybeContentDimensions,
+        contentSize: maybeContentSize,
         viewportDimensions: maybeViewportDimensions,
       ).toString();
 }

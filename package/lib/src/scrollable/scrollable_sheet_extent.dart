@@ -309,12 +309,12 @@ class _ContentIdleScrollDrivenSheetActivity
   SheetStatus get status => SheetStatus.stable;
 
   @override
-  void didChangeContentDimensions(Size? oldDimensions) {
-    super.didChangeContentDimensions(oldDimensions);
+  void didChangeContentSize(Size? oldSize) {
+    super.didChangeContentSize(oldSize);
     final config = delegate.config;
     final metrics = delegate.metrics;
     if (pixels == null && config is ScrollableSheetExtentConfig) {
-      setPixels(config.initialExtent.resolve(metrics.contentDimensions));
+      setPixels(config.initialExtent.resolve(metrics.contentSize));
     }
   }
 }

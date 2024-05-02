@@ -332,8 +332,8 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
   @override
   double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize) {
     final invisibleSheetHeight =
-        (sheetMetrics.contentDimensions.height - sheetMetrics.pixels)
-            .clamp(0.0, sheetMetrics.contentDimensions.height);
+        (sheetMetrics.contentSize.height - sheetMetrics.pixels)
+            .clamp(0.0, sheetMetrics.contentSize.height);
 
     final visibleBarHeight =
         max(0.0, bottomBarSize.height - invisibleSheetHeight);
@@ -515,7 +515,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 ///         metrics.viewportDimensions.insets.bottom == 0 &&
 ///         metrics.pixels >
 ///             const Extent.proportional(0.5)
-///                 .resolve(metrics.contentDimensions),
+///                 .resolve(metrics.contentSize),
 ///     child: BottomAppBar(),
 ///   ),
 /// );

@@ -266,13 +266,13 @@ class SnapToNearest with _SnapToNearestMixin {
   /// Always call [_ensureCacheIsValid] before accessing this list
   /// to ensure that the cache is up-to-date and sorted in ascending order.
   List<double> _snapTo = const [];
-  Size? _cachedContentDimensions;
+  Size? _cachedContentSize;
 
   void _ensureCacheIsValid(SheetMetrics metrics) {
-    if (_cachedContentDimensions != metrics.contentDimensions) {
-      _cachedContentDimensions = metrics.contentDimensions;
+    if (_cachedContentSize != metrics.contentSize) {
+      _cachedContentSize = metrics.contentSize;
       _snapTo = snapTo
-          .map((e) => e.resolve(metrics.contentDimensions))
+          .map((e) => e.resolve(metrics.contentSize))
           .toList(growable: false)
         ..sort();
 
@@ -397,8 +397,7 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   double computeOverflow(double offset, SheetMetrics metrics) {
-    final stretchingRange =
-        this.stretchingRange.resolve(metrics.contentDimensions);
+    final stretchingRange = this.stretchingRange.resolve(metrics.contentSize);
 
     if (stretchingRange != 0) {
       return 0;
@@ -421,8 +420,7 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       return offset;
     }
 
-    final stretchingRange =
-        this.stretchingRange.resolve(metrics.contentDimensions);
+    final stretchingRange = this.stretchingRange.resolve(metrics.contentSize);
 
     if (stretchingRange.isApprox(0)) {
       return 0;

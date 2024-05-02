@@ -19,7 +19,7 @@ const _referenceSheetMetrics = SheetMetrics(
   minPixels: 0,
   maxPixels: 600,
   pixels: 600,
-  contentDimensions: Size(360, 600),
+  contentSize: Size(360, 600),
   viewportDimensions: ViewportDimensions(
     width: 360,
     height: 700,

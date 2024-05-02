@@ -294,7 +294,7 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
     _extent?.markAsDimensionsWillChange();
     super.performLayout();
     if (child != null && _isPrimary()) {
-      _extent?.applyNewContentDimensions(child!.size);
+      _extent?.applyNewContentSize(child!.size);
     }
     _extent?.markAsDimensionsChanged();
   }
