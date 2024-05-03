@@ -15,9 +15,9 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
     required this.initialExtent,
     required super.minExtent,
     required super.maxExtent,
-    required super.physics,
+    required ScrollableSheetPhysics physics,
     super.debugLabel,
-  });
+  }) : super(physics: physics);
 
   final Extent initialExtent;
 
@@ -50,6 +50,7 @@ class ScrollableSheetExtentDelegate with SheetExtentDelegate {
   }
 }
 
+// TODO: Move this to a separate file
 @internal
 class SheetContentScrollController extends ScrollController {
   SheetContentScrollController({

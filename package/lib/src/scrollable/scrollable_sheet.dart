@@ -47,9 +47,14 @@ class ScrollableSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
-    final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+    // TODO: Do this in ScrollableSheetConfig
+    final physics = switch (this.physics ?? theme?.physics) {
+      null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
+      final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
+      final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
+    };
 
     Widget result = ImplicitSheetControllerScope(
       controller: controller,
@@ -61,10 +66,7 @@ class ScrollableSheet extends StatelessWidget {
             initialExtent: initialExtent,
             minExtent: minExtent,
             maxExtent: maxExtent,
-            physics: switch (physics) {
-              final ScrollableSheetPhysics physics => physics,
-              _ => ScrollableSheetPhysics(parent: physics),
-            },
+            physics: physics,
             debugLabel: 'ScrollableSheet',
           ),
           child: PrimarySheetContentScrollController(child: child),
@@ -114,6 +116,7 @@ class PrimarySheetContentScrollController extends StatelessWidget {
   }
 }
 
+// TODO: Move this to a separate file.
 class SheetScrollable extends StatefulWidget {
   const SheetScrollable({
     super.key,

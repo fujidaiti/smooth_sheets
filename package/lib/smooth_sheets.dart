@@ -18,7 +18,6 @@ export 'src/foundation/sheet_extent.dart';
 export 'src/foundation/theme.dart';
 export 'src/modal/cupertino.dart';
 export 'src/modal/modal_sheet.dart';
-export 'src/navigation/navigation_route.dart';
 export 'src/navigation/navigation_routes.dart';
 export 'src/navigation/navigation_sheet.dart';
 export 'src/scrollable/scrollable_sheet.dart'

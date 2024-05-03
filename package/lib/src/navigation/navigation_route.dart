@@ -1,19 +1,53 @@
 import 'package:flutter/material.dart';
 
-import '../foundation/activities.dart';
 import '../foundation/framework.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
 import 'navigation_sheet.dart';
 
-mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
-  SheetExtentConfig get pageExtentConfig;
-  SheetExtentDelegate get pageExtentDelegate;
+abstract class NavigationSheetRoute<T> extends PageRoute<T>
+    implements NavigationSheetEntry {
+  NavigationSheetRoute({super.settings});
+
+  final GlobalKey<SheetExtentScopeState> _scopeKey = GlobalKey();
+
+  // Since the extent is lazily created, we need to keep track of the listeners
+  // so that we can add them to the extent when it is created.
+  final List<VoidCallback> _listeners = [];
+
+  // ignore: use_late_for_private_fields_and_variables
+  (Size, EdgeInsets)? _viewportDimensions;
 
   @override
-  NavigationSheetExtentDelegate get pageExtent => _pageExtent;
-  late final _SheetExtentBox _pageExtent;
+  SheetMetrics get metrics =>
+      _scopeKey.currentState?.extent.metrics ?? SheetMetrics.empty;
+
+  @override
+  SheetStatus get status =>
+      _scopeKey.currentState?.extent.status ?? SheetStatus.stable;
+
+  @override
+  void addListener(VoidCallback listener) {
+    _listeners.add(listener);
+    _scopeKey.currentState?.extent.addListener(listener);
+  }
+
+  @override
+  void removeListener(VoidCallback listener) {
+    _listeners.remove(listener);
+    _scopeKey.currentState?.extent.removeListener(listener);
+  }
+
+  @override
+  void applyNewViewportDimensions(
+    Size viewportSize,
+    EdgeInsets viewportInsets,
+  ) {
+    _viewportDimensions = (viewportSize, viewportInsets);
+    _scopeKey.currentState?.extent
+        .applyNewViewportDimensions(viewportSize, viewportInsets);
+  }
 
   @override
   Color? get barrierColor => null;
@@ -21,40 +55,20 @@ mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
   @override
   String? get barrierLabel => null;
 
-  Widget buildContent(BuildContext context);
-
-  @override
-  void install() {
-    super.install();
-    _pageExtent = _SheetExtentBox();
-  }
-
-  @override
-  void dispose() {
-    _pageExtent.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget buildPage(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-  ) {
-    return SheetExtentScope(
-      isPrimary: false,
-      config: pageExtentConfig,
-      delegate: pageExtentDelegate,
-      controller: SheetControllerScope.of(context),
-      initializer: (extent) => _pageExtent.source = extent,
-      child: SheetContentViewport(
-        child: buildContent(context),
-      ),
-    );
-  }
+  RouteTransitionsBuilder? get transitionsBuilder;
 
   @override
   Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final builder = transitionsBuilder ?? _buildDefaultTransitions;
+    return builder(context, animation, secondaryAnimation, child);
+  }
+
+  Widget _buildDefaultTransitions(
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
@@ -94,48 +108,41 @@ mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
   }
 }
 
-// TODO: Can we not use this ugly hack?
-class _SheetExtentBox extends ChangeNotifier
-    implements NavigationSheetExtentDelegate {
-  SheetExtent? _source;
-  SheetExtent? get source => _source;
-  set source(SheetExtent? value) {
-    if (_source == value) return;
-    _source?.removeListener(notifyListeners);
-    _source = value?..addListener(notifyListeners);
-    if (_viewportSize != null && _viewportInsets != null) {
-      _source?.applyNewViewportDimensions(
-        _viewportSize!,
-        _viewportInsets!,
-      );
-    }
-  }
+class NavigationSheetRouteContent extends StatelessWidget {
+  const NavigationSheetRouteContent({
+    super.key,
+    required this.config,
+    required this.delegate,
+    required this.child,
+  });
 
-  Size? _viewportSize;
-  EdgeInsets? _viewportInsets;
+  final SheetExtentConfig config;
+  final SheetExtentDelegate delegate;
+  final Widget child;
 
   @override
-  void dispose() {
-    source = null;
-    super.dispose();
-  }
+  Widget build(BuildContext context) {
+    assert(
+      ModalRoute.of(context) is NavigationSheetRoute,
+      '$NavigationSheetRouteContent can only be used '
+      'within a $NavigationSheetRoute',
+    );
 
-  @override
-  SheetMetrics get metrics => _source?.metrics ?? SheetMetrics.empty;
-
-  @override
-  SheetStatus get status => _source?.status ?? SheetStatus.stable;
-
-  @override
-  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
-    // Keep the given value in case the source is not set yet.
-    _viewportSize = size;
-    _viewportInsets = insets;
-    _source?.applyNewViewportDimensions(size, insets);
-  }
-
-  @override
-  void beginActivity(SheetActivity activity) {
-    _source?.beginActivity(activity);
+    final route = ModalRoute.of(context)! as NavigationSheetRoute;
+    return SheetExtentScope(
+      key: route._scopeKey,
+      isPrimary: false,
+      config: config,
+      delegate: delegate,
+      controller: SheetControllerScope.of(context),
+      initializer: (extent) {
+        route._listeners.forEach(extent.addListener);
+        if (route._viewportDimensions case (final size, final insets)) {
+          extent.applyNewViewportDimensions(size, insets);
+        }
+        return extent;
+      },
+      child: SheetContentViewport(child: child),
+    );
   }
 }

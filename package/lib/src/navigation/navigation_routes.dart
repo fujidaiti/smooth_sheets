@@ -4,13 +4,90 @@ import '../draggable/draggable_sheet.dart';
 import '../draggable/sheet_draggable.dart';
 import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/theme.dart';
 import '../scrollable/scrollable_sheet.dart';
 import '../scrollable/scrollable_sheet_extent.dart';
+import '../scrollable/scrollable_sheet_physics.dart';
 import 'navigation_route.dart';
-import 'navigation_sheet.dart';
 
-class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
-    with NavigationSheetRouteMixin<T> {
+class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
+  const _ScrollableNavigationSheetRouteContent({
+    this.debugLabel,
+    required this.initialExtent,
+    required this.minExtent,
+    required this.maxExtent,
+    required this.physics,
+    required this.child,
+  });
+
+  final String? debugLabel;
+  final Extent initialExtent;
+  final Extent minExtent;
+  final Extent maxExtent;
+  final SheetPhysics? physics;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = SheetTheme.maybeOf(context);
+    // TODO: Do this in ScrollableSheetConfig
+    final physics = switch (this.physics ?? theme?.physics) {
+      null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
+      final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
+      final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
+    };
+
+    return NavigationSheetRouteContent(
+      delegate: const ScrollableSheetExtentDelegate(),
+      config: ScrollableSheetExtentConfig(
+        debugLabel: debugLabel,
+        initialExtent: initialExtent,
+        minExtent: minExtent,
+        maxExtent: maxExtent,
+        physics: physics,
+      ),
+      child: PrimarySheetContentScrollController(child: child),
+    );
+  }
+}
+
+class _DraggableNavigationSheetRouteContent extends StatelessWidget {
+  const _DraggableNavigationSheetRouteContent({
+    this.debugLabel,
+    required this.initialExtent,
+    required this.minExtent,
+    required this.maxExtent,
+    required this.physics,
+    required this.child,
+  });
+
+  final String? debugLabel;
+  final Extent initialExtent;
+  final Extent minExtent;
+  final Extent maxExtent;
+  final SheetPhysics? physics;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = SheetTheme.maybeOf(context);
+    final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
+
+    return NavigationSheetRouteContent(
+      delegate: const DraggableSheetExtentDelegate(),
+      config: DraggableSheetExtentConfig(
+        debugLabel: debugLabel,
+        initialExtent: initialExtent,
+        minExtent: minExtent,
+        maxExtent: maxExtent,
+        physics: physics,
+      ),
+      child: SheetDraggable(child: child),
+    );
+  }
+}
+
+class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T> {
   ScrollableNavigationSheetRoute({
     super.settings,
     this.maintainState = true,
@@ -18,29 +95,15 @@ class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
-    this.physics = kDefaultSheetPhysics,
+    this.physics,
     this.transitionsBuilder,
     required this.builder,
-  }) : pageExtentConfig = ScrollableSheetExtentConfig(
-          initialExtent: initialExtent,
-          minExtent: minExtent,
-          maxExtent: maxExtent,
-          // TODO: Obtain the default physics from the theme.
-          physics: physics,
-          debugLabel: 'ScrollableNavigationSheetRoute(${settings?.name})',
-        );
-
-  @override
-  final SheetExtentConfig pageExtentConfig;
-
-  @override
-  SheetExtentDelegate get pageExtentDelegate =>
-      const ScrollableSheetExtentDelegate();
+  });
 
   final Extent initialExtent;
   final Extent minExtent;
   final Extent maxExtent;
-  final SheetPhysics physics;
+  final SheetPhysics? physics;
 
   @override
   final bool maintainState;
@@ -48,31 +111,29 @@ class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
   @override
   final Duration transitionDuration;
 
+  @override
   final RouteTransitionsBuilder? transitionsBuilder;
 
   final WidgetBuilder builder;
 
   @override
-  Widget buildContent(BuildContext context) {
-    return PrimarySheetContentScrollController(
-      child: builder(context),
-    );
-  }
-
-  @override
-  Widget buildTransitions(
+  Widget buildPage(
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-    Widget child,
   ) {
-    final builder = transitionsBuilder ?? super.buildTransitions;
-    return builder(context, animation, secondaryAnimation, child);
+    return _ScrollableNavigationSheetRouteContent(
+      debugLabel: '$ScrollableNavigationSheetRoute(${settings.name})',
+      initialExtent: initialExtent,
+      minExtent: minExtent,
+      maxExtent: maxExtent,
+      physics: physics,
+      child: builder(context),
+    );
   }
 }
 
-class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
-    with NavigationSheetRouteMixin<T> {
+class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T> {
   DraggableNavigationSheetRoute({
     super.settings,
     this.maintainState = true,
@@ -96,40 +157,25 @@ class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
   @override
   final Duration transitionDuration;
 
+  @override
   final RouteTransitionsBuilder? transitionsBuilder;
 
   final WidgetBuilder builder;
 
   @override
-  SheetExtentConfig get pageExtentConfig => DraggableSheetExtentConfig(
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        // TODO: Obtain the default physics from the theme.
-        physics: physics ?? kDefaultSheetPhysics,
-        debugLabel: 'DraggableNavigationSheetRoute(${settings.name})',
-      );
-
-  @override
-  SheetExtentDelegate get pageExtentDelegate =>
-      const DraggableSheetExtentDelegate();
-
-  @override
-  Widget buildContent(BuildContext context) {
-    return SheetDraggable(
-      child: builder(context),
-    );
-  }
-
-  @override
-  Widget buildTransitions(
+  Widget buildPage(
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-    Widget child,
   ) {
-    final builder = transitionsBuilder ?? super.buildTransitions;
-    return builder(context, animation, secondaryAnimation, child);
+    return _DraggableNavigationSheetRouteContent(
+      debugLabel: '$DraggableNavigationSheetRoute(${settings.name})',
+      initialExtent: initialExtent,
+      minExtent: minExtent,
+      maxExtent: maxExtent,
+      physics: physics,
+      child: builder(context),
+    );
   }
 }
 
@@ -172,7 +218,7 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
 }
 
 class _PageBasedScrollableNavigationSheetRoute<T>
-    extends NavigationSheetRoute<T> with NavigationSheetRouteMixin<T> {
+    extends NavigationSheetRoute<T> {
   _PageBasedScrollableNavigationSheetRoute({
     required ScrollableNavigationSheetPage<T> page,
   }) : super(settings: page);
@@ -187,33 +233,20 @@ class _PageBasedScrollableNavigationSheetRoute<T>
   Duration get transitionDuration => page.transitionDuration;
 
   @override
-  SheetExtentConfig get pageExtentConfig => ScrollableSheetExtentConfig(
-        initialExtent: page.initialExtent,
-        minExtent: page.minExtent,
-        maxExtent: page.maxExtent,
-        // TODO: Obtain the default physics from the theme.
-        physics: page.physics ?? kDefaultSheetPhysics,
-        debugLabel: 'ScrollableNavigationSheetPage(${page.name})',
-      );
+  RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
 
   @override
-  SheetExtentDelegate get pageExtentDelegate =>
-      const ScrollableSheetExtentDelegate();
-
-  @override
-  Widget buildTransitions(
+  Widget buildPage(
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-    Widget child,
   ) {
-    final builder = page.transitionsBuilder ?? super.buildTransitions;
-    return builder(context, animation, secondaryAnimation, child);
-  }
-
-  @override
-  Widget buildContent(BuildContext context) {
-    return PrimarySheetContentScrollController(
+    return _ScrollableNavigationSheetRouteContent(
+      debugLabel: '$ScrollableNavigationSheetPage(${page.name})',
+      initialExtent: page.initialExtent,
+      minExtent: page.minExtent,
+      maxExtent: page.maxExtent,
+      physics: page.physics,
       child: page.child,
     );
   }
@@ -257,8 +290,8 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
   }
 }
 
-class _PageBasedDraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
-    with NavigationSheetRouteMixin<T> {
+class _PageBasedDraggableNavigationSheetRoute<T>
+    extends NavigationSheetRoute<T> {
   _PageBasedDraggableNavigationSheetRoute({
     required DraggableNavigationSheetPage<T> page,
   }) : super(settings: page);
@@ -273,31 +306,21 @@ class _PageBasedDraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T>
   Duration get transitionDuration => page.transitionDuration;
 
   @override
-  SheetExtentConfig get pageExtentConfig => DraggableSheetExtentConfig(
-      initialExtent: page.initialExtent,
-      minExtent: page.minExtent,
-      maxExtent: page.maxExtent,
-      // TODO: Obtain the default physics from the theme.
-      physics: page.physics ?? kDefaultSheetPhysics,
-      debugLabel: 'DraggableNavigationSHeetPage(${page.name})');
+  RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
 
   @override
-  SheetExtentDelegate get pageExtentDelegate =>
-      const DraggableSheetExtentDelegate();
-
-  @override
-  Widget buildTransitions(
+  Widget buildPage(
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-    Widget child,
   ) {
-    final builder = page.transitionsBuilder ?? super.buildTransitions;
-    return builder(context, animation, secondaryAnimation, child);
-  }
-
-  @override
-  Widget buildContent(BuildContext context) {
-    return SheetDraggable(child: page.child);
+    return _DraggableNavigationSheetRouteContent(
+      debugLabel: '$DraggableNavigationSheetPage(${page.name})',
+      initialExtent: page.initialExtent,
+      minExtent: page.minExtent,
+      maxExtent: page.maxExtent,
+      physics: page.physics,
+      child: page.child,
+    );
   }
 }

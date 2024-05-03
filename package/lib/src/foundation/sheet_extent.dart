@@ -174,10 +174,7 @@ class SheetExtent extends ChangeNotifier
         metrics.maybeViewportInsets != insets) {
       _oldViewportSize = metrics.maybeViewportSize;
       _oldViewportInsets = metrics.maybeViewportInsets;
-      _metrics = metrics.copyWith(
-        viewportSize: size,
-        viewportInsets: insets,
-      );
+      _metrics = metrics.copyWith(viewportSize: size, viewportInsets: insets);
       activity.didChangeViewportDimensions(
         _oldViewportSize,
         _oldViewportInsets,
@@ -230,6 +227,12 @@ class SheetExtent extends ChangeNotifier
       }
       return true;
     }());
+
+    if (_markAsDimensionsWillChangeCallCount == 0) {
+      _oldContentSize = null;
+      _oldViewportSize = null;
+      _oldViewportInsets = null;
+    }
 
     _markAsDimensionsWillChangeCallCount++;
   }
@@ -651,7 +654,7 @@ class SheetExtentScope extends StatefulWidget {
   final Widget child;
 
   @override
-  State<SheetExtentScope> createState() => _SheetExtentScopeState();
+  State<SheetExtentScope> createState() => SheetExtentScopeState();
 
   /// Retrieves the [SheetExtent] from the closest [SheetExtentScope]
   /// that encloses the given context, if any.
@@ -675,9 +678,10 @@ class SheetExtentScope extends StatefulWidget {
   }
 }
 
-class _SheetExtentScopeState extends State<SheetExtentScope>
+class SheetExtentScopeState extends State<SheetExtentScope>
     with TickerProviderStateMixin
     implements SheetContext {
+  SheetExtent get extent => _extent;
   late SheetExtent _extent;
 
   @override

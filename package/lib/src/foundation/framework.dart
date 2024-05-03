@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -9,22 +10,25 @@ import 'sheet_extent.dart';
 class SheetContainer extends StatelessWidget {
   const SheetContainer({
     super.key,
+    this.scopeKey,
     this.initializer,
+    this.delegate = const SheetExtentDelegate(),
     required this.controller,
     required this.config,
     required this.child,
-    this.delegate = const SheetExtentDelegate(),
   });
 
+  final Key? scopeKey;
+  final SheetExtentInitializer? initializer;
+  final SheetExtentDelegate delegate;
   final SheetController controller;
   final SheetExtentConfig config;
-  final SheetExtentDelegate delegate;
-  final SheetExtentInitializer? initializer;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return SheetExtentScope(
+      key: scopeKey,
       config: config,
       controller: controller,
       initializer: initializer,
@@ -93,15 +97,7 @@ class _RenderSheetViewport extends RenderTransform {
   set insets(EdgeInsets value) {
     if (value != _insets) {
       _insets = value;
-
-      if (_lastMeasuredSize != null) {
-        _extent.applyNewViewportDimensions(
-          Size(_lastMeasuredSize!.width, _lastMeasuredSize!.height),
-          value,
-        );
-
-        _invalidateTranslationValue();
-      }
+      markNeedsLayout();
     }
   }
 
@@ -174,35 +170,26 @@ class SheetContentViewport extends StatefulWidget {
 
 class _SheetContentViewportState extends State<SheetContentViewport> {
   _SheetContentViewportState? _parent;
+  final List<_SheetContentViewportState> _children = [];
 
-  bool _isPrimary = true;
-  bool getIsPrimary() => _isPrimary;
+  bool _isEnabled() => _children.isEmpty;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _parent = _SheetContentViewportScope.maybeOf(context);
-    markAsPrimary();
+    final parent = _SheetContentViewportScope.maybeOf(context);
+    if (_parent != parent) {
+      _parent?._children.remove(this);
+      _parent = parent?.._children.add(this);
+    }
   }
 
   @override
   void dispose() {
-    unmarkAsPrimary();
+    _parent?._children.remove(this);
+    _parent = null;
+    _children.clear();
     super.dispose();
-  }
-
-  void unmarkAsPrimary() {
-    _isPrimary = false;
-    _parent?.markAsPrimary();
-  }
-
-  void markAsPrimary() {
-    _isPrimary = true;
-    var parent = _parent;
-    while (parent != null) {
-      parent._isPrimary = false;
-      parent = parent._parent;
-    }
   }
 
   @override
@@ -210,7 +197,7 @@ class _SheetContentViewportState extends State<SheetContentViewport> {
     return _SheetContentViewportScope(
       state: this,
       child: _SheetContentLayoutObserver(
-        isPrimary: getIsPrimary,
+        isEnabled: _isEnabled,
         extent: SheetExtentScope.maybeOf(context),
         child: widget.child,
       ),
@@ -238,19 +225,19 @@ class _SheetContentViewportScope extends InheritedWidget {
 
 class _SheetContentLayoutObserver extends SingleChildRenderObjectWidget {
   const _SheetContentLayoutObserver({
-    required this.isPrimary,
+    required this.isEnabled,
     required this.extent,
     required super.child,
   });
 
-  final ValueGetter<bool> isPrimary;
+  final ValueGetter<bool> isEnabled;
   final SheetExtent? extent;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetContentLayoutObserver(
-      isPrimary: isPrimary,
       extent: extent,
+      isEnabled: isEnabled,
     );
   }
 
@@ -258,26 +245,17 @@ class _SheetContentLayoutObserver extends SingleChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetContentLayoutObserver)
       ..extent = extent
-      ..isPrimary = isPrimary;
+      ..isEnabled = isEnabled;
   }
 }
 
 class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
   _RenderSheetContentLayoutObserver({
-    required ValueGetter<bool> isPrimary,
+    required ValueGetter<bool> isEnabled,
     required SheetExtent? extent,
-  })  : _isPrimary = isPrimary,
+  })  : _isEnabled = isEnabled,
         _extent = extent,
         super(alignment: Alignment.topCenter);
-
-  ValueGetter<bool> _isPrimary;
-  // ignore: avoid_setters_without_getters
-  set isPrimary(ValueGetter<bool> value) {
-    if (_isPrimary != value) {
-      _isPrimary = value;
-      markNeedsLayout();
-    }
-  }
 
   SheetExtent? _extent;
   // ignore: avoid_setters_without_getters
@@ -288,12 +266,27 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
     }
   }
 
+  ValueGetter<bool> _isEnabled;
+  // ignore: avoid_setters_without_getters
+  set isEnabled(ValueGetter<bool> value) {
+    if (_isEnabled != value) {
+      _isEnabled = value;
+      markNeedsLayout();
+    }
+  }
+
   @override
   void performLayout() {
     _extent?.markAsDimensionsWillChange();
     super.performLayout();
-    if (child != null && _isPrimary()) {
-      _extent?.applyNewContentSize(child!.size);
+    final childSize = child?.size;
+    // The evaluation of _isEnabled() is intentionally delayed
+    // until this line, because the descendant widgets may perform
+    // their build during the subroutine of super.performLayout()
+    // and if another SheetContentViewport exists in the subtree,
+    // it will change the result of _isEnabled().
+    if (_isEnabled() && childSize != null) {
+      _extent?.applyNewContentSize(childSize);
     }
     _extent?.markAsDimensionsChanged();
   }

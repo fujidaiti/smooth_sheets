@@ -12,9 +12,11 @@ import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
 import '../foundation/theme.dart';
 import '../internal/transition_observer.dart';
+import 'navigation_route.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
 
+// TODO: Store local extents for each route and notify them when the viewport size changes.
 class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
   const NavigationSheet({
     super.key,
@@ -32,19 +34,13 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
   final Widget child;
 
   @override
-  State<NavigationSheet> createState() => NavigationSheetState();
+  State<NavigationSheet> createState() => _NavigationSheetState();
 }
 
-class NavigationSheetState extends State<NavigationSheet>
-    with TransitionAwareStateMixin, TickerProviderStateMixin
-    implements SheetContext {
-  _NavigationSheetExtentProxy? _extent;
-
-  @override
-  TickerProvider get vsync => this;
-
-  @override
-  BuildContext? get notificationContext => mounted ? context : null;
+class _NavigationSheetState extends State<NavigationSheet>
+    with TransitionAwareStateMixin, SheetExtentDelegate {
+  final GlobalKey<SheetExtentScopeState> _scopeKey = GlobalKey();
+  Transition? _currentTransition;
 
   @override
   void didChangeTransitionState(Transition? transition) {
@@ -53,17 +49,15 @@ class NavigationSheetState extends State<NavigationSheet>
       NoTransition(
         :final NavigationSheetRoute<dynamic> currentRoute,
       ) =>
-        _ProxySheetActivity(
-          target: currentRoute.pageExtent,
-        ),
+        _ProxySheetActivity(entry: currentRoute),
       ForwardTransition(
         :final NavigationSheetRoute<dynamic> originRoute,
         :final NavigationSheetRoute<dynamic> destinationRoute,
         :final animation,
       ) =>
         _TransitionSheetActivity(
-          originExtent: originRoute.pageExtent,
-          destinationExtent: destinationRoute.pageExtent,
+          currentEntry: originRoute,
+          nextEntry: destinationRoute,
           animation: animation,
           animationCurve: Curves.easeInOutCubic,
         ),
@@ -73,8 +67,8 @@ class NavigationSheetState extends State<NavigationSheet>
         :final animation,
       ) =>
         _TransitionSheetActivity(
-          originExtent: originRoute.pageExtent,
-          destinationExtent: destinationRoute.pageExtent,
+          currentEntry: originRoute,
+          nextEntry: destinationRoute,
           animation: animation,
           animationCurve: Curves.easeInOutCubic,
         ),
@@ -84,15 +78,25 @@ class NavigationSheetState extends State<NavigationSheet>
         :final animation,
       ) =>
         _TransitionSheetActivity(
-          originExtent: currentRoute.pageExtent,
-          destinationExtent: previousRoute.pageExtent,
+          currentEntry: currentRoute,
+          nextEntry: previousRoute,
           animation: animation,
           animationCurve: Curves.linear,
         ),
       _ => IdleSheetActivity(),
     };
 
-    _extent?.beginActivity(sheetActivity);
+    _scopeKey.currentState?.extent.beginActivity(sheetActivity);
+    _currentTransition = transition;
+  }
+
+  @override
+  SheetActivity createIdleActivity() {
+    return switch (_currentTransition) {
+      NoTransition(:final NavigationSheetRoute<dynamic> currentRoute) =>
+        _ProxySheetActivity(entry: currentRoute),
+      _ => IdleSheetActivity(),
+    };
   }
 
   @override
@@ -105,6 +109,8 @@ class NavigationSheetState extends State<NavigationSheet>
       controller: widget.controller,
       builder: (context, controller) {
         return SheetContainer(
+          delegate: this,
+          scopeKey: _scopeKey,
           controller: controller,
           config: const SheetExtentConfig(
             minExtent: Extent.pixels(0),
@@ -113,11 +119,6 @@ class NavigationSheetState extends State<NavigationSheet>
             physics: ClampingSheetPhysics(),
             debugLabel: 'NavigationSheet',
           ),
-          initializer: (extent) {
-            final proxy = _NavigationSheetExtentProxy(inner: extent);
-            _extent = proxy;
-            return proxy;
-          },
           child: widget.child,
         );
       },
@@ -134,111 +135,25 @@ class NavigationSheetState extends State<NavigationSheet>
   }
 }
 
-abstract class NavigationSheetRoute<T> extends PageRoute<T> {
-  NavigationSheetRoute({
-    super.settings,
-  });
-
-  NavigationSheetExtentDelegate get pageExtent;
-}
-
-// TODO: What a ugly interface!
-abstract class NavigationSheetExtentDelegate implements Listenable {
-  SheetMetrics get metrics;
+abstract class NavigationSheetEntry implements Listenable {
   SheetStatus get status;
-  void applyNewViewportDimensions(Size size, EdgeInsets insets);
-  void beginActivity(SheetActivity activity);
-}
-
-// class _NavigationSheetExtentConfig extends SheetExtentConfig {
-//   const _NavigationSheetExtentConfig();
-
-//   @override
-//   bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
-//     return oldExtent is! _NavigationSheetExtent;
-//   }
-
-//   @override
-//   SheetExtent build(BuildContext context, SheetContext sheetContext) {
-//     return _NavigationSheetExtent(
-//       context: sheetContext,
-//       // TODO: Use more appropriate physics.
-//       physics: const ClampingSheetPhysics(),
-//     );
-//   }
-// }
-
-class _NavigationSheetExtentProxy extends _SheetExtentProxy {
-  const _NavigationSheetExtentProxy({required super.inner});
-
-  @override
-  SheetMetrics get metrics => switch (activity) {
-        _ProxySheetActivity(target: final target) => target.metrics,
-        _TransitionSheetActivity(:final originExtent) => originExtent.metrics,
-        _ => super.metrics,
-      };
-
-  @override
-  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
-    super.applyNewViewportDimensions(size, insets);
-    _dispatchViewportDimensions();
-  }
-
-  @override
-  void beginActivity(SheetActivity activity) {
-    if (activity is _TransitionSheetActivity ||
-        activity is _ProxySheetActivity ||
-        activity is IdleSheetActivity) {
-      super.beginActivity(activity);
-      _dispatchViewportDimensions();
-      return;
-    }
-
-    assert(
-      this.activity is _ProxySheetActivity,
-      'Cannot begin ${activity.runtimeType} '
-      'while a transition is in progress.',
-    );
-
-    (this.activity as _ProxySheetActivity).target.beginActivity(activity);
-  }
-
-  void _dispatchViewportDimensions() {
-    if (metrics.hasDimensions) {
-      switch (activity) {
-        case final _ProxySheetActivity activity:
-          activity.target.applyNewViewportDimensions(
-            metrics.viewportSize,
-            metrics.viewportInsets,
-          );
-
-        case final _TransitionSheetActivity activity:
-          activity.originExtent.applyNewViewportDimensions(
-            metrics.viewportSize,
-            metrics.viewportInsets,
-          );
-          activity.destinationExtent.applyNewViewportDimensions(
-            metrics.viewportSize,
-            metrics.viewportInsets,
-          );
-      }
-    }
-  }
+  SheetMetrics get metrics;
+  // TODO: Remove this
+  void applyNewViewportDimensions(Size viewportSize, EdgeInsets viewportInsets);
 }
 
 class _TransitionSheetActivity extends SheetActivity {
   _TransitionSheetActivity({
-    required this.originExtent,
-    required this.destinationExtent,
+    required this.currentEntry,
+    required this.nextEntry,
     required this.animation,
     required this.animationCurve,
   });
 
-  final NavigationSheetExtentDelegate originExtent;
-  final NavigationSheetExtentDelegate destinationExtent;
+  final NavigationSheetEntry currentEntry;
+  final NavigationSheetEntry nextEntry;
   final Animation<double> animation;
   final Curve animationCurve;
-
   late final Animation<double> _curvedAnimation;
 
   @override
@@ -250,6 +165,7 @@ class _TransitionSheetActivity extends SheetActivity {
     _curvedAnimation = animation.drive(
       CurveTween(curve: animationCurve),
     )..addListener(_onAnimationTick);
+    _syncViewportDimensions();
   }
 
   @override
@@ -259,150 +175,73 @@ class _TransitionSheetActivity extends SheetActivity {
   }
 
   void _onAnimationTick() {
-    if (originExtent.metrics.hasDimensions &&
-        destinationExtent.metrics.hasDimensions) {
-      final startPixels = originExtent.metrics.pixels;
-      final endPixels = destinationExtent.metrics.pixels;
-      owner.setPixels(
-        lerpDouble(startPixels, endPixels, _curvedAnimation.value)!,
-      );
-
+    final startPixels = currentEntry.metrics.maybePixels;
+    final endPixels = nextEntry.metrics.maybePixels;
+    final fraction = _curvedAnimation.value;
+    if (startPixels != null && endPixels != null) {
+      owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
       dispatchUpdateNotification();
+    }
+  }
+
+  @override
+  void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {
+    _syncViewportDimensions();
+  }
+
+  void _syncViewportDimensions() {
+    final viewportSize = owner.metrics.maybeViewportSize;
+    final viewportInsets = owner.metrics.maybeViewportInsets;
+    if (viewportSize != null && viewportInsets != null) {
+      currentEntry.applyNewViewportDimensions(viewportSize, viewportInsets);
+      nextEntry.applyNewViewportDimensions(viewportSize, viewportInsets);
     }
   }
 }
 
 class _ProxySheetActivity extends SheetActivity {
   _ProxySheetActivity({
-    required this.target,
+    required this.entry,
   });
 
-  final NavigationSheetExtentDelegate target;
+  final NavigationSheetEntry entry;
 
   @override
-  SheetStatus get status => target.status;
+  SheetStatus get status => entry.status;
 
   @override
   void initWith(SheetExtent delegate) {
     super.initWith(delegate);
-    target.addListener(_didChangeTargetExtent);
-    _syncPixelsImplicitly();
+    entry.addListener(_syncMetrics);
+    _syncMetrics(notify: false);
+    _syncViewportDimensions();
   }
 
   @override
   void dispose() {
-    target.removeListener(_didChangeTargetExtent);
+    entry.removeListener(_syncMetrics);
     super.dispose();
   }
 
-  void _didChangeTargetExtent() {
-    owner.setPixels(target.metrics.pixels);
+  @override
+  void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {
+    _syncViewportDimensions();
   }
 
-  void _syncPixelsImplicitly() {
-    if (target.metrics.hasDimensions) {
-      owner.correctPixels(target.metrics.pixels);
+  void _syncMetrics({bool notify = true}) {
+    if (entry.metrics.maybeContentSize case final contentSize?) {
+      owner.applyNewContentSize(contentSize);
+    }
+    if (entry.metrics.maybePixels case final pixels?) {
+      notify ? owner.setPixels(pixels) : owner.correctPixels(pixels);
     }
   }
 
-  @override
-  void didChangeContentSize(Size? oldSize) {
-    super.didChangeContentSize(oldSize);
-    _syncPixelsImplicitly();
+  void _syncViewportDimensions() {
+    final viewportSize = owner.metrics.maybeViewportSize;
+    final viewportInsets = owner.metrics.maybeViewportInsets;
+    if (viewportSize != null && viewportInsets != null) {
+      entry.applyNewViewportDimensions(viewportSize, viewportInsets);
+    }
   }
-}
-
-class _SheetExtentProxy implements SheetExtent {
-  const _SheetExtentProxy({required this.inner});
-
-  final SheetExtent inner;
-
-  @override
-  void setPixels(double pixels) => inner.setPixels(pixels);
-
-  @override
-  void correctPixels(double pixels) => inner.correctPixels(pixels);
-
-  @override
-  SheetActivity get activity => inner.activity;
-
-  @override
-  SheetStatus get status => inner.status;
-
-  @override
-  SheetExtentConfig get config => inner.config;
-
-  @override
-  SheetContext get context => inner.context;
-
-  @override
-  SheetExtentDelegate get delegate => inner.delegate;
-
-  @override
-  bool get hasListeners => inner.hasListeners;
-
-  @override
-  SheetMetrics get metrics => inner.metrics;
-
-  @override
-  void addListener(VoidCallback listener) => inner.addListener(listener);
-
-  @override
-  void notifyListeners() => inner.notifyListeners();
-
-  @override
-  void removeListener(VoidCallback listener) => inner.removeListener(listener);
-
-  @override
-  Future<void> animateTo(
-    Extent newExtent, {
-    Curve curve = Curves.easeInOut,
-    Duration duration = const Duration(milliseconds: 300),
-  }) =>
-      inner.animateTo(newExtent, curve: curve, duration: duration);
-
-  @override
-  void applyNewConfig(SheetExtentConfig config) => inner.applyNewConfig(config);
-
-  @override
-  void applyNewContentSize(Size contentSize) =>
-      inner.applyNewContentSize(contentSize);
-
-  @override
-  void applyNewViewportDimensions(Size size, EdgeInsets insets) =>
-      inner.applyNewViewportDimensions(size, insets);
-
-  @override
-  void beginActivity(SheetActivity activity) => inner.beginActivity(activity);
-
-  @override
-  void dispose() => inner.dispose();
-
-  @override
-  void goBallistic(double velocity) => inner.goBallistic(velocity);
-
-  @override
-  void goBallisticWith(Simulation simulation) =>
-      inner.goBallisticWith(simulation);
-
-  @override
-  void goIdle() => inner.goIdle();
-
-  @override
-  void settle() => settle();
-
-  @override
-  void takeOver(SheetExtent other) => inner.takeOver(other);
-
-  @override
-  void markAsDimensionsChanged() => inner.markAsDimensionsChanged();
-
-  @override
-  void markAsDimensionsWillChange() => inner.markAsDimensionsWillChange();
-
-  @override
-  void onDimensionsFinalized() => inner.onDimensionsFinalized();
-
-  @override
-  SheetMetrics get value => inner.value;
 }
