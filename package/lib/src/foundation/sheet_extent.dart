@@ -120,7 +120,7 @@ class SheetExtent extends ChangeNotifier
 
   @override
   SheetMetrics get value => metrics;
-  
+
   SheetStatus get status => activity.status;
 
   /// A handle to the owner of this object.
@@ -272,23 +272,15 @@ class SheetExtent extends ChangeNotifier
 
   @mustCallSuper
   void beginActivity(SheetActivity activity) {
-    final oldActivity = _activity?..removeListener(_notifyPixels);
+    final oldActivity = _activity;
     // Update the current activity before initialization.
     _activity = activity;
-
-    activity
-      ..initWith(this)
-      ..addListener(_notifyPixels);
+    activity.initWith(this);
 
     if (oldActivity != null) {
       activity.takeOver(oldActivity);
       oldActivity.dispose();
     }
-  }
-
-  void _notifyPixels() {
-    _metrics = metrics.copyWith(pixels: activity.pixels);
-    notifyListeners();
   }
 
   void goIdle() {
@@ -323,11 +315,22 @@ class SheetExtent extends ChangeNotifier
 
   @override
   void dispose() {
-    activity
-      ..removeListener(notifyListeners)
-      ..dispose();
-
+    activity.dispose();
     super.dispose();
+  }
+
+  void setPixels(double pixels) {
+    final oldPixels = metrics.maybePixels;
+    correctPixels(pixels);
+    if (oldPixels != pixels) {
+      notifyListeners();
+    }
+  }
+
+  void correctPixels(double pixels) {
+    if (metrics.maybePixels != pixels) {
+      _metrics = metrics.copyWith(pixels: pixels);
+    }
   }
 
   /// Animates the extent to the given value.

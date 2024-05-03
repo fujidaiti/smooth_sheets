@@ -141,10 +141,10 @@ class _IdleDraggableSheetActivity extends IdleSheetActivity {
   @override
   void didChangeContentSize(Size? oldDimensions) {
     super.didChangeContentSize(oldDimensions);
-    final config = delegate.config;
-    final metrics = delegate.metrics;
-    if (pixels == null && config is DraggableSheetExtentConfig) {
-      setPixels(config.initialExtent.resolve(metrics.contentSize));
+    final config = owner.config;
+    final metrics = owner.metrics;
+    if (metrics.maybePixels == null && config is DraggableSheetExtentConfig) {
+      owner.setPixels(config.initialExtent.resolve(metrics.contentSize));
     }
   }
 }

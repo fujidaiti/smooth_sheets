@@ -9,20 +9,17 @@ import 'notifications.dart';
 import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
-abstract class SheetActivity extends ChangeNotifier {
+abstract class SheetActivity {
   bool _mounted = false;
   bool get mounted => _mounted;
 
-  double? _pixels;
-  double? get pixels => _pixels;
-
-  SheetExtent? _delegate;
-  SheetExtent get delegate {
+  SheetExtent? _owner;
+  SheetExtent get owner {
     assert(
-      _delegate != null,
+      _owner != null,
       '$SheetActivity must be initialized with initWith().',
     );
-    return _delegate!;
+    return _owner!;
   }
 
   double get velocity => 0.0;
@@ -30,53 +27,37 @@ abstract class SheetActivity extends ChangeNotifier {
   SheetStatus get status;
 
   @mustCallSuper
-  void initWith(SheetExtent delegate) {
+  void initWith(SheetExtent owner) {
     assert(
-      _delegate == null,
+      _owner == null,
       'initWith() must be called only once.',
     );
 
-    _delegate = delegate;
+    _owner = owner;
     _mounted = true;
   }
 
-  @protected
-  void correctPixels(double pixels) {
-    _pixels = pixels;
-  }
-
-  @protected
-  void setPixels(double pixels) {
-    final oldPixels = _pixels;
-    correctPixels(pixels);
-    if (_pixels != oldPixels) {
-      notifyListeners();
-    }
-  }
-
-  @override
   void dispose() {
     _mounted = false;
-    super.dispose();
   }
 
   void dispatchUpdateNotification() {
-    if (delegate.metrics.hasDimensions) {
+    if (owner.metrics.hasDimensions) {
       dispatchNotification(
         SheetUpdateNotification(
-          metrics: delegate.metrics,
-          status: delegate.status,
+          metrics: owner.metrics,
+          status: owner.status,
         ),
       );
     }
   }
 
   void dispatchDragStartNotification(DragStartDetails details) {
-    if (delegate.metrics.hasDimensions) {
+    if (owner.metrics.hasDimensions) {
       dispatchNotification(
         SheetDragStartNotification(
-          metrics: delegate.metrics,
-          status: delegate.status,
+          metrics: owner.metrics,
+          status: owner.status,
           dragDetails: details,
         ),
       );
@@ -84,11 +65,11 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragEndNotification(DragEndDetails details) {
-    if (delegate.metrics.hasDimensions) {
+    if (owner.metrics.hasDimensions) {
       dispatchNotification(
         SheetDragEndNotification(
-          metrics: delegate.metrics,
-          status: delegate.status,
+          metrics: owner.metrics,
+          status: owner.status,
           dragDetails: details,
         ),
       );
@@ -96,11 +77,11 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragUpdateNotification({required double delta}) {
-    if (delegate.metrics.hasDimensions) {
+    if (owner.metrics.hasDimensions) {
       dispatchNotification(
         SheetDragUpdateNotification(
-          metrics: delegate.metrics,
-          status: delegate.status,
+          metrics: owner.metrics,
+          status: owner.status,
           delta: delta,
         ),
       );
@@ -108,22 +89,22 @@ abstract class SheetActivity extends ChangeNotifier {
   }
 
   void dispatchDragCancelNotification() {
-    if (delegate.metrics.hasDimensions) {
+    if (owner.metrics.hasDimensions) {
       dispatchNotification(
         SheetDragCancelNotification(
-          metrics: delegate.metrics,
-          status: delegate.status,
+          metrics: owner.metrics,
+          status: owner.status,
         ),
       );
     }
   }
 
   void dispatchOverflowNotification(double overflow) {
-    if (delegate.metrics.hasDimensions) {
+    if (owner.metrics.hasDimensions) {
       dispatchNotification(
         SheetOverflowNotification(
-          metrics: delegate.metrics,
-          status: delegate.status,
+          metrics: owner.metrics,
+          status: owner.status,
           overflow: overflow,
         ),
       );
@@ -134,22 +115,18 @@ abstract class SheetActivity extends ChangeNotifier {
     // Avoid dispatching a notification in the middle of a build.
     switch (SchedulerBinding.instance.schedulerPhase) {
       case SchedulerPhase.postFrameCallbacks:
-        notification.dispatch(delegate.context.notificationContext);
+        notification.dispatch(owner.context.notificationContext);
       case SchedulerPhase.idle:
       case SchedulerPhase.midFrameMicrotasks:
       case SchedulerPhase.persistentCallbacks:
       case SchedulerPhase.transientCallbacks:
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          notification.dispatch(delegate.context.notificationContext);
+          notification.dispatch(owner.context.notificationContext);
         });
     }
   }
 
-  void takeOver(SheetActivity other) {
-    if (other.pixels != null) {
-      correctPixels(other.pixels!);
-    }
-  }
+  void takeOver(SheetActivity other) {}
 
   void didChangeContentSize(Size? oldSize) {}
 
@@ -165,16 +142,15 @@ abstract class SheetActivity extends ChangeNotifier {
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    assert(pixels != null);
-    assert(delegate.metrics.hasDimensions);
+    assert(owner.metrics.hasDimensions);
 
     if (oldContentSize == null && oldViewportSize == null) {
       // The sheet was laid out, but not changed in size.
       return;
     }
 
-    final oldPixels = pixels!;
-    final metrics = delegate.metrics;
+    final metrics = owner.metrics;
+    final oldPixels = metrics.pixels;
     final newInsets = metrics.viewportInsets;
     final oldInsets = oldViewportInsets ?? newInsets;
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
@@ -183,17 +159,17 @@ abstract class SheetActivity extends ChangeNotifier {
       case > 0:
         // Prevents the sheet from being pushed off the screen by the keyboard.
         final correction = min(0.0, metrics.maxViewPixels - metrics.viewPixels);
-        setPixels(oldPixels + correction);
+        owner.setPixels(oldPixels + correction);
 
       case < 0:
         // Appends the delta of the bottom inset (typically the keyboard height)
         // to keep the visual sheet position unchanged.
-        setPixels(
-          min(oldPixels - deltaInsetBottom, delegate.metrics.maxPixels),
+        owner.setPixels(
+          min(oldPixels - deltaInsetBottom, owner.metrics.maxPixels),
         );
     }
 
-    delegate.settle();
+    owner.settle();
   }
 }
 
@@ -214,7 +190,7 @@ class AnimatedSheetActivity extends SheetActivity
   @override
   AnimationController createAnimationController() {
     return AnimationController.unbounded(
-        value: from, vsync: delegate.context.vsync);
+        value: from, vsync: owner.context.vsync);
   }
 
   @override
@@ -224,7 +200,7 @@ class AnimatedSheetActivity extends SheetActivity
 
   @override
   void onAnimationEnd() {
-    delegate.goBallistic(0);
+    owner.goBallistic(0);
   }
 }
 
@@ -238,7 +214,7 @@ class BallisticSheetActivity extends SheetActivity
 
   @override
   AnimationController createAnimationController() {
-    return AnimationController.unbounded(vsync: delegate.context.vsync);
+    return AnimationController.unbounded(vsync: owner.context.vsync);
   }
 
   @override
@@ -248,7 +224,7 @@ class BallisticSheetActivity extends SheetActivity
 
   @override
   void onAnimationEnd() {
-    delegate.goBallistic(0);
+    owner.goBallistic(0);
   }
 }
 
@@ -266,8 +242,8 @@ class UserDragSheetActivity extends SheetActivity
   final DragGestureRecognizer gestureRecognizer;
 
   @override
-  void initWith(SheetExtent delegate) {
-    super.initWith(delegate);
+  void initWith(SheetExtent owner) {
+    super.initWith(owner);
     gestureRecognizer
       ..onUpdate = onDragUpdate
       ..onEnd = onDragEnd
@@ -288,9 +264,9 @@ class UserDragSheetActivity extends SheetActivity
     if (!mounted) return;
     final delta = -1 * details.primaryDelta!;
     final physicsAppliedDelta =
-        delegate.config.physics.applyPhysicsToOffset(delta, delegate.metrics);
+        owner.config.physics.applyPhysicsToOffset(delta, owner.metrics);
     if (physicsAppliedDelta != 0) {
-      setPixels(pixels! + physicsAppliedDelta);
+      owner.setPixels(owner.metrics.pixels + physicsAppliedDelta);
       dispatchDragUpdateNotification(delta: physicsAppliedDelta);
     }
   }
@@ -299,14 +275,14 @@ class UserDragSheetActivity extends SheetActivity
   void onDragEnd(DragEndDetails details) {
     if (!mounted) return;
     dispatchDragEndNotification(details);
-    delegate.goBallistic(-1 * details.velocity.pixelsPerSecond.dy);
+    owner.goBallistic(-1 * details.velocity.pixelsPerSecond.dy);
   }
 
   @protected
   void onDragCancel() {
     if (!mounted) return;
     dispatchDragCancelNotification();
-    delegate.goBallistic(0);
+    owner.goBallistic(0);
   }
 }
 
@@ -338,9 +314,9 @@ mixin ControlledSheetActivityMixin on SheetActivity {
 
   void onAnimationTick() {
     if (mounted) {
-      final oldPixels = pixels;
-      setPixels(pixels! + controller.value - _lastAnimatedValue);
-      if (pixels != oldPixels) {
+      final oldPixels = owner.metrics.pixels;
+      owner.setPixels(oldPixels + controller.value - _lastAnimatedValue);
+      if (owner.metrics.pixels != oldPixels) {
         dispatchUpdateNotification();
       }
       _lastAnimatedValue = controller.value;
@@ -365,15 +341,14 @@ mixin UserControlledSheetActivityMixin on SheetActivity {
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    assert(pixels != null);
-    assert(delegate.metrics.hasDimensions);
+    assert(owner.metrics.hasDimensions);
 
-    final newInsets = delegate.metrics.viewportInsets;
+    final newInsets = owner.metrics.viewportInsets;
     final oldInsets = oldViewportInsets ?? newInsets;
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
     // Appends the delta of the bottom inset (typically the keyboard height)
     // to keep the visual sheet position unchanged.
-    setPixels(pixels! - deltaInsetBottom);
+    owner.setPixels(owner.metrics.pixels - deltaInsetBottom);
     // We don't call `goSettling` here because the user is still
     // manually controlling the sheet position.
   }

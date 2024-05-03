@@ -122,7 +122,7 @@ class _SheetExtentBox extends ChangeNotifier
 
   @override
   SheetMetrics get metrics => _source?.metrics ?? SheetMetrics.empty;
-  
+
   @override
   SheetStatus get status => _source?.status ?? SheetStatus.stable;
 

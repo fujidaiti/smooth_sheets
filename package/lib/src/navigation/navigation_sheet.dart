@@ -263,7 +263,10 @@ class _TransitionSheetActivity extends SheetActivity {
         destinationExtent.metrics.hasDimensions) {
       final startPixels = originExtent.metrics.pixels;
       final endPixels = destinationExtent.metrics.pixels;
-      setPixels(lerpDouble(startPixels, endPixels, _curvedAnimation.value)!);
+      owner.setPixels(
+        lerpDouble(startPixels, endPixels, _curvedAnimation.value)!,
+      );
+
       dispatchUpdateNotification();
     }
   }
@@ -280,15 +283,6 @@ class _ProxySheetActivity extends SheetActivity {
   SheetStatus get status => target.status;
 
   @override
-  double? get pixels {
-    if (target.metrics.hasDimensions) {
-      // Sync the pixels to the delegate's pixels.
-      correctPixels(target.metrics.pixels);
-    }
-    return super.pixels;
-  }
-
-  @override
   void initWith(SheetExtent delegate) {
     super.initWith(delegate);
     target.addListener(_didChangeTargetExtent);
@@ -302,12 +296,12 @@ class _ProxySheetActivity extends SheetActivity {
   }
 
   void _didChangeTargetExtent() {
-    setPixels(target.metrics.pixels);
+    owner.setPixels(target.metrics.pixels);
   }
 
   void _syncPixelsImplicitly() {
     if (target.metrics.hasDimensions) {
-      correctPixels(target.metrics.pixels);
+      owner.correctPixels(target.metrics.pixels);
     }
   }
 
@@ -322,6 +316,12 @@ class _SheetExtentProxy implements SheetExtent {
   const _SheetExtentProxy({required this.inner});
 
   final SheetExtent inner;
+
+  @override
+  void setPixels(double pixels) => inner.setPixels(pixels);
+
+  @override
+  void correctPixels(double pixels) => inner.correctPixels(pixels);
 
   @override
   SheetActivity get activity => inner.activity;

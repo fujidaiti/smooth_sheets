@@ -16,7 +16,7 @@ class SheetController extends ChangeNotifier
   /// notified immediately when the [_client] fires, and the ones that should
   /// not be notified during the middle of a frame.
   final _immediateListeners = ChangeNotifier();
-  
+
   @override
   SheetMetrics get value => _client?.metrics ?? SheetMetrics.empty;
 
