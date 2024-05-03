@@ -413,7 +413,7 @@ class _PullToDismissGestureRecognizer extends VerticalDragGestureRecognizer {
   bool _isPointerOnSheet(Offset pointer) {
     final viewport = target.context.size!;
     final localY = viewport.height - pointer.dy;
-    final currentExtent = target._sheetController.metrics?.pixels;
+    final currentExtent = target._sheetController.value.maybePixels;
     return currentExtent != null && localY <= currentExtent;
   }
 
@@ -424,8 +424,8 @@ class _PullToDismissGestureRecognizer extends VerticalDragGestureRecognizer {
 
     final contentScrollableDistance =
         target._lastReportedScrollMetrics?.extentBefore;
-    final currentExtent = target._sheetController.metrics?.pixels;
-    final threshold = target._sheetController.metrics?.minPixels;
+    final currentExtent = target._sheetController.value.maybePixels;
+    final threshold = target._sheetController.value.maybeMinPixels;
 
     return (contentScrollableDistance == null ||
             contentScrollableDistance.isApprox(0)) &&

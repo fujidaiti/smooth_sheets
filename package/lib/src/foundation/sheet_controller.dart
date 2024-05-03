@@ -7,8 +7,7 @@ import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
 class SheetController extends ChangeNotifier
-// TODO: Implement ValueListenable<SheetMetrics> instead of ValueListenable<double?>
-    implements ValueListenable<double?> {
+    implements ValueListenable<SheetMetrics> {
   SheetExtent? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
@@ -17,15 +16,10 @@ class SheetController extends ChangeNotifier
   /// notified immediately when the [_client] fires, and the ones that should
   /// not be notified during the middle of a frame.
   final _immediateListeners = ChangeNotifier();
-
-  @override
-  double? get value => metrics?.pixels;
-
-  SheetMetrics? get metrics => switch (_client?.metrics) {
-        final metrics? when metrics.hasDimensions => metrics,
-        _ => null,
-      };
   
+  @override
+  SheetMetrics get value => _client?.metrics ?? SheetMetrics.empty;
+
   SheetStatus? get status => _client?.status;
 
   @override
@@ -73,6 +67,7 @@ class SheetController extends ChangeNotifier
   @override
   void dispose() {
     detach(_client);
+    _immediateListeners.dispose();
     super.dispose();
   }
 
