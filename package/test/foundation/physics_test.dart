@@ -2,7 +2,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
 class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
     with SheetPhysicsMixin {
@@ -15,7 +14,6 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
 }
 
 const _referenceSheetMetrics = SheetMetrics(
-  status: SheetStatus.stable,
   minPixels: 0,
   maxPixels: 600,
   pixels: 600,

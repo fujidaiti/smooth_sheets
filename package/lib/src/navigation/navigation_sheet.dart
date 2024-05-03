@@ -145,6 +145,7 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
 // TODO: What a ugly interface!
 abstract class NavigationSheetExtentDelegate implements Listenable {
   SheetMetrics get metrics;
+  SheetStatus get status;
   void applyNewViewportDimensions(Size size, EdgeInsets insets);
   void beginActivity(SheetActivity activity);
 }
@@ -276,7 +277,7 @@ class _ProxySheetActivity extends SheetActivity {
   final NavigationSheetExtentDelegate target;
 
   @override
-  SheetStatus get status => target.metrics.status;
+  SheetStatus get status => target.status;
 
   @override
   double? get pixels {
@@ -324,6 +325,9 @@ class _SheetExtentProxy implements SheetExtent {
 
   @override
   SheetActivity get activity => inner.activity;
+
+  @override
+  SheetStatus get status => inner.status;
 
   @override
   SheetExtentConfig get config => inner.config;

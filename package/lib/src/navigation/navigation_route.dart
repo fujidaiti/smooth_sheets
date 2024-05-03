@@ -4,6 +4,7 @@ import '../foundation/activities.dart';
 import '../foundation/framework.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_status.dart';
 import 'navigation_sheet.dart';
 
 mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
@@ -121,6 +122,9 @@ class _SheetExtentBox extends ChangeNotifier
 
   @override
   SheetMetrics get metrics => _source?.metrics ?? SheetMetrics.empty;
+  
+  @override
+  SheetStatus get status => _source?.status ?? SheetStatus.stable;
 
   @override
   void applyNewViewportDimensions(Size size, EdgeInsets insets) {

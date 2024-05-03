@@ -4,8 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'sheet_extent.dart';
+import 'sheet_status.dart';
 
 class SheetController extends ChangeNotifier
+// TODO: Implement ValueListenable<SheetMetrics> instead of ValueListenable<double?>
     implements ValueListenable<double?> {
   SheetExtent? _client;
 
@@ -23,6 +25,8 @@ class SheetController extends ChangeNotifier
         final metrics? when metrics.hasDimensions => metrics,
         _ => null,
       };
+  
+  SheetStatus? get status => _client?.status;
 
   @override
   void addListener(VoidCallback listener, {bool fireImmediately = false}) {

@@ -120,6 +120,8 @@ class SheetExtent extends ChangeNotifier
 
   @override
   SheetMetrics get value => metrics;
+  
+  SheetStatus get status => activity.status;
 
   /// A handle to the owner of this object.
   final SheetContext context;
@@ -432,15 +434,13 @@ mixin class SheetExtentDelegate {
 class SheetMetrics {
   /// Creates an immutable snapshot of the sheet's state.
   const SheetMetrics({
-    required SheetStatus? status,
     required double? pixels,
     required double? minPixels,
     required double? maxPixels,
     required Size? contentSize,
     required Size? viewportSize,
     required EdgeInsets? viewportInsets,
-  })  : maybeStatus = status,
-        maybePixels = pixels,
+  })  : maybePixels = pixels,
         maybeMinPixels = minPixels,
         maybeMaxPixels = maxPixels,
         maybeContentSize = contentSize,
@@ -448,7 +448,6 @@ class SheetMetrics {
         maybeViewportInsets = viewportInsets;
 
   static const empty = SheetMetrics(
-    status: null,
     pixels: null,
     minPixels: null,
     maxPixels: null,
@@ -457,20 +456,12 @@ class SheetMetrics {
     viewportInsets: null,
   );
 
-  final SheetStatus? maybeStatus;
   final double? maybePixels;
   final double? maybeMinPixels;
   final double? maybeMaxPixels;
   final Size? maybeContentSize;
   final Size? maybeViewportSize;
   final EdgeInsets? maybeViewportInsets;
-
-  /// The current status of the sheet.
-  // TODO: Move this to SheetNotification
-  SheetStatus get status {
-    assert(_debugAssertHasProperty('status', maybeStatus));
-    return maybeStatus!;
-  }
 
   /// The current extent of the sheet.
   double get pixels {
@@ -571,7 +562,6 @@ class SheetMetrics {
     EdgeInsets? viewportInsets,
   }) {
     return SheetMetrics(
-      status: status ?? maybeStatus,
       pixels: pixels ?? maybePixels,
       minPixels: minPixels ?? maybeMinPixels,
       maxPixels: maxPixels ?? maybeMaxPixels,
@@ -586,7 +576,6 @@ class SheetMetrics {
       identical(this, other) ||
       (other is SheetMetrics &&
           runtimeType == other.runtimeType &&
-          maybeStatus == other.status &&
           maybePixels == other.pixels &&
           maybeMinPixels == other.minPixels &&
           maybeMaxPixels == other.maxPixels &&
@@ -597,7 +586,6 @@ class SheetMetrics {
   @override
   int get hashCode => Object.hash(
         runtimeType,
-        maybeStatus,
         maybePixels,
         maybeMinPixels,
         maybeMaxPixels,
@@ -608,7 +596,6 @@ class SheetMetrics {
 
   @override
   String toString() => (
-        status: maybeStatus,
         hasPixels: hasDimensions,
         pixels: maybePixels,
         minPixels: maybeMinPixels,

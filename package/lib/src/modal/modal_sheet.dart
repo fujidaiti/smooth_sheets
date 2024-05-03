@@ -191,7 +191,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   Widget buildModalBarrier() {
     void onDismiss() {
       if (animation!.status == AnimationStatus.completed &&
-          sheetController.metrics?.status == SheetStatus.stable) {
+          sheetController.status == SheetStatus.stable) {
         navigator?.maybePop();
       }
     }

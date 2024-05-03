@@ -65,6 +65,7 @@ abstract class SheetActivity extends ChangeNotifier {
       dispatchNotification(
         SheetUpdateNotification(
           metrics: delegate.metrics,
+          status: delegate.status,
         ),
       );
     }
@@ -75,6 +76,7 @@ abstract class SheetActivity extends ChangeNotifier {
       dispatchNotification(
         SheetDragStartNotification(
           metrics: delegate.metrics,
+          status: delegate.status,
           dragDetails: details,
         ),
       );
@@ -86,6 +88,7 @@ abstract class SheetActivity extends ChangeNotifier {
       dispatchNotification(
         SheetDragEndNotification(
           metrics: delegate.metrics,
+          status: delegate.status,
           dragDetails: details,
         ),
       );
@@ -97,6 +100,7 @@ abstract class SheetActivity extends ChangeNotifier {
       dispatchNotification(
         SheetDragUpdateNotification(
           metrics: delegate.metrics,
+          status: delegate.status,
           delta: delta,
         ),
       );
@@ -108,6 +112,7 @@ abstract class SheetActivity extends ChangeNotifier {
       dispatchNotification(
         SheetDragCancelNotification(
           metrics: delegate.metrics,
+          status: delegate.status,
         ),
       );
     }
@@ -118,6 +123,7 @@ abstract class SheetActivity extends ChangeNotifier {
       dispatchNotification(
         SheetOverflowNotification(
           metrics: delegate.metrics,
+          status: delegate.status,
           overflow: overflow,
         ),
       );
