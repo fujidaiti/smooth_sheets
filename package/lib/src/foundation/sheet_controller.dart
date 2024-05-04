@@ -52,6 +52,7 @@ class SheetController extends ChangeNotifier
     }
   }
 
+  @factory
   SheetExtent createSheetExtent({
     required SheetContext context,
     required SheetExtentConfig config,
