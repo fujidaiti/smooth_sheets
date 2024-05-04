@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/activities.dart';
-import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
-import '../foundation/theme.dart';
 import '../internal/double_utils.dart';
 import 'delegatable_scroll_position.dart';
 import 'scrollable_sheet_physics.dart';
@@ -15,105 +13,44 @@ import 'scrollable_sheet_physics.dart';
 class ScrollableSheetExtentConfig extends SheetExtentConfig {
   const ScrollableSheetExtentConfig({
     required this.initialExtent,
-    required this.minExtent,
-    required this.maxExtent,
-    required this.physics,
-  });
-
-  /// {@macro ScrollableSheetExtent.initialExtent}
-  final Extent initialExtent;
-
-  /// {@macro SheetExtent.minExtent}
-  final Extent minExtent;
-
-  /// {@macro SheetExtent.maxExtent}
-  final Extent maxExtent;
-
-  /// {@macro SheetExtent.physics}
-  final SheetPhysics? physics;
-
-  @override
-  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
-    return oldExtent is! ScrollableSheetExtent ||
-        oldExtent.initialExtent != initialExtent ||
-        oldExtent.minExtent != minExtent ||
-        oldExtent.maxExtent != maxExtent ||
-        oldExtent.physics != _resolvePhysics(context);
-  }
-
-  @override
-  SheetExtent build(BuildContext context, SheetContext sheetContext) {
-    return ScrollableSheetExtent(
-      context: sheetContext,
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
-      physics: _resolvePhysics(context),
-    );
-  }
-
-  SheetPhysics _resolvePhysics(BuildContext context) {
-    const fallback = StretchingSheetPhysics(parent: SnappingSheetPhysics());
-    final theme = SheetTheme.maybeOf(context);
-    final base = theme?.basePhysics;
-    if (physics case final physics?) {
-      return base != null ? physics.applyTo(base) : physics;
-    } else if (theme?.physics case final inherited?) {
-      // Do not apply the base physics to the inherited physics.
-      return inherited;
-    } else {
-      return base != null ? fallback.applyTo(base) : fallback;
-    }
-  }
-}
-
-class ScrollableSheetExtent extends SheetExtent {
-  ScrollableSheetExtent({
-    required this.initialExtent,
     required super.minExtent,
     required super.maxExtent,
-    required super.context,
-    required SheetPhysics physics,
-  }) : super(
-          // TODO: Do this in the build method of ExtentConfig
-          physics: physics is ScrollableSheetPhysics
-              ? physics
-              : ScrollableSheetPhysics(parent: physics),
-        ) {
-    goIdle();
-  }
+    required ScrollableSheetPhysics physics,
+    super.debugLabel,
+  }) : super(physics: physics);
 
-  /// {@template ScrollableSheetExtent.initialExtent}
-  /// The initial extent of the sheet when it is first shown.
-  /// {@endtemplate}
   final Extent initialExtent;
 
-  ScrollPositionDelegate? get _scrollPositionDelegate {
-    return switch (activity) {
-      final ScrollPositionDelegate delegate => delegate,
-      _ => null,
-    };
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ScrollableSheetExtentConfig &&
+        other.initialExtent == initialExtent &&
+        super == other;
   }
 
   @override
-  void goIdle() {
-    beginActivity(
-      _ContentIdleScrollDrivenSheetActivity(
-        initialExtent: initialExtent,
-      ),
-    );
+  int get hashCode => Object.hash(
+        initialExtent,
+        super.hashCode,
+      );
+}
+
+class ScrollableSheetExtentDelegate with SheetExtentDelegate {
+  const ScrollableSheetExtentDelegate();
+
+  @override
+  SheetActivity createIdleActivity() {
+    return _ContentIdleScrollDrivenSheetActivity();
   }
 
   @override
-  void goBallisticWith(Simulation simulation) {
-    beginActivity(
-      _DragInterruptibleBallisticSheetActivity(
-        simulation: simulation,
-      ),
-    );
+  SheetActivity createBallisticActivity(Simulation simulation) {
+    return _DragInterruptibleBallisticSheetActivity(simulation: simulation);
   }
 }
 
+// TODO: Move this to a separate file
 @internal
 class SheetContentScrollController extends ScrollController {
   SheetContentScrollController({
@@ -123,7 +60,7 @@ class SheetContentScrollController extends ScrollController {
     required this.extent,
   });
 
-  final ScrollableSheetExtent extent;
+  final SheetExtent extent;
 
   @override
   ScrollPosition createScrollPosition(
@@ -132,7 +69,10 @@ class SheetContentScrollController extends ScrollController {
     ScrollPosition? oldPosition,
   ) {
     return DelegatableScrollPosition(
-      getDelegate: () => extent._scrollPositionDelegate,
+      getDelegate: () => switch (extent.activity) {
+        final ScrollPositionDelegate delegate => delegate,
+        _ => null,
+      },
       initialPixels: initialScrollOffset,
       keepScrollOffset: keepScrollOffset,
       debugLabel: debugLabel,
@@ -156,7 +96,7 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     DragStartDetails details,
     DelegatableScrollPosition position,
   ) {
-    delegate.beginActivity(
+    owner.beginActivity(
       _ContentUserScrollDrivenSheetActivity(
         contentScrollPosition: position,
       ),
@@ -184,7 +124,7 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
   DelegationResult<ScrollActivity> onContentGoIdle(
     DelegatableScrollPosition position,
   ) {
-    delegate.goIdle();
+    owner.goIdle();
     return super.onContentGoIdle(position);
   }
 
@@ -194,22 +134,23 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     bool shouldIgnorePointer,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.hasPixels) {
+    final metrics = owner.metrics;
+    if (!metrics.hasDimensions) {
       return const DelegationResult.notHandled();
     }
 
     if (position.pixels.isApprox(position.minScrollExtent)) {
-      final simulation = delegate.physics
-          .createBallisticSimulation(velocity, delegate.metrics);
+      final simulation =
+          owner.config.physics.createBallisticSimulation(velocity, metrics);
       if (simulation != null) {
-        delegate.goBallisticWith(simulation);
+        owner.goBallisticWith(simulation);
         return DelegationResult.handled(IdleScrollActivity(position));
       }
     }
 
     final scrolledDistance = position.pixels;
-    final draggedDistance = pixels! - delegate.minPixels!;
-    final draggableDistance = delegate.maxPixels! - delegate.minPixels!;
+    final draggedDistance = metrics.pixels - metrics.minPixels;
+    final draggableDistance = metrics.maxPixels - metrics.minPixels;
     final scrollableDistance =
         position.maxScrollExtent - position.minScrollExtent;
     final pixelsForScrollPhysics = scrolledDistance + draggedDistance;
@@ -224,7 +165,7 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     final scrollSimulation = position.physics
         .createBallisticSimulation(scrollMetricsForScrollPhysics, velocity);
     if (scrollSimulation != null) {
-      delegate.beginActivity(
+      owner.beginActivity(
         _ContentBallisticScrollDrivenSheetActivity(
           contentScrollPosition: position,
         ),
@@ -257,31 +198,32 @@ abstract class _SingleContentScrollDrivenSheetActivity
   final DelegatableScrollPosition contentScrollPosition;
 
   double _applyPhysicsToOffset(double offset) {
-    return delegate.physics.applyPhysicsToOffset(offset, delegate.metrics);
+    return owner.config.physics.applyPhysicsToOffset(offset, owner.metrics);
   }
 
   double _applyScrollOffset(double offset) {
     if (offset.isApprox(0)) return 0;
 
     final position = contentScrollPosition;
-    final maxPixels = delegate.maxPixels!;
-    final oldPixels = pixels!;
+    final maxPixels = owner.metrics.maxPixels;
+    final oldPixels = owner.metrics.pixels;
     final oldScrollPixels = position.pixels;
     final minScrollPixels = position.minScrollExtent;
     final maxScrollPixels = position.maxScrollExtent;
+    var newPixels = oldPixels;
     var delta = offset;
 
     if (offset > 0) {
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxPixels'.
-      if (pixels!.isLessThanOrApprox(maxPixels)) {
+      if (newPixels.isLessThanOrApprox(maxPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(physicsAppliedDelta.isLessThanOrApprox(delta));
-        correctPixels(min(pixels! + physicsAppliedDelta, maxPixels));
-        delta -= pixels! - oldPixels;
+        newPixels = min(newPixels + physicsAppliedDelta, maxPixels);
+        delta -= newPixels - oldPixels;
       }
       // If the sheet is at the top, scroll the content up as much as possible.
-      if (pixels!.isGreaterThanOrApprox(maxPixels) &&
+      if (newPixels.isGreaterThanOrApprox(maxPixels) &&
           position.extentAfter > 0) {
         position.correctPixels(min(position.pixels + delta, maxScrollPixels));
         delta -= position.pixels - oldScrollPixels;
@@ -291,21 +233,22 @@ abstract class _SingleContentScrollDrivenSheetActivity
       if (position.pixels.isApprox(maxScrollPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(physicsAppliedDelta.isLessThanOrApprox(delta));
-        correctPixels(pixels! + physicsAppliedDelta);
+        newPixels += physicsAppliedDelta;
         delta -= physicsAppliedDelta;
       }
     } else if (offset < 0) {
       // If the sheet is beyond 'maxPixels', drag it down as much
       // as possible until it reaches at 'maxPixels'.
-      if (pixels!.isGreaterThanOrApprox(maxPixels)) {
+      if (newPixels.isGreaterThanOrApprox(maxPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(physicsAppliedDelta.abs().isLessThanOrApprox(delta.abs()));
-        correctPixels(max(pixels! + physicsAppliedDelta, maxPixels));
-        delta -= pixels! - oldPixels;
+        newPixels = max(newPixels + physicsAppliedDelta, maxPixels);
+        delta -= newPixels - oldPixels;
       }
       // If the sheet is not beyond 'maxPixels', scroll the content down
       // as much as possible.
-      if (pixels!.isLessThanOrApprox(maxPixels) && position.extentBefore > 0) {
+      if (newPixels.isLessThanOrApprox(maxPixels) &&
+          position.extentBefore > 0) {
         position.correctPixels(max(position.pixels + delta, minScrollPixels));
         delta -= position.pixels - oldScrollPixels;
       }
@@ -314,7 +257,7 @@ abstract class _SingleContentScrollDrivenSheetActivity
       if (position.pixels.isApprox(minScrollPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(physicsAppliedDelta.abs().isLessThanOrApprox(delta.abs()));
-        correctPixels(pixels! + physicsAppliedDelta);
+        newPixels += physicsAppliedDelta;
         delta -= physicsAppliedDelta;
       }
     }
@@ -325,11 +268,9 @@ abstract class _SingleContentScrollDrivenSheetActivity
         ..didUpdateScrollPositionBy(position.pixels - oldScrollPixels);
     }
 
-    if (pixels! != oldPixels) {
-      notifyListeners();
-    }
+    owner.setPixels(newPixels);
 
-    final overflow = delegate.physics.computeOverflow(delta, delegate.metrics);
+    final overflow = owner.config.physics.computeOverflow(delta, owner.metrics);
     if (overflow.abs() > 0) {
       position.didOverscrollBy(overflow);
       dispatchOverflowNotification(overflow);
@@ -363,20 +304,18 @@ abstract class _SingleContentScrollDrivenSheetActivity
 
 class _ContentIdleScrollDrivenSheetActivity
     extends _ContentScrollDrivenSheetActivity {
-  _ContentIdleScrollDrivenSheetActivity({
-    required this.initialExtent,
-  });
-
-  final Extent initialExtent;
+  _ContentIdleScrollDrivenSheetActivity();
 
   @override
   SheetStatus get status => SheetStatus.stable;
 
   @override
-  void didChangeContentDimensions(Size? oldDimensions) {
-    super.didChangeContentDimensions(oldDimensions);
-    if (pixels == null) {
-      setPixels(initialExtent.resolve(delegate.contentDimensions!));
+  void didChangeContentSize(Size? oldSize) {
+    super.didChangeContentSize(oldSize);
+    final config = owner.config;
+    final metrics = owner.metrics;
+    if (metrics.maybePixels == null && config is ScrollableSheetExtentConfig) {
+      owner.setPixels(config.initialExtent.resolve(metrics.contentSize));
     }
   }
 }
@@ -393,15 +332,17 @@ class _ContentUserScrollDrivenSheetActivity
     double delta,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.hasPixels || !identical(position, contentScrollPosition)) {
+    if (!owner.metrics.hasDimensions ||
+        !identical(position, contentScrollPosition)) {
       return const DelegationResult.notHandled();
     }
 
-    final oldPixels = pixels!;
+    final oldPixels = owner.metrics.pixels;
     _applyScrollOffset(-1 * delta);
+    final newPixels = owner.metrics.pixels;
 
-    if (pixels != oldPixels) {
-      dispatchDragUpdateNotification(delta: pixels! - oldPixels);
+    if (newPixels != oldPixels) {
+      dispatchDragUpdateNotification(delta: newPixels - oldPixels);
     }
 
     return const DelegationResult.handled(null);
@@ -411,7 +352,7 @@ class _ContentUserScrollDrivenSheetActivity
   void onContentDragCancel(DelegatableScrollPosition position) {
     super.onContentDragCancel(position);
     if (identical(position, contentScrollPosition)) {
-      delegate.goBallistic(0);
+      owner.goBallistic(0);
     }
   }
 }
@@ -431,23 +372,24 @@ class _ContentBallisticScrollDrivenSheetActivity
     double velocity,
     DelegatableScrollPosition position,
   ) {
-    if (!delegate.hasPixels || !identical(position, contentScrollPosition)) {
+    if (!owner.metrics.hasDimensions ||
+        !identical(position, contentScrollPosition)) {
       return const DelegationResult.notHandled();
     }
 
-    final oldPixels = pixels!;
+    final oldPixels = owner.metrics.pixels;
     final overscroll = _applyScrollOffset(delta);
 
-    if (pixels != oldPixels) {
+    if (owner.metrics.pixels != oldPixels) {
       dispatchUpdateNotification();
     }
 
-    final physics = delegate.physics;
+    final physics = owner.config.physics;
     if (((position.extentBefore.isApprox(0) && velocity < 0) ||
             (position.extentAfter.isApprox(0) && velocity > 0)) &&
         physics is ScrollableSheetPhysics &&
-        physics.shouldInterruptBallisticScroll(velocity, delegate.metrics)) {
-      delegate.goBallistic(0);
+        physics.shouldInterruptBallisticScroll(velocity, owner.metrics)) {
+      owner.goBallistic(0);
     }
 
     return DelegationResult.handled(overscroll);
@@ -456,7 +398,7 @@ class _ContentBallisticScrollDrivenSheetActivity
   @override
   void onWillContentBallisticScrollCancel(DelegatableScrollPosition position) {
     if (identical(position, contentScrollPosition)) {
-      delegate.goBallistic(0);
+      owner.goBallistic(0);
     }
   }
 }
@@ -479,7 +421,7 @@ class _DragInterruptibleBallisticSheetActivity extends BallisticSheetActivity
     DelegatableScrollPosition position,
   ) {
     _cancelSimulation();
-    delegate.beginActivity(
+    owner.beginActivity(
       _ContentUserScrollDrivenSheetActivity(
         contentScrollPosition: position,
       ),

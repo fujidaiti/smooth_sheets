@@ -9,6 +9,7 @@ import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/theme.dart';
 import 'scrollable_sheet_extent.dart';
+import 'scrollable_sheet_physics.dart';
 
 class ScrollableSheet extends StatelessWidget {
   const ScrollableSheet({
@@ -28,13 +29,13 @@ class ScrollableSheet extends StatelessWidget {
   /// {@macro ScrollableSheetExtent.initialExtent}
   final Extent initialExtent;
 
-  /// {@macro SheetExtent.minExtent}
+  /// {@macro SheetExtentConfig.minExtent}
   final Extent minExtent;
 
-  /// {@macro SheetExtent.maxExtent}
+  /// {@macro SheetExtentConfig.maxExtent}
   final Extent maxExtent;
 
-  /// {@macro SheetExtent.physics}
+  /// {@macro SheetExtentConfig.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
@@ -48,17 +49,25 @@ class ScrollableSheet extends StatelessWidget {
     final theme = SheetTheme.maybeOf(context);
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+    // TODO: Do this in ScrollableSheetConfig
+    final physics = switch (this.physics ?? theme?.physics) {
+      null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
+      final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
+      final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
+    };
 
     Widget result = ImplicitSheetControllerScope(
       controller: controller,
       builder: (context, controller) {
         return SheetContainer(
           controller: controller,
+          delegate: const ScrollableSheetExtentDelegate(),
           config: ScrollableSheetExtentConfig(
             initialExtent: initialExtent,
             minExtent: minExtent,
             maxExtent: maxExtent,
             physics: physics,
+            debugLabel: 'ScrollableSheet',
           ),
           child: PrimarySheetContentScrollController(child: child),
         );
@@ -107,6 +116,7 @@ class PrimarySheetContentScrollController extends StatelessWidget {
   }
 }
 
+// TODO: Move this to a separate file.
 class SheetScrollable extends StatefulWidget {
   const SheetScrollable({
     super.key,
@@ -138,15 +148,15 @@ class _SheetScrollableState extends State<SheetScrollable> {
     super.didChangeDependencies();
     final extent = SheetExtentScope.maybeOf(context);
     _scrollController = switch (extent) {
-      final ScrollableSheetExtent extent => SheetContentScrollController(
-          extent: extent,
+      // If this widget is not a descendant of a SheetExtentScope,
+      // then create a normal ScrollController for stubbing.
+      null => ScrollController(
           debugLabel: widget.debugLabel,
           initialScrollOffset: widget.initialScrollOffset,
           keepScrollOffset: widget.keepScrollOffset,
         ),
-      // If this widget is not a descendant of a SheetExtentScope,
-      // then create a normal ScrollController for stubbing.
-      _ => ScrollController(
+      final extent => SheetContentScrollController(
+          extent: extent,
           debugLabel: widget.debugLabel,
           initialScrollOffset: widget.initialScrollOffset,
           keepScrollOffset: widget.keepScrollOffset,

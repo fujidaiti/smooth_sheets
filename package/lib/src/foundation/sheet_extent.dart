@@ -1,9 +1,9 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../draggable/draggable_sheet.dart';
 import '../internal/double_utils.dart';
-import '../scrollable/scrollable_sheet.dart';
-import '../scrollable/scrollable_sheet_extent.dart';
 import 'activities.dart';
 import 'physics.dart';
 import 'sheet_controller.dart';
@@ -27,9 +27,9 @@ abstract interface class Extent {
 
   /// Resolves the extent to a concrete value in pixels.
   ///
-  /// Do not cache the value of [contentDimensions] because
+  /// Do not cache the value of [contentSize] because
   /// it may change over time.
-  double resolve(Size contentDimensions);
+  double resolve(Size contentSize);
 }
 
 /// An extent that is proportional to the content height.
@@ -38,7 +38,7 @@ class ProportionalExtent implements Extent {
   /// Creates an extent that is proportional to the content height.
   ///
   /// The [factor] must be greater than or equal to 0.
-  /// This extent will resolve to `contentDimensions.height * factor`.
+  /// This extent will resolve to `contentSize.height * factor`.
   /// {@endtemplate}
   const ProportionalExtent(this.factor) : assert(factor >= 0);
 
@@ -46,7 +46,7 @@ class ProportionalExtent implements Extent {
   final double factor;
 
   @override
-  double resolve(Size contentDimensions) => contentDimensions.height * factor;
+  double resolve(Size contentSize) => contentSize.height * factor;
 
   @override
   bool operator ==(Object other) =>
@@ -70,7 +70,7 @@ class FixedExtent implements Extent {
   final double pixels;
 
   @override
-  double resolve(Size contentDimensions) => pixels;
+  double resolve(Size contentSize) => pixels;
 
   @override
   bool operator ==(Object other) =>
@@ -86,167 +86,153 @@ class FixedExtent implements Extent {
 /// Manages the extent of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
-/// The [pixels] value determines the visible height of a sheet. As this value
-/// changes, the sheet translates its position, which changes the visible area
-/// of the content. The [minPixels] and [maxPixels] values limit the range of
-/// the [pixels], but it can be outside of the range if the [physics] allows it.
+/// The [SheetMetrics.pixels] value determines the visible height of a sheet.
+/// As this value changes, the sheet translates its position, which changes the
+/// visible area of the content. The [SheetMetrics.minPixels] and
+/// [SheetMetrics.maxPixels] values limit the range of the *pixels*, but it can
+/// be outside of the range if the [SheetExtentConfig.physics] allows it.
 ///
-/// The current [activity] is responsible for how the [pixels] changes
-/// over time, for example, [AnimatedSheetActivity] animates the [pixels] to
-/// a target value, and [IdleSheetActivity] keeps the [pixels] unchanged.
+/// The current [activity] is responsible for how the *pixels* changes
+/// over time, for example, [AnimatedSheetActivity] animates the *pixels* to
+/// a target value, and [IdleSheetActivity] keeps the *pixels* unchanged.
 /// [SheetExtent] starts with [IdleSheetActivity] as the initial activity,
 /// and it can be changed by calling [beginActivity].
 ///
-/// This object is [Listenable] that notifies its listeners when [pixels]
+/// This object is [Listenable] that notifies its listeners when *pixels*
 /// changes, even during build or layout phase. For listeners that can cause
 /// any widget to rebuild, consider using [SheetController], which is also
 /// [Listenable] of the extent, but only notifies its listeners between frames.
 ///
 /// See also:
-/// - [DraggableSheetExtent], which is a sheet extent for [DraggableSheet].
-/// - [ScrollableSheetExtent], which is a sheet extent for [ScrollableSheet].
 /// - [SheetController], which can be attached to a sheet to control its extent.
 /// - [SheetExtentScope], which creates a [SheetExtent], manages its lifecycle,
 ///   and exposes it to the descendant widgets.
-abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
+class SheetExtent extends ChangeNotifier
+    implements ValueListenable<SheetMetrics> {
   /// Creates an object that manages the extent of a sheet.
   SheetExtent({
     required this.context,
-    required this.physics,
-    required this.minExtent,
-    required this.maxExtent,
-  }) {
-    _metrics = _SheetMetricsRef(this);
-    beginActivity(IdleSheetActivity());
+    required this.delegate,
+    required SheetExtentConfig config,
+  }) : _config = config {
+    goIdle();
   }
+
+  @override
+  SheetMetrics get value => metrics;
+
+  SheetStatus get status => activity.status;
 
   /// A handle to the owner of this object.
   final SheetContext context;
 
-  /// {@template SheetExtent.physics}
-  /// How the sheet extent should respond to user input.
-  ///
-  /// This determines how the sheet will behave when over-dragged or
-  /// under-dragged, or when the user stops dragging.
-  /// {@endtemplate}
-  final SheetPhysics physics;
+  SheetExtentConfig get config => _config;
+  SheetExtentConfig _config;
 
-  /// {@template SheetExtent.minExtent}
-  /// The minimum extent of the sheet.
-  ///
-  /// The sheet may below this extent if the [physics] allows it.
-  /// {@endtemplate}
-  final Extent minExtent;
+  final SheetExtentDelegate delegate;
 
-  /// {@template SheetExtent.maxExtent}
-  /// The maximum extent of the sheet.
-  ///
-  /// The sheet may exceed this extent if the [physics] allows it.
-  /// {@endtemplate}
-  final Extent maxExtent;
-
-  SheetActivity? _activity;
-  double? _minPixels;
-  double? _maxPixels;
-  Size? _contentDimensions;
-  ViewportDimensions? _viewportDimensions;
-
-  /// A view of [SheetMetrics] backed by this object.
-  ///
-  /// Useful for treating this object as a [SheetMetrics] without
-  /// creating an intermediate object.
+  /// Snapshot of the current sheet's state.
   SheetMetrics get metrics => _metrics;
-  late final _SheetMetricsRef _metrics;
-
-  /// A snapshot of the current metrics.
-  SheetMetricsSnapshot get snapshot {
-    assert(hasPixels);
-    return SheetMetricsSnapshot.from(metrics);
-  }
-
-  @override
-  SheetStatus get status => _activity!.status;
-
-  @override
-  double? get pixels => _activity!.pixels;
-
-  @override
-  double? get minPixels => _minPixels;
-
-  @override
-  double? get maxPixels => _maxPixels;
-
-  @override
-  Size? get contentDimensions => _contentDimensions;
-
-  @override
-  ViewportDimensions? get viewportDimensions => _viewportDimensions;
+  SheetMetrics _metrics = SheetMetrics.empty;
 
   /// The current activity of the sheet.
   SheetActivity get activity => _activity!;
-
-  void _invalidateBoundaryConditions() {
-    _minPixels = minExtent.resolve(contentDimensions!);
-    _maxPixels = maxExtent.resolve(contentDimensions!);
-  }
+  SheetActivity? _activity;
 
   @mustCallSuper
   void takeOver(SheetExtent other) {
-    if (other.viewportDimensions != null) {
-      applyNewViewportDimensions(other.viewportDimensions!);
-    }
-    if (other.contentDimensions != null) {
-      applyNewContentDimensions(other.contentDimensions!);
-    }
-
-    _activity!.takeOver(other._activity!);
+    applyNewViewportDimensions(
+      other.metrics.viewportSize,
+      other.metrics.viewportInsets,
+    );
+    applyNewContentSize(other.metrics.contentSize);
+    activity.takeOver(other.activity);
   }
 
   @mustCallSuper
-  void applyNewContentDimensions(Size contentDimensions) {
-    if (_contentDimensions != contentDimensions) {
-      _oldContentDimensions = _contentDimensions;
-      _contentDimensions = contentDimensions;
-      _invalidateBoundaryConditions();
-      _activity!.didChangeContentDimensions(_oldContentDimensions);
-    }
-  }
-
-  @mustCallSuper
-  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
-    if (_viewportDimensions != viewportDimensions) {
-      final oldPixels = pixels;
-      final oldViewPixels = viewPixels;
-      _oldViewportDimensions = _viewportDimensions;
-      _viewportDimensions = viewportDimensions;
-      _activity!.didChangeViewportDimensions(_oldViewportDimensions);
-      if (oldPixels != pixels || oldViewPixels != viewPixels) {
-        notifyListeners();
+  void applyNewContentSize(Size contentSize) {
+    if (metrics.maybeContentSize != contentSize) {
+      final oldMaxPixels = metrics.maybeMaxPixels;
+      final oldMinPixels = metrics.maybeMinPixels;
+      _oldContentSize = metrics.maybeContentSize;
+      _metrics = metrics.copyWith(
+        contentSize: contentSize,
+        minPixels: config.minExtent.resolve(contentSize),
+        maxPixels: config.maxExtent.resolve(contentSize),
+      );
+      activity.didChangeContentSize(_oldContentSize);
+      if (oldMinPixels != metrics.minPixels ||
+          oldMaxPixels != metrics.maxPixels) {
+        activity.didChangeBoundaryConstraints(oldMinPixels, oldMaxPixels);
       }
     }
   }
 
-  Size? _oldContentDimensions;
-  ViewportDimensions? _oldViewportDimensions;
+  @mustCallSuper
+  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
+    if (metrics.maybeViewportSize != size ||
+        metrics.maybeViewportInsets != insets) {
+      _oldViewportSize = metrics.maybeViewportSize;
+      _oldViewportInsets = metrics.maybeViewportInsets;
+      _metrics = metrics.copyWith(viewportSize: size, viewportInsets: insets);
+      activity.didChangeViewportDimensions(
+        _oldViewportSize,
+        _oldViewportInsets,
+      );
+    }
+  }
+
+  @mustCallSuper
+  void applyNewConfig(SheetExtentConfig config) {
+    if (_config != config) {
+      _config = config;
+      final oldMaxPixels = metrics.maxPixels;
+      final oldMinPixels = metrics.minPixels;
+      _metrics = metrics.copyWith(
+        minPixels: config.minExtent.resolve(metrics.contentSize),
+        maxPixels: config.maxExtent.resolve(metrics.contentSize),
+      );
+      if (oldMinPixels != metrics.minPixels ||
+          oldMaxPixels != metrics.maxPixels) {
+        activity.didChangeBoundaryConstraints(oldMinPixels, oldMaxPixels);
+      }
+    }
+  }
+
+  Size? _oldContentSize;
+  Size? _oldViewportSize;
+  EdgeInsets? _oldViewportInsets;
   int _markAsDimensionsWillChangeCallCount = 0;
 
   @mustCallSuper
   void markAsDimensionsWillChange() {
     assert(() {
       if (_markAsDimensionsWillChangeCallCount == 0) {
+        // Ensure that the number of calls to markAsDimensionsWillChange()
+        // matches the number of calls to markAsDimensionsChanged().
         WidgetsBinding.instance.addPostFrameCallback((_) {
           assert(
             _markAsDimensionsWillChangeCallCount == 0,
             _markAsDimensionsWillChangeCallCount > 0
-                ? 'markAsDimensionsWillChange() was called more times'
-                    'than markAsDimensionsChanged() in a frame.'
-                : 'markAsDimensionsChanged() was called more times '
+                ? _debugMessage(
+                    'markAsDimensionsWillChange() was called more times '
+                    'than markAsDimensionsChanged() in a frame.',
+                  )
+                : _debugMessage(
+                    'markAsDimensionsChanged() was called more times '
                     'than markAsDimensionsWillChange() in a frame.',
+                  ),
           );
         });
       }
       return true;
     }());
+
+    if (_markAsDimensionsWillChangeCallCount == 0) {
+      _oldContentSize = null;
+      _oldViewportSize = null;
+      _oldViewportInsets = null;
+    }
 
     _markAsDimensionsWillChangeCallCount++;
   }
@@ -255,8 +241,10 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   void markAsDimensionsChanged() {
     assert(
       _markAsDimensionsWillChangeCallCount > 0,
-      'markAsDimensionsChanged() called without '
-      'a matching call to markAsDimensionsWillChange().',
+      _debugMessage(
+        'markAsDimensionsChanged() called without '
+        'a matching call to markAsDimensionsWillChange().',
+      ),
     );
 
     _markAsDimensionsWillChangeCallCount--;
@@ -269,27 +257,28 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   void onDimensionsFinalized() {
     assert(
       _markAsDimensionsWillChangeCallCount == 0,
-      'Do not call this method until all dimensions changes are finalized.',
+      _debugMessage(
+        'Do not call this method until all dimensions changes are finalized.',
+      ),
     );
 
     _activity!.didFinalizeDimensions(
-      _oldContentDimensions,
-      _oldViewportDimensions,
+      _oldContentSize,
+      _oldViewportSize,
+      _oldViewportInsets,
     );
 
-    _oldContentDimensions = null;
-    _oldViewportDimensions = null;
+    _oldContentSize = null;
+    _oldViewportSize = null;
+    _oldViewportInsets = null;
   }
 
   @mustCallSuper
   void beginActivity(SheetActivity activity) {
-    final oldActivity = _activity?..removeListener(notifyListeners);
+    final oldActivity = _activity;
     // Update the current activity before initialization.
     _activity = activity;
-
-    activity
-      ..initWith(this)
-      ..addListener(notifyListeners);
+    activity.initWith(this);
 
     if (oldActivity != null) {
       activity.takeOver(oldActivity);
@@ -298,12 +287,13 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   }
 
   void goIdle() {
-    beginActivity(IdleSheetActivity());
+    beginActivity(delegate.createIdleActivity());
   }
 
   void goBallistic(double velocity) {
-    assert(hasPixels);
-    final simulation = physics.createBallisticSimulation(velocity, metrics);
+    assert(metrics.hasDimensions);
+    final simulation =
+        config.physics.createBallisticSimulation(velocity, metrics);
     if (simulation != null) {
       goBallisticWith(simulation);
     } else {
@@ -312,13 +302,12 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
   }
 
   void goBallisticWith(Simulation simulation) {
-    assert(hasPixels);
-    beginActivity(BallisticSheetActivity(simulation: simulation));
+    beginActivity(delegate.createBallisticActivity(simulation));
   }
 
   void settle() {
-    assert(hasPixels);
-    final simulation = physics.createSettlingSimulation(metrics);
+    assert(metrics.hasDimensions);
+    final simulation = config.physics.createSettlingSimulation(metrics);
     if (simulation != null) {
       // TODO: Begin a SettlingSheetActivity
       goBallisticWith(simulation);
@@ -329,11 +318,22 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
 
   @override
   void dispose() {
-    activity
-      ..removeListener(notifyListeners)
-      ..dispose();
-
+    activity.dispose();
     super.dispose();
+  }
+
+  void setPixels(double pixels) {
+    final oldPixels = metrics.maybePixels;
+    correctPixels(pixels);
+    if (oldPixels != pixels) {
+      notifyListeners();
+    }
+  }
+
+  void correctPixels(double pixels) {
+    if (metrics.maybePixels != pixels) {
+      _metrics = metrics.copyWith(pixels: pixels);
+    }
   }
 
   /// Animates the extent to the given value.
@@ -346,13 +346,13 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    assert(hasPixels);
-    final destination = newExtent.resolve(contentDimensions!);
-    if (pixels == destination) {
+    assert(metrics.hasDimensions);
+    final destination = newExtent.resolve(metrics.contentSize);
+    if (metrics.pixels == destination) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
-        from: pixels!,
+        from: metrics.pixels,
         to: destination,
         duration: duration,
         curve: curve,
@@ -362,270 +362,257 @@ abstract class SheetExtent with ChangeNotifier, MaybeSheetMetrics {
       return activity.done;
     }
   }
+
+  String _debugMessage(String message) {
+    return switch (config.debugLabel) {
+      null => message,
+      final debugLabel => '$debugLabel: $message',
+    };
+  }
 }
 
-/// The dimensions of the viewport that hosts the sheet.
-class ViewportDimensions {
-  const ViewportDimensions({
-    required this.width,
-    required this.height,
-    required this.insets,
+class SheetExtentConfig {
+  const SheetExtentConfig({
+    required this.minExtent,
+    required this.maxExtent,
+    required this.physics,
+    this.debugLabel,
   });
 
-  /// The width of the viewport.
-  final double width;
-
-  /// The height of the viewport.
-  final double height;
-
-  /// The insets of the viewport.
+  /// {@template SheetExtentConfig.minExtent}
+  /// The minimum extent of the sheet.
   ///
-  /// This is the same as [MediaQueryData.viewInsets].
-  final EdgeInsets insets;
+  /// The sheet may below this extent if the [physics] allows it.
+  /// {@endtemplate}
+  final Extent minExtent;
+
+  /// {@template SheetExtentConfig.maxExtent}
+  /// The maximum extent of the sheet.
+  ///
+  /// The sheet may exceed this extent if the [physics] allows it.
+  /// {@endtemplate}
+  final Extent maxExtent;
+
+  /// {@template SheetExtentConfig.physics}
+  /// How the sheet extent should respond to user input.
+  ///
+  /// This determines how the sheet will behave when over-dragged or
+  /// under-dragged, or when the user stops dragging.
+  /// {@endtemplate}
+  final SheetPhysics physics;
+
+  final String? debugLabel;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ViewportDimensions &&
-          runtimeType == other.runtimeType &&
-          width == other.width &&
-          height == other.height &&
-          insets == other.insets);
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other is SheetExtentConfig &&
+            runtimeType == other.runtimeType &&
+            minExtent == other.minExtent &&
+            maxExtent == other.maxExtent &&
+            physics == other.physics &&
+            debugLabel == other.debugLabel);
+  }
 
   @override
   int get hashCode => Object.hash(
         runtimeType,
-        width,
-        height,
-        insets,
+        minExtent,
+        maxExtent,
+        physics,
+        debugLabel,
       );
 }
 
-/// A description of the state of a sheet.
-mixin MaybeSheetMetrics {
-  /// The current status of the sheet.
-  SheetStatus get status;
+mixin class SheetExtentDelegate {
+  const SheetExtentDelegate();
+
+  SheetActivity createBallisticActivity(Simulation simulation) {
+    return BallisticSheetActivity(simulation: simulation);
+  }
+
+  SheetActivity createIdleActivity() {
+    return IdleSheetActivity();
+  }
+}
+
+/// An immutable snapshot of the sheet's state.
+class SheetMetrics {
+  /// Creates an immutable snapshot of the sheet's state.
+  const SheetMetrics({
+    required double? pixels,
+    required double? minPixels,
+    required double? maxPixels,
+    required Size? contentSize,
+    required Size? viewportSize,
+    required EdgeInsets? viewportInsets,
+  })  : maybePixels = pixels,
+        maybeMinPixels = minPixels,
+        maybeMaxPixels = maxPixels,
+        maybeContentSize = contentSize,
+        maybeViewportSize = viewportSize,
+        maybeViewportInsets = viewportInsets;
+
+  static const empty = SheetMetrics(
+    pixels: null,
+    minPixels: null,
+    maxPixels: null,
+    contentSize: null,
+    viewportSize: null,
+    viewportInsets: null,
+  );
+
+  final double? maybePixels;
+  final double? maybeMinPixels;
+  final double? maybeMaxPixels;
+  final Size? maybeContentSize;
+  final Size? maybeViewportSize;
+  final EdgeInsets? maybeViewportInsets;
 
   /// The current extent of the sheet.
-  double? get pixels;
+  double get pixels {
+    assert(_debugAssertHasProperty('pixels', maybePixels));
+    return maybePixels!;
+  }
 
   /// The minimum extent of the sheet.
-  double? get minPixels;
+  double get minPixels {
+    assert(_debugAssertHasProperty('minPixels', maybeMinPixels));
+    return maybeMinPixels!;
+  }
 
   /// The maximum extent of the sheet.
-  double? get maxPixels;
+  double get maxPixels {
+    assert(_debugAssertHasProperty('maxPixels', maybeMaxPixels));
+    return maybeMaxPixels!;
+  }
 
-  /// The dimensions of the sheet's content.
-  Size? get contentDimensions;
+  /// The size of the sheet's content.
+  Size get contentSize {
+    assert(_debugAssertHasProperty('contentSize', maybeContentSize));
+    return maybeContentSize!;
+  }
 
-  /// The dimensions of the viewport that hosts the sheet.
-  ViewportDimensions? get viewportDimensions;
+  /// The size of the viewport that hosts the sheet.
+  Size get viewportSize {
+    assert(_debugAssertHasProperty('viewportSize', maybeViewportSize));
+    return maybeViewportSize!;
+  }
+
+  EdgeInsets get viewportInsets {
+    assert(_debugAssertHasProperty('viewportInsets', maybeViewportInsets));
+    return maybeViewportInsets!;
+  }
 
   /// The visible height of the sheet measured from the bottom of the viewport.
   ///
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [pixels] and the keyboard's height. Otherwise, it is equal to [pixels].
-  double? get viewPixels => switch ((pixels, viewportDimensions)) {
-        (final pixels?, final viewport?) => pixels + viewport.insets.bottom,
-        _ => null,
-      };
+  double get viewPixels => pixels + viewportInsets.bottom;
+  double? get maybeViewPixels => hasDimensions ? viewPixels : null;
 
   /// The minimum visible height of the sheet measured from the bottom
   /// of the viewport.
-  double? get minViewPixels => switch ((minPixels, viewportDimensions)) {
-        (final minPixels?, final viewport?) =>
-          minPixels + viewport.insets.bottom,
-        _ => null,
-      };
+  double get minViewPixels => minPixels + viewportInsets.bottom;
+  double? get maybeMinViewPixels => hasDimensions ? minViewPixels : null;
 
   /// The maximum visible height of the sheet measured from the bottom
   /// of the viewport.
-  double? get maxViewPixels => switch ((maxPixels, viewportDimensions)) {
-        (final maxPixels?, final viewport?) =>
-          maxPixels + viewport.insets.bottom,
-        _ => null,
-      };
+  double get maxViewPixels => maxPixels + viewportInsets.bottom;
+  double? get maybeMaxViewPixels => hasDimensions ? maxViewPixels : null;
 
   /// Whether the all metrics are available.
   ///
-  /// Returns `true` if all of [pixels], [minPixels], [maxPixels],
-  /// [contentDimensions] and [viewportDimensions] are not `null`.
-  bool get hasPixels =>
-      pixels != null &&
-      minPixels != null &&
-      maxPixels != null &&
-      contentDimensions != null &&
-      viewportDimensions != null;
+  /// Returns true if all of [pixels], [minPixels], [maxPixels],
+  /// [contentSize], [viewportInsets], and [viewportSize] are not null.
+  bool get hasDimensions =>
+      maybePixels != null &&
+      maybeMinPixels != null &&
+      maybeMaxPixels != null &&
+      maybeContentSize != null &&
+      maybeViewportSize != null &&
+      maybeViewportInsets != null;
 
   /// Whether the sheet is within the range of [minPixels] and [maxPixels]
   /// (inclusive of both bounds).
   bool get isPixelsInBounds =>
-      hasPixels && pixels!.isInBounds(minPixels!, maxPixels!);
+      hasDimensions && pixels.isInBounds(minPixels, maxPixels);
 
   /// Whether the sheet is outside the range of [minPixels] and [maxPixels].
   bool get isPixelsOutOfBounds => !isPixelsInBounds;
 
-  @override
-  String toString() => (
-        hasPixels: hasPixels,
-        pixels: pixels,
-        minPixels: minPixels,
-        maxPixels: maxPixels,
-        viewPixels: viewPixels,
-        minViewPixels: minViewPixels,
-        maxViewPixels: maxViewPixels,
-        contentDimensions: contentDimensions,
-        viewportDimensions: viewportDimensions,
-      ).toString();
-}
-
-/// Non-nullable version of [MaybeSheetMetrics].
-mixin SheetMetrics on MaybeSheetMetrics {
-  @override
-  double get pixels;
-
-  @override
-  double get minPixels;
-
-  @override
-  double get maxPixels;
-
-  @override
-  Size get contentDimensions;
-
-  @override
-  ViewportDimensions get viewportDimensions;
-
-  @override
-  double get viewPixels => super.viewPixels!;
-
-  @override
-  double get minViewPixels => super.minViewPixels!;
-
-  @override
-  double get maxViewPixels => super.maxViewPixels!;
-}
-
-/// An immutable object that implements [SheetMetrics].
-class SheetMetricsSnapshot with MaybeSheetMetrics, SheetMetrics {
-  /// Creates an immutable description of the sheet's state.
-  const SheetMetricsSnapshot({
-    required this.status,
-    required this.pixels,
-    required this.minPixels,
-    required this.maxPixels,
-    required this.contentDimensions,
-    required this.viewportDimensions,
-  });
-
-  /// Creates a snapshot of the given [SheetMetrics].
-  factory SheetMetricsSnapshot.from(SheetMetrics other) {
-    return SheetMetricsSnapshot(
-      status: other.status,
-      pixels: other.pixels,
-      minPixels: other.minPixels,
-      maxPixels: other.maxPixels,
-      contentDimensions: other.contentDimensions,
-      viewportDimensions: other.viewportDimensions,
-    );
+  bool _debugAssertHasProperty(String name, Object? value) {
+    assert(() {
+      if (value == null) {
+        throw FlutterError(
+          'SheetMetrics.$name cannot be accessed before the value is set. '
+          'Consider using the corresponding SheetMetrics.maybe* getter '
+          'to handle the case when the value is null. SheetMetrics.hasPixels '
+          'is also useful to check if all the metrics values are set '
+          'before accessing them.',
+        );
+      }
+      return true;
+    }());
+    return true;
   }
 
-  @override
-  final SheetStatus status;
-
-  @override
-  final double pixels;
-
-  @override
-  final double minPixels;
-
-  @override
-  final double maxPixels;
-
-  @override
-  final Size contentDimensions;
-
-  @override
-  final ViewportDimensions viewportDimensions;
-
-  @override
-  bool get hasPixels => true;
-
   /// Creates a copy of this object with the given fields replaced.
-
-  SheetMetricsSnapshot copyWith({
+  SheetMetrics copyWith({
     SheetStatus? status,
     double? pixels,
     double? minPixels,
     double? maxPixels,
-    Size? contentDimensions,
-    ViewportDimensions? viewportDimensions,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
   }) {
-    return SheetMetricsSnapshot(
-      status: status ?? this.status,
-      pixels: pixels ?? this.pixels,
-      minPixels: minPixels ?? this.minPixels,
-      maxPixels: maxPixels ?? this.maxPixels,
-      contentDimensions: contentDimensions ?? this.contentDimensions,
-      viewportDimensions: viewportDimensions ?? this.viewportDimensions,
+    return SheetMetrics(
+      pixels: pixels ?? maybePixels,
+      minPixels: minPixels ?? maybeMinPixels,
+      maxPixels: maxPixels ?? maybeMaxPixels,
+      contentSize: contentSize ?? maybeContentSize,
+      viewportSize: viewportSize ?? maybeViewportSize,
+      viewportInsets: viewportInsets ?? maybeViewportInsets,
     );
   }
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is SheetMetricsSnapshot &&
-        other.runtimeType == runtimeType &&
-        other.pixels == pixels &&
-        other.minPixels == minPixels &&
-        other.maxPixels == maxPixels &&
-        other.contentDimensions == contentDimensions &&
-        other.viewportDimensions == viewportDimensions;
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SheetMetrics &&
+          runtimeType == other.runtimeType &&
+          maybePixels == other.pixels &&
+          maybeMinPixels == other.minPixels &&
+          maybeMaxPixels == other.maxPixels &&
+          maybeContentSize == other.contentSize &&
+          maybeViewportSize == other.viewportSize &&
+          maybeViewportInsets == other.viewportInsets);
 
   @override
   int get hashCode => Object.hash(
         runtimeType,
-        pixels,
-        minPixels,
-        maxPixels,
-        contentDimensions,
-        viewportDimensions,
+        maybePixels,
+        maybeMinPixels,
+        maybeMaxPixels,
+        maybeContentSize,
+        maybeViewportSize,
+        maybeViewportInsets,
       );
 
   @override
   String toString() => (
-        pixels: pixels,
-        minPixels: minPixels,
-        maxPixels: maxPixels,
-        contentDimensions: contentDimensions,
-        viewportDimensions: viewportDimensions,
+        hasPixels: hasDimensions,
+        pixels: maybePixels,
+        minPixels: maybeMinPixels,
+        maxPixels: maybeMaxPixels,
+        viewPixels: maybeViewPixels,
+        minViewPixels: maybeMinViewPixels,
+        maxViewPixels: maybeMaxViewPixels,
+        contentSize: maybeContentSize,
+        viewportSize: maybeViewportSize,
+        viewportInsets: maybeViewportInsets,
       ).toString();
-}
-
-class _SheetMetricsRef with MaybeSheetMetrics, SheetMetrics {
-  _SheetMetricsRef(this._source);
-
-  final MaybeSheetMetrics _source;
-
-  @override
-  SheetStatus get status => _source.status;
-
-  @override
-  double get pixels => _source.pixels!;
-
-  @override
-  double get minPixels => _source.minPixels!;
-
-  @override
-  double get maxPixels => _source.maxPixels!;
-
-  @override
-  Size get contentDimensions => _source.contentDimensions!;
-
-  @override
-  ViewportDimensions get viewportDimensions => _source.viewportDimensions!;
 }
 
 /// An interface that provides the necessary context to a [SheetExtent].
@@ -636,12 +623,7 @@ abstract class SheetContext {
   BuildContext? get notificationContext;
 }
 
-/// Configuration of a [SheetExtent].
-abstract class SheetExtentConfig {
-  const SheetExtentConfig();
-  SheetExtent build(BuildContext context, SheetContext sheetContext);
-  bool shouldRebuild(BuildContext context, SheetExtent oldExtent);
-}
+typedef SheetExtentInitializer = SheetExtent Function(SheetExtent);
 
 /// A widget that creates a [SheetExtent], manages its lifecycle,
 /// and exposes it to the descendant widgets.
@@ -649,34 +631,30 @@ class SheetExtentScope extends StatefulWidget {
   /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
+    required this.controller,
+    this.initializer,
+    this.isPrimary = true,
     required this.config,
-    this.controller,
-    this.onExtentChanged,
+    this.delegate = const SheetExtentDelegate(),
     required this.child,
   });
 
   /// The [SheetController] that will be attached to the created [SheetExtent].
-  final SheetController? controller;
+  final SheetController controller;
 
-  /// The configuration of the [SheetExtent] manged by this widget.
-  ///
-  /// The [SheetExtentScope] will recreate the [SheetExtent] whenever
-  /// it is rebuilt with a [config] that is not identical to the previous one.
   final SheetExtentConfig config;
 
-  /// Called whenever the [SheetExtent] changes.
-  ///
-  /// This callback will be called in lifecycle methods such as
-  /// [State.initState], [State.didUpdateWidget] or [State.dispose].
-  /// The passed [SheetExtent] will be `null` when it is called
-  /// in [State.dispose].
-  final ValueChanged<SheetExtent?>? onExtentChanged;
+  final SheetExtentDelegate delegate;
+
+  final SheetExtentInitializer? initializer;
+
+  final bool isPrimary;
 
   /// The widget below this widget in the tree.
   final Widget child;
 
   @override
-  State<SheetExtentScope> createState() => _SheetExtentScopeState();
+  State<SheetExtentScope> createState() => SheetExtentScopeState();
 
   /// Retrieves the [SheetExtent] from the closest [SheetExtentScope]
   /// that encloses the given context, if any.
@@ -686,7 +664,7 @@ class SheetExtentScope extends StatefulWidget {
   // TODO: Add 'useRoot' option
   static SheetExtent? maybeOf(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<_InheritedSheetExtent>()
+        .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>()
         ?.extent;
   }
 
@@ -700,10 +678,11 @@ class SheetExtentScope extends StatefulWidget {
   }
 }
 
-class _SheetExtentScopeState extends State<SheetExtentScope>
+class SheetExtentScopeState extends State<SheetExtentScope>
     with TickerProviderStateMixin
     implements SheetContext {
-  SheetExtent? _extent;
+  SheetExtent get extent => _extent;
+  late SheetExtent _extent;
 
   @override
   TickerProvider get vsync => this;
@@ -712,66 +691,97 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
   BuildContext? get notificationContext => mounted ? context : null;
 
   @override
+  void initState() {
+    super.initState();
+    _extent = _createExtent();
+  }
+
+  @override
   void dispose() {
-    assert(_extent != null);
-    widget.onExtentChanged?.call(null);
-    widget.controller?.detach(_extent);
-    _extent!.dispose();
+    _discard(_extent);
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final oldExtent = _extent;
-    if (oldExtent == null || widget.config.shouldRebuild(context, oldExtent)) {
-      final newExtent = widget.config.build(context, this);
-      widget.controller?.attach(newExtent);
-      widget.onExtentChanged?.call(newExtent);
-      _extent = newExtent;
-    }
+    _invalidateExtentOwnership();
   }
 
   @override
   void didUpdateWidget(SheetExtentScope oldWidget) {
     super.didUpdateWidget(oldWidget);
-    assert(_extent != null);
-    final oldExtent = _extent!;
-
-    if (widget.config.shouldRebuild(context, oldExtent)) {
-      _extent = widget.config.build(context, this)..takeOver(oldExtent);
-      widget.onExtentChanged?.call(_extent);
+    final oldExtent = _extent;
+    if (widget.controller != oldWidget.controller ||
+        widget.delegate != oldWidget.delegate) {
+      _extent = _createExtent()..takeOver(oldExtent);
+      _discard(oldExtent);
+    } else if (widget.config != oldWidget.config) {
+      _extent.applyNewConfig(widget.config);
     }
+    _invalidateExtentOwnership();
+  }
 
-    if (widget.controller != oldWidget.controller || _extent != oldExtent) {
-      oldWidget.controller?.detach(oldExtent);
-      widget.controller?.attach(_extent!);
-    }
+  SheetExtent _createExtent() {
+    final extent = widget.controller.createSheetExtent(
+      context: this,
+      config: widget.config,
+      delegate: widget.delegate,
+    );
 
-    if (oldExtent != _extent) {
-      oldExtent.dispose();
+    return switch (widget.initializer) {
+      null => extent,
+      final initializer => initializer(extent),
+    };
+  }
+
+  void _discard(SheetExtent extent) {
+    widget.controller.detach(extent);
+    extent.dispose();
+  }
+
+  void _invalidateExtentOwnership() {
+    assert(
+      () {
+        final parentScope = context
+            .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>();
+        return !widget.isPrimary ||
+            parentScope == null ||
+            !parentScope.isPrimary;
+      }(),
+      'Nesting SheetExtentScope widgets that are marked as primary '
+      'is not allowed. Typically, this error occurs when you try to nest '
+      'sheet widgets such as DraggableSheet or ScrollableSheet.',
+    );
+
+    if (widget.isPrimary) {
+      widget.controller.attach(_extent);
+    } else {
+      widget.controller.detach(_extent);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    assert(_extent != null);
-    return _InheritedSheetExtent(
-      extent: _extent!,
+    return _InheritedSheetExtentScope(
+      extent: _extent,
+      isPrimary: widget.isPrimary,
       child: widget.child,
     );
   }
 }
 
-class _InheritedSheetExtent extends InheritedWidget {
-  const _InheritedSheetExtent({
+class _InheritedSheetExtentScope extends InheritedWidget {
+  const _InheritedSheetExtentScope({
     required this.extent,
+    required this.isPrimary,
     required super.child,
   });
 
   final SheetExtent extent;
+  final bool isPrimary;
 
   @override
-  bool updateShouldNotify(_InheritedSheetExtent oldWidget) =>
-      extent != oldWidget.extent;
+  bool updateShouldNotify(_InheritedSheetExtentScope oldWidget) =>
+      extent != oldWidget.extent || isPrimary != oldWidget.isPrimary;
 }

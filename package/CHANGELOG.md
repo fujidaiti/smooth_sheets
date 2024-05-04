@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 May 4, 2024
+
+This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.5.x.md) for more details.
+
+- Attach default controller to sheet if not explicitly specified (#102)
+- Reimplement core architecture (#106)
+
 ## 0.4.2 Apr 21, 2024
 
 - Add new SheetNotifications for drag events (#92)

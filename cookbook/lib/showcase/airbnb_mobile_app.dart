@@ -80,8 +80,8 @@ class _MapButton extends StatelessWidget {
     final sheetController = DefaultSheetController.of(context);
 
     void onPressed() {
-      final metrics = sheetController.metrics;
-      if (metrics != null) {
+      final metrics = sheetController.value;
+      if (metrics.hasDimensions) {
         // Collapse the sheet to reveal the map behind.
         sheetController.animateTo(
           Extent.pixels(metrics.minPixels),

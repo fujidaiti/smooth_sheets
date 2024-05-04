@@ -4,9 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'sheet_extent.dart';
+import 'sheet_status.dart';
 
 class SheetController extends ChangeNotifier
-    implements ValueListenable<double?> {
+    implements ValueListenable<SheetMetrics> {
   SheetExtent? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
@@ -17,11 +18,9 @@ class SheetController extends ChangeNotifier
   final _immediateListeners = ChangeNotifier();
 
   @override
-  double? get value => _client?.pixels;
+  SheetMetrics get value => _client?.metrics ?? SheetMetrics.empty;
 
-  SheetMetrics? get metrics {
-    return _client?.hasPixels == true ? _client!.metrics : null;
-  }
+  SheetStatus? get status => _client?.status;
 
   @override
   void addListener(VoidCallback listener, {bool fireImmediately = false}) {
@@ -53,9 +52,23 @@ class SheetController extends ChangeNotifier
     }
   }
 
+  @factory
+  SheetExtent createSheetExtent({
+    required SheetContext context,
+    required SheetExtentConfig config,
+    required SheetExtentDelegate delegate,
+  }) {
+    return SheetExtent(
+      context: context,
+      config: config,
+      delegate: delegate,
+    );
+  }
+
   @override
   void dispose() {
     detach(_client);
+    _immediateListeners.dispose();
     super.dispose();
   }
 
