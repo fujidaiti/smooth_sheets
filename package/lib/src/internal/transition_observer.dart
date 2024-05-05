@@ -94,6 +94,7 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
           }
         }
       }
+
       route.animation!.addStatusListener(transitionStatusListener);
     }
   }
