@@ -1,5 +1,9 @@
 # Changelog
 
+# 0.5.3 May 6, 2024
+
+- Fix an assertion error when specific page transition scenarios in declarative 'NavigationSheet' (#94)
+
 ## 0.5.2 May 5, 2024
 
 - Fix a crash during the first build of `NavigationSheet` with a path that contains multiple routes such as `/a/b/c` (#109)
