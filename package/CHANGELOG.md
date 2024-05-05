@@ -1,6 +1,6 @@
 # Changelog
 
-# 0.5.3 May 6, 2024
+## 0.5.3 May 6, 2024
 
 - Fix an assertion error when specific page transition scenarios in declarative 'NavigationSheet' (#94)
 
