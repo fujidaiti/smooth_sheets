@@ -72,9 +72,13 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
   void didPush(ModalRoute<dynamic> route, ModalRoute<dynamic>? previousRoute) {
     final currentState = _currentTransition;
 
-    if (previousRoute == null) {
+    if (previousRoute == null || route.animation!.isCompleted) {
+      // There is only one roue in the history stack, or multiple routes
+      // are pushed at the same time without transition animation.
       _setCurrentTransition(NoTransition(currentRoute: route));
     } else if (route.isCurrent && currentState is NoTransition) {
+      // A new route is pushed on top of the stack with transition animation.
+      // Then, notify the listeners of the beginning of the transition.
       _setCurrentTransition(ForwardTransition(
         originRoute: currentState.currentRoute,
         destinationRoute: route,
@@ -90,6 +94,7 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
         }
       }
 
+      // Notify the listeners again when the transition is completed.
       route.animation!.addStatusListener(transitionStatusListener);
     }
   }
