@@ -261,6 +261,13 @@ class SheetExtent extends ChangeNotifier
         'Do not call this method until all dimensions changes are finalized.',
       ),
     );
+    assert(
+      metrics.hasDimensions,
+      _debugMessage(
+        'All the dimension values must be finalized '
+        'at the time onDimensionsFinalized() is called.',
+      ),
+    );
 
     _activity!.didFinalizeDimensions(
       _oldContentSize,
@@ -278,7 +285,7 @@ class SheetExtent extends ChangeNotifier
     final oldActivity = _activity;
     // Update the current activity before initialization.
     _activity = activity;
-    activity.initWith(this);
+    activity.init(this);
 
     if (oldActivity != null) {
       activity.takeOver(oldActivity);
@@ -623,7 +630,49 @@ abstract class SheetContext {
   BuildContext? get notificationContext;
 }
 
-typedef SheetExtentInitializer = SheetExtent Function(SheetExtent);
+@optionalTypeArgs
+class SheetExtentScopeKey<T extends SheetExtent>
+    extends LabeledGlobalKey<_SheetExtentScopeState> {
+  SheetExtentScopeKey({String? debugLabel}) : super(debugLabel);
+
+  final List<VoidCallback> _onCreatedListeners = [];
+
+  T? get maybeCurrentExtent =>
+      switch (currentState?._extent) { final T extent => extent, _ => null };
+
+  T get currentExtent => maybeCurrentExtent!;
+
+  void addOnCreatedListener(VoidCallback listener) {
+    _onCreatedListeners.add(listener);
+    // Immediately notify the listener if the extent is already created.
+    if (maybeCurrentExtent != null) {
+      listener();
+    }
+  }
+
+  void removeOnCreatedListener(VoidCallback listener) {
+    _onCreatedListeners.remove(listener);
+  }
+
+  void removeAllOnCreatedListeners() {
+    _onCreatedListeners.clear();
+  }
+
+  void _notifySheetExtentCreation() {
+    for (final listener in _onCreatedListeners) {
+      listener();
+    }
+  }
+}
+
+abstract class SheetExtentFactory {
+  @factory
+  SheetExtent createSheetExtent({
+    required SheetContext context,
+    required SheetExtentConfig config,
+    required SheetExtentDelegate delegate,
+  });
+}
 
 /// A widget that creates a [SheetExtent], manages its lifecycle,
 /// and exposes it to the descendant widgets.
@@ -632,10 +681,10 @@ class SheetExtentScope extends StatefulWidget {
   const SheetExtentScope({
     super.key,
     required this.controller,
-    this.initializer,
-    this.isPrimary = true,
     required this.config,
+    this.factory,
     this.delegate = const SheetExtentDelegate(),
+    this.isPrimary = true,
     required this.child,
   });
 
@@ -646,7 +695,10 @@ class SheetExtentScope extends StatefulWidget {
 
   final SheetExtentDelegate delegate;
 
-  final SheetExtentInitializer? initializer;
+  /// The factory that creates the [SheetExtent].
+  ///
+  /// If this is null, the [controller] will be used to create the extent.
+  final SheetExtentFactory? factory;
 
   final bool isPrimary;
 
@@ -654,7 +706,7 @@ class SheetExtentScope extends StatefulWidget {
   final Widget child;
 
   @override
-  State<SheetExtentScope> createState() => SheetExtentScopeState();
+  State<SheetExtentScope> createState() => _SheetExtentScopeState();
 
   /// Retrieves the [SheetExtent] from the closest [SheetExtentScope]
   /// that encloses the given context, if any.
@@ -678,10 +730,9 @@ class SheetExtentScope extends StatefulWidget {
   }
 }
 
-class SheetExtentScopeState extends State<SheetExtentScope>
+class _SheetExtentScopeState extends State<SheetExtentScope>
     with TickerProviderStateMixin
     implements SheetContext {
-  SheetExtent get extent => _extent;
   late SheetExtent _extent;
 
   @override
@@ -690,10 +741,16 @@ class SheetExtentScopeState extends State<SheetExtentScope>
   @override
   BuildContext? get notificationContext => mounted ? context : null;
 
+  SheetExtentScopeKey? get _scopeKey => switch (widget.key) {
+        final SheetExtentScopeKey key => key,
+        _ => null,
+      };
+
   @override
   void initState() {
     super.initState();
-    _extent = _createExtent();
+    _extent = _createExtent(_resolveFactory(widget));
+    _scopeKey?._notifySheetExtentCreation();
   }
 
   @override
@@ -712,9 +769,11 @@ class SheetExtentScopeState extends State<SheetExtentScope>
   void didUpdateWidget(SheetExtentScope oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldExtent = _extent;
-    if (widget.controller != oldWidget.controller ||
-        widget.delegate != oldWidget.delegate) {
-      _extent = _createExtent()..takeOver(oldExtent);
+    final oldFactory = _resolveFactory(oldWidget);
+    final newFactory = _resolveFactory(widget);
+    if (newFactory != oldFactory || widget.delegate != oldWidget.delegate) {
+      _extent = _createExtent(newFactory)..takeOver(oldExtent);
+      _scopeKey?._notifySheetExtentCreation();
       _discard(oldExtent);
     } else if (widget.config != oldWidget.config) {
       _extent.applyNewConfig(widget.config);
@@ -722,17 +781,16 @@ class SheetExtentScopeState extends State<SheetExtentScope>
     _invalidateExtentOwnership();
   }
 
-  SheetExtent _createExtent() {
-    final extent = widget.controller.createSheetExtent(
+  SheetExtentFactory _resolveFactory(SheetExtentScope widget) {
+    return widget.factory ?? widget.controller;
+  }
+
+  SheetExtent _createExtent(SheetExtentFactory factory) {
+    return factory.createSheetExtent(
       context: this,
       config: widget.config,
       delegate: widget.delegate,
     );
-
-    return switch (widget.initializer) {
-      null => extent,
-      final initializer => initializer(extent),
-    };
   }
 
   void _discard(SheetExtent extent) {
@@ -741,24 +799,35 @@ class SheetExtentScopeState extends State<SheetExtentScope>
   }
 
   void _invalidateExtentOwnership() {
-    assert(
-      () {
-        final parentScope = context
-            .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>();
-        return !widget.isPrimary ||
-            parentScope == null ||
-            !parentScope.isPrimary;
-      }(),
-      'Nesting SheetExtentScope widgets that are marked as primary '
-      'is not allowed. Typically, this error occurs when you try to nest '
-      'sheet widgets such as DraggableSheet or ScrollableSheet.',
-    );
+    assert(_debugAssertExtentOwnership());
 
     if (widget.isPrimary) {
       widget.controller.attach(_extent);
     } else {
       widget.controller.detach(_extent);
     }
+  }
+
+  bool _debugAssertExtentOwnership() {
+    assert(
+      () {
+        final parentScope = context
+            .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>();
+        if (!widget.isPrimary ||
+            parentScope == null ||
+            !parentScope.isPrimary) {
+          return true;
+        }
+
+        throw FlutterError(
+          'Nesting SheetExtentScope widgets that are marked as primary '
+          'is not allowed. Typically, this error occurs when you try to nest '
+          'sheet widgets such as DraggableSheet or ScrollableSheet.',
+        );
+      }(),
+    );
+
+    return true;
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import '../foundation/activities.dart';
 import '../foundation/framework.dart';
@@ -12,11 +12,9 @@ import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
 import '../foundation/theme.dart';
 import '../internal/transition_observer.dart';
-import 'navigation_route.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
 
-// TODO: Store local extents for each route and notify them when the viewport size changes.
 class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
   const NavigationSheet({
     super.key,
@@ -38,63 +36,29 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
 }
 
 class _NavigationSheetState extends State<NavigationSheet>
-    with TransitionAwareStateMixin, SheetExtentDelegate {
-  final GlobalKey<SheetExtentScopeState> _scopeKey = GlobalKey();
+    with TransitionAwareStateMixin
+    implements SheetExtentFactory {
+  final _scopeKey = SheetExtentScopeKey<_NavigationSheetExtent>(
+    debugLabel: kDebugMode ? 'NavigationSheet' : null,
+  );
 
   @override
   void didChangeTransitionState(Transition? transition) {
-    // TODO: Provide a way to customize animation curves.
-    final sheetActivity = switch (transition) {
-      NoTransition(
-        :final NavigationSheetRoute<dynamic> currentRoute,
-      ) =>
-        _ProxySheetActivity(entry: currentRoute),
-      ForwardTransition(
-        :final NavigationSheetRoute<dynamic> originRoute,
-        :final NavigationSheetRoute<dynamic> destinationRoute,
-        :final animation,
-      ) =>
-        _TransitionSheetActivity(
-          currentEntry: originRoute,
-          nextEntry: destinationRoute,
-          animation: animation,
-          animationCurve: Curves.easeInOutCubic,
-        ),
-      BackwardTransition(
-        :final NavigationSheetRoute<dynamic> originRoute,
-        :final NavigationSheetRoute<dynamic> destinationRoute,
-        :final animation,
-      ) =>
-        _TransitionSheetActivity(
-          currentEntry: originRoute,
-          nextEntry: destinationRoute,
-          animation: animation,
-          animationCurve: Curves.easeInOutCubic,
-        ),
-      UserGestureTransition(
-        :final NavigationSheetRoute<dynamic> currentRoute,
-        :final NavigationSheetRoute<dynamic> previousRoute,
-        :final animation,
-      ) =>
-        _TransitionSheetActivity(
-          currentEntry: currentRoute,
-          nextEntry: previousRoute,
-          animation: animation,
-          animationCurve: Curves.linear,
-        ),
-      _ => IdleSheetActivity(),
-    };
-
-    _scopeKey.currentState?.extent.beginActivity(sheetActivity);
+    _scopeKey.maybeCurrentExtent?._handleRouteTransition(transition);
   }
 
+  @factory
   @override
-  SheetActivity createIdleActivity() {
-    return switch (currentTransition) {
-      NoTransition(:final NavigationSheetRoute<dynamic> currentRoute) =>
-        _ProxySheetActivity(entry: currentRoute),
-      _ => IdleSheetActivity(),
-    };
+  SheetExtent createSheetExtent({
+    required SheetContext context,
+    required SheetExtentConfig config,
+    required SheetExtentDelegate delegate,
+  }) {
+    return _NavigationSheetExtent(
+      context: context,
+      delegate: delegate,
+      config: config,
+    );
   }
 
   @override
@@ -107,15 +71,16 @@ class _NavigationSheetState extends State<NavigationSheet>
       controller: widget.controller,
       builder: (context, controller) {
         return SheetContainer(
-          delegate: this,
+          factory: this,
           scopeKey: _scopeKey,
           controller: controller,
+          delegate: const SheetExtentDelegate(),
           config: const SheetExtentConfig(
             minExtent: Extent.pixels(0),
             maxExtent: Extent.proportional(1),
             // TODO: Use more appropriate physics.
             physics: ClampingSheetPhysics(),
-            debugLabel: 'NavigationSheet',
+            debugLabel: kDebugMode ? 'NavigationSheet' : null,
           ),
           child: widget.child,
         );
@@ -133,23 +98,138 @@ class _NavigationSheetState extends State<NavigationSheet>
   }
 }
 
-abstract class NavigationSheetEntry implements Listenable {
-  SheetStatus get status;
-  SheetMetrics get metrics;
-  // TODO: Remove this
-  void applyNewViewportDimensions(Size viewportSize, EdgeInsets viewportInsets);
+class _NavigationSheetExtent extends SheetExtent {
+  _NavigationSheetExtent({
+    required super.context,
+    required super.delegate,
+    required super.config,
+  });
+
+  final _localExtentScopeKeyRegistry = <Route<dynamic>, SheetExtentScopeKey>{};
+  Transition? _lastReportedTransition;
+
+  SheetExtentScopeKey createLocalExtentScopeKey(
+    Route<dynamic> route,
+    String? debugLabel,
+  ) {
+    assert(!_localExtentScopeKeyRegistry.containsKey(route));
+    final key = SheetExtentScopeKey(debugLabel: debugLabel);
+    _localExtentScopeKeyRegistry[route] = key;
+    // Sync the viewport dimensions when the extent is created.
+    key.addOnCreatedListener(() {
+      final viewportSize = metrics.maybeViewportSize;
+      final viewportInsets = metrics.maybeViewportInsets;
+      if (viewportSize != null && viewportInsets != null) {
+        key.currentExtent
+            .applyNewViewportDimensions(viewportSize, viewportInsets);
+      }
+    });
+
+    return key;
+  }
+
+  void disposeLocalExtentScopeKey(Route<dynamic> route) {
+    assert(_localExtentScopeKeyRegistry.containsKey(route));
+    final key = _localExtentScopeKeyRegistry.remove(route);
+    key!.removeAllOnCreatedListeners();
+  }
+
+  SheetExtentScopeKey getLocalExtentScopeKey(Route<dynamic> route) {
+    assert(_localExtentScopeKeyRegistry.containsKey(route));
+    return _localExtentScopeKeyRegistry[route]!;
+  }
+
+  bool containsLocalExtentScopeKey(Route<dynamic> route) {
+    return _localExtentScopeKeyRegistry.containsKey(route);
+  }
+
+  @override
+  void takeOver(SheetExtent other) {
+    super.takeOver(other);
+    if (other is _NavigationSheetExtent) {
+      _handleRouteTransition(other._lastReportedTransition);
+    }
+  }
+
+  @override
+  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
+    super.applyNewViewportDimensions(size, insets);
+    for (final scopeKey in _localExtentScopeKeyRegistry.values) {
+      scopeKey.maybeCurrentExtent?.applyNewViewportDimensions(size, insets);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    for (final scopeKey in _localExtentScopeKeyRegistry.values) {
+      scopeKey.removeAllOnCreatedListeners();
+    }
+    _localExtentScopeKeyRegistry.clear();
+  }
+
+  void _handleRouteTransition(Transition? transition) {
+    _lastReportedTransition = transition;
+    // TODO: Provide a way to customize animation curves.
+    switch (transition) {
+      case NoTransition(:final currentRoute):
+        beginActivity(_ProxySheetActivity(route: currentRoute));
+
+      case final ForwardTransition tr:
+        beginActivity(_TransitionSheetActivity(
+          currentRoute: tr.originRoute,
+          nextRoute: tr.destinationRoute,
+          animation: tr.animation,
+          animationCurve: Curves.easeInOutCubic,
+        ));
+
+      case final BackwardTransition tr:
+        beginActivity(_TransitionSheetActivity(
+          currentRoute: tr.originRoute,
+          nextRoute: tr.destinationRoute,
+          animation: tr.animation,
+          animationCurve: Curves.easeInOutCubic,
+        ));
+
+      case final UserGestureTransition tr:
+        beginActivity(_TransitionSheetActivity(
+          currentRoute: tr.currentRoute,
+          nextRoute: tr.previousRoute,
+          animation: tr.animation,
+          animationCurve: Curves.linear,
+        ));
+
+      case _:
+        goIdle();
+    }
+  }
+
+  @override
+  void goIdle() {
+    switch (_lastReportedTransition) {
+      case NoTransition(:final currentRoute):
+        beginActivity(_ProxySheetActivity(route: currentRoute));
+      case _:
+        IdleSheetActivity();
+    }
+  }
 }
 
-class _TransitionSheetActivity extends SheetActivity {
+abstract class _NavigationSheetActivity extends SheetActivity {
+  @override
+  _NavigationSheetExtent get owner => super.owner as _NavigationSheetExtent;
+}
+
+class _TransitionSheetActivity extends _NavigationSheetActivity {
   _TransitionSheetActivity({
-    required this.currentEntry,
-    required this.nextEntry,
+    required this.currentRoute,
+    required this.nextRoute,
     required this.animation,
     required this.animationCurve,
   });
 
-  final NavigationSheetEntry currentEntry;
-  final NavigationSheetEntry nextEntry;
+  final Route<dynamic> currentRoute;
+  final Route<dynamic> nextRoute;
   final Animation<double> animation;
   final Curve animationCurve;
   late final Animation<double> _curvedAnimation;
@@ -158,12 +238,11 @@ class _TransitionSheetActivity extends SheetActivity {
   SheetStatus get status => SheetStatus.controlled;
 
   @override
-  void initWith(SheetExtent target) {
-    super.initWith(target);
+  void init(SheetExtent target) {
+    super.init(target);
     _curvedAnimation = animation.drive(
       CurveTween(curve: animationCurve),
     )..addListener(_onAnimationTick);
-    _syncViewportDimensions();
   }
 
   @override
@@ -173,73 +252,237 @@ class _TransitionSheetActivity extends SheetActivity {
   }
 
   void _onAnimationTick() {
-    final startPixels = currentEntry.metrics.maybePixels;
-    final endPixels = nextEntry.metrics.maybePixels;
     final fraction = _curvedAnimation.value;
+    final startPixels = owner
+        .getLocalExtentScopeKey(currentRoute)
+        .maybeCurrentExtent
+        ?.metrics
+        .maybePixels;
+    final endPixels = owner
+        .getLocalExtentScopeKey(nextRoute)
+        .maybeCurrentExtent
+        ?.metrics
+        .maybePixels;
+
     if (startPixels != null && endPixels != null) {
       owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
       dispatchUpdateNotification();
     }
   }
-
-  @override
-  void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {
-    _syncViewportDimensions();
-  }
-
-  void _syncViewportDimensions() {
-    final viewportSize = owner.metrics.maybeViewportSize;
-    final viewportInsets = owner.metrics.maybeViewportInsets;
-    if (viewportSize != null && viewportInsets != null) {
-      currentEntry.applyNewViewportDimensions(viewportSize, viewportInsets);
-      nextEntry.applyNewViewportDimensions(viewportSize, viewportInsets);
-    }
-  }
 }
 
-class _ProxySheetActivity extends SheetActivity {
-  _ProxySheetActivity({
-    required this.entry,
-  });
+class _ProxySheetActivity extends _NavigationSheetActivity {
+  _ProxySheetActivity({required this.route});
 
-  final NavigationSheetEntry entry;
+  final Route<dynamic> route;
 
-  @override
-  SheetStatus get status => entry.status;
+  SheetExtentScopeKey get _scopeKey => owner.getLocalExtentScopeKey(route);
 
   @override
-  void initWith(SheetExtent delegate) {
-    super.initWith(delegate);
-    entry.addListener(_syncMetrics);
-    _syncMetrics(notify: false);
-    _syncViewportDimensions();
+  SheetStatus get status =>
+      _scopeKey.maybeCurrentExtent?.status ?? SheetStatus.stable;
+
+  @override
+  void init(SheetExtent delegate) {
+    super.init(delegate);
+    _scopeKey.addOnCreatedListener(_init);
+  }
+
+  void _init() {
+    if (mounted) {
+      _scopeKey.currentExtent.addListener(_syncMetrics);
+      _syncMetrics(notify: false);
+    }
   }
 
   @override
   void dispose() {
-    entry.removeListener(_syncMetrics);
+    if (owner.containsLocalExtentScopeKey(route)) {
+      _scopeKey
+        ..maybeCurrentExtent?.removeListener(_syncMetrics)
+        ..removeOnCreatedListener(_init);
+    }
     super.dispose();
   }
 
-  @override
-  void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {
-    _syncViewportDimensions();
-  }
-
   void _syncMetrics({bool notify = true}) {
-    if (entry.metrics.maybeContentSize case final contentSize?) {
+    final metrics = _scopeKey.maybeCurrentExtent?.metrics;
+    if (metrics?.maybeContentSize case final contentSize?) {
       owner.applyNewContentSize(contentSize);
     }
-    if (entry.metrics.maybePixels case final pixels?) {
+    if (metrics?.maybePixels case final pixels?) {
       notify ? owner.setPixels(pixels) : owner.correctPixels(pixels);
     }
   }
+}
 
-  void _syncViewportDimensions() {
-    final viewportSize = owner.metrics.maybeViewportSize;
-    final viewportInsets = owner.metrics.maybeViewportInsets;
-    if (viewportSize != null && viewportInsets != null) {
-      entry.applyNewViewportDimensions(viewportSize, viewportInsets);
+abstract class NavigationSheetRoute<T> extends PageRoute<T> {
+  NavigationSheetRoute({super.settings});
+
+  late _NavigationSheetExtent _globalExtent;
+
+  @override
+  void install() {
+    super.install();
+    assert(_debugAssertDependencies());
+
+    _globalExtent =
+        SheetExtentScope.of(navigator!.context) as _NavigationSheetExtent;
+    _globalExtent.createLocalExtentScopeKey(this, debugLabel);
+  }
+
+  @override
+  void changedExternalState() {
+    super.changedExternalState();
+    final globalExtent =
+        SheetExtentScope.of(navigator!.context) as _NavigationSheetExtent;
+    if (globalExtent != _globalExtent) {
+      _globalExtent.disposeLocalExtentScopeKey(this);
+      globalExtent.createLocalExtentScopeKey(this, debugLabel);
+      _globalExtent = globalExtent;
     }
+  }
+
+  @override
+  void dispose() {
+    _globalExtent.disposeLocalExtentScopeKey(this);
+    super.dispose();
+  }
+
+  bool _debugAssertDependencies() {
+    assert(
+      () {
+        final globalExtent = SheetExtentScope.maybeOf(navigator!.context);
+        if (globalExtent is _NavigationSheetExtent) {
+          return true;
+        }
+        throw FlutterError(
+          'A $SheetExtentScope that hosts a $_NavigationSheetExtent '
+          'is not found in the given context. This is likely because '
+          'this $NavigationSheetRoute is not a route of the navigator '
+          'enclosed by a $NavigationSheet.',
+        );
+      }(),
+    );
+    return true;
+  }
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  String? get barrierLabel => null;
+
+  RouteTransitionsBuilder? get transitionsBuilder;
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final builder = transitionsBuilder ?? _buildDefaultTransitions;
+    return builder(context, animation, secondaryAnimation, child);
+  }
+
+  Widget _buildDefaultTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final theme = Theme.of(context).pageTransitionsTheme;
+    final platformAdaptiveTransitions = theme.buildTransitions<T>(
+        this, context, animation, secondaryAnimation, child);
+
+    final fadeInTween = TweenSequence([
+      TweenSequenceItem(tween: ConstantTween(0.0), weight: 1),
+      TweenSequenceItem(
+        tween: Tween(begin: 0.0, end: 1.0).chain(
+          CurveTween(curve: Curves.easeIn),
+        ),
+        weight: 1,
+      ),
+    ]);
+
+    final fadeOutTween = TweenSequence([
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: 0.0).chain(
+          CurveTween(curve: Curves.easeIn),
+        ),
+        weight: 1,
+      ),
+      TweenSequenceItem(tween: ConstantTween(0.0), weight: 1),
+    ]);
+
+    return FadeTransition(
+      opacity: animation.drive(fadeInTween),
+      child: FadeTransition(
+        opacity: secondaryAnimation.drive(fadeOutTween),
+        child: platformAdaptiveTransitions,
+      ),
+    );
+  }
+}
+
+class NavigationSheetRouteContent extends StatelessWidget {
+  const NavigationSheetRouteContent({
+    super.key,
+    required this.config,
+    required this.delegate,
+    required this.child,
+  });
+
+  final SheetExtentConfig config;
+  final SheetExtentDelegate delegate;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    assert(_debugAssertDependencies(context));
+    final parentRoute = ModalRoute.of(context)!;
+    final globalExtent = SheetExtentScope.of(context) as _NavigationSheetExtent;
+    final localScopeKey = globalExtent.getLocalExtentScopeKey(parentRoute);
+
+    return SheetExtentScope(
+      key: localScopeKey,
+      isPrimary: false,
+      config: config,
+      delegate: delegate,
+      controller: SheetControllerScope.of(context),
+      child: SheetContentViewport(child: child),
+    );
+  }
+
+  bool _debugAssertDependencies(BuildContext context) {
+    assert(
+      () {
+        final parentRoute = ModalRoute.of(context);
+        if (parentRoute is NavigationSheetRoute) {
+          return true;
+        }
+        throw FlutterError(
+          'The $NavigationSheetRouteContent must be the content of '
+          'a $NavigationSheetRoute, but the result of ModalRoute.of(context) '
+          'is ${parentRoute?.runtimeType}.',
+        );
+      }(),
+    );
+    assert(
+      () {
+        final globalExtent = SheetExtentScope.maybeOf(context);
+        if (globalExtent is _NavigationSheetExtent) {
+          return true;
+        }
+        throw FlutterError(
+          'A $SheetExtentScope that hosts a $_NavigationSheetExtent '
+          'is not found in the given context. This is likely because '
+          'this $NavigationSheetRouteContent is not the content of a '
+          '$NavigationSheetRoute.',
+        );
+      }(),
+    );
+    return true;
   }
 }
