@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 May 5, 2024
+
+- Fix a crash during the first build of `NavigationSheet` with a path that contains multiple routes such as `/a/b/c` (#109)
+
 ## 0.5.1 May 4, 2024
 
 - Re-export `NavigationSheetRoute` that is unintentionally omitted in v0.5.0 (#110)
