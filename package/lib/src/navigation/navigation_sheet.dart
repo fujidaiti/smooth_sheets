@@ -40,7 +40,6 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
 class _NavigationSheetState extends State<NavigationSheet>
     with TransitionAwareStateMixin, SheetExtentDelegate {
   final GlobalKey<SheetExtentScopeState> _scopeKey = GlobalKey();
-  Transition? _currentTransition;
 
   @override
   void didChangeTransitionState(Transition? transition) {
@@ -87,12 +86,11 @@ class _NavigationSheetState extends State<NavigationSheet>
     };
 
     _scopeKey.currentState?.extent.beginActivity(sheetActivity);
-    _currentTransition = transition;
   }
 
   @override
   SheetActivity createIdleActivity() {
-    return switch (_currentTransition) {
+    return switch (currentTransition) {
       NoTransition(:final NavigationSheetRoute<dynamic> currentRoute) =>
         _ProxySheetActivity(entry: currentRoute),
       _ => IdleSheetActivity(),
