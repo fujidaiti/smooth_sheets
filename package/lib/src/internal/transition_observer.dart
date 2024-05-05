@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-@optionalTypeArgs
 class TransitionObserver extends NavigatorObserver {
   final Set<TransitionAwareStateMixin> _listeners = {};
 
@@ -58,34 +57,40 @@ mixin TransitionAwareWidgetMixin on StatefulWidget {
 
 mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
     on State<T> {
-  Transition? _currentTransition;
+  Transition? _lastReportedTransition;
+  Transition? get currentTransition => _lastReportedTransition;
 
-  void _setCurrentTransition(Transition? transition) {
-    if (_currentTransition != transition) {
-      _currentTransition = transition;
-      didChangeTransitionState(_currentTransition);
+  void _notify(Transition? transition) {
+    if (_lastReportedTransition != transition) {
+      _lastReportedTransition = transition;
+      didChangeTransitionState(transition);
     }
   }
 
   void didChangeTransitionState(Transition? transition);
 
   void didPush(ModalRoute<dynamic> route, ModalRoute<dynamic>? previousRoute) {
-    final currentState = _currentTransition;
+    final currentState = currentTransition;
 
-    if (previousRoute == null) {
-      _setCurrentTransition(NoTransition(currentRoute: route));
+    if (previousRoute == null || route.animation!.isCompleted) {
+      // There is only one roue in the history stack, or multiple routes
+      // are pushed at the same time without transition animation.
+      _notify(NoTransition(currentRoute: route));
     } else if (route.isCurrent && currentState is NoTransition) {
-      _setCurrentTransition(ForwardTransition(
+      // A new route is pushed on top of the stack with transition animation.
+      // Then, notify the listener of the beginning of the transition.
+      _notify(ForwardTransition(
         originRoute: currentState.currentRoute,
         destinationRoute: route,
         animation: route.animation!,
       ));
 
+      // Notify the listener again when the transition is completed.
       void transitionStatusListener(AnimationStatus status) {
         if (status == AnimationStatus.completed && !route.offstage) {
           route.animation!.removeStatusListener(transitionStatusListener);
-          if (_currentTransition is ForwardTransition) {
-            _setCurrentTransition(NoTransition(currentRoute: route));
+          if (currentTransition is ForwardTransition) {
+            _notify(NoTransition(currentRoute: route));
           }
         }
       }
@@ -96,16 +101,16 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
 
   void didPop(ModalRoute<dynamic> route, ModalRoute<dynamic>? previousRoute) {
     if (previousRoute == null) {
-      _setCurrentTransition(null);
+      _notify(null);
     } else {
-      _setCurrentTransition(BackwardTransition(
+      _notify(BackwardTransition(
         originRoute: route,
         destinationRoute: previousRoute,
         animation: route.animation!.drive(Tween(begin: 1, end: 0)),
       ));
       route.completed.whenComplete(() {
-        if (_currentTransition is BackwardTransition) {
-          _setCurrentTransition(NoTransition(currentRoute: previousRoute));
+        if (currentTransition is BackwardTransition) {
+          _notify(NoTransition(currentRoute: previousRoute));
         }
       });
     }
@@ -115,7 +120,7 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
     ModalRoute<dynamic> route,
     ModalRoute<dynamic>? previousRoute,
   ) {
-    _setCurrentTransition(UserGestureTransition(
+    _notify(UserGestureTransition(
       currentRoute: route,
       previousRoute: previousRoute!,
       animation: route.animation!.drive(Tween(begin: 1, end: 0)),
@@ -123,8 +128,8 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
   }
 
   void didStopUserGesture() {
-    if (_currentTransition case final UserGestureTransition state) {
-      _setCurrentTransition(NoTransition(
+    if (currentTransition case final UserGestureTransition state) {
+      _notify(NoTransition(
         currentRoute: state.currentRoute,
       ));
     }
@@ -142,14 +147,14 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
     if (widget.transitionObserver != oldWidget.transitionObserver) {
       oldWidget.transitionObserver.unmount(this);
       widget.transitionObserver.mount(this);
-      _setCurrentTransition(null);
+      _notify(null);
     }
   }
 
   @override
   void dispose() {
     widget.transitionObserver.unmount(this);
-    _setCurrentTransition(null);
+    _notify(null);
     super.dispose();
   }
 }
