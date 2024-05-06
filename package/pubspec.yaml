@@ -3,8 +3,8 @@ description: Sheet widgets with smooth motion and great flexibility. Also suppor
 version: 0.5.3
 repository: https://github.com/fujidaiti/smooth_sheets
 screenshots:
-  description: Practical examples of smooth_sheets.
-  path: resources/smooth-sheets-thumbnail.png
+  - description: Practical examples of smooth_sheets.
+    path: resources/smooth-sheets-thumbnail.png
 
 environment:
   sdk: ">=3.0.6 <4.0.0"
