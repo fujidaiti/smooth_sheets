@@ -27,7 +27,7 @@ abstract class SheetActivity {
   SheetStatus get status;
 
   @mustCallSuper
-  void initWith(SheetExtent owner) {
+  void init(SheetExtent owner) {
     assert(
       _owner == null,
       'initWith() must be called only once.',
@@ -142,8 +142,6 @@ abstract class SheetActivity {
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    assert(owner.metrics.hasDimensions);
-
     if (oldContentSize == null && oldViewportSize == null) {
       // The sheet was laid out, but not changed in size.
       return;
@@ -242,8 +240,8 @@ class UserDragSheetActivity extends SheetActivity
   final DragGestureRecognizer gestureRecognizer;
 
   @override
-  void initWith(SheetExtent owner) {
-    super.initWith(owner);
+  void init(SheetExtent owner) {
+    super.init(owner);
     gestureRecognizer
       ..onUpdate = onDragUpdate
       ..onEnd = onDragEnd
@@ -304,8 +302,8 @@ mixin ControlledSheetActivityMixin on SheetActivity {
   SheetStatus get status => SheetStatus.controlled;
 
   @override
-  void initWith(SheetExtent delegate) {
-    super.initWith(delegate);
+  void init(SheetExtent delegate) {
+    super.init(delegate);
     controller = createAnimationController()..addListener(onAnimationTick);
     // Won't trigger if we dispose 'animation' first.
     onAnimationStart().whenComplete(onAnimationEnd);
