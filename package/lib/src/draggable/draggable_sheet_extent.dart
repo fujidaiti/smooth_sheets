@@ -7,7 +7,7 @@ import '../foundation/sheet_extent.dart';
 @internal
 class DraggableSheetExtentFactory extends SheetExtentFactory {
   const DraggableSheetExtentFactory();
-  
+
   @override
   SheetExtent createSheetExtent({
     required SheetContext context,
