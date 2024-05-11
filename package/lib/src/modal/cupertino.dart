@@ -416,6 +416,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
     required this.child,
+    this.barrier,
   });
 
   /// The content to be shown in the [Route] created by this page.
@@ -435,6 +436,8 @@ class CupertinoModalSheetPage<T> extends Page<T> {
   final Duration transitionDuration;
 
   final Curve transitionCurve;
+
+  final Widget? barrier;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -478,6 +481,9 @@ class _PageBasedCupertinoModalSheetRoute<T>
 
   @override
   Widget buildContent(BuildContext context) => _page.child;
+
+  @override
+  Widget? get barrierWidget => _page.barrier;
 }
 
 class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
@@ -491,9 +497,12 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
+    this.barrier,
   });
 
   final WidgetBuilder builder;
+
+  final Widget? barrier;
 
   @override
   final Color? barrierColor;
@@ -517,4 +526,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   Widget buildContent(BuildContext context) {
     return builder(context);
   }
+
+  @override
+  Widget? get barrierWidget => barrier;
 }

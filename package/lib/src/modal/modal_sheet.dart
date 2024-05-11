@@ -26,6 +26,7 @@ class ModalSheetPage<T> extends Page<T> {
     this.barrierColor = Colors.black54,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.barrier,
     required this.child,
   });
 
@@ -46,6 +47,8 @@ class ModalSheetPage<T> extends Page<T> {
   final Duration transitionDuration;
 
   final Curve transitionCurve;
+
+  final Widget? barrier;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -88,6 +91,9 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
 
   @override
   Widget buildContent(BuildContext context) => _page.child;
+
+  @override
+  Widget? get barrierWidget => _page.barrier;
 }
 
 class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
@@ -98,12 +104,15 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.maintainState = true,
     this.barrierDismissible = true,
     this.barrierLabel,
-    this.barrierColor = Colors.black54,
+    this.barrierColor = Colors.black,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.barrier,
   });
 
   final WidgetBuilder builder;
+
+  final Widget? barrier;
 
   @override
   final Color? barrierColor;
@@ -127,6 +136,9 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   Widget buildContent(BuildContext context) {
     return builder(context);
   }
+
+  @override
+  Widget? get barrierWidget => barrier;
 }
 
 mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
@@ -154,6 +166,8 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   }
 
   Widget buildContent(BuildContext context);
+
+  Widget? get barrierWidget;
 
   @override
   Widget buildPage(
@@ -199,18 +213,21 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     final barrierColor = this.barrierColor;
     if (barrierColor != null && barrierColor.alpha != 0 && !offstage) {
       assert(barrierColor != barrierColor.withOpacity(0.0));
-      return AnimatedModalBarrier(
-        onDismiss: onDismiss,
-        dismissible: barrierDismissible,
-        semanticsLabel: barrierLabel,
-        barrierSemanticsDismissible: semanticsDismissible,
-        color: animation!.drive(
-          ColorTween(
-            begin: barrierColor.withOpacity(0.0),
-            end: barrierColor,
-          ).chain(CurveTween(curve: barrierCurve)),
-        ),
-      );
+
+      return barrierWidget != null
+          ? GestureDetector(onTap: onDismiss, child: barrierWidget)
+          : AnimatedModalBarrier(
+              onDismiss: onDismiss,
+              dismissible: barrierDismissible,
+              semanticsLabel: barrierLabel,
+              barrierSemanticsDismissible: semanticsDismissible,
+              color: animation!.drive(
+                ColorTween(
+                  begin: barrierColor.withOpacity(0.0),
+                  end: barrierColor,
+                ).chain(CurveTween(curve: barrierCurve)),
+              ),
+            );
     } else {
       return ModalBarrier(
         onDismiss: onDismiss,
