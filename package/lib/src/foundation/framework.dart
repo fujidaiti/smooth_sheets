@@ -11,18 +11,16 @@ class SheetContainer extends StatelessWidget {
   const SheetContainer({
     super.key,
     this.scopeKey,
-    this.delegate = const SheetExtentDelegate(),
     required this.controller,
     required this.config,
-    this.factory,
+    required this.factory,
     required this.child,
   });
 
   final Key? scopeKey;
-  final SheetExtentDelegate delegate;
   final SheetController controller;
   final SheetExtentConfig config;
-  final SheetExtentFactory? factory;
+  final SheetExtentFactory factory;
   final Widget child;
 
   @override
@@ -31,7 +29,6 @@ class SheetContainer extends StatelessWidget {
       key: scopeKey,
       config: config,
       controller: controller,
-      delegate: delegate,
       factory: factory,
       isPrimary: true,
       child: Builder(
