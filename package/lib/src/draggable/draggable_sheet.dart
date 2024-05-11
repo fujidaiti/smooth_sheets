@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import '../foundation/activities.dart';
 import '../foundation/framework.dart';
 import '../foundation/keyboard_dismissible.dart';
 import '../foundation/physics.dart';
@@ -8,6 +7,7 @@ import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/theme.dart';
 import '../scrollable/scrollable_sheet.dart';
+import 'draggable_sheet_extent.dart';
 import 'sheet_draggable.dart';
 
 /// A sheet that can be dragged.
@@ -76,7 +76,7 @@ class DraggableSheet extends StatelessWidget {
       builder: (context, controller) {
         return SheetContainer(
           controller: controller,
-          delegate: const DraggableSheetExtentDelegate(),
+          factory: const DraggableSheetExtentFactory(),
           config: DraggableSheetExtentConfig(
             initialExtent: initialExtent,
             minExtent: minExtent,
@@ -100,51 +100,5 @@ class DraggableSheet extends StatelessWidget {
     }
 
     return result;
-  }
-}
-
-class DraggableSheetExtentDelegate with SheetExtentDelegate {
-  const DraggableSheetExtentDelegate();
-
-  @override
-  SheetActivity createIdleActivity() {
-    return _IdleDraggableSheetActivity();
-  }
-}
-
-class DraggableSheetExtentConfig extends SheetExtentConfig {
-  const DraggableSheetExtentConfig({
-    required this.initialExtent,
-    required super.minExtent,
-    required super.maxExtent,
-    required super.physics,
-    super.debugLabel,
-  });
-
-  final Extent initialExtent;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is DraggableSheetExtentConfig &&
-        other.initialExtent == initialExtent &&
-        super == other;
-  }
-
-  @override
-  int get hashCode => Object.hash(initialExtent, super.hashCode);
-}
-
-class _IdleDraggableSheetActivity extends IdleSheetActivity {
-  _IdleDraggableSheetActivity();
-
-  @override
-  void didChangeContentSize(Size? oldDimensions) {
-    super.didChangeContentSize(oldDimensions);
-    final config = owner.config;
-    final metrics = owner.metrics;
-    if (metrics.maybePixels == null && config is DraggableSheetExtentConfig) {
-      owner.setPixels(config.initialExtent.resolve(metrics.contentSize));
-    }
   }
 }

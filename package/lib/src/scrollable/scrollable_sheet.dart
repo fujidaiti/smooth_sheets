@@ -61,7 +61,7 @@ class ScrollableSheet extends StatelessWidget {
       builder: (context, controller) {
         return SheetContainer(
           controller: controller,
-          delegate: const ScrollableSheetExtentDelegate(),
+          factory: const ScrollableSheetExtentFactory(),
           config: ScrollableSheetExtentConfig(
             initialExtent: initialExtent,
             minExtent: minExtent,

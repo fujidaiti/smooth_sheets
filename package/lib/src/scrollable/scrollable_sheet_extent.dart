@@ -10,6 +10,22 @@ import '../internal/double_utils.dart';
 import 'delegatable_scroll_position.dart';
 import 'scrollable_sheet_physics.dart';
 
+@internal
+class ScrollableSheetExtentFactory extends SheetExtentFactory {
+  const ScrollableSheetExtentFactory();
+
+  @override
+  SheetExtent createSheetExtent({
+    required SheetContext context,
+    required SheetExtentConfig config,
+  }) {
+    return ScrollableSheetExtent(
+      context: context,
+      config: config,
+    );
+  }
+}
+
 class ScrollableSheetExtentConfig extends SheetExtentConfig {
   const ScrollableSheetExtentConfig({
     required this.initialExtent,
@@ -36,17 +52,25 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
       );
 }
 
-class ScrollableSheetExtentDelegate with SheetExtentDelegate {
-  const ScrollableSheetExtentDelegate();
+@internal
+class ScrollableSheetExtent extends SheetExtent {
+  ScrollableSheetExtent({
+    required super.context,
+    required super.config,
+  });
 
   @override
-  SheetActivity createIdleActivity() {
-    return _ContentIdleScrollDrivenSheetActivity();
+  void goIdle() {
+    beginActivity(_ContentIdleScrollDrivenSheetActivity());
   }
 
   @override
-  SheetActivity createBallisticActivity(Simulation simulation) {
-    return _DragInterruptibleBallisticSheetActivity(simulation: simulation);
+  void goBallisticWith(Simulation simulation) {
+    beginActivity(
+      _DragInterruptibleBallisticSheetActivity(
+        simulation: simulation,
+      ),
+    );
   }
 }
 

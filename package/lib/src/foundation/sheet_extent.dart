@@ -112,7 +112,6 @@ class SheetExtent extends ChangeNotifier
   /// Creates an object that manages the extent of a sheet.
   SheetExtent({
     required this.context,
-    required this.delegate,
     required SheetExtentConfig config,
   }) : _config = config {
     goIdle();
@@ -128,8 +127,6 @@ class SheetExtent extends ChangeNotifier
 
   SheetExtentConfig get config => _config;
   SheetExtentConfig _config;
-
-  final SheetExtentDelegate delegate;
 
   /// Snapshot of the current sheet's state.
   SheetMetrics get metrics => _metrics;
@@ -294,7 +291,7 @@ class SheetExtent extends ChangeNotifier
   }
 
   void goIdle() {
-    beginActivity(delegate.createIdleActivity());
+    beginActivity(IdleSheetActivity());
   }
 
   void goBallistic(double velocity) {
@@ -309,7 +306,7 @@ class SheetExtent extends ChangeNotifier
   }
 
   void goBallisticWith(Simulation simulation) {
-    beginActivity(delegate.createBallisticActivity(simulation));
+    beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
   void settle() {
@@ -429,18 +426,6 @@ class SheetExtentConfig {
         physics,
         debugLabel,
       );
-}
-
-mixin class SheetExtentDelegate {
-  const SheetExtentDelegate();
-
-  SheetActivity createBallisticActivity(Simulation simulation) {
-    return BallisticSheetActivity(simulation: simulation);
-  }
-
-  SheetActivity createIdleActivity() {
-    return IdleSheetActivity();
-  }
 }
 
 /// An immutable snapshot of the sheet's state.
@@ -666,11 +651,12 @@ class SheetExtentScopeKey<T extends SheetExtent>
 }
 
 abstract class SheetExtentFactory {
+  const SheetExtentFactory();
+
   @factory
   SheetExtent createSheetExtent({
     required SheetContext context,
     required SheetExtentConfig config,
-    required SheetExtentDelegate delegate,
   });
 }
 
@@ -682,8 +668,7 @@ class SheetExtentScope extends StatefulWidget {
     super.key,
     required this.controller,
     required this.config,
-    this.factory,
-    this.delegate = const SheetExtentDelegate(),
+    required this.factory,
     this.isPrimary = true,
     required this.child,
   });
@@ -693,12 +678,8 @@ class SheetExtentScope extends StatefulWidget {
 
   final SheetExtentConfig config;
 
-  final SheetExtentDelegate delegate;
-
   /// The factory that creates the [SheetExtent].
-  ///
-  /// If this is null, the [controller] will be used to create the extent.
-  final SheetExtentFactory? factory;
+  final SheetExtentFactory factory;
 
   final bool isPrimary;
 
@@ -749,7 +730,7 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
   @override
   void initState() {
     super.initState();
-    _extent = _createExtent(_resolveFactory(widget));
+    _extent = _createExtent();
     _scopeKey?._notifySheetExtentCreation();
   }
 
@@ -769,10 +750,8 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
   void didUpdateWidget(SheetExtentScope oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldExtent = _extent;
-    final oldFactory = _resolveFactory(oldWidget);
-    final newFactory = _resolveFactory(widget);
-    if (newFactory != oldFactory || widget.delegate != oldWidget.delegate) {
-      _extent = _createExtent(newFactory)..takeOver(oldExtent);
+    if (widget.factory != oldWidget.factory) {
+      _extent = _createExtent()..takeOver(oldExtent);
       _scopeKey?._notifySheetExtentCreation();
       _discard(oldExtent);
     } else if (widget.config != oldWidget.config) {
@@ -781,15 +760,10 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
     _invalidateExtentOwnership();
   }
 
-  SheetExtentFactory _resolveFactory(SheetExtentScope widget) {
-    return widget.factory ?? widget.controller;
-  }
-
-  SheetExtent _createExtent(SheetExtentFactory factory) {
-    return factory.createSheetExtent(
+  SheetExtent _createExtent() {
+    return widget.factory.createSheetExtent(
       context: this,
       config: widget.config,
-      delegate: widget.delegate,
     );
   }
 

@@ -7,7 +7,7 @@ import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
 class SheetController extends ChangeNotifier
-    implements ValueListenable<SheetMetrics>, SheetExtentFactory {
+    implements ValueListenable<SheetMetrics> {
   SheetExtent? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
@@ -50,19 +50,6 @@ class SheetController extends ChangeNotifier
       extent?.removeListener(notifyListeners);
       _client = null;
     }
-  }
-
-  @override
-  SheetExtent createSheetExtent({
-    required SheetContext context,
-    required SheetExtentConfig config,
-    required SheetExtentDelegate delegate,
-  }) {
-    return SheetExtent(
-      context: context,
-      config: config,
-      delegate: delegate,
-    );
   }
 
   @override

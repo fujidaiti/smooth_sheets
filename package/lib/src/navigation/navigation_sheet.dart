@@ -52,11 +52,9 @@ class _NavigationSheetState extends State<NavigationSheet>
   SheetExtent createSheetExtent({
     required SheetContext context,
     required SheetExtentConfig config,
-    required SheetExtentDelegate delegate,
   }) {
     return _NavigationSheetExtent(
       context: context,
-      delegate: delegate,
       config: config,
     );
   }
@@ -74,7 +72,6 @@ class _NavigationSheetState extends State<NavigationSheet>
           factory: this,
           scopeKey: _scopeKey,
           controller: controller,
-          delegate: const SheetExtentDelegate(),
           config: const SheetExtentConfig(
             minExtent: Extent.pixels(0),
             maxExtent: Extent.proportional(1),
@@ -101,7 +98,6 @@ class _NavigationSheetState extends State<NavigationSheet>
 class _NavigationSheetExtent extends SheetExtent {
   _NavigationSheetExtent({
     required super.context,
-    required super.delegate,
     required super.config,
   });
 
@@ -429,13 +425,13 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
 class NavigationSheetRouteContent extends StatelessWidget {
   const NavigationSheetRouteContent({
     super.key,
+    required this.factory,
     required this.config,
-    required this.delegate,
     required this.child,
   });
 
+  final SheetExtentFactory factory;
   final SheetExtentConfig config;
-  final SheetExtentDelegate delegate;
   final Widget child;
 
   @override
@@ -448,8 +444,8 @@ class NavigationSheetRouteContent extends StatelessWidget {
     return SheetExtentScope(
       key: localScopeKey,
       isPrimary: false,
+      factory: factory,
       config: config,
-      delegate: delegate,
       controller: SheetControllerScope.of(context),
       child: SheetContentViewport(child: child),
     );

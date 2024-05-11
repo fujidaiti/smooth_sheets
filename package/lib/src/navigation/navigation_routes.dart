@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../draggable/draggable_sheet.dart';
+import '../draggable/draggable_sheet_extent.dart';
 import '../draggable/sheet_draggable.dart';
 import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
@@ -38,7 +38,7 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
     };
 
     return NavigationSheetRouteContent(
-      delegate: const ScrollableSheetExtentDelegate(),
+      factory: const ScrollableSheetExtentFactory(),
       config: ScrollableSheetExtentConfig(
         debugLabel: debugLabel,
         initialExtent: initialExtent,
@@ -74,7 +74,7 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
     final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
 
     return NavigationSheetRouteContent(
-      delegate: const DraggableSheetExtentDelegate(),
+      factory: const DraggableSheetExtentFactory(),
       config: DraggableSheetExtentConfig(
         debugLabel: debugLabel,
         initialExtent: initialExtent,
