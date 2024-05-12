@@ -149,6 +149,7 @@ class _NavigationSheetExtent extends SheetExtent {
       // Prevent the scope keys in `other._localExtentScopeKeyRegistry` from
       // being discarded when `other` is disposed.
       other._localExtentScopeKeyRegistry.clear();
+      assert(_debugAssertActivityTypeConsistency());
     }
   }
 
@@ -203,6 +204,8 @@ class _NavigationSheetExtent extends SheetExtent {
       case _:
         goIdle();
     }
+
+    assert(_debugAssertActivityTypeConsistency());
   }
 
   @override
@@ -213,6 +216,24 @@ class _NavigationSheetExtent extends SheetExtent {
       case _:
         super.goIdle();
     }
+  }
+
+  bool _debugAssertActivityTypeConsistency() {
+    assert(
+      () {
+        switch ((_lastReportedTransition, activity)) {
+          case (NoTransition(), _ProxySheetActivity()):
+          case (ForwardTransition(), _TransitionSheetActivity()):
+          case (BackwardTransition(), _TransitionSheetActivity()):
+          case (UserGestureTransition(), _TransitionSheetActivity()):
+          case (null, _):
+            return true;
+          case _:
+            return false;
+        }
+      }(),
+    );
+    return true;
   }
 }
 
