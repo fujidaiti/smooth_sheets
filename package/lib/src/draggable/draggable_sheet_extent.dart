@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
@@ -68,5 +69,10 @@ class _IdleDraggableSheetActivity extends IdleSheetActivity {
     if (metrics.maybePixels == null && config is DraggableSheetExtentConfig) {
       owner.setPixels(config.initialExtent.resolve(metrics.contentSize));
     }
+  }
+
+  @override
+  bool isCompatibleWith(SheetExtent newOwner) {
+    return newOwner is DraggableSheetExtent;
   }
 }

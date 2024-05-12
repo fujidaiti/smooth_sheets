@@ -138,12 +138,24 @@ class SheetExtent extends ChangeNotifier
 
   @mustCallSuper
   void takeOver(SheetExtent other) {
+    if (other.activity.isCompatibleWith(this)) {
+      activity.dispose();
+      _activity = other.activity;
+      // This is necessary to prevent the activity from being disposed of
+      // when `other` extent is disposed of.
+      other._activity = null;
+      activity.updateOwner(this);
+    } else {
+      goIdle();
+    }
+    if (other.metrics.maybePixels case final pixels?) {
+      correctPixels(pixels);
+    }
     applyNewViewportDimensions(
       other.metrics.viewportSize,
       other.metrics.viewportInsets,
     );
     applyNewContentSize(other.metrics.contentSize);
-    activity.takeOver(other.activity);
   }
 
   @mustCallSuper
@@ -283,11 +295,7 @@ class SheetExtent extends ChangeNotifier
     // Update the current activity before initialization.
     _activity = activity;
     activity.init(this);
-
-    if (oldActivity != null) {
-      activity.takeOver(oldActivity);
-      oldActivity.dispose();
-    }
+    oldActivity?.dispose();
   }
 
   void goIdle() {
@@ -322,7 +330,7 @@ class SheetExtent extends ChangeNotifier
 
   @override
   void dispose() {
-    activity.dispose();
+    _activity?.dispose();
     super.dispose();
   }
 

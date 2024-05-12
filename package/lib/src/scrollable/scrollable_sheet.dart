@@ -8,6 +8,7 @@ import '../foundation/physics.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/theme.dart';
+import 'delegatable_scroll_position.dart';
 import 'scrollable_sheet_extent.dart';
 import 'scrollable_sheet_physics.dart';
 
@@ -141,27 +142,36 @@ class _SheetScrollableState extends State<SheetScrollable> {
   @override
   void initState() {
     super.initState();
+    _scrollController = createController();
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void didUpdateWidget(SheetScrollable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.debugLabel != oldWidget.debugLabel ||
+        widget.keepScrollOffset != oldWidget.keepScrollOffset ||
+        widget.initialScrollOffset != oldWidget.initialScrollOffset) {
+      _scrollController.dispose();
+      _scrollController = createController();
+    }
+  }
+
+  ScrollPositionDelegate? getDelegate() {
     final extent = SheetExtentScope.maybeOf(context);
-    _scrollController = switch (extent) {
-      // If this widget is not a descendant of a SheetExtentScope,
-      // then create a normal ScrollController for stubbing.
-      null => ScrollController(
-          debugLabel: widget.debugLabel,
-          initialScrollOffset: widget.initialScrollOffset,
-          keepScrollOffset: widget.keepScrollOffset,
-        ),
-      final extent => SheetContentScrollController(
-          extent: extent,
-          debugLabel: widget.debugLabel,
-          initialScrollOffset: widget.initialScrollOffset,
-          keepScrollOffset: widget.keepScrollOffset,
-        ),
+    return switch (extent?.activity) {
+      final ScrollPositionDelegate delegate => delegate,
+      _ => null,
     };
+  }
+
+  @factory
+  SheetContentScrollController createController() {
+    return SheetContentScrollController(
+      getDelegate: getDelegate,
+      debugLabel: widget.debugLabel,
+      initialScrollOffset: widget.initialScrollOffset,
+      keepScrollOffset: widget.keepScrollOffset,
+    );
   }
 
   @override

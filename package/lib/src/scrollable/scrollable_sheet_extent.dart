@@ -81,10 +81,10 @@ class SheetContentScrollController extends ScrollController {
     super.debugLabel,
     super.initialScrollOffset,
     super.keepScrollOffset,
-    required this.extent,
+    required this.getDelegate,
   });
 
-  final SheetExtent extent;
+  final ValueGetter<ScrollPositionDelegate?> getDelegate;
 
   @override
   ScrollPosition createScrollPosition(
@@ -93,10 +93,7 @@ class SheetContentScrollController extends ScrollController {
     ScrollPosition? oldPosition,
   ) {
     return DelegatableScrollPosition(
-      getDelegate: () => switch (extent.activity) {
-        final ScrollPositionDelegate delegate => delegate,
-        _ => null,
-      },
+      getDelegate: getDelegate,
       initialPixels: initialScrollOffset,
       keepScrollOffset: keepScrollOffset,
       debugLabel: debugLabel,
@@ -114,6 +111,11 @@ class SheetContentScrollController extends ScrollController {
 /// of the scrollable content within the sheet.
 abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
     with ScrollPositionDelegate {
+  @override
+  bool isCompatibleWith(SheetExtent newOwner) {
+    return newOwner is ScrollableSheetExtent;
+  }
+
   @mustCallSuper
   @override
   void onContentDragStart(
