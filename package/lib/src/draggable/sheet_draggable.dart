@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-import '../foundation/activities.dart';
 import '../foundation/sheet_extent.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'draggable_sheet.dart';
@@ -42,7 +41,7 @@ class SheetDraggable extends StatefulWidget {
 
 class _SheetDraggableState extends State<SheetDraggable> {
   SheetExtent? _extent;
-  VerticalDragGestureRecognizer? _dragRecognizer;
+  Drag? _currentDrag;
 
   @override
   void didChangeDependencies() {
@@ -53,20 +52,31 @@ class _SheetDraggableState extends State<SheetDraggable> {
   @override
   void dispose() {
     _extent = null;
-    _dragRecognizer = null;
+    _disposeDrag();
     super.dispose();
   }
 
+  void _disposeDrag() {
+    _currentDrag = null;
+  }
+
   void _handleDragStart(DragStartDetails details) {
-    final extent = _extent;
-    final recognizer = _dragRecognizer;
-    if (extent != null && recognizer != null) {
-      extent.beginActivity(
-        UserDragSheetActivity(
-          gestureRecognizer: recognizer,
-        ),
-      );
-    }
+    assert(_currentDrag == null);
+    _currentDrag = _extent?.drag(details, _disposeDrag);
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    _currentDrag?.update(details);
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    _currentDrag?.end(details);
+    _disposeDrag();
+  }
+
+  void _handleDragCancel() {
+    _currentDrag?.cancel();
+    _disposeDrag();
   }
 
   @override
@@ -79,9 +89,11 @@ class _SheetDraggableState extends State<SheetDraggable> {
             debugOwner: kDebugMode ? runtimeType : null,
             supportedDevices: const {PointerDeviceKind.touch},
           ),
-          (instance) {
-            _dragRecognizer = instance..onStart = _handleDragStart;
-          },
+          (instance) => instance
+            ..onStart = _handleDragStart
+            ..onUpdate = _handleDragUpdate
+            ..onEnd = _handleDragEnd
+            ..onCancel = _handleDragCancel,
         ),
       },
       child: widget.child,

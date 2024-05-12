@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import '../internal/double_utils.dart';
 import 'activities.dart';
+import 'drag_controller.dart';
 import 'notifications.dart';
 import 'physics.dart';
 import 'sheet_controller.dart';
@@ -138,8 +140,11 @@ class SheetExtent extends ChangeNotifier
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
 
+  SheetDragController? _currentDrag;
+
   @mustCallSuper
   void takeOver(SheetExtent other) {
+    assert(_currentDrag == null);
     if (other.activity.isCompatibleWith(this)) {
       activity.dispose();
       _activity = other.activity;
@@ -147,6 +152,12 @@ class SheetExtent extends ChangeNotifier
       // when `other` extent is disposed of.
       other._activity = null;
       activity.updateOwner(this);
+
+      if ((other._currentDrag, activity)
+          case (final drag?, final SheetDragDelegate dragActivity)) {
+        _currentDrag = drag..updateDelegate(dragActivity);
+        other._currentDrag = null;
+      }
     } else {
       goIdle();
     }
@@ -298,6 +309,15 @@ class SheetExtent extends ChangeNotifier
     _activity = activity;
     activity.init(this);
 
+    if (_currentDrag case final currentDrag?) {
+      if (activity case final SheetDragDelegate dragActivity) {
+        currentDrag.updateDelegate(dragActivity);
+      } else {
+        currentDrag.dispose();
+        _currentDrag = null;
+      }
+    }
+
     if (oldActivity != null) {
       if (oldActivity.status == SheetStatus.dragging &&
           activity.status != SheetStatus.dragging) {
@@ -341,9 +361,28 @@ class SheetExtent extends ChangeNotifier
     }
   }
 
+  @mustCallSuper
+  Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
+    assert(_currentDrag == null);
+    final dragActivity = DragSheetActivity();
+    beginActivity(dragActivity);
+    return _currentDrag = SheetDragController(
+      delegate: dragActivity,
+      details: details,
+      onDragCanceled: dragCancelCallback,
+      // TODO: Specify a correct value.
+      carriedVelocity: 0,
+      motionStartDistanceThreshold:
+          config.physics.dragStartDistanceMotionThreshold,
+    );
+  }
+
   @override
   void dispose() {
     _activity?.dispose();
+    _currentDrag?.dispose();
+    _activity = null;
+    _currentDrag = null;
     super.dispose();
   }
 

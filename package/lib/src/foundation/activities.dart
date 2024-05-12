@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
+import 'drag_controller.dart';
 import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
@@ -149,36 +149,16 @@ class IdleSheetActivity extends SheetActivity {
   SheetStatus get status => SheetStatus.stable;
 }
 
-class UserDragSheetActivity extends SheetActivity
-    with UserControlledSheetActivityMixin {
-  UserDragSheetActivity({
-    required this.gestureRecognizer,
-  });
-
-  final DragGestureRecognizer gestureRecognizer;
+class DragSheetActivity extends SheetActivity
+    with UserControlledSheetActivityMixin
+    implements SheetDragDelegate {
+  DragSheetActivity();
 
   @override
-  void init(SheetExtent owner) {
-    super.init(owner);
-    gestureRecognizer
-      ..onUpdate = onDragUpdate
-      ..onEnd = onDragEnd
-      ..onCancel = onDragCancel;
-  }
+  AxisDirection get dragAxisDirection => AxisDirection.up;
 
   @override
-  void dispose() {
-    super.dispose();
-    gestureRecognizer
-      ..onUpdate = null
-      ..onEnd = null
-      ..onCancel = null;
-  }
-
-  @protected
-  void onDragUpdate(DragUpdateDetails details) {
-    if (!mounted) return;
-    final delta = -1 * details.primaryDelta!;
+  void onDragUpdate(double delta) {
     final physicsAppliedDelta =
         owner.config.physics.applyPhysicsToOffset(delta, owner.metrics);
     if (physicsAppliedDelta != 0) {
@@ -186,16 +166,9 @@ class UserDragSheetActivity extends SheetActivity
     }
   }
 
-  @protected
-  void onDragEnd(DragEndDetails details) {
-    if (!mounted) return;
-    owner.goBallistic(-1 * details.velocity.pixelsPerSecond.dy);
-  }
-
-  @protected
-  void onDragCancel() {
-    if (!mounted) return;
-    owner.goBallistic(0);
+  @override
+  void onDragEnd(double velocity) {
+    owner.goBallistic(velocity);
   }
 }
 
@@ -229,7 +202,6 @@ mixin ControlledSheetActivityMixin on SheetActivity {
     if (mounted) {
       final oldPixels = owner.metrics.pixels;
       owner.setPixels(oldPixels + controller.value - _lastAnimatedValue);
-      if (owner.metrics.pixels != oldPixels) {}
       _lastAnimatedValue = controller.value;
     }
   }
