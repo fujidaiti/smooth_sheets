@@ -143,7 +143,12 @@ class _NavigationSheetExtent extends SheetExtent {
   void takeOver(SheetExtent other) {
     super.takeOver(other);
     if (other is _NavigationSheetExtent) {
-      _handleRouteTransition(other._lastReportedTransition);
+      assert(_localExtentScopeKeyRegistry.isEmpty);
+      _lastReportedTransition = other._lastReportedTransition;
+      _localExtentScopeKeyRegistry.addAll(other._localExtentScopeKeyRegistry);
+      // Prevent the scope keys in `other._localExtentScopeKeyRegistry` from
+      // being discarded when `other` is disposed.
+      other._localExtentScopeKeyRegistry.clear();
     }
   }
 
@@ -206,7 +211,7 @@ class _NavigationSheetExtent extends SheetExtent {
       case NoTransition(:final currentRoute):
         beginActivity(_ProxySheetActivity(route: currentRoute));
       case _:
-        IdleSheetActivity();
+        super.goIdle();
     }
   }
 }
@@ -214,6 +219,11 @@ class _NavigationSheetExtent extends SheetExtent {
 abstract class _NavigationSheetActivity extends SheetActivity {
   @override
   _NavigationSheetExtent get owner => super.owner as _NavigationSheetExtent;
+
+  @override
+  bool isCompatibleWith(SheetExtent newOwner) {
+    return newOwner is _NavigationSheetExtent;
+  }
 }
 
 class _TransitionSheetActivity extends _NavigationSheetActivity {
@@ -330,13 +340,10 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
   @override
   void changedExternalState() {
     super.changedExternalState();
-    final globalExtent =
+    // Keep the reference to the global extent up-to-date since we need
+    // to call disposeLocalExtentScopeKey() in dispose().
+    _globalExtent =
         SheetExtentScope.of(navigator!.context) as _NavigationSheetExtent;
-    if (globalExtent != _globalExtent) {
-      _globalExtent.disposeLocalExtentScopeKey(this);
-      globalExtent.createLocalExtentScopeKey(this, debugLabel);
-      _globalExtent = globalExtent;
-    }
   }
 
   @override

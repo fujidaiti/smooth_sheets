@@ -37,6 +37,11 @@ abstract class SheetActivity {
     _mounted = true;
   }
 
+  @mustCallSuper
+  void updateOwner(SheetExtent owner) {
+    _owner = owner;
+  }
+
   void dispose() {
     _mounted = false;
   }
@@ -126,7 +131,7 @@ abstract class SheetActivity {
     }
   }
 
-  void takeOver(SheetActivity other) {}
+  bool isCompatibleWith(SheetExtent newOwner) => true;
 
   void didChangeContentSize(Size? oldSize) {}
 
