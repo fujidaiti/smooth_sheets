@@ -104,7 +104,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.maintainState = true,
     this.barrierDismissible = true,
     this.barrierLabel,
-    this.barrierColor = Colors.black,
+    this.barrierColor = Colors.black54,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.barrier,
