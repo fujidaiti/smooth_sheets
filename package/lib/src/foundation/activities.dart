@@ -17,7 +17,7 @@ abstract class SheetActivity {
   SheetExtent get owner {
     assert(
       _owner != null,
-      '$SheetActivity must be initialized with initWith().',
+      '$SheetActivity must be initialized with init().',
     );
     return _owner!;
   }
@@ -30,7 +30,7 @@ abstract class SheetActivity {
   void init(SheetExtent owner) {
     assert(
       _owner == null,
-      'initWith() must be called only once.',
+      'init() must be called only once.',
     );
 
     _owner = owner;
