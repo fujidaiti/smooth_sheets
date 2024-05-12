@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import '../internal/double_utils.dart';
 import 'activities.dart';
+import 'notifications.dart';
 import 'physics.dart';
 import 'sheet_controller.dart';
 import 'sheet_status.dart';
@@ -295,7 +297,18 @@ class SheetExtent extends ChangeNotifier
     // Update the current activity before initialization.
     _activity = activity;
     activity.init(this);
-    oldActivity?.dispose();
+
+    if (oldActivity != null) {
+      if (oldActivity.status == SheetStatus.dragging &&
+          activity.status != SheetStatus.dragging) {
+        dispatchDragEndNotification(activity.velocity);
+      } else if (oldActivity.status != SheetStatus.dragging &&
+          activity.status == SheetStatus.dragging) {
+        dispatchDragStartNotification();
+      }
+
+      oldActivity.dispose();
+    }
   }
 
   void goIdle() {
@@ -339,6 +352,11 @@ class SheetExtent extends ChangeNotifier
     correctPixels(pixels);
     if (oldPixels != pixels) {
       notifyListeners();
+      if (oldPixels != null && status == SheetStatus.dragging) {
+        dispatchDragUpdateNotification(pixels - oldPixels);
+      } else {
+        dispatchUpdateNotification();
+      }
     }
   }
 
@@ -372,6 +390,74 @@ class SheetExtent extends ChangeNotifier
 
       beginActivity(activity);
       return activity.done;
+    }
+  }
+
+  void dispatchUpdateNotification() {
+    if (metrics.hasDimensions) {
+      _dispatchNotification(
+        SheetUpdateNotification(
+          metrics: metrics,
+          status: status,
+        ),
+      );
+    }
+  }
+
+  void dispatchDragStartNotification() {
+    if (metrics.hasDimensions) {
+      _dispatchNotification(
+        SheetDragStartNotification(metrics: metrics),
+      );
+    }
+  }
+
+  void dispatchDragEndNotification(double velocity) {
+    if (metrics.hasDimensions) {
+      _dispatchNotification(
+        SheetDragEndNotification(
+          metrics: metrics,
+          velocity: velocity,
+        ),
+      );
+    }
+  }
+
+  void dispatchDragUpdateNotification(double delta) {
+    if (metrics.hasDimensions) {
+      _dispatchNotification(
+        SheetDragUpdateNotification(
+          metrics: metrics,
+          delta: delta,
+        ),
+      );
+    }
+  }
+
+  void dispatchOverflowNotification(double overflow) {
+    if (metrics.hasDimensions) {
+      _dispatchNotification(
+        SheetOverflowNotification(
+          metrics: metrics,
+          status: status,
+          overflow: overflow,
+        ),
+      );
+    }
+  }
+
+  void _dispatchNotification(SheetNotification notification) {
+    // Avoid dispatching a notification in the middle of a build.
+    switch (SchedulerBinding.instance.schedulerPhase) {
+      case SchedulerPhase.postFrameCallbacks:
+        notification.dispatch(context.notificationContext);
+      case SchedulerPhase.idle:
+      case SchedulerPhase.midFrameMicrotasks:
+      case SchedulerPhase.persistentCallbacks:
+      case SchedulerPhase.transientCallbacks:
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          notification.dispatch(context.notificationContext);
+        });
     }
   }
 

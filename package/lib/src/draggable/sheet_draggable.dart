@@ -61,7 +61,6 @@ class _SheetDraggableState extends State<SheetDraggable> {
     final extent = _extent;
     final recognizer = _dragRecognizer;
     if (extent != null && recognizer != null) {
-      extent.activity.dispatchDragStartNotification(details);
       extent.beginActivity(
         UserDragSheetActivity(
           gestureRecognizer: recognizer,

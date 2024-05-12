@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
-import 'notifications.dart';
 import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
@@ -44,91 +42,6 @@ abstract class SheetActivity {
 
   void dispose() {
     _mounted = false;
-  }
-
-  void dispatchUpdateNotification() {
-    if (owner.metrics.hasDimensions) {
-      dispatchNotification(
-        SheetUpdateNotification(
-          metrics: owner.metrics,
-          status: owner.status,
-        ),
-      );
-    }
-  }
-
-  void dispatchDragStartNotification(DragStartDetails details) {
-    if (owner.metrics.hasDimensions) {
-      dispatchNotification(
-        SheetDragStartNotification(
-          metrics: owner.metrics,
-          status: owner.status,
-          dragDetails: details,
-        ),
-      );
-    }
-  }
-
-  void dispatchDragEndNotification(DragEndDetails details) {
-    if (owner.metrics.hasDimensions) {
-      dispatchNotification(
-        SheetDragEndNotification(
-          metrics: owner.metrics,
-          status: owner.status,
-          dragDetails: details,
-        ),
-      );
-    }
-  }
-
-  void dispatchDragUpdateNotification({required double delta}) {
-    if (owner.metrics.hasDimensions) {
-      dispatchNotification(
-        SheetDragUpdateNotification(
-          metrics: owner.metrics,
-          status: owner.status,
-          delta: delta,
-        ),
-      );
-    }
-  }
-
-  void dispatchDragCancelNotification() {
-    if (owner.metrics.hasDimensions) {
-      dispatchNotification(
-        SheetDragCancelNotification(
-          metrics: owner.metrics,
-          status: owner.status,
-        ),
-      );
-    }
-  }
-
-  void dispatchOverflowNotification(double overflow) {
-    if (owner.metrics.hasDimensions) {
-      dispatchNotification(
-        SheetOverflowNotification(
-          metrics: owner.metrics,
-          status: owner.status,
-          overflow: overflow,
-        ),
-      );
-    }
-  }
-
-  void dispatchNotification(SheetNotification notification) {
-    // Avoid dispatching a notification in the middle of a build.
-    switch (SchedulerBinding.instance.schedulerPhase) {
-      case SchedulerPhase.postFrameCallbacks:
-        notification.dispatch(owner.context.notificationContext);
-      case SchedulerPhase.idle:
-      case SchedulerPhase.midFrameMicrotasks:
-      case SchedulerPhase.persistentCallbacks:
-      case SchedulerPhase.transientCallbacks:
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          notification.dispatch(owner.context.notificationContext);
-        });
-    }
   }
 
   bool isCompatibleWith(SheetExtent newOwner) => true;
@@ -270,21 +183,18 @@ class UserDragSheetActivity extends SheetActivity
         owner.config.physics.applyPhysicsToOffset(delta, owner.metrics);
     if (physicsAppliedDelta != 0) {
       owner.setPixels(owner.metrics.pixels + physicsAppliedDelta);
-      dispatchDragUpdateNotification(delta: physicsAppliedDelta);
     }
   }
 
   @protected
   void onDragEnd(DragEndDetails details) {
     if (!mounted) return;
-    dispatchDragEndNotification(details);
     owner.goBallistic(-1 * details.velocity.pixelsPerSecond.dy);
   }
 
   @protected
   void onDragCancel() {
     if (!mounted) return;
-    dispatchDragCancelNotification();
     owner.goBallistic(0);
   }
 }
@@ -304,7 +214,7 @@ mixin ControlledSheetActivityMixin on SheetActivity {
   double get velocity => controller.velocity;
 
   @override
-  SheetStatus get status => SheetStatus.controlled;
+  SheetStatus get status => SheetStatus.animating;
 
   @override
   void init(SheetExtent delegate) {
@@ -319,9 +229,7 @@ mixin ControlledSheetActivityMixin on SheetActivity {
     if (mounted) {
       final oldPixels = owner.metrics.pixels;
       owner.setPixels(oldPixels + controller.value - _lastAnimatedValue);
-      if (owner.metrics.pixels != oldPixels) {
-        dispatchUpdateNotification();
-      }
+      if (owner.metrics.pixels != oldPixels) {}
       _lastAnimatedValue = controller.value;
     }
   }
@@ -336,7 +244,7 @@ mixin ControlledSheetActivityMixin on SheetActivity {
 
 mixin UserControlledSheetActivityMixin on SheetActivity {
   @override
-  SheetStatus get status => SheetStatus.userControlled;
+  SheetStatus get status => SheetStatus.dragging;
 
   @override
   void didFinalizeDimensions(

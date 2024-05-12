@@ -262,7 +262,7 @@ class _TransitionSheetActivity extends _NavigationSheetActivity {
   late final Animation<double> _curvedAnimation;
 
   @override
-  SheetStatus get status => SheetStatus.controlled;
+  SheetStatus get status => SheetStatus.animating;
 
   @override
   void init(SheetExtent target) {
@@ -293,7 +293,6 @@ class _TransitionSheetActivity extends _NavigationSheetActivity {
 
     if (startPixels != null && endPixels != null) {
       owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
-      dispatchUpdateNotification();
     }
   }
 }

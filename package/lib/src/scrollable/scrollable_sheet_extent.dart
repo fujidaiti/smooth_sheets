@@ -127,23 +127,6 @@ abstract class _ContentScrollDrivenSheetActivity extends SheetActivity
         contentScrollPosition: position,
       ),
     );
-
-    dispatchDragStartNotification(details);
-  }
-
-  @mustCallSuper
-  @override
-  void onContentDragEnd(
-    DragEndDetails details,
-    DelegatableScrollPosition position,
-  ) {
-    dispatchDragEndNotification(details);
-  }
-
-  @mustCallSuper
-  @override
-  void onContentDragCancel(DelegatableScrollPosition position) {
-    dispatchDragCancelNotification();
   }
 
   @override
@@ -299,7 +282,7 @@ abstract class _SingleContentScrollDrivenSheetActivity
     final overflow = owner.config.physics.computeOverflow(delta, owner.metrics);
     if (overflow.abs() > 0) {
       position.didOverscrollBy(overflow);
-      dispatchOverflowNotification(overflow);
+      owner.dispatchOverflowNotification(overflow);
       return overflow;
     }
 
@@ -363,14 +346,7 @@ class _ContentUserScrollDrivenSheetActivity
       return const DelegationResult.notHandled();
     }
 
-    final oldPixels = owner.metrics.pixels;
     _applyScrollOffset(-1 * delta);
-    final newPixels = owner.metrics.pixels;
-
-    if (newPixels != oldPixels) {
-      dispatchDragUpdateNotification(delta: newPixels - oldPixels);
-    }
-
     return const DelegationResult.handled(null);
   }
 
@@ -390,7 +366,7 @@ class _ContentBallisticScrollDrivenSheetActivity
   });
 
   @override
-  SheetStatus get status => SheetStatus.controlled;
+  SheetStatus get status => SheetStatus.animating;
 
   @override
   DelegationResult<double> onApplyBallisticScrollOffsetToContent(
@@ -403,13 +379,7 @@ class _ContentBallisticScrollDrivenSheetActivity
       return const DelegationResult.notHandled();
     }
 
-    final oldPixels = owner.metrics.pixels;
     final overscroll = _applyScrollOffset(delta);
-
-    if (owner.metrics.pixels != oldPixels) {
-      dispatchUpdateNotification();
-    }
-
     final physics = owner.config.physics;
     if (((position.extentBefore.isApprox(0) && velocity < 0) ||
             (position.extentAfter.isApprox(0) && velocity > 0)) &&
