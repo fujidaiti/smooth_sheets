@@ -63,15 +63,21 @@ class SheetDragUpdateNotification extends SheetNotification {
   const SheetDragUpdateNotification({
     required super.metrics,
     required this.delta,
-  }): super(status: SheetStatus.dragging);
+    required this.dragDetails,
+  }) : super(status: SheetStatus.dragging);
 
   /// The change in the sheet extent since the previous notification.
   final double delta;
 
+  /// The details of a drag that caused this notification.
+  final DragUpdateDetails dragDetails;
+
   @override
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
-    description.add('delta: $delta');
+    description
+      ..add('delta: $delta')
+      ..add('dragDetails: $dragDetails');
   }
 }
 
@@ -82,7 +88,17 @@ class SheetDragStartNotification extends SheetNotification {
   /// starts dragging the sheet.
   const SheetDragStartNotification({
     required super.metrics,
+    required this.dragDetails,
   }) : super(status: SheetStatus.dragging);
+
+  /// The details of a drag that caused this notification.
+  final DragStartDetails dragDetails;
+
+  @override
+  void debugFillDescription(List<String> description) {
+    super.debugFillDescription(description);
+    description.add('dragDetails: $dragDetails');
+  }
 }
 
 /// A [SheetNotification] that is dispatched when the user stops
@@ -92,17 +108,18 @@ class SheetDragEndNotification extends SheetNotification {
   /// stops dragging the sheet.
   const SheetDragEndNotification({
     required super.metrics,
-    required this.velocity,
-  }): super(status: SheetStatus.dragging);
+    required this.dragDetails,
+  }) : super(status: SheetStatus.dragging);
 
-  /// The velocity at which the sheet was moving
-  /// when the user stopped dragging it.
-  final double velocity;
+  /// The details of a drag that caused this notification.
+  ///
+  /// This may be `null` if the drag is canceled.
+  final DragEndDetails? dragDetails;
 
   @override
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
-    description.add('velocity: $velocity');
+    description.add('dragDetails: $dragDetails');
   }
 }
 

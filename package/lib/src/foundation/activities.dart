@@ -7,16 +7,14 @@ import 'drag_controller.dart';
 import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
+// TODO: Add type parameter T that extends SheetExtent.
 abstract class SheetActivity {
   bool _mounted = false;
   bool get mounted => _mounted;
 
   SheetExtent? _owner;
   SheetExtent get owner {
-    assert(
-      _owner != null,
-      '$SheetActivity must be initialized with init().',
-    );
+    assert(debugAssertMounted());
     return _owner!;
   }
 
@@ -86,6 +84,21 @@ abstract class SheetActivity {
     }
 
     owner.settle();
+  }
+
+  @protected
+  bool debugAssertMounted() {
+    assert(() {
+      if (!mounted) {
+        throw FlutterError(
+          'A $runtimeType was used after being disposed, or '
+          'before init() was called. Once you have called dispose() '
+          'on a $runtimeType, it can no longer be used.',
+        );
+      }
+      return true;
+    }());
+    return true;
   }
 }
 
@@ -179,6 +192,7 @@ mixin ControlledSheetActivityMixin on SheetActivity {
   final _completer = Completer<void>();
   Future<void> get done => _completer.future;
 
+  @factory
   AnimationController createAnimationController();
   TickerFuture onAnimationStart();
   void onAnimationEnd() {}

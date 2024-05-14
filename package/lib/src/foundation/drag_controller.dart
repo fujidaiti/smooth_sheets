@@ -19,7 +19,9 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     required VoidCallback onDragCanceled,
     required double? carriedVelocity,
     required double? motionStartDistanceThreshold,
-  }) : _delegate = delegate {
+  })  : _delegate = delegate,
+        pointerDeviceKind = details.kind {
+    // Actual work is done by this object.
     _impl = ScrollDragController(
       delegate: this,
       details: details,
@@ -29,11 +31,15 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     );
   }
 
-  // Proxies update(), end(), and cancel() to this object
-  // to avoid duplicating the code of ScrollDragController.
+  final PointerDeviceKind? pointerDeviceKind;
+
+  /// Proxies [update], [end], and [cancel] to this object
+  /// to avoid duplicating the code of [ScrollDragController].
   late final ScrollDragController _impl;
 
   SheetDragDelegate? _delegate;
+
+  dynamic get lastDetails => _impl.lastDetails;
 
   void updateDelegate(SheetDragDelegate delegate) {
     _delegate = delegate;
@@ -54,15 +60,17 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     _impl.cancel();
   }
 
-  // Called by the ScrollDragController in end() and cancel().
+  /// Called by the [ScrollDragController] in [Drag.end] and [Drag.cancel].
   @override
   void goBallistic(double velocity) {
     _delegate!.onDragEnd(-1 * velocity);
   }
 
-  // Called by the ScrollDragController in update().
+  /// Called by the [ScrollDragController] in [Drag.update].
   @override
-  void applyUserOffset(double delta) => _delegate!.onDragUpdate(delta);
+  void applyUserOffset(double delta) {
+    _delegate!.onDragUpdate(delta);
+  }
 
   @override
   AxisDirection get axisDirection => _delegate!.dragAxisDirection;

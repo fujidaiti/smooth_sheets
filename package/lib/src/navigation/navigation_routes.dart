@@ -46,7 +46,7 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
         maxExtent: maxExtent,
         physics: physics,
       ),
-      child: PrimarySheetContentScrollController(child: child),
+      child: ScrollableSheetContent(child: child),
     );
   }
 }

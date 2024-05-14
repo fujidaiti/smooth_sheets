@@ -8,9 +8,9 @@ import '../foundation/physics.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/theme.dart';
-import 'delegatable_scroll_position.dart';
 import 'scrollable_sheet_extent.dart';
 import 'scrollable_sheet_physics.dart';
+import 'sheet_scrollable.dart';
 
 class ScrollableSheet extends StatelessWidget {
   const ScrollableSheet({
@@ -70,7 +70,7 @@ class ScrollableSheet extends StatelessWidget {
             physics: physics,
             debugLabel: 'ScrollableSheet',
           ),
-          child: PrimarySheetContentScrollController(child: child),
+          child: ScrollableSheetContent(child: child),
         );
       },
     );
@@ -87,8 +87,8 @@ class ScrollableSheet extends StatelessWidget {
 }
 
 @internal
-class PrimarySheetContentScrollController extends StatelessWidget {
-  const PrimarySheetContentScrollController({
+class ScrollableSheetContent extends StatelessWidget {
+  const ScrollableSheetContent({
     super.key,
     this.debugLabel,
     this.keepScrollOffset = true,
@@ -115,72 +115,4 @@ class PrimarySheetContentScrollController extends StatelessWidget {
       },
     );
   }
-}
-
-// TODO: Move this to a separate file.
-class SheetScrollable extends StatefulWidget {
-  const SheetScrollable({
-    super.key,
-    this.debugLabel,
-    this.keepScrollOffset = true,
-    this.initialScrollOffset = 0,
-    required this.builder,
-  });
-
-  final String? debugLabel;
-  final bool keepScrollOffset;
-  final double initialScrollOffset;
-  final ScrollableWidgetBuilder builder;
-
-  @override
-  State<SheetScrollable> createState() => _SheetScrollableState();
-}
-
-class _SheetScrollableState extends State<SheetScrollable> {
-  late ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = createController();
-  }
-
-  @override
-  void didUpdateWidget(SheetScrollable oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.debugLabel != oldWidget.debugLabel ||
-        widget.keepScrollOffset != oldWidget.keepScrollOffset ||
-        widget.initialScrollOffset != oldWidget.initialScrollOffset) {
-      _scrollController.dispose();
-      _scrollController = createController();
-    }
-  }
-
-  ScrollPositionDelegate? getDelegate() {
-    final extent = SheetExtentScope.maybeOf(context);
-    return switch (extent?.activity) {
-      final ScrollPositionDelegate delegate => delegate,
-      _ => null,
-    };
-  }
-
-  @factory
-  SheetContentScrollController createController() {
-    return SheetContentScrollController(
-      getDelegate: getDelegate,
-      debugLabel: widget.debugLabel,
-      initialScrollOffset: widget.initialScrollOffset,
-      keepScrollOffset: widget.keepScrollOffset,
-    );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) =>
-      widget.builder(context, _scrollController);
 }
