@@ -58,6 +58,7 @@ class DraggableSheetExtent extends SheetExtent {
   }
 }
 
+// TODO: Remove this and do the job in SheetExtent.applyNewContentSize().
 class _IdleDraggableSheetActivity extends IdleSheetActivity {
   _IdleDraggableSheetActivity();
 

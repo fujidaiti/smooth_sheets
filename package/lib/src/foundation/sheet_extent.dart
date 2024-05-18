@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import '../internal/double_utils.dart';
 import 'activities.dart';
+import 'drag_controller.dart';
+import 'notifications.dart';
 import 'physics.dart';
 import 'sheet_controller.dart';
 import 'sheet_status.dart';
@@ -107,7 +111,7 @@ class FixedExtent implements Extent {
 /// - [SheetController], which can be attached to a sheet to control its extent.
 /// - [SheetExtentScope], which creates a [SheetExtent], manages its lifecycle,
 ///   and exposes it to the descendant widgets.
-class SheetExtent extends ChangeNotifier
+abstract class SheetExtent extends ChangeNotifier
     implements ValueListenable<SheetMetrics> {
   /// Creates an object that manages the extent of a sheet.
   SheetExtent({
@@ -136,8 +140,16 @@ class SheetExtent extends ChangeNotifier
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
 
+  /// The current drag that is currently driving the sheet.
+  ///
+  /// Intentionally exposed so that a subclass can override
+  /// the default implementation of [drag].
+  @protected
+  SheetDragController? currentDrag;
+
   @mustCallSuper
   void takeOver(SheetExtent other) {
+    assert(currentDrag == null);
     if (other.activity.isCompatibleWith(this)) {
       activity.dispose();
       _activity = other.activity;
@@ -145,6 +157,12 @@ class SheetExtent extends ChangeNotifier
       // when `other` extent is disposed of.
       other._activity = null;
       activity.updateOwner(this);
+
+      if ((other.currentDrag, activity)
+          case (final drag?, final SheetDragDelegate dragActivity)) {
+        currentDrag = drag..updateDelegate(dragActivity);
+        other.currentDrag = null;
+      }
     } else {
       goIdle();
     }
@@ -295,7 +313,36 @@ class SheetExtent extends ChangeNotifier
     // Update the current activity before initialization.
     _activity = activity;
     activity.init(this);
-    oldActivity?.dispose();
+
+    if (oldActivity == null) {
+      return;
+    }
+
+    final wasDragging = oldActivity.status == SheetStatus.dragging;
+    final isDragging = activity.status == SheetStatus.dragging;
+
+    // TODO: Make more typesafe
+    switch ((wasDragging, isDragging)) {
+      case (true, true):
+        assert(currentDrag != null);
+        assert(activity is SheetDragDelegate);
+        currentDrag!.updateDelegate(activity as SheetDragDelegate);
+
+      case (true, false):
+        assert(currentDrag != null);
+        dispatchDragEndNotification(activity.velocity);
+        currentDrag!.dispose();
+        currentDrag = null;
+
+      case (false, true):
+        assert(currentDrag != null);
+        dispatchDragStartNotification();
+
+      case (false, false):
+        assert(currentDrag == null);
+    }
+
+    oldActivity.dispose();
   }
 
   void goIdle() {
@@ -328,9 +375,31 @@ class SheetExtent extends ChangeNotifier
     }
   }
 
+  Drag drag(
+    DragStartDetails details,
+    VoidCallback dragCancelCallback,
+  ) {
+    assert(currentDrag == null);
+    final dragActivity = DragSheetActivity();
+    final drag = currentDrag = SheetDragController(
+      delegate: dragActivity,
+      details: details,
+      onDragCanceled: dragCancelCallback,
+      // TODO: Specify a correct value.
+      carriedVelocity: 0,
+      motionStartDistanceThreshold:
+          config.physics.dragStartDistanceMotionThreshold,
+    );
+    beginActivity(dragActivity);
+    return drag;
+  }
+
   @override
   void dispose() {
     _activity?.dispose();
+    currentDrag?.dispose();
+    _activity = null;
+    currentDrag = null;
     super.dispose();
   }
 
@@ -339,6 +408,11 @@ class SheetExtent extends ChangeNotifier
     correctPixels(pixels);
     if (oldPixels != pixels) {
       notifyListeners();
+      if (oldPixels != null && status == SheetStatus.dragging) {
+        dispatchDragUpdateNotification(pixels - oldPixels);
+      } else {
+        dispatchUpdateNotification();
+      }
     }
   }
 
@@ -372,6 +446,84 @@ class SheetExtent extends ChangeNotifier
 
       beginActivity(activity);
       return activity.done;
+    }
+  }
+
+  void dispatchUpdateNotification() {
+    if (metrics.hasDimensions) {
+      _dispatchNotification(
+        SheetUpdateNotification(
+          metrics: metrics,
+          status: status,
+        ),
+      );
+    }
+  }
+
+  void dispatchDragStartNotification() {
+    if (metrics.hasDimensions) {
+      final details = currentDrag?.lastDetails;
+      assert(details is DragStartDetails);
+      _dispatchNotification(
+        SheetDragStartNotification(
+          metrics: metrics,
+          dragDetails: details as DragStartDetails,
+        ),
+      );
+    }
+  }
+
+  void dispatchDragEndNotification(double velocity) {
+    if (metrics.hasDimensions) {
+      final details = currentDrag?.lastDetails;
+      assert(details == null || details is DragEndDetails);
+      _dispatchNotification(
+        SheetDragEndNotification(
+          metrics: metrics,
+          dragDetails: details as DragEndDetails?,
+        ),
+      );
+    }
+  }
+
+  void dispatchDragUpdateNotification(double delta) {
+    if (metrics.hasDimensions) {
+      final details = currentDrag?.lastDetails;
+      assert(details is DragUpdateDetails);
+      _dispatchNotification(
+        SheetDragUpdateNotification(
+          metrics: metrics,
+          delta: delta,
+          dragDetails: details as DragUpdateDetails,
+        ),
+      );
+    }
+  }
+
+  void dispatchOverflowNotification(double overflow) {
+    if (metrics.hasDimensions) {
+      _dispatchNotification(
+        SheetOverflowNotification(
+          metrics: metrics,
+          status: status,
+          overflow: overflow,
+        ),
+      );
+    }
+  }
+
+  void _dispatchNotification(SheetNotification notification) {
+    // Avoid dispatching a notification in the middle of a build.
+    switch (SchedulerBinding.instance.schedulerPhase) {
+      case SchedulerPhase.postFrameCallbacks:
+        notification.dispatch(context.notificationContext);
+      case SchedulerPhase.idle:
+      case SchedulerPhase.midFrameMicrotasks:
+      case SchedulerPhase.persistentCallbacks:
+      case SchedulerPhase.transientCallbacks:
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          notification.dispatch(context.notificationContext);
+        });
     }
   }
 
@@ -702,7 +854,8 @@ class SheetExtentScope extends StatefulWidget {
   ///
   /// Use of this method will cause the given context to rebuild any time
   /// that the [config] property of the ancestor [SheetExtentScope] changes.
-  // TODO: Add 'useRoot' option
+  // TODO: Add 'useRoot' option.
+  // TODO: Add generic type parameter T that extends SheetExtent.
   static SheetExtent? maybeOf(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>()

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -31,6 +32,16 @@ abstract class SheetPhysics {
   const SheetPhysics({this.parent});
 
   final SheetPhysics? parent;
+
+  /// The minimum amount of pixel distance drags must move by to start motion
+  /// the first time or after each time the drag motion stopped.
+  ///
+  /// If null, no minimum threshold is enforced.
+  double? get dragStartDistanceMotionThreshold {
+    return Platform.isIOS
+        ? const BouncingScrollPhysics().dragStartDistanceMotionThreshold
+        : null;
+  }
 
   /// Create a copy of this object appending the [ancestor] to
   /// the physics chain, much like [ScrollPhysics.applyTo].

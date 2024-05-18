@@ -7,7 +7,7 @@ import 'sheet_status.dart';
 /// A [Notification] that is dispatched when the sheet extent changes.
 ///
 /// Sheet widgets notify their ancestors about changes to their extent.
-/// There are 6 types of notifications:
+/// There are 5 types of notifications:
 /// - [SheetOverflowNotification], which is dispatched when the user tries
 ///   to drag the sheet beyond its draggable bounds but the sheet has not
 ///   changed its extent because its [SheetPhysics] does not allow it to be.
@@ -18,8 +18,6 @@ import 'sheet_status.dart';
 /// - [SheetDragStartNotification], which is dispatched when the user starts
 ///   dragging the sheet.
 /// - [SheetDragEndNotification], which is dispatched when the user stops
-///   dragging the sheet.
-/// - [SheetDragCancelNotification], which is dispatched when the user cancels
 ///   dragging the sheet.
 ///
 /// See also:
@@ -64,17 +62,22 @@ class SheetUpdateNotification extends SheetNotification {
 class SheetDragUpdateNotification extends SheetNotification {
   const SheetDragUpdateNotification({
     required super.metrics,
-    required super.status,
     required this.delta,
-  });
+    required this.dragDetails,
+  }) : super(status: SheetStatus.dragging);
 
   /// The change in the sheet extent since the previous notification.
   final double delta;
 
+  /// The details of a drag that caused this notification.
+  final DragUpdateDetails dragDetails;
+
   @override
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
-    description.add('delta: $delta');
+    description
+      ..add('delta: $delta')
+      ..add('dragDetails: $dragDetails');
   }
 }
 
@@ -85,11 +88,10 @@ class SheetDragStartNotification extends SheetNotification {
   /// starts dragging the sheet.
   const SheetDragStartNotification({
     required super.metrics,
-    required super.status,
     required this.dragDetails,
-  });
+  }) : super(status: SheetStatus.dragging);
 
-  /// The details of the drag start.
+  /// The details of a drag that caused this notification.
   final DragStartDetails dragDetails;
 
   @override
@@ -106,29 +108,19 @@ class SheetDragEndNotification extends SheetNotification {
   /// stops dragging the sheet.
   const SheetDragEndNotification({
     required super.metrics,
-    required super.status,
     required this.dragDetails,
-  });
+  }) : super(status: SheetStatus.dragging);
 
-  /// The details of the drag end.
-  final DragEndDetails dragDetails;
+  /// The details of a drag that caused this notification.
+  ///
+  /// This may be `null` if the drag is canceled.
+  final DragEndDetails? dragDetails;
 
   @override
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
     description.add('dragDetails: $dragDetails');
   }
-}
-
-/// A [SheetNotification] that is dispatched when the user cancels
-/// dragging the sheet.
-class SheetDragCancelNotification extends SheetNotification {
-  /// Create a notification that is dispatched when the user
-  /// cancels dragging the sheet.
-  const SheetDragCancelNotification({
-    required super.metrics,
-    required super.status,
-  });
 }
 
 /// A [SheetNotification] that is dispatched when the user tries

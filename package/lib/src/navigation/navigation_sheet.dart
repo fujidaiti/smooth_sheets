@@ -218,6 +218,46 @@ class _NavigationSheetExtent extends SheetExtent {
     }
   }
 
+  @override
+  void dispatchUpdateNotification() {
+    // Do not dispatch a notifications if a local extent is active.
+    if (activity is! _NavigationSheetActivity) {
+      super.dispatchUpdateNotification();
+    }
+  }
+
+  @override
+  void dispatchDragStartNotification() {
+    // Do not dispatch a notifications if a local extent is active.
+    if (activity is! _NavigationSheetActivity) {
+      super.dispatchDragStartNotification();
+    }
+  }
+
+  @override
+  void dispatchDragEndNotification(double velocity) {
+    // Do not dispatch a notifications if a local extent is active.
+    if (activity is! _NavigationSheetActivity) {
+      super.dispatchDragEndNotification(velocity);
+    }
+  }
+
+  @override
+  void dispatchDragUpdateNotification(double delta) {
+    // Do not dispatch a notifications if a local extent is active.
+    if (activity is! _NavigationSheetActivity) {
+      super.dispatchDragUpdateNotification(delta);
+    }
+  }
+
+  @override
+  void dispatchOverflowNotification(double overflow) {
+    // Do not dispatch a notifications if a local extent is active.
+    if (activity is! _NavigationSheetActivity) {
+      super.dispatchOverflowNotification(overflow);
+    }
+  }
+
   bool _debugAssertActivityTypeConsistency() {
     assert(
       () {
@@ -262,7 +302,7 @@ class _TransitionSheetActivity extends _NavigationSheetActivity {
   late final Animation<double> _curvedAnimation;
 
   @override
-  SheetStatus get status => SheetStatus.controlled;
+  SheetStatus get status => SheetStatus.animating;
 
   @override
   void init(SheetExtent target) {
@@ -293,7 +333,6 @@ class _TransitionSheetActivity extends _NavigationSheetActivity {
 
     if (startPixels != null && endPixels != null) {
       owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
-      dispatchUpdateNotification();
     }
   }
 }
