@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../draggable/draggable_sheet_extent.dart';
 import '../draggable/sheet_draggable.dart';
-import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
-import '../foundation/theme.dart';
+import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
 import '../scrollable/scrollable_sheet_extent.dart';
 import 'navigation_route.dart';

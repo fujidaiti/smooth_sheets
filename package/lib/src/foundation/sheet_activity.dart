@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
-import 'drag_controller.dart';
+import 'sheet_drag_controller.dart';
 import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
+@internal
 @optionalTypeArgs
 abstract class SheetActivity<T extends SheetExtent> {
   bool _mounted = false;
@@ -102,6 +104,7 @@ abstract class SheetActivity<T extends SheetExtent> {
   }
 }
 
+@internal
 class AnimatedSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
   AnimatedSheetActivity({
@@ -133,6 +136,7 @@ class AnimatedSheetActivity extends SheetActivity
   }
 }
 
+@internal
 class BallisticSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
   BallisticSheetActivity({
@@ -157,11 +161,13 @@ class BallisticSheetActivity extends SheetActivity
   }
 }
 
+@internal
 class IdleSheetActivity extends SheetActivity {
   @override
   SheetStatus get status => SheetStatus.stable;
 }
 
+@internal
 class DragSheetActivity extends SheetActivity
     with UserControlledSheetActivityMixin
     implements SheetDragDelegate {
@@ -185,6 +191,7 @@ class DragSheetActivity extends SheetActivity
   }
 }
 
+@internal
 @optionalTypeArgs
 mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
   late final AnimationController controller;
@@ -229,6 +236,7 @@ mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
   }
 }
 
+@internal
 @optionalTypeArgs
 mixin UserControlledSheetActivityMixin<T extends SheetExtent>
     on SheetActivity<T> {

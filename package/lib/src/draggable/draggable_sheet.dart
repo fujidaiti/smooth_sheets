@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 
 import '../foundation/keyboard_dismissible.dart';
-import '../foundation/physics.dart';
 import '../foundation/sheet_container.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
-import '../foundation/theme.dart';
+import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'draggable_sheet_extent.dart';
 import 'sheet_draggable.dart';

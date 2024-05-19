@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import 'keyboard_dismissible.dart';
-import 'physics.dart';
+import 'sheet_physics.dart';
 
 /// A theme for descendant sheets.
 ///

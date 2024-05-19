@@ -4,9 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/drag_controller.dart';
-import '../foundation/physics.dart';
+import '../foundation/sheet_drag_controller.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_physics.dart';
 import '../internal/double_utils.dart';
 import 'scrollable_sheet_activity.dart';
 import 'scrollable_sheet_physics.dart';

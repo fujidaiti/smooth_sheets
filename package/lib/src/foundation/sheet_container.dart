@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import 'sheet_controller.dart';
 import 'sheet_extent.dart';
 import 'sheet_viewport.dart';
 
+@internal
 @optionalTypeArgs
 class SheetContainer<C extends SheetExtentConfig, E extends SheetExtent<C>>
     extends StatelessWidget {

@@ -4,13 +4,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import '../internal/double_utils.dart';
-import 'activities.dart';
-import 'drag_controller.dart';
-import 'notifications.dart';
-import 'physics.dart';
+import 'sheet_activity.dart';
 import 'sheet_controller.dart';
+import 'sheet_drag_controller.dart';
+import 'sheet_notification.dart';
+import 'sheet_physics.dart';
 import 'sheet_status.dart';
 
 /// A representation of a visible height of the sheet.
@@ -111,6 +112,7 @@ class FixedExtent implements Extent {
 /// - [SheetController], which can be attached to a sheet to control its extent.
 /// - [SheetExtentScope], which creates a [SheetExtent], manages its lifecycle,
 ///   and exposes it to the descendant widgets.
+@internal
 @optionalTypeArgs
 abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
     implements ValueListenable<SheetMetrics> {
@@ -536,6 +538,7 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
   }
 }
 
+@internal
 class SheetExtentConfig {
   const SheetExtentConfig({
     required this.minExtent,
@@ -771,11 +774,13 @@ class SheetMetrics {
 /// An interface that provides the necessary context to a [SheetExtent].
 ///
 /// Typically, [State]s that host a [SheetExtent] will implement this interface.
+@internal
 abstract class SheetContext {
   TickerProvider get vsync;
   BuildContext? get notificationContext;
 }
 
+@internal
 @optionalTypeArgs
 class SheetExtentScopeKey<T extends SheetExtent>
     extends LabeledGlobalKey<_SheetExtentScopeState> {
@@ -811,6 +816,7 @@ class SheetExtentScopeKey<T extends SheetExtent>
   }
 }
 
+@internal
 @optionalTypeArgs
 abstract class SheetExtentFactory<C extends SheetExtentConfig,
     E extends SheetExtent<C>> {
@@ -822,6 +828,7 @@ abstract class SheetExtentFactory<C extends SheetExtentConfig,
 
 /// A widget that creates a [SheetExtent], manages its lifecycle,
 /// and exposes it to the descendant widgets.
+@internal
 @optionalTypeArgs
 class SheetExtentScope<C extends SheetExtentConfig, E extends SheetExtent<C>>
     extends StatefulWidget {

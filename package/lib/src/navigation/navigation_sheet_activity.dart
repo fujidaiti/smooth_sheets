@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/activities.dart';
+import '../foundation/sheet_activity.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
 import 'navigation_sheet_extent.dart';

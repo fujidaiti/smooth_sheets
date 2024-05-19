@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import 'sheet_extent.dart';
 
+@internal
 class SheetViewport extends SingleChildRenderObjectWidget {
   const SheetViewport({
     super.key,
@@ -115,6 +117,7 @@ class _RenderSheetViewport extends RenderTransform {
   }
 }
 
+@internal
 class SheetContentViewport extends StatefulWidget {
   const SheetContentViewport({
     super.key,

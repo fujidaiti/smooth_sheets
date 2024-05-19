@@ -4,17 +4,7 @@
 library smooth_sheets;
 
 export 'src/draggable/draggable.dart';
-export 'src/foundation/activities.dart';
-export 'src/foundation/animations.dart';
-export 'src/foundation/keyboard_dismissible.dart';
-export 'src/foundation/notifications.dart';
-export 'src/foundation/physics.dart';
-export 'src/foundation/sheet_content_scaffold.dart';
-export 'src/foundation/sheet_controller.dart'
-    hide ImplicitSheetControllerScope, SheetControllerScope;
-export 'src/foundation/sheet_extent.dart';
-export 'src/foundation/sheet_viewport.dart';
-export 'src/foundation/theme.dart';
+export 'src/foundation/foundation.dart';
 export 'src/modal/modal.dart';
 export 'src/navigation/navigation.dart';
 export 'src/scrollable/scrollable.dart';

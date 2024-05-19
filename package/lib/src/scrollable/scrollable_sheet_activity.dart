@@ -4,8 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/activities.dart';
-import '../foundation/drag_controller.dart';
+import '../foundation/sheet_activity.dart';
+import '../foundation/sheet_drag_controller.dart';
 import '../internal/double_utils.dart';
 import 'scrollable_sheet.dart';
 import 'scrollable_sheet_extent.dart';
