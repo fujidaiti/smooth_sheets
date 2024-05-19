@@ -7,7 +7,7 @@ import '../foundation/sheet_extent.dart';
 import '../foundation/theme.dart';
 import '../scrollable/scrollable_sheet.dart';
 import '../scrollable/scrollable_sheet_extent.dart';
-import 'navigation_sheet.dart';
+import 'navigation_route.dart';
 
 class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
   const _ScrollableNavigationSheetRouteContent({
