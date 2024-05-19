@@ -15,7 +15,6 @@ export 'src/foundation/sheet_controller.dart'
 export 'src/foundation/sheet_extent.dart';
 export 'src/foundation/sheet_viewport.dart';
 export 'src/foundation/theme.dart';
-export 'src/modal/cupertino.dart';
-export 'src/modal/modal_sheet.dart';
+export 'src/modal/modal.dart';
 export 'src/navigation/navigation.dart';
 export 'src/scrollable/scrollable.dart';
