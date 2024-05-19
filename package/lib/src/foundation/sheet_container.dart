@@ -6,7 +6,9 @@ import 'sheet_controller.dart';
 import 'sheet_extent.dart';
 import 'sheet_viewport.dart';
 
-class SheetContainer extends StatelessWidget {
+@optionalTypeArgs
+class SheetContainer<C extends SheetExtentConfig, E extends SheetExtent<C>>
+    extends StatelessWidget {
   const SheetContainer({
     super.key,
     this.scopeKey,
@@ -18,8 +20,8 @@ class SheetContainer extends StatelessWidget {
 
   final Key? scopeKey;
   final SheetController controller;
-  final SheetExtentConfig config;
-  final SheetExtentFactory factory;
+  final C config;
+  final SheetExtentFactory<C, E> factory;
   final Widget child;
 
   @override

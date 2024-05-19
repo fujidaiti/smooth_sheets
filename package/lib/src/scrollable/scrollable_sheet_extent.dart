@@ -13,19 +13,16 @@ import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
 @internal
-class ScrollableSheetExtentFactory extends SheetExtentFactory {
+class ScrollableSheetExtentFactory extends SheetExtentFactory<
+    ScrollableSheetExtentConfig, ScrollableSheetExtent> {
   const ScrollableSheetExtentFactory();
 
   @override
-  SheetExtent createSheetExtent({
+  ScrollableSheetExtent createSheetExtent({
     required SheetContext context,
-    required SheetExtentConfig config,
+    required ScrollableSheetExtentConfig config,
   }) {
-    assert(config is ScrollableSheetExtentConfig);
-    return ScrollableSheetExtent(
-      context: context,
-      config: config as ScrollableSheetExtentConfig,
-    );
+    return ScrollableSheetExtent(context: context, config: config);
   }
 }
 
@@ -60,16 +57,9 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
 }
 
 @internal
-class ScrollableSheetExtent extends SheetExtent
+class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
     implements SheetContentScrollPositionOwner {
-  ScrollableSheetExtent({
-    required super.context,
-    required ScrollableSheetExtentConfig config,
-  }) : super(config: config);
-
-  @override
-  ScrollableSheetExtentConfig get config =>
-      super.config as ScrollableSheetExtentConfig;
+  ScrollableSheetExtent({required super.context, required super.config});
 
   final _scrollPositions = HashSet<SheetContentScrollPosition>();
 

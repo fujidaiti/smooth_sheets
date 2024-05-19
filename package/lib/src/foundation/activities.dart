@@ -7,13 +7,13 @@ import 'drag_controller.dart';
 import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
-// TODO: Add type parameter T that extends SheetExtent.
-abstract class SheetActivity {
+@optionalTypeArgs
+abstract class SheetActivity<T extends SheetExtent> {
   bool _mounted = false;
   bool get mounted => _mounted;
 
-  SheetExtent? _owner;
-  SheetExtent get owner {
+  T? _owner;
+  T get owner {
     assert(debugAssertMounted());
     return _owner!;
   }
@@ -23,7 +23,7 @@ abstract class SheetActivity {
   SheetStatus get status;
 
   @mustCallSuper
-  void init(SheetExtent owner) {
+  void init(T owner) {
     assert(
       _owner == null,
       'init() must be called only once.',
@@ -34,7 +34,7 @@ abstract class SheetActivity {
   }
 
   @mustCallSuper
-  void updateOwner(SheetExtent owner) {
+  void updateOwner(T owner) {
     _owner = owner;
   }
 
@@ -42,7 +42,7 @@ abstract class SheetActivity {
     _mounted = false;
   }
 
-  bool isCompatibleWith(SheetExtent newOwner) => true;
+  bool isCompatibleWith(SheetExtent newOwner) => newOwner is T;
 
   void didChangeContentSize(Size? oldSize) {}
 
@@ -185,7 +185,8 @@ class DragSheetActivity extends SheetActivity
   }
 }
 
-mixin ControlledSheetActivityMixin on SheetActivity {
+@optionalTypeArgs
+mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
   late final AnimationController controller;
   late double _lastAnimatedValue;
 
@@ -204,7 +205,7 @@ mixin ControlledSheetActivityMixin on SheetActivity {
   SheetStatus get status => SheetStatus.animating;
 
   @override
-  void init(SheetExtent delegate) {
+  void init(T delegate) {
     super.init(delegate);
     controller = createAnimationController()..addListener(onAnimationTick);
     // Won't trigger if we dispose 'animation' first.
@@ -228,7 +229,9 @@ mixin ControlledSheetActivityMixin on SheetActivity {
   }
 }
 
-mixin UserControlledSheetActivityMixin on SheetActivity {
+@optionalTypeArgs
+mixin UserControlledSheetActivityMixin<T extends SheetExtent>
+    on SheetActivity<T> {
   @override
   SheetStatus get status => SheetStatus.dragging;
 

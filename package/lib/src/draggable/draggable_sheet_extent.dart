@@ -5,18 +5,16 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_extent.dart';
 
 @internal
-class DraggableSheetExtentFactory extends SheetExtentFactory {
+class DraggableSheetExtentFactory extends SheetExtentFactory<
+    DraggableSheetExtentConfig, DraggableSheetExtent> {
   const DraggableSheetExtentFactory();
 
   @override
-  SheetExtent createSheetExtent({
+  DraggableSheetExtent createSheetExtent({
     required SheetContext context,
-    required SheetExtentConfig config,
+    required DraggableSheetExtentConfig config,
   }) {
-    return DraggableSheetExtent(
-      context: context,
-      config: config,
-    );
+    return DraggableSheetExtent(context: context, config: config);
   }
 }
 
@@ -45,7 +43,7 @@ class DraggableSheetExtentConfig extends SheetExtentConfig {
 }
 
 @internal
-class DraggableSheetExtent extends SheetExtent {
+class DraggableSheetExtent extends SheetExtent<DraggableSheetExtentConfig> {
   DraggableSheetExtent({
     required super.context,
     required super.config,
@@ -54,8 +52,7 @@ class DraggableSheetExtent extends SheetExtent {
   @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
-    final config = this.config;
-    if (metrics.maybePixels == null && config is DraggableSheetExtentConfig) {
+    if (metrics.maybePixels == null) {
       setPixels(config.initialExtent.resolve(metrics.contentSize));
     }
   }

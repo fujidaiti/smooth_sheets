@@ -4,13 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../foundation/activities.dart';
-import '../foundation/sheet_viewport.dart';
 import '../foundation/keyboard_dismissible.dart';
 import '../foundation/physics.dart';
 import '../foundation/sheet_container.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_status.dart';
+import '../foundation/sheet_viewport.dart';
 import '../foundation/theme.dart';
 import '../internal/transition_observer.dart';
 
@@ -38,7 +38,7 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
 
 class _NavigationSheetState extends State<NavigationSheet>
     with TransitionAwareStateMixin
-    implements SheetExtentFactory {
+    implements SheetExtentFactory<SheetExtentConfig, _NavigationSheetExtent> {
   final _scopeKey = SheetExtentScopeKey<_NavigationSheetExtent>(
     debugLabel: kDebugMode ? 'NavigationSheet' : null,
   );
@@ -50,7 +50,7 @@ class _NavigationSheetState extends State<NavigationSheet>
 
   @factory
   @override
-  SheetExtent createSheetExtent({
+  _NavigationSheetExtent createSheetExtent({
     required SheetContext context,
     required SheetExtentConfig config,
   }) {
@@ -278,15 +278,8 @@ class _NavigationSheetExtent extends SheetExtent {
   }
 }
 
-abstract class _NavigationSheetActivity extends SheetActivity {
-  @override
-  _NavigationSheetExtent get owner => super.owner as _NavigationSheetExtent;
-
-  @override
-  bool isCompatibleWith(SheetExtent newOwner) {
-    return newOwner is _NavigationSheetExtent;
-  }
-}
+abstract class _NavigationSheetActivity
+    extends SheetActivity<_NavigationSheetExtent> {}
 
 class _TransitionSheetActivity extends _NavigationSheetActivity {
   _TransitionSheetActivity({
@@ -306,7 +299,7 @@ class _TransitionSheetActivity extends _NavigationSheetActivity {
   SheetStatus get status => SheetStatus.animating;
 
   @override
-  void init(SheetExtent target) {
+  void init(_NavigationSheetExtent target) {
     super.init(target);
     _curvedAnimation = animation.drive(
       CurveTween(curve: animationCurve),
@@ -350,7 +343,7 @@ class _ProxySheetActivity extends _NavigationSheetActivity {
       _scopeKey.maybeCurrentExtent?.status ?? SheetStatus.stable;
 
   @override
-  void init(SheetExtent delegate) {
+  void init(_NavigationSheetExtent delegate) {
     super.init(delegate);
     _scopeKey.addOnCreatedListener(_init);
   }
@@ -393,8 +386,7 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
     super.install();
     assert(_debugAssertDependencies());
 
-    _globalExtent =
-        SheetExtentScope.of(navigator!.context) as _NavigationSheetExtent;
+    _globalExtent = SheetExtentScope.of(navigator!.context);
     _globalExtent.createLocalExtentScopeKey(this, debugLabel);
   }
 
@@ -403,8 +395,7 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
     super.changedExternalState();
     // Keep the reference to the global extent up-to-date since we need
     // to call disposeLocalExtentScopeKey() in dispose().
-    _globalExtent =
-        SheetExtentScope.of(navigator!.context) as _NavigationSheetExtent;
+    _globalExtent = SheetExtentScope.of(navigator!.context);
   }
 
   @override
@@ -506,7 +497,7 @@ class NavigationSheetRouteContent extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(_debugAssertDependencies(context));
     final parentRoute = ModalRoute.of(context)!;
-    final globalExtent = SheetExtentScope.of(context) as _NavigationSheetExtent;
+    final globalExtent = SheetExtentScope.of<_NavigationSheetExtent>(context);
     final localScopeKey = globalExtent.getLocalExtentScopeKey(parentRoute);
 
     return SheetExtentScope(
