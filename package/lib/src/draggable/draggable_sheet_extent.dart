@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/activities.dart';
 import '../foundation/sheet_extent.dart';
 
 @internal
@@ -53,27 +52,11 @@ class DraggableSheetExtent extends SheetExtent {
   });
 
   @override
-  void goIdle() {
-    beginActivity(_IdleDraggableSheetActivity());
-  }
-}
-
-// TODO: Remove this and do the job in SheetExtent.applyNewContentSize().
-class _IdleDraggableSheetActivity extends IdleSheetActivity {
-  _IdleDraggableSheetActivity();
-
-  @override
-  void didChangeContentSize(Size? oldDimensions) {
-    super.didChangeContentSize(oldDimensions);
-    final config = owner.config;
-    final metrics = owner.metrics;
+  void applyNewContentSize(Size contentSize) {
+    super.applyNewContentSize(contentSize);
+    final config = this.config;
     if (metrics.maybePixels == null && config is DraggableSheetExtentConfig) {
-      owner.setPixels(config.initialExtent.resolve(metrics.contentSize));
+      setPixels(config.initialExtent.resolve(metrics.contentSize));
     }
-  }
-
-  @override
-  bool isCompatibleWith(SheetExtent newOwner) {
-    return newOwner is DraggableSheetExtent;
   }
 }
