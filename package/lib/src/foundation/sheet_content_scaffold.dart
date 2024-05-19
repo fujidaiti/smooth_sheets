@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../draggable/sheet_draggable.dart';
-import 'framework.dart';
 import 'sheet_extent.dart';
+import 'sheet_viewport.dart';
 
 class SheetContentScaffold extends StatelessWidget {
   const SheetContentScaffold({

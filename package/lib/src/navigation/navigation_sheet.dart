@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../foundation/activities.dart';
-import '../foundation/framework.dart';
+import '../foundation/sheet_viewport.dart';
 import '../foundation/keyboard_dismissible.dart';
 import '../foundation/physics.dart';
 import '../foundation/sheet_container.dart';
