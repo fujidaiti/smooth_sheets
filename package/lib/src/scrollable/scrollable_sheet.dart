@@ -9,7 +9,6 @@ import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/theme.dart';
 import 'scrollable_sheet_extent.dart';
-import 'scrollable_sheet_physics.dart';
 import 'sheet_scrollable.dart';
 
 class ScrollableSheet extends StatelessWidget {
@@ -50,12 +49,6 @@ class ScrollableSheet extends StatelessWidget {
     final theme = SheetTheme.maybeOf(context);
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
-    // TODO: Do this in ScrollableSheetConfig
-    final physics = switch (this.physics ?? theme?.physics) {
-      null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
-      final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
-      final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
-    };
 
     Widget result = ImplicitSheetControllerScope(
       controller: controller,
@@ -63,11 +56,11 @@ class ScrollableSheet extends StatelessWidget {
         return SheetContainer(
           controller: controller,
           factory: const ScrollableSheetExtentFactory(),
-          config: ScrollableSheetExtentConfig(
+          config: ScrollableSheetExtentConfig.withFallbacks(
             initialExtent: initialExtent,
             minExtent: minExtent,
             maxExtent: maxExtent,
-            physics: physics,
+            physics: physics ?? theme?.physics,
             debugLabel: 'ScrollableSheet',
           ),
           child: ScrollableSheetContent(child: child),

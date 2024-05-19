@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/drag_controller.dart';
+import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
 import '../internal/double_utils.dart';
 import 'scrollable_sheet_activity.dart';
@@ -35,6 +36,26 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
     required ScrollableSheetPhysics physics,
     super.debugLabel,
   }) : super(physics: physics);
+
+  factory ScrollableSheetExtentConfig.withFallbacks({
+    required Extent initialExtent,
+    required Extent minExtent,
+    required Extent maxExtent,
+    SheetPhysics? physics,
+    String? debugLabel,
+  }) {
+    return ScrollableSheetExtentConfig(
+      initialExtent: initialExtent,
+      minExtent: minExtent,
+      maxExtent: maxExtent,
+      debugLabel: debugLabel,
+      physics: switch (physics) {
+        null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
+        final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
+        final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
+      },
+    );
+  }
 
   final Extent initialExtent;
 

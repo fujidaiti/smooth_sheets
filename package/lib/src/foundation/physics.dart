@@ -28,6 +28,7 @@ const _kDefaultSettlingSpeed = 600.0; // logical pixels per second
 const kDefaultSheetPhysics =
     StretchingSheetPhysics(parent: SnappingSheetPhysics());
 
+// TODO: Implement `equals` and `hashCode` for SheetPhysics classes.
 abstract class SheetPhysics {
   const SheetPhysics({this.parent});
 
