@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../draggable/draggable_sheet_extent.dart';
 import '../draggable/sheet_draggable.dart';
-import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
-import '../foundation/theme.dart';
+import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
 import '../scrollable/scrollable_sheet_extent.dart';
-import '../scrollable/scrollable_sheet_physics.dart';
-import 'navigation_sheet.dart';
+import 'navigation_route.dart';
 
 class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
   const _ScrollableNavigationSheetRouteContent({
@@ -30,21 +29,15 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
-    // TODO: Do this in ScrollableSheetConfig
-    final physics = switch (this.physics ?? theme?.physics) {
-      null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
-      final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
-      final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
-    };
 
     return NavigationSheetRouteContent(
       factory: const ScrollableSheetExtentFactory(),
-      config: ScrollableSheetExtentConfig(
+      config: ScrollableSheetExtentConfig.withFallbacks(
         debugLabel: debugLabel,
         initialExtent: initialExtent,
         minExtent: minExtent,
         maxExtent: maxExtent,
-        physics: physics,
+        physics: physics ?? theme?.physics,
       ),
       child: ScrollableSheetContent(child: child),
     );

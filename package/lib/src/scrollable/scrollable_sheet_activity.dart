@@ -4,9 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/activities.dart';
-import '../foundation/drag_controller.dart';
-import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_activity.dart';
+import '../foundation/sheet_drag_controller.dart';
 import '../internal/double_utils.dart';
 import 'scrollable_sheet.dart';
 import 'scrollable_sheet_extent.dart';
@@ -14,7 +13,8 @@ import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
 @internal
-abstract class ScrollableSheetActivity extends SheetActivity {
+abstract class ScrollableSheetActivity
+    extends SheetActivity<ScrollableSheetExtent> {
   ScrollableSheetActivity(SheetContentScrollPosition scrollPosition)
       : _scrollPosition = scrollPosition;
 
@@ -24,29 +24,15 @@ abstract class ScrollableSheetActivity extends SheetActivity {
     return _scrollPosition!;
   }
 
-  @override
-  ScrollableSheetExtent get owner => super.owner as ScrollableSheetExtent;
-
   @mustCallSuper
   void updateScrollPosition(SheetContentScrollPosition scrollPosition) {
     _scrollPosition = scrollPosition;
   }
 
   @override
-  void init(SheetExtent owner) {
-    assert(owner is ScrollableSheetExtent);
-    super.init(owner);
-  }
-
-  @override
   void dispose() {
     _scrollPosition = null;
     super.dispose();
-  }
-
-  @override
-  bool isCompatibleWith(SheetExtent newOwner) {
-    return newOwner is ScrollableSheetExtent;
   }
 
   double _applyPhysicsToOffset(double offset) {

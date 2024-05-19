@@ -36,10 +36,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _extent = switch (SheetExtentScope.maybeOf(context)) {
-      final ScrollableSheetExtent extent => extent,
-      _ => null,
-    };
+    _extent = SheetExtentScope.maybeOf(context);
   }
 
   @override

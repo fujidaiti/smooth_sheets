@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+@internal
 abstract class SheetDragDelegate {
   AxisDirection get dragAxisDirection;
   void onDragUpdate(double delta);

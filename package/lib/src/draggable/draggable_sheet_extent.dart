@@ -2,22 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/activities.dart';
 import '../foundation/sheet_extent.dart';
 
 @internal
-class DraggableSheetExtentFactory extends SheetExtentFactory {
+class DraggableSheetExtentFactory extends SheetExtentFactory<
+    DraggableSheetExtentConfig, DraggableSheetExtent> {
   const DraggableSheetExtentFactory();
 
   @override
-  SheetExtent createSheetExtent({
+  DraggableSheetExtent createSheetExtent({
     required SheetContext context,
-    required SheetExtentConfig config,
+    required DraggableSheetExtentConfig config,
   }) {
-    return DraggableSheetExtent(
-      context: context,
-      config: config,
-    );
+    return DraggableSheetExtent(context: context, config: config);
   }
 }
 
@@ -46,34 +43,17 @@ class DraggableSheetExtentConfig extends SheetExtentConfig {
 }
 
 @internal
-class DraggableSheetExtent extends SheetExtent {
+class DraggableSheetExtent extends SheetExtent<DraggableSheetExtentConfig> {
   DraggableSheetExtent({
     required super.context,
     required super.config,
   });
 
   @override
-  void goIdle() {
-    beginActivity(_IdleDraggableSheetActivity());
-  }
-}
-
-// TODO: Remove this and do the job in SheetExtent.applyNewContentSize().
-class _IdleDraggableSheetActivity extends IdleSheetActivity {
-  _IdleDraggableSheetActivity();
-
-  @override
-  void didChangeContentSize(Size? oldDimensions) {
-    super.didChangeContentSize(oldDimensions);
-    final config = owner.config;
-    final metrics = owner.metrics;
-    if (metrics.maybePixels == null && config is DraggableSheetExtentConfig) {
-      owner.setPixels(config.initialExtent.resolve(metrics.contentSize));
+  void applyNewContentSize(Size contentSize) {
+    super.applyNewContentSize(contentSize);
+    if (metrics.maybePixels == null) {
+      setPixels(config.initialExtent.resolve(metrics.contentSize));
     }
-  }
-
-  @override
-  bool isCompatibleWith(SheetExtent newOwner) {
-    return newOwner is DraggableSheetExtent;
   }
 }

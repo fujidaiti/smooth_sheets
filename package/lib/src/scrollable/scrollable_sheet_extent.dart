@@ -4,8 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/drag_controller.dart';
+import '../foundation/sheet_drag_controller.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_physics.dart';
 import '../internal/double_utils.dart';
 import 'scrollable_sheet_activity.dart';
 import 'scrollable_sheet_physics.dart';
@@ -13,19 +14,16 @@ import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
 @internal
-class ScrollableSheetExtentFactory extends SheetExtentFactory {
+class ScrollableSheetExtentFactory extends SheetExtentFactory<
+    ScrollableSheetExtentConfig, ScrollableSheetExtent> {
   const ScrollableSheetExtentFactory();
 
   @override
-  SheetExtent createSheetExtent({
+  ScrollableSheetExtent createSheetExtent({
     required SheetContext context,
-    required SheetExtentConfig config,
+    required ScrollableSheetExtentConfig config,
   }) {
-    assert(config is ScrollableSheetExtentConfig);
-    return ScrollableSheetExtent(
-      context: context,
-      config: config as ScrollableSheetExtentConfig,
-    );
+    return ScrollableSheetExtent(context: context, config: config);
   }
 }
 
@@ -38,6 +36,26 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
     required ScrollableSheetPhysics physics,
     super.debugLabel,
   }) : super(physics: physics);
+
+  factory ScrollableSheetExtentConfig.withFallbacks({
+    required Extent initialExtent,
+    required Extent minExtent,
+    required Extent maxExtent,
+    SheetPhysics? physics,
+    String? debugLabel,
+  }) {
+    return ScrollableSheetExtentConfig(
+      initialExtent: initialExtent,
+      minExtent: minExtent,
+      maxExtent: maxExtent,
+      debugLabel: debugLabel,
+      physics: switch (physics) {
+        null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
+        final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
+        final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
+      },
+    );
+  }
 
   final Extent initialExtent;
 
@@ -60,16 +78,9 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
 }
 
 @internal
-class ScrollableSheetExtent extends SheetExtent
+class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
     implements SheetContentScrollPositionOwner {
-  ScrollableSheetExtent({
-    required super.context,
-    required ScrollableSheetExtentConfig config,
-  }) : super(config: config);
-
-  @override
-  ScrollableSheetExtentConfig get config =>
-      super.config as ScrollableSheetExtentConfig;
+  ScrollableSheetExtent({required super.context, required super.config});
 
   final _scrollPositions = HashSet<SheetContentScrollPosition>();
 

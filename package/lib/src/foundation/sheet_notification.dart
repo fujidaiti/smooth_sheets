@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
-import 'physics.dart';
 import 'sheet_extent.dart';
+import 'sheet_physics.dart';
 import 'sheet_status.dart';
 
 /// A [Notification] that is dispatched when the sheet extent changes.

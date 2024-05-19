@@ -4,13 +4,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import '../internal/double_utils.dart';
-import 'activities.dart';
-import 'drag_controller.dart';
-import 'notifications.dart';
-import 'physics.dart';
+import 'sheet_activity.dart';
 import 'sheet_controller.dart';
+import 'sheet_drag_controller.dart';
+import 'sheet_notification.dart';
+import 'sheet_physics.dart';
 import 'sheet_status.dart';
 
 /// A representation of a visible height of the sheet.
@@ -111,12 +112,14 @@ class FixedExtent implements Extent {
 /// - [SheetController], which can be attached to a sheet to control its extent.
 /// - [SheetExtentScope], which creates a [SheetExtent], manages its lifecycle,
 ///   and exposes it to the descendant widgets.
-abstract class SheetExtent extends ChangeNotifier
+@internal
+@optionalTypeArgs
+abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
     implements ValueListenable<SheetMetrics> {
   /// Creates an object that manages the extent of a sheet.
   SheetExtent({
     required this.context,
-    required SheetExtentConfig config,
+    required T config,
   }) : _config = config {
     goIdle();
   }
@@ -129,8 +132,8 @@ abstract class SheetExtent extends ChangeNotifier
   /// A handle to the owner of this object.
   final SheetContext context;
 
-  SheetExtentConfig get config => _config;
-  SheetExtentConfig _config;
+  T get config => _config;
+  T _config;
 
   /// Snapshot of the current sheet's state.
   SheetMetrics get metrics => _metrics;
@@ -210,7 +213,7 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   @mustCallSuper
-  void applyNewConfig(SheetExtentConfig config) {
+  void applyNewConfig(T config) {
     if (_config != config) {
       _config = config;
       final oldMaxPixels = metrics.maxPixels;
@@ -535,6 +538,7 @@ abstract class SheetExtent extends ChangeNotifier
   }
 }
 
+@internal
 class SheetExtentConfig {
   const SheetExtentConfig({
     required this.minExtent,
@@ -770,11 +774,13 @@ class SheetMetrics {
 /// An interface that provides the necessary context to a [SheetExtent].
 ///
 /// Typically, [State]s that host a [SheetExtent] will implement this interface.
+@internal
 abstract class SheetContext {
   TickerProvider get vsync;
   BuildContext? get notificationContext;
 }
 
+@internal
 @optionalTypeArgs
 class SheetExtentScopeKey<T extends SheetExtent>
     extends LabeledGlobalKey<_SheetExtentScopeState> {
@@ -810,19 +816,22 @@ class SheetExtentScopeKey<T extends SheetExtent>
   }
 }
 
-abstract class SheetExtentFactory {
+@internal
+@optionalTypeArgs
+abstract class SheetExtentFactory<C extends SheetExtentConfig,
+    E extends SheetExtent<C>> {
   const SheetExtentFactory();
 
   @factory
-  SheetExtent createSheetExtent({
-    required SheetContext context,
-    required SheetExtentConfig config,
-  });
+  E createSheetExtent({required SheetContext context, required C config});
 }
 
 /// A widget that creates a [SheetExtent], manages its lifecycle,
 /// and exposes it to the descendant widgets.
-class SheetExtentScope extends StatefulWidget {
+@internal
+@optionalTypeArgs
+class SheetExtentScope<C extends SheetExtentConfig, E extends SheetExtent<C>>
+    extends StatefulWidget {
   /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
@@ -836,10 +845,10 @@ class SheetExtentScope extends StatefulWidget {
   /// The [SheetController] that will be attached to the created [SheetExtent].
   final SheetController controller;
 
-  final SheetExtentConfig config;
+  final C config;
 
   /// The factory that creates the [SheetExtent].
-  final SheetExtentFactory factory;
+  final SheetExtentFactory<C, E> factory;
 
   final bool isPrimary;
 
@@ -849,33 +858,35 @@ class SheetExtentScope extends StatefulWidget {
   @override
   State<SheetExtentScope> createState() => _SheetExtentScopeState();
 
-  /// Retrieves the [SheetExtent] from the closest [SheetExtentScope]
+  /// Retrieves a [SheetExtent] from the closest [SheetExtentScope]
   /// that encloses the given context, if any.
   ///
   /// Use of this method will cause the given context to rebuild any time
   /// that the [config] property of the ancestor [SheetExtentScope] changes.
   // TODO: Add 'useRoot' option.
-  // TODO: Add generic type parameter T that extends SheetExtent.
-  static SheetExtent? maybeOf(BuildContext context) {
-    return context
+  static E? maybeOf<E extends SheetExtent>(BuildContext context) {
+    final inherited = context
         .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>()
         ?.extent;
+
+    return inherited is E ? inherited : null;
   }
 
-  /// Retrieves the [SheetExtent] from the closest [SheetExtentScope]
+  /// Retrieves a [SheetExtent] from the closest [SheetExtentScope]
   /// that encloses the given context.
   ///
   /// Use of this method will cause the given context to rebuild any time
   /// that the [config] property of the ancestor [SheetExtentScope] changes.
-  static SheetExtent of(BuildContext context) {
+  static E of<E extends SheetExtent>(BuildContext context) {
     return maybeOf(context)!;
   }
 }
 
-class _SheetExtentScopeState extends State<SheetExtentScope>
+class _SheetExtentScopeState<C extends SheetExtentConfig,
+        E extends SheetExtent<C>> extends State<SheetExtentScope<C, E>>
     with TickerProviderStateMixin
     implements SheetContext {
-  late SheetExtent _extent;
+  late E _extent;
 
   @override
   TickerProvider get vsync => this;
@@ -883,8 +894,8 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
   @override
   BuildContext? get notificationContext => mounted ? context : null;
 
-  SheetExtentScopeKey? get _scopeKey => switch (widget.key) {
-        final SheetExtentScopeKey key => key,
+  SheetExtentScopeKey<E>? get _scopeKey => switch (widget.key) {
+        final SheetExtentScopeKey<E> key => key,
         _ => null,
       };
 
@@ -908,7 +919,7 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
   }
 
   @override
-  void didUpdateWidget(SheetExtentScope oldWidget) {
+  void didUpdateWidget(SheetExtentScope<C, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldExtent = _extent;
     if (widget.factory != oldWidget.factory) {
@@ -921,14 +932,14 @@ class _SheetExtentScopeState extends State<SheetExtentScope>
     _invalidateExtentOwnership();
   }
 
-  SheetExtent _createExtent() {
+  E _createExtent() {
     return widget.factory.createSheetExtent(
       context: this,
       config: widget.config,
     );
   }
 
-  void _discard(SheetExtent extent) {
+  void _discard(E extent) {
     widget.controller.detach(extent);
     extent.dispose();
   }
