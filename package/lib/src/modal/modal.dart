@@ -8,5 +8,4 @@ export 'modal_sheet.dart'
     show
         ModalSheetPage,
         ModalSheetRoute,
-        ModalSheetRouteMixin,
-        SheetDismissible;
+        ModalSheetRouteMixin;

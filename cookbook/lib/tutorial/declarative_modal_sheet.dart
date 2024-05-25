@@ -24,11 +24,9 @@ final _router = GoRouter(
             // It works with any *Sheet provided by this package!
             return ModalSheetPage(
               key: state.pageKey,
-              // Wrap your sheet with a SheetDismissible to make it
-              // dismissible by dragging it down.
-              child: const SheetDismissible(
-                child: _ExampleSheet(),
-              ),
+              // Enable the swipe-to-dismiss behavior.
+              swipeDismissible: true,
+              child: const _ExampleSheet(),
             );
           },
         ),
@@ -67,18 +65,52 @@ class _ExampleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableSheet(
-      child: Card(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: const SizedBox(
-          height: 500,
-          width: double.infinity,
+    // You can use PopScope to handle the swipe-to-dismiss gestures
+    // as well as the system back gestures and tapping on the barrier, in one place.
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (!didPop) {
+          final shouldPop = await showConfirmationDialog(context);
+          if (shouldPop == true && context.mounted) {
+            context.go('/');
+          }
+        }
+      },
+      child: DraggableSheet(
+        child: Card(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const SizedBox(
+            height: 500,
+            width: double.infinity,
+          ),
         ),
       ),
+    );
+  }
+
+  Future<bool?> showConfirmationDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('No'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

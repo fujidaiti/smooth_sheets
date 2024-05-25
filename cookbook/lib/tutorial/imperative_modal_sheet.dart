@@ -36,6 +36,8 @@ void _showModalSheet(BuildContext context) {
   // Use ModalSheetRoute to show a modal sheet with imperative Navigator API.
   // It works with any *Sheet provided by this package!
   final modalRoute = ModalSheetRoute(
+    // Enable the swipe-to-dismiss behavior.
+    swipeDismissible: true,
     builder: (context) => const _ExampleSheet(),
   );
 
@@ -47,18 +49,20 @@ class _ExampleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap your sheet with a SheetDismissible to make it
-    // dismissible by dragging it down.
-    return SheetDismissible(
-      // This callback is called when the user tries to dismiss the sheet
-      // by dragging it down. Return true to dismiss the sheet immediately,
-      // or false otherwise. This is useful when, for example, you want to
-      // show a confirmation dialog before dismissing the sheet.
-      onDismiss: () {
-        showConfirmDialog(context);
-        return false;
+    // You can use PopScope to handle the swipe-to-dismiss gestures
+    // as well as the system back gestures and tapping on the barrier, in one place.
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (!didPop) {
+          final shouldPop = await showConfirmationDialog(context);
+          if (shouldPop == true && context.mounted) {
+            Navigator.pop(context);
+          }
+        }
       },
       child: DraggableSheet(
+        minExtent: const Extent.proportional(0.5),
         child: Card(
           color: Theme.of(context).colorScheme.secondaryContainer,
           margin: EdgeInsets.zero,
@@ -66,7 +70,7 @@ class _ExampleSheet extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: const SizedBox(
-            height: 500,
+            height: 700,
             width: double.infinity,
           ),
         ),
@@ -74,16 +78,15 @@ class _ExampleSheet extends StatelessWidget {
     );
   }
 
-  void showConfirmDialog(BuildContext context) {
-    showDialog(
+  Future<bool?> showConfirmationDialog(BuildContext context) {
+    return showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Are you sure?'),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.popUntil(context, (route) => route.isFirst),
+              onPressed: () => Navigator.pop(context, true),
               child: const Text('Yes'),
             ),
             TextButton(

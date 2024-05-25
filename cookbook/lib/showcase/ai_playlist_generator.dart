@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -57,6 +58,7 @@ final _sheetShellRoute = ShellRoute(
   pageBuilder: (context, state, navigator) {
     // Use ModalSheetPage to show a modal sheet.
     return ModalSheetPage(
+      swipeDismissible: true,
       child: _SheetShell(
         navigator: navigator,
         transitionObserver: sheetTransitionObserver,
@@ -150,8 +152,8 @@ class _SheetShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void showCancelDialog() {
-      showDialog(
+    Future<bool?> showCancelDialog() {
+      return showDialog<bool?>(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -160,11 +162,11 @@ class _SheetShell extends StatelessWidget {
                 const Text('Do you want to cancel the playlist generation?'),
             actions: [
               TextButton(
-                onPressed: () => context.go('/'),
+                onPressed: () => Navigator.pop(context, true),
                 child: const Text('Yes'),
               ),
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Navigator.pop(context, false),
                 child: const Text('No'),
               ),
             ],
@@ -175,15 +177,15 @@ class _SheetShell extends StatelessWidget {
 
     return SafeArea(
       bottom: false,
-      // Wrap the sheet in a SheetDismissible to enable pull-to-dismiss action.
-      child: SheetDismissible(
-        // This callback is invoked when the user tries
-        // to dismiss the sheet by dragging it down.
-        onDismiss: () {
-          // Prompt the user to confirm if they want to dismiss the sheet.
-          showCancelDialog();
-          // Returns false to disable automatic modal sheet popping.
-          return false;
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          if (!didPop) {
+            final shouldPop = await showCancelDialog() ?? false;
+            if (shouldPop && context.mounted) {
+              context.go('/');
+            }
+          }
         },
         child: NavigationSheet(
           transitionObserver: sheetTransitionObserver,
