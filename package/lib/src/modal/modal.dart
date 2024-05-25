@@ -5,7 +5,4 @@ export 'cupertino.dart'
         CupertinoModalStackedTransition,
         CupertinoStackedTransition;
 export 'modal_sheet.dart'
-    show
-        ModalSheetPage,
-        ModalSheetRoute,
-        ModalSheetRouteMixin;
+    show ModalSheetPage, ModalSheetRoute, ModalSheetRouteMixin;
