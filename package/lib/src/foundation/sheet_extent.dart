@@ -425,7 +425,7 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
     correctPixels(pixels);
     if (oldPixels != pixels) {
       notifyListeners();
-      if (oldPixels != null && status == SheetStatus.dragging) {
+      if (currentDrag?.lastDetails is SheetDragUpdateDetails) {
         dispatchDragUpdateNotification();
       } else {
         dispatchUpdateNotification();
@@ -507,7 +507,6 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
     assert(metrics.hasDimensions);
     assert(currentDrag != null);
     final details = currentDrag!.lastDetails;
-    // FIXME: This may fail in some cases.
     assert(details is SheetDragUpdateDetails);
     _dispatchNotification(
       SheetDragUpdateNotification(
