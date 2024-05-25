@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../draggable/draggable_sheet_extent.dart';
 import '../draggable/sheet_draggable.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
@@ -29,6 +30,7 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
+    final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     return NavigationSheetRouteContent(
       factory: const ScrollableSheetExtentFactory(),
@@ -38,6 +40,7 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
         minExtent: minExtent,
         maxExtent: maxExtent,
         physics: physics ?? theme?.physics,
+        gestureTamperer: gestureTamper,
       ),
       child: ScrollableSheetContent(child: child),
     );
@@ -65,6 +68,7 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
     final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
+    final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     return NavigationSheetRouteContent(
       factory: const DraggableSheetExtentFactory(),
@@ -73,6 +77,7 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
         initialExtent: initialExtent,
         minExtent: minExtent,
         maxExtent: maxExtent,
+        gestureTamperer: gestureTamper,
         physics: physics,
       ),
       child: SheetDraggable(child: child),

@@ -31,8 +31,13 @@ class SheetKeyboardDismissible extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget result = NotificationListener<SheetDragUpdateNotification>(
       onNotification: (notification) {
+        final delta = switch (notification.dragDetails.axisDirection) {
+          VerticalDirection.up => notification.dragDetails.primaryDelta,
+          VerticalDirection.down => -1 * notification.dragDetails.primaryDelta,
+        };
+
         if (primaryFocus?.hasFocus == true &&
-            dismissBehavior.shouldDismissKeyboard(notification.delta)) {
+            dismissBehavior.shouldDismissKeyboard(delta)) {
           primaryFocus!.unfocus();
         }
         return false;

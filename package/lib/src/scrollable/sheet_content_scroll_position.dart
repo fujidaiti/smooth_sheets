@@ -111,8 +111,8 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
       null => super.drag(details, dragCancelCallback),
       final owner => owner.dragWithScrollPosition(
           scrollPosition: this,
-          details: details,
           dragCancelCallback: dragCancelCallback,
+          details: details,
         ),
     };
   }

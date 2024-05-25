@@ -4,15 +4,24 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_drag_controller.dart';
+import 'sheet_drag.dart';
 import 'sheet_extent.dart';
 import 'sheet_status.dart';
 
 @internal
 @optionalTypeArgs
 abstract class SheetActivity<T extends SheetExtent> {
+  bool _disposed = false;
+  bool get disposed {
+    assert(!_mounted || !_disposed);
+    return _disposed;
+  }
+
   bool _mounted = false;
-  bool get mounted => _mounted;
+  bool get mounted {
+    assert(!_mounted || !_disposed);
+    return _mounted;
+  }
 
   T? _owner;
   T get owner {
@@ -26,10 +35,9 @@ abstract class SheetActivity<T extends SheetExtent> {
 
   @mustCallSuper
   void init(T owner) {
-    assert(
-      _owner == null,
-      'init() must be called only once.',
-    );
+    assert(_owner == null);
+    assert(!_mounted);
+    assert(!_disposed);
 
     _owner = owner;
     _mounted = true;
@@ -42,6 +50,7 @@ abstract class SheetActivity<T extends SheetExtent> {
 
   void dispose() {
     _mounted = false;
+    _disposed = true;
   }
 
   bool isCompatibleWith(SheetExtent newOwner) => newOwner is T;
@@ -96,6 +105,20 @@ abstract class SheetActivity<T extends SheetExtent> {
           'A $runtimeType was used after being disposed, or '
           'before init() was called. Once you have called dispose() '
           'on a $runtimeType, it can no longer be used.',
+        );
+      }
+      return true;
+    }());
+    return true;
+  }
+
+  @protected
+  bool debugAssertNotDisposed() {
+    assert(() {
+      if (disposed) {
+        throw FlutterError(
+          'A $runtimeType was used after being disposed. Once you have '
+          'called dispose() on a $runtimeType, it can no longer be used.',
         );
       }
       return true;
@@ -170,24 +193,42 @@ class IdleSheetActivity extends SheetActivity {
 @internal
 class DragSheetActivity extends SheetActivity
     with UserControlledSheetActivityMixin
-    implements SheetDragDelegate {
+    implements SheetDragControllerTarget {
   DragSheetActivity();
 
   @override
-  AxisDirection get dragAxisDirection => AxisDirection.up;
+  VerticalDirection get dragAxisDirection => VerticalDirection.up;
 
   @override
-  void onDragUpdate(double delta) {
+  Offset computeMinPotentialDeltaConsumption(Offset delta) {
+    final metrics = owner.metrics;
+
+    switch (delta.dy) {
+      case > 0:
+        final draggableDistance = max(0.0, metrics.maxPixels - metrics.pixels);
+        return Offset(delta.dx, min(draggableDistance, delta.dy));
+
+      case < 0:
+        final draggableDistance = max(0.0, metrics.minPixels - metrics.pixels);
+        return Offset(delta.dx, max(-1 * draggableDistance, delta.dy));
+
+      case _:
+        return delta;
+    }
+  }
+
+  @override
+  void applyUserDragUpdate(Offset offset) {
     final physicsAppliedDelta =
-        owner.config.physics.applyPhysicsToOffset(delta, owner.metrics);
+        owner.config.physics.applyPhysicsToOffset(offset.dy, owner.metrics);
     if (physicsAppliedDelta != 0) {
       owner.setPixels(owner.metrics.pixels + physicsAppliedDelta);
     }
   }
 
   @override
-  void onDragEnd(double velocity) {
-    owner.goBallistic(velocity);
+  void applyUserDragEnd(Velocity velocity) {
+    owner.goBallistic(velocity.pixelsPerSecond.dy);
   }
 }
 

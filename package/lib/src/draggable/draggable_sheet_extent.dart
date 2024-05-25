@@ -25,6 +25,7 @@ class DraggableSheetExtentConfig extends SheetExtentConfig {
     required super.minExtent,
     required super.maxExtent,
     required super.physics,
+    required super.gestureTamperer,
     super.debugLabel,
   });
 
