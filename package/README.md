@@ -194,7 +194,7 @@ See also:
 
 
 
-A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. To enable the *pull-to-dismiss* action, which allows the user to dismiss the sheet with a swiping-down gesture, wrap the sheet in a SheetDismissible.
+A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. To enable the *swipe-to-dismiss* action, which allows the user to dismiss the sheet by a swiping-down gesture, set `swipeDismissible` to true.
 
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/242a8d32-a355-4d4a-8248-4572a03c64eb"/>
