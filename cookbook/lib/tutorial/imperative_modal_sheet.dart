@@ -49,8 +49,8 @@ class _ExampleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // You can use PopScope to handle the swipe-to-dismiss gestures
-    // as well as the system back gestures and tapping on the barrier, in one place.
+    // You can use PopScope to handle the swipe-to-dismiss gestures, as well as
+    // the system back gestures and tapping on the barrier, all in one place.
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {

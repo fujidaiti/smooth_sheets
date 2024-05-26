@@ -21,11 +21,9 @@ This library is currently in the experimental stage. The API may undergo changes
 
 ## Migration guide
 
-- [0.4.x to 0.5.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.5.x.md) 🆕
+- [0.5.x to 0.6.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.6.x.md) 🆕
 
-- [0.3.x to 0.4.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.4.x.md)
-
-- [0.2.x to 0.3.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.3.x.md)
+- [0.4.x to 0.5.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.5.x.md) 
 
 See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older versions.
 
