@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 May 26, 2024
+
+This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.6.x.md) for more details.
+
+- SheetDismissible not working with NavigationSheet (#137)
+- Add a way to handle dismissing modal sheet events in one place (#130)
+- SheetDismissible never trigger pull-to-dismiss action if ListView's scroll offset is halfway (#84)
+- SheetDismissible not working with infinite looping scroll widget (#80)
+- Can't overdrag modal sheet during pull-to-dismiss action (#53)
+- Sometimes Pull-to-dismiss action is not triggered on modal sheet (#52)
+
 ## 0.5.3 May 6, 2024
 
 - Fix an assertion error when specific page transition scenarios in declarative 'NavigationSheet' (#94)
