@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +11,41 @@ import 'sheet_gesture_tamperer.dart';
 /// Represents the details of a drag event on a sheet.
 sealed class SheetDragDetails {
   /// Const constructor to allow subclasses to be const.
-  const SheetDragDetails({
+  SheetDragDetails({
     required this.axisDirection,
+    required this.localPositionX,
+    required this.localPositionY,
+    required this.globalPositionX,
+    required this.globalPositionY,
   });
 
   /// The direction in which the drag is occurring.
   final VerticalDirection axisDirection;
+
+  /// The local x position in the coordinate system of the event receiver
+  /// at which the pointer contacted the screen.
+  final double localPositionX;
+
+  /// The local y position in the coordinate system of the event receiver
+  /// at which the pointer contacted the screen.
+  final double localPositionY;
+
+  /// The global x position at which the pointer contacted the screen.
+  final double globalPositionX;
+
+  /// The global y position at which the pointer contacted the screen.
+  final double globalPositionY;
+
+  /// The local position in the coordinate system of the event receiver
+  /// at which the pointer contacted the screen.
+  Offset get localPosition => _localPosition;
+  // Lazily initialized to avoid unnecessary object creation.
+  late final _localPosition = Offset(localPositionX, localPositionY);
+
+  /// The global position at which the pointer contacted the screen.
+  Offset get globalPosition => _globalPosition;
+  // Lazily initialized to avoid unnecessary object creation.
+  late final _globalPosition = Offset(globalPositionX, globalPositionY);
 }
 
 /// Details for the start of a sheet drag.
@@ -23,22 +54,18 @@ sealed class SheetDragDetails {
 class SheetDragStartDetails extends SheetDragDetails
     implements DragStartDetails {
   /// Creates details for the start of a sheet drag.
-  const SheetDragStartDetails({
+  SheetDragStartDetails({
     required super.axisDirection,
+    required super.localPositionX,
+    required super.localPositionY,
+    required super.globalPositionX,
+    required super.globalPositionY,
     this.sourceTimeStamp,
-    required this.globalPosition,
-    required this.localPosition,
     this.kind,
   });
 
   @override
   final Duration? sourceTimeStamp;
-
-  @override
-  final Offset globalPosition;
-
-  @override
-  final Offset localPosition;
 
   @override
   final PointerDeviceKind? kind;
@@ -47,16 +74,20 @@ class SheetDragStartDetails extends SheetDragDetails
   /// replaced with the new values.
   SheetDragStartDetails copyWith({
     VerticalDirection? axisDirection,
+    double? localPositionX,
+    double? localPositionY,
+    double? globalPositionX,
+    double? globalPositionY,
     Duration? sourceTimeStamp,
-    Offset? globalPosition,
-    Offset? localPosition,
     PointerDeviceKind? kind,
   }) {
     return SheetDragStartDetails(
       axisDirection: axisDirection ?? this.axisDirection,
       sourceTimeStamp: sourceTimeStamp ?? this.sourceTimeStamp,
-      globalPosition: globalPosition ?? this.globalPosition,
-      localPosition: localPosition ?? this.localPosition,
+      localPositionX: localPositionX ?? this.localPositionX,
+      localPositionY: localPositionY ?? this.localPositionY,
+      globalPositionX: globalPositionX ?? this.globalPositionX,
+      globalPositionY: globalPositionY ?? this.globalPositionY,
       kind: kind ?? this.kind,
     );
   }
@@ -69,48 +100,55 @@ class SheetDragStartDetails extends SheetDragDetails
 class SheetDragUpdateDetails extends SheetDragDetails
     implements DragUpdateDetails {
   /// Creates details for the update of a sheet drag.
-  const SheetDragUpdateDetails({
+  SheetDragUpdateDetails({
     required super.axisDirection,
+    required super.localPositionX,
+    required super.localPositionY,
+    required super.globalPositionX,
+    required super.globalPositionY,
+    required this.deltaX,
+    required this.deltaY,
     this.sourceTimeStamp,
-    required this.delta,
-    required this.primaryDelta,
-    required this.globalPosition,
-    required this.localPosition,
   });
 
   @override
   final Duration? sourceTimeStamp;
 
-  @override
-  final double primaryDelta;
+  /// The horizontal distance the pointer has moved since the last update.
+  final double deltaX;
+
+  /// The vertical distance the pointer has moved since the last update.
+  final double deltaY;
 
   @override
-  final Offset delta;
+  Offset get delta => _delta;
+  // Lazily initialized to avoid unnecessary object creation.
+  late final _delta = Offset(deltaX, deltaY);
 
   @override
-  final Offset globalPosition;
-
-  @override
-  final Offset localPosition;
+  double get primaryDelta => deltaY;
 
   /// Creates a copy of this object but with the given fields
   /// replaced with the new values.
   SheetDragUpdateDetails copyWith({
     VerticalDirection? axisDirection,
     Duration? sourceTimeStamp,
-    double? primaryDelta,
-    Offset? delta,
-    Offset? globalPosition,
-    Offset? localPosition,
-    Offset? potentialMinDeltaConsumption,
+    double? localPositionX,
+    double? localPositionY,
+    double? globalPositionX,
+    double? globalPositionY,
+    double? deltaX,
+    double? deltaY,
   }) {
     return SheetDragUpdateDetails(
       axisDirection: axisDirection ?? this.axisDirection,
       sourceTimeStamp: sourceTimeStamp ?? this.sourceTimeStamp,
-      primaryDelta: primaryDelta ?? this.primaryDelta,
-      delta: delta ?? this.delta,
-      globalPosition: globalPosition ?? this.globalPosition,
-      localPosition: localPosition ?? this.localPosition,
+      localPositionX: localPositionX ?? this.localPositionX,
+      localPositionY: localPositionY ?? this.localPositionY,
+      globalPositionX: globalPositionX ?? this.globalPositionX,
+      globalPositionY: globalPositionY ?? this.globalPositionY,
+      deltaX: deltaX ?? this.deltaX,
+      deltaY: deltaY ?? this.deltaY,
     );
   }
 }
@@ -121,41 +159,53 @@ class SheetDragUpdateDetails extends SheetDragDetails
 /// the velocity at which the drag ended.
 class SheetDragEndDetails extends SheetDragDetails implements DragEndDetails {
   /// Creates details for the end of a sheet drag.
-  const SheetDragEndDetails({
+  SheetDragEndDetails({
     required super.axisDirection,
-    required this.velocity,
-    required this.primaryVelocity,
-    required this.localPosition,
-    required this.globalPosition,
+    required super.localPositionX,
+    required super.localPositionY,
+    required super.globalPositionX,
+    required super.globalPositionY,
+    required this.velocityX,
+    required this.velocityY,
   });
 
-  @override
-  final Velocity velocity;
+  /// The horizontal velocity at which the pointer was moving
+  /// when the drag ended in logical pixels per second.
+  final double velocityX;
+
+  /// The vertical velocity at which the pointer was moving
+  /// when the drag ended in logical pixels per second.
+  final double velocityY;
 
   @override
-  final double primaryVelocity;
+  Velocity get velocity => _velocity;
+  // Lazily initialized to avoid unnecessary object creation.
+  late final _velocity = Velocity(
+    pixelsPerSecond: Offset(velocityX, velocityY),
+  );
 
   @override
-  final Offset localPosition;
-
-  @override
-  final Offset globalPosition;
+  double get primaryVelocity => velocityY;
 
   /// Creates a copy of this object but with the given fields
   /// replaced with the new values.
   SheetDragEndDetails copyWith({
     VerticalDirection? axisDirection,
-    Velocity? velocity,
-    double? primaryVelocity,
-    Offset? localPosition,
-    Offset? globalPosition,
+    double? localPositionX,
+    double? localPositionY,
+    double? globalPositionX,
+    double? globalPositionY,
+    double? velocityX,
+    double? velocityY,
   }) {
     return SheetDragEndDetails(
       axisDirection: axisDirection ?? this.axisDirection,
-      velocity: velocity ?? this.velocity,
-      primaryVelocity: primaryVelocity ?? this.primaryVelocity,
-      localPosition: localPosition ?? this.localPosition,
-      globalPosition: globalPosition ?? this.globalPosition,
+      localPositionX: localPositionX ?? this.localPositionX,
+      localPositionY: localPositionY ?? this.localPositionY,
+      globalPositionX: globalPositionX ?? this.globalPositionX,
+      globalPositionY: globalPositionY ?? this.globalPositionY,
+      velocityX: velocityX ?? this.velocityX,
+      velocityY: velocityY ?? this.velocityY,
     );
   }
 }
@@ -247,15 +297,12 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     final rawDetails = _impl.lastDetails as DragEndDetails;
     var details = SheetDragEndDetails(
       axisDirection: _target!.dragAxisDirection,
-      localPosition: rawDetails.localPosition,
-      globalPosition: rawDetails.globalPosition,
-      primaryVelocity: -1 * velocity,
-      velocity: Velocity(
-        pixelsPerSecond: Offset(
-          rawDetails.velocity.pixelsPerSecond.dx,
-          -1 * velocity,
-        ),
-      ),
+      localPositionX: rawDetails.localPosition.dx,
+      localPositionY: rawDetails.localPosition.dy,
+      globalPositionX: rawDetails.globalPosition.dx,
+      globalPositionY: rawDetails.globalPosition.dy,
+      velocityX: rawDetails.velocity.pixelsPerSecond.dx,
+      velocityY: -1 * velocity,
     );
 
     if (_gestureTamperer case final tamper?) {
@@ -272,12 +319,14 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     assert(_impl.lastDetails is DragUpdateDetails);
     final rawDetails = _impl.lastDetails as DragUpdateDetails;
     var details = SheetDragUpdateDetails(
-      axisDirection: _target!.dragAxisDirection,
-      delta: Offset(rawDetails.delta.dx, delta),
-      primaryDelta: delta,
       sourceTimeStamp: rawDetails.sourceTimeStamp,
-      globalPosition: rawDetails.globalPosition,
-      localPosition: rawDetails.localPosition,
+      axisDirection: _target!.dragAxisDirection,
+      localPositionX: rawDetails.localPosition.dx,
+      localPositionY: rawDetails.localPosition.dy,
+      globalPositionX: rawDetails.globalPosition.dx,
+      globalPositionY: rawDetails.globalPosition.dy,
+      deltaX: rawDetails.delta.dx,
+      deltaY: delta,
     );
 
     if (_gestureTamperer case final tamper?) {

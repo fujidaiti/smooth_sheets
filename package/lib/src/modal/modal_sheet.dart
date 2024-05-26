@@ -295,10 +295,7 @@ class _SwipeDismissibleController with SheetGestureTamperer {
     };
 
     return super.tamperWithDragUpdate(
-      details.copyWith(
-        primaryDelta: unconsumedDragDelta,
-        delta: Offset(details.delta.dx, unconsumedDragDelta),
-      ),
+      details.copyWith(deltaY: unconsumedDragDelta),
       minPotentialDeltaConsumption,
     );
   }
@@ -376,10 +373,7 @@ class _SwipeDismissibleController with SheetGestureTamperer {
     }
 
     return super.tamperWithDragEnd(
-      details.copyWith(
-        velocity: Velocity.zero,
-        primaryVelocity: 0,
-      ),
+      details.copyWith(velocityX: 0, velocityY: 0),
     );
   }
 }
