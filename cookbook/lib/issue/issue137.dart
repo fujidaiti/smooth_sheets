@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
+/// issue [#137](https://github.com/fujidaiti/smooth_sheets/issues/137):
+/// SheetDismissible not working with NavigationSheet
 void main() {
   runApp(const MaterialApp(
     home: HomePage(),
