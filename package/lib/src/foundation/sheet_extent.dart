@@ -389,10 +389,10 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
     var startDetails = SheetDragStartDetails(
       sourceTimeStamp: details.sourceTimeStamp,
       axisDirection: dragActivity.dragAxisDirection,
-      localPositionX:  details.localPosition.dx,
-      localPositionY:  details.localPosition.dy,
-      globalPositionX:  details.globalPosition.dx,
-      globalPositionY:  details.globalPosition.dy,
+      localPositionX: details.localPosition.dx,
+      localPositionY: details.localPosition.dy,
+      globalPositionX: details.globalPosition.dx,
+      globalPositionY: details.globalPosition.dy,
       kind: details.kind,
     );
     if (config.gestureTamperer case final tamperer?) {

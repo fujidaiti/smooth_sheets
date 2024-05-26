@@ -174,8 +174,8 @@ class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
     var startDetails = SheetDragStartDetails(
       sourceTimeStamp: details.sourceTimeStamp,
       axisDirection: dragActivity.dragAxisDirection,
-      localPositionX:  details.localPosition.dx,
-      localPositionY:  details.localPosition.dy,
+      localPositionX: details.localPosition.dx,
+      localPositionY: details.localPosition.dy,
       globalPositionX: details.globalPosition.dx,
       globalPositionY: details.globalPosition.dy,
       kind: details.kind,
