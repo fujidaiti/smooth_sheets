@@ -9,7 +9,8 @@ import 'package:meta/meta.dart';
 import '../internal/double_utils.dart';
 import 'sheet_activity.dart';
 import 'sheet_controller.dart';
-import 'sheet_drag_controller.dart';
+import 'sheet_drag.dart';
+import 'sheet_gesture_tamperer.dart';
 import 'sheet_notification.dart';
 import 'sheet_physics.dart';
 import 'sheet_status.dart';
@@ -162,8 +163,8 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
       activity.updateOwner(this);
 
       if ((other.currentDrag, activity)
-          case (final drag?, final SheetDragDelegate dragActivity)) {
-        currentDrag = drag..updateDelegate(dragActivity);
+          case (final drag?, final SheetDragControllerTarget dragActivity)) {
+        currentDrag = drag..updateTarget(dragActivity);
         other.currentDrag = null;
       }
     } else {
@@ -216,6 +217,7 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
   void applyNewConfig(T config) {
     if (_config != config) {
       _config = config;
+      currentDrag?.updateGestureTamperer(config.gestureTamperer);
       final oldMaxPixels = metrics.maxPixels;
       final oldMinPixels = metrics.minPixels;
       _metrics = metrics.copyWith(
@@ -328,12 +330,12 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
     switch ((wasDragging, isDragging)) {
       case (true, true):
         assert(currentDrag != null);
-        assert(activity is SheetDragDelegate);
-        currentDrag!.updateDelegate(activity as SheetDragDelegate);
+        assert(activity is SheetDragControllerTarget);
+        currentDrag!.updateTarget(activity as SheetDragControllerTarget);
 
       case (true, false):
         assert(currentDrag != null);
-        dispatchDragEndNotification(activity.velocity);
+        dispatchDragEndNotification();
         currentDrag!.dispose();
         currentDrag = null;
 
@@ -384,9 +386,23 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
   ) {
     assert(currentDrag == null);
     final dragActivity = DragSheetActivity();
+    var startDetails = SheetDragStartDetails(
+      sourceTimeStamp: details.sourceTimeStamp,
+      axisDirection: dragActivity.dragAxisDirection,
+      localPositionX: details.localPosition.dx,
+      localPositionY: details.localPosition.dy,
+      globalPositionX: details.globalPosition.dx,
+      globalPositionY: details.globalPosition.dy,
+      kind: details.kind,
+    );
+    if (config.gestureTamperer case final tamperer?) {
+      startDetails = tamperer.tamperWithDragStart(startDetails);
+    }
+
     final drag = currentDrag = SheetDragController(
-      delegate: dragActivity,
-      details: details,
+      target: dragActivity,
+      gestureTamperer: config.gestureTamperer,
+      details: startDetails,
       onDragCanceled: dragCancelCallback,
       // TODO: Specify a correct value.
       carriedVelocity: 0,
@@ -411,8 +427,8 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
     correctPixels(pixels);
     if (oldPixels != pixels) {
       notifyListeners();
-      if (oldPixels != null && status == SheetStatus.dragging) {
-        dispatchDragUpdateNotification(pixels - oldPixels);
+      if (currentDrag?.lastDetails is SheetDragUpdateDetails) {
+        dispatchDragUpdateNotification();
       } else {
         dispatchUpdateNotification();
       }
@@ -464,55 +480,53 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
   }
 
   void dispatchDragStartNotification() {
-    if (metrics.hasDimensions) {
-      final details = currentDrag?.lastDetails;
-      assert(details is DragStartDetails);
-      _dispatchNotification(
-        SheetDragStartNotification(
-          metrics: metrics,
-          dragDetails: details as DragStartDetails,
-        ),
-      );
-    }
+    assert(metrics.hasDimensions);
+    assert(currentDrag != null);
+    final details = currentDrag!.lastDetails;
+    assert(details is SheetDragStartDetails);
+    _dispatchNotification(
+      SheetDragStartNotification(
+        metrics: metrics,
+        dragDetails: details as SheetDragStartDetails,
+      ),
+    );
   }
 
-  void dispatchDragEndNotification(double velocity) {
-    if (metrics.hasDimensions) {
-      final details = currentDrag?.lastDetails;
-      assert(details == null || details is DragEndDetails);
-      _dispatchNotification(
-        SheetDragEndNotification(
-          metrics: metrics,
-          dragDetails: details as DragEndDetails?,
-        ),
-      );
-    }
+  void dispatchDragEndNotification() {
+    assert(metrics.hasDimensions);
+    assert(currentDrag != null);
+    final details = currentDrag!.lastDetails;
+    assert(details is SheetDragEndDetails);
+    _dispatchNotification(
+      SheetDragEndNotification(
+        metrics: metrics,
+        dragDetails: details as SheetDragEndDetails,
+      ),
+    );
   }
 
-  void dispatchDragUpdateNotification(double delta) {
-    if (metrics.hasDimensions) {
-      final details = currentDrag?.lastDetails;
-      assert(details is DragUpdateDetails);
-      _dispatchNotification(
-        SheetDragUpdateNotification(
-          metrics: metrics,
-          delta: delta,
-          dragDetails: details as DragUpdateDetails,
-        ),
-      );
-    }
+  void dispatchDragUpdateNotification() {
+    assert(metrics.hasDimensions);
+    assert(currentDrag != null);
+    final details = currentDrag!.lastDetails;
+    assert(details is SheetDragUpdateDetails);
+    _dispatchNotification(
+      SheetDragUpdateNotification(
+        metrics: metrics,
+        dragDetails: details as SheetDragUpdateDetails,
+      ),
+    );
   }
 
   void dispatchOverflowNotification(double overflow) {
-    if (metrics.hasDimensions) {
-      _dispatchNotification(
-        SheetOverflowNotification(
-          metrics: metrics,
-          status: status,
-          overflow: overflow,
-        ),
-      );
-    }
+    assert(metrics.hasDimensions);
+    _dispatchNotification(
+      SheetOverflowNotification(
+        metrics: metrics,
+        status: status,
+        overflow: overflow,
+      ),
+    );
   }
 
   void _dispatchNotification(SheetNotification notification) {
@@ -544,6 +558,7 @@ class SheetExtentConfig {
     required this.minExtent,
     required this.maxExtent,
     required this.physics,
+    required this.gestureTamperer,
     this.debugLabel,
   });
 
@@ -569,6 +584,9 @@ class SheetExtentConfig {
   /// {@endtemplate}
   final SheetPhysics physics;
 
+  final SheetGestureTamperer? gestureTamperer;
+
+  /// A label that is used to identify this object in debug output.
   final String? debugLabel;
 
   @override
@@ -579,6 +597,7 @@ class SheetExtentConfig {
             minExtent == other.minExtent &&
             maxExtent == other.maxExtent &&
             physics == other.physics &&
+            gestureTamperer == other.gestureTamperer &&
             debugLabel == other.debugLabel);
   }
 
@@ -588,6 +607,7 @@ class SheetExtentConfig {
         minExtent,
         maxExtent,
         physics,
+        gestureTamperer,
         debugLabel,
       );
 }

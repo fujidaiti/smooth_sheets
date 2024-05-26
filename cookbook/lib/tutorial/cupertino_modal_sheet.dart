@@ -48,6 +48,7 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
   // Use `CupertinoModalSheetRoute` to show an ios 15 style modal sheet.
   // For declarative navigation (Navigator 2.0), use `CupertinoModalSheetPage` instead.
   final modalRoute = CupertinoModalSheetRoute(
+    swipeDismissible: true, // Enable the swipe-to-dismiss behavior.
     builder: (context) => switch (isFullScreen) {
       true => const _FullScreenSheet(),
       false => const _HalfScreenSheet(),
@@ -64,15 +65,13 @@ class _HalfScreenSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     // `CupertinoStackedTransition` won't start the transition animation until
     // the visible height of a modal sheet (the extent) exceeds 50% of the screen height.
-    return const SheetDismissible(
-      child: DraggableSheet(
-        initialExtent: Extent.proportional(0.5),
-        minExtent: Extent.proportional(0.5),
-        physics: StretchingSheetPhysics(
-          parent: SnappingSheetPhysics(),
-        ),
-        child: _SheetContent(),
+    return const DraggableSheet(
+      initialExtent: Extent.proportional(0.5),
+      minExtent: Extent.proportional(0.5),
+      physics: StretchingSheetPhysics(
+        parent: SnappingSheetPhysics(),
       ),
+      child: _SheetContent(),
     );
   }
 }
@@ -84,10 +83,8 @@ class _FullScreenSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     // Wrap the sheet with `SheetDismissible` to
     // enable the pull-to-dismiss action.
-    return const SheetDismissible(
-      child: DraggableSheet(
-        child: _SheetContent(),
-      ),
+    return const DraggableSheet(
+      child: _SheetContent(),
     );
   }
 }

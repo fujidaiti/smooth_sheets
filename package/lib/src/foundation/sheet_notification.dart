@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import 'sheet_drag.dart';
 import 'sheet_extent.dart';
 import 'sheet_physics.dart';
 import 'sheet_status.dart';
@@ -62,22 +63,16 @@ class SheetUpdateNotification extends SheetNotification {
 class SheetDragUpdateNotification extends SheetNotification {
   const SheetDragUpdateNotification({
     required super.metrics,
-    required this.delta,
     required this.dragDetails,
   }) : super(status: SheetStatus.dragging);
 
-  /// The change in the sheet extent since the previous notification.
-  final double delta;
-
   /// The details of a drag that caused this notification.
-  final DragUpdateDetails dragDetails;
+  final SheetDragUpdateDetails dragDetails;
 
   @override
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
-    description
-      ..add('delta: $delta')
-      ..add('dragDetails: $dragDetails');
+    description.add('dragDetails: $dragDetails');
   }
 }
 
@@ -92,7 +87,7 @@ class SheetDragStartNotification extends SheetNotification {
   }) : super(status: SheetStatus.dragging);
 
   /// The details of a drag that caused this notification.
-  final DragStartDetails dragDetails;
+  final SheetDragStartDetails dragDetails;
 
   @override
   void debugFillDescription(List<String> description) {
@@ -112,9 +107,7 @@ class SheetDragEndNotification extends SheetNotification {
   }) : super(status: SheetStatus.dragging);
 
   /// The details of a drag that caused this notification.
-  ///
-  /// This may be `null` if the drag is canceled.
-  final DragEndDetails? dragDetails;
+  final SheetDragEndDetails dragDetails;
 
   @override
   void debugFillDescription(List<String> description) {

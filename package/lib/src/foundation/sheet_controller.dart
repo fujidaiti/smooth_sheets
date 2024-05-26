@@ -122,6 +122,7 @@ class SheetControllerScope extends InheritedWidget {
 /// created [SheetController] hosted in a [DefaultSheetController] will be
 /// used as a fallback.
 @internal
+// TODO: Remove this.
 class ImplicitSheetControllerScope extends StatelessWidget {
   const ImplicitSheetControllerScope({
     super.key,

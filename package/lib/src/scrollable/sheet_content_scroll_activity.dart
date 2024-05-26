@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+import '../foundation/sheet_drag.dart';
 import 'scrollable_sheet_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
@@ -21,7 +22,7 @@ class SheetContentDragScrollActivity extends ScrollActivity {
     required this.getPointerDeviceKind,
   }) : super(delegate);
 
-  final ValueGetter<dynamic> getLastDragDetails;
+  final ValueGetter<SheetDragDetails?> getLastDragDetails;
   final ValueGetter<PointerDeviceKind?> getPointerDeviceKind;
 
   @override
@@ -29,13 +30,20 @@ class SheetContentDragScrollActivity extends ScrollActivity {
     ScrollMetrics metrics,
     BuildContext? context,
   ) {
-    final dynamic lastDetails = getLastDragDetails();
-    assert(lastDetails is DragStartDetails);
-    ScrollStartNotification(
-      metrics: metrics,
-      context: context,
-      dragDetails: lastDetails as DragStartDetails,
-    ).dispatch(context);
+    final lastDetails = getLastDragDetails();
+    if (lastDetails is SheetDragStartDetails) {
+      ScrollStartNotification(
+        metrics: metrics,
+        context: context,
+        dragDetails: lastDetails,
+      ).dispatch(context);
+    } else {
+      assert(() {
+        throw FlutterError(
+          'Expected to have a $SheetDragStartDetails, but got $lastDetails.',
+        );
+      }());
+    }
   }
 
   @override
@@ -44,14 +52,21 @@ class SheetContentDragScrollActivity extends ScrollActivity {
     BuildContext context,
     double scrollDelta,
   ) {
-    final dynamic lastDetails = getLastDragDetails();
-    assert(lastDetails is DragUpdateDetails);
-    ScrollUpdateNotification(
-      metrics: metrics,
-      context: context,
-      scrollDelta: scrollDelta,
-      dragDetails: lastDetails as DragUpdateDetails,
-    ).dispatch(context);
+    final lastDetails = getLastDragDetails();
+    if (lastDetails is SheetDragUpdateDetails) {
+      ScrollUpdateNotification(
+        metrics: metrics,
+        context: context,
+        scrollDelta: scrollDelta,
+        dragDetails: lastDetails,
+      ).dispatch(context);
+    } else {
+      assert(() {
+        throw FlutterError(
+          'Expected to have a $SheetDragUpdateDetails, but got $lastDetails.',
+        );
+      }());
+    }
   }
 
   @override
@@ -60,14 +75,21 @@ class SheetContentDragScrollActivity extends ScrollActivity {
     BuildContext context,
     double overscroll,
   ) {
-    final dynamic lastDetails = getLastDragDetails();
-    assert(lastDetails is DragUpdateDetails);
-    OverscrollNotification(
-      metrics: metrics,
-      context: context,
-      overscroll: overscroll,
-      dragDetails: lastDetails as DragUpdateDetails,
-    ).dispatch(context);
+    final lastDetails = getLastDragDetails();
+    if (lastDetails is SheetDragUpdateDetails) {
+      OverscrollNotification(
+        metrics: metrics,
+        context: context,
+        overscroll: overscroll,
+        dragDetails: lastDetails,
+      ).dispatch(context);
+    } else {
+      assert(() {
+        throw FlutterError(
+          'Expected to have a $SheetDragUpdateDetails, but got $lastDetails.',
+        );
+      }());
+    }
   }
 
   @override
@@ -75,15 +97,20 @@ class SheetContentDragScrollActivity extends ScrollActivity {
     ScrollMetrics metrics,
     BuildContext context,
   ) {
-    // We might not have DragEndDetails yet if we're being
-    // called from beginActivity.
-    final dynamic lastDetails = getLastDragDetails();
-    assert(lastDetails == null || lastDetails is DragEndDetails);
-    ScrollEndNotification(
-      metrics: metrics,
-      context: context,
-      dragDetails: lastDetails as DragEndDetails?,
-    ).dispatch(context);
+    final lastDetails = getLastDragDetails();
+    if (lastDetails is SheetDragEndDetails) {
+      ScrollEndNotification(
+        metrics: metrics,
+        context: context,
+        dragDetails: lastDetails,
+      ).dispatch(context);
+    } else {
+      assert(() {
+        throw FlutterError(
+          'Expected to have a $SheetDragEndDetails, but got $lastDetails.',
+        );
+      }());
+    }
   }
 
   @override

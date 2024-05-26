@@ -4,8 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/sheet_drag_controller.dart';
+import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../internal/double_utils.dart';
 import 'scrollable_sheet_activity.dart';
@@ -33,6 +34,7 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
     required this.initialExtent,
     required super.minExtent,
     required super.maxExtent,
+    required super.gestureTamperer,
     required ScrollableSheetPhysics physics,
     super.debugLabel,
   }) : super(physics: physics);
@@ -41,6 +43,7 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
     required Extent initialExtent,
     required Extent minExtent,
     required Extent maxExtent,
+    required SheetGestureTamperer? gestureTamperer,
     SheetPhysics? physics,
     String? debugLabel,
   }) {
@@ -48,6 +51,7 @@ class ScrollableSheetExtentConfig extends SheetExtentConfig {
       initialExtent: initialExtent,
       minExtent: minExtent,
       maxExtent: maxExtent,
+      gestureTamperer: gestureTamperer,
       debugLabel: debugLabel,
       physics: switch (physics) {
         null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
@@ -167,9 +171,22 @@ class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
   }) {
     assert(currentDrag == null);
     final dragActivity = DragScrollDrivenSheetActivity(scrollPosition);
+    var startDetails = SheetDragStartDetails(
+      sourceTimeStamp: details.sourceTimeStamp,
+      axisDirection: dragActivity.dragAxisDirection,
+      localPositionX: details.localPosition.dx,
+      localPositionY: details.localPosition.dy,
+      globalPositionX: details.globalPosition.dx,
+      globalPositionY: details.globalPosition.dy,
+      kind: details.kind,
+    );
+    if (config.gestureTamperer case final tamperer?) {
+      startDetails = tamperer.tamperWithDragStart(startDetails);
+    }
     final drag = currentDrag = SheetDragController(
-      delegate: dragActivity,
-      details: details,
+      target: dragActivity,
+      gestureTamperer: config.gestureTamperer,
+      details: startDetails,
       onDragCanceled: dragCancelCallback,
       carriedVelocity: scrollPosition.physics
           .carriedMomentum(scrollPosition.heldPreviousVelocity),
@@ -198,8 +215,8 @@ class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
       final simulation =
           config.physics.createBallisticSimulation(velocity, metrics);
       if (simulation != null) {
-        goBallisticWith(simulation);
         scrollPosition.goIdle(calledByOwner: true);
+        goBallisticWith(simulation);
         return;
       }
     }

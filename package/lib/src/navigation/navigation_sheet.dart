@@ -5,6 +5,7 @@ import '../foundation/keyboard_dismissible.dart';
 import '../foundation/sheet_container.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
 import '../internal/transition_observer.dart';
@@ -61,6 +62,7 @@ class _NavigationSheetState extends State<NavigationSheet>
     final theme = SheetTheme.maybeOf(context);
     final keyboardDismissBehavior =
         widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+    final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     Widget result = ImplicitSheetControllerScope(
       controller: widget.controller,
@@ -69,11 +71,12 @@ class _NavigationSheetState extends State<NavigationSheet>
           factory: this,
           scopeKey: _scopeKey,
           controller: controller,
-          config: const SheetExtentConfig(
-            minExtent: Extent.pixels(0),
-            maxExtent: Extent.proportional(1),
+          config: SheetExtentConfig(
+            minExtent: const Extent.pixels(0),
+            maxExtent: const Extent.proportional(1),
             // TODO: Use more appropriate physics.
-            physics: ClampingSheetPhysics(),
+            physics: const ClampingSheetPhysics(),
+            gestureTamperer: gestureTamper,
             debugLabel: kDebugMode ? 'NavigationSheet' : null,
           ),
           child: widget.child,

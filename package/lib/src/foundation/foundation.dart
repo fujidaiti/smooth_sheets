@@ -16,6 +16,12 @@ export 'sheet_content_scaffold.dart'
         SheetContentScaffold,
         StickyBottomBarVisibility;
 export 'sheet_controller.dart' show DefaultSheetController, SheetController;
+export 'sheet_drag.dart'
+    show
+        SheetDragDetails,
+        SheetDragEndDetails,
+        SheetDragStartDetails,
+        SheetDragUpdateDetails;
 export 'sheet_extent.dart'
     show Extent, FixedExtent, ProportionalExtent, SheetMetrics;
 export 'sheet_notification.dart'

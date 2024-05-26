@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_activity.dart';
-import '../foundation/sheet_drag_controller.dart';
+import '../foundation/sheet_drag.dart';
 import '../internal/double_utils.dart';
 import 'scrollable_sheet.dart';
 import 'scrollable_sheet_extent.dart';
@@ -20,7 +20,7 @@ abstract class ScrollableSheetActivity
 
   SheetContentScrollPosition? _scrollPosition;
   SheetContentScrollPosition get scrollPosition {
-    assert(debugAssertMounted());
+    assert(debugAssertNotDisposed());
     return _scrollPosition!;
   }
 
@@ -129,23 +129,64 @@ abstract class ScrollableSheetActivity
 @internal
 class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
     with UserControlledSheetActivityMixin
-    implements SheetDragDelegate {
-  DragScrollDrivenSheetActivity(super.scrollPosition);
+    implements SheetDragControllerTarget {
+  DragScrollDrivenSheetActivity(super.scrollPosition)
+      : assert(() {
+          if (scrollPosition.axisDirection != AxisDirection.down &&
+              scrollPosition.axisDirection != AxisDirection.up) {
+            throw FlutterError(
+              'The axis direction of the scroll position associated with a '
+              '$ScrollableSheet must be either $AxisDirection.down '
+              'or $AxisDirection.up, but the provided scroll position has an '
+              'axis direction of ${scrollPosition.axisDirection}.',
+            );
+          }
+          return true;
+        }());
 
   @override
-  AxisDirection get dragAxisDirection => scrollPosition.axisDirection;
-
-  @override
-  void onDragUpdate(double delta) {
-    scrollPosition.userScrollDirection =
-        delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse;
-    _applyScrollOffset(-1 * delta);
+  VerticalDirection get dragAxisDirection {
+    if (scrollPosition.axisDirection == AxisDirection.up) {
+      return VerticalDirection.up;
+    } else {
+      assert(scrollPosition.axisDirection == AxisDirection.down);
+      return VerticalDirection.down;
+    }
   }
 
   @override
-  void onDragEnd(double velocity) {
+  Offset computeMinPotentialDeltaConsumption(Offset delta) {
+    final metrics = owner.metrics;
+
+    switch (delta.dy) {
+      case < 0:
+        final draggablePixels = scrollPosition.extentAfter +
+            max(0.0, metrics.maxPixels - metrics.pixels);
+        assert(draggablePixels >= 0);
+        return Offset(delta.dx, max(-1 * draggablePixels, delta.dy));
+
+      case > 0:
+        final draggablePixels = scrollPosition.extentBefore +
+            max(0.0, metrics.pixels - metrics.minPixels);
+        assert(draggablePixels >= 0);
+        return Offset(delta.dx, min(draggablePixels, delta.dy));
+
+      case _:
+        return delta;
+    }
+  }
+
+  @override
+  void applyUserDragUpdate(Offset delta) {
+    scrollPosition.userScrollDirection =
+        delta.dy > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse;
+    _applyScrollOffset(-1 * delta.dy);
+  }
+
+  @override
+  void applyUserDragEnd(Velocity velocity) {
     owner.goBallisticWithScrollPosition(
-      velocity: -1 * velocity,
+      velocity: -1 * velocity.pixelsPerSecond.dy,
       shouldIgnorePointer: false,
       scrollPosition: scrollPosition,
     );

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import '../foundation/sheet_controller.dart';
 import '../internal/double_utils.dart';
 import 'modal_sheet.dart';
 
@@ -340,7 +341,26 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     super.fullscreenDialog,
   });
 
+  late final SheetController _sheetController;
   PageRoute<dynamic>? _previousRoute;
+
+  @override
+  void install() {
+    super.install();
+    controller!.addListener(_invalidateTransitionProgress);
+    _sheetController = SheetController()
+      ..addListener(
+        _invalidateTransitionProgress,
+        fireImmediately: true,
+      );
+  }
+
+  @override
+  void dispose() {
+    controller!.removeListener(_invalidateTransitionProgress);
+    _sheetController.dispose();
+    super.dispose();
+  }
 
   @override
   void didChangePrevious(Route<dynamic>? previousRoute) {
@@ -348,32 +368,16 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     _previousRoute = previousRoute as PageRoute?;
   }
 
-  @override
-  void install() {
-    super.install();
-    controller!.addListener(_invalidateTransitionProgress);
-    sheetController.addListener(
-      _invalidateTransitionProgress,
-      fireImmediately: true,
-    );
-  }
-
-  @override
-  void dispose() {
-    sheetController.removeListener(_invalidateTransitionProgress);
-    controller!.removeListener(_invalidateTransitionProgress);
-    super.dispose();
-  }
-
   void _invalidateTransitionProgress() {
     switch (controller!.status) {
       case AnimationStatus.forward:
       case AnimationStatus.completed:
-        final metrics = sheetController.value;
+        final metrics = _sheetController.value;
         if (metrics.hasDimensions) {
           _cupertinoTransitionControllerOf[_previousRoute]?.value = min(
             controller!.value,
             inverseLerp(
+              // TODO: Make this configurable.
               metrics.viewportSize.height / 2,
               metrics.viewportSize.height,
               metrics.viewPixels,
@@ -397,7 +401,10 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     Animation<double> secondaryAnimation,
   ) {
     return CupertinoModalStackedTransition(
-      child: super.buildPage(context, animation, secondaryAnimation),
+      child: SheetControllerScope(
+        controller: _sheetController,
+        child: super.buildPage(context, animation, secondaryAnimation),
+      ),
     );
   }
 }
@@ -410,6 +417,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     super.restorationId,
     this.maintainState = true,
     this.barrierDismissible = true,
+    this.swipeDismissible = false,
     this.fullscreenDialog = false,
     this.barrierLabel,
     this.barrierColor = _cupertinoBarrierColor,
@@ -429,6 +437,8 @@ class CupertinoModalSheetPage<T> extends Page<T> {
   final Color? barrierColor;
 
   final bool barrierDismissible;
+
+  final bool swipeDismissible;
 
   final String? barrierLabel;
 
@@ -468,6 +478,9 @@ class _PageBasedCupertinoModalSheetRoute<T>
   bool get barrierDismissible => _page.barrierDismissible;
 
   @override
+  bool get swipeDismissible => _page.swipeDismissible;
+
+  @override
   Curve get transitionCurve => _page.transitionCurve;
 
   @override
@@ -487,6 +500,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     required this.builder,
     this.maintainState = true,
     this.barrierDismissible = true,
+    this.swipeDismissible = false,
     this.barrierLabel,
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
@@ -500,6 +514,9 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   final bool barrierDismissible;
+
+  @override
+  final bool swipeDismissible;
 
   @override
   final String? barrierLabel;

@@ -6,6 +6,7 @@ import '../foundation/keyboard_dismissible.dart';
 import '../foundation/sheet_container.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
 import 'scrollable_sheet_extent.dart';
@@ -49,6 +50,7 @@ class ScrollableSheet extends StatelessWidget {
     final theme = SheetTheme.maybeOf(context);
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+    final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     Widget result = ImplicitSheetControllerScope(
       controller: controller,
@@ -61,6 +63,7 @@ class ScrollableSheet extends StatelessWidget {
             minExtent: minExtent,
             maxExtent: maxExtent,
             physics: physics ?? theme?.physics,
+            gestureTamperer: gestureTamper,
             debugLabel: 'ScrollableSheet',
           ),
           child: ScrollableSheetContent(child: child),
