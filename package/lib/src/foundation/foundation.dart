@@ -46,4 +46,4 @@ export 'sheet_physics.dart'
         kDefaultSheetPhysics,
         kDefaultSheetSpring;
 export 'sheet_status.dart' show SheetStatus;
-export 'sheet_theme.dart';
+export 'sheet_theme.dart' show SheetTheme, SheetThemeData;
