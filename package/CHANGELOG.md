@@ -5,6 +5,8 @@
 This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.7.x.md) for more details.
 
 - Fix: Unable to build with Flutter versions `< 3.22.0` (#141)
+- Increase min SDK versions (#147)
+- Remove basePhysics from SheetThemeData (#148)
 
 ## 0.6.0 May 26, 2024
 
