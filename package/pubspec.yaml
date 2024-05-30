@@ -7,8 +7,8 @@ screenshots:
     path: resources/smooth-sheets-thumbnail.png
 
 environment:
-  sdk: ">=3.0.6 <4.0.0"
-  flutter: ">=3.10.6"
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   collection: ^1.17.1
