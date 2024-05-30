@@ -32,8 +32,8 @@ class SheetKeyboardDismissible extends StatelessWidget {
     Widget result = NotificationListener<SheetDragUpdateNotification>(
       onNotification: (notification) {
         final delta = switch (notification.dragDetails.axisDirection) {
-          VerticalDirection.up => notification.dragDetails.primaryDelta,
-          VerticalDirection.down => -1 * notification.dragDetails.primaryDelta,
+          VerticalDirection.up => notification.dragDetails.deltaY,
+          VerticalDirection.down => -1 * notification.dragDetails.deltaY,
         };
 
         if (primaryFocus?.hasFocus == true &&

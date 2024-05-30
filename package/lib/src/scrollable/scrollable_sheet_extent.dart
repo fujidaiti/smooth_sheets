@@ -196,7 +196,7 @@ class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
     scrollPosition.beginActivity(
       SheetContentDragScrollActivity(
         delegate: scrollPosition,
-        getLastDragDetails: () => currentDrag?.lastDetails,
+        getLastDragDetails: () => currentDrag?.lastRawDetails,
         getPointerDeviceKind: () => currentDrag?.pointerDeviceKind,
       ),
     );
