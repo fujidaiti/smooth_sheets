@@ -26,5 +26,5 @@ Here is the summary of the breaking changes included in version 0.7.0.
 
 ## miscellaneous
 
-- Now the package requires Dart SDK `>= 3.2.0` and Flutter SDK `3.16.0`.
+- Now the package requires Dart SDK `>= 3.2.0` and Flutter SDK `>= 3.16.0`.
 
