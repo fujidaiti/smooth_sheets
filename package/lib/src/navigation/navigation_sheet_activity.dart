@@ -107,4 +107,14 @@ class ProxySheetActivity extends NavigationSheetActivity {
       notify ? owner.setPixels(pixels) : owner.correctPixels(pixels);
     }
   }
+
+  @override
+  void didFinalizeDimensions(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {
+    // The proxied extent will handle the dimension changes,
+    // so we do nothing here to avoid data races.
+  }
 }

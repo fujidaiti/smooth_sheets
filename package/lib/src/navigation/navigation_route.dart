@@ -5,6 +5,7 @@ import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_viewport.dart';
 import 'navigation_sheet.dart';
 import 'navigation_sheet_extent.dart';
+import 'navigation_sheet_viewport.dart';
 
 abstract class NavigationSheetRoute<T> extends PageRoute<T> {
   NavigationSheetRoute({super.settings});
@@ -136,7 +137,9 @@ class NavigationSheetRouteContent extends StatelessWidget {
       factory: factory,
       config: config,
       controller: SheetControllerScope.of(context),
-      child: SheetContentViewport(child: child),
+      child: NavigationSheetRouteViewport(
+        child: SheetContentViewport(child: child),
+      ),
     );
   }
 

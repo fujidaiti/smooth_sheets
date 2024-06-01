@@ -22,16 +22,6 @@ class NavigationSheetExtent extends SheetExtent {
     assert(!_localExtentScopeKeyRegistry.containsKey(route));
     final key = SheetExtentScopeKey(debugLabel: debugLabel);
     _localExtentScopeKeyRegistry[route] = key;
-    // Sync the viewport dimensions when the extent is created.
-    key.addOnCreatedListener(() {
-      final viewportSize = metrics.maybeViewportSize;
-      final viewportInsets = metrics.maybeViewportInsets;
-      if (viewportSize != null && viewportInsets != null) {
-        key.currentExtent
-            .applyNewViewportDimensions(viewportSize, viewportInsets);
-      }
-    });
-
     return key;
   }
 
@@ -61,14 +51,6 @@ class NavigationSheetExtent extends SheetExtent {
       // being discarded when `other` is disposed.
       other._localExtentScopeKeyRegistry.clear();
       assert(_debugAssertActivityTypeConsistency());
-    }
-  }
-
-  @override
-  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
-    super.applyNewViewportDimensions(size, insets);
-    for (final scopeKey in _localExtentScopeKeyRegistry.values) {
-      scopeKey.maybeCurrentExtent?.applyNewViewportDimensions(size, insets);
     }
   }
 

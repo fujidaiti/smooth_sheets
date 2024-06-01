@@ -20,19 +20,20 @@ class SheetViewport extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderSheetViewport(extent, insets);
+    return RenderSheetViewport(extent, insets);
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderSheetViewport)
+    (renderObject as RenderSheetViewport)
       ..extent = extent
       ..insets = insets;
   }
 }
 
-class _RenderSheetViewport extends RenderTransform {
-  _RenderSheetViewport(SheetExtent extent, EdgeInsets insets)
+@internal
+class RenderSheetViewport extends RenderTransform {
+  RenderSheetViewport(SheetExtent extent, EdgeInsets insets)
       : _extent = extent,
         _insets = insets,
         super(transform: Matrix4.zero(), transformHitTests: true) {
@@ -42,6 +43,7 @@ class _RenderSheetViewport extends RenderTransform {
   // Cache the last measured size because we can't access
   // 'size' property from outside of the layout phase.
   Size? _lastMeasuredSize;
+  Size? get lastMeasuredSize => _lastMeasuredSize;
 
   SheetExtent _extent;
   // ignore: avoid_setters_without_getters
@@ -54,7 +56,7 @@ class _RenderSheetViewport extends RenderTransform {
   }
 
   EdgeInsets _insets;
-  // ignore: avoid_setters_without_getters
+  EdgeInsets get insets => _insets;
   set insets(EdgeInsets value) {
     if (value != _insets) {
       _insets = value;
