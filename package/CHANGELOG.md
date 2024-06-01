@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1 Jun 1, 2024
+
+- Fix: Unwanted bouncing effect when opening keyboard on NavigationSheet (#153)
+
 ## 0.7.0 May 30, 2024
 
 This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.7.x.md) for more details.
