@@ -35,7 +35,7 @@ class NavigationSheetViewport extends SheetViewport {
       }
       return true;
     }());
-    
+
     return renderObject!;
   }
 }
