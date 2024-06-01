@@ -11,13 +11,11 @@ class _ImperativeNavigationSheetExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        body: Stack(
-          children: [
-            Placeholder(),
-            _ExampleSheet(),
-          ],
-        ),
+      home: Stack(
+        children: [
+          Scaffold(),
+          _ExampleSheet(),
+        ],
       ),
     );
   }
