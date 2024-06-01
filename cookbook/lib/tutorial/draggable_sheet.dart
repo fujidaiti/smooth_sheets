@@ -11,15 +11,13 @@ class _BasicDraggableSheetExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        // Typically, you would use a Stack to place the sheet
-        // on top of another widget.
-        body: Stack(
-          children: [
-            Placeholder(),
-            _MySheet(),
-          ],
-        ),
+      // Typically, you would use a Stack to place the sheet
+      // on top of another widget.
+      home: Stack(
+        children: [
+          Scaffold(),
+          _MySheet(),
+        ],
       ),
     );
   }

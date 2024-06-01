@@ -11,14 +11,11 @@ class _SheetContentScaffoldExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Stack(
-          children: [
-            Placeholder(),
-            _ExampleSheet(),
-          ],
-        ),
+      home: Stack(
+        children: [
+          Scaffold(),
+          _ExampleSheet(),
+        ],
       ),
     );
   }

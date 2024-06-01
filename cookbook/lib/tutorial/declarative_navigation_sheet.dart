@@ -128,13 +128,11 @@ class _ExampleHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          const Placeholder(),
-          _ExampleSheet(nestedNavigator: nestedNavigator),
-        ],
-      ),
+    return Stack(
+      children: [
+        const Scaffold(),
+        _ExampleSheet(nestedNavigator: nestedNavigator),
+      ],
     );
   }
 }
