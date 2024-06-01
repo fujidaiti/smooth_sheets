@@ -9,33 +9,48 @@ import '../foundation/sheet_viewport.dart';
 class NavigationSheetViewport extends SheetViewport {
   const NavigationSheetViewport({
     super.key,
-    required super.extent,
-    required super.insets,
     required super.child,
   });
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderNavigationSheetViewport(super.extent, super.insets);
+    return _RenderNavigationSheetViewport(
+      SheetExtentScope.of(context),
+      MediaQuery.viewInsetsOf(context),
+    );
   }
 
-  static _RenderNavigationSheetViewport? _maybeOf(BuildContext context) {
-    return context
+  static _RenderNavigationSheetViewport _of(BuildContext context) {
+    final renderObject = context
         .findAncestorRenderObjectOfType<_RenderNavigationSheetViewport>();
+
+    assert(() {
+      if (renderObject == null) {
+        throw FlutterError(
+          'No $NavigationSheetViewport ancestor could be found starting '
+          'from the context that was passed to $NavigationSheetViewport.of(). '
+          'The context used was:\n'
+          '$context',
+        );
+      }
+      return true;
+    }());
+    
+    return renderObject!;
   }
 }
 
 class _RenderNavigationSheetViewport extends RenderSheetViewport {
   _RenderNavigationSheetViewport(super.extent, super.insets);
 
-  final _children = <_RenderLocalSheetViewport>[];
+  final _children = <_RenderNavigationSheetRouteViewport>[];
 
-  void addChild(_RenderLocalSheetViewport child) {
+  void addChild(_RenderNavigationSheetRouteViewport child) {
     assert(!_children.contains(child));
     _children.add(child);
   }
 
-  void removeChild(_RenderLocalSheetViewport child) {
+  void removeChild(_RenderNavigationSheetRouteViewport child) {
     assert(_children.contains(child));
     _children.remove(child);
   }
@@ -44,6 +59,8 @@ class _RenderNavigationSheetViewport extends RenderSheetViewport {
   void markNeedsLayout() {
     super.markNeedsLayout();
     for (final child in _children) {
+      // Mark the local viewports as dirty so that they can
+      // receive the new dimension values from the global viewport.
       child.markNeedsLayout();
     }
   }
@@ -56,97 +73,30 @@ class _RenderNavigationSheetViewport extends RenderSheetViewport {
 }
 
 @internal
-class NavigationSheetRouteViewport extends StatefulWidget {
+class NavigationSheetRouteViewport extends SingleChildRenderObjectWidget {
   const NavigationSheetRouteViewport({
     super.key,
-    required this.child,
-  });
-
-  final Widget child;
-
-  @override
-  State<NavigationSheetRouteViewport> createState() =>
-      _NavigationSheetRouteViewportState();
-}
-
-class _NavigationSheetRouteViewportState
-    extends State<NavigationSheetRouteViewport> {
-  _RenderNavigationSheetViewport? _globalViewport;
-  SheetExtent? _localExtent;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    assert(() {
-      if (NavigationSheetViewport._maybeOf(context) == null) {
-        throw FlutterError(
-          '$NavigationSheetRouteViewport must be a descendant of '
-          '$NavigationSheetViewport.',
-        );
-      }
-      return true;
-    }());
-
-    assert(() {
-      if (SheetExtentScope.maybeOf(context) == null) {
-        throw FlutterError(
-          '$NavigationSheetRouteViewport must be a descendant of '
-          '$NavigationSheetViewport.',
-        );
-      }
-      return true;
-    }());
-
-    _globalViewport = NavigationSheetViewport._maybeOf(context);
-    _localExtent = SheetExtentScope.maybeOf(context);
-  }
-
-  @override
-  void dispose() {
-    _globalViewport = null;
-    _localExtent = null;
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _NavigationSheetRouteViewport(
-      globalViewport: _globalViewport!,
-      localExtent: _localExtent!,
-      child: widget.child,
-    );
-  }
-}
-
-class _NavigationSheetRouteViewport extends SingleChildRenderObjectWidget {
-  const _NavigationSheetRouteViewport({
-    required this.globalViewport,
-    required this.localExtent,
     required super.child,
   });
 
-  final _RenderNavigationSheetViewport globalViewport;
-  final SheetExtent localExtent;
-
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderLocalSheetViewport(
-      globalViewport: globalViewport,
-      localExtent: localExtent,
+    return _RenderNavigationSheetRouteViewport(
+      globalViewport: NavigationSheetViewport._of(context),
+      localExtent: SheetExtentScope.of(context),
     );
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderLocalSheetViewport)
-      ..globalViewport = globalViewport
-      ..localExtent = localExtent;
+    (renderObject as _RenderNavigationSheetRouteViewport)
+      ..globalViewport = NavigationSheetViewport._of(context)
+      ..localExtent = SheetExtentScope.of(context);
   }
 }
 
-class _RenderLocalSheetViewport extends RenderProxyBox {
-  _RenderLocalSheetViewport({
+class _RenderNavigationSheetRouteViewport extends RenderProxyBox {
+  _RenderNavigationSheetRouteViewport({
     required _RenderNavigationSheetViewport globalViewport,
     required SheetExtent localExtent,
   })  : _globalViewport = globalViewport,

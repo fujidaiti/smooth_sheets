@@ -10,24 +10,22 @@ import 'sheet_extent.dart';
 class SheetViewport extends SingleChildRenderObjectWidget {
   const SheetViewport({
     super.key,
-    required this.extent,
-    required this.insets,
     required super.child,
   });
 
-  final SheetExtent extent;
-  final EdgeInsets insets;
-
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderSheetViewport(extent, insets);
+    return RenderSheetViewport(
+      SheetExtentScope.of(context),
+      MediaQuery.viewInsetsOf(context),
+    );
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as RenderSheetViewport)
-      ..extent = extent
-      ..insets = insets;
+      ..extent = SheetExtentScope.of(context)
+      ..insets = MediaQuery.viewInsetsOf(context);
   }
 }
 

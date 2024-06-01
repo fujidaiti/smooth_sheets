@@ -81,14 +81,8 @@ class _NavigationSheetState extends State<NavigationSheet>
             gestureTamperer: gestureTamper,
             debugLabel: kDebugMode ? 'NavigationSheet' : null,
           ),
-          child: Builder(
-            builder: (context) {
-              return NavigationSheetViewport(
-                insets: MediaQuery.viewInsetsOf(context),
-                extent: SheetExtentScope.of(context),
-                child: SheetContentViewport(child: widget.child),
-              );
-            },
+          child: NavigationSheetViewport(
+            child: SheetContentViewport(child: widget.child),
           ),
         );
       },

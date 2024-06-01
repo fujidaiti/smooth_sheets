@@ -3,12 +3,12 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/keyboard_dismissible.dart';
-import '../foundation/sheet_container.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
+import '../foundation/sheet_viewport.dart';
 import 'scrollable_sheet_extent.dart';
 import 'sheet_scrollable.dart';
 
@@ -55,7 +55,7 @@ class ScrollableSheet extends StatelessWidget {
     Widget result = ImplicitSheetControllerScope(
       controller: controller,
       builder: (context, controller) {
-        return SheetContainer(
+        return SheetExtentScope(
           controller: controller,
           factory: const ScrollableSheetExtentFactory(),
           config: ScrollableSheetExtentConfig.withFallbacks(
@@ -66,7 +66,10 @@ class ScrollableSheet extends StatelessWidget {
             gestureTamperer: gestureTamper,
             debugLabel: 'ScrollableSheet',
           ),
-          child: ScrollableSheetContent(child: child),
+          child: SheetViewport(
+              child: SheetContentViewport(
+            child: ScrollableSheetContent(child: child),
+          )),
         );
       },
     );
