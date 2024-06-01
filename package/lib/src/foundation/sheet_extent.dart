@@ -898,7 +898,21 @@ class SheetExtentScope<C extends SheetExtentConfig, E extends SheetExtent<C>>
   /// Use of this method will cause the given context to rebuild any time
   /// that the [config] property of the ancestor [SheetExtentScope] changes.
   static E of<E extends SheetExtent>(BuildContext context) {
-    return maybeOf(context)!;
+    final extent = maybeOf<E>(context);
+
+    assert(() {
+      if (extent == null) {
+        throw FlutterError(
+          'No $SheetExtentScope ancestor for $E could be found starting '
+          'from the context that was passed to $SheetExtentScope.of(). '
+          'The context used was:\n'
+          '$context',
+        );
+      }
+      return true;
+    }());
+
+    return extent!;
   }
 }
 

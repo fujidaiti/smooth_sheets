@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 
 import '../foundation/keyboard_dismissible.dart';
-import '../foundation/sheet_container.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
+import '../foundation/sheet_viewport.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'draggable_sheet_extent.dart';
 import 'sheet_draggable.dart';
@@ -76,7 +76,7 @@ class DraggableSheet extends StatelessWidget {
     Widget result = ImplicitSheetControllerScope(
       controller: controller,
       builder: (context, controller) {
-        return SheetContainer(
+        return SheetExtentScope(
           controller: controller,
           factory: const DraggableSheetExtentFactory(),
           config: DraggableSheetExtentConfig(
@@ -87,9 +87,13 @@ class DraggableSheet extends StatelessWidget {
             gestureTamperer: gestureTamper,
             debugLabel: 'DraggableSheet',
           ),
-          child: SheetDraggable(
-            behavior: hitTestBehavior,
-            child: child,
+          child: SheetViewport(
+            child: SheetContentViewport(
+              child: SheetDraggable(
+                behavior: hitTestBehavior,
+                child: child,
+              ),
+            ),
           ),
         );
       },

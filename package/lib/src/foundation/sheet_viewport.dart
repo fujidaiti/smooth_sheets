@@ -10,29 +10,28 @@ import 'sheet_extent.dart';
 class SheetViewport extends SingleChildRenderObjectWidget {
   const SheetViewport({
     super.key,
-    required this.extent,
-    required this.insets,
     required super.child,
   });
 
-  final SheetExtent extent;
-  final EdgeInsets insets;
-
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderSheetViewport(extent, insets);
+    return RenderSheetViewport(
+      SheetExtentScope.of(context),
+      MediaQuery.viewInsetsOf(context),
+    );
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderSheetViewport)
-      ..extent = extent
-      ..insets = insets;
+    (renderObject as RenderSheetViewport)
+      ..extent = SheetExtentScope.of(context)
+      ..insets = MediaQuery.viewInsetsOf(context);
   }
 }
 
-class _RenderSheetViewport extends RenderTransform {
-  _RenderSheetViewport(SheetExtent extent, EdgeInsets insets)
+@internal
+class RenderSheetViewport extends RenderTransform {
+  RenderSheetViewport(SheetExtent extent, EdgeInsets insets)
       : _extent = extent,
         _insets = insets,
         super(transform: Matrix4.zero(), transformHitTests: true) {
@@ -42,6 +41,7 @@ class _RenderSheetViewport extends RenderTransform {
   // Cache the last measured size because we can't access
   // 'size' property from outside of the layout phase.
   Size? _lastMeasuredSize;
+  Size? get lastMeasuredSize => _lastMeasuredSize;
 
   SheetExtent _extent;
   // ignore: avoid_setters_without_getters
@@ -54,7 +54,7 @@ class _RenderSheetViewport extends RenderTransform {
   }
 
   EdgeInsets _insets;
-  // ignore: avoid_setters_without_getters
+  EdgeInsets get insets => _insets;
   set insets(EdgeInsets value) {
     if (value != _insets) {
       _insets = value;

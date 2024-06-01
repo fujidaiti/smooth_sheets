@@ -2,14 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../foundation/keyboard_dismissible.dart';
-import '../foundation/sheet_container.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
+import '../foundation/sheet_viewport.dart';
 import '../internal/transition_observer.dart';
 import 'navigation_sheet_extent.dart';
+import 'navigation_sheet_viewport.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
 
@@ -67,10 +68,11 @@ class _NavigationSheetState extends State<NavigationSheet>
     Widget result = ImplicitSheetControllerScope(
       controller: widget.controller,
       builder: (context, controller) {
-        return SheetContainer(
-          factory: this,
-          scopeKey: _scopeKey,
+        return SheetExtentScope(
+          key: _scopeKey,
           controller: controller,
+          factory: this,
+          isPrimary: true,
           config: SheetExtentConfig(
             minExtent: const Extent.pixels(0),
             maxExtent: const Extent.proportional(1),
@@ -79,7 +81,9 @@ class _NavigationSheetState extends State<NavigationSheet>
             gestureTamperer: gestureTamper,
             debugLabel: kDebugMode ? 'NavigationSheet' : null,
           ),
-          child: widget.child,
+          child: NavigationSheetViewport(
+            child: SheetContentViewport(child: widget.child),
+          ),
         );
       },
     );
