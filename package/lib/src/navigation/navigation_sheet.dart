@@ -65,27 +65,22 @@ class _NavigationSheetState extends State<NavigationSheet>
         widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
-    Widget result = ImplicitSheetControllerScope(
+    Widget result = SheetExtentScope(
+      key: _scopeKey,
       controller: widget.controller,
-      builder: (context, controller) {
-        return SheetExtentScope(
-          key: _scopeKey,
-          controller: controller,
-          factory: this,
-          isPrimary: true,
-          config: SheetExtentConfig(
-            minExtent: const Extent.pixels(0),
-            maxExtent: const Extent.proportional(1),
-            // TODO: Use more appropriate physics.
-            physics: const ClampingSheetPhysics(),
-            gestureTamperer: gestureTamper,
-            debugLabel: kDebugMode ? 'NavigationSheet' : null,
-          ),
-          child: NavigationSheetViewport(
-            child: SheetContentViewport(child: widget.child),
-          ),
-        );
-      },
+      factory: this,
+      isPrimary: true,
+      config: SheetExtentConfig(
+        minExtent: const Extent.pixels(0),
+        maxExtent: const Extent.proportional(1),
+        // TODO: Use more appropriate physics.
+        physics: const ClampingSheetPhysics(),
+        gestureTamperer: gestureTamper,
+        debugLabel: kDebugMode ? 'NavigationSheet' : null,
+      ),
+      child: NavigationSheetViewport(
+        child: SheetContentViewport(child: widget.child),
+      ),
     );
 
     if (keyboardDismissBehavior != null) {

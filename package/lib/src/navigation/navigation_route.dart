@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_viewport.dart';
 import 'navigation_sheet.dart';
@@ -136,7 +135,6 @@ class NavigationSheetRouteContent extends StatelessWidget {
       isPrimary: false,
       factory: factory,
       config: config,
-      controller: SheetControllerScope.of(context),
       child: NavigationSheetRouteViewport(
         child: SheetContentViewport(child: child),
       ),
