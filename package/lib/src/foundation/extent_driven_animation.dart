@@ -1,4 +1,5 @@
 import 'package:flutter/animation.dart';
+
 import 'sheet_controller.dart';
 import 'sheet_extent.dart';
 
@@ -41,15 +42,15 @@ class ExtentDrivenAnimation extends Animation<double> {
 
   @override
   double get value {
-    final metrics = _controller.metrics;
-    if (metrics == null) {
+    final metrics = _controller.value;
+    if (!metrics.hasDimensions) {
       return initialValue;
     }
 
     final startPixels =
-        startExtent?.resolve(metrics.contentDimensions) ?? metrics.minPixels;
+        startExtent?.resolve(metrics.contentSize) ?? metrics.minPixels;
     final endPixels =
-        endExtent?.resolve(metrics.contentDimensions) ?? metrics.maxPixels;
+        endExtent?.resolve(metrics.contentSize) ?? metrics.maxPixels;
     final distance = endPixels - startPixels;
 
     if (distance.isFinite && distance > 0) {

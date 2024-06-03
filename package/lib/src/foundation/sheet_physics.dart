@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -20,13 +21,28 @@ const kDefaultSheetSpring = SpringDescription(
   damping: 15.5563491861, // 1.1 * 2.0 * sqrt(0.5 * 100.0)
 );
 
-const _minSettlingDuration = Duration(milliseconds: 160);
-const _defaultSettlingSpeed = 600.0; // logical pixels per second
+const _kMinSettlingDuration = Duration(milliseconds: 160);
+const _kDefaultSettlingSpeed = 600.0; // logical pixels per second
 
+/// The default [SheetPhysics] used by sheet widgets.
+const kDefaultSheetPhysics =
+    StretchingSheetPhysics(parent: SnappingSheetPhysics());
+
+// TODO: Implement `equals` and `hashCode` for SheetPhysics classes.
 abstract class SheetPhysics {
   const SheetPhysics({this.parent});
 
   final SheetPhysics? parent;
+
+  /// The minimum amount of pixel distance drags must move by to start motion
+  /// the first time or after each time the drag motion stopped.
+  ///
+  /// If null, no minimum threshold is enforced.
+  double? get dragStartDistanceMotionThreshold {
+    return Platform.isIOS
+        ? const BouncingScrollPhysics().dragStartDistanceMotionThreshold
+        : null;
+  }
 
   /// Create a copy of this object appending the [ancestor] to
   /// the physics chain, much like [ScrollPhysics.applyTo].
@@ -128,8 +144,8 @@ mixin SheetPhysicsMixin on SheetPhysics {
       end: settleTo,
       curve: Curves.easeInOut,
       durationInSeconds: max(
-        (metrics.pixels - settleTo).abs() / _defaultSettlingSpeed,
-        _minSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
+        (metrics.pixels - settleTo).abs() / _kDefaultSettlingSpeed,
+        _kMinSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
       ),
     );
   }
@@ -211,23 +227,23 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
   }
 }
 
-/// A [SnappingSheetBehavior] that snaps to either [SheetExtent.minPixels]
-/// or [SheetExtent.maxPixels] based on the current sheet position and
+/// A [SnappingSheetBehavior] that snaps to either [SheetMetrics.minPixels]
+/// or [SheetMetrics.maxPixels] based on the current sheet position and
 /// the gesture velocity.
 ///
 /// If the absolute value of the gesture velocity is less than
 /// [minFlingSpeed], the sheet will snap to the nearest of
-/// [SheetExtent.minPixels] and [SheetExtent.maxPixels].
+/// [SheetMetrics.minPixels] and [SheetMetrics.maxPixels].
 /// Otherwise, the gesture is considered to be a fling, and the sheet will snap
 /// towards the direction of the fling. For example, if the sheet is flung up,
-/// it will snap to [SheetExtent.maxPixels].
+/// it will snap to [SheetMetrics.maxPixels].
 ///
 /// Using this behavior is functionally identical to using [SnapToNearest]
-/// with the snap positions of [SheetExtent.minExtent] and
-/// [SheetExtent.maxExtent], but more simplified and efficient.
+/// with the snap positions of [SheetExtentConfig.minExtent] and
+/// [SheetExtentConfig.maxExtent], but more simplified and efficient.
 class SnapToNearestEdge with _SnapToNearestMixin {
   /// Creates a [SnappingSheetBehavior] that snaps to either
-  /// [SheetExtent.minPixels] or [SheetExtent.maxPixels].
+  /// [SheetMetrics.minPixels] or [SheetMetrics.maxPixels].
   ///
   /// The [minFlingSpeed] defaults to [kMinFlingVelocity],
   /// and must be non-negative.
@@ -262,13 +278,13 @@ class SnapToNearest with _SnapToNearestMixin {
   /// Always call [_ensureCacheIsValid] before accessing this list
   /// to ensure that the cache is up-to-date and sorted in ascending order.
   List<double> _snapTo = const [];
-  Size? _cachedContentDimensions;
+  Size? _cachedContentSize;
 
   void _ensureCacheIsValid(SheetMetrics metrics) {
-    if (_cachedContentDimensions != metrics.contentDimensions) {
-      _cachedContentDimensions = metrics.contentDimensions;
+    if (_cachedContentSize != metrics.contentSize) {
+      _cachedContentSize = metrics.contentSize;
       _snapTo = snapTo
-          .map((e) => e.resolve(metrics.contentDimensions))
+          .map((e) => e.resolve(metrics.contentSize))
           .toList(growable: false)
         ..sort();
 
@@ -276,7 +292,7 @@ class SnapToNearest with _SnapToNearestMixin {
         _snapTo.first.isGreaterThanOrApprox(metrics.minPixels) &&
             _snapTo.last.isLessThanOrApprox(metrics.maxPixels),
         'The snap positions must be within the range of '
-        "'SheetExtent.minPixels' and 'SheetExtent.maxPixels'.",
+        "'SheetMetrics.minPixels' and 'SheetMetrics.maxPixels'.",
       );
     }
   }
@@ -393,8 +409,7 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   double computeOverflow(double offset, SheetMetrics metrics) {
-    final stretchingRange =
-        this.stretchingRange.resolve(metrics.contentDimensions);
+    final stretchingRange = this.stretchingRange.resolve(metrics.contentSize);
 
     if (stretchingRange != 0) {
       return 0;
@@ -417,8 +432,7 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       return offset;
     }
 
-    final stretchingRange =
-        this.stretchingRange.resolve(metrics.contentDimensions);
+    final stretchingRange = this.stretchingRange.resolve(metrics.contentSize);
 
     if (stretchingRange.isApprox(0)) {
       return 0;

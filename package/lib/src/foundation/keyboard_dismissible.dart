@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import '../draggable/draggable_sheet.dart';
-import 'notifications.dart';
+import 'sheet_notification.dart';
 
 /// A widget that dismisses the on-screen keyboard when the user
 /// drags the sheet below this widget.
@@ -31,8 +31,13 @@ class SheetKeyboardDismissible extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget result = NotificationListener<SheetDragUpdateNotification>(
       onNotification: (notification) {
+        final delta = switch (notification.dragDetails.axisDirection) {
+          VerticalDirection.up => notification.dragDetails.deltaY,
+          VerticalDirection.down => -1 * notification.dragDetails.deltaY,
+        };
+
         if (primaryFocus?.hasFocus == true &&
-            dismissBehavior.shouldDismissKeyboard(notification.delta)) {
+            dismissBehavior.shouldDismissKeyboard(delta)) {
           primaryFocus!.unfocus();
         }
         return false;

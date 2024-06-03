@@ -1,13 +1,14 @@
 import 'package:flutter/widgets.dart';
 
-import '../foundation/activities.dart';
-import '../foundation/framework.dart';
 import '../foundation/keyboard_dismissible.dart';
-import '../foundation/physics.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
-import '../foundation/theme.dart';
+import '../foundation/sheet_gesture_tamperer.dart';
+import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_theme.dart';
+import '../foundation/sheet_viewport.dart';
 import '../scrollable/scrollable_sheet.dart';
+import 'draggable_sheet_extent.dart';
 import 'sheet_draggable.dart';
 
 /// A sheet that can be dragged.
@@ -42,16 +43,15 @@ class DraggableSheet extends StatelessWidget {
   /// The strategy to dismiss the on-screen keyboard when the sheet is dragged.
   final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
 
-  /// {@macro SizedContentSheetExtent.initialExtent}
   final Extent initialExtent;
 
-  /// {@macro SheetExtent.minExtent}
+  /// {@macro SheetExtentConfig.minExtent}
   final Extent minExtent;
 
-  /// {@macro SheetExtent.maxExtent}
+  /// {@macro SheetExtentConfig.maxExtent}
   final Extent maxExtent;
 
-  /// {@macro SheetExtent.physics}
+  /// {@macro SheetExtentConfig.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
@@ -68,23 +68,32 @@ class DraggableSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
+    final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
+    final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     Widget result = ImplicitSheetControllerScope(
       controller: controller,
       builder: (context, controller) {
-        return SheetContainer(
+        return SheetExtentScope(
           controller: controller,
+          factory: const DraggableSheetExtentFactory(),
           config: DraggableSheetExtentConfig(
             initialExtent: initialExtent,
             minExtent: minExtent,
             maxExtent: maxExtent,
             physics: physics,
+            gestureTamperer: gestureTamper,
+            debugLabel: 'DraggableSheet',
           ),
-          child: SheetDraggable(
-            behavior: hitTestBehavior,
-            child: child,
+          child: SheetViewport(
+            child: SheetContentViewport(
+              child: SheetDraggable(
+                behavior: hitTestBehavior,
+                child: child,
+              ),
+            ),
           ),
         );
       },
@@ -98,102 +107,5 @@ class DraggableSheet extends StatelessWidget {
     }
 
     return result;
-  }
-}
-
-/// A configuration of a [DraggableSheetExtent].
-class DraggableSheetExtentConfig extends SheetExtentConfig {
-  const DraggableSheetExtentConfig({
-    required this.initialExtent,
-    required this.minExtent,
-    required this.maxExtent,
-    required this.physics,
-  });
-
-  /// {@macro DraggableSheetExtent.initialExtent}
-  final Extent initialExtent;
-
-  /// {@macro SheetExtent.minExtent}
-  final Extent minExtent;
-
-  /// {@macro SheetExtent.maxExtent}
-  final Extent maxExtent;
-
-  /// {@macro SheetExtent.physics}
-  final SheetPhysics? physics;
-
-  @override
-  bool shouldRebuild(BuildContext context, SheetExtent oldExtent) {
-    return oldExtent is! DraggableSheetExtent ||
-        oldExtent.minExtent != minExtent ||
-        oldExtent.maxExtent != maxExtent ||
-        oldExtent.initialExtent != initialExtent ||
-        oldExtent.physics != _resolvePhysics(context);
-  }
-
-  @override
-  SheetExtent build(BuildContext context, SheetContext sheetContext) {
-    return DraggableSheetExtent(
-      context: sheetContext,
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
-      physics: _resolvePhysics(context),
-    );
-  }
-
-  SheetPhysics _resolvePhysics(BuildContext context) {
-    const fallback = StretchingSheetPhysics(parent: SnappingSheetPhysics());
-    final theme = SheetTheme.maybeOf(context);
-    final base = theme?.basePhysics;
-    if (physics case final physics?) {
-      return base != null ? physics.applyTo(base) : physics;
-    } else if (theme?.physics case final inherited?) {
-      // Do not apply the base physics to the inherited physics.
-      return inherited;
-    } else {
-      return base != null ? fallback.applyTo(base) : fallback;
-    }
-  }
-}
-
-/// [SheetExtent] for a [DraggableSheet].
-class DraggableSheetExtent extends SheetExtent {
-  DraggableSheetExtent({
-    required super.context,
-    required super.physics,
-    required super.minExtent,
-    required super.maxExtent,
-    required this.initialExtent,
-  }) {
-    goIdle();
-  }
-
-  /// {@template DraggableSheetExtent.initialExtent}
-  /// The initial extent of the sheet when it is first shown.
-  /// {@endtemplate}
-  final Extent initialExtent;
-
-  @override
-  void goIdle() {
-    beginActivity(_IdleDraggableSheetActivity(
-      initialExtent: initialExtent,
-    ));
-  }
-}
-
-class _IdleDraggableSheetActivity extends IdleSheetActivity {
-  _IdleDraggableSheetActivity({
-    required this.initialExtent,
-  });
-
-  final Extent initialExtent;
-
-  @override
-  void didChangeContentDimensions(Size? oldDimensions) {
-    super.didChangeContentDimensions(oldDimensions);
-    if (pixels == null) {
-      setPixels(initialExtent.resolve(delegate.contentDimensions!));
-    }
   }
 }

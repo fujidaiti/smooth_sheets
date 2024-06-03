@@ -1,11 +1,14 @@
 name: smooth_sheets
 description: Sheet widgets with smooth motion and great flexibility. Also supports nested navigation in both imperative and declarative ways.
-version: 0.4.2
+version: 0.7.1
 repository: https://github.com/fujidaiti/smooth_sheets
+screenshots:
+  - description: Practical examples of smooth_sheets.
+    path: resources/smooth-sheets-thumbnail.png
 
 environment:
-  sdk: ">=3.0.6 <4.0.0"
-  flutter: ">=3.10.6"
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   collection: ^1.17.1

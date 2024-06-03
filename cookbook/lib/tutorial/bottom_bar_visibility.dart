@@ -167,7 +167,7 @@ class _ExampleSheet extends StatelessWidget {
                   // The bottom bar is visible when at least 50% of the sheet is visible.
                   return metrics.pixels >=
                       const Extent.proportional(0.5)
-                          .resolve(metrics.contentDimensions);
+                          .resolve(metrics.contentSize);
                 },
                 child: bottomBar,
               ),

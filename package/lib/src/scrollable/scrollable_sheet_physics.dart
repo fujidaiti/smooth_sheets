@@ -1,8 +1,10 @@
 import 'package:flutter/physics.dart';
+import 'package:meta/meta.dart';
 
-import '../foundation/physics.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_physics.dart';
 
+@internal
 class ScrollableSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const ScrollableSheetPhysics({
     super.parent,

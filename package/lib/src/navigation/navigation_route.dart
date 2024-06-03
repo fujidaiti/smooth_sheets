@@ -1,17 +1,57 @@
 import 'package:flutter/material.dart';
 
-import '../foundation/activities.dart';
-import '../foundation/framework.dart';
+import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
-import '../foundation/sheet_status.dart';
+import '../foundation/sheet_viewport.dart';
 import 'navigation_sheet.dart';
+import 'navigation_sheet_extent.dart';
+import 'navigation_sheet_viewport.dart';
 
-mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
-  SheetExtentConfig get pageExtentConfig;
+abstract class NavigationSheetRoute<T> extends PageRoute<T> {
+  NavigationSheetRoute({super.settings});
+
+  late NavigationSheetExtent _globalExtent;
 
   @override
-  NavigationSheetExtentDelegate get pageExtent => _pageExtent;
-  late final _SheetExtentBox _pageExtent;
+  void install() {
+    super.install();
+    assert(_debugAssertDependencies());
+
+    _globalExtent = SheetExtentScope.of(navigator!.context);
+    _globalExtent.createLocalExtentScopeKey(this, debugLabel);
+  }
+
+  @override
+  void changedExternalState() {
+    super.changedExternalState();
+    // Keep the reference to the global extent up-to-date since we need
+    // to call disposeLocalExtentScopeKey() in dispose().
+    _globalExtent = SheetExtentScope.of(navigator!.context);
+  }
+
+  @override
+  void dispose() {
+    _globalExtent.disposeLocalExtentScopeKey(this);
+    super.dispose();
+  }
+
+  bool _debugAssertDependencies() {
+    assert(
+      () {
+        final globalExtent = SheetExtentScope.maybeOf(navigator!.context);
+        if (globalExtent is NavigationSheetExtent) {
+          return true;
+        }
+        throw FlutterError(
+          'A $SheetExtentScope that hosts a $NavigationSheetExtent '
+          'is not found in the given context. This is likely because '
+          'this $NavigationSheetRoute is not a route of the navigator '
+          'enclosed by a $NavigationSheet.',
+        );
+      }(),
+    );
+    return true;
+  }
 
   @override
   Color? get barrierColor => null;
@@ -19,37 +59,20 @@ mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
   @override
   String? get barrierLabel => null;
 
-  Widget buildContent(BuildContext context);
-
-  @override
-  void install() {
-    super.install();
-    _pageExtent = _SheetExtentBox();
-  }
-
-  @override
-  void dispose() {
-    _pageExtent.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget buildPage(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-  ) {
-    return SheetExtentScope(
-      config: pageExtentConfig,
-      onExtentChanged: (extent) => _pageExtent.source = extent,
-      child: SheetContentViewport(
-        child: buildContent(context),
-      ),
-    );
-  }
+  RouteTransitionsBuilder? get transitionsBuilder;
 
   @override
   Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final builder = transitionsBuilder ?? _buildDefaultTransitions;
+    return builder(context, animation, secondaryAnimation, child);
+  }
+
+  Widget _buildDefaultTransitions(
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
@@ -89,52 +112,65 @@ mixin NavigationSheetRouteMixin<T> on NavigationSheetRoute<T> {
   }
 }
 
-// TODO: Can we not use this ugly hack?
-class _SheetExtentBox extends ChangeNotifier
-    implements NavigationSheetExtentDelegate {
-  SheetExtent? _source;
-  SheetExtent? get source => _source;
-  set source(SheetExtent? value) {
-    if (_source == value) return;
-    _source?.removeListener(notifyListeners);
-    _source = value?..addListener(notifyListeners);
-    if (_viewportDimensions != null) {
-      _source?.applyNewViewportDimensions(_viewportDimensions!);
-    }
+class NavigationSheetRouteContent extends StatelessWidget {
+  const NavigationSheetRouteContent({
+    super.key,
+    required this.factory,
+    required this.config,
+    required this.child,
+  });
+
+  final SheetExtentFactory factory;
+  final SheetExtentConfig config;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    assert(_debugAssertDependencies(context));
+    final parentRoute = ModalRoute.of(context)!;
+    final globalExtent = SheetExtentScope.of<NavigationSheetExtent>(context);
+    final localScopeKey = globalExtent.getLocalExtentScopeKey(parentRoute);
+
+    return SheetExtentScope(
+      key: localScopeKey,
+      isPrimary: false,
+      factory: factory,
+      config: config,
+      controller: SheetControllerScope.of(context),
+      child: NavigationSheetRouteViewport(
+        child: SheetContentViewport(child: child),
+      ),
+    );
   }
 
-  ViewportDimensions? _viewportDimensions;
-
-  @override
-  void dispose() {
-    source = null;
-    super.dispose();
-  }
-
-  @override
-  SheetStatus get status => _source?.status ?? SheetStatus.stable;
-
-  @override
-  double? get pixels => _source?.pixels;
-
-  @override
-  double? get minPixels => _source?.minPixels;
-
-  @override
-  double? get maxPixels => _source?.maxPixels;
-
-  @override
-  Size? get contentDimensions => _source?.contentDimensions;
-
-  @override
-  void applyNewViewportDimensions(ViewportDimensions viewportDimensions) {
-    // Keep the given value in case the source is not set yet.
-    _viewportDimensions = viewportDimensions;
-    _source?.applyNewViewportDimensions(viewportDimensions);
-  }
-
-  @override
-  void beginActivity(SheetActivity activity) {
-    _source?.beginActivity(activity);
+  bool _debugAssertDependencies(BuildContext context) {
+    assert(
+      () {
+        final parentRoute = ModalRoute.of(context);
+        if (parentRoute is NavigationSheetRoute) {
+          return true;
+        }
+        throw FlutterError(
+          'The $NavigationSheetRouteContent must be the content of '
+          'a $NavigationSheetRoute, but the result of ModalRoute.of(context) '
+          'is ${parentRoute?.runtimeType}.',
+        );
+      }(),
+    );
+    assert(
+      () {
+        final globalExtent = SheetExtentScope.maybeOf(context);
+        if (globalExtent is NavigationSheetExtent) {
+          return true;
+        }
+        throw FlutterError(
+          'A $SheetExtentScope that hosts a $NavigationSheetExtent '
+          'is not found in the given context. This is likely because '
+          'this $NavigationSheetRouteContent is not the content of a '
+          '$NavigationSheetRoute.',
+        );
+      }(),
+    );
+    return true;
   }
 }

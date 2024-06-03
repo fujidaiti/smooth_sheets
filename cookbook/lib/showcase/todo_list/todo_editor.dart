@@ -7,6 +7,7 @@ Future<Todo?> showTodoEditor(BuildContext context) {
   return Navigator.push(
     context,
     ModalSheetRoute(
+      swipeDismissible: true,
       builder: (context) => const TodoEditor(),
     ),
   );
@@ -34,22 +35,25 @@ class _TodoEditorState extends State<TodoEditor> {
     super.dispose();
   }
 
-  bool onDismiss() {
-    if (!controller.canCompose.value) {
+  Future<void> onPopInvoked(bool didPop) async {
+    if (didPop) {
+      // Already popped.
+      return;
+    } else if (!controller.canCompose.value) {
       // Dismiss immediately if there are no unsaved changes.
-      return true;
+      Navigator.pop(context);
+      return;
     }
 
     // Show a confirmation dialog.
-    showDialog(
+    final shouldPop = await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Discard changes?'),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.popUntil(context, (route) => route.isFirst),
+              onPressed: () => Navigator.pop(context, true),
               child: const Text('Discard'),
             ),
             TextButton(
@@ -61,7 +65,9 @@ class _TodoEditorState extends State<TodoEditor> {
       },
     );
 
-    return false;
+    if (shouldPop == true && mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -135,8 +141,9 @@ class _TodoEditorState extends State<TodoEditor> {
 
     return SafeArea(
       bottom: false,
-      child: SheetDismissible(
-        onDismiss: onDismiss,
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: onPopInvoked,
         child: ScrollableSheet(
           keyboardDismissBehavior:
               const SheetKeyboardDismissBehavior.onDragDown(

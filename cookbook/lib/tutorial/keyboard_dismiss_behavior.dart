@@ -137,11 +137,10 @@ class _ExampleHomeState extends State<_ExampleHome> {
     Navigator.push(
       context,
       ModalSheetRoute(
-        builder: (context) => SheetDismissible(
-          child: _ExampleSheet(
-            isFullScreen: isFullScreen,
-            keyboardDismissBehavior: keyboardDismissBehavior,
-          ),
+        swipeDismissible: true, // Enable the swipe-to-dismiss behavior.
+        builder: (context) => _ExampleSheet(
+          isFullScreen: isFullScreen,
+          keyboardDismissBehavior: keyboardDismissBehavior,
         ),
       ),
     );

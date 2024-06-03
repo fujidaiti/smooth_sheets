@@ -21,9 +21,8 @@ This library is currently in the experimental stage. The API may undergo changes
 
 ## Migration guide
 
-- [0.3.x to 0.4.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.4.x.md) 🆕
-
-- [0.2.x to 0.3.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.3.x.md)
+- [0.6.x to 0.7.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.7.x.md) 🆕
+- [0.5.x to 0.6.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.6.x.md)
 
 See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older versions.
 
@@ -192,7 +191,7 @@ See also:
 
 
 
-A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. To enable the *pull-to-dismiss* action, which allows the user to dismiss the sheet with a swiping-down gesture, wrap the sheet in a SheetDismissible.
+A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. To enable the *swipe-to-dismiss* action, which allows the user to dismiss the sheet by a swiping-down gesture, set `swipeDismissible` to true.
 
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/242a8d32-a355-4d4a-8248-4572a03c64eb"/>
@@ -313,7 +312,7 @@ A sheet dispatches a [SheetNotification](https://pub.dev/documentation/smooth_sh
 ```dart
 NotificationListener<SheetNotification>(
   onNotification: (notification) {
-    debugPrint('$notification');
+    debugPrint('${notification.metrics}');
     return false;
   },
   child: DraggableSheet(...),

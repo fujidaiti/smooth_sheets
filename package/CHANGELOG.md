@@ -1,5 +1,47 @@
 # Changelog
 
+## 0.7.1 Jun 1, 2024
+
+- Fix: Unwanted bouncing effect when opening keyboard on NavigationSheet (#153)
+
+## 0.7.0 May 30, 2024
+
+This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.7.x.md) for more details.
+
+- Fix: Unable to build with Flutter versions `< 3.22.0` (#141)
+- Increase min SDK versions (#147)
+- Remove basePhysics from SheetThemeData (#148)
+
+## 0.6.0 May 26, 2024
+
+This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.6.x.md) for more details.
+
+- SheetDismissible not working with NavigationSheet (#137)
+- Add a way to handle dismissing modal sheet events in one place (#130)
+- SheetDismissible never trigger pull-to-dismiss action if ListView's scroll offset is halfway (#84)
+- SheetDismissible not working with infinite looping scroll widget (#80)
+- Can't overdrag modal sheet during pull-to-dismiss action (#53)
+- Sometimes Pull-to-dismiss action is not triggered on modal sheet (#52)
+
+## 0.5.3 May 6, 2024
+
+- Fix an assertion error when specific page transition scenarios in declarative 'NavigationSheet' (#94)
+
+## 0.5.2 May 5, 2024
+
+- Fix a crash during the first build of `NavigationSheet` with a path that contains multiple routes such as `/a/b/c` (#109)
+
+## 0.5.1 May 4, 2024
+
+- Re-export `NavigationSheetRoute` that is unintentionally omitted in v0.5.0 (#110)
+
+## 0.5.0 May 4, 2024
+
+This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.5.x.md) for more details.
+
+- Attach default controller to sheet if not explicitly specified (#102)
+- Reimplement core architecture (#106)
+
 ## 0.4.2 Apr 21, 2024
 
 - Add new SheetNotifications for drag events (#92)

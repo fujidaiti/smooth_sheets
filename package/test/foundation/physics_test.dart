@@ -2,7 +2,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
 class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
     with SheetPhysicsMixin {
@@ -14,17 +13,13 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
   }
 }
 
-const _referenceSheetMetrics = SheetMetricsSnapshot(
-  status: SheetStatus.stable,
+const _referenceSheetMetrics = SheetMetrics(
   minPixels: 0,
   maxPixels: 600,
   pixels: 600,
-  contentDimensions: Size(360, 600),
-  viewportDimensions: ViewportDimensions(
-    width: 360,
-    height: 700,
-    insets: EdgeInsets.zero,
-  ),
+  contentSize: Size(360, 600),
+  viewportSize: Size(360, 700),
+  viewportInsets: EdgeInsets.zero,
 );
 
 final _positionAtTopEdge =
