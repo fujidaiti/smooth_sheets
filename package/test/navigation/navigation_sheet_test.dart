@@ -125,7 +125,7 @@ void main() {
   });
 
   testWidgets(
-    'Attached controller emits correct pixel values when dragging sheet',
+    'Attached controller emits correct pixel values when dragging',
     (tester) async {
       final pixelTracking = <double?>[];
       final controller = SheetController();
