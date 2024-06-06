@@ -73,30 +73,25 @@ class DraggableSheet extends StatelessWidget {
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
-    Widget result = ImplicitSheetControllerScope(
+    Widget result = SheetExtentScope(
       controller: controller,
-      builder: (context, controller) {
-        return SheetExtentScope(
-          controller: controller,
-          factory: const DraggableSheetExtentFactory(),
-          config: DraggableSheetExtentConfig(
-            initialExtent: initialExtent,
-            minExtent: minExtent,
-            maxExtent: maxExtent,
-            physics: physics,
-            gestureTamperer: gestureTamper,
-            debugLabel: 'DraggableSheet',
+      factory: const DraggableSheetExtentFactory(),
+      config: DraggableSheetExtentConfig(
+        initialExtent: initialExtent,
+        minExtent: minExtent,
+        maxExtent: maxExtent,
+        physics: physics,
+        gestureTamperer: gestureTamper,
+        debugLabel: 'DraggableSheet',
+      ),
+      child: SheetViewport(
+        child: SheetContentViewport(
+          child: SheetDraggable(
+            behavior: hitTestBehavior,
+            child: child,
           ),
-          child: SheetViewport(
-            child: SheetContentViewport(
-              child: SheetDraggable(
-                behavior: hitTestBehavior,
-                child: child,
-              ),
-            ),
-          ),
-        );
-      },
+        ),
+      ),
     );
 
     if (keyboardDismissBehavior != null) {

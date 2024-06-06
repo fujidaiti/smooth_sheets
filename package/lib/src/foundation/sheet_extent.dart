@@ -855,15 +855,15 @@ class SheetExtentScope<C extends SheetExtentConfig, E extends SheetExtent<C>>
   /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
-    required this.controller,
+    this.controller,
     required this.config,
     required this.factory,
     this.isPrimary = true,
     required this.child,
   });
 
-  /// The [SheetController] that will be attached to the created [SheetExtent].
-  final SheetController controller;
+  /// The [SheetController] attached to the [SheetExtent].
+  final SheetController? controller;
 
   final C config;
 
@@ -921,6 +921,7 @@ class _SheetExtentScopeState<C extends SheetExtentConfig,
     with TickerProviderStateMixin
     implements SheetContext {
   late E _extent;
+  SheetController? _controller;
 
   @override
   TickerProvider get vsync => this;
@@ -942,28 +943,31 @@ class _SheetExtentScopeState<C extends SheetExtentConfig,
 
   @override
   void dispose() {
-    _discard(_extent);
+    _disposeExtent(_extent);
+    _controller = null;
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _invalidateExtentOwnership();
+    _rewireControllerAndScope();
+    _rewireControllerAndExtent();
   }
 
   @override
   void didUpdateWidget(SheetExtentScope<C, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _rewireControllerAndScope();
     final oldExtent = _extent;
     if (widget.factory != oldWidget.factory) {
       _extent = _createExtent()..takeOver(oldExtent);
       _scopeKey?._notifySheetExtentCreation();
-      _discard(oldExtent);
+      _disposeExtent(oldExtent);
+      _rewireControllerAndExtent();
     } else if (widget.config != oldWidget.config) {
       _extent.applyNewConfig(widget.config);
     }
-    _invalidateExtentOwnership();
   }
 
   E _createExtent() {
@@ -973,22 +977,30 @@ class _SheetExtentScopeState<C extends SheetExtentConfig,
     );
   }
 
-  void _discard(E extent) {
-    widget.controller.detach(extent);
+  void _disposeExtent(E extent) {
+    _controller?.detach(extent);
     extent.dispose();
   }
 
-  void _invalidateExtentOwnership() {
-    assert(_debugAssertExtentOwnership());
-
-    if (widget.isPrimary) {
-      widget.controller.attach(_extent);
-    } else {
-      widget.controller.detach(_extent);
+  void _rewireControllerAndScope() {
+    final newController =
+        widget.controller ?? SheetControllerScope.maybeOf(context);
+    if (_controller != newController) {
+      _controller?.detach(_extent);
+      _controller = newController?..attach(_extent);
     }
   }
 
-  bool _debugAssertExtentOwnership() {
+  void _rewireControllerAndExtent() {
+    assert(_debugAssertPrimaryScopeNotNested());
+    if (widget.isPrimary) {
+      _controller?.attach(_extent);
+    } else {
+      _controller?.detach(_extent);
+    }
+  }
+
+  bool _debugAssertPrimaryScopeNotNested() {
     assert(
       () {
         final parentScope = context
@@ -1000,7 +1012,7 @@ class _SheetExtentScopeState<C extends SheetExtentConfig,
         }
 
         throw FlutterError(
-          'Nesting SheetExtentScope widgets that are marked as primary '
+          'Nesting $SheetExtentScope widgets that are marked as primary '
           'is not allowed. Typically, this error occurs when you try to nest '
           'sheet widgets such as DraggableSheet or ScrollableSheet.',
         );

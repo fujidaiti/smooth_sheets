@@ -52,26 +52,21 @@ class ScrollableSheet extends StatelessWidget {
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
-    Widget result = ImplicitSheetControllerScope(
+    Widget result = SheetExtentScope(
       controller: controller,
-      builder: (context, controller) {
-        return SheetExtentScope(
-          controller: controller,
-          factory: const ScrollableSheetExtentFactory(),
-          config: ScrollableSheetExtentConfig.withFallbacks(
-            initialExtent: initialExtent,
-            minExtent: minExtent,
-            maxExtent: maxExtent,
-            physics: physics ?? theme?.physics,
-            gestureTamperer: gestureTamper,
-            debugLabel: 'ScrollableSheet',
-          ),
-          child: SheetViewport(
-              child: SheetContentViewport(
-            child: ScrollableSheetContent(child: child),
-          )),
-        );
-      },
+      factory: const ScrollableSheetExtentFactory(),
+      config: ScrollableSheetExtentConfig.withFallbacks(
+        initialExtent: initialExtent,
+        minExtent: minExtent,
+        maxExtent: maxExtent,
+        physics: physics ?? theme?.physics,
+        gestureTamperer: gestureTamper,
+        debugLabel: 'ScrollableSheet',
+      ),
+      child: SheetViewport(
+          child: SheetContentViewport(
+        child: ScrollableSheetContent(child: child),
+      )),
     );
 
     if (keyboardDismissBehavior != null) {

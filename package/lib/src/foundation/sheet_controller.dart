@@ -105,47 +105,26 @@ class SheetControllerScope extends InheritedWidget {
   }
 
   static SheetController of(BuildContext context) {
-    return maybeOf(context)!;
+    final controller = maybeOf(context);
+
+    assert((() {
+      if (controller == null) {
+        throw FlutterError(
+          'No $SheetControllerScope ancestor could be found starting '
+          'from the context that was passed to $SheetControllerScope.of(). '
+          'The context used was:\n'
+          '$context',
+        );
+      }
+      return true;
+    })());
+
+    return controller!;
   }
 
   @override
   bool updateShouldNotify(SheetControllerScope oldWidget) {
     return controller != oldWidget.controller;
-  }
-}
-
-/// A widget that ensures that a [SheetController] is available in the subtree.
-///
-/// The [builder] callback will be called with the [controller] if it is
-/// explicitly provided and is not null, or a [SheetController] that is hosted
-/// in the nearest ancestor [SheetControllerScope]. If neither is found, a newly
-/// created [SheetController] hosted in a [DefaultSheetController] will be
-/// used as a fallback.
-@internal
-// TODO: Remove this.
-class ImplicitSheetControllerScope extends StatelessWidget {
-  const ImplicitSheetControllerScope({
-    super.key,
-    this.controller,
-    required this.builder,
-  });
-
-  final SheetController? controller;
-  final Widget Function(BuildContext, SheetController) builder;
-
-  @override
-  Widget build(BuildContext context) {
-    return switch (controller ?? DefaultSheetController.maybeOf(context)) {
-      final controller? => builder(context, controller),
-      null => DefaultSheetController(
-          child: Builder(
-            builder: (context) {
-              final controller = DefaultSheetController.of(context);
-              return builder(context, controller);
-            },
-          ),
-        ),
-    };
   }
 }
 
