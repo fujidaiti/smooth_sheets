@@ -9,7 +9,11 @@ import 'navigation_sheet_activity.dart';
 class NavigationSheetExtent extends SheetExtent {
   NavigationSheetExtent({
     required super.context,
-    required super.config,
+    required super.minExtent,
+    required super.maxExtent,
+    required super.physics,
+    super.gestureTamperer,
+    super.debugLabel,
   });
 
   final _localExtentScopeKeyRegistry = <Route<dynamic>, SheetExtentScopeKey>{};

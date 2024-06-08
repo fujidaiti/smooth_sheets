@@ -99,11 +99,13 @@ class ProxySheetActivity extends NavigationSheetActivity {
   }
 
   void _syncMetrics({bool notify = true}) {
-    final metrics = _scopeKey.maybeCurrentExtent?.metrics;
-    if (metrics?.maybeContentSize case final contentSize?) {
+    assert(_scopeKey.maybeCurrentExtent != null);
+    final localExtent = _scopeKey.currentExtent;
+    final localMetrics = localExtent.metrics;
+    if (localMetrics.maybeContentSize case final contentSize?) {
       owner.applyNewContentSize(contentSize);
     }
-    if (metrics?.maybePixels case final pixels?) {
+    if (localMetrics.maybePixels case final pixels?) {
       notify ? owner.setPixels(pixels) : owner.correctPixels(pixels);
     }
   }

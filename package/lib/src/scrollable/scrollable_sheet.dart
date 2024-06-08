@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -9,7 +10,7 @@ import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
-import 'scrollable_sheet_extent.dart';
+import 'scrollable_sheet_extent_scope.dart';
 import 'sheet_scrollable.dart';
 
 class ScrollableSheet extends StatelessWidget {
@@ -30,13 +31,13 @@ class ScrollableSheet extends StatelessWidget {
   /// {@macro ScrollableSheetExtent.initialExtent}
   final Extent initialExtent;
 
-  /// {@macro SheetExtentConfig.minExtent}
+  /// {@macro SheetExtent.minExtent}
   final Extent minExtent;
 
-  /// {@macro SheetExtentConfig.maxExtent}
+  /// {@macro SheetExtent.maxExtent}
   final Extent maxExtent;
 
-  /// {@macro SheetExtentConfig.physics}
+  /// {@macro SheetExtent.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
@@ -48,25 +49,24 @@ class ScrollableSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
+    final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
-    Widget result = SheetExtentScope(
+    Widget result = ScrollableSheetExtentScope(
       controller: controller,
-      factory: const ScrollableSheetExtentFactory(),
-      config: ScrollableSheetExtentConfig.withFallbacks(
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        physics: physics ?? theme?.physics,
-        gestureTamperer: gestureTamper,
-        debugLabel: 'ScrollableSheet',
-      ),
+      initialExtent: initialExtent,
+      minExtent: minExtent,
+      maxExtent: maxExtent,
+      physics: physics,
+      gestureTamperer: gestureTamper,
+      debugLabel: kDebugMode ? 'ScrollableSheet' : null,
       child: SheetViewport(
-          child: SheetContentViewport(
-        child: ScrollableSheetContent(child: child),
-      )),
+        child: SheetContentViewport(
+          child: ScrollableSheetContent(child: child),
+        ),
+      ),
     );
 
     if (keyboardDismissBehavior != null) {

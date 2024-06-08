@@ -220,7 +220,7 @@ class DragSheetActivity extends SheetActivity
   @override
   void applyUserDragUpdate(Offset offset) {
     final physicsAppliedDelta =
-        owner.config.physics.applyPhysicsToOffset(offset.dy, owner.metrics);
+        owner.physics.applyPhysicsToOffset(offset.dy, owner.metrics);
     if (physicsAppliedDelta != 0) {
       owner.setPixels(owner.metrics.pixels + physicsAppliedDelta);
     }

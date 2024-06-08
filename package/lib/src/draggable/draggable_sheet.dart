@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../foundation/keyboard_dismissible.dart';
@@ -8,7 +9,7 @@ import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
 import '../scrollable/scrollable_sheet.dart';
-import 'draggable_sheet_extent.dart';
+import 'draggable_sheet_extent_scope.dart';
 import 'sheet_draggable.dart';
 
 /// A sheet that can be dragged.
@@ -73,17 +74,14 @@ class DraggableSheet extends StatelessWidget {
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
-    Widget result = SheetExtentScope(
+    Widget result = DraggableSheetExtentScope(
       controller: controller,
-      factory: const DraggableSheetExtentFactory(),
-      config: DraggableSheetExtentConfig(
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        physics: physics,
-        gestureTamperer: gestureTamper,
-        debugLabel: 'DraggableSheet',
-      ),
+      initialExtent: initialExtent,
+      minExtent: minExtent,
+      maxExtent: maxExtent,
+      physics: physics,
+      gestureTamperer: gestureTamper,
+      debugLabel: kDebugMode ? 'DraggableSheet' : null,
       child: SheetViewport(
         child: SheetContentViewport(
           child: SheetDraggable(

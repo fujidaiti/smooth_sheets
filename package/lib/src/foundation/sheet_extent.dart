@@ -96,7 +96,7 @@ class FixedExtent implements Extent {
 /// As this value changes, the sheet translates its position, which changes the
 /// visible area of the content. The [SheetMetrics.minPixels] and
 /// [SheetMetrics.maxPixels] values limit the range of the *pixels*, but it can
-/// be outside of the range if the [SheetExtentConfig.physics] allows it.
+/// be outside of the range if the [SheetExtent.physics] allows it.
 ///
 /// The current [activity] is responsible for how the *pixels* changes
 /// over time, for example, [AnimatedSheetActivity] animates the *pixels* to
@@ -115,13 +115,20 @@ class FixedExtent implements Extent {
 ///   and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
-abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
+abstract class SheetExtent extends ChangeNotifier
     implements ValueListenable<SheetMetrics> {
   /// Creates an object that manages the extent of a sheet.
   SheetExtent({
     required this.context,
-    required T config,
-  }) : _config = config {
+    required Extent minExtent,
+    required Extent maxExtent,
+    required SheetPhysics physics,
+    this.debugLabel,
+    SheetGestureTamperer? gestureTamperer,
+  })  : _gestureTamperer = gestureTamperer,
+        _minExtent = minExtent,
+        _maxExtent = maxExtent,
+        _physics = physics {
     goIdle();
   }
 
@@ -133,8 +140,39 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
   /// A handle to the owner of this object.
   final SheetContext context;
 
-  T get config => _config;
-  T _config;
+  /// {@template SheetExtent.minExtent}
+  /// The minimum extent of the sheet.
+  ///
+  /// The sheet may below this extent if the [physics] allows it.
+  /// {@endtemplate}
+  Extent get minExtent => _minExtent;
+  Extent _minExtent;
+
+  /// {@template SheetExtent.maxExtent}
+  /// The maximum extent of the sheet.
+  ///
+  /// The sheet may exceed this extent if the [physics] allows it.
+  /// {@endtemplate}
+  Extent get maxExtent => _maxExtent;
+  Extent _maxExtent;
+
+  /// {@template SheetExtent.physics}
+  /// How the sheet extent should respond to user input.
+  ///
+  /// This determines how the sheet will behave when over-dragged or
+  /// under-dragged, or when the user stops dragging.
+  /// {@endtemplate}
+  SheetPhysics get physics => _physics;
+  SheetPhysics _physics;
+
+  /// {@template SheetExtent.gestureTamperer}
+  /// An object that can modify the gesture details of the sheet.
+  /// {@endtemplate}
+  SheetGestureTamperer? get gestureTamperer => _gestureTamperer;
+  SheetGestureTamperer? _gestureTamperer;
+
+  /// A label that is used to identify this object in debug output.
+  final String? debugLabel;
 
   /// Snapshot of the current sheet's state.
   SheetMetrics get metrics => _metrics;
@@ -173,11 +211,25 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
     if (other.metrics.maybePixels case final pixels?) {
       correctPixels(pixels);
     }
+    applyNewBoundaryConstraints(other.minExtent, other.maxExtent);
     applyNewViewportDimensions(
       other.metrics.viewportSize,
       other.metrics.viewportInsets,
     );
     applyNewContentSize(other.metrics.contentSize);
+  }
+
+  @mustCallSuper
+  void updateGestureTamperer(SheetGestureTamperer? gestureTamperer) {
+    if (_gestureTamperer != gestureTamperer) {
+      _gestureTamperer = gestureTamperer;
+      currentDrag?.updateGestureTamperer(gestureTamperer);
+    }
+  }
+
+  @mustCallSuper
+  void updatePhysics(SheetPhysics physics) {
+    _physics = physics;
   }
 
   @mustCallSuper
@@ -188,8 +240,8 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
       _oldContentSize = metrics.maybeContentSize;
       _metrics = metrics.copyWith(
         contentSize: contentSize,
-        minPixels: config.minExtent.resolve(contentSize),
-        maxPixels: config.maxExtent.resolve(contentSize),
+        minPixels: minExtent.resolve(contentSize),
+        maxPixels: maxExtent.resolve(contentSize),
       );
       activity.didChangeContentSize(_oldContentSize);
       if (oldMinPixels != metrics.minPixels ||
@@ -214,19 +266,23 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
   }
 
   @mustCallSuper
-  void applyNewConfig(T config) {
-    if (_config != config) {
-      _config = config;
-      currentDrag?.updateGestureTamperer(config.gestureTamperer);
-      final oldMaxPixels = metrics.maxPixels;
-      final oldMinPixels = metrics.minPixels;
-      _metrics = metrics.copyWith(
-        minPixels: config.minExtent.resolve(metrics.contentSize),
-        maxPixels: config.maxExtent.resolve(metrics.contentSize),
-      );
-      if (oldMinPixels != metrics.minPixels ||
-          oldMaxPixels != metrics.maxPixels) {
-        activity.didChangeBoundaryConstraints(oldMinPixels, oldMaxPixels);
+  void applyNewBoundaryConstraints(Extent minExtent, Extent maxExtent) {
+    if (minExtent != _minExtent || maxExtent != _maxExtent) {
+      _minExtent = minExtent;
+      _maxExtent = maxExtent;
+      if (metrics.maybeContentSize case final contentSize?) {
+        final newMinPixels = minExtent.resolve(contentSize);
+        final newMaxPixels = maxExtent.resolve(contentSize);
+        if (newMinPixels != metrics.maybeMinPixels ||
+            newMaxPixels != metrics.maybeMaxPixels) {
+          final oldMinPixels = metrics.maybeMinPixels;
+          final oldMaxPixels = metrics.maybeMaxPixels;
+          _metrics = metrics.copyWith(
+            minPixels: newMinPixels,
+            maxPixels: newMaxPixels,
+          );
+          activity.didChangeBoundaryConstraints(oldMinPixels, oldMaxPixels);
+        }
       }
     }
   }
@@ -356,8 +412,7 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
 
   void goBallistic(double velocity) {
     assert(metrics.hasDimensions);
-    final simulation =
-        config.physics.createBallisticSimulation(velocity, metrics);
+    final simulation = physics.createBallisticSimulation(velocity, metrics);
     if (simulation != null) {
       goBallisticWith(simulation);
     } else {
@@ -371,7 +426,7 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
 
   void settle() {
     assert(metrics.hasDimensions);
-    final simulation = config.physics.createSettlingSimulation(metrics);
+    final simulation = physics.createSettlingSimulation(metrics);
     if (simulation != null) {
       // TODO: Begin a SettlingSheetActivity
       goBallisticWith(simulation);
@@ -395,19 +450,18 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
       globalPositionY: details.globalPosition.dy,
       kind: details.kind,
     );
-    if (config.gestureTamperer case final tamperer?) {
+    if (_gestureTamperer case final tamperer?) {
       startDetails = tamperer.tamperWithDragStart(startDetails);
     }
 
     final drag = currentDrag = SheetDragController(
       target: dragActivity,
-      gestureTamperer: config.gestureTamperer,
+      gestureTamperer: _gestureTamperer,
       details: startDetails,
       onDragCanceled: dragCancelCallback,
       // TODO: Specify a correct value.
       carriedVelocity: 0,
-      motionStartDistanceThreshold:
-          config.physics.dragStartDistanceMotionThreshold,
+      motionStartDistanceThreshold: physics.dragStartDistanceMotionThreshold,
     );
     beginActivity(dragActivity);
     return drag;
@@ -545,71 +599,11 @@ abstract class SheetExtent<T extends SheetExtentConfig> extends ChangeNotifier
   }
 
   String _debugMessage(String message) {
-    return switch (config.debugLabel) {
+    return switch (debugLabel) {
       null => message,
       final debugLabel => '$debugLabel: $message',
     };
   }
-}
-
-@internal
-class SheetExtentConfig {
-  const SheetExtentConfig({
-    required this.minExtent,
-    required this.maxExtent,
-    required this.physics,
-    required this.gestureTamperer,
-    this.debugLabel,
-  });
-
-  /// {@template SheetExtentConfig.minExtent}
-  /// The minimum extent of the sheet.
-  ///
-  /// The sheet may below this extent if the [physics] allows it.
-  /// {@endtemplate}
-  final Extent minExtent;
-
-  /// {@template SheetExtentConfig.maxExtent}
-  /// The maximum extent of the sheet.
-  ///
-  /// The sheet may exceed this extent if the [physics] allows it.
-  /// {@endtemplate}
-  final Extent maxExtent;
-
-  /// {@template SheetExtentConfig.physics}
-  /// How the sheet extent should respond to user input.
-  ///
-  /// This determines how the sheet will behave when over-dragged or
-  /// under-dragged, or when the user stops dragging.
-  /// {@endtemplate}
-  final SheetPhysics physics;
-
-  final SheetGestureTamperer? gestureTamperer;
-
-  /// A label that is used to identify this object in debug output.
-  final String? debugLabel;
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is SheetExtentConfig &&
-            runtimeType == other.runtimeType &&
-            minExtent == other.minExtent &&
-            maxExtent == other.maxExtent &&
-            physics == other.physics &&
-            gestureTamperer == other.gestureTamperer &&
-            debugLabel == other.debugLabel);
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        minExtent,
-        maxExtent,
-        physics,
-        gestureTamperer,
-        debugLabel,
-      );
 }
 
 /// An immutable snapshot of the sheet's state.
@@ -803,7 +797,7 @@ abstract class SheetContext {
 @internal
 @optionalTypeArgs
 class SheetExtentScopeKey<T extends SheetExtent>
-    extends LabeledGlobalKey<_SheetExtentScopeState> {
+    extends LabeledGlobalKey<SheetExtentScopeState> {
   SheetExtentScopeKey({String? debugLabel}) : super(debugLabel);
 
   final List<VoidCallback> _onCreatedListeners = [];
@@ -836,39 +830,37 @@ class SheetExtentScopeKey<T extends SheetExtent>
   }
 }
 
-@internal
-@optionalTypeArgs
-abstract class SheetExtentFactory<C extends SheetExtentConfig,
-    E extends SheetExtent<C>> {
-  const SheetExtentFactory();
-
-  @factory
-  E createSheetExtent({required SheetContext context, required C config});
-}
-
 /// A widget that creates a [SheetExtent], manages its lifecycle,
 /// and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
-class SheetExtentScope<C extends SheetExtentConfig, E extends SheetExtent<C>>
-    extends StatefulWidget {
+abstract class SheetExtentScope extends StatefulWidget {
   /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
     this.controller,
-    required this.config,
-    required this.factory,
     this.isPrimary = true,
+    required this.minExtent,
+    required this.maxExtent,
+    required this.physics,
+    this.gestureTamperer,
     required this.child,
   });
 
   /// The [SheetController] attached to the [SheetExtent].
   final SheetController? controller;
 
-  final C config;
+  /// {@macro SheetExtent.minExtent}
+  final Extent minExtent;
 
-  /// The factory that creates the [SheetExtent].
-  final SheetExtentFactory<C, E> factory;
+  /// {@macro SheetExtent.maxExtent}
+  final Extent maxExtent;
+
+  /// {@macro SheetExtent.physics}
+  final SheetPhysics physics;
+
+  /// {@macro SheetExtent.gestureTamperer}
+  final SheetGestureTamperer? gestureTamperer;
 
   final bool isPrimary;
 
@@ -876,13 +868,10 @@ class SheetExtentScope<C extends SheetExtentConfig, E extends SheetExtent<C>>
   final Widget child;
 
   @override
-  State<SheetExtentScope> createState() => _SheetExtentScopeState();
+  SheetExtentScopeState createState();
 
   /// Retrieves a [SheetExtent] from the closest [SheetExtentScope]
   /// that encloses the given context, if any.
-  ///
-  /// Use of this method will cause the given context to rebuild any time
-  /// that the [config] property of the ancestor [SheetExtentScope] changes.
   // TODO: Add 'useRoot' option.
   static E? maybeOf<E extends SheetExtent>(BuildContext context) {
     final inherited = context
@@ -894,9 +883,6 @@ class SheetExtentScope<C extends SheetExtentConfig, E extends SheetExtent<C>>
 
   /// Retrieves a [SheetExtent] from the closest [SheetExtentScope]
   /// that encloses the given context.
-  ///
-  /// Use of this method will cause the given context to rebuild any time
-  /// that the [config] property of the ancestor [SheetExtentScope] changes.
   static E of<E extends SheetExtent>(BuildContext context) {
     final extent = maybeOf<E>(context);
 
@@ -916,8 +902,9 @@ class SheetExtentScope<C extends SheetExtentConfig, E extends SheetExtent<C>>
   }
 }
 
-class _SheetExtentScopeState<C extends SheetExtentConfig,
-        E extends SheetExtent<C>> extends State<SheetExtentScope<C, E>>
+@internal
+abstract class SheetExtentScopeState<E extends SheetExtent,
+        W extends SheetExtentScope> extends State<W>
     with TickerProviderStateMixin
     implements SheetContext {
   late E _extent;
@@ -929,15 +916,27 @@ class _SheetExtentScopeState<C extends SheetExtentConfig,
   @override
   BuildContext? get notificationContext => mounted ? context : null;
 
-  SheetExtentScopeKey<E>? get _scopeKey => switch (widget.key) {
-        final SheetExtentScopeKey<E> key => key,
-        _ => null,
-      };
+  SheetExtentScopeKey<E>? get _scopeKey {
+    assert(() {
+      if (widget.key != null && widget.key is! SheetExtentScopeKey<E>) {
+        throw FlutterError(
+          'The key for a SheetExtentScope<$E> must be a '
+          'SheetExtentScopeKey<$E>, but got a ${widget.key.runtimeType}.',
+        );
+      }
+      return true;
+    }());
+
+    return switch (widget.key) {
+      final SheetExtentScopeKey<E> key => key,
+      _ => null,
+    };
+  }
 
   @override
   void initState() {
     super.initState();
-    _extent = _createExtent();
+    _extent = buildExtent(this);
     _scopeKey?._notifySheetExtentCreation();
   }
 
@@ -956,26 +955,34 @@ class _SheetExtentScopeState<C extends SheetExtentConfig,
   }
 
   @override
-  void didUpdateWidget(SheetExtentScope<C, E> oldWidget) {
+  void didUpdateWidget(W oldWidget) {
     super.didUpdateWidget(oldWidget);
     _rewireControllerAndScope();
-    final oldExtent = _extent;
-    if (widget.factory != oldWidget.factory) {
-      _extent = _createExtent()..takeOver(oldExtent);
+    if (shouldRebuildExtent(_extent)) {
+      final oldExtent = _extent;
+      _extent = buildExtent(this)..takeOver(oldExtent);
       _scopeKey?._notifySheetExtentCreation();
       _disposeExtent(oldExtent);
       _rewireControllerAndExtent();
-    } else if (widget.config != oldWidget.config) {
-      _extent.applyNewConfig(widget.config);
+    }
+    if (_extent.minExtent != widget.minExtent ||
+        _extent.maxExtent != widget.maxExtent) {
+      _extent.applyNewBoundaryConstraints(widget.minExtent, widget.maxExtent);
+    }
+    if (_extent.physics != widget.physics) {
+      _extent.updatePhysics(widget.physics);
+    }
+    if (_extent.gestureTamperer != widget.gestureTamperer) {
+      _extent.updateGestureTamperer(widget.gestureTamperer);
     }
   }
 
-  E _createExtent() {
-    return widget.factory.createSheetExtent(
-      context: this,
-      config: widget.config,
-    );
-  }
+  @factory
+  @protected
+  E buildExtent(SheetContext context);
+
+  @protected
+  bool shouldRebuildExtent(E oldExtent) => false;
 
   void _disposeExtent(E extent) {
     _controller?.detach(extent);

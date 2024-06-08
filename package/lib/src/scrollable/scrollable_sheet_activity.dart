@@ -36,7 +36,7 @@ abstract class ScrollableSheetActivity
   }
 
   double _applyPhysicsToOffset(double offset) {
-    return owner.config.physics.applyPhysicsToOffset(offset, owner.metrics);
+    return owner.physics.applyPhysicsToOffset(offset, owner.metrics);
   }
 
   double _applyScrollOffset(double offset) {
@@ -108,7 +108,7 @@ abstract class ScrollableSheetActivity
 
     owner.setPixels(newPixels);
 
-    final overflow = owner.config.physics.computeOverflow(delta, owner.metrics);
+    final overflow = owner.physics.computeOverflow(delta, owner.metrics);
     if (overflow.abs() > 0) {
       position.didOverscrollBy(overflow);
       owner.dispatchOverflowNotification(overflow);
@@ -238,7 +238,7 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
     final shouldInterruptBallisticScroll =
         ((scrollPosition.extentBefore.isApprox(0) && velocity < 0) ||
                 (scrollPosition.extentAfter.isApprox(0) && velocity > 0)) &&
-            owner.config.physics
+            owner.physics
                 .shouldInterruptBallisticScroll(velocity, owner.metrics);
 
     if (shouldInterruptBallisticScroll) {

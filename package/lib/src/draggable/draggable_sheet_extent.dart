@@ -5,56 +5,27 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_extent.dart';
 
 @internal
-class DraggableSheetExtentFactory extends SheetExtentFactory<
-    DraggableSheetExtentConfig, DraggableSheetExtent> {
-  const DraggableSheetExtentFactory();
-
-  @override
-  DraggableSheetExtent createSheetExtent({
-    required SheetContext context,
-    required DraggableSheetExtentConfig config,
-  }) {
-    return DraggableSheetExtent(context: context, config: config);
-  }
-}
-
-@internal
-class DraggableSheetExtentConfig extends SheetExtentConfig {
-  const DraggableSheetExtentConfig({
-    required this.initialExtent,
+class DraggableSheetExtent extends SheetExtent {
+  DraggableSheetExtent({
+    required super.context,
     required super.minExtent,
     required super.maxExtent,
+    required this.initialExtent,
     required super.physics,
-    required super.gestureTamperer,
+    super.gestureTamperer,
     super.debugLabel,
   });
 
+  /// {@template DraggableSheetExtent.initialExtent}
+  /// The initial extent of the sheet.
+  /// {@endtemplate}
   final Extent initialExtent;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is DraggableSheetExtentConfig &&
-        other.initialExtent == initialExtent &&
-        super == other;
-  }
-
-  @override
-  int get hashCode => Object.hash(initialExtent, super.hashCode);
-}
-
-@internal
-class DraggableSheetExtent extends SheetExtent<DraggableSheetExtentConfig> {
-  DraggableSheetExtent({
-    required super.context,
-    required super.config,
-  });
 
   @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
     if (metrics.maybePixels == null) {
-      setPixels(config.initialExtent.resolve(metrics.contentSize));
+      setPixels(initialExtent.resolve(metrics.contentSize));
     }
   }
 }

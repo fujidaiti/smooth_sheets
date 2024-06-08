@@ -111,16 +111,19 @@ abstract class NavigationSheetRoute<T> extends PageRoute<T> {
   }
 }
 
+typedef LocalExtentScopeBuilder = SheetExtentScope Function(
+  SheetExtentScopeKey key,
+  Widget child,
+);
+
 class NavigationSheetRouteContent extends StatelessWidget {
   const NavigationSheetRouteContent({
     super.key,
-    required this.factory,
-    required this.config,
+    required this.scopeBuilder,
     required this.child,
   });
 
-  final SheetExtentFactory factory;
-  final SheetExtentConfig config;
+  final LocalExtentScopeBuilder scopeBuilder;
   final Widget child;
 
   @override
@@ -129,16 +132,37 @@ class NavigationSheetRouteContent extends StatelessWidget {
     final parentRoute = ModalRoute.of(context)!;
     final globalExtent = SheetExtentScope.of<NavigationSheetExtent>(context);
     final localScopeKey = globalExtent.getLocalExtentScopeKey(parentRoute);
-
-    return SheetExtentScope(
-      key: localScopeKey,
-      isPrimary: false,
-      factory: factory,
-      config: config,
-      child: NavigationSheetRouteViewport(
-        child: SheetContentViewport(child: child),
-      ),
+    final routeViewport = NavigationSheetRouteViewport(
+      child: SheetContentViewport(child: child),
     );
+    final localScope = scopeBuilder(localScopeKey, routeViewport);
+
+    assert(() {
+      if (localScope.key != localScopeKey) {
+        throw FlutterError(
+          'The key of the $SheetExtentScope returned by the scopeBuilder '
+          'does not match the key of the $SheetExtentScopeKey obtained from '
+          'the global extent. This is likely a mistake.',
+        );
+      }
+      if (localScope.child != routeViewport) {
+        throw FlutterError(
+          'The child of the $SheetExtentScope returned by the scopeBuilder '
+          'does not match the child of the $NavigationSheetRouteViewport. '
+          'This is likely a mistake.',
+        );
+      }
+      if (localScope.controller != null) {
+        throw FlutterError(
+          'The controller of the $SheetExtentScope returned by the scopeBuilder '
+          'is not null. The controller should be null because it is managed by '
+          'the global extent.',
+        );
+      }
+      return true;
+    }());
+
+    return localScope;
   }
 
   bool _debugAssertDependencies(BuildContext context) {

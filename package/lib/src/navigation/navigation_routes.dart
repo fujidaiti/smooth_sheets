@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../draggable/draggable_sheet_extent.dart';
+import '../draggable/draggable_sheet_extent_scope.dart';
 import '../draggable/sheet_draggable.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
-import '../scrollable/scrollable_sheet_extent.dart';
+import '../scrollable/scrollable_sheet_extent_scope.dart';
 import 'navigation_route.dart';
 
 class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
@@ -33,15 +33,18 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     return NavigationSheetRouteContent(
-      factory: const ScrollableSheetExtentFactory(),
-      config: ScrollableSheetExtentConfig.withFallbacks(
-        debugLabel: debugLabel,
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        physics: physics ?? theme?.physics,
-        gestureTamperer: gestureTamper,
-      ),
+      scopeBuilder: (key, child) {
+        return ScrollableSheetExtentScope(
+          key: key,
+          isPrimary: false,
+          initialExtent: initialExtent,
+          minExtent: minExtent,
+          maxExtent: maxExtent,
+          physics: physics ?? theme?.physics ?? kDefaultSheetPhysics,
+          gestureTamperer: gestureTamper,
+          child: child,
+        );
+      },
       child: ScrollableSheetContent(child: child),
     );
   }
@@ -71,15 +74,19 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     return NavigationSheetRouteContent(
-      factory: const DraggableSheetExtentFactory(),
-      config: DraggableSheetExtentConfig(
-        debugLabel: debugLabel,
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        gestureTamperer: gestureTamper,
-        physics: physics,
-      ),
+      scopeBuilder: (key, child) {
+        return DraggableSheetExtentScope(
+          key: key,
+          isPrimary: false,
+          initialExtent: initialExtent,
+          minExtent: minExtent,
+          maxExtent: maxExtent,
+          physics: physics,
+          gestureTamperer: gestureTamper,
+          debugLabel: debugLabel,
+          child: child,
+        );
+      },
       child: SheetDraggable(child: child),
     );
   }

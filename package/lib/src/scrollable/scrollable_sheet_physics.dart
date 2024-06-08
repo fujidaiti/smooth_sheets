@@ -12,6 +12,13 @@ class ScrollableSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
     this.maxScrollSpeedToInterrupt = double.infinity,
   }) : assert(maxScrollSpeedToInterrupt >= 0);
 
+  factory ScrollableSheetPhysics.wrap(SheetPhysics physics) {
+    return switch (physics) {
+      final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
+      final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
+    };
+  }
+
   // TODO: Expose this from the ScrollableSheet's constructor
   final double maxScrollSpeedToInterrupt;
 
