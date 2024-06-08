@@ -102,6 +102,10 @@ class ProxySheetActivity extends NavigationSheetActivity {
     assert(_scopeKey.maybeCurrentExtent != null);
     final localExtent = _scopeKey.currentExtent;
     final localMetrics = localExtent.metrics;
+    owner.applyNewBoundaryConstraints(
+      localExtent.minExtent,
+      localExtent.maxExtent,
+    );
     if (localMetrics.maybeContentSize case final contentSize?) {
       owner.applyNewContentSize(contentSize);
     }
