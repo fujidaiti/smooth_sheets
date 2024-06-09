@@ -165,17 +165,6 @@ class NoTransition extends Transition {
   NoTransition({required this.currentRoute});
 
   final ModalRoute<dynamic> currentRoute;
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is NoTransition &&
-            runtimeType == other.runtimeType &&
-            currentRoute == other.currentRoute);
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, currentRoute);
 }
 
 class ForwardTransition extends Transition {
@@ -188,24 +177,6 @@ class ForwardTransition extends Transition {
   final ModalRoute<dynamic> originRoute;
   final ModalRoute<dynamic> destinationRoute;
   final Animation<double> animation;
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is ForwardTransition &&
-            runtimeType == other.runtimeType &&
-            originRoute == other.originRoute &&
-            destinationRoute == other.destinationRoute &&
-            animation == other.animation);
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        originRoute,
-        destinationRoute,
-        animation,
-      );
 }
 
 class BackwardTransition extends Transition {
@@ -218,24 +189,6 @@ class BackwardTransition extends Transition {
   final ModalRoute<dynamic> originRoute;
   final ModalRoute<dynamic> destinationRoute;
   final Animation<double> animation;
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is BackwardTransition &&
-            runtimeType == other.runtimeType &&
-            originRoute == other.originRoute &&
-            destinationRoute == other.destinationRoute &&
-            animation == other.animation);
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        originRoute,
-        destinationRoute,
-        animation,
-      );
 }
 
 class UserGestureTransition extends Transition {
@@ -248,22 +201,4 @@ class UserGestureTransition extends Transition {
   final ModalRoute<dynamic> currentRoute;
   final ModalRoute<dynamic> previousRoute;
   final Animation<double> animation;
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is UserGestureTransition &&
-            runtimeType == other.runtimeType &&
-            currentRoute == other.currentRoute &&
-            previousRoute == other.previousRoute &&
-            animation == other.animation);
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        currentRoute,
-        previousRoute,
-        animation,
-      );
 }
