@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_viewport.dart';
 
 @internal

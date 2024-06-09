@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_extent_scope.dart';
 import '../internal/transition_observer.dart';
 import 'navigation_sheet_activity.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_viewport.dart';
 import 'navigation_sheet.dart';
 import 'navigation_sheet_extent.dart';

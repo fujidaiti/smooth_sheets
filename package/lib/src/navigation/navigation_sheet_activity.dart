@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_activity.dart';
-import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_status.dart';
 import 'navigation_sheet_extent.dart';
 
