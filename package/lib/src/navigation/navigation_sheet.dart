@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 
 import '../foundation/keyboard_dismissible.dart';
 import '../foundation/sheet_controller.dart';
-import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
-import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
 import '../internal/transition_observer.dart';
 import 'navigation_sheet_extent.dart';
+import 'navigation_sheet_extent_scope.dart';
 import 'navigation_sheet_viewport.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
@@ -35,8 +35,7 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
 }
 
 class _NavigationSheetState extends State<NavigationSheet>
-    with TransitionAwareStateMixin
-    implements SheetExtentFactory<SheetExtentConfig, NavigationSheetExtent> {
+    with TransitionAwareStateMixin {
   final _scopeKey = SheetExtentScopeKey<NavigationSheetExtent>(
     debugLabel: kDebugMode ? 'NavigationSheet' : null,
   );
@@ -46,18 +45,6 @@ class _NavigationSheetState extends State<NavigationSheet>
     _scopeKey.maybeCurrentExtent?.handleRouteTransition(transition);
   }
 
-  @factory
-  @override
-  NavigationSheetExtent createSheetExtent({
-    required SheetContext context,
-    required SheetExtentConfig config,
-  }) {
-    return NavigationSheetExtent(
-      context: context,
-      config: config,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
@@ -65,19 +52,11 @@ class _NavigationSheetState extends State<NavigationSheet>
         widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
-    Widget result = SheetExtentScope(
+    Widget result = NavigationSheetExtentScope(
       key: _scopeKey,
       controller: widget.controller,
-      factory: this,
-      isPrimary: true,
-      config: SheetExtentConfig(
-        minExtent: const Extent.pixels(0),
-        maxExtent: const Extent.proportional(1),
-        // TODO: Use more appropriate physics.
-        physics: const ClampingSheetPhysics(),
-        gestureTamperer: gestureTamper,
-        debugLabel: kDebugMode ? 'NavigationSheet' : null,
-      ),
+      gestureTamperer: gestureTamper,
+      debugLabel: kDebugMode ? 'NavigationSheet' : null,
       child: NavigationSheetViewport(
         child: SheetContentViewport(child: widget.child),
       ),

@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 
 import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_extent.dart';
-import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../internal/double_utils.dart';
 import 'scrollable_sheet_activity.dart';
@@ -15,76 +14,25 @@ import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
 @internal
-class ScrollableSheetExtentFactory extends SheetExtentFactory<
-    ScrollableSheetExtentConfig, ScrollableSheetExtent> {
-  const ScrollableSheetExtentFactory();
-
-  @override
-  ScrollableSheetExtent createSheetExtent({
-    required SheetContext context,
-    required ScrollableSheetExtentConfig config,
-  }) {
-    return ScrollableSheetExtent(context: context, config: config);
-  }
-}
-
-@internal
-class ScrollableSheetExtentConfig extends SheetExtentConfig {
-  const ScrollableSheetExtentConfig({
+class ScrollableSheetExtent extends SheetExtent
+    implements SheetContentScrollPositionOwner {
+  ScrollableSheetExtent({
+    required super.context,
     required this.initialExtent,
     required super.minExtent,
     required super.maxExtent,
-    required super.gestureTamperer,
-    required ScrollableSheetPhysics physics,
+    required SheetPhysics physics,
+    super.gestureTamperer,
     super.debugLabel,
-  }) : super(physics: physics);
+  }) : super(physics: ScrollableSheetPhysics.wrap(physics));
 
-  factory ScrollableSheetExtentConfig.withFallbacks({
-    required Extent initialExtent,
-    required Extent minExtent,
-    required Extent maxExtent,
-    required SheetGestureTamperer? gestureTamperer,
-    SheetPhysics? physics,
-    String? debugLabel,
-  }) {
-    return ScrollableSheetExtentConfig(
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
-      gestureTamperer: gestureTamperer,
-      debugLabel: debugLabel,
-      physics: switch (physics) {
-        null => const ScrollableSheetPhysics(parent: kDefaultSheetPhysics),
-        final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
-        final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
-      },
-    );
-  }
-
+  /// {@template ScrollableSheetExtent.initialExtent}
+  /// The initial extent of the sheet.
+  /// {@endtemplate}
   final Extent initialExtent;
 
   @override
   ScrollableSheetPhysics get physics => super.physics as ScrollableSheetPhysics;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is ScrollableSheetExtentConfig &&
-        other.initialExtent == initialExtent &&
-        super == other;
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        initialExtent,
-        super.hashCode,
-      );
-}
-
-@internal
-class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
-    implements SheetContentScrollPositionOwner {
-  ScrollableSheetExtent({required super.context, required super.config});
 
   final _scrollPositions = HashSet<SheetContentScrollPosition>();
 
@@ -129,10 +77,15 @@ class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
   }
 
   @override
+  void updatePhysics(SheetPhysics physics) {
+    super.updatePhysics(ScrollableSheetPhysics.wrap(physics));
+  }
+
+  @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
     if (metrics.maybePixels == null) {
-      setPixels(config.initialExtent.resolve(metrics.contentSize));
+      setPixels(initialExtent.resolve(metrics.contentSize));
     }
   }
 
@@ -180,12 +133,12 @@ class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
       globalPositionY: details.globalPosition.dy,
       kind: details.kind,
     );
-    if (config.gestureTamperer case final tamperer?) {
+    if (gestureTamperer case final tamperer?) {
       startDetails = tamperer.tamperWithDragStart(startDetails);
     }
     final drag = currentDrag = SheetDragController(
       target: dragActivity,
-      gestureTamperer: config.gestureTamperer,
+      gestureTamperer: gestureTamperer,
       details: startDetails,
       onDragCanceled: dragCancelCallback,
       carriedVelocity: scrollPosition.physics
@@ -212,8 +165,7 @@ class ScrollableSheetExtent extends SheetExtent<ScrollableSheetExtentConfig>
   }) {
     assert(metrics.hasDimensions);
     if (scrollPosition.pixels.isApprox(scrollPosition.minScrollExtent)) {
-      final simulation =
-          config.physics.createBallisticSimulation(velocity, metrics);
+      final simulation = physics.createBallisticSimulation(velocity, metrics);
       if (simulation != null) {
         scrollPosition.goIdle(calledByOwner: true);
         goBallisticWith(simulation);

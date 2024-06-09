@@ -1,13 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../draggable/draggable_sheet_extent.dart';
+import '../draggable/draggable_sheet_extent_scope.dart';
 import '../draggable/sheet_draggable.dart';
 import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
 import '../scrollable/scrollable_sheet_extent.dart';
+import '../scrollable/scrollable_sheet_extent_scope.dart';
 import 'navigation_route.dart';
 
 class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
@@ -33,15 +37,18 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     return NavigationSheetRouteContent(
-      factory: const ScrollableSheetExtentFactory(),
-      config: ScrollableSheetExtentConfig.withFallbacks(
-        debugLabel: debugLabel,
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        physics: physics ?? theme?.physics,
-        gestureTamperer: gestureTamper,
-      ),
+      scopeBuilder: (key, child) {
+        return ScrollableSheetExtentScope(
+          key: key,
+          isPrimary: false,
+          initialExtent: initialExtent,
+          minExtent: minExtent,
+          maxExtent: maxExtent,
+          physics: physics ?? theme?.physics ?? kDefaultSheetPhysics,
+          gestureTamperer: gestureTamper,
+          child: child,
+        );
+      },
       child: ScrollableSheetContent(child: child),
     );
   }
@@ -71,21 +78,26 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     return NavigationSheetRouteContent(
-      factory: const DraggableSheetExtentFactory(),
-      config: DraggableSheetExtentConfig(
-        debugLabel: debugLabel,
-        initialExtent: initialExtent,
-        minExtent: minExtent,
-        maxExtent: maxExtent,
-        gestureTamperer: gestureTamper,
-        physics: physics,
-      ),
+      scopeBuilder: (key, child) {
+        return DraggableSheetExtentScope(
+          key: key,
+          isPrimary: false,
+          initialExtent: initialExtent,
+          minExtent: minExtent,
+          maxExtent: maxExtent,
+          physics: physics,
+          gestureTamperer: gestureTamper,
+          debugLabel: debugLabel,
+          child: child,
+        );
+      },
       child: SheetDraggable(child: child),
     );
   }
 }
 
-class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T> {
+class ScrollableNavigationSheetRoute<T>
+    extends NavigationSheetRoute<T, ScrollableSheetExtent> {
   ScrollableNavigationSheetRoute({
     super.settings,
     this.maintainState = true,
@@ -115,6 +127,13 @@ class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T> {
   final WidgetBuilder builder;
 
   @override
+  SheetExtentScopeKey<ScrollableSheetExtent> createScopeKey() {
+    return SheetExtentScopeKey<ScrollableSheetExtent>(
+      debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
+    );
+  }
+
+  @override
   Widget buildPage(
     BuildContext context,
     Animation<double> animation,
@@ -131,7 +150,8 @@ class ScrollableNavigationSheetRoute<T> extends NavigationSheetRoute<T> {
   }
 }
 
-class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T> {
+class DraggableNavigationSheetRoute<T>
+    extends NavigationSheetRoute<T, DraggableSheetExtent> {
   DraggableNavigationSheetRoute({
     super.settings,
     this.maintainState = true,
@@ -159,6 +179,13 @@ class DraggableNavigationSheetRoute<T> extends NavigationSheetRoute<T> {
   final RouteTransitionsBuilder? transitionsBuilder;
 
   final WidgetBuilder builder;
+
+  @override
+  SheetExtentScopeKey<DraggableSheetExtent> createScopeKey() {
+    return SheetExtentScopeKey<DraggableSheetExtent>(
+      debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
+    );
+  }
 
   @override
   Widget buildPage(
@@ -216,7 +243,7 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
 }
 
 class _PageBasedScrollableNavigationSheetRoute<T>
-    extends NavigationSheetRoute<T> {
+    extends NavigationSheetRoute<T, ScrollableSheetExtent> {
   _PageBasedScrollableNavigationSheetRoute({
     required ScrollableNavigationSheetPage<T> page,
   }) : super(settings: page);
@@ -232,6 +259,13 @@ class _PageBasedScrollableNavigationSheetRoute<T>
 
   @override
   RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
+
+  @override
+  SheetExtentScopeKey<ScrollableSheetExtent> createScopeKey() {
+    return SheetExtentScopeKey<ScrollableSheetExtent>(
+      debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
+    );
+  }
 
   @override
   Widget buildPage(
@@ -289,7 +323,7 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
 }
 
 class _PageBasedDraggableNavigationSheetRoute<T>
-    extends NavigationSheetRoute<T> {
+    extends NavigationSheetRoute<T, DraggableSheetExtent> {
   _PageBasedDraggableNavigationSheetRoute({
     required DraggableNavigationSheetPage<T> page,
   }) : super(settings: page);
@@ -305,6 +339,13 @@ class _PageBasedDraggableNavigationSheetRoute<T>
 
   @override
   RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
+
+  @override
+  SheetExtentScopeKey<DraggableSheetExtent> createScopeKey() {
+    return SheetExtentScopeKey<DraggableSheetExtent>(
+      debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
+    );
+  }
 
   @override
   Widget buildPage(
