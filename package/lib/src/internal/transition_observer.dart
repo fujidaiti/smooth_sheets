@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 class TransitionObserver extends NavigatorObserver {
@@ -165,6 +166,10 @@ class NoTransition extends Transition {
   NoTransition({required this.currentRoute});
 
   final ModalRoute<dynamic> currentRoute;
+
+  @override
+  String toString() =>
+      '$NoTransition${(currentRoute: describeIdentity(currentRoute))}';
 }
 
 class ForwardTransition extends Transition {
@@ -177,6 +182,12 @@ class ForwardTransition extends Transition {
   final ModalRoute<dynamic> originRoute;
   final ModalRoute<dynamic> destinationRoute;
   final Animation<double> animation;
+
+  @override
+  String toString() => '$ForwardTransition${(
+        originRoute: describeIdentity(originRoute),
+        destinationRoute: describeIdentity(destinationRoute),
+      )}';
 }
 
 class BackwardTransition extends Transition {
@@ -189,6 +200,12 @@ class BackwardTransition extends Transition {
   final ModalRoute<dynamic> originRoute;
   final ModalRoute<dynamic> destinationRoute;
   final Animation<double> animation;
+
+  @override
+  String toString() => '$BackwardTransition${(
+        originRoute: describeIdentity(originRoute),
+        destinationRoute: describeIdentity(destinationRoute),
+      )}';
 }
 
 class UserGestureTransition extends Transition {
@@ -201,4 +218,10 @@ class UserGestureTransition extends Transition {
   final ModalRoute<dynamic> currentRoute;
   final ModalRoute<dynamic> previousRoute;
   final Animation<double> animation;
+
+  @override
+  String toString() => '$UserGestureTransition${(
+        currentRoute: describeIdentity(currentRoute),
+        previousRoute: describeIdentity(previousRoute),
+      )}';
 }

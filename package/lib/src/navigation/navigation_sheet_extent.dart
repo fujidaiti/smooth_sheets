@@ -183,9 +183,9 @@ class NavigationSheetExtent extends SheetExtent {
           case (final transition, final activity):
             throw FlutterError(
               'There is an inconsistency between the current transition state '
-              'and the current activity type.\n'
+              'and the current sheet activity type.\n'
               '  Transition: $transition\n'
-              '  Activity: ${describeIdentity(activity)}\n',
+              '  Activity: ${describeIdentity(activity)}',
             );
         }
       }(),
