@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.2 Jun 9, 2024
+
+- Fix: Attaching SheetController to NavigationSheet causes "Null check operator used on a null value" (#151)
+- Fix: SheetController attached to NavigationSheet always emits minPixels = 0.0 (#163)
+
 ## 0.7.1 Jun 1, 2024
 
 - Fix: Unwanted bouncing effect when opening keyboard on NavigationSheet (#153)
