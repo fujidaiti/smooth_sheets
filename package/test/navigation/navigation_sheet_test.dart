@@ -142,7 +142,6 @@ void main() {
             'First': () => _TestDraggablePageWidget.createRoute(
                   key: const Key('First'),
                   label: 'First',
-                  nextRoute: 'Second',
                   height: 300,
                   minExtent: const Extent.pixels(0),
                   // Disable the snapping effect.
