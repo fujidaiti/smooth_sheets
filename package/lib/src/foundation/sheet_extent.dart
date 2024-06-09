@@ -862,6 +862,7 @@ abstract class SheetExtentScope extends StatefulWidget {
   /// {@macro SheetExtent.gestureTamperer}
   final SheetGestureTamperer? gestureTamperer;
 
+  // TODO: Remove this. Specifying null to `controller` is sufficient.
   final bool isPrimary;
 
   /// The widget below this widget in the tree.
