@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 class TransitionObserver extends NavigatorObserver {
@@ -167,15 +168,8 @@ class NoTransition extends Transition {
   final ModalRoute<dynamic> currentRoute;
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is NoTransition &&
-            runtimeType == other.runtimeType &&
-            currentRoute == other.currentRoute);
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, currentRoute);
+  String toString() =>
+      '$NoTransition${(currentRoute: describeIdentity(currentRoute))}';
 }
 
 class ForwardTransition extends Transition {
@@ -190,22 +184,10 @@ class ForwardTransition extends Transition {
   final Animation<double> animation;
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is ForwardTransition &&
-            runtimeType == other.runtimeType &&
-            originRoute == other.originRoute &&
-            destinationRoute == other.destinationRoute &&
-            animation == other.animation);
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        originRoute,
-        destinationRoute,
-        animation,
-      );
+  String toString() => '$ForwardTransition${(
+        originRoute: describeIdentity(originRoute),
+        destinationRoute: describeIdentity(destinationRoute),
+      )}';
 }
 
 class BackwardTransition extends Transition {
@@ -220,22 +202,10 @@ class BackwardTransition extends Transition {
   final Animation<double> animation;
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is BackwardTransition &&
-            runtimeType == other.runtimeType &&
-            originRoute == other.originRoute &&
-            destinationRoute == other.destinationRoute &&
-            animation == other.animation);
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        originRoute,
-        destinationRoute,
-        animation,
-      );
+  String toString() => '$BackwardTransition${(
+        originRoute: describeIdentity(originRoute),
+        destinationRoute: describeIdentity(destinationRoute),
+      )}';
 }
 
 class UserGestureTransition extends Transition {
@@ -250,20 +220,8 @@ class UserGestureTransition extends Transition {
   final Animation<double> animation;
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is UserGestureTransition &&
-            runtimeType == other.runtimeType &&
-            currentRoute == other.currentRoute &&
-            previousRoute == other.previousRoute &&
-            animation == other.animation);
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        currentRoute,
-        previousRoute,
-        animation,
-      );
+  String toString() => '$UserGestureTransition${(
+        currentRoute: describeIdentity(currentRoute),
+        previousRoute: describeIdentity(previousRoute),
+      )}';
 }

@@ -64,6 +64,16 @@ abstract class NavigationSheetRoute<T, E extends SheetExtent>
   RouteTransitionsBuilder? get transitionsBuilder;
 
   @override
+  bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
+    return previousRoute is NavigationSheetRoute;
+  }
+
+  @override
+  bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
+    return nextRoute is NavigationSheetRoute;
+  }
+
+  @override
   Widget buildTransitions(
     BuildContext context,
     Animation<double> animation,

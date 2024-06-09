@@ -9,6 +9,7 @@ class _TestWidget extends StatelessWidget {
     required this.routes,
     this.onTapBackgroundText,
     this.sheetController,
+    this.useMaterialApp = false,
   });
 
   final String initialRoute;
@@ -16,6 +17,7 @@ class _TestWidget extends StatelessWidget {
   final VoidCallback? onTapBackgroundText;
   final SheetController? sheetController;
   final NavigationSheetTransitionObserver sheetTransitionObserver;
+  final bool useMaterialApp;
 
   @override
   Widget build(BuildContext context) {
@@ -32,21 +34,26 @@ class _TestWidget extends StatelessWidget {
       ),
     );
 
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: MediaQuery(
-        data: const MediaQueryData(),
-        child: Stack(
-          children: [
-            TextButton(
-              onPressed: onTapBackgroundText,
-              child: const Text('Background text'),
-            ),
-            navigationSheet,
-          ],
+    final content = Stack(
+      children: [
+        TextButton(
+          onPressed: onTapBackgroundText,
+          child: const Text('Background text'),
         ),
-      ),
+        navigationSheet,
+      ],
     );
+
+    return switch (useMaterialApp) {
+      true => MaterialApp(home: content),
+      false => Directionality(
+          textDirection: TextDirection.ltr,
+          child: MediaQuery(
+            data: const MediaQueryData(),
+            child: content,
+          ),
+        ),
+    };
   }
 }
 
@@ -234,6 +241,74 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(lastBoundaryValues, equals((200, 500)));
+    },
+  );
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/139
+  testWidgets(
+    'Works with DropdownButton without crashing',
+    (tester) async {
+      String? selectedOption = 'Option 1';
+      final routeWithDropdownButton = DraggableNavigationSheetRoute<dynamic>(
+        builder: (context) {
+          return Scaffold(
+            body: Center(
+              child: StatefulBuilder(
+                builder: (_, setState) {
+                  return DropdownButton(
+                    value: selectedOption,
+                    menuMaxHeight: 150,
+                    // Ensure all the items are visible at once.
+                    itemHeight: 50,
+                    onChanged: (newValue) =>
+                        setState(() => selectedOption = newValue),
+                    items: [
+                      for (final option in const [
+                        'Option 1',
+                        'Option 2',
+                        'Option 3',
+                      ])
+                        DropdownMenuItem(
+                          value: option,
+                          child: Text(option),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      );
+
+      await tester.pumpWidget(
+        _TestWidget(
+          transitionObserver,
+          initialRoute: 'first',
+          useMaterialApp: true,
+          routes: {'first': () => routeWithDropdownButton},
+        ),
+      );
+
+      // 'Option 1' is selected at first.
+      expect(find.text('Option 1'), findsOneWidget);
+
+      // Tapping 'Option 1' should display a popup menu.
+      await tester.tap(find.text('Option 1'));
+      await tester.pumpAndSettle();
+      // There are two 'Option 1' texts at this point:
+      // one in the dropdown button and the other in the popup menu.
+      expect(find.text('Option 1'), findsNWidgets(2));
+      expect(find.text('Option 2'), findsOneWidget);
+      expect(find.text('Option 3'), findsOneWidget);
+
+      // Selecting 'Option 2' should close the popup menu,
+      // and 'Option 2' should be displayed in the dropdown button.
+      await tester.tap(find.text('Option 2'));
+      await tester.pumpAndSettle();
+      expect(find.text('Option 1'), findsNothing);
+      expect(find.text('Option 2'), findsOneWidget);
+      expect(find.text('Option 3'), findsNothing);
     },
   );
 }

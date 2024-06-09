@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.3 Jun 9, 2024
+
+- Fix: DropdownButton doesn't work in NavigationSheet (#139)
+
 ## 0.7.2 Jun 9, 2024
 
 - Fix: Attaching SheetController to NavigationSheet causes "Null check operator used on a null value" (#151)
