@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
@@ -72,6 +73,7 @@ class NavigationSheetExtent extends SheetExtent {
         goIdle();
     }
 
+    assert(_debugAssertRouteType());
     assert(_debugAssertActivityTypeConsistency());
   }
 
@@ -123,6 +125,25 @@ class NavigationSheetExtent extends SheetExtent {
     if (activity is! NavigationSheetActivity) {
       super.dispatchOverflowNotification(overflow);
     }
+  }
+
+  bool _debugAssertRouteType() {
+    assert(
+      () {
+        final lastTransition = _lastReportedTransition;
+        if (lastTransition is NoTransition &&
+            lastTransition.currentRoute.isFirst &&
+            lastTransition.currentRoute is! NavigationSheetRoute) {
+          throw FlutterError(
+            'The first route in the navigator enclosed by a NavigationSheet '
+            'must be a NavigationSheetRoute, but actually it is a '
+            '${describeIdentity(lastTransition.currentRoute)}',
+          );
+        }
+        return true;
+      }(),
+    );
+    return true;
   }
 
   bool _debugAssertActivityTypeConsistency() {
