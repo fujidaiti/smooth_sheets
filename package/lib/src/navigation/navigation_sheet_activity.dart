@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_activity.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_status.dart';
+import 'navigation_route.dart';
 import 'navigation_sheet_extent.dart';
 
 @internal
@@ -21,8 +21,8 @@ class TransitionSheetActivity extends NavigationSheetActivity {
     required this.animationCurve,
   });
 
-  final Route<dynamic> currentRoute;
-  final Route<dynamic> nextRoute;
+  final NavigationSheetRoute currentRoute;
+  final NavigationSheetRoute nextRoute;
   final Animation<double> animation;
   final Curve animationCurve;
   late final Animation<double> _curvedAnimation;
@@ -46,16 +46,10 @@ class TransitionSheetActivity extends NavigationSheetActivity {
 
   void _onAnimationTick() {
     final fraction = _curvedAnimation.value;
-    final startPixels = owner
-        .getLocalExtentScopeKey(currentRoute)
-        .maybeCurrentExtent
-        ?.metrics
-        .maybePixels;
-    final endPixels = owner
-        .getLocalExtentScopeKey(nextRoute)
-        .maybeCurrentExtent
-        ?.metrics
-        .maybePixels;
+    final startPixels =
+        currentRoute.scopeKey.maybeCurrentExtent?.metrics.maybePixels;
+    final endPixels =
+        nextRoute.scopeKey.maybeCurrentExtent?.metrics.maybePixels;
 
     if (startPixels != null && endPixels != null) {
       owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
@@ -67,40 +61,36 @@ class TransitionSheetActivity extends NavigationSheetActivity {
 class ProxySheetActivity extends NavigationSheetActivity {
   ProxySheetActivity({required this.route});
 
-  final Route<dynamic> route;
-
-  SheetExtentScopeKey get _scopeKey => owner.getLocalExtentScopeKey(route);
+  final NavigationSheetRoute route;
 
   @override
   SheetStatus get status =>
-      _scopeKey.maybeCurrentExtent?.status ?? SheetStatus.stable;
+      route.scopeKey.maybeCurrentExtent?.status ?? SheetStatus.stable;
 
   @override
   void init(NavigationSheetExtent owner) {
     super.init(owner);
-    _scopeKey.addOnCreatedListener(_init);
+    route.scopeKey.addOnCreatedListener(_onLocalExtentCreated);
   }
 
-  void _init() {
+  void _onLocalExtentCreated() {
     if (mounted) {
-      _scopeKey.currentExtent.addListener(_syncMetrics);
+      route.scopeKey.currentExtent.addListener(_syncMetrics);
       _syncMetrics(notify: false);
     }
   }
 
   @override
   void dispose() {
-    if (owner.containsLocalExtentScopeKey(route)) {
-      _scopeKey
-        ..maybeCurrentExtent?.removeListener(_syncMetrics)
-        ..removeOnCreatedListener(_init);
-    }
+    route.scopeKey
+      ..maybeCurrentExtent?.removeListener(_syncMetrics)
+      ..removeOnCreatedListener(_onLocalExtentCreated);
     super.dispose();
   }
 
   void _syncMetrics({bool notify = true}) {
-    assert(_scopeKey.maybeCurrentExtent != null);
-    final localExtent = _scopeKey.currentExtent;
+    assert(route.scopeKey.maybeCurrentExtent != null);
+    final localExtent = route.scopeKey.currentExtent;
     final localMetrics = localExtent.metrics;
     owner.applyNewBoundaryConstraints(
       localExtent.minExtent,

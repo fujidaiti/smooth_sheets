@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_extent.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../internal/transition_observer.dart';
+import 'navigation_route.dart';
 import 'navigation_sheet_activity.dart';
 
 @internal
@@ -17,85 +17,54 @@ class NavigationSheetExtent extends SheetExtent {
     super.debugLabel,
   });
 
-  final _localExtentScopeKeyRegistry = <Route<dynamic>, SheetExtentScopeKey>{};
   Transition? _lastReportedTransition;
-
-  SheetExtentScopeKey createLocalExtentScopeKey(
-    Route<dynamic> route,
-    String? debugLabel,
-  ) {
-    assert(!_localExtentScopeKeyRegistry.containsKey(route));
-    final key = SheetExtentScopeKey(debugLabel: debugLabel);
-    _localExtentScopeKeyRegistry[route] = key;
-    return key;
-  }
-
-  void disposeLocalExtentScopeKey(Route<dynamic> route) {
-    assert(_localExtentScopeKeyRegistry.containsKey(route));
-    final key = _localExtentScopeKeyRegistry.remove(route);
-    key!.removeAllOnCreatedListeners();
-  }
-
-  SheetExtentScopeKey getLocalExtentScopeKey(Route<dynamic> route) {
-    assert(_localExtentScopeKeyRegistry.containsKey(route));
-    return _localExtentScopeKeyRegistry[route]!;
-  }
-
-  bool containsLocalExtentScopeKey(Route<dynamic> route) {
-    return _localExtentScopeKeyRegistry.containsKey(route);
-  }
 
   @override
   void takeOver(SheetExtent other) {
     super.takeOver(other);
-    if (other is NavigationSheetExtent) {
-      assert(_localExtentScopeKeyRegistry.isEmpty);
-      _lastReportedTransition = other._lastReportedTransition;
-      _localExtentScopeKeyRegistry.addAll(other._localExtentScopeKeyRegistry);
-      // Prevent the scope keys in `other._localExtentScopeKeyRegistry` from
-      // being discarded when `other` is disposed.
-      other._localExtentScopeKeyRegistry.clear();
-      assert(_debugAssertActivityTypeConsistency());
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    for (final scopeKey in _localExtentScopeKeyRegistry.values) {
-      scopeKey.removeAllOnCreatedListeners();
-    }
-    _localExtentScopeKeyRegistry.clear();
+    assert(_debugAssertActivityTypeConsistency());
   }
 
   void handleRouteTransition(Transition? transition) {
     _lastReportedTransition = transition;
     // TODO: Provide a way to customize animation curves.
     switch (transition) {
-      case NoTransition(:final currentRoute):
+      case NoTransition(:final NavigationSheetRoute currentRoute):
         beginActivity(ProxySheetActivity(route: currentRoute));
 
-      case final ForwardTransition tr:
+      case ForwardTransition(
+          :final NavigationSheetRoute originRoute,
+          :final NavigationSheetRoute destinationRoute,
+          :final animation,
+        ):
         beginActivity(TransitionSheetActivity(
-          currentRoute: tr.originRoute,
-          nextRoute: tr.destinationRoute,
-          animation: tr.animation,
+          currentRoute: originRoute,
+          nextRoute: destinationRoute,
+          animation: animation,
           animationCurve: Curves.easeInOutCubic,
         ));
 
-      case final BackwardTransition tr:
+      case BackwardTransition(
+          :final NavigationSheetRoute originRoute,
+          :final NavigationSheetRoute destinationRoute,
+          :final animation,
+        ):
         beginActivity(TransitionSheetActivity(
-          currentRoute: tr.originRoute,
-          nextRoute: tr.destinationRoute,
-          animation: tr.animation,
+          currentRoute: originRoute,
+          nextRoute: destinationRoute,
+          animation: animation,
           animationCurve: Curves.easeInOutCubic,
         ));
 
-      case final UserGestureTransition tr:
+      case UserGestureTransition(
+          :final NavigationSheetRoute currentRoute,
+          :final NavigationSheetRoute previousRoute,
+          :final animation,
+        ):
         beginActivity(TransitionSheetActivity(
-          currentRoute: tr.currentRoute,
-          nextRoute: tr.previousRoute,
-          animation: tr.animation,
+          currentRoute: currentRoute,
+          nextRoute: previousRoute,
+          animation: animation,
           animationCurve: Curves.linear,
         ));
 
@@ -109,7 +78,7 @@ class NavigationSheetExtent extends SheetExtent {
   @override
   void goIdle() {
     switch (_lastReportedTransition) {
-      case NoTransition(:final currentRoute):
+      case NoTransition(:final NavigationSheetRoute currentRoute):
         beginActivity(ProxySheetActivity(route: currentRoute));
       case _:
         super.goIdle();

@@ -33,15 +33,17 @@ class SheetExtentScopeKey<T extends SheetExtent>
     _onCreatedListeners.remove(listener);
   }
 
-  void removeAllOnCreatedListeners() {
-    _onCreatedListeners.clear();
-  }
-
   void _notifySheetExtentCreation() {
     for (final listener in _onCreatedListeners) {
       listener();
     }
   }
+
+  @mustCallSuper
+  void dispose() {
+    _onCreatedListeners.clear();
+  }
+
 }
 
 /// A widget that creates a [SheetExtent], manages its lifecycle,
