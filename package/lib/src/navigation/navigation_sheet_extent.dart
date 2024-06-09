@@ -150,14 +150,43 @@ class NavigationSheetExtent extends SheetExtent {
     assert(
       () {
         switch ((_lastReportedTransition, activity)) {
-          case (NoTransition(), ProxySheetActivity()):
-          case (ForwardTransition(), TransitionSheetActivity()):
-          case (BackwardTransition(), TransitionSheetActivity()):
-          case (UserGestureTransition(), TransitionSheetActivity()):
-          case (null, _):
+          // Allowed patterns.
+          case (
+              NoTransition(currentRoute: NavigationSheetRoute()),
+              ProxySheetActivity(),
+            ):
+          case (
+              ForwardTransition(
+                originRoute: NavigationSheetRoute(),
+                destinationRoute: NavigationSheetRoute(),
+              ),
+              TransitionSheetActivity(),
+            ):
+          case (
+              BackwardTransition(
+                originRoute: NavigationSheetRoute(),
+                destinationRoute: NavigationSheetRoute(),
+              ),
+              TransitionSheetActivity(),
+            ):
+          case (
+              UserGestureTransition(
+                currentRoute: NavigationSheetRoute(),
+                previousRoute: NavigationSheetRoute(),
+              ),
+              TransitionSheetActivity(),
+            ):
+          case (_, final activity) when activity is! NavigationSheetActivity:
             return true;
-          case _:
-            return false;
+
+          // Other patterns are not allowed.
+          case (final transition, final activity):
+            throw FlutterError(
+              'There is an inconsistency between the current transition state '
+              'and the current activity type.\n'
+              '  Transition: $transition\n'
+              '  Activity: ${describeIdentity(activity)}\n',
+            );
         }
       }(),
     );
