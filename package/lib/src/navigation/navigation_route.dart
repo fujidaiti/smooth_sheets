@@ -137,34 +137,39 @@ class NavigationSheetRouteContent extends StatelessWidget {
       child: SheetContentViewport(child: child),
     );
     final localScope = scopeBuilder(parentRoute.scopeKey, routeViewport);
+    assert(_debugAssertScope(localScope, parentRoute.scopeKey, routeViewport));
+    return localScope;
+  }
 
-    // TODO: Refine the assertion messages.
+  bool _debugAssertScope(
+    SheetExtentScope scope,
+    Key expectedKey,
+    Widget expectedChild,
+  ) {
     assert(() {
-      if (localScope.key != parentRoute.scopeKey) {
+      if (scope.key != expectedKey) {
         throw FlutterError(
-          'The key of the $SheetExtentScope returned by the scopeBuilder '
-          'does not match the key of the $SheetExtentScopeKey obtained from '
-          'the global extent. This is likely a mistake.',
+          'The key of the $SheetExtentScope returned by `scopeBuilder` does '
+          'not match the key passed to the builder. This is likely a mistake.',
         );
       }
-      if (localScope.child != routeViewport) {
+      if (scope.child != expectedChild) {
         throw FlutterError(
-          'The child of the $SheetExtentScope returned by the scopeBuilder '
-          'does not match the child of the $NavigationSheetRouteViewport. '
+          'The child of the $SheetExtentScope returned by `scopeBuilder` does '
+          'not match the child passed to the builder. '
           'This is likely a mistake.',
         );
       }
-      if (localScope.controller != null) {
+      if (scope.controller != null) {
         throw FlutterError(
-          'The controller of the $SheetExtentScope returned by the scopeBuilder '
-          'is not null. The controller should be null because it is managed by '
-          'the global extent.',
+          'The $SheetExtentScope returned by the `scopeBuilder` should not '
+          'have a controller. Since the controller is managed by the global '
+          ' scope, this is likely a mistake.',
         );
       }
       return true;
     }());
-
-    return localScope;
+    return true;
   }
 
   bool _debugAssertDependencies(BuildContext context) {
