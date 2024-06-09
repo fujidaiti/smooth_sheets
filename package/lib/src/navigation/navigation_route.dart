@@ -114,7 +114,7 @@ abstract class NavigationSheetRoute<T, E extends SheetExtent>
   }
 }
 
-typedef LocalExtentScopeBuilder = SheetExtentScope Function(
+typedef ExtentScopeBuilder = SheetExtentScope Function(
   SheetExtentScopeKey key,
   Widget child,
 );
@@ -126,7 +126,7 @@ class NavigationSheetRouteContent extends StatelessWidget {
     required this.child,
   });
 
-  final LocalExtentScopeBuilder scopeBuilder;
+  final ExtentScopeBuilder scopeBuilder;
   final Widget child;
 
   @override
