@@ -43,7 +43,6 @@ class SheetExtentScopeKey<T extends SheetExtent>
   void dispose() {
     _onCreatedListeners.clear();
   }
-
 }
 
 /// A widget that creates a [SheetExtent], manages its lifecycle,
