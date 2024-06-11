@@ -47,6 +47,13 @@
       "cwd": "./cookbook"
     },
     {
+      "name": "Declarative Navigation Sheet (iOS-style)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart",
+      "cwd": "./cookbook"
+    },
+    {
       "name": "Declarative Navigation Sheet",
       "request": "launch",
       "type": "dart",
