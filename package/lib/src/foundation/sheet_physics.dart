@@ -239,8 +239,8 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
 /// it will snap to [SheetMetrics.maxPixels].
 ///
 /// Using this behavior is functionally identical to using [SnapToNearest]
-/// with the snap positions of [SheetExtentConfig.minExtent] and
-/// [SheetExtentConfig.maxExtent], but more simplified and efficient.
+/// with the snap positions of [SheetExtent.minExtent] and
+/// [SheetExtent.maxExtent], but more simplified and efficient.
 class SnapToNearestEdge with _SnapToNearestMixin {
   /// Creates a [SnappingSheetBehavior] that snaps to either
   /// [SheetMetrics.minPixels] or [SheetMetrics.maxPixels].
@@ -378,15 +378,100 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   }
 }
 
+/// An object that determines the behavior of a sheet when it is out of bounds.
+///
+/// See also:
+/// - [FixedStretchingBehavior], which stretches the sheet by a fixed amount.
+/// - [DirectionAwareStretchingBehavior], which stretches the sheet based on the
+///   direction of a drag.
+abstract class StretchingBehavior {
+  /// Returns the number of pixels the sheet can stretch beyond the content
+  /// bounds.
+  ///
+  /// [StretchingSheetPhysics.applyPhysicsToOffset] calls this method to
+  /// determine how many pixels the sheet can stretch beyond the content bounds.
+  /// The returned value must be non-negative.
+  ///
+  /// The [offset] is the amount of pixels that will be applied to the sheet,
+  /// and [metrics] is the current metrics of the sheet.
+  double computeStretchablePixels(double offset, SheetMetrics metrics);
+}
+
+/// A [StretchingBehavior] that stretches the sheet by a fixed amount.
+///
+/// The following is an example of a [StretchingSheetPhysics] that allows the
+/// sheet to stretch by 12% of the content size.
+/// ```dart
+/// const physics = StretchingSheetPhysics(
+///   behavior: FixedStretchingBehavior(Extent.proportional(0.12)),
+/// );
+/// ```
+class FixedStretchingBehavior implements StretchingBehavior {
+  /// Creates a [StretchingBehavior] that stretches the sheet by a fixed amount.
+  const FixedStretchingBehavior(this.range);
+
+  /// How much the sheet can stretch beyond the content bounds.
+  final Extent range;
+
+  @override
+  double computeStretchablePixels(double offset, SheetMetrics metrics) {
+    return range.resolve(metrics.contentSize);
+  }
+}
+
+/// A [StretchingBehavior] that stretches the sheet by a fixed amount.
+///
+/// Different stretching ranges can be specified for upward and downward
+/// directions. For example, the following [StretchingSheetPhysics] allows the
+/// sheet to stretch by 12% of the content size when dragged downward, and by
+/// 8 pixels when dragged upward.
+///
+/// ```dart
+/// const physics = StretchingSheetPhysics(
+///   behavior: DirectionAwareStretchingBehavior(
+///     upward: Extent.pixels(8),
+///     downward: Extent.proportional(0.12),
+///   ),
+/// );
+/// ```
+class DirectionAwareStretchingBehavior implements StretchingBehavior {
+  /// Creates a [StretchingBehavior] that stretches the sheet by a fixed amount
+  /// based on the direction of a drag.
+  const DirectionAwareStretchingBehavior({
+    this.upward = const Extent.pixels(0),
+    this.downward = const Extent.pixels(0),
+  });
+
+  /// How much the sheet can stretch beyond the content bounds when dragged
+  /// upward.
+  final Extent upward;
+
+  /// How much the sheet can stretch beyond the content bounds when dragged
+  /// downward.
+  final Extent downward;
+
+  @override
+  double computeStretchablePixels(double offset, SheetMetrics metrics) {
+    return switch (offset) {
+      > 0.0 => upward.resolve(metrics.contentSize),
+      < 0.0 => downward.resolve(metrics.contentSize),
+      _ => 0.0,
+    };
+  }
+}
+
 class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const StretchingSheetPhysics({
     super.parent,
-    this.stretchingRange = const Extent.proportional(0.12),
+    this.behavior = const FixedStretchingBehavior(Extent.proportional(0.12)),
     this.frictionCurve = Curves.easeOutSine,
     this.spring = kDefaultSheetSpring,
   });
 
-  final Extent stretchingRange;
+  /// The behavior that determines how the sheet stretches when it is
+  /// out of the content bounds.
+  final StretchingBehavior behavior;
+
   final Curve frictionCurve;
 
   @override
@@ -397,22 +482,22 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
     SheetPhysics? parent,
     SpringDescription? spring,
     Extent? stretchingRange,
+    StretchingBehavior? behavior,
     Curve? frictionCurve,
   }) {
     return StretchingSheetPhysics(
       parent: parent ?? this.parent,
       spring: spring ?? this.spring,
-      stretchingRange: stretchingRange ?? this.stretchingRange,
+      behavior: behavior ?? this.behavior,
       frictionCurve: frictionCurve ?? this.frictionCurve,
     );
   }
 
   @override
   double computeOverflow(double offset, SheetMetrics metrics) {
-    final stretchingRange = this.stretchingRange.resolve(metrics.contentSize);
-
+    final stretchingRange = behavior.computeStretchablePixels(offset, metrics);
     if (stretchingRange != 0) {
-      return 0;
+      return const ClampingSheetPhysics().applyPhysicsToOffset(offset, metrics);
     }
 
     return super.computeOverflow(offset, metrics);
@@ -420,6 +505,11 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   double applyPhysicsToOffset(double offset, SheetMetrics metrics) {
+    final stretchingRange = behavior.computeStretchablePixels(offset, metrics);
+    if (stretchingRange == 0) {
+      return const ClampingSheetPhysics().applyPhysicsToOffset(offset, metrics);
+    }
+
     final currentPixels = metrics.pixels;
     final minPixels = metrics.minPixels;
     final maxPixels = metrics.maxPixels;
@@ -430,12 +520,6 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       // The friction is not applied if the current 'pixels' is within the range
       // or the motion direction is towards the range.
       return offset;
-    }
-
-    final stretchingRange = this.stretchingRange.resolve(metrics.contentSize);
-
-    if (stretchingRange.isApprox(0)) {
-      return 0;
     }
 
     // We divide the delta into smaller fragments

@@ -35,6 +35,8 @@ export 'sheet_notification.dart'
 export 'sheet_physics.dart'
     show
         ClampingSheetPhysics,
+        DirectionAwareStretchingBehavior,
+        FixedStretchingBehavior,
         InterpolationSimulation,
         SheetPhysics,
         SheetPhysicsMixin,
@@ -42,6 +44,7 @@ export 'sheet_physics.dart'
         SnapToNearestEdge,
         SnappingSheetBehavior,
         SnappingSheetPhysics,
+        StretchingBehavior,
         StretchingSheetPhysics,
         kDefaultSheetPhysics,
         kDefaultSheetSpring;

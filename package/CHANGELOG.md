@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.x
+
+This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.8.x.md) for more details.
+
+- Make stretching behavior of StretchingSheetPhysics more customizable (#171)
+
 ## 0.7.3 Jun 9, 2024
 
 - Fix: DropdownButton doesn't work in NavigationSheet (#139)
