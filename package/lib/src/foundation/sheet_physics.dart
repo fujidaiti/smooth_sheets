@@ -488,8 +488,6 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   SheetPhysics copyWith({
     SheetPhysics? parent,
     SpringDescription? spring,
-    // TODO: Remove this
-    Extent? stretchingRange,
     BouncingBehavior? behavior,
     Curve? frictionCurve,
   }) {
