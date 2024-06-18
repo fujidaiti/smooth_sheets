@@ -164,7 +164,7 @@ class _ContentSheet extends StatelessWidget {
           ),
         );
 
-        final sheetPhysics = StretchingSheetPhysics(
+        final sheetPhysics = BouncingSheetPhysics(
           parent: SnappingSheetPhysics(
             snappingBehavior: SnapToNearest(
               snapTo: [

@@ -106,7 +106,7 @@ final _confirmRoute = GoRoute(
     return const ScrollableNavigationSheetPage(
       initialExtent: Extent.proportional(0.7),
       minExtent: Extent.proportional(0.7),
-      physics: StretchingSheetPhysics(
+      physics: BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),
       child: _ConfirmPage(),

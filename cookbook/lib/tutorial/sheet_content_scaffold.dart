@@ -50,7 +50,7 @@ class _ExampleSheet extends StatelessWidget {
       ),
     );
 
-    final physics = StretchingSheetPhysics(
+    final physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
         snappingBehavior: SnapToNearest(
           snapTo: [

@@ -18,9 +18,9 @@ class _SheetPhysicsExample extends StatelessWidget {
 
 enum _PhysicsKind {
   clamping('Clamping'),
-  stretching('Stretching'),
+  bouncing('Bouncing'),
   clampingSnapping('Clamping + Snapping'),
-  stretchingSnapping('Stretching + Snapping');
+  bouncingSnapping('Bouncing + Snapping');
 
   final String name;
 
@@ -35,7 +35,7 @@ class _ExampleHome extends StatefulWidget {
 }
 
 class _ExampleHomeState extends State<_ExampleHome> {
-  _PhysicsKind selectedPhysics = _PhysicsKind.stretchingSnapping;
+  _PhysicsKind selectedPhysics = _PhysicsKind.bouncingSnapping;
 
   @override
   Widget build(BuildContext context) {
@@ -101,12 +101,12 @@ class _MySheet extends StatelessWidget {
 
     return switch (kind) {
       _PhysicsKind.clamping => const ClampingSheetPhysics(),
-      _PhysicsKind.stretching => const StretchingSheetPhysics(),
+      _PhysicsKind.bouncing => const BouncingSheetPhysics(),
       _PhysicsKind.clampingSnapping =>
         // Use 'parent' to combine multiple physics behaviors.
         ClampingSheetPhysics(parent: snappingPhysics),
-      _PhysicsKind.stretchingSnapping =>
-        StretchingSheetPhysics(parent: snappingPhysics),
+      _PhysicsKind.bouncingSnapping =>
+        BouncingSheetPhysics(parent: snappingPhysics),
     };
   }
 

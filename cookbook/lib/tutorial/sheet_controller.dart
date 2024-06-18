@@ -89,7 +89,7 @@ class _ExampleSheet extends StatelessWidget {
     return DraggableSheet(
       controller: controller,
       minExtent: const Extent.proportional(0.5),
-      physics: const StretchingSheetPhysics(
+      physics: const BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),
       child: Card(

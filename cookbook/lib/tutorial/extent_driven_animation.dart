@@ -50,7 +50,7 @@ class _ExampleSheet extends StatelessWidget {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final minExtent = Extent.pixels(56 + bottomPadding);
 
-    final physics = StretchingSheetPhysics(
+    final physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
         snappingBehavior: SnapToNearest(
           snapTo: [minExtent, const Extent.proportional(1)],

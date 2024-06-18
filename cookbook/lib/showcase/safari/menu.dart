@@ -26,7 +26,7 @@ class MenuSheet extends StatelessWidget {
     return ScrollableSheet(
       initialExtent: halfWayExtent,
       minExtent: halfWayExtent,
-      physics: const StretchingSheetPhysics(
+      physics: const BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),
       child: ClipRRect(
