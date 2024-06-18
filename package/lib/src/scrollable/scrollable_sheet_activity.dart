@@ -67,7 +67,7 @@ abstract class ScrollableSheetActivity
         delta -= position.pixels - oldScrollPixels;
       }
       // If the content cannot be scrolled up anymore, drag the sheet up
-      // to make a stretching effect (if needed).
+      // to make a bouncing effect (if needed).
       if (position.pixels.isApprox(maxScrollPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(physicsAppliedDelta.isLessThanOrApprox(delta));

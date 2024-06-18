@@ -46,7 +46,7 @@ class _MySheet extends StatelessWidget {
       // Optional: Comment out the following lines to add multiple stop positions.
       //
       // minExtent: const Extent.proportional(0.2),
-      // physics: StretchingSheetPhysics(
+      // physics: BouncingSheetPhysics(
       //   parent: SnappingSheetPhysics(
       //     snappingBehavior: SnapToNearest(
       //       snapTo: [

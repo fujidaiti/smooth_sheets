@@ -68,7 +68,7 @@ class _HalfScreenSheet extends StatelessWidget {
     return const DraggableSheet(
       initialExtent: Extent.proportional(0.5),
       minExtent: Extent.proportional(0.5),
-      physics: StretchingSheetPhysics(
+      physics: BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),
       child: _SheetContent(),

@@ -66,7 +66,7 @@ class _ExampleSheet extends StatelessWidget {
     );
 
     const minExtent = Extent.proportional(0.5);
-    const physics = StretchingSheetPhysics(
+    const physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(),
     );
 

@@ -26,7 +26,7 @@ const _kDefaultSettlingSpeed = 600.0; // logical pixels per second
 
 /// The default [SheetPhysics] used by sheet widgets.
 const kDefaultSheetPhysics =
-    StretchingSheetPhysics(parent: SnappingSheetPhysics());
+    BouncingSheetPhysics(parent: SnappingSheetPhysics());
 
 // TODO: Implement `equals` and `hashCode` for SheetPhysics classes.
 abstract class SheetPhysics {
@@ -378,80 +378,88 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   }
 }
 
-/// An object that determines the behavior of a sheet when it is out of bounds.
+/// {@template BouncingBehavior}
+/// An object that determines the behavior of a bounceable sheet
+/// when it is out of the content bounds.
+/// {@endtemplate}
 ///
 /// See also:
-/// - [FixedStretchingBehavior], which stretches the sheet by a fixed amount.
-/// - [DirectionAwareStretchingBehavior], which stretches the sheet based on the
-///   direction of a drag.
-abstract class StretchingBehavior {
-  /// Returns the number of pixels the sheet can stretch beyond the content
-  /// bounds.
+/// - [FixedBouncingBehavior], which allows the sheet position to exceed the
+///   content bounds by a fixed amount.
+/// - [DirectionAwareBouncingBehavior], which allows the sheet position to
+///  exceed the content bounds by different amounts based on the direction
+///  of a drag gesture.
+abstract class BouncingBehavior {
+  /// Returns the number of pixels that the sheet position can go beyond
+  /// the content bounds.
   ///
-  /// [StretchingSheetPhysics.applyPhysicsToOffset] calls this method to
-  /// determine how many pixels the sheet can stretch beyond the content bounds.
-  /// The returned value must be non-negative.
+  /// [BouncingSheetPhysics.applyPhysicsToOffset] calls this method to calculate
+  /// the amount of friction that should be applied to the given drag [offset].
   ///
-  /// The [offset] is the amount of pixels that will be applied to the sheet,
-  /// and [metrics] is the current metrics of the sheet.
-  double computeStretchablePixels(double offset, SheetMetrics metrics);
+  /// The returned value must be non-negative. Since this method may be called
+  /// every frame, and even multiple times per frame, it is not recommended to
+  /// return different values for each call, as it may cause unstable motion.
+  double computeBounceablePixels(double offset, SheetMetrics metrics);
 }
 
-/// A [StretchingBehavior] that stretches the sheet by a fixed amount.
+/// A [BouncingBehavior] that allows the sheet position to exceed the content
+/// bounds by a fixed amount.
 ///
-/// The following is an example of a [StretchingSheetPhysics] that allows the
-/// sheet to stretch by 12% of the content size.
+/// The following is an example of a [BouncingSheetPhysics] that allows the
+/// sheet position to go beyond the [SheetMetrics.maxPixels] or
+/// [SheetMetrics.minPixels] by 12% of the content size.
+///
 /// ```dart
-/// const physics = StretchingSheetPhysics(
-///   behavior: FixedStretchingBehavior(Extent.proportional(0.12)),
+/// const physics = BouncingSheetPhysics(
+///   behavior: FixedBouncingBehavior(Extent.proportional(0.12)),
 /// );
 /// ```
-class FixedStretchingBehavior implements StretchingBehavior {
-  /// Creates a [StretchingBehavior] that stretches the sheet by a fixed amount.
-  const FixedStretchingBehavior(this.range);
+class FixedBouncingBehavior implements BouncingBehavior {
+  /// Creates a [BouncingBehavior] that allows the sheet to bounce by a fixed
+  /// amount.
+  const FixedBouncingBehavior(this.range);
 
-  /// How much the sheet can stretch beyond the content bounds.
+  /// How much the sheet can bounce beyond the content bounds.
   final Extent range;
 
   @override
-  double computeStretchablePixels(double offset, SheetMetrics metrics) {
+  double computeBounceablePixels(double offset, SheetMetrics metrics) {
     return range.resolve(metrics.contentSize);
   }
 }
 
-/// A [StretchingBehavior] that stretches the sheet by a fixed amount.
+/// A [BouncingBehavior] that allows the sheet position to exceed the content
+/// bounds by different amounts based on the direction of a drag gesture.
 ///
-/// Different stretching ranges can be specified for upward and downward
-/// directions. For example, the following [StretchingSheetPhysics] allows the
-/// sheet to stretch by 12% of the content size when dragged downward, and by
+/// Different bounceable amounts can be specified for upward and downward
+/// directions. For example, the following [BouncingSheetPhysics] allows the
+/// sheet to bounce by 12% of the content size when dragged downward, and by
 /// 8 pixels when dragged upward.
 ///
 /// ```dart
-/// const physics = StretchingSheetPhysics(
-///   behavior: DirectionAwareStretchingBehavior(
+/// const physics = BouncingSheetPhysics(
+///   behavior: DirectionAwareBouncingBehavior(
 ///     upward: Extent.pixels(8),
 ///     downward: Extent.proportional(0.12),
 ///   ),
 /// );
 /// ```
-class DirectionAwareStretchingBehavior implements StretchingBehavior {
-  /// Creates a [StretchingBehavior] that stretches the sheet by a fixed amount
-  /// based on the direction of a drag.
-  const DirectionAwareStretchingBehavior({
+class DirectionAwareBouncingBehavior implements BouncingBehavior {
+  /// Creates a [BouncingBehavior] that allows the sheet to bounce by different
+  /// amounts based on the direction of a drag gesture.
+  const DirectionAwareBouncingBehavior({
     this.upward = const Extent.pixels(0),
     this.downward = const Extent.pixels(0),
   });
 
-  /// How much the sheet can stretch beyond the content bounds when dragged
-  /// upward.
+  /// Amount of bounceable pixels when dragged upward.
   final Extent upward;
 
-  /// How much the sheet can stretch beyond the content bounds when dragged
-  /// downward.
+  /// Amount of bounceable pixels when dragged downward.
   final Extent downward;
 
   @override
-  double computeStretchablePixels(double offset, SheetMetrics metrics) {
+  double computeBounceablePixels(double offset, SheetMetrics metrics) {
     return switch (offset) {
       > 0.0 => upward.resolve(metrics.contentSize),
       < 0.0 => downward.resolve(metrics.contentSize),
@@ -460,17 +468,16 @@ class DirectionAwareStretchingBehavior implements StretchingBehavior {
   }
 }
 
-class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
-  const StretchingSheetPhysics({
+class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
+  const BouncingSheetPhysics({
     super.parent,
-    this.behavior = const FixedStretchingBehavior(Extent.proportional(0.12)),
+    this.behavior = const FixedBouncingBehavior(Extent.proportional(0.12)),
     this.frictionCurve = Curves.easeOutSine,
     this.spring = kDefaultSheetSpring,
   });
 
-  /// The behavior that determines how the sheet stretches when it is
-  /// out of the content bounds.
-  final StretchingBehavior behavior;
+  /// {@macro BouncingBehavior}
+  final BouncingBehavior behavior;
 
   final Curve frictionCurve;
 
@@ -481,11 +488,10 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   SheetPhysics copyWith({
     SheetPhysics? parent,
     SpringDescription? spring,
-    Extent? stretchingRange,
-    StretchingBehavior? behavior,
+    BouncingBehavior? behavior,
     Curve? frictionCurve,
   }) {
-    return StretchingSheetPhysics(
+    return BouncingSheetPhysics(
       parent: parent ?? this.parent,
       spring: spring ?? this.spring,
       behavior: behavior ?? this.behavior,
@@ -495,8 +501,8 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   double computeOverflow(double offset, SheetMetrics metrics) {
-    final stretchingRange = behavior.computeStretchablePixels(offset, metrics);
-    if (stretchingRange != 0) {
+    final bounceableRange = behavior.computeBounceablePixels(offset, metrics);
+    if (bounceableRange != 0) {
       return const ClampingSheetPhysics().applyPhysicsToOffset(offset, metrics);
     }
 
@@ -505,8 +511,8 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   double applyPhysicsToOffset(double offset, SheetMetrics metrics) {
-    final stretchingRange = behavior.computeStretchablePixels(offset, metrics);
-    if (stretchingRange == 0) {
+    final bounceableRange = behavior.computeBounceablePixels(offset, metrics);
+    if (bounceableRange == 0) {
       return const ClampingSheetPhysics().applyPhysicsToOffset(offset, metrics);
     }
 
@@ -535,7 +541,7 @@ class StretchingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       final overflowPastStart = max(minPixels - currentPixels, 0.0);
       final overflowPastEnd = max(currentPixels - maxPixels, 0.0);
       final overflowPast = max(overflowPastStart, overflowPastEnd);
-      final overflowFraction = (overflowPast / stretchingRange).clampAbs(1);
+      final overflowFraction = (overflowPast / bounceableRange).clampAbs(1);
       final frictionFactor = frictionCurve.transform(overflowFraction);
 
       newPixels += fragment * (1.0 - frictionFactor);
