@@ -36,7 +36,7 @@ void main() {
   group('$SheetPhysics subclasses', () {
     test('can create dynamic inheritance relationships', () {
       const clamp = ClampingSheetPhysics();
-      const stretch = BouncingSheetPhysics();
+      const bounce = BouncingSheetPhysics();
       const snap = SnappingSheetPhysics();
 
       List<Type> getChain(SheetPhysics physics) {
@@ -47,17 +47,17 @@ void main() {
       }
 
       expect(
-        getChain(clamp.applyTo(stretch).applyTo(snap)).join(' -> '),
+        getChain(clamp.applyTo(bounce).applyTo(snap)).join(' -> '),
         'ClampingSheetPhysics -> BouncingSheetPhysics -> SnappingSheetPhysics',
       );
 
       expect(
-        getChain(snap.applyTo(stretch).applyTo(clamp)).join(' -> '),
+        getChain(snap.applyTo(bounce).applyTo(clamp)).join(' -> '),
         'SnappingSheetPhysics -> BouncingSheetPhysics -> ClampingSheetPhysics',
       );
 
       expect(
-        getChain(stretch.applyTo(clamp).applyTo(snap)).join(' -> '),
+        getChain(bounce.applyTo(clamp).applyTo(snap)).join(' -> '),
         'BouncingSheetPhysics -> ClampingSheetPhysics -> SnappingSheetPhysics',
       );
     });
