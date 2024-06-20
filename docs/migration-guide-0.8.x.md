@@ -10,7 +10,7 @@ Here is the summary of the breaking changes included in the version 0.8.0.
 
 ### New way to control the bouncing behavior of a sheet
 
-[BouncingSheetBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetBehavior-class.html) was added as the new way to control the stretching behavior of a sheet. It replaces `StretchingSheetPhysics.stretchingRange` property, which has been removed.
+[BouncingSheetBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetBehavior-class.html) was added as the new way to control the bouncing behavior of a sheet. It replaces `StretchingSheetPhysics.stretchingRange` property, which has been removed.
 
 **BEFORE:**
 
@@ -30,5 +30,5 @@ const physics = BouncingSheetPhysics(
 
 See also:
 
-- [FixedBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/FixedBouncingBehavior-class.html), which stretches the sheet by a fixed amount.
-- [DirectionAwareBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DirectionAwareBouncingBehavior-class.html), which stretches the sheet by a fixed amount, based on the direction of a drag.
+- [FixedBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/FixedBouncingBehavior-class.html), which allows the sheet position to exceeds the content bounds by a fixed amount.
+- [DirectionAwareBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DirectionAwareBouncingBehavior-class.html), which is similar to `FixedBouncingBehavior`, but the different bounceable range can be set for each direction.
