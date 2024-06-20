@@ -353,4 +353,94 @@ void main() {
       );
     });
   });
+
+  test('FixedBouncingBehavior returns same value for same input metrics', () {
+    expect(
+      const FixedBouncingBehavior(Extent.pixels(100))
+          .computeBounceablePixels(50, _referenceSheetMetrics),
+      100,
+    );
+    expect(
+      const FixedBouncingBehavior(Extent.proportional(0.5))
+          .computeBounceablePixels(50, _referenceSheetMetrics),
+      300,
+    );
+  });
+
+  test('DirectionAwareBouncingBehavior respects gesture direction', () {
+    const behavior = DirectionAwareBouncingBehavior(
+      upward: Extent.pixels(100),
+      downward: Extent.pixels(0),
+    );
+    expect(behavior.computeBounceablePixels(50, _referenceSheetMetrics), 100);
+    expect(behavior.computeBounceablePixels(-50, _referenceSheetMetrics), 0);
+  });
+
+  group('BouncingSheetPhysics', () {
+    test('progressively applies friction if position is out of bounds', () {
+      const physics = BouncingSheetPhysics(
+        behavior: FixedBouncingBehavior(Extent.pixels(50)),
+        frictionCurve: Curves.linear,
+      );
+
+      final overDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels + 10,
+      );
+      final moreOverDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels + 20,
+      );
+
+      expect(physics.applyPhysicsToOffset(10, overDraggedPosition), 6);
+      expect(physics.applyPhysicsToOffset(10, moreOverDraggedPosition), 4);
+    });
+
+    test('does not allow to go beyond bounceable bounds', () {
+      const physics = BouncingSheetPhysics(
+        behavior: FixedBouncingBehavior(Extent.pixels(30)),
+        frictionCurve: Curves.linear,
+      );
+
+      final overDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.maxPixels + 20,
+      );
+      final underDraggedPosition = _referenceSheetMetrics.copyWith(
+        pixels: _referenceSheetMetrics.minPixels - 20,
+      );
+
+      expect(
+        physics.applyPhysicsToOffset(20, overDraggedPosition),
+        moreOrLessEquals(0.53, epsilon: 0.01),
+      );
+      expect(
+        physics.applyPhysicsToOffset(-20, underDraggedPosition),
+        moreOrLessEquals(-0.53, epsilon: 0.01),
+      );
+    });
+
+    test('applies friction even if position is on boundary', () {
+      const physics = BouncingSheetPhysics(
+        behavior: FixedBouncingBehavior(Extent.pixels(50)),
+        frictionCurve: Curves.linear,
+      );
+
+      expect(physics.applyPhysicsToOffset(10, _positionAtTopEdge), 8);
+      expect(physics.applyPhysicsToOffset(-10, _positionAtBottomEdge), -8);
+    });
+
+    test('can apply a reasonable friction to extremely large offset', () {
+      const physics = BouncingSheetPhysics(
+        behavior: FixedBouncingBehavior(Extent.pixels(50)),
+        frictionCurve: Curves.linear,
+      );
+
+      expect(
+        physics.applyPhysicsToOffset(300, _positionAtTopEdge),
+        moreOrLessEquals(33.42, epsilon: 0.01),
+      );
+      expect(
+        physics.applyPhysicsToOffset(-300, _positionAtBottomEdge),
+        moreOrLessEquals(-33.42, epsilon: 0.01),
+      );
+    });
+  });
 }
