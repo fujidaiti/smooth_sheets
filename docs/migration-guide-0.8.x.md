@@ -31,4 +31,4 @@ const physics = BouncingSheetPhysics(
 See also:
 
 - [FixedBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/FixedBouncingBehavior-class.html), which allows the sheet position to exceeds the content bounds by a fixed amount.
-- [DirectionAwareBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DirectionAwareBouncingBehavior-class.html), which is similar to `FixedBouncingBehavior`, but the different bounceable range can be set for each direction.
+- [DirectionAwareBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DirectionAwareBouncingBehavior-class.html), which is similar to `FixedBouncingBehavior`, but different bounceable ranges can be set for each direction.
