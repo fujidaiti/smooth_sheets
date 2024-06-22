@@ -22,6 +22,9 @@ class SheetController extends ChangeNotifier
 
   SheetStatus? get status => _client?.status;
 
+  /// Whether a [SheetExtent] is attached to this controller.
+  bool get hasClient => _client != null;
+
   @override
   void addListener(VoidCallback listener, {bool fireImmediately = false}) {
     if (fireImmediately) {

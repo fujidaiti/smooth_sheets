@@ -206,11 +206,9 @@ abstract class SheetExtentScopeState<E extends SheetExtent,
   }
 
   void _rewireControllerAndScope() {
-    final newController =
-        widget.controller ?? SheetControllerScope.maybeOf(context);
-    if (_controller != newController) {
+    if (_controller != widget.controller) {
       _controller?.detach(_extent);
-      _controller = newController?..attach(_extent);
+      _controller = widget.controller?..attach(_extent);
     }
   }
 

@@ -73,6 +73,7 @@ class DraggableSheet extends StatelessWidget {
     final keyboardDismissBehavior =
         this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final controller = this.controller ?? SheetControllerScope.maybeOf(context);
 
     Widget result = DraggableSheetExtentScope(
       controller: controller,

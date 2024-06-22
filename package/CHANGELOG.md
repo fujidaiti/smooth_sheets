@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1 Jun 23, 2024
+
+- Fix: Cupertino style modal transition not working with NavigationSheet (#182)
+
 ## 0.8.0 Jun 22, 2024
 
 This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.8.x.md) for more details.

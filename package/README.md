@@ -207,6 +207,7 @@ See also:
 - [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
 - [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
 - [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
+- [ios_style_declarative_modal_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart), an example of iOS-style modal NavigationSheet with go_router.
 - [showcase/todo_list](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/todo_list), which uses SheetDismissible to show a confirmation dialog when the user tries to discard the todo editing sheet without saving the content.
 
 <br/>

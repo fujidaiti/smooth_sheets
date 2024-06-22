@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 
 class _TestWidget extends StatelessWidget {
   const _TestWidget(
@@ -243,6 +244,32 @@ void main() {
       expect(lastBoundaryValues, equals((200, 500)));
     },
   );
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/168
+  testWidgets('Inherited controller should be attached', (tester) async {
+    final controller = SheetController();
+    await tester.pumpWidget(
+      SheetControllerScope(
+        controller: controller,
+        child: _TestWidget(
+          transitionObserver,
+          initialRoute: 'first',
+          routes: {
+            'first': () => _TestDraggablePageWidget.createRoute(
+                  key: const Key('First'),
+                  label: 'First',
+                  height: 300,
+                  minExtent: const Extent.pixels(0),
+                  physics: const ClampingSheetPhysics(),
+                ),
+          },
+        ),
+      ),
+    );
+
+    expect(controller.hasClient, isTrue,
+        reason: 'The controller should have a client.');
+  });
 
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/139
   testWidgets(
