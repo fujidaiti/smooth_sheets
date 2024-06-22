@@ -32,3 +32,4 @@ See also:
 
 - [FixedBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/FixedBouncingBehavior-class.html), which allows the sheet position to exceeds the content bounds by a fixed amount.
 - [DirectionAwareBouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DirectionAwareBouncingBehavior-class.html), which is similar to `FixedBouncingBehavior`, but different bounceable ranges can be set for each direction.
+- [tutorial/bouncing_behaviors.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/bouncing_behaviors.dart), an interactive example of `BouncingBehavior` classes.
