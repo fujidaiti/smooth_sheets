@@ -51,10 +51,12 @@ class _NavigationSheetState extends State<NavigationSheet>
     final keyboardDismissBehavior =
         widget.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final controller =
+        widget.controller ?? SheetControllerScope.maybeOf(context);
 
     Widget result = NavigationSheetExtentScope(
       key: _scopeKey,
-      controller: widget.controller,
+      controller: controller,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'NavigationSheet' : null,
       child: NavigationSheetViewport(
