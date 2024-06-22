@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
+/// Example code of iOS style modal `NavigationSheet` with go_router.
 void main() {
   runApp(const _App());
 }
@@ -31,7 +32,7 @@ final router = GoRouter(
                 pageBuilder: (context, state) {
                   return DraggableNavigationSheetPage(
                     key: state.pageKey,
-                    child: const _ModalContent(),
+                    child: Container(color: Colors.white),
                   );
                 },
               ),
@@ -56,6 +57,7 @@ class _Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoStackedTransition(
+      cornerRadius: Tween(begin: 0, end: 20),
       child: Scaffold(
         body: Center(
           child: TextButton(
@@ -85,29 +87,6 @@ class _Modal extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: nestedNavigator,
       ),
-    );
-
-    // The following code works fine.
-
-    // return DraggableSheet(
-    //   child: Container(
-    //     color: Colors.white,
-    //     width: double.infinity,
-    //     height: 700,
-    //   ),
-    // );
-  }
-}
-
-class _ModalContent extends StatelessWidget {
-  const _ModalContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      width: double.infinity,
-      height: 700,
     );
   }
 }
