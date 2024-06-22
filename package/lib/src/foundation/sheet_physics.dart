@@ -511,8 +511,8 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   double applyPhysicsToOffset(double offset, SheetMetrics metrics) {
-    final bounceableRange = behavior.computeBounceablePixels(offset, metrics);
-    if (bounceableRange == 0) {
+    final bounceablePixels = behavior.computeBounceablePixels(offset, metrics);
+    if (bounceablePixels == 0) {
       return const ClampingSheetPhysics().applyPhysicsToOffset(offset, metrics);
     }
 
@@ -520,28 +520,37 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
     final minPixels = metrics.minPixels;
     final maxPixels = metrics.maxPixels;
 
-    if (currentPixels.isInBounds(minPixels, maxPixels) ||
+    // A part of or the entire offset that is not affected by friction.
+    // If the current 'pixels' plus the offset exceeds the content bounds,
+    // only the exceeding part is affected by friction. Otherwise, friction
+    // is not applied to the offset at all.
+    final zeroFrictionOffset = switch (offset) {
+      > 0 => max(min(currentPixels + offset, maxPixels) - currentPixels, 0.0),
+      < 0 => min(max(currentPixels + offset, minPixels) - currentPixels, 0.0),
+      _ => 0.0,
+    };
+
+    if (zeroFrictionOffset.isApprox(offset) ||
+        // The friction is also not applied if the motion
+        // direction is towards the content bounds.
         (currentPixels > maxPixels && offset < 0) ||
         (currentPixels < minPixels && offset > 0)) {
-      // The friction is not applied if the current 'pixels' is within the range
-      // or the motion direction is towards the range.
       return offset;
     }
 
-    // We divide the delta into smaller fragments
-    // and apply friction to each fragment in sequence.
-    // This ensures that the friction is not too small
-    // if the delta is too large relative to the overflowing pixels,
-    // preventing the sheet from slipping too far.
-    const fragmentSize = 18.0;
+    // We divide the delta into smaller fragments and apply friction to each
+    // fragment in sequence. This ensures that the friction is not too small
+    // if the delta is too large relative to the exceeding pixels, preventing
+    // the sheet from slipping too far.
+    const offsetSlop = 18.0;
     var newPixels = currentPixels;
-    var consumedOffset = 0.0;
+    var consumedOffset = zeroFrictionOffset;
     while (consumedOffset.abs() < offset.abs()) {
-      final fragment = (offset - consumedOffset).clampAbs(fragmentSize);
-      final overflowPastStart = max(minPixels - currentPixels, 0.0);
-      final overflowPastEnd = max(currentPixels - maxPixels, 0.0);
+      final fragment = (offset - consumedOffset).clampAbs(offsetSlop);
+      final overflowPastStart = max(minPixels - (newPixels + fragment), 0.0);
+      final overflowPastEnd = max(newPixels + fragment - maxPixels, 0.0);
       final overflowPast = max(overflowPastStart, overflowPastEnd);
-      final overflowFraction = (overflowPast / bounceableRange).clampAbs(1);
+      final overflowFraction = (overflowPast / bounceablePixels).clampAbs(1);
       final frictionFactor = frictionCurve.transform(overflowFraction);
 
       newPixels += fragment * (1.0 - frictionFactor);
