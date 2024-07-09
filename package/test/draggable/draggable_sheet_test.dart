@@ -1,34 +1,55 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 
-class _TestWidget extends StatelessWidget {
-  const _TestWidget({
-    this.contentKey,
-    this.contentHeight = 500,
+
+class _TestApp extends StatelessWidget {
+  const _TestApp({
+    this.useMaterial = false,
+    required this.child,
   });
 
-  final Key? contentKey;
-  final double contentHeight;
+  final bool useMaterial;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final content = Container(
-      key: contentKey,
-      color: Colors.white,
-      height: contentHeight,
-      width: double.infinity,
-    );
-
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: MediaQuery(
-        data: const MediaQueryData(),
-        child: DraggableSheet(
-          child: content,
+    if (useMaterial) {
+      return MaterialApp(
+        home: child,
+      );
+    } else {
+      return Directionality(
+        textDirection: TextDirection.ltr,
+        child: MediaQuery(
+          data: const MediaQueryData(),
+          child: child,
         ),
-      ),
+      );
+    }
+  }
+}
+
+class _TestSheetContent extends StatelessWidget {
+  const _TestSheetContent({
+    super.key,
+    this.height = 500,
+    this.child,
+  });
+
+  final double? height;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      color: Colors.white,
+      child: child,
     );
   }
 }
@@ -39,7 +60,11 @@ void main() {
     await tester.pumpWidget(
       SheetControllerScope(
         controller: controller,
-        child: const _TestWidget(),
+        child: const _TestApp(
+          child: DraggableSheet(
+            child: _TestSheetContent(),
+          ),
+        ),
       ),
     );
 

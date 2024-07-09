@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -9,6 +11,8 @@ class _TestWidget extends StatelessWidget {
     required this.initialRoute,
     required this.routes,
     this.onTapBackgroundText,
+    this.sheetKey,
+    this.contentBuilder,
     this.sheetController,
     this.useMaterialApp = false,
   });
@@ -16,13 +20,16 @@ class _TestWidget extends StatelessWidget {
   final String initialRoute;
   final Map<String, ValueGetter<Route<dynamic>>> routes;
   final VoidCallback? onTapBackgroundText;
+  final Widget Function(BuildContext, Widget)? contentBuilder;
   final SheetController? sheetController;
   final NavigationSheetTransitionObserver sheetTransitionObserver;
+  final Key? sheetKey;
   final bool useMaterialApp;
 
   @override
   Widget build(BuildContext context) {
     final navigationSheet = NavigationSheet(
+      key: sheetKey,
       controller: sheetController,
       transitionObserver: sheetTransitionObserver,
       child: ColoredBox(
@@ -35,7 +42,7 @@ class _TestWidget extends StatelessWidget {
       ),
     );
 
-    final content = Stack(
+    Widget content = Stack(
       children: [
         TextButton(
           onPressed: onTapBackgroundText,
@@ -44,6 +51,10 @@ class _TestWidget extends StatelessWidget {
         navigationSheet,
       ],
     );
+
+    if (contentBuilder case final builder?) {
+      content = builder(context, content);
+    }
 
     return switch (useMaterialApp) {
       true => MaterialApp(home: content),
@@ -106,12 +117,14 @@ class _TestDraggablePageWidget extends StatelessWidget {
     required String label,
     required double height,
     String? nextRoute,
+    Extent initialExtent = const Extent.proportional(1),
     Extent minExtent = const Extent.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
     SheetPhysics? physics,
   }) {
     return DraggableNavigationSheetRoute(
       physics: physics,
+      initialExtent: initialExtent,
       minExtent: minExtent,
       transitionDuration: transitionDuration,
       builder: (context) => _TestDraggablePageWidget(
