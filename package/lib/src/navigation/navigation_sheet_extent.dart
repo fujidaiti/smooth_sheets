@@ -88,6 +88,20 @@ class NavigationSheetExtent extends SheetExtent {
   }
 
   @override
+  Future<void> animateTo(
+    Extent newExtent, {
+    Curve curve = Curves.easeInOut,
+    Duration duration = const Duration(milliseconds: 300),
+  }) {
+    if (activity case ProxySheetActivity(:final route)) {
+      return route.scopeKey.currentExtent
+          .animateTo(newExtent, curve: curve, duration: duration);
+    } else {
+      return super.animateTo(newExtent, curve: curve, duration: duration);
+    }
+  }
+
+  @override
   void dispatchUpdateNotification() {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
