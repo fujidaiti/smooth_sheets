@@ -113,7 +113,7 @@ void main() {
         duration: const Duration(milliseconds: 250),
       ),
     );
-    // Then, show the keyboard while the sheet is animating.
+    // Then, show the keyboard while the animation is running.
     unawaited(
       keyboardSimulationKey.currentState!
           .showKeyboard(const Duration(milliseconds: 250)),
