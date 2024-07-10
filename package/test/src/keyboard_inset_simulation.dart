@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// A widget that simulates [MediaQueryData.viewInsets] as if the keyboard
+/// is shown for testing purposes.
+///
+/// This exposes a [MediaQueryData] to its descendants, and if
+/// [KeyboardInsetSimulationState.showKeyboard] is called once,
+/// it will gradually increase the `MediaQueryData.viewInsets.bottom`
+/// to the given [keyboardHeight] as if the on-screen keyboard is appearing.
 class KeyboardInsetSimulation extends StatefulWidget {
   const KeyboardInsetSimulation({
     super.key,
