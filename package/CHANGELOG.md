@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.2 Jul 11, 2024
+
+- Fix: Opening keyboard interrupts sheet animation (#189)
+
 ## 0.8.1 Jun 23, 2024
 
 - Fix: Cupertino style modal transition not working with NavigationSheet (#182)
