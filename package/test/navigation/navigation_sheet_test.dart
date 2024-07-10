@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 
+import '../src/keyboard_inset_simulation.dart';
+
 class _TestWidget extends StatelessWidget {
   const _TestWidget(
     this.sheetTransitionObserver, {
@@ -349,6 +351,67 @@ void main() {
       expect(find.text('Option 1'), findsNothing);
       expect(find.text('Option 2'), findsOneWidget);
       expect(find.text('Option 3'), findsNothing);
+    },
+  );
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/14
+  testWidgets(
+    'Opening keyboard does not interrupts sheet animation',
+    (tester) async {
+      final controller = SheetController();
+      final sheetKey = GlobalKey();
+      final keyboardSimulationKey = GlobalKey<KeyboardInsetSimulationState>();
+
+      await tester.pumpWidget(
+        _TestWidget(
+          transitionObserver,
+          sheetController: controller,
+          sheetKey: sheetKey,
+          initialRoute: 'first',
+          routes: {
+            'first': () => _TestDraggablePageWidget.createRoute(
+                  label: 'First',
+                  height: 500,
+                  minExtent: const Extent.pixels(200),
+                  initialExtent: const Extent.pixels(200),
+                ),
+          },
+          contentBuilder: (context, child) {
+            return KeyboardInsetSimulation(
+              key: keyboardSimulationKey,
+              keyboardHeight: 200,
+              child: child,
+            );
+          },
+        ),
+      );
+
+      expect(controller.value.pixels, 200,
+          reason: 'The sheet should be at the initial extent.');
+      expect(controller.value.minPixels < controller.value.maxPixels, isTrue,
+          reason: 'The sheet should be draggable.');
+
+      // Start animating the sheet to the max extent.
+      unawaited(
+        controller.animateTo(
+          const Extent.proportional(1),
+          duration: const Duration(milliseconds: 250),
+        ),
+      );
+      // Then, show the keyboard while the sheet is animating.
+      unawaited(
+        keyboardSimulationKey.currentState!
+            .showKeyboard(const Duration(milliseconds: 250)),
+      );
+      await tester.pumpAndSettle();
+      expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
+          reason: 'The keyboard should be fully shown.');
+      expect(
+        controller.value.pixels,
+        controller.value.maxPixels,
+        reason: 'After the keyboard is fully shown, '
+            'the entire sheet should also be visible.',
+      );
     },
   );
 }
