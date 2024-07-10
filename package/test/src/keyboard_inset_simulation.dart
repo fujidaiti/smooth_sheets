@@ -9,8 +9,9 @@ import 'package:flutter_test/flutter_test.dart';
 /// it will gradually increase the `MediaQueryData.viewInsets.bottom`
 /// to the given [keyboardHeight] as if the on-screen keyboard is appearing.
 ///
-/// We use this in tests to simulate the keyboard appearance instead of
-/// [WidgetTester.showKeyboard], as it does not change the `viewInsets` value.
+/// Although there is [WidgetTester.showKeyboard] method, we use this widget
+/// instead to simulate the keyboard appearance, as `showKeyboard` does not
+/// change the `viewInsets` value.
 class KeyboardInsetSimulation extends StatefulWidget {
   const KeyboardInsetSimulation({
     super.key,
