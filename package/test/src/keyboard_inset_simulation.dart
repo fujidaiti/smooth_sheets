@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// A widget that simulates [MediaQueryData.viewInsets] as if the keyboard
-/// is shown for testing purposes.
+/// is shown.
 ///
 /// This exposes a [MediaQueryData] to its descendants, and if
 /// [KeyboardInsetSimulationState.showKeyboard] is called once,
