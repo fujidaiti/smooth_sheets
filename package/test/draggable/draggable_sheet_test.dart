@@ -1,34 +1,56 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 
-class _TestWidget extends StatelessWidget {
-  const _TestWidget({
-    this.contentKey,
-    this.contentHeight = 500,
+import '../src/keyboard_inset_simulation.dart';
+
+class _TestApp extends StatelessWidget {
+  const _TestApp({
+    this.useMaterial = false,
+    required this.child,
   });
 
-  final Key? contentKey;
-  final double contentHeight;
+  final bool useMaterial;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final content = Container(
-      key: contentKey,
-      color: Colors.white,
-      height: contentHeight,
-      width: double.infinity,
-    );
-
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: MediaQuery(
-        data: const MediaQueryData(),
-        child: DraggableSheet(
-          child: content,
+    if (useMaterial) {
+      return MaterialApp(
+        home: child,
+      );
+    } else {
+      return Directionality(
+        textDirection: TextDirection.ltr,
+        child: MediaQuery(
+          data: const MediaQueryData(),
+          child: child,
         ),
-      ),
+      );
+    }
+  }
+}
+
+class _TestSheetContent extends StatelessWidget {
+  const _TestSheetContent({
+    super.key,
+    this.height = 500,
+    this.child,
+  });
+
+  final double? height;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      color: Colors.white,
+      child: child,
     );
   }
 }
@@ -39,11 +61,71 @@ void main() {
     await tester.pumpWidget(
       SheetControllerScope(
         controller: controller,
-        child: const _TestWidget(),
+        child: const _TestApp(
+          child: DraggableSheet(
+            child: _TestSheetContent(),
+          ),
+        ),
       ),
     );
 
     expect(controller.hasClient, isTrue,
         reason: 'The controller should have a client.');
+  });
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/14
+  testWidgets('Opening keyboard does not interrupt sheet animation',
+      (tester) async {
+    final controller = SheetController();
+    final sheetKey = GlobalKey();
+    final keyboardSimulationKey = GlobalKey<KeyboardInsetSimulationState>();
+
+    await tester.pumpWidget(
+      _TestApp(
+        useMaterial: true,
+        child: KeyboardInsetSimulation(
+          key: keyboardSimulationKey,
+          keyboardHeight: 200,
+          child: DraggableSheet(
+            key: sheetKey,
+            controller: controller,
+            minExtent: const Extent.pixels(200),
+            initialExtent: const Extent.pixels(200),
+            child: const Material(
+              child: _TestSheetContent(
+                height: 500,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(controller.value.pixels, 200,
+        reason: 'The sheet should be at the initial extent.');
+    expect(controller.value.minPixels < controller.value.maxPixels, isTrue,
+        reason: 'The sheet should be draggable.');
+
+    // Start animating the sheet to the max extent.
+    unawaited(
+      controller.animateTo(
+        const Extent.proportional(1),
+        duration: const Duration(milliseconds: 250),
+      ),
+    );
+    // Then, show the keyboard while the animation is running.
+    unawaited(
+      keyboardSimulationKey.currentState!
+          .showKeyboard(const Duration(milliseconds: 250)),
+    );
+    await tester.pumpAndSettle();
+    expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
+        reason: 'The keyboard should be fully shown.');
+    expect(
+      controller.value.pixels,
+      controller.value.maxPixels,
+      reason: 'After the keyboard is fully shown, '
+          'the entire sheet should also be visible.',
+    );
   });
 }

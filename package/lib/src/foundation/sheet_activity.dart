@@ -131,31 +131,61 @@ abstract class SheetActivity<T extends SheetExtent> {
 class AnimatedSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
   AnimatedSheetActivity({
-    required this.from,
-    required this.to,
+    required this.destination,
     required this.duration,
     required this.curve,
   }) : assert(duration > Duration.zero);
 
-  final double from;
-  final double to;
+  final Extent destination;
   final Duration duration;
   final Curve curve;
 
   @override
   AnimationController createAnimationController() {
     return AnimationController.unbounded(
-        value: from, vsync: owner.context.vsync);
+      value: owner.metrics.pixels,
+      vsync: owner.context.vsync,
+    );
   }
 
   @override
   TickerFuture onAnimationStart() {
-    return controller.animateTo(to, duration: duration, curve: curve);
+    return controller.animateTo(
+      destination.resolve(owner.metrics.contentSize),
+      duration: duration,
+      curve: curve,
+    );
   }
 
   @override
   void onAnimationEnd() {
     owner.goBallistic(0);
+  }
+
+  @override
+  void didFinalizeDimensions(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {
+    // 1. Appends the delta of the bottom inset (typically the keyboard height)
+    // to keep the visual sheet position unchanged.
+    final newInsets = owner.metrics.viewportInsets;
+    final oldInsets = oldViewportInsets ?? newInsets;
+    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+    owner.setPixels(owner.metrics.pixels - deltaInsetBottom);
+
+    // 2. If the animation is still running, we start a new linear animation
+    // to bring the sheet position to the recalculated final position in the
+    // remaining duration. We use a linear curve here because starting a curved
+    // animation in the middle of another curved animation tends to look jerky.
+    final newDestination = destination.resolve(owner.metrics.contentSize);
+    final elapsedDuration = controller.lastElapsedDuration ?? duration;
+    if (newDestination != controller.upperBound && elapsedDuration < duration) {
+      final carriedDuration = duration - elapsedDuration;
+      owner.animateTo(destination,
+          duration: carriedDuration, curve: Curves.linear);
+    }
   }
 }
 

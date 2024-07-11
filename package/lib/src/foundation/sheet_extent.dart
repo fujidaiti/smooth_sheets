@@ -507,13 +507,11 @@ abstract class SheetExtent extends ChangeNotifier
     Duration duration = const Duration(milliseconds: 300),
   }) {
     assert(metrics.hasDimensions);
-    final destination = newExtent.resolve(metrics.contentSize);
-    if (metrics.pixels == destination) {
+    if (metrics.pixels == newExtent.resolve(metrics.contentSize)) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
-        from: metrics.pixels,
-        to: destination,
+        destination: newExtent,
         duration: duration,
         curve: curve,
       );
