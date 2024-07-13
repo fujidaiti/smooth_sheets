@@ -38,12 +38,16 @@ class _TestSheetContent extends StatelessWidget {
   const _TestSheetContent({
     super.key,
     this.height = 500,
+    this.itemCount = 30,
     // Disable the snapping effect by default in tests.
     this.scrollPhysics = const ClampingScrollPhysics(),
+    this.onTapItem,
   });
 
   final double? height;
+  final int itemCount;
   final ScrollPhysics? scrollPhysics;
+  final void Function(int index)? onTapItem;
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +58,10 @@ class _TestSheetContent extends StatelessWidget {
         child: ListView(
           physics: scrollPhysics,
           children: List.generate(
-            30,
+            itemCount,
             (index) => ListTile(
               title: Text('Item $index'),
+              onTap: onTapItem != null ? () => onTapItem!(index) : null,
             ),
           ),
         ),
@@ -134,6 +139,66 @@ void main() {
           'the entire sheet should also be visible.',
     );
   });
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/190
+  testWidgets(
+    'Press and hold scrollable view should stop momentum scrolling',
+    (tester) async {
+      const targetKey = Key('Target');
+      final controller = SheetController();
+      late ScrollController scrollController;
+
+      await tester.pumpWidget(
+        _TestApp(
+          child: ScrollableSheet(
+            controller: controller,
+            child: Builder(
+              builder: (context) {
+                // TODO(fujita): Refactor this line after #116 is resolved.
+                scrollController = PrimaryScrollController.of(context);
+                return _TestSheetContent(
+                  key: targetKey,
+                  itemCount: 1000,
+                  height: null,
+                  // The items need to be clickable to cause the reported issue.
+                  onTapItem: (index) {},
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      const dragDistance = 200.0;
+      const flingSpeed = 2000.0;
+      await tester.fling(
+        find.byKey(targetKey),
+        const Offset(0, -1 * dragDistance), // Fling up
+        flingSpeed,
+      );
+
+      final offsetAfterFling = scrollController.offset;
+      // Don't know why, but we need to call `pump` at least 2 times
+      // to forward the animation clock.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+      final offsetBeforePress = scrollController.offset;
+      expect(offsetBeforePress, greaterThan(offsetAfterFling),
+          reason: 'Momentum scrolling should be in progress.');
+
+      // Press and hold the finger on the target widget.
+      await tester.press(find.byKey(targetKey));
+      // Wait for the momentum scrolling to stop.
+      await tester.pumpAndSettle();
+      final offsetAfterPress = scrollController.offset;
+      expect(
+        offsetAfterPress,
+        equals(offsetBeforePress),
+        reason: 'Momentum scrolling should be stopped immediately'
+            'by pressing and holding.',
+      );
+    },
+  );
 
   group('SheetKeyboardDismissible', () {
     late FocusNode focusNode;
