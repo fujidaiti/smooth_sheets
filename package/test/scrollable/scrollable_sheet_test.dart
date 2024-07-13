@@ -101,11 +101,7 @@ void main() {
             controller: controller,
             minExtent: const Extent.pixels(200),
             initialExtent: const Extent.pixels(200),
-            child: const Material(
-              child: _TestSheetContent(
-                height: 500,
-              ),
-            ),
+            child: const _TestSheetContent(height: 500),
           ),
         ),
       ),
