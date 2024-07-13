@@ -12,6 +12,18 @@ import 'scrollable_sheet_extent.dart';
 import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
+/// A [SheetActivity] that is associated with a [SheetContentScrollPosition].
+///
+/// This activity is responsible for both scrolling a scrollable content
+/// in the sheet and dragging the sheet itself.
+///
+/// [shouldIgnorePointer] and [SheetContentScrollPosition.shouldIgnorePointer]
+/// of the associated scroll position may be synchronized, but not always.
+/// For example, [BallisticScrollDrivenSheetActivity]'s [shouldIgnorePointer]
+/// is always `false` while the associated scroll position sets it to `true`
+/// in most cases to ensure that the pointer events, which potentially
+/// interrupt the ballistic scroll animation, are not stolen by clickable
+/// items in the scroll view.
 @internal
 abstract class ScrollableSheetActivity
     extends SheetActivity<ScrollableSheetExtent> {
@@ -196,7 +208,6 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
       ..didDragEnd(details)
       ..goBallisticWithScrollPosition(
         velocity: -1 * details.velocityY,
-        shouldIgnorePointer: false,
         scrollPosition: scrollPosition,
       );
   }
@@ -215,13 +226,9 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
     super.scrollPosition, {
     required this.simulation,
     required double initialPixels,
-    required this.shouldIgnorePointer,
   }) : _oldPixels = initialPixels;
 
   final Simulation simulation;
-
-  @override
-  final bool shouldIgnorePointer;
 
   double _oldPixels;
 
@@ -271,7 +278,6 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
   void _end() {
     owner.goBallisticWithScrollPosition(
       velocity: 0,
-      shouldIgnorePointer: shouldIgnorePointer,
       scrollPosition: scrollPosition,
     );
   }

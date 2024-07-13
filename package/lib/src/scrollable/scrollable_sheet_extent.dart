@@ -161,7 +161,6 @@ class ScrollableSheetExtent extends SheetExtent
   @override
   void goBallisticWithScrollPosition({
     required double velocity,
-    required bool shouldIgnorePointer,
     required SheetContentScrollPosition scrollPosition,
   }) {
     assert(metrics.hasDimensions);
@@ -196,13 +195,12 @@ class ScrollableSheetExtent extends SheetExtent
           scrollPosition,
           simulation: scrollSimulation,
           initialPixels: scrollPixelsForScrollPhysics,
-          shouldIgnorePointer: shouldIgnorePointer,
         ),
       );
       scrollPosition.beginActivity(
         SheetContentBallisticScrollActivity(
           delegate: scrollPosition,
-          shouldIgnorePointer: shouldIgnorePointer,
+          shouldIgnorePointer: scrollPosition.shouldIgnorePointer,
           getVelocity: () => activity.velocity,
         ),
       );
