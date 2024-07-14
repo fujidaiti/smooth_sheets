@@ -96,7 +96,7 @@ void main() {
         child: KeyboardInsetSimulation(
           key: keyboardSimulationKey,
           keyboardHeight: 200,
-          child: DraggableSheet(
+          child: ScrollableSheet(
             key: sheetKey,
             controller: controller,
             minExtent: const Extent.pixels(200),
