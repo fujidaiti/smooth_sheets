@@ -128,4 +128,68 @@ void main() {
           'the entire sheet should also be visible.',
     );
   });
+
+  group('SheetKeyboardDismissible', () {
+    late FocusNode focusNode;
+    late ScrollController scrollController;
+    late Widget testWidget;
+
+    setUp(() {
+      focusNode = FocusNode();
+      scrollController = ScrollController();
+      testWidget = _TestApp(
+        useMaterial: true,
+        child: SheetKeyboardDismissible(
+          dismissBehavior: const SheetKeyboardDismissBehavior.onDrag(
+            isContentScrollAware: true,
+          ),
+          child: DraggableSheet(
+            child: Material(
+              child: TextField(
+                focusNode: focusNode,
+                scrollController: scrollController,
+                maxLines: 2,
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+
+    tearDown(() {
+      focusNode.dispose();
+      scrollController.dispose();
+    });
+
+    testWidgets('should dismiss the keyboard when dragging', (tester) async {
+      await tester.pumpWidget(testWidget);
+
+      final textField = find.byType(TextField);
+      await tester.showKeyboard(textField);
+      expect(focusNode.hasFocus, isTrue,
+          reason: 'The keyboard should be shown.');
+
+      await tester.drag(textField, const Offset(0, -40));
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isFalse,
+          reason: 'Downward dragging should dismiss the keyboard.');
+    });
+
+    testWidgets('should dismiss the keyboard when scrolling', (tester) async {
+      await tester.pumpWidget(testWidget);
+
+      final textField = find.byType(TextField);
+      await tester.enterText(textField, 'Hello, world! ' * 100);
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isTrue,
+          reason: 'The keyboard should be shown.');
+      expect(scrollController.position.extentBefore, greaterThan(0),
+          reason: 'The text field should be able to scroll downwards.');
+
+      await tester.drag(textField, const Offset(0, 40));
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isFalse,
+          reason: 'Downward dragging should dismiss the keyboard.');
+    });
+  });
 }

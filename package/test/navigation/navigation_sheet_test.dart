@@ -15,6 +15,7 @@ class _TestWidget extends StatelessWidget {
     this.onTapBackgroundText,
     this.sheetKey,
     this.contentBuilder,
+    this.sheetBuilder,
     this.sheetController,
     this.useMaterialApp = false,
   });
@@ -23,6 +24,7 @@ class _TestWidget extends StatelessWidget {
   final Map<String, ValueGetter<Route<dynamic>>> routes;
   final VoidCallback? onTapBackgroundText;
   final Widget Function(BuildContext, Widget)? contentBuilder;
+  final Widget Function(BuildContext, Widget)? sheetBuilder;
   final SheetController? sheetController;
   final NavigationSheetTransitionObserver sheetTransitionObserver;
   final Key? sheetKey;
@@ -30,7 +32,7 @@ class _TestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final navigationSheet = NavigationSheet(
+    Widget navigationSheet = NavigationSheet(
       key: sheetKey,
       controller: sheetController,
       transitionObserver: sheetTransitionObserver,
@@ -43,6 +45,10 @@ class _TestWidget extends StatelessWidget {
         ),
       ),
     );
+
+    if (sheetBuilder case final builder?) {
+      navigationSheet = builder(context, navigationSheet);
+    }
 
     Widget content = Stack(
       children: [
@@ -414,4 +420,77 @@ void main() {
       );
     },
   );
+
+  group('SheetKeyboardDismissible', () {
+    late FocusNode focusNode;
+    late ScrollController scrollController;
+    late Widget testWidget;
+
+    setUp(() {
+      focusNode = FocusNode();
+      scrollController = ScrollController();
+      final routeWithTextField = DraggableNavigationSheetRoute<dynamic>(
+        builder: (context) {
+          return Material(
+            child: TextField(
+              focusNode: focusNode,
+              scrollController: scrollController,
+              maxLines: 2,
+            ),
+          );
+        },
+      );
+
+      testWidget = _TestWidget(
+        transitionObserver,
+        initialRoute: 'first',
+        useMaterialApp: true,
+        routes: {'first': () => routeWithTextField},
+        sheetBuilder: (_, sheet) {
+          return SheetKeyboardDismissible(
+            dismissBehavior: const SheetKeyboardDismissBehavior.onDrag(
+              isContentScrollAware: true,
+            ),
+            child: sheet,
+          );
+        },
+      );
+    });
+
+    tearDown(() {
+      focusNode.dispose();
+      scrollController.dispose();
+    });
+
+    testWidgets('should dismiss the keyboard when dragging', (tester) async {
+      await tester.pumpWidget(testWidget);
+
+      final textField = find.byType(TextField);
+      await tester.showKeyboard(textField);
+      expect(focusNode.hasFocus, isTrue,
+          reason: 'The keyboard should be shown.');
+
+      await tester.drag(textField, const Offset(0, -40));
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isFalse,
+          reason: 'Downward dragging should dismiss the keyboard.');
+    });
+
+    testWidgets('should dismiss the keyboard when scrolling', (tester) async {
+      await tester.pumpWidget(testWidget);
+
+      final textField = find.byType(TextField);
+      await tester.enterText(textField, 'Hello, world! ' * 100);
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isTrue,
+          reason: 'The keyboard should be shown.');
+      expect(scrollController.position.extentBefore, greaterThan(0),
+          reason: 'The text field should be able to scroll downwards.');
+
+      await tester.drag(textField, const Offset(0, 40));
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isFalse,
+          reason: 'Downward dragging should dismiss the keyboard.');
+    });
+  });
 }
