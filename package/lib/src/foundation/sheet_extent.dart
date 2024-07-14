@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 
 import '../internal/double_utils.dart';
 import 'sheet_activity.dart';
+import 'sheet_context.dart';
 import 'sheet_controller.dart';
 import 'sheet_drag.dart';
 import 'sheet_extent_scope.dart';
@@ -743,13 +744,4 @@ class SheetMetrics {
         viewportSize: maybeViewportSize,
         viewportInsets: maybeViewportInsets,
       ).toString();
-}
-
-/// An interface that provides the necessary context to a [SheetExtent].
-///
-/// Typically, [State]s that host a [SheetExtent] will implement this interface.
-@internal
-abstract class SheetContext {
-  TickerProvider get vsync;
-  BuildContext? get notificationContext;
 }

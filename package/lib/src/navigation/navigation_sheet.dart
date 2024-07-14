@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
@@ -31,7 +32,10 @@ class NavigationSheet extends StatefulWidget with TransitionAwareWidgetMixin {
 }
 
 class _NavigationSheetState extends State<NavigationSheet>
-    with TransitionAwareStateMixin {
+    with
+        TransitionAwareStateMixin,
+        TickerProviderStateMixin,
+        SheetContextStateMixin {
   final _scopeKey = SheetExtentScopeKey<NavigationSheetExtent>(
     debugLabel: kDebugMode ? 'NavigationSheet' : null,
   );
@@ -49,6 +53,7 @@ class _NavigationSheetState extends State<NavigationSheet>
 
     return NavigationSheetExtentScope(
       key: _scopeKey,
+      context: this,
       controller: controller,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'NavigationSheet' : null,

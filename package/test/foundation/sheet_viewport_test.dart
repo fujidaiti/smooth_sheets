@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
+import 'package:smooth_sheets/src/foundation/sheet_context.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_extent_scope.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';

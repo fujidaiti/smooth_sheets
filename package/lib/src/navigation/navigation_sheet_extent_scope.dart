@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../foundation/sheet_context.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_physics.dart';
@@ -11,6 +12,7 @@ class NavigationSheetExtentScope extends SheetExtentScope {
     super.key,
     super.controller,
     super.gestureTamperer,
+    required super.context,
     this.debugLabel,
     required super.child,
   }) : super(

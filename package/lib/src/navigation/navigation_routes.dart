@@ -37,9 +37,10 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     return NavigationSheetRouteContent(
-      scopeBuilder: (key, child) {
+      scopeBuilder: (context, key, child) {
         return ScrollableSheetExtentScope(
           key: key,
+          context: context,
           isPrimary: false,
           initialExtent: initialExtent,
           minExtent: minExtent,
@@ -78,9 +79,10 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
     final gestureTamper = TamperSheetGesture.maybeOf(context);
 
     return NavigationSheetRouteContent(
-      scopeBuilder: (key, child) {
+      scopeBuilder: (context, key, child) {
         return DraggableSheetExtentScope(
           key: key,
+          context: context,
           isPrimary: false,
           initialExtent: initialExtent,
           minExtent: minExtent,
