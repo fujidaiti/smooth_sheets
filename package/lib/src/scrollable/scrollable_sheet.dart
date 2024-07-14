@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/keyboard_dismissible.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
@@ -16,7 +15,6 @@ import 'sheet_scrollable.dart';
 class ScrollableSheet extends StatelessWidget {
   const ScrollableSheet({
     super.key,
-    this.keyboardDismissBehavior,
     this.initialExtent = const Extent.proportional(1),
     this.minExtent = const Extent.proportional(1),
     this.maxExtent = const Extent.proportional(1),
@@ -24,9 +22,6 @@ class ScrollableSheet extends StatelessWidget {
     this.controller,
     required this.child,
   });
-
-  /// The strategy to dismiss the on-screen keyboard when the sheet is dragged.
-  final SheetKeyboardDismissBehavior? keyboardDismissBehavior;
 
   /// {@macro ScrollableSheetExtent.initialExtent}
   final Extent initialExtent;
@@ -50,12 +45,10 @@ class ScrollableSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
     final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
-    final keyboardDismissBehavior =
-        this.keyboardDismissBehavior ?? theme?.keyboardDismissBehavior;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
     final controller = this.controller ?? SheetControllerScope.maybeOf(context);
 
-    Widget result = ScrollableSheetExtentScope(
+    return ScrollableSheetExtentScope(
       controller: controller,
       initialExtent: initialExtent,
       minExtent: minExtent,
@@ -69,15 +62,6 @@ class ScrollableSheet extends StatelessWidget {
         ),
       ),
     );
-
-    if (keyboardDismissBehavior != null) {
-      result = SheetKeyboardDismissible(
-        dismissBehavior: keyboardDismissBehavior,
-        child: result,
-      );
-    }
-
-    return result;
   }
 }
 

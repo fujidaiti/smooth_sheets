@@ -27,32 +27,34 @@ class EditBookmarkSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableSheet(
-      keyboardDismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SheetContentScaffold(
-          backgroundColor: CupertinoColors.systemGroupedBackground,
-          appBar: CupertinoAppBar(
-            title: const Text('Add Bookmark'),
-            leading: CupertinoButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+    return SheetKeyboardDismissible(
+      dismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(),
+      child: DraggableSheet(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: SheetContentScaffold(
+            backgroundColor: CupertinoColors.systemGroupedBackground,
+            appBar: CupertinoAppBar(
+              title: const Text('Add Bookmark'),
+              leading: CupertinoButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              trailing: CupertinoButton(
+                onPressed: () =>
+                    Navigator.popUntil(context, (route) => route.isFirst),
+                child: const Text('Save'),
+              ),
             ),
-            trailing: CupertinoButton(
-              onPressed: () =>
-                  Navigator.popUntil(context, (route) => route.isFirst),
-              child: const Text('Save'),
-            ),
-          ),
-          body: SizedBox.expand(
-            child: CupertinoListSection.insetGrouped(
-              children: [
-                _BookmarkEditor(
-                  pageUrl: pageUrl,
-                  faviconUrl: faviconUrl,
-                ),
-              ],
+            body: SizedBox.expand(
+              child: CupertinoListSection.insetGrouped(
+                children: [
+                  _BookmarkEditor(
+                    pageUrl: pageUrl,
+                    faviconUrl: faviconUrl,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
