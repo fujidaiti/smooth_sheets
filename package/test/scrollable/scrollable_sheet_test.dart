@@ -96,7 +96,7 @@ void main() {
         child: KeyboardInsetSimulation(
           key: keyboardSimulationKey,
           keyboardHeight: 200,
-          child: DraggableSheet(
+          child: ScrollableSheet(
             key: sheetKey,
             controller: controller,
             minExtent: const Extent.pixels(200),
@@ -137,5 +137,72 @@ void main() {
       reason: 'After the keyboard is fully shown, '
           'the entire sheet should also be visible.',
     );
+  });
+
+  group('SheetKeyboardDismissible', () {
+    late FocusNode focusNode;
+    late Widget testWidget;
+
+    setUp(() {
+      focusNode = FocusNode();
+      testWidget = _TestApp(
+        useMaterial: true,
+        child: SheetKeyboardDismissible(
+          dismissBehavior: const SheetKeyboardDismissBehavior.onDrag(
+            isContentScrollAware: true,
+          ),
+          child: ScrollableSheet(
+            child: Material(
+              child: Column(
+                children: [
+                  TextField(focusNode: focusNode),
+                  Expanded(
+                    child: ListView(
+                      children: List.generate(
+                        30,
+                        (index) => ListTile(
+                          title: Text('Item $index'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+
+    tearDown(() {
+      focusNode.dispose();
+    });
+
+    testWidgets('should dismiss the keyboard when dragging', (tester) async {
+      await tester.pumpWidget(testWidget);
+
+      await tester.showKeyboard(find.byType(TextField));
+      expect(focusNode.hasFocus, isTrue,
+          reason: 'The keyboard should be shown.');
+
+      await tester.drag(find.byType(ListView), const Offset(0, 40));
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isFalse,
+          reason: 'Downward dragging should dismiss the keyboard.');
+    });
+
+    testWidgets('should dismiss the keyboard when scrolling', (tester) async {
+      await tester.pumpWidget(testWidget);
+
+      final textField = find.byType(TextField).first;
+      await tester.showKeyboard(textField);
+      expect(focusNode.hasFocus, isTrue,
+          reason: 'The keyboard should be shown.');
+
+      await tester.drag(find.byType(ListView), const Offset(0, -40));
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isFalse,
+          reason: 'Upward scrolling should dismiss the keyboard.');
+    });
   });
 }

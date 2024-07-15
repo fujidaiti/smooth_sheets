@@ -144,21 +144,22 @@ class _TodoEditorState extends State<TodoEditor> {
       child: PopScope(
         canPop: false,
         onPopInvoked: onPopInvoked,
-        child: ScrollableSheet(
-          keyboardDismissBehavior:
-              const SheetKeyboardDismissBehavior.onDragDown(
+        child: SheetKeyboardDismissible(
+          dismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(
             isContentScrollAware: true,
           ),
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: sheetShape,
-            child: SheetContentScaffold(
-              resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
-                // Make the bottom bar visible when the keyboard is open.
-                maintainBottomBar: true,
+          child: ScrollableSheet(
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: sheetShape,
+              child: SheetContentScaffold(
+                resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
+                  // Make the bottom bar visible when the keyboard is open.
+                  maintainBottomBar: true,
+                ),
+                body: body,
+                bottomBar: bottomBar,
               ),
-              body: body,
-              bottomBar: bottomBar,
             ),
           ),
         ),

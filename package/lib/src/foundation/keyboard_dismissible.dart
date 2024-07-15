@@ -1,18 +1,31 @@
 import 'package:flutter/widgets.dart';
-import '../draggable/draggable_sheet.dart';
+
 import 'sheet_notification.dart';
+import 'sheet_theme.dart';
 
 /// A widget that dismisses the on-screen keyboard when the user
 /// drags the sheet below this widget.
 ///
-/// It is rarely used directly since the sheets internally have this widget
-/// and expose a slot for a [SheetKeyboardDismissBehavior], which is directly
-/// passed to this widget.
+/// The following snippet is an example of a sheet in which the on-screen
+/// keyboard is dismissed when the user drags the sheet downwards:
+///
+/// ```dart
+/// return SheetKeyboardDismissible(
+///   dismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(),
+///   child: DraggableSheet(
+///     child: Container(
+///       color: Colors.white,
+///       width: double.infinity,
+///       height: 500,
+///     ),
+///   ),
+/// );
+/// ```
 ///
 /// See also:
-/// - [DraggableSheet.keyboardDismissBehavior], which is the slot for
-///   a custom [SheetKeyboardDismissBehavior].
-class SheetKeyboardDismissible extends StatelessWidget {
+/// - [SheetKeyboardDismissBehavior], which determines when the on-screen
+/// keyboard should be dismissed.
+class SheetKeyboardDismissible extends StatefulWidget {
   /// Creates a widget that dismisses the on-screen keyboard when the user
   /// drags the sheet below this widget.
   const SheetKeyboardDismissible({
@@ -22,10 +35,26 @@ class SheetKeyboardDismissible extends StatelessWidget {
   });
 
   /// Determines when the on-screen keyboard should be dismissed.
-  final SheetKeyboardDismissBehavior dismissBehavior;
+  ///
+  /// If null, [SheetThemeData.keyboardDismissBehavior] obtained by
+  /// [SheetTheme.maybeOf] will be used. If that is also null,
+  /// [DragSheetKeyboardDismissBehavior] with `isContentScrollAware` set to
+  /// `false` will be used as a fallback.
+  final SheetKeyboardDismissBehavior? dismissBehavior;
 
   /// The widget below this widget in the tree.
   final Widget child;
+
+  @override
+  State<SheetKeyboardDismissible> createState() =>
+      _SheetKeyboardDismissibleState();
+}
+
+class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
+  SheetKeyboardDismissBehavior get _dismissBehavior =>
+      widget.dismissBehavior ??
+      SheetTheme.maybeOf(context)?.keyboardDismissBehavior ??
+      const DragSheetKeyboardDismissBehavior();
 
   @override
   Widget build(BuildContext context) {
@@ -37,22 +66,22 @@ class SheetKeyboardDismissible extends StatelessWidget {
         };
 
         if (primaryFocus?.hasFocus == true &&
-            dismissBehavior.shouldDismissKeyboard(delta)) {
+            _dismissBehavior.shouldDismissKeyboard(delta)) {
           primaryFocus!.unfocus();
         }
         return false;
       },
-      child: child,
+      child: widget.child,
     );
 
-    if (dismissBehavior.isContentScrollAware) {
+    if (_dismissBehavior.isContentScrollAware) {
       result = NotificationListener<ScrollUpdateNotification>(
         onNotification: (notification) {
           final dragDelta = notification.dragDetails?.delta.dy;
           if (notification.depth == 0 &&
               dragDelta != null &&
               primaryFocus?.hasFocus == true &&
-              dismissBehavior.shouldDismissKeyboard(-1 * dragDelta)) {
+              _dismissBehavior.shouldDismissKeyboard(-1 * dragDelta)) {
             primaryFocus!.unfocus();
           }
           return false;

@@ -28,10 +28,6 @@ enum _KeyboardDismissBehaviorKind {
   onDragUp(
     'onDragUp',
     'Dismisses the keyboard only when the user drags the sheet upwards.',
-  ),
-  none(
-    'Null',
-    'Does not automatically dismiss the keyboard.',
   );
 
   final String name;
@@ -49,7 +45,7 @@ class _ExampleHome extends StatefulWidget {
 
 class _ExampleHomeState extends State<_ExampleHome> {
   _KeyboardDismissBehaviorKind selectedBehavior =
-      _KeyboardDismissBehaviorKind.none;
+      _KeyboardDismissBehaviorKind.onDrag;
   bool isContentScrollAware = false;
   bool isFullScreen = false;
 
@@ -122,7 +118,6 @@ class _ExampleHomeState extends State<_ExampleHome> {
   void showExampleSheet(BuildContext context) {
     // This object determines when the sheet should dismisses the on-screen keyboard.
     final keyboardDismissBehavior = switch (selectedBehavior) {
-      _KeyboardDismissBehaviorKind.none => null,
       _KeyboardDismissBehaviorKind.onDrag =>
         SheetKeyboardDismissBehavior.onDrag(
             isContentScrollAware: isContentScrollAware),
@@ -173,25 +168,27 @@ class _ExampleSheet extends StatelessWidget {
 
     return SafeArea(
       bottom: false,
-      child: ScrollableSheet(
-        keyboardDismissBehavior: keyboardDismissBehavior,
-        child: SheetContentScaffold(
-          appBar: AppBar(),
-          body: body,
-          bottomBar: StickyBottomBarVisibility(
-            child: BottomAppBar(
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.menu),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.more_vert),
-                  ),
-                ],
+      child: SheetKeyboardDismissible(
+        dismissBehavior: keyboardDismissBehavior,
+        child: ScrollableSheet(
+          child: SheetContentScaffold(
+            appBar: AppBar(),
+            body: body,
+            bottomBar: StickyBottomBarVisibility(
+              child: BottomAppBar(
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.menu),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.more_vert),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
