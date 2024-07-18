@@ -536,7 +536,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       // Press and hold the list view in the second page
       // until the transition animation is finished.
-      await tester.press(find.byKey(const Key('Second')));
+      // TODO: Change warnIfMissed to true and verify that the long press gesture fails.
+      await tester.press(find.byKey(const Key('Second')), warnIfMissed: false);
       await tester.pumpAndSettle();
       // Ensure that the transition is completed without any exceptions.
       expect(find.text('First').hitTestable(), findsNothing);
