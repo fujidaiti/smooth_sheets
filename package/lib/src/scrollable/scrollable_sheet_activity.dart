@@ -210,6 +210,8 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
   }) : _oldPixels = initialPixels;
 
   final Simulation simulation;
+
+  @override
   final bool shouldIgnorePointer;
 
   double _oldPixels;
