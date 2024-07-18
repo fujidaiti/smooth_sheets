@@ -29,6 +29,9 @@ class TransitionSheetActivity extends NavigationSheetActivity {
 
   @override
   SheetStatus get status => SheetStatus.animating;
+  
+  @override
+  bool get shouldIgnorePointer => true;
 
   @override
   void init(NavigationSheetExtent owner) {
