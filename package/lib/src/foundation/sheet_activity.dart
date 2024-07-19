@@ -53,6 +53,10 @@ abstract class SheetActivity<T extends SheetExtent> {
     _disposed = true;
   }
 
+  /// Whether the sheet should ignore pointer events while performing
+  /// this activity.
+  bool get shouldIgnorePointer => false;
+
   bool isCompatibleWith(SheetExtent newOwner) => newOwner is T;
 
   void didChangeContentSize(Size? oldSize) {}

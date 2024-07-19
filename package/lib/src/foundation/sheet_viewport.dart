@@ -111,6 +111,29 @@ class RenderSheetViewport extends RenderTransform {
     }
   }
 
+  // Mirrors `super._transform` as there is no public getter for it.
+  // This should be initialized before the first call to hitTest().
+  late Matrix4 _transform;
+
+  @override
+  set transform(Matrix4 value) {
+    super.transform = value;
+    _transform = value;
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (_extent.activity.shouldIgnorePointer) {
+      final invTransform = Matrix4.tryInvert(
+        PointerEvent.removePerspectiveTransform(_transform),
+      );
+      return invTransform != null &&
+          size.contains(MatrixUtils.transformPoint(invTransform, position));
+    }
+
+    return super.hitTest(result, position: position);
+  }
+
   @override
   void dispose() {
     _extent.removeListener(_invalidateTranslationValue);

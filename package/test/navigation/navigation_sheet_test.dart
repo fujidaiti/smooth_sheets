@@ -148,6 +148,88 @@ class _TestDraggablePageWidget extends StatelessWidget {
   }
 }
 
+class _TestScrollablePageWidget extends StatelessWidget {
+  const _TestScrollablePageWidget({
+    super.key,
+    required this.height,
+    required this.label,
+    required this.itemCount,
+    this.onTapItem,
+    this.onTapNext,
+    this.onTapBack,
+  });
+
+  final double? height;
+  final String label;
+  final int itemCount;
+  final void Function(int index)? onTapItem;
+  final VoidCallback? onTapNext;
+  final VoidCallback? onTapBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: SizedBox(
+        width: double.infinity,
+        height: height,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(onPressed: onTapBack, child: const Text('Back')),
+                Text(label),
+                TextButton(onPressed: onTapNext, child: const Text('Next')),
+              ],
+            ),
+            Expanded(
+              child: ListView(
+                children: List.generate(
+                  itemCount,
+                  (index) => ListTile(
+                    title: Text('List Item $index'),
+                    onTap: onTapItem != null ? () => onTapItem!(index) : null,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Route<dynamic> createRoute({
+    required String label,
+    double? height,
+    int itemCount = 30,
+    String? nextRoute,
+    Extent initialExtent = const Extent.proportional(1),
+    Extent minExtent = const Extent.proportional(1),
+    Duration transitionDuration = const Duration(milliseconds: 300),
+    SheetPhysics? physics,
+    void Function(int index)? onTapItem,
+  }) {
+    return ScrollableNavigationSheetRoute(
+      physics: physics,
+      initialExtent: initialExtent,
+      minExtent: minExtent,
+      transitionDuration: transitionDuration,
+      builder: (context) => _TestScrollablePageWidget(
+        key: ValueKey(label),
+        height: height,
+        label: label,
+        itemCount: itemCount,
+        onTapItem: onTapItem,
+        onTapBack: () => Navigator.pop(context),
+        onTapNext: nextRoute != null
+            ? () => Navigator.pushNamed(context, nextRoute)
+            : null,
+      ),
+    );
+  }
+}
+
 void main() {
   late NavigationSheetTransitionObserver transitionObserver;
 
@@ -249,7 +331,7 @@ void main() {
       // during a route transition.
       await tester.tap(find.text('Next'));
       // Forwards the transition animation by half.
-      await tester.pumpAndSettle(const Duration(milliseconds: 150));
+      await tester.pump(const Duration(milliseconds: 150));
       expect(lastBoundaryValues, equals((300, 300)));
       // Wait for the transition to finish.
       await tester.pumpAndSettle();
@@ -418,6 +500,48 @@ void main() {
         reason: 'After the keyboard is fully shown, '
             'the entire sheet should also be visible.',
       );
+    },
+  );
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/166
+  testWidgets(
+    'Drag gestures should be ignored during a page transition',
+    (tester) async {
+      await tester.pumpWidget(
+        _TestWidget(
+          transitionObserver,
+          initialRoute: 'first',
+          routes: {
+            'first': () => _TestDraggablePageWidget.createRoute(
+                  label: 'First',
+                  nextRoute: 'second',
+                  height: 500,
+                ),
+            'second': () => _TestScrollablePageWidget.createRoute(
+                  label: 'Second',
+                  height: double.infinity,
+                  // Intentionally slow down the transition animation.
+                  transitionDuration: const Duration(milliseconds: 600),
+                ),
+          },
+        ),
+      );
+
+      expect(find.text('First').hitTestable(), findsOneWidget);
+      expect(find.text('Second'), findsNothing);
+
+      // Go to the second page.
+      await tester.tap(find.text('Next'));
+      // Forwards the transition animation by half.
+      await tester.pump(const Duration(milliseconds: 300));
+      // Press and hold the list view in the second page
+      // until the transition animation is finished.
+      // TODO: Change warnIfMissed to 'true' and verify that the long press gesture fails.
+      await tester.press(find.byKey(const Key('Second')), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      // Ensure that the transition is completed without any exceptions.
+      expect(find.text('First').hitTestable(), findsNothing);
+      expect(find.text('Second').hitTestable(), findsOneWidget);
     },
   );
 

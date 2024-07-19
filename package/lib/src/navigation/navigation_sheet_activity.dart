@@ -31,6 +31,9 @@ class TransitionSheetActivity extends NavigationSheetActivity {
   SheetStatus get status => SheetStatus.animating;
 
   @override
+  bool get shouldIgnorePointer => true;
+
+  @override
   void init(NavigationSheetExtent owner) {
     super.init(owner);
     _curvedAnimation = animation.drive(
