@@ -91,7 +91,7 @@ abstract class SheetExtentScope extends StatefulWidget {
   // TODO: Add 'useRoot' option.
   static E? maybeOf<E extends SheetExtent>(BuildContext context) {
     final inherited = context
-        .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>()
+        .dependOnInheritedWidgetOfExactType<InheritedSheetExtentScope>()
         ?.extent;
 
     return inherited is E ? inherited : null;
@@ -225,7 +225,7 @@ abstract class SheetExtentScopeState<E extends SheetExtent,
     assert(
       () {
         final parentScope = context
-            .dependOnInheritedWidgetOfExactType<_InheritedSheetExtentScope>();
+            .dependOnInheritedWidgetOfExactType<InheritedSheetExtentScope>();
         if (!widget.isPrimary ||
             parentScope == null ||
             !parentScope.isPrimary) {
@@ -245,7 +245,7 @@ abstract class SheetExtentScopeState<E extends SheetExtent,
 
   @override
   Widget build(BuildContext context) {
-    return _InheritedSheetExtentScope(
+    return InheritedSheetExtentScope(
       extent: _extent,
       isPrimary: widget.isPrimary,
       child: widget.child,
@@ -253,8 +253,10 @@ abstract class SheetExtentScopeState<E extends SheetExtent,
   }
 }
 
-class _InheritedSheetExtentScope extends InheritedWidget {
-  const _InheritedSheetExtentScope({
+@internal
+class InheritedSheetExtentScope extends InheritedWidget {
+  const InheritedSheetExtentScope({
+    super.key,
     required this.extent,
     required this.isPrimary,
     required super.child,
@@ -264,6 +266,6 @@ class _InheritedSheetExtentScope extends InheritedWidget {
   final bool isPrimary;
 
   @override
-  bool updateShouldNotify(_InheritedSheetExtentScope oldWidget) =>
+  bool updateShouldNotify(InheritedSheetExtentScope oldWidget) =>
       extent != oldWidget.extent || isPrimary != oldWidget.isPrimary;
 }
