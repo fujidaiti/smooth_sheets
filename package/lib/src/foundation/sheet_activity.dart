@@ -90,7 +90,7 @@ abstract class SheetActivity<T extends SheetExtent> {
         final correction = min(0.0, metrics.maxViewPixels - metrics.viewPixels);
         owner
           ..setPixels(oldPixels + correction)
-          ..dispatchUpdateNotification();
+          ..didUpdateMetrics();
 
       case < 0:
         // Appends the delta of the bottom inset (typically the keyboard height)
@@ -100,7 +100,7 @@ abstract class SheetActivity<T extends SheetExtent> {
             oldPixels - deltaInsetBottom,
             owner.metrics.maxPixels,
           ))
-          ..dispatchUpdateNotification();
+          ..didUpdateMetrics();
     }
 
     owner.settle();
@@ -184,7 +184,7 @@ class AnimatedSheetActivity extends SheetActivity
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
     owner
       ..setPixels(owner.metrics.pixels - deltaInsetBottom)
-      ..dispatchUpdateNotification();
+      ..didUpdateMetrics();
 
     // 2. If the animation is still running, we start a new linear animation
     // to bring the sheet position to the recalculated final position in the
@@ -265,14 +265,14 @@ class DragSheetActivity extends SheetActivity
     if (physicsAppliedDelta != 0) {
       owner
         ..setPixels(owner.metrics.pixels + physicsAppliedDelta)
-        ..dispatchDragUpdateNotification(details: details);
+        ..didDragUpdateMetrics(details: details);
     }
   }
 
   @override
   void applyUserDragEnd(SheetDragEndDetails details) {
     owner
-      ..dispatchDragEndNotification(details: details)
+      ..didDragEnd(details: details)
       ..goBallistic(details.velocityY);
   }
 }
@@ -311,7 +311,7 @@ mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
       final oldPixels = owner.metrics.pixels;
       owner
         ..setPixels(oldPixels + controller.value - _lastAnimatedValue)
-        ..dispatchUpdateNotification();
+        ..didUpdateMetrics();
       _lastAnimatedValue = controller.value;
     }
   }
@@ -346,7 +346,7 @@ mixin UserControlledSheetActivityMixin<T extends SheetExtent>
     // to keep the visual sheet position unchanged.
     owner
       ..setPixels(owner.metrics.pixels - deltaInsetBottom)
-      ..dispatchUpdateNotification();
+      ..didUpdateMetrics();
     // We don't call `goSettling` here because the user is still
     // manually controlling the sheet position.
   }

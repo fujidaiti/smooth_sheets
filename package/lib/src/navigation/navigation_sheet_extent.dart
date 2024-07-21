@@ -103,50 +103,50 @@ class NavigationSheetExtent extends SheetExtent {
   }
 
   @override
-  void dispatchUpdateNotification() {
+  void didUpdateMetrics() {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchUpdateNotification();
+      super.didUpdateMetrics();
     }
   }
 
   @override
-  void dispatchDragStartNotification({
+  void didDragStart({
     required SheetDragStartDetails details,
   }) {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchDragStartNotification(details: details);
+      super.didDragStart(details: details);
     }
   }
 
   @override
-  void dispatchDragEndNotification({
+  void didDragEnd({
     required SheetDragEndDetails details,
   }) {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchDragEndNotification(details: details);
+      super.didDragEnd(details: details);
     }
   }
 
   @override
-  void dispatchDragUpdateNotification({
+  void didDragUpdateMetrics({
     required SheetDragUpdateDetails details,
   }) {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchDragUpdateNotification(details: details);
+      super.didDragUpdateMetrics(details: details);
     }
   }
 
   @override
-  void dispatchOverflowNotification({
+  void didOverflow({
     required double overflow,
   }) {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchOverflowNotification(overflow: overflow);
+      super.didOverflow(overflow: overflow);
     }
   }
 
