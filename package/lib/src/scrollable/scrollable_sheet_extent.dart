@@ -154,7 +154,7 @@ class ScrollableSheetExtent extends SheetExtent
       ),
     );
     beginActivity(dragActivity);
-    didDragStart(details: startDetails);
+    didDragStart(startDetails);
     return drag;
   }
 

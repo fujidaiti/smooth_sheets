@@ -458,7 +458,7 @@ abstract class SheetExtent extends ChangeNotifier
       motionStartDistanceThreshold: physics.dragStartDistanceMotionThreshold,
     );
     beginActivity(dragActivity);
-    didDragStart(details: startDetails);
+    didDragStart(startDetails);
     return drag;
   }
 
@@ -521,7 +521,7 @@ abstract class SheetExtent extends ChangeNotifier
     }
   }
 
-  void didDragStart({required SheetDragStartDetails details}) {
+  void didDragStart(SheetDragStartDetails details) {
     assert(metrics.hasDimensions);
     _dispatchNotification(
       SheetDragStartNotification(
@@ -531,7 +531,7 @@ abstract class SheetExtent extends ChangeNotifier
     );
   }
 
-  void didDragEnd({required SheetDragEndDetails details}) {
+  void didDragEnd(SheetDragEndDetails details) {
     assert(metrics.hasDimensions);
     _dispatchNotification(
       SheetDragEndNotification(
@@ -541,7 +541,7 @@ abstract class SheetExtent extends ChangeNotifier
     );
   }
 
-  void didDragUpdateMetrics({required SheetDragUpdateDetails details}) {
+  void didDragUpdateMetrics(SheetDragUpdateDetails details) {
     assert(metrics.hasDimensions);
     _dispatchNotification(
       SheetDragUpdateNotification(
@@ -551,7 +551,7 @@ abstract class SheetExtent extends ChangeNotifier
     );
   }
 
-  void didOverflow({required double overflow}) {
+  void didOverflowBy(double overflow) {
     assert(metrics.hasDimensions);
     _dispatchNotification(
       SheetOverflowNotification(

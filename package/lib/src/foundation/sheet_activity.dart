@@ -265,14 +265,14 @@ class DragSheetActivity extends SheetActivity
     if (physicsAppliedDelta != 0) {
       owner
         ..setPixels(owner.metrics.pixels + physicsAppliedDelta)
-        ..didDragUpdateMetrics(details: details);
+        ..didDragUpdateMetrics(details);
     }
   }
 
   @override
   void applyUserDragEnd(SheetDragEndDetails details) {
     owner
-      ..didDragEnd(details: details)
+      ..didDragEnd(details)
       ..goBallistic(details.velocityY);
   }
 }

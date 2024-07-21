@@ -183,17 +183,17 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
     final oldPixels = owner.metrics.pixels;
     final overflow = _applyScrollOffset(-1 * details.deltaY);
     if (owner.metrics.pixels != oldPixels) {
-      owner.didDragUpdateMetrics(details: details);
+      owner.didDragUpdateMetrics(details);
     }
     if (overflow > 0) {
-      owner.didOverflow(overflow: overflow);
+      owner.didOverflowBy(overflow);
     }
   }
 
   @override
   void applyUserDragEnd(SheetDragEndDetails details) {
     owner
-      ..didDragEnd(details: details)
+      ..didDragEnd(details)
       ..goBallisticWithScrollPosition(
         velocity: -1 * details.velocityY,
         shouldIgnorePointer: false,
@@ -245,7 +245,7 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
     }
     if (!overflow.isApprox(0)) {
       owner
-        ..didOverflow(overflow: overflow)
+        ..didOverflowBy(overflow)
         ..goIdleWithScrollPosition();
       return;
     }
