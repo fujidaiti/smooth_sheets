@@ -111,7 +111,6 @@ abstract class ScrollableSheetActivity
     final overflow = owner.physics.computeOverflow(delta, owner.metrics);
     if (overflow.abs() > 0) {
       position.didOverscrollBy(overflow);
-      owner.dispatchOverflowNotification(overflow: overflow);
       return overflow;
     }
 
@@ -177,19 +176,29 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
   }
 
   @override
-  void applyUserDragUpdate(Offset delta) {
-    scrollPosition.userScrollDirection =
-        delta.dy > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse;
-    _applyScrollOffset(-1 * delta.dy);
+  void applyUserDragUpdate(SheetDragUpdateDetails details) {
+    scrollPosition.userScrollDirection = details.deltaY > 0.0
+        ? ScrollDirection.forward
+        : ScrollDirection.reverse;
+    final oldPixels = owner.metrics.pixels;
+    final overflow = _applyScrollOffset(-1 * details.deltaY);
+    if (owner.metrics.pixels != oldPixels) {
+      owner.dispatchDragUpdateNotification(details: details);
+    }
+    if (overflow > 0) {
+      owner.dispatchOverflowNotification(overflow: overflow);
+    }
   }
 
   @override
-  void applyUserDragEnd(Velocity velocity) {
-    owner.goBallisticWithScrollPosition(
-      velocity: -1 * velocity.pixelsPerSecond.dy,
-      shouldIgnorePointer: false,
-      scrollPosition: scrollPosition,
-    );
+  void applyUserDragEnd(SheetDragEndDetails details) {
+    owner
+      ..dispatchDragEndNotification(details: details)
+      ..goBallisticWithScrollPosition(
+        velocity: -1 * details.velocityY,
+        shouldIgnorePointer: false,
+        scrollPosition: scrollPosition,
+      );
   }
 }
 
@@ -230,10 +239,14 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
   void onAnimationTick() {
     final delta = controller.value - _oldPixels;
     _oldPixels = controller.value;
-    final overscroll = _applyScrollOffset(delta);
-
-    if (!overscroll.isApprox(0)) {
-      owner.goIdleWithScrollPosition();
+    final overflow = _applyScrollOffset(delta);
+    if (owner.metrics.pixels != _oldPixels) {
+      owner.dispatchUpdateNotification();
+    }
+    if (!overflow.isApprox(0)) {
+      owner
+        ..dispatchOverflowNotification(overflow: overflow)
+        ..goIdleWithScrollPosition();
       return;
     }
 

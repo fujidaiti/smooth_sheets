@@ -88,14 +88,19 @@ abstract class SheetActivity<T extends SheetExtent> {
       case > 0:
         // Prevents the sheet from being pushed off the screen by the keyboard.
         final correction = min(0.0, metrics.maxViewPixels - metrics.viewPixels);
-        owner.setPixels(oldPixels + correction);
+        owner
+          ..setPixels(oldPixels + correction)
+          ..dispatchUpdateNotification();
 
       case < 0:
         // Appends the delta of the bottom inset (typically the keyboard height)
         // to keep the visual sheet position unchanged.
-        owner.setPixels(
-          min(oldPixels - deltaInsetBottom, owner.metrics.maxPixels),
-        );
+        owner
+          ..setPixels(min(
+            oldPixels - deltaInsetBottom,
+            owner.metrics.maxPixels,
+          ))
+          ..dispatchUpdateNotification();
     }
 
     owner.settle();
@@ -177,7 +182,9 @@ class AnimatedSheetActivity extends SheetActivity
     final newInsets = owner.metrics.viewportInsets;
     final oldInsets = oldViewportInsets ?? newInsets;
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
-    owner.setPixels(owner.metrics.pixels - deltaInsetBottom);
+    owner
+      ..setPixels(owner.metrics.pixels - deltaInsetBottom)
+      ..dispatchUpdateNotification();
 
     // 2. If the animation is still running, we start a new linear animation
     // to bring the sheet position to the recalculated final position in the
@@ -252,17 +259,21 @@ class DragSheetActivity extends SheetActivity
   }
 
   @override
-  void applyUserDragUpdate(Offset offset) {
+  void applyUserDragUpdate(SheetDragUpdateDetails details) {
     final physicsAppliedDelta =
-        owner.physics.applyPhysicsToOffset(offset.dy, owner.metrics);
+        owner.physics.applyPhysicsToOffset(details.deltaY, owner.metrics);
     if (physicsAppliedDelta != 0) {
-      owner.setPixels(owner.metrics.pixels + physicsAppliedDelta);
+      owner
+        ..setPixels(owner.metrics.pixels + physicsAppliedDelta)
+        ..dispatchDragUpdateNotification(details: details);
     }
   }
 
   @override
-  void applyUserDragEnd(Velocity velocity) {
-    owner.goBallistic(velocity.pixelsPerSecond.dy);
+  void applyUserDragEnd(SheetDragEndDetails details) {
+    owner
+      ..dispatchDragEndNotification(details: details)
+      ..goBallistic(details.velocityY);
   }
 }
 
@@ -298,7 +309,9 @@ mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
   void onAnimationTick() {
     if (mounted) {
       final oldPixels = owner.metrics.pixels;
-      owner.setPixels(oldPixels + controller.value - _lastAnimatedValue);
+      owner
+        ..setPixels(oldPixels + controller.value - _lastAnimatedValue)
+        ..dispatchUpdateNotification();
       _lastAnimatedValue = controller.value;
     }
   }
@@ -331,7 +344,9 @@ mixin UserControlledSheetActivityMixin<T extends SheetExtent>
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
     // Appends the delta of the bottom inset (typically the keyboard height)
     // to keep the visual sheet position unchanged.
-    owner.setPixels(owner.metrics.pixels - deltaInsetBottom);
+    owner
+      ..setPixels(owner.metrics.pixels - deltaInsetBottom)
+      ..dispatchUpdateNotification();
     // We don't call `goSettling` here because the user is still
     // manually controlling the sheet position.
   }
