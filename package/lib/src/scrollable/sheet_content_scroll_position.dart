@@ -32,7 +32,6 @@ abstract class SheetContentScrollPositionOwner {
 
   void goBallisticWithScrollPosition({
     required double velocity,
-    required bool shouldIgnorePointer,
     required SheetContentScrollPosition scrollPosition,
   });
 }
@@ -68,6 +67,10 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
   /// being used from outside of this object.
   double _heldPreviousVelocity = 0.0;
   double get heldPreviousVelocity => _heldPreviousVelocity;
+
+  /// Whether the scroll view should prevent its contents from receiving
+  /// pointer events.
+  bool get shouldIgnorePointer => activity!.shouldIgnorePointer;
 
   /// Sets the user scroll direction.
   ///
@@ -123,7 +126,6 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
     if (owner != null && owner.hasPrimaryScrollPosition && !calledByOwner) {
       owner.goBallisticWithScrollPosition(
         velocity: velocity,
-        shouldIgnorePointer: activity?.shouldIgnorePointer ?? true,
         scrollPosition: this,
       );
       return;
