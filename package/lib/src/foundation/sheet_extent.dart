@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -512,69 +511,44 @@ abstract class SheetExtent extends ChangeNotifier
 
   void didUpdateMetrics() {
     if (metrics.hasDimensions) {
-      _dispatchNotification(
-        SheetUpdateNotification(
-          metrics: metrics,
-          status: status,
-        ),
-      );
+      SheetUpdateNotification(
+        metrics: metrics,
+        status: status,
+      ).dispatch(context.notificationContext);
     }
   }
 
   void didDragStart(SheetDragStartDetails details) {
     assert(metrics.hasDimensions);
-    _dispatchNotification(
-      SheetDragStartNotification(
-        metrics: metrics,
-        dragDetails: details,
-      ),
-    );
+    SheetDragStartNotification(
+      metrics: metrics,
+      dragDetails: details,
+    ).dispatch(context.notificationContext);
   }
 
   void didDragEnd(SheetDragEndDetails details) {
     assert(metrics.hasDimensions);
-    _dispatchNotification(
-      SheetDragEndNotification(
-        metrics: metrics,
-        dragDetails: details,
-      ),
-    );
+    SheetDragEndNotification(
+      metrics: metrics,
+      dragDetails: details,
+    ).dispatch(context.notificationContext);
   }
 
   void didDragUpdateMetrics(SheetDragUpdateDetails details) {
     assert(metrics.hasDimensions);
-    _dispatchNotification(
-      SheetDragUpdateNotification(
-        metrics: metrics,
-        dragDetails: details,
-      ),
-    );
+    SheetDragUpdateNotification(
+      metrics: metrics,
+      dragDetails: details,
+    ).dispatch(context.notificationContext);
   }
 
   void didOverflowBy(double overflow) {
     assert(metrics.hasDimensions);
-    _dispatchNotification(
-      SheetOverflowNotification(
-        metrics: metrics,
-        status: status,
-        overflow: overflow,
-      ),
-    );
-  }
-
-  void _dispatchNotification(SheetNotification notification) {
-    // Avoid dispatching a notification in the middle of a build.
-    switch (SchedulerBinding.instance.schedulerPhase) {
-      case SchedulerPhase.postFrameCallbacks:
-        notification.dispatch(context.notificationContext);
-      case SchedulerPhase.idle:
-      case SchedulerPhase.midFrameMicrotasks:
-      case SchedulerPhase.persistentCallbacks:
-      case SchedulerPhase.transientCallbacks:
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          notification.dispatch(context.notificationContext);
-        });
-    }
+    SheetOverflowNotification(
+      metrics: metrics,
+      status: status,
+      overflow: overflow,
+    ).dispatch(context.notificationContext);
   }
 
   String _debugMessage(String message) {
