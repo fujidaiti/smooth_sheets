@@ -217,8 +217,8 @@ class SheetDragEndDetails extends SheetDragDetails {
 @internal
 abstract class SheetDragControllerTarget {
   VerticalDirection get dragAxisDirection;
-  void applyUserDragUpdate(Offset offset);
-  void applyUserDragEnd(Velocity velocity);
+  void applyUserDragUpdate(SheetDragUpdateDetails details);
+  void applyUserDragEnd(SheetDragEndDetails details);
 
   /// Returns the minimum number of pixels that the sheet being dragged
   /// will potentially consume for the given drag delta.
@@ -318,7 +318,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     }
 
     _lastDetails = details;
-    _target!.applyUserDragEnd(details.velocity);
+    _target!.applyUserDragEnd(details);
   }
 
   /// Called by the [ScrollDragController] in [Drag.update].
@@ -349,7 +349,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     }
 
     _lastDetails = details;
-    _target!.applyUserDragUpdate(details.delta);
+    _target!.applyUserDragUpdate(details);
   }
 
   @override

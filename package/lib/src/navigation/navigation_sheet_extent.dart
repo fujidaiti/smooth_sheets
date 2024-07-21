@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
+import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_extent.dart';
 import '../internal/transition_observer.dart';
 import 'navigation_route.dart';
@@ -102,42 +103,42 @@ class NavigationSheetExtent extends SheetExtent {
   }
 
   @override
-  void dispatchUpdateNotification() {
+  void didUpdateMetrics() {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchUpdateNotification();
+      super.didUpdateMetrics();
     }
   }
 
   @override
-  void dispatchDragStartNotification() {
+  void didDragStart(SheetDragStartDetails details) {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchDragStartNotification();
+      super.didDragStart(details);
     }
   }
 
   @override
-  void dispatchDragEndNotification() {
+  void didDragEnd(SheetDragEndDetails details) {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchDragEndNotification();
+      super.didDragEnd(details);
     }
   }
 
   @override
-  void dispatchDragUpdateNotification() {
+  void didDragUpdateMetrics(SheetDragUpdateDetails details) {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchDragUpdateNotification();
+      super.didDragUpdateMetrics(details);
     }
   }
 
   @override
-  void dispatchOverflowNotification(double overflow) {
+  void didOverflowBy(double overflow) {
     // Do not dispatch a notifications if a local extent is active.
     if (activity is! NavigationSheetActivity) {
-      super.dispatchOverflowNotification(overflow);
+      super.didOverflowBy(overflow);
     }
   }
 
