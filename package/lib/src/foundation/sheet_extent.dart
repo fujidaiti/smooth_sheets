@@ -8,7 +8,6 @@ import 'package:meta/meta.dart';
 
 import '../internal/double_utils.dart';
 import 'sheet_activity.dart';
-import 'sheet_controller.dart';
 import 'sheet_drag.dart';
 import 'sheet_extent_scope.dart';
 import 'sheet_gesture_tamperer.dart';
@@ -384,24 +383,20 @@ abstract class SheetExtent extends ChangeNotifier
     final isDragging = activity.status == SheetStatus.dragging;
 
     // TODO: Make more typesafe
-    switch ((wasDragging, isDragging)) {
-      case (true, true):
-        assert(currentDrag != null);
-        assert(activity is SheetDragControllerTarget);
-        currentDrag!.updateTarget(activity as SheetDragControllerTarget);
+    assert(() {
+      final wasActuallyDragging =
+          currentDrag != null && oldActivity is SheetDragControllerTarget;
+      final isActuallyDragging =
+          currentDrag != null && activity is SheetDragControllerTarget;
+      return wasDragging == wasActuallyDragging &&
+          isDragging == isActuallyDragging;
+    }());
 
-      case (true, false):
-        assert(currentDrag != null);
-        dispatchDragEndNotification();
-        currentDrag!.dispose();
-        currentDrag = null;
-
-      case (false, true):
-        assert(currentDrag != null);
-        dispatchDragStartNotification();
-
-      case (false, false):
-        assert(currentDrag == null);
+    if (wasDragging && isDragging) {
+      currentDrag!.updateTarget(activity as SheetDragControllerTarget);
+    } else if (wasDragging && !isDragging) {
+      currentDrag!.dispose();
+      currentDrag = null;
     }
 
     oldActivity.dispose();
@@ -436,10 +431,7 @@ abstract class SheetExtent extends ChangeNotifier
     }
   }
 
-  Drag drag(
-    DragStartDetails details,
-    VoidCallback dragCancelCallback,
-  ) {
+  Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
     assert(currentDrag == null);
     final dragActivity = DragSheetActivity();
     var startDetails = SheetDragStartDetails(
@@ -465,6 +457,7 @@ abstract class SheetExtent extends ChangeNotifier
       motionStartDistanceThreshold: physics.dragStartDistanceMotionThreshold,
     );
     beginActivity(dragActivity);
+    dispatchDragStartNotification(details: startDetails);
     return drag;
   }
 
@@ -482,11 +475,6 @@ abstract class SheetExtent extends ChangeNotifier
     correctPixels(pixels);
     if (oldPixels != pixels) {
       notifyListeners();
-      if (currentDrag?.lastDetails is SheetDragUpdateDetails) {
-        dispatchDragUpdateNotification();
-      } else {
-        dispatchUpdateNotification();
-      }
     }
   }
 
@@ -532,46 +520,45 @@ abstract class SheetExtent extends ChangeNotifier
     }
   }
 
-  void dispatchDragStartNotification() {
+  void dispatchDragStartNotification({
+    required SheetDragStartDetails details,
+  }) {
     assert(metrics.hasDimensions);
-    assert(currentDrag != null);
-    final details = currentDrag!.lastDetails;
-    assert(details is SheetDragStartDetails);
     _dispatchNotification(
       SheetDragStartNotification(
         metrics: metrics,
-        dragDetails: details as SheetDragStartDetails,
+        dragDetails: details,
       ),
     );
   }
 
-  void dispatchDragEndNotification() {
+  void dispatchDragEndNotification({
+    required SheetDragEndDetails details,
+  }) {
     assert(metrics.hasDimensions);
-    assert(currentDrag != null);
-    final details = currentDrag!.lastDetails;
-    assert(details is SheetDragEndDetails);
     _dispatchNotification(
       SheetDragEndNotification(
         metrics: metrics,
-        dragDetails: details as SheetDragEndDetails,
+        dragDetails: details,
       ),
     );
   }
 
-  void dispatchDragUpdateNotification() {
+  void dispatchDragUpdateNotification({
+    required SheetDragUpdateDetails details,
+  }) {
     assert(metrics.hasDimensions);
-    assert(currentDrag != null);
-    final details = currentDrag!.lastDetails;
-    assert(details is SheetDragUpdateDetails);
     _dispatchNotification(
       SheetDragUpdateNotification(
         metrics: metrics,
-        dragDetails: details as SheetDragUpdateDetails,
+        dragDetails: details,
       ),
     );
   }
 
-  void dispatchOverflowNotification(double overflow) {
+  void dispatchOverflowNotification({
+    required double overflow,
+  }) {
     assert(metrics.hasDimensions);
     _dispatchNotification(
       SheetOverflowNotification(
