@@ -542,6 +542,13 @@ abstract class SheetExtent extends ChangeNotifier
     ).dispatch(context.notificationContext);
   }
 
+  void didDragCancel() {
+    assert(metrics.hasDimensions);
+    SheetDragCancelNotification(
+      metrics: metrics,
+    ).dispatch(context.notificationContext);
+  }
+
   void didOverflowBy(double overflow) {
     assert(metrics.hasDimensions);
     SheetOverflowNotification(

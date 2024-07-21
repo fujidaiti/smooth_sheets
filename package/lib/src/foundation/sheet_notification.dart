@@ -8,7 +8,7 @@ import 'sheet_status.dart';
 /// A [Notification] that is dispatched when the sheet extent changes.
 ///
 /// Sheet widgets notify their ancestors about changes to their extent.
-/// There are 5 types of notifications:
+/// There are 6 types of notifications:
 /// - [SheetOverflowNotification], which is dispatched when the user tries
 ///   to drag the sheet beyond its draggable bounds but the sheet has not
 ///   changed its extent because its [SheetPhysics] does not allow it to be.
@@ -20,6 +20,8 @@ import 'sheet_status.dart';
 ///   dragging the sheet.
 /// - [SheetDragEndNotification], which is dispatched when the user stops
 ///   dragging the sheet.
+/// - [SheetDragCancelNotification], which is dispatched when the user
+///  or the system cancels a drag gesture in the sheet.
 ///
 /// See also:
 /// - [NotificationListener], which can be used to listen for notifications
@@ -114,6 +116,16 @@ class SheetDragEndNotification extends SheetNotification {
     super.debugFillDescription(description);
     description.add('dragDetails: $dragDetails');
   }
+}
+
+/// A [SheetNotification] that is dispatched when the user
+/// or the system cancels a drag gesture in the sheet.
+class SheetDragCancelNotification extends SheetNotification {
+  /// Create a notification that is dispatched when a drag gesture
+  /// in the sheet is canceled.
+  const SheetDragCancelNotification({
+    required super.metrics,
+  }) : super(status: SheetStatus.dragging);
 }
 
 /// A [SheetNotification] that is dispatched when the user tries
