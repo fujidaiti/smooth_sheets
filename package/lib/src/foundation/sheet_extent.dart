@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 
 import '../internal/double_utils.dart';
 import 'sheet_activity.dart';
+import 'sheet_controller.dart';
 import 'sheet_drag.dart';
 import 'sheet_extent_scope.dart';
 import 'sheet_gesture_tamperer.dart';
