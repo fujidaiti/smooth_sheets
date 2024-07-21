@@ -267,6 +267,12 @@ class DragSheetActivity extends SheetActivity
         ..setPixels(owner.metrics.pixels + physicsAppliedDelta)
         ..didDragUpdateMetrics(details);
     }
+
+    final overflow =
+        owner.physics.computeOverflow(details.deltaY, owner.metrics);
+    if (overflow != 0) {
+      owner.didOverflowBy(overflow);
+    }
   }
 
   @override
