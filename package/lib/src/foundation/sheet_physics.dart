@@ -64,6 +64,7 @@ abstract class SheetPhysics {
 
   double computeOverflow(double offset, SheetMetrics metrics);
 
+  // TODO: Change to return a tuple of (physicsAppliedOffset, overflow) to avoid recomputation of the overflow.
   double applyPhysicsToOffset(double offset, SheetMetrics metrics);
 
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics);
@@ -92,6 +93,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
 
   @override
   double applyPhysicsToOffset(double offset, SheetMetrics metrics) {
+    // TODO: Use computeOverflow() to calculate the overflowed pixels.
     if (parent case final parent?) {
       return parent.applyPhysicsToOffset(offset, metrics);
     } else if (offset > 0 && metrics.pixels < metrics.maxPixels) {
