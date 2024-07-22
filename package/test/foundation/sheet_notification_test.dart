@@ -303,4 +303,60 @@ void main() {
               'no notification should be dispatched.');
     },
   );
+
+  /*
+  TODO: Uncomment this once https://github.com/flutter/flutter/issues/152163 is fixed.
+  testWidgets(
+    'Canceling drag gesture should dispatch a drag cancel notification',
+    (tester) async {
+      final reportedNotifications = <SheetNotification>[];
+      const targetKey = Key('target');
+
+      await tester.pumpWidget(
+        NotificationListener<SheetNotification>(
+          onNotification: (notification) {
+            reportedNotifications.add(notification);
+            return false;
+          },
+          child: DraggableSheet(
+            minExtent: const Extent.pixels(0),
+            // Disable the snapping effect
+            physics: const ClampingSheetPhysics(),
+            child: Container(
+              key: targetKey,
+              color: Colors.white,
+              width: double.infinity,
+              height: 500,
+            ),
+          ),
+        ),
+      );
+
+      final gesturePointer = await tester.press(find.byKey(targetKey));
+      await gesturePointer.moveBy(const Offset(0, 20));
+      await tester.pump();
+      expect(
+        reportedNotifications,
+        equals([
+          isA<SheetDragStartNotification>(),
+          isA<SheetDragUpdateNotification>(),
+        ]),
+      );
+
+      reportedNotifications.clear();
+      await gesturePointer.cancel();
+      await tester.pump();
+      expect(
+        reportedNotifications.single,
+        isA<SheetDragCancelNotification>(),
+      );
+
+      reportedNotifications.clear();
+      await tester.pumpAndSettle();
+      expect(reportedNotifications, isEmpty,
+          reason: 'Once the drag is canceled, '
+              'no notification should be dispatched.');
+    },
+  );
+  */
 }
