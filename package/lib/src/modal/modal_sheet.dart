@@ -302,28 +302,49 @@ class _SwipeDismissibleController with SheetGestureTamperer {
 
   @override
   SheetDragEndDetails tamperWithDragEnd(SheetDragEndDetails details) {
+    final wasHandled = _handleDragEnd(
+      velocity: details.velocity,
+      axisDirection: details.axisDirection,
+    );
+    return wasHandled
+        ? super.tamperWithDragEnd(details.copyWith(velocityX: 0, velocityY: 0))
+        : super.tamperWithDragEnd(details);
+  }
+
+  @override
+  void onDragCancel(SheetDragCancelDetails details) {
+    super.onDragCancel(details);
+    _handleDragEnd(
+      axisDirection: details.axisDirection,
+      velocity: Velocity.zero,
+    );
+  }
+
+  bool _handleDragEnd({
+    required Velocity velocity,
+    required VerticalDirection axisDirection,
+  }) {
     if (!_isUserGestureInProgress || transitionController.isAnimating) {
-      return super.tamperWithDragEnd(details);
+      return false;
     }
 
     final viewportHeight = _context.size!.height;
     final draggedDistance = viewportHeight * (1 - transitionController.value);
 
-    final velocity = switch (details.axisDirection) {
-      VerticalDirection.up =>
-        details.velocity.pixelsPerSecond.dy / viewportHeight,
+    final effectiveVelocity = switch (axisDirection) {
+      VerticalDirection.up => velocity.pixelsPerSecond.dy / viewportHeight,
       VerticalDirection.down =>
-        -1 * details.velocity.pixelsPerSecond.dy / viewportHeight,
+        -1 * velocity.pixelsPerSecond.dy / viewportHeight,
     };
 
     final bool invokePop;
     if (MediaQuery.viewInsetsOf(_context).bottom > 0) {
       // The on-screen keyboard is open.
       invokePop = false;
-    } else if (velocity < 0) {
+    } else if (effectiveVelocity < 0) {
       // Flings down.
-      invokePop = velocity.abs() > _minFlingVelocityToDismiss;
-    } else if (velocity.isApprox(0)) {
+      invokePop = effectiveVelocity.abs() > _minFlingVelocityToDismiss;
+    } else if (effectiveVelocity.isApprox(0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
       invokePop = draggedDistance > _minDragDistanceToDismiss;
@@ -372,8 +393,6 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       route.onPopInvoked(didPop);
     }
 
-    return super.tamperWithDragEnd(
-      details.copyWith(velocityX: 0, velocityY: 0),
-    );
+    return true;
   }
 }

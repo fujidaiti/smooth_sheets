@@ -211,6 +211,16 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
         scrollPosition: scrollPosition,
       );
   }
+
+  @override
+  void onDragCancel(SheetDragCancelDetails details) {
+    owner
+      ..didDragCancel()
+      ..goBallisticWithScrollPosition(
+        velocity: 0,
+        scrollPosition: scrollPosition,
+      );
+  }
 }
 
 /// A [SheetActivity] that animates either a scrollable content of
