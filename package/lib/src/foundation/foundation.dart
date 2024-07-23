@@ -18,6 +18,7 @@ export 'sheet_content_scaffold.dart'
 export 'sheet_controller.dart' show DefaultSheetController, SheetController;
 export 'sheet_drag.dart'
     show
+        SheetDragCancelDetails,
         SheetDragDetails,
         SheetDragEndDetails,
         SheetDragStartDetails,
@@ -26,6 +27,7 @@ export 'sheet_extent.dart'
     show Extent, FixedExtent, ProportionalExtent, SheetMetrics;
 export 'sheet_notification.dart'
     show
+        SheetDragCancelNotification,
         SheetDragEndNotification,
         SheetDragStartNotification,
         SheetDragUpdateNotification,
