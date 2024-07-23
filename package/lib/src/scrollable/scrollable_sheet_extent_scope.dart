@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../foundation/sheet_context.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_extent_scope.dart';
 import 'scrollable_sheet_extent.dart';
@@ -10,6 +11,7 @@ class ScrollableSheetExtentScope extends SheetExtentScope {
     super.key,
     super.controller,
     super.isPrimary,
+    required super.context,
     required this.initialExtent,
     required super.minExtent,
     required super.maxExtent,

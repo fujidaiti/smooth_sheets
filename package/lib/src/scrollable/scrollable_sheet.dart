@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
@@ -12,7 +13,7 @@ import '../foundation/sheet_viewport.dart';
 import 'scrollable_sheet_extent_scope.dart';
 import 'sheet_scrollable.dart';
 
-class ScrollableSheet extends StatelessWidget {
+class ScrollableSheet extends StatefulWidget {
   const ScrollableSheet({
     super.key,
     this.initialExtent = const Extent.proportional(1),
@@ -42,23 +43,31 @@ class ScrollableSheet extends StatelessWidget {
   final Widget child;
 
   @override
+  State<ScrollableSheet> createState() => _ScrollableSheetState();
+}
+
+class _ScrollableSheetState extends State<ScrollableSheet>
+    with TickerProviderStateMixin, SheetContextStateMixin {
+  @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
-    final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
+    final physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
-    final controller = this.controller ?? SheetControllerScope.maybeOf(context);
+    final controller =
+        widget.controller ?? SheetControllerScope.maybeOf(context);
 
     return ScrollableSheetExtentScope(
+      context: this,
       controller: controller,
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
+      initialExtent: widget.initialExtent,
+      minExtent: widget.minExtent,
+      maxExtent: widget.maxExtent,
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,
       child: SheetViewport(
         child: SheetContentViewport(
-          child: ScrollableSheetContent(child: child),
+          child: ScrollableSheetContent(child: widget.child),
         ),
       ),
     );

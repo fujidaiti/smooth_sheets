@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
@@ -15,7 +16,7 @@ import 'sheet_draggable.dart';
 ///
 /// Note that this widget does not work with scrollable widgets.
 /// Instead, use [ScrollableSheet] for this usecase.
-class DraggableSheet extends StatelessWidget {
+class DraggableSheet extends StatefulWidget {
   /// Creates a sheet that can be dragged.
   ///
   /// The maximum height will be equal to the [child]'s height.
@@ -62,25 +63,33 @@ class DraggableSheet extends StatelessWidget {
   final HitTestBehavior hitTestBehavior;
 
   @override
+  State<DraggableSheet> createState() => _DraggableSheetState();
+}
+
+class _DraggableSheetState extends State<DraggableSheet>
+    with TickerProviderStateMixin, SheetContextStateMixin<DraggableSheet> {
+  @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
-    final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
+    final physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final gestureTamper = TamperSheetGesture.maybeOf(context);
-    final controller = this.controller ?? SheetControllerScope.maybeOf(context);
+    final controller =
+        widget.controller ?? SheetControllerScope.maybeOf(context);
 
     return DraggableSheetExtentScope(
+      context: this,
       controller: controller,
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
+      initialExtent: widget.initialExtent,
+      minExtent: widget.minExtent,
+      maxExtent: widget.maxExtent,
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'DraggableSheet' : null,
       child: SheetViewport(
         child: SheetContentViewport(
           child: SheetDraggable(
-            behavior: hitTestBehavior,
-            child: child,
+            behavior: widget.hitTestBehavior,
+            child: widget.child,
           ),
         ),
       ),

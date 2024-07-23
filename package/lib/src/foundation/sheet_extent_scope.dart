@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+import 'sheet_context.dart';
 import 'sheet_controller.dart';
 import 'sheet_extent.dart';
 import 'sheet_gesture_tamperer.dart';
@@ -53,6 +54,7 @@ abstract class SheetExtentScope extends StatefulWidget {
   /// Creates a widget that hosts a [SheetExtent].
   const SheetExtentScope({
     super.key,
+    required this.context,
     this.controller,
     this.isPrimary = true,
     required this.minExtent,
@@ -61,6 +63,9 @@ abstract class SheetExtentScope extends StatefulWidget {
     this.gestureTamperer,
     required this.child,
   });
+
+  /// The context the extent object belongs to.
+  final SheetContext context;
 
   /// The [SheetController] attached to the [SheetExtent].
   final SheetController? controller;
@@ -120,17 +125,9 @@ abstract class SheetExtentScope extends StatefulWidget {
 
 @internal
 abstract class SheetExtentScopeState<E extends SheetExtent,
-        W extends SheetExtentScope> extends State<W>
-    with TickerProviderStateMixin
-    implements SheetContext {
+    W extends SheetExtentScope> extends State<W> {
   late E _extent;
   SheetController? _controller;
-
-  @override
-  TickerProvider get vsync => this;
-
-  @override
-  BuildContext? get notificationContext => mounted ? context : null;
 
   SheetExtentScopeKey<E>? get _scopeKey {
     assert(() {
@@ -152,7 +149,7 @@ abstract class SheetExtentScopeState<E extends SheetExtent,
   @override
   void initState() {
     super.initState();
-    _extent = buildExtent(this);
+    _extent = buildExtent(widget.context);
     _scopeKey?._notifySheetExtentCreation();
   }
 
@@ -176,7 +173,7 @@ abstract class SheetExtentScopeState<E extends SheetExtent,
     _rewireControllerAndScope();
     if (shouldRebuildExtent(_extent)) {
       final oldExtent = _extent;
-      _extent = buildExtent(this)..takeOver(oldExtent);
+      _extent = buildExtent(widget.context)..takeOver(oldExtent);
       _scopeKey?._notifySheetExtentCreation();
       _disposeExtent(oldExtent);
       _rewireControllerAndExtent();
@@ -198,7 +195,8 @@ abstract class SheetExtentScopeState<E extends SheetExtent,
   E buildExtent(SheetContext context);
 
   @protected
-  bool shouldRebuildExtent(E oldExtent) => false;
+  @mustCallSuper
+  bool shouldRebuildExtent(E oldExtent) => widget.context != oldExtent.context;
 
   void _disposeExtent(E extent) {
     _controller?.detach(extent);
