@@ -1,8 +1,16 @@
 # Changelog
 
-## 0.9.0 MM DD, 2024
+## 0.9.0 Jul 24, 2024
+
+This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.9.x.md) for more details.
 
 - Dispatch a notification when drag is cancelled (#204)
+- Prefer composition style for SheetKeyboardDismissible (#197)
+- Fix: NavigationSheet throws assertion error when starting to scroll in list view during page transition (#199)
+- Refactor notification dispatch mechanism (#202)
+- Fix: Momentum scrolling continues despite press and hold in list view by (#196)
+- Dispatch a notification when drag is canceled (#204)
+- Refactor: Lift sheet context up by (#201)
 
 ## 0.8.2 Jul 11, 2024
 
