@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import 'sheet_drag.dart';
 
 // TODO: Expose this as a public API.
+// TODO: Rename to SheetGestureProxy.
 @internal
 class TamperSheetGesture extends StatefulWidget {
   const TamperSheetGesture({
@@ -54,6 +55,7 @@ class _TamperSheetGestureState extends State<TamperSheetGesture> {
   }
 }
 
+// TODO: Rename to SheetGestureProxyScope.
 class _TamperSheetGestureScope extends InheritedWidget {
   const _TamperSheetGestureScope({
     required this.tamperer,
@@ -68,6 +70,7 @@ class _TamperSheetGestureScope extends InheritedWidget {
 }
 
 // TODO: Expose this as a public API.
+// TODO: Rename to SheetGestureProxyMixin.
 @internal
 mixin SheetGestureTamperer {
   SheetGestureTamperer? _parent;
@@ -79,12 +82,14 @@ mixin SheetGestureTamperer {
 
   @useResult
   @mustCallSuper
+  // TODO: Rename to onDragStart.
   SheetDragStartDetails tamperWithDragStart(SheetDragStartDetails details) {
     return _parent?.tamperWithDragStart(details) ?? details;
   }
 
   @useResult
   @mustCallSuper
+  // TODO: Rename to onDragUpdate.
   SheetDragUpdateDetails tamperWithDragUpdate(
     SheetDragUpdateDetails details,
     Offset minPotentialDeltaConsumption,
@@ -100,7 +105,13 @@ mixin SheetGestureTamperer {
 
   @useResult
   @mustCallSuper
+  // TODO: Rename to onDragEnd.
   SheetDragEndDetails tamperWithDragEnd(SheetDragEndDetails details) {
     return _parent?.tamperWithDragEnd(details) ?? details;
+  }
+
+  @mustCallSuper
+  void onDragCancel(SheetDragCancelDetails details) {
+    _parent?.onDragCancel(details);
   }
 }

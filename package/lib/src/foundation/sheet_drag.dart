@@ -214,11 +214,21 @@ class SheetDragEndDetails extends SheetDragDetails {
   }
 }
 
+/// Details for when a sheet drag is canceled.
+class SheetDragCancelDetails extends SheetDragDetails {
+  /// Creates details for when a sheet drag is canceled.
+  SheetDragCancelDetails({required super.axisDirection});
+}
+
 @internal
 abstract class SheetDragControllerTarget {
   VerticalDirection get dragAxisDirection;
+  // TODO: Rename to onDragUpdate.
   void applyUserDragUpdate(SheetDragUpdateDetails details);
+  // TODO: Rename to onDragEnd.
   void applyUserDragEnd(SheetDragEndDetails details);
+
+  void onDragCancel(SheetDragCancelDetails details);
 
   /// Returns the minimum number of pixels that the sheet being dragged
   /// will potentially consume for the given drag delta.
@@ -265,12 +275,18 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
   /// to avoid duplicating the code of [ScrollDragController].
   late final ScrollDragController _impl;
 
+  // TODO: Remove unnecessary nullability.
   SheetDragControllerTarget? _target;
+
+  // TODO: Rename to _gestureProxy.
   SheetGestureTamperer? _gestureTamperer;
 
-  SheetDragDetails _lastDetails;
+  /// The details of the most recently observed drag event.
   SheetDragDetails get lastDetails => _lastDetails;
+  SheetDragDetails _lastDetails;
 
+  /// The most recently observed [DragStartDetails], [DragUpdateDetails], or
+  /// [DragEndDetails] object.
   dynamic get lastRawDetails => _impl.lastDetails;
 
   void updateTarget(SheetDragControllerTarget delegate) {
@@ -296,29 +312,29 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     _impl.cancel();
   }
 
-  /// Called by the [ScrollDragController] in [Drag.end] and [Drag.cancel].
+  /// Called by the [ScrollDragController] in either [ScrollDragController.end]
+  /// or [ScrollDragController.cancel].
   @override
   void goBallistic(double velocity) {
-    var details = switch (_impl.lastDetails) {
-      final DragEndDetails details => SheetDragEndDetails(
-          axisDirection: _target!.dragAxisDirection,
-          velocityX: details.velocity.pixelsPerSecond.dx,
-          velocityY: -1 * velocity,
-        ),
-      // Drag was canceled.
-      _ => SheetDragEndDetails(
-          axisDirection: _target!.dragAxisDirection,
-          velocityX: 0,
-          velocityY: 0,
-        ),
-    };
-
-    if (_gestureTamperer case final tamper?) {
-      details = tamper.tamperWithDragEnd(details);
+    if (_impl.lastDetails case final DragEndDetails rawDetails) {
+      var endDetails = SheetDragEndDetails(
+        axisDirection: _target!.dragAxisDirection,
+        velocityX: rawDetails.velocity.pixelsPerSecond.dx,
+        velocityY: -1 * velocity,
+      );
+      if (_gestureTamperer case final tamper?) {
+        endDetails = tamper.tamperWithDragEnd(endDetails);
+      }
+      _lastDetails = endDetails;
+      _target!.applyUserDragEnd(endDetails);
+    } else {
+      final cancelDetails = SheetDragCancelDetails(
+        axisDirection: _target!.dragAxisDirection,
+      );
+      _lastDetails = cancelDetails;
+      _gestureTamperer?.onDragCancel(cancelDetails);
+      _target!.onDragCancel(cancelDetails);
     }
-
-    _lastDetails = details;
-    _target!.applyUserDragEnd(details);
   }
 
   /// Called by the [ScrollDragController] in [Drag.update].

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.0 MM DD, 2024
+
+- Dispatch a notification when drag is cancelled (#204)
+
 ## 0.8.2 Jul 11, 2024
 
 - Fix: Opening keyboard interrupts sheet animation (#189)

@@ -281,6 +281,13 @@ class DragSheetActivity extends SheetActivity
       ..didDragEnd(details)
       ..goBallistic(details.velocityY);
   }
+
+  @override
+  void onDragCancel(SheetDragCancelDetails details) {
+    owner
+      ..didDragCancel()
+      ..goBallistic(0);
+  }
 }
 
 @internal
