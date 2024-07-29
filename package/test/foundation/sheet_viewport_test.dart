@@ -16,6 +16,9 @@ class _FakeNotificationContext extends Fake implements BuildContext {
 class _FakeSheetContext extends Fake implements SheetContext {
   @override
   final notificationContext = _FakeNotificationContext();
+
+  @override
+  double get devicePixelRatio => 3.0;
 }
 
 class _FakeSheetActivity extends SheetActivity {

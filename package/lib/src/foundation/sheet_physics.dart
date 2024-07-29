@@ -3,9 +3,11 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 
 import '../internal/double_utils.dart';
+import '../internal/float_comp.dart';
 import 'sheet_extent.dart';
 
 /// The default [SpringDescription] used by [SheetPhysics] subclasses.
@@ -165,6 +167,7 @@ class InterpolationSimulation extends Simulation {
     required this.end,
     required this.curve,
     required this.durationInSeconds,
+    super.tolerance,
   })  : assert(start != end),
         assert(durationInSeconds > 0);
 
@@ -194,7 +197,7 @@ class InterpolationSimulation extends Simulation {
 
   @override
   bool isDone(double time) {
-    return x(time).isApprox(end);
+    return nearEqual(x(time), end, tolerance.distance);
   }
 }
 
@@ -214,7 +217,8 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
   double? findSnapPixels(double velocity, SheetMetrics metrics) {
     assert(minFlingSpeed >= 0);
 
-    if (metrics.pixels.isOutOfBounds(metrics.minPixels, metrics.maxPixels)) {
+    if (FloatComp.distance(metrics.devicePixelRatio)
+        .isOutOfBounds(metrics.pixels, metrics.minPixels, metrics.maxPixels)) {
       return null;
     }
 
@@ -258,7 +262,8 @@ class SnapToNearestEdge with _SnapToNearestMixin {
 
   @override
   (double, double) _getSnapBoundsContains(SheetMetrics metrics) {
-    assert(metrics.pixels.isInBounds(metrics.minPixels, metrics.maxPixels));
+    assert(FloatComp.distance(metrics.devicePixelRatio)
+        .isInBounds(metrics.pixels, metrics.minPixels, metrics.maxPixels));
     return (metrics.minPixels, metrics.maxPixels);
   }
 }
@@ -291,8 +296,10 @@ class SnapToNearest with _SnapToNearestMixin {
         ..sort();
 
       assert(
-        _snapTo.first.isGreaterThanOrApprox(metrics.minPixels) &&
-            _snapTo.last.isLessThanOrApprox(metrics.maxPixels),
+        FloatComp.distance(metrics.devicePixelRatio)
+                .isGreaterThanOrApprox(_snapTo.first, metrics.minPixels) &&
+            FloatComp.distance(metrics.devicePixelRatio)
+                .isLessThanOrApprox(_snapTo.last, metrics.maxPixels),
         'The snap positions must be within the range of '
         "'SheetMetrics.minPixels' and 'SheetMetrics.maxPixels'.",
       );
@@ -309,7 +316,8 @@ class SnapToNearest with _SnapToNearestMixin {
     var nearestSmaller = _snapTo[0];
     var nearestGreater = _snapTo[1];
     for (var index = 0; index < _snapTo.length - 1; index++) {
-      if (_snapTo[index].isLessThan(metrics.pixels)) {
+      if (FloatComp.distance(metrics.devicePixelRatio)
+          .isLessThan(_snapTo[index], metrics.pixels)) {
         nearestSmaller = _snapTo[index];
         nearestGreater = _snapTo[index + 1];
       } else {
@@ -349,7 +357,9 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   @override
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
     final snapPixels = snappingBehavior.findSnapPixels(velocity, metrics);
-    if (snapPixels != null && !metrics.pixels.isApprox(snapPixels)) {
+    if (snapPixels != null &&
+        FloatComp.distance(metrics.devicePixelRatio)
+            .isNotApprox(snapPixels, metrics.pixels)) {
       return ScrollSpringSimulation(
         spring,
         metrics.pixels,
@@ -532,7 +542,8 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       _ => 0.0,
     };
 
-    if (zeroFrictionOffset.isApprox(offset) ||
+    if (FloatComp.distance(metrics.devicePixelRatio)
+            .isApprox(zeroFrictionOffset, offset) ||
         // The friction is also not applied if the motion
         // direction is towards the content bounds.
         (currentPixels > maxPixels && offset < 0) ||

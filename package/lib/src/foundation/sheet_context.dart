@@ -8,6 +8,7 @@ import 'sheet_extent.dart';
 abstract class SheetContext {
   TickerProvider get vsync;
   BuildContext? get notificationContext;
+  double get devicePixelRatio;
 }
 
 @internal
@@ -20,4 +21,8 @@ mixin SheetContextStateMixin<T extends StatefulWidget>
 
   @override
   BuildContext? get notificationContext => mounted ? context : null;
+
+  @override
+  double get devicePixelRatio =>
+      MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
 }

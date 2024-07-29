@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
-import '../internal/double_utils.dart';
+import '../internal/float_comp.dart';
 
 const _minFlingVelocityToDismiss = 1.0;
 const _minDragDistanceToDismiss = 100.0; // Logical pixels.
@@ -262,7 +262,8 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       // Dominantly use the full pixels if it is in the middle of a transition.
       effectiveDragDelta = dragDelta;
     } else if (dragDelta < 0 &&
-        !dragDelta.isApprox(minPDC) &&
+        FloatComp.distance(MediaQuery.devicePixelRatioOf(_context))
+            .isNotApprox(dragDelta, minPDC) &&
         MediaQuery.viewInsetsOf(_context).bottom == 0) {
       // If the drag is downwards and the sheet may not consume the full pixels,
       // then use the remaining pixels as the effective drag delta.
@@ -344,7 +345,8 @@ class _SwipeDismissibleController with SheetGestureTamperer {
     } else if (effectiveVelocity < 0) {
       // Flings down.
       invokePop = effectiveVelocity.abs() > _minFlingVelocityToDismiss;
-    } else if (effectiveVelocity.isApprox(0)) {
+    } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(_context))
+        .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
       invokePop = draggedDistance > _minDragDistanceToDismiss;
