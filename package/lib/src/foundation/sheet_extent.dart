@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../internal/double_utils.dart';
+import '../internal/float_comp.dart';
 import 'sheet_activity.dart';
 import 'sheet_context.dart';
 import 'sheet_controller.dart';
@@ -175,10 +175,6 @@ abstract class SheetExtent extends ChangeNotifier
   /// A label that is used to identify this object in debug output.
   final String? debugLabel;
 
-  /// Snapshot of the current sheet's state.
-  SheetMetrics get metrics => _metrics;
-  SheetMetrics _metrics = SheetMetrics.empty;
-
   /// The current activity of the sheet.
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
@@ -189,6 +185,34 @@ abstract class SheetExtent extends ChangeNotifier
   /// the default implementation of [drag].
   @protected
   SheetDragController? currentDrag;
+
+  /// Snapshot of the current sheet's state.
+  SheetMetrics get metrics => _metrics;
+  SheetMetrics _metrics = SheetMetrics.empty;
+
+  /// Updates the metrics with the given values.
+  ///
+  /// Use this method instead of directly updating the metrics
+  /// to ensure that the [SheetMetrics.devicePixelRatio] is always up-to-date.
+  void _updateMetrics({
+    double? pixels,
+    double? minPixels,
+    double? maxPixels,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
+  }) {
+    _metrics = SheetMetrics(
+      pixels: pixels ?? metrics.maybePixels,
+      minPixels: minPixels ?? metrics.maybeMinPixels,
+      maxPixels: maxPixels ?? metrics.maybeMaxPixels,
+      contentSize: contentSize ?? metrics.maybeContentSize,
+      viewportSize: viewportSize ?? metrics.maybeViewportSize,
+      viewportInsets: viewportInsets ?? metrics.maybeViewportInsets,
+      // Ensure that the devicePixelRatio is always up-to-date.
+      devicePixelRatio: context.devicePixelRatio,
+    );
+  }
 
   @mustCallSuper
   void takeOver(SheetExtent other) {
@@ -239,7 +263,7 @@ abstract class SheetExtent extends ChangeNotifier
       final oldMaxPixels = metrics.maybeMaxPixels;
       final oldMinPixels = metrics.maybeMinPixels;
       _oldContentSize = metrics.maybeContentSize;
-      _metrics = metrics.copyWith(
+      _updateMetrics(
         contentSize: contentSize,
         minPixels: minExtent.resolve(contentSize),
         maxPixels: maxExtent.resolve(contentSize),
@@ -258,7 +282,7 @@ abstract class SheetExtent extends ChangeNotifier
         metrics.maybeViewportInsets != insets) {
       _oldViewportSize = metrics.maybeViewportSize;
       _oldViewportInsets = metrics.maybeViewportInsets;
-      _metrics = metrics.copyWith(viewportSize: size, viewportInsets: insets);
+      _updateMetrics(viewportSize: size, viewportInsets: insets);
       activity.didChangeViewportDimensions(
         _oldViewportSize,
         _oldViewportInsets,
@@ -278,10 +302,7 @@ abstract class SheetExtent extends ChangeNotifier
             newMaxPixels != metrics.maybeMaxPixels) {
           final oldMinPixels = metrics.maybeMinPixels;
           final oldMaxPixels = metrics.maybeMaxPixels;
-          _metrics = metrics.copyWith(
-            minPixels: newMinPixels,
-            maxPixels: newMaxPixels,
-          );
+          _updateMetrics(minPixels: newMinPixels, maxPixels: newMaxPixels);
           activity.didChangeBoundaryConstraints(oldMinPixels, oldMaxPixels);
         }
       }
@@ -481,7 +502,7 @@ abstract class SheetExtent extends ChangeNotifier
 
   void correctPixels(double pixels) {
     if (metrics.maybePixels != pixels) {
-      _metrics = metrics.copyWith(pixels: pixels);
+      _updateMetrics(pixels: pixels);
     }
   }
 
@@ -577,6 +598,7 @@ class SheetMetrics {
     required Size? contentSize,
     required Size? viewportSize,
     required EdgeInsets? viewportInsets,
+    this.devicePixelRatio = 1.0,
   })  : maybePixels = pixels,
         maybeMinPixels = minPixels,
         maybeMaxPixels = maxPixels,
@@ -599,6 +621,10 @@ class SheetMetrics {
   final Size? maybeContentSize;
   final Size? maybeViewportSize;
   final EdgeInsets? maybeViewportInsets;
+
+  /// The [FlutterView.devicePixelRatio] of the view that the sheet
+  /// associated with this metrics object is drawn into.
+  final double devicePixelRatio;
 
   /// The current extent of the sheet.
   double get pixels {
@@ -667,7 +693,9 @@ class SheetMetrics {
   /// Whether the sheet is within the range of [minPixels] and [maxPixels]
   /// (inclusive of both bounds).
   bool get isPixelsInBounds =>
-      hasDimensions && pixels.isInBounds(minPixels, maxPixels);
+      hasDimensions &&
+      FloatComp.distance(devicePixelRatio)
+          .isInBounds(pixels, minPixels, maxPixels);
 
   /// Whether the sheet is outside the range of [minPixels] and [maxPixels].
   bool get isPixelsOutOfBounds => !isPixelsInBounds;
@@ -690,13 +718,13 @@ class SheetMetrics {
 
   /// Creates a copy of this object with the given fields replaced.
   SheetMetrics copyWith({
-    SheetStatus? status,
     double? pixels,
     double? minPixels,
     double? maxPixels,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
+    double? devicePixelRatio,
   }) {
     return SheetMetrics(
       pixels: pixels ?? maybePixels,
@@ -705,6 +733,7 @@ class SheetMetrics {
       contentSize: contentSize ?? maybeContentSize,
       viewportSize: viewportSize ?? maybeViewportSize,
       viewportInsets: viewportInsets ?? maybeViewportInsets,
+      devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
 
@@ -718,7 +747,8 @@ class SheetMetrics {
           maybeMaxPixels == other.maxPixels &&
           maybeContentSize == other.contentSize &&
           maybeViewportSize == other.viewportSize &&
-          maybeViewportInsets == other.viewportInsets);
+          maybeViewportInsets == other.viewportInsets &&
+          devicePixelRatio == other.devicePixelRatio);
 
   @override
   int get hashCode => Object.hash(
@@ -729,6 +759,7 @@ class SheetMetrics {
         maybeContentSize,
         maybeViewportSize,
         maybeViewportInsets,
+        devicePixelRatio,
       );
 
   @override
@@ -743,5 +774,6 @@ class SheetMetrics {
         contentSize: maybeContentSize,
         viewportSize: maybeViewportSize,
         viewportInsets: maybeViewportInsets,
+        devicePixelRatio: devicePixelRatio,
       ).toString();
 }

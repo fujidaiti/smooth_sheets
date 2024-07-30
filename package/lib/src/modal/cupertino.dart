@@ -376,11 +376,10 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
         if (metrics.hasDimensions) {
           _cupertinoTransitionControllerOf[_previousRoute]?.value = min(
             controller!.value,
-            inverseLerp(
+            metrics.viewPixels.inverseLerp(
               // TODO: Make this configurable.
               metrics.viewportSize.height / 2,
               metrics.viewportSize.height,
-              metrics.viewPixels,
             ),
           );
         }

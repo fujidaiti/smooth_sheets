@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../foundation/sheet_activity.dart';
 import '../foundation/sheet_drag.dart';
-import '../internal/double_utils.dart';
+import '../internal/float_comp.dart';
 import 'scrollable_sheet.dart';
 import 'scrollable_sheet_extent.dart';
 import 'sheet_content_scroll_activity.dart';
@@ -52,7 +52,8 @@ abstract class ScrollableSheetActivity
   }
 
   double _applyScrollOffset(double offset) {
-    if (offset.isApprox(0)) return 0;
+    final cmp = FloatComp.distance(owner.context.devicePixelRatio);
+    if (cmp.isApprox(offset, 0)) return 0;
 
     final position = scrollPosition;
     final maxPixels = owner.metrics.maxPixels;
@@ -66,47 +67,47 @@ abstract class ScrollableSheetActivity
     if (offset > 0) {
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxPixels'.
-      if (newPixels.isLessThanOrApprox(maxPixels)) {
+      if (cmp.isLessThanOrApprox(newPixels, maxPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
-        assert(physicsAppliedDelta.isLessThanOrApprox(delta));
+        assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
         newPixels = min(newPixels + physicsAppliedDelta, maxPixels);
         delta -= newPixels - oldPixels;
       }
       // If the sheet is at the top, scroll the content up as much as possible.
-      if (newPixels.isGreaterThanOrApprox(maxPixels) &&
+      if (cmp.isGreaterThanOrApprox(newPixels, maxPixels) &&
           position.extentAfter > 0) {
         position.correctPixels(min(position.pixels + delta, maxScrollPixels));
         delta -= position.pixels - oldScrollPixels;
       }
       // If the content cannot be scrolled up anymore, drag the sheet up
       // to make a bouncing effect (if needed).
-      if (position.pixels.isApprox(maxScrollPixels)) {
+      if (cmp.isApprox(position.pixels, maxScrollPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
-        assert(physicsAppliedDelta.isLessThanOrApprox(delta));
+        assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
         newPixels += physicsAppliedDelta;
         delta -= physicsAppliedDelta;
       }
     } else if (offset < 0) {
       // If the sheet is beyond 'maxPixels', drag it down as much
       // as possible until it reaches at 'maxPixels'.
-      if (newPixels.isGreaterThanOrApprox(maxPixels)) {
+      if (cmp.isGreaterThanOrApprox(newPixels, maxPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
-        assert(physicsAppliedDelta.abs().isLessThanOrApprox(delta.abs()));
+        assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newPixels = max(newPixels + physicsAppliedDelta, maxPixels);
         delta -= newPixels - oldPixels;
       }
       // If the sheet is not beyond 'maxPixels', scroll the content down
       // as much as possible.
-      if (newPixels.isLessThanOrApprox(maxPixels) &&
+      if (cmp.isLessThanOrApprox(newPixels, maxPixels) &&
           position.extentBefore > 0) {
         position.correctPixels(max(position.pixels + delta, minScrollPixels));
         delta -= position.pixels - oldScrollPixels;
       }
       // If the content cannot be scrolled down anymore, drag the sheet down
       // to make a shrinking effect (if needed).
-      if (position.pixels.isApprox(minScrollPixels)) {
+      if (cmp.isApprox(position.pixels, minScrollPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
-        assert(physicsAppliedDelta.abs().isLessThanOrApprox(delta.abs()));
+        assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newPixels += physicsAppliedDelta;
         delta -= physicsAppliedDelta;
       }
@@ -254,22 +255,25 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
 
   @override
   void onAnimationTick() {
+    final cmp = FloatComp.distance(owner.context.devicePixelRatio);
     final delta = controller.value - _oldPixels;
     _oldPixels = controller.value;
     final overflow = _applyScrollOffset(delta);
     if (owner.metrics.pixels != _oldPixels) {
       owner.didUpdateMetrics();
     }
-    if (!overflow.isApprox(0)) {
+    if (cmp.isNotApprox(overflow, 0)) {
       owner
         ..didOverflowBy(overflow)
         ..goIdleWithScrollPosition();
       return;
     }
 
+    final scrollExtentBefore = scrollPosition.extentBefore;
+    final scrollExtentAfter = scrollPosition.extentAfter;
     final shouldInterruptBallisticScroll =
-        ((scrollPosition.extentBefore.isApprox(0) && velocity < 0) ||
-                (scrollPosition.extentAfter.isApprox(0) && velocity > 0)) &&
+        ((cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
+                (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0)) &&
             owner.physics
                 .shouldInterruptBallisticScroll(velocity, owner.metrics);
 

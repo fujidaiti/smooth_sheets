@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_physics.dart';
-import '../internal/double_utils.dart';
+import '../internal/float_comp.dart';
 import 'scrollable_sheet_activity.dart';
 import 'scrollable_sheet_physics.dart';
 import 'sheet_content_scroll_activity.dart';
@@ -164,7 +164,8 @@ class ScrollableSheetExtent extends SheetExtent
     required SheetContentScrollPosition scrollPosition,
   }) {
     assert(metrics.hasDimensions);
-    if (scrollPosition.pixels.isApprox(scrollPosition.minScrollExtent)) {
+    if (FloatComp.distance(context.devicePixelRatio)
+        .isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
       final simulation = physics.createBallisticSimulation(velocity, metrics);
       if (simulation != null) {
         scrollPosition.goIdle(calledByOwner: true);
@@ -179,12 +180,24 @@ class ScrollableSheetExtent extends SheetExtent
     final scrollableDistance =
         scrollPosition.maxScrollExtent - scrollPosition.minScrollExtent;
     final scrollPixelsForScrollPhysics = scrolledDistance + draggedDistance;
+    final maxScrollExtentForScrollPhysics =
+        draggableDistance + scrollableDistance;
     final scrollMetricsForScrollPhysics = scrollPosition.copyWith(
       minScrollExtent: 0,
-      // How many pixels the user can scroll/drag
-      maxScrollExtent: draggableDistance + scrollableDistance,
-      // How many pixels the user scrolled/dragged
-      pixels: scrollPixelsForScrollPhysics,
+      // How many pixels the user can scroll and drag
+      maxScrollExtent: maxScrollExtentForScrollPhysics,
+      // How many pixels the user has scrolled and dragged
+      pixels: FloatComp.distance(context.devicePixelRatio).roundToIfApprox(
+        // Round the scrollPixelsForScrollPhysics to the maxScrollExtent if
+        // necessary to prevents issues with floating-point precision errors.
+        // For example, issue #207 was caused by infinite recursion of
+        // SheetContentScrollPositionOwner.goBallisticWithScrollPosition calls,
+        // triggered by ScrollMetrics.outOfRange always being true in
+        // ScrollPhysics.createBallisticSimulation due to such a floating-point
+        // precision error.
+        scrollPixelsForScrollPhysics,
+        maxScrollExtentForScrollPhysics,
+      ),
     );
 
     final scrollSimulation = scrollPosition.physics
