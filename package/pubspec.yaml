@@ -1,6 +1,6 @@
 name: smooth_sheets
 description: Sheet widgets with smooth motion and great flexibility. Also supports nested navigation in both imperative and declarative ways.
-version: 0.9.1
+version: 0.9.2
 repository: https://github.com/fujidaiti/smooth_sheets
 screenshots:
   - description: Practical examples of smooth_sheets.
