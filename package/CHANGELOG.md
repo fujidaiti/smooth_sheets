@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.2 Aug 14, 2024
+
+- Fix: Keyboard visibility changes disrupt route transition animation in NavigationSheet (#215)
+
 ## 0.9.1 Jul 30, 2024
 
 - Fix: Sometimes touch is ignored when scrollable sheet reaches edge (#209)

@@ -58,6 +58,24 @@ class TransitionSheetActivity extends NavigationSheetActivity {
       owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
     }
   }
+
+  @override
+  void didFinalizeDimensions(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {
+    // Appends the delta of the bottom inset (typically the keyboard height)
+    // to keep the visual sheet position unchanged.
+    final newInsets = owner.metrics.viewportInsets;
+    final oldInsets = oldViewportInsets ?? newInsets;
+    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+    if (deltaInsetBottom != 0) {
+      owner
+        ..setPixels(owner.metrics.pixels - deltaInsetBottom)
+        ..didUpdateMetrics();
+    }
+  }
 }
 
 @internal
