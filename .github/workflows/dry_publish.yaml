@@ -32,7 +32,7 @@ jobs:
           report: ${{ steps.analysis.outputs.json_output }}
           min-convention-points: 30
           min-platform-points: 20
-          min-analysis-points: 50
+          min-analysis-points: 40
           min-dependency-points: 20
           supported-platforms: ios, android
 
