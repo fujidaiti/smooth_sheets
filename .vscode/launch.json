@@ -136,6 +136,13 @@
       "type": "dart",
       "program": "lib/tutorial/keyboard_dismiss_behavior.dart",
       "cwd": "./cookbook"
+    },
+    {
+      "name": "Navigation Sheet and Keyboard",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/navigation_sheet_and_keyboard.dart",
+      "cwd": "./cookbook"
     }
   ]
 }
