@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.3 Aug 19, 2024
+
+- Fix: Press-and-hold gesture in PageView doesn't stop momentum scrolling (#219)
+
 ## 0.9.2 Aug 14, 2024
 
 - Fix: Keyboard visibility changes disrupt route transition animation in NavigationSheet (#215)
