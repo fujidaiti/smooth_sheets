@@ -171,3 +171,24 @@ class SheetContentBallisticScrollActivity extends ScrollActivity {
   @override
   double get velocity => getVelocity();
 }
+
+/// A [ScrollActivity] for the [SheetContentScrollPosition] that is associated
+/// with a [HoldScrollDrivenSheetActivity].
+///
+/// This activity is like a placeholder, meaning it doesn't actually modify the
+/// scroll position and the actual scrolling is done by the associated
+/// [HoldScrollDrivenSheetActivity].
+class SheetContentHoldScrollActivity extends ScrollActivity {
+  SheetContentHoldScrollActivity({
+    required ScrollActivityDelegate delegate,
+  }) : super(delegate);
+
+  @override
+  bool get shouldIgnorePointer => false;
+
+  @override
+  bool get isScrolling => false;
+
+  @override
+  double get velocity => 0.0;
+}

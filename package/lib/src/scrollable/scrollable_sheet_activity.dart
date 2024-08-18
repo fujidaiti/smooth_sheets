@@ -1,11 +1,13 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_activity.dart';
 import '../foundation/sheet_drag.dart';
+import '../foundation/sheet_status.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet.dart';
 import 'scrollable_sheet_extent.dart';
@@ -294,5 +296,41 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
       velocity: 0,
       scrollPosition: scrollPosition,
     );
+  }
+}
+
+/// A [SheetActivity] that does nothing but can be released to resume
+/// normal idle behavior.
+///
+/// This is used while the user is touching the scrollable content but before
+/// the touch has become a [Drag]. The [scrollPosition], which is associated
+/// with the scrollable content must have a [SheetContentHoldScrollActivity]
+/// as its activity throughout the lifetime of this activity.
+class HoldScrollDrivenSheetActivity extends ScrollableSheetActivity
+    implements ScrollHoldController {
+  HoldScrollDrivenSheetActivity(
+    super.scrollPosition, {
+    required this.heldPreviousVelocity,
+    required this.onHoldCanceled,
+  });
+
+  final double heldPreviousVelocity;
+  final VoidCallback? onHoldCanceled;
+
+  @override
+  SheetStatus get status => SheetStatus.dragging;
+
+  @override
+  void cancel() {
+    owner.goBallisticWithScrollPosition(
+      velocity: 0,
+      scrollPosition: scrollPosition,
+    );
+  }
+
+  @override
+  void dispose() {
+    onHoldCanceled?.call();
+    super.dispose();
   }
 }
