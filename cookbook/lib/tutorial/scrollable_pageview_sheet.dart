@@ -33,8 +33,6 @@ class _ScrollablePageViewSheetExample extends StatelessWidget {
   }
 }
 
-final pageController = PageController();
-
 class _MySheet extends StatelessWidget {
   const _MySheet();
 
@@ -45,7 +43,6 @@ class _MySheet extends StatelessWidget {
         child: SizedBox(
           height: 600,
           child: PageView(
-            controller: pageController,
             children: const [
               _PageViewItem(),
               _PageViewItem(),
