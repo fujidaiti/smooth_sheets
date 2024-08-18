@@ -275,8 +275,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
   /// to avoid duplicating the code of [ScrollDragController].
   late final ScrollDragController _impl;
 
-  // TODO: Remove unnecessary nullability.
-  SheetDragControllerTarget? _target;
+  late SheetDragControllerTarget _target;
 
   // TODO: Rename to _gestureProxy.
   SheetGestureTamperer? _gestureTamperer;
@@ -318,7 +317,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
   void goBallistic(double velocity) {
     if (_impl.lastDetails case final DragEndDetails rawDetails) {
       var endDetails = SheetDragEndDetails(
-        axisDirection: _target!.dragAxisDirection,
+        axisDirection: _target.dragAxisDirection,
         velocityX: rawDetails.velocity.pixelsPerSecond.dx,
         velocityY: -1 * velocity,
       );
@@ -326,14 +325,14 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
         endDetails = tamper.tamperWithDragEnd(endDetails);
       }
       _lastDetails = endDetails;
-      _target!.applyUserDragEnd(endDetails);
+      _target.applyUserDragEnd(endDetails);
     } else {
       final cancelDetails = SheetDragCancelDetails(
-        axisDirection: _target!.dragAxisDirection,
+        axisDirection: _target.dragAxisDirection,
       );
       _lastDetails = cancelDetails;
       _gestureTamperer?.onDragCancel(cancelDetails);
-      _target!.onDragCancel(cancelDetails);
+      _target.onDragCancel(cancelDetails);
     }
   }
 
@@ -344,7 +343,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     final rawDetails = _impl.lastDetails as DragUpdateDetails;
     var details = SheetDragUpdateDetails(
       sourceTimeStamp: rawDetails.sourceTimeStamp,
-      axisDirection: _target!.dragAxisDirection,
+      axisDirection: _target.dragAxisDirection,
       localPositionX: rawDetails.localPosition.dx,
       localPositionY: rawDetails.localPosition.dy,
       globalPositionX: rawDetails.globalPosition.dx,
@@ -355,7 +354,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
 
     if (_gestureTamperer case final tamper?) {
       final minPotentialDeltaConsumption =
-          _target!.computeMinPotentialDeltaConsumption(details.delta);
+          _target.computeMinPotentialDeltaConsumption(details.delta);
       assert(minPotentialDeltaConsumption.dx.abs() <= details.delta.dx.abs());
       assert(minPotentialDeltaConsumption.dy.abs() <= details.delta.dy.abs());
       details = tamper.tamperWithDragUpdate(
@@ -365,12 +364,12 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     }
 
     _lastDetails = details;
-    _target!.applyUserDragUpdate(details);
+    _target.applyUserDragUpdate(details);
   }
 
   @override
   AxisDirection get axisDirection {
-    return switch (_target!.dragAxisDirection) {
+    return switch (_target.dragAxisDirection) {
       VerticalDirection.up => AxisDirection.up,
       VerticalDirection.down => AxisDirection.down,
     };
@@ -389,7 +388,6 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
 
   @mustCallSuper
   void dispose() {
-    _target = null;
     _gestureTamperer = null;
     _impl.dispose();
   }

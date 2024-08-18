@@ -117,6 +117,24 @@ class ScrollableSheetExtent extends SheetExtent
   }
 
   @override
+  ScrollHoldController holdWithScrollPosition({
+    required double heldPreviousVelocity,
+    required VoidCallback holdCancelCallback,
+    required SheetContentScrollPosition scrollPosition,
+  }) {
+    final holdActivity = HoldScrollDrivenSheetActivity(
+      scrollPosition,
+      onHoldCanceled: holdCancelCallback,
+      heldPreviousVelocity: heldPreviousVelocity,
+    );
+    scrollPosition.beginActivity(
+      SheetContentHoldScrollActivity(delegate: scrollPosition),
+    );
+    beginActivity(holdActivity);
+    return holdActivity;
+  }
+
+  @override
   Drag dragWithScrollPosition({
     required DragStartDetails details,
     required VoidCallback dragCancelCallback,
@@ -136,24 +154,30 @@ class ScrollableSheetExtent extends SheetExtent
     if (gestureTamperer case final tamperer?) {
       startDetails = tamperer.tamperWithDragStart(startDetails);
     }
-    final drag = currentDrag = SheetDragController(
+    final heldPreviousVelocity = switch (activity) {
+      final HoldScrollDrivenSheetActivity holdActivity =>
+        holdActivity.heldPreviousVelocity,
+      _ => 0.0,
+    };
+    final drag = SheetDragController(
       target: dragActivity,
       gestureTamperer: gestureTamperer,
       details: startDetails,
       onDragCanceled: dragCancelCallback,
-      carriedVelocity: scrollPosition.physics
-          .carriedMomentum(scrollPosition.heldPreviousVelocity),
+      carriedVelocity:
+          scrollPosition.physics.carriedMomentum(heldPreviousVelocity),
       motionStartDistanceThreshold:
           scrollPosition.physics.dragStartDistanceMotionThreshold,
     );
     scrollPosition.beginActivity(
       SheetContentDragScrollActivity(
         delegate: scrollPosition,
-        getLastDragDetails: () => currentDrag?.lastRawDetails,
-        getPointerDeviceKind: () => currentDrag?.pointerDeviceKind,
+        getLastDragDetails: () => drag.lastRawDetails,
+        getPointerDeviceKind: () => drag.pointerDeviceKind,
       ),
     );
     beginActivity(dragActivity);
+    currentDrag = drag;
     didDragStart(startDetails);
     return drag;
   }
