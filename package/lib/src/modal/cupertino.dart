@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import '../foundation/sheet_controller.dart';
 import '../internal/double_utils.dart';
 import 'modal_sheet.dart';
+import 'swipe_dismiss_config.dart';
 
 const _minimizedViewportScale = 0.92;
 const _cupertinoBarrierColor = Color(0x18000000);
@@ -422,8 +423,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
-    this.minFlingVelocityToDismiss = 1.0,
-    this.minDragDistanceToDismiss = 100.0,
+    this.swipeDismissConfig = const SwipeDismissConfig(),
     required this.child,
   });
 
@@ -447,9 +447,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
 
   final Curve transitionCurve;
 
-  final double minFlingVelocityToDismiss;
-
-  final double minDragDistanceToDismiss;
+  final SwipeDismissConfig swipeDismissConfig;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -492,10 +490,7 @@ class _PageBasedCupertinoModalSheetRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
-  double get minFlingVelocityToDismiss => _page.minFlingVelocityToDismiss;
-
-  @override
-  double get minDragDistanceToDismiss => _page.minDragDistanceToDismiss;
+  SwipeDismissConfig get swipeDismissConfig => _page.swipeDismissConfig;
 
   @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
@@ -516,8 +511,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
-    this.minFlingVelocityToDismiss = 1.0,
-    this.minDragDistanceToDismiss = 100.0,
+    this.swipeDismissConfig = const SwipeDismissConfig(),
   });
 
   final WidgetBuilder builder;
@@ -544,10 +538,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   final Curve transitionCurve;
 
   @override
-  final double minFlingVelocityToDismiss;
-
-  @override
-  final double minDragDistanceToDismiss;
+  final SwipeDismissConfig swipeDismissConfig;
 
   @override
   Widget buildContent(BuildContext context) {
