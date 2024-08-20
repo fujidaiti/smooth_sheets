@@ -7,8 +7,6 @@ import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../internal/float_comp.dart';
 
-const _minFlingVelocityToDismiss = 1.0;
-const _minDragDistanceToDismiss = 100.0; // Logical pixels.
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 
@@ -26,6 +24,8 @@ class ModalSheetPage<T> extends Page<T> {
     this.barrierColor = Colors.black54,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.minFlingVelocityToDismiss = 1.0,
+    this.minDragDistanceToDismiss = 100.0,
     required this.child,
   });
 
@@ -48,6 +48,10 @@ class ModalSheetPage<T> extends Page<T> {
   final Duration transitionDuration;
 
   final Curve transitionCurve;
+
+  final double minFlingVelocityToDismiss;
+
+  final double minDragDistanceToDismiss;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -89,6 +93,12 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
+  double get minFlingVelocityToDismiss => _page.minFlingVelocityToDismiss;
+
+  @override
+  double get minDragDistanceToDismiss => _page.minDragDistanceToDismiss;
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -107,6 +117,8 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.swipeDismissible = false,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.minFlingVelocityToDismiss = 1.0,
+    this.minDragDistanceToDismiss = 100.0,
   });
 
   final WidgetBuilder builder;
@@ -133,6 +145,12 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final Curve transitionCurve;
 
   @override
+  final double minFlingVelocityToDismiss;
+
+  @override
+  final double minDragDistanceToDismiss;
+
+  @override
   Widget buildContent(BuildContext context) {
     return builder(context);
   }
@@ -141,6 +159,8 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
 mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   bool get swipeDismissible;
   Curve get transitionCurve;
+  double get minFlingVelocityToDismiss;
+  double get minDragDistanceToDismiss;
 
   @override
   bool get opaque => false;
@@ -149,6 +169,8 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   late final _swipeDismissibleController = _SwipeDismissibleController(
     route: this,
     transitionController: controller!,
+    minFlingVelocityToDismiss: minFlingVelocityToDismiss,
+    minDragDistanceToDismiss: minDragDistanceToDismiss,
   );
 
   Widget buildContent(BuildContext context);
@@ -226,10 +248,14 @@ class _SwipeDismissibleController with SheetGestureTamperer {
   _SwipeDismissibleController({
     required this.route,
     required this.transitionController,
+    required this.minFlingVelocityToDismiss,
+    required this.minDragDistanceToDismiss,
   });
 
   final ModalRoute<dynamic> route;
   final AnimationController transitionController;
+  final double minFlingVelocityToDismiss;
+  final double minDragDistanceToDismiss;
 
   BuildContext get _context => route.subtreeContext!;
 
@@ -344,12 +370,12 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       invokePop = false;
     } else if (effectiveVelocity < 0) {
       // Flings down.
-      invokePop = effectiveVelocity.abs() > _minFlingVelocityToDismiss;
+      invokePop = effectiveVelocity.abs() > minFlingVelocityToDismiss;
     } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(_context))
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
-      invokePop = draggedDistance > _minDragDistanceToDismiss;
+      invokePop = draggedDistance > minDragDistanceToDismiss;
     } else {
       // Flings up.
       invokePop = false;
