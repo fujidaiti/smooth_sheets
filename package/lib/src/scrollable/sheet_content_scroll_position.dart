@@ -10,7 +10,7 @@ import 'scrollable_sheet.dart';
 /// An owner of [SheetContentScrollPosition]s.
 ///
 /// The associated scroll positions delegate their behavior of
-/// `goIdle`, `drag`, and `goBallistic` to this owner.
+/// `goIdle`, `hold`, `drag`, and `goBallistic` to this owner.
 @internal
 abstract class SheetContentScrollPositionOwner {
   bool get hasPrimaryScrollPosition;
@@ -23,6 +23,12 @@ abstract class SheetContentScrollPositionOwner {
   });
 
   void goIdleWithScrollPosition();
+
+  ScrollHoldController holdWithScrollPosition({
+    required double heldPreviousVelocity,
+    required VoidCallback holdCancelCallback,
+    required SheetContentScrollPosition scrollPosition,
+  });
 
   Drag dragWithScrollPosition({
     required DragStartDetails details,
@@ -59,15 +65,6 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
   /// this object to the controller, and it is unset when detaching.
   ValueGetter<SheetContentScrollPositionOwner?>? _getOwner;
 
-  /// Velocity from a previous activity temporarily held by [hold]
-  /// to potentially transfer to a next activity.
-  ///
-  /// This mirrors the value of `_heldPreviousVelocity` in
-  /// [ScrollPositionWithSingleContext] and is exposed here for
-  /// being used from outside of this object.
-  double _heldPreviousVelocity = 0.0;
-  double get heldPreviousVelocity => _heldPreviousVelocity;
-
   /// Whether the scroll view should prevent its contents from receiving
   /// pointer events.
   bool get shouldIgnorePointer => activity!.shouldIgnorePointer;
@@ -92,13 +89,6 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
   }
 
   @override
-  void beginActivity(ScrollActivity? newActivity) {
-    _heldPreviousVelocity =
-        newActivity is HoldScrollActivity ? activity!.velocity : 0.0;
-    super.beginActivity(newActivity);
-  }
-
-  @override
   void goIdle({bool calledByOwner = false}) {
     final owner = _getOwner?.call();
     if (owner != null && owner.hasPrimaryScrollPosition && !calledByOwner) {
@@ -106,6 +96,18 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
     } else {
       beginActivity(IdleScrollActivity(this));
     }
+  }
+
+  @override
+  ScrollHoldController hold(VoidCallback holdCancelCallback) {
+    return switch (_getOwner?.call()) {
+      null => super.hold(holdCancelCallback),
+      final owner => owner.holdWithScrollPosition(
+          scrollPosition: this,
+          holdCancelCallback: holdCancelCallback,
+          heldPreviousVelocity: activity!.velocity,
+        ),
+    };
   }
 
   @override

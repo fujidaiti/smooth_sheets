@@ -143,6 +143,13 @@
       "type": "dart",
       "program": "lib/tutorial/navigation_sheet_and_keyboard.dart",
       "cwd": "./cookbook"
-    }
+    },
+    {
+      "name": "ScrollableSheet and PageView",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/scrollable_pageview_sheet.dart",
+      "cwd": "./cookbook"
+    },
   ]
 }

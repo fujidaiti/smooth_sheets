@@ -392,36 +392,15 @@ abstract class SheetExtent extends ChangeNotifier
 
   @mustCallSuper
   void beginActivity(SheetActivity activity) {
+    assert((_activity is SheetDragControllerTarget) == (currentDrag != null));
+    currentDrag?.dispose();
+    currentDrag = null;
+
     final oldActivity = _activity;
     // Update the current activity before initialization.
     _activity = activity;
     activity.init(this);
-
-    if (oldActivity == null) {
-      return;
-    }
-
-    final wasDragging = oldActivity.status == SheetStatus.dragging;
-    final isDragging = activity.status == SheetStatus.dragging;
-
-    // TODO: Make more typesafe
-    assert(() {
-      final wasActuallyDragging =
-          currentDrag != null && oldActivity is SheetDragControllerTarget;
-      final isActuallyDragging =
-          currentDrag != null && activity is SheetDragControllerTarget;
-      return wasDragging == wasActuallyDragging &&
-          isDragging == isActuallyDragging;
-    }());
-
-    if (wasDragging && isDragging) {
-      currentDrag!.updateTarget(activity as SheetDragControllerTarget);
-    } else if (wasDragging && !isDragging) {
-      currentDrag!.dispose();
-      currentDrag = null;
-    }
-
-    oldActivity.dispose();
+    oldActivity?.dispose();
   }
 
   void goIdle() {
@@ -469,7 +448,7 @@ abstract class SheetExtent extends ChangeNotifier
       startDetails = tamperer.tamperWithDragStart(startDetails);
     }
 
-    final drag = currentDrag = SheetDragController(
+    final drag = SheetDragController(
       target: dragActivity,
       gestureTamperer: _gestureTamperer,
       details: startDetails,
@@ -479,6 +458,7 @@ abstract class SheetExtent extends ChangeNotifier
       motionStartDistanceThreshold: physics.dragStartDistanceMotionThreshold,
     );
     beginActivity(dragActivity);
+    currentDrag = drag;
     didDragStart(startDetails);
     return drag;
   }

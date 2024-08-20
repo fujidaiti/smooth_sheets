@@ -1,3 +1,4 @@
+// TODO: Consider removing this API.
 /// The status of a sheet.
 enum SheetStatus {
   /// The sheet is resting at a natural position.
