@@ -7,7 +7,7 @@ import 'package:flutter/rendering.dart';
 import '../foundation/sheet_controller.dart';
 import '../internal/double_utils.dart';
 import 'modal_sheet.dart';
-import 'swipe_dismiss_config.dart';
+import 'swipe_dismiss_sensitivity.dart';
 
 const _minimizedViewportScale = 0.92;
 const _cupertinoBarrierColor = Color(0x18000000);
@@ -423,7 +423,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
-    this.swipeDismissConfig = const SwipeDismissConfig(),
+    this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     required this.child,
   });
 
@@ -447,7 +447,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
 
   final Curve transitionCurve;
 
-  final SwipeDismissConfig swipeDismissConfig;
+  final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -490,7 +490,7 @@ class _PageBasedCupertinoModalSheetRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
-  SwipeDismissConfig get swipeDismissConfig => _page.swipeDismissConfig;
+  SwipeDismissSensitivity get swipeDismissSensitivity => _page.swipeDismissSensitivity;
 
   @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
@@ -511,7 +511,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
-    this.swipeDismissConfig = const SwipeDismissConfig(),
+    this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
   });
 
   final WidgetBuilder builder;
@@ -538,7 +538,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   final Curve transitionCurve;
 
   @override
-  final SwipeDismissConfig swipeDismissConfig;
+  final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
   Widget buildContent(BuildContext context) {

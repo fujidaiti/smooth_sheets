@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../internal/float_comp.dart';
-import 'swipe_dismiss_config.dart';
+import 'swipe_dismiss_sensitivity.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
@@ -25,7 +25,7 @@ class ModalSheetPage<T> extends Page<T> {
     this.barrierColor = Colors.black54,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
-    this.swipeDismissConfig = const SwipeDismissConfig(),
+    this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     required this.child,
   });
 
@@ -49,7 +49,7 @@ class ModalSheetPage<T> extends Page<T> {
 
   final Curve transitionCurve;
 
-  final SwipeDismissConfig swipeDismissConfig;
+  final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -91,7 +91,7 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
-  SwipeDismissConfig get swipeDismissConfig => _page.swipeDismissConfig;
+  SwipeDismissSensitivity get swipeDismissSensitivity => _page.swipeDismissSensitivity;
 
   @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
@@ -112,7 +112,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.swipeDismissible = false,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
-    this.swipeDismissConfig = const SwipeDismissConfig(),
+    this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
   });
 
   final WidgetBuilder builder;
@@ -139,7 +139,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final Curve transitionCurve;
 
   @override
-  final SwipeDismissConfig swipeDismissConfig;
+  final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
   Widget buildContent(BuildContext context) {
@@ -150,7 +150,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
 mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   bool get swipeDismissible;
   Curve get transitionCurve;
-  SwipeDismissConfig get swipeDismissConfig;
+  SwipeDismissSensitivity get swipeDismissSensitivity;
 
   @override
   bool get opaque => false;
@@ -159,7 +159,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   late final _swipeDismissibleController = _SwipeDismissibleController(
     route: this,
     transitionController: controller!,
-    swipeDismissConfig: swipeDismissConfig,
+    swipeDismissSensitivity: swipeDismissSensitivity,
   );
 
   Widget buildContent(BuildContext context);
@@ -237,12 +237,12 @@ class _SwipeDismissibleController with SheetGestureTamperer {
   _SwipeDismissibleController({
     required this.route,
     required this.transitionController,
-    required this.swipeDismissConfig,
+    required this.swipeDismissSensitivity,
   });
 
   final ModalRoute<dynamic> route;
   final AnimationController transitionController;
-  final SwipeDismissConfig swipeDismissConfig;
+  final SwipeDismissSensitivity swipeDismissSensitivity;
 
   BuildContext get _context => route.subtreeContext!;
 
@@ -357,12 +357,12 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       invokePop = false;
     } else if (effectiveVelocity < 0) {
       // Flings down.
-      invokePop = effectiveVelocity.abs() > swipeDismissConfig.minFlingVelocity;
+      invokePop = effectiveVelocity.abs() > swipeDismissSensitivity.minFlingVelocity;
     } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(_context))
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
-      invokePop = draggedDistance > swipeDismissConfig.minDragDistance;
+      invokePop = draggedDistance > swipeDismissSensitivity.minDragDistance;
     } else {
       // Flings up.
       invokePop = false;
