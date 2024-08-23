@@ -78,7 +78,8 @@ jobs:
 
       - name: Write test report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        # PRs from forks have no write permissions.
+        if: github.event.pull_request.head.repo.fork == false && (success() || failure())
         with:
           name: Test Report
           path: ${{ env.FLUTTER_TEST_REPORT }}
