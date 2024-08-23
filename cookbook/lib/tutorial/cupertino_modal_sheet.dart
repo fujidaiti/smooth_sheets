@@ -49,8 +49,11 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
   // For declarative navigation (Navigator 2.0), use `CupertinoModalSheetPage` instead.
   final modalRoute = CupertinoModalSheetRoute(
     swipeDismissible: true, // Enable the swipe-to-dismiss behavior.
-    swipeDismissSensitivity:
-        SwipeDismissSensitivity(minFlingVelocity: 3.0, minDragDistance: 400.0),
+    // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss gesture.
+    swipeDismissSensitivity: const SwipeDismissSensitivity(
+      minFlingVelocity: 1500,
+      minDragDistance: 300,
+    ),
     builder: (context) => switch (isFullScreen) {
       true => const _FullScreenSheet(),
       false => const _HalfScreenSheet(),
