@@ -28,7 +28,7 @@ final _router = GoRouter(
               swipeDismissible: true,
               // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
               swipeDismissSensitivity: const SwipeDismissSensitivity(
-                minFlingVelocityRatio: 1.0,
+                minFlingVelocityRatio: 2.0,
                 minDragDistance: 300.0,
               ),
               child: const _ExampleSheet(),

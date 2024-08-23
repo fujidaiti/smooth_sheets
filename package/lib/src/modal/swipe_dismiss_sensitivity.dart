@@ -13,7 +13,7 @@ import 'modal_sheet.dart';
 class SwipeDismissSensitivity {
   /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
-    this.minFlingVelocityRatio = 1.0,
+    this.minFlingVelocityRatio = 2.0,
     this.minDragDistance = 300.0,
   });
 
