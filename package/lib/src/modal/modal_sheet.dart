@@ -160,7 +160,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   late final _swipeDismissibleController = _SwipeDismissibleController(
     route: this,
     transitionController: controller!,
-    swipeDismissSensitivity: swipeDismissSensitivity,
+    sensitivity: swipeDismissSensitivity,
   );
 
   Widget buildContent(BuildContext context);
@@ -238,12 +238,12 @@ class _SwipeDismissibleController with SheetGestureTamperer {
   _SwipeDismissibleController({
     required this.route,
     required this.transitionController,
-    required this.swipeDismissSensitivity,
+    required this.sensitivity,
   });
 
   final ModalRoute<dynamic> route;
   final AnimationController transitionController;
-  final SwipeDismissSensitivity swipeDismissSensitivity;
+  final SwipeDismissSensitivity sensitivity;
 
   BuildContext get _context => route.subtreeContext!;
 
@@ -359,12 +359,12 @@ class _SwipeDismissibleController with SheetGestureTamperer {
     } else if (effectiveVelocity < 0) {
       // Flings down.
       invokePop =
-          effectiveVelocity.abs() > swipeDismissSensitivity.minFlingVelocity;
+          effectiveVelocity.abs() > sensitivity.minFlingVelocity;
     } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(_context))
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
-      invokePop = draggedDistance > swipeDismissSensitivity.minDragDistance;
+      invokePop = draggedDistance > sensitivity.minDragDistance;
     } else {
       // Flings up.
       invokePop = false;
