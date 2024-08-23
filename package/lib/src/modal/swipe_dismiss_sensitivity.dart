@@ -7,8 +7,8 @@
 /// a swipe to result in a dismissal.
 class SwipeDismissSensitivity {
   const SwipeDismissSensitivity({
-    this.minFlingVelocity = 1500,
-    this.minDragDistance = 300,
+    this.minFlingVelocity = 1.0,
+    this.minDragDistance = 300.0,
   });
 
   /// The minimum velocity that a fling gesture must reach to trigger

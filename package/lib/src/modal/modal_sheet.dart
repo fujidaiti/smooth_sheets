@@ -345,9 +345,11 @@ class _SwipeDismissibleController with SheetGestureTamperer {
 
     final viewportHeight = _context.size!.height;
     final draggedDistance = viewportHeight * (1 - transitionController.value);
+
     final effectiveVelocity = switch (axisDirection) {
-      VerticalDirection.up => velocity.pixelsPerSecond.dy,
-      VerticalDirection.down => -1 * velocity.pixelsPerSecond.dy,
+      VerticalDirection.up => velocity.pixelsPerSecond.dy / viewportHeight,
+      VerticalDirection.down =>
+        -1 * velocity.pixelsPerSecond.dy / viewportHeight,
     };
 
     final bool invokePop;

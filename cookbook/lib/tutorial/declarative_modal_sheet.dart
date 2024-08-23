@@ -26,12 +26,6 @@ final _router = GoRouter(
               key: state.pageKey,
               // Enable the swipe-to-dismiss behavior.
               swipeDismissible: true,
-              // Use `SwipeDismissSensitivity` to tweak the sensitivity of
-              // the swipe-to-dismiss gesture.
-              swipeDismissSensitivity: const SwipeDismissSensitivity(
-                minFlingVelocity: 1500,
-                minDragDistance: 300,
-              ),
               child: const _ExampleSheet(),
             );
           },
@@ -91,7 +85,7 @@ class _ExampleSheet extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: const SizedBox(
-            height: double.infinity,
+            height: 500,
             width: double.infinity,
           ),
         ),
