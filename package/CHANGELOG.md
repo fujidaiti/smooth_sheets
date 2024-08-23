@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.0 Aug 23, 2024
+
+- Add `SwipeDismissSensitivity` param for modals  (#222)
+
 ## 0.9.3 Aug 19, 2024
 
 - Fix: Press-and-hold gesture in PageView doesn't stop momentum scrolling (#219)
