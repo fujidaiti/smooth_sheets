@@ -28,7 +28,7 @@ class SwipeDismissSensitivity {
   ///
   /// As a reference, the ratio of 1.0 corresponds to the velocity such that
   /// the user moves their finger from the top to the bottom of the screen
-  /// within 1 second.
+  /// in exactly 1 second.
   final double minFlingVelocityRatio;
 
   /// Minimum downward drag distance required for dismissal when the
