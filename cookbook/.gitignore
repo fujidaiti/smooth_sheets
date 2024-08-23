@@ -17,7 +17,6 @@ migrate_working_dir/
 .idea/
 
 # Flutter/Dart/Pub related
-/pubspec.lock
 **/doc/api/
 .dart_tool/
 .packages
