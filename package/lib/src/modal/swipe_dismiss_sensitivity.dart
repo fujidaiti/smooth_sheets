@@ -20,8 +20,8 @@ class SwipeDismissSensitivity {
   /// Minimum ratio of gesture velocity to viewport height required to
   /// trigger dismissal for a downward fling gesture.
   ///
-  /// The viewport height in the formula is obtained from the `size` property
-  /// of the navigator's [BuildContext] where the modal route belongs to.
+  /// The viewport height is obtained from the `size` property of the
+  /// navigator's [BuildContext] where the modal route belongs to.
   /// Therefore, the larger the viewport height, the higher the velocity
   /// required to dismiss the modal (and vice versa). This is to ensure that
   /// the swipe-to-dismiss behavior is consistent across different screen sizes.
