@@ -48,9 +48,13 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
   // Use `CupertinoModalSheetRoute` to show an ios 15 style modal sheet.
   // For declarative navigation (Navigator 2.0), use `CupertinoModalSheetPage` instead.
   final modalRoute = CupertinoModalSheetRoute(
-    swipeDismissible: true, // Enable the swipe-to-dismiss behavior.
-    swipeDismissSensitivity:
-        SwipeDismissSensitivity(minFlingVelocity: 3.0, minDragDistance: 400.0),
+    // Enable the swipe-to-dismiss behavior.
+    swipeDismissible: true,
+    // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
+    swipeDismissSensitivity: const SwipeDismissSensitivity(
+      minFlingVelocityRatio: 1.0,
+      minDragDistance: 300.0,
+    ),
     builder: (context) => switch (isFullScreen) {
       true => const _FullScreenSheet(),
       false => const _HalfScreenSheet(),

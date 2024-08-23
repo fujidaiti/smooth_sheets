@@ -1,20 +1,40 @@
-/// Configuration class for handling swipe-to-dismiss gestures.
+import 'package:flutter/widgets.dart';
+
+import 'modal_sheet.dart';
+
+/// Configuration for the swipe-to-dismiss sensitivity of [ModalSheetRoute],
+/// [ModalSheetPage], and related classes.
 ///
-/// The [SwipeDismissSensitivity] class provides parameters to control
-/// the behavior of swipe-to-dismiss interactions for modals. It defines
-/// the minimum velocity required for the swipe gesture ([minFlingVelocity])
-/// and the minimum distance the user needs to drag ([minDragDistance]) for
-/// a swipe to result in a dismissal.
+/// The modal will be dismissed under the following conditions:
+/// - A downward fling gesture with the ratio of the velocity to the viewport
+///   height that exceeds [minFlingVelocityRatio].
+/// - A drag gesture ending with zero velocity, where the downward distance
+///   exceeds [minDragDistance].
 class SwipeDismissSensitivity {
+  /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
-    this.minFlingVelocity = 1.0,
+    this.minFlingVelocityRatio = 1.0,
     this.minDragDistance = 300.0,
   });
 
-  /// The minimum velocity that a fling gesture must reach to trigger
-  /// a dismissal.
-  final double minFlingVelocity;
+  /// Minimum ratio of gesture velocity to viewport height required to
+  /// trigger dismissal for a downward fling gesture.
+  ///
+  /// The viewport height in the formula is obtained from the `size` property
+  /// of the navigator's [BuildContext] where the modal route belongs to.
+  /// Therefore, the larger the viewport height, the higher the velocity
+  /// required to dismiss the modal (and vice versa). This is to ensure that
+  /// the swipe-to-dismiss behavior is consistent across different screen sizes.
+  ///
+  /// As a reference, the ratio of 1.0 corresponds to the velocity such that
+  /// the user moves their finger from the top to the bottom of the screen
+  /// within 1 second.
+  final double minFlingVelocityRatio;
 
-  /// The minimum distance that must be dragged before the modal is dismissed.
+  /// Minimum downward drag distance required for dismissal when the
+  /// gesture ends with zero velocity.
+  ///
+  /// If the drag gesture ends with a non-zero velocity, it's treated as
+  /// a fling gesture, and this value is not used.
   final double minDragDistance;
 }

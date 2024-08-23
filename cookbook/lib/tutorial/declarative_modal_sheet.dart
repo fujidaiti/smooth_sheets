@@ -26,6 +26,11 @@ final _router = GoRouter(
               key: state.pageKey,
               // Enable the swipe-to-dismiss behavior.
               swipeDismissible: true,
+              // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
+              swipeDismissSensitivity: const SwipeDismissSensitivity(
+                minFlingVelocityRatio: 1.0,
+                minDragDistance: 300.0,
+              ),
               child: const _ExampleSheet(),
             );
           },

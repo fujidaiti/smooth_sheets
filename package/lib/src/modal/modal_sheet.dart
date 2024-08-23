@@ -358,7 +358,7 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       invokePop = false;
     } else if (effectiveVelocity < 0) {
       // Flings down.
-      invokePop = effectiveVelocity.abs() > sensitivity.minFlingVelocity;
+      invokePop = effectiveVelocity.abs() > sensitivity.minFlingVelocityRatio;
     } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(_context))
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
