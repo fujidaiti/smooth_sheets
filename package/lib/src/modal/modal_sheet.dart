@@ -91,7 +91,8 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
-  SwipeDismissSensitivity get swipeDismissSensitivity => _page.swipeDismissSensitivity;
+  SwipeDismissSensitivity get swipeDismissSensitivity =>
+      _page.swipeDismissSensitivity;
 
   @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
@@ -357,7 +358,8 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       invokePop = false;
     } else if (effectiveVelocity < 0) {
       // Flings down.
-      invokePop = effectiveVelocity.abs() > swipeDismissSensitivity.minFlingVelocity;
+      invokePop =
+          effectiveVelocity.abs() > swipeDismissSensitivity.minFlingVelocity;
     } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(_context))
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);

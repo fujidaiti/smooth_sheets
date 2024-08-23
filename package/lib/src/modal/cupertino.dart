@@ -490,7 +490,8 @@ class _PageBasedCupertinoModalSheetRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
-  SwipeDismissSensitivity get swipeDismissSensitivity => _page.swipeDismissSensitivity;
+  SwipeDismissSensitivity get swipeDismissSensitivity =>
+      _page.swipeDismissSensitivity;
 
   @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
