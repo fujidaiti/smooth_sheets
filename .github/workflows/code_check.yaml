@@ -15,20 +15,22 @@ jobs:
     permissions:
       pull-requests: read
     outputs:
-      dart-files: ${{ steps.filter.outputs.dart-files }}
+      flutter-files: ${{ steps.filter.outputs.flutter-files }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
-            dart-files:
+            flutter-files:
               - '**.dart'
+              - 'pubspec.yaml'
+              - 'pubspec.lock'
 
   # Static code analysis
   analysis:
     needs: changes
-    if: ${{ needs.changes.outputs.dart-files == 'true' }}
+    if: ${{ needs.changes.outputs.flutter-files == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -49,7 +51,7 @@ jobs:
   # Unit testing
   testing:
     needs: changes
-    if: ${{ needs.changes.outputs.dart-files == 'true' }}
+    if: ${{ needs.changes.outputs.flutter-files == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
