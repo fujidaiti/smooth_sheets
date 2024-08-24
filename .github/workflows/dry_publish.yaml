@@ -21,7 +21,7 @@ jobs:
       - name: Run pana
         id: analysis
         run: |
-          pana --json package 2>&1 | grep -v '^{"logName"' > pana-report.json
+          pana --json . 2>&1 | grep -v '^{"logName"' > pana-report.json
           JSON_OUTPUT=$(cat pana-report.json | jq -c .)
           echo "::set-output name=json_output::$JSON_OUTPUT"
 
