@@ -14,8 +14,6 @@ jobs:
 
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
-        with:
-          target: package
 
       - name: Install pana
         run: dart pub global activate pana
@@ -37,4 +35,3 @@ jobs:
           supported-platforms: ios, android
 
       - run: flutter pub publish --dry-run
-        working-directory: package

@@ -30,29 +30,21 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.dart-files == 'true' }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target: [package, cookbook]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
-        with:
-          target: ${{ matrix.target }}
 
       - name: Format
         run: dart format . -o none --set-exit-if-changed
-        working-directory: ${{ matrix.target }}
 
       - name: Analyze
         run: dart analyze
-        working-directory: ${{ matrix.target }}
 
       - name: Disallowed patterns check
         run: bash ${{ env.PATTERN_CHECKER }} "*.dart" "--" "debugPrint"
-        working-directory: ${{ matrix.target }}
 
   # Unit testing
   testing:
@@ -69,8 +61,6 @@ jobs:
 
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
-        with:
-          target: package
 
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
