@@ -192,10 +192,10 @@ packages:
   smooth_sheets:
     dependency: "direct main"
     description:
-      path: "../package"
+      path: ".."
       relative: true
     source: path
-    version: "0.8.2"
+    version: "0.9.3"
   source_span:
     dependency: transitive
     description:
