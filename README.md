@@ -35,7 +35,7 @@ See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older
     <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/636d5ca8-2883-4447-ad75-47fcb210718c"/></td>
     <td>
       <h3>AI Playlist Generator</h3>
-      <p>An AI assistant that helps create a music playlist based on the user's preferences. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/ai_playlist_generator.dart">the cookbook</a> for more details.</p>
+      <p>An AI assistant that helps create a music playlist based on the user's preferences. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/ai_playlist_generator.dart">the cookbook</a> for more details.</p>
       <p>Key components:</p>
       <ul>
         <li>NavigationSheet</li>
@@ -50,7 +50,7 @@ See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older
     <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/cfbc79d1-4290-4dec-88bd-a355a27726ea"/></td>
     <td>
       <h3>Safari app</h3>
-      <p>A practical example of ios-style modal sheets. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/safari">the cookbook</a> for more details.</p>
+      <p>A practical example of ios-style modal sheets. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/safari">the cookbook</a> for more details.</p>
       <p>Key components:</p>
       <ul>
         <li>CupertinoStackedTransition</li>
@@ -62,7 +62,7 @@ See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older
     <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/1fb3f047-c993-42be-9a7e-b3efc89be635"/></td>
     <td>
       <h3>Airbnb mobile app clone</h3>
-      <p>A partial clone of the Airbnb mobile app. The user can drag the house list down to reveal the map behind it. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/airbnb_mobile_app.dart">the cookbook</a> for more details.</p>
+      <p>A partial clone of the Airbnb mobile app. The user can drag the house list down to reveal the map behind it. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/airbnb_mobile_app.dart">the cookbook</a> for more details.</p>
       <p>Key components:</p>
       <ul>
         <li>ScrollableSheet</li>
@@ -76,7 +76,7 @@ See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older
     <td width="30%"><img src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/b1e0f8d0-7037-48c5-ab4e-80a2c43df43b"/></td>
     <td>
       <h3>Todo List</h3>
-      <p>A simple Todo app that shows how a sheet handles the on-screen keyboard. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/todo_list">the cookbook</a> for more details.</p>
+      <p>A simple Todo app that shows how a sheet handles the on-screen keyboard. See <a href="https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/todo_list">the cookbook</a> for more details.</p>
       <p>Used components:</p>
       <ul>
         <li>ScrollableSheet</li>
@@ -112,8 +112,8 @@ There are few packages on pub.dev that supports nested navigation with motion an
 
 Several resources are available for learning the functionalities of this package.
 
-- Tutorials: See [cookbook/lib/tutorial/](https://github.com/fujidaiti/smooth_sheets/tree/main/cookbook/lib/tutorial) to learn the basic usage of the core components.
-- Showcases: More practical examples are available in [cookbook/lib/showcase/](https://github.com/fujidaiti/smooth_sheets/tree/main/cookbook/lib/showcase).
+- Tutorials: See [example/lib/tutorial/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/tutorial) to learn the basic usage of the core components.
+- Showcases: More practical examples are available in [example/lib/showcase/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/showcase).
 - Documentation: WORK IN PROGRESS! Please see the source code for a while.
 
 <br/>
@@ -143,7 +143,7 @@ A sheet that can be dragged. The height will be equal to the content. The behavi
 
 See also:
 
-- [draggable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/draggable_sheet.dart) for basic usage.
+- [draggable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/draggable_sheet.dart) for basic usage.
 
 <br/>
 
@@ -160,7 +160,7 @@ A sheet that is similar to [DraggableSheet](#draggablesheet), but specifically d
 
 See also:
 
-- [scrollable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/scrollable_sheet.dart) for basic usage.
+- [scrollable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/scrollable_sheet.dart) for basic usage.
 
 <br/>
 
@@ -177,8 +177,8 @@ A sheet that is able to have multiple pages and performs graceful motion animati
 
 See also:
 
-- [declarative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_navigation_sheet.dart), tutorial of integration with Navigator 2.0 using [go_router](https://pub.dev/packages/go_router) package.
-- [imperative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_navigation_sheet.dart), a tutorial of integration with imperative Navigator API.
+- [declarative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_navigation_sheet.dart), tutorial of integration with Navigator 2.0 using [go_router](https://pub.dev/packages/go_router) package.
+- [imperative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_navigation_sheet.dart), a tutorial of integration with imperative Navigator API.
 
 <br/>
 
@@ -204,11 +204,11 @@ Furthermore, [the modal sheets in the style of iOS 15](https://medium.com/surf-d
 
 See also:
 
-- [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
-- [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
-- [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
-- [ios_style_declarative_modal_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart), an example of iOS-style modal NavigationSheet with go_router.
-- [showcase/todo_list](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/todo_list), which uses SheetDismissible to show a confirmation dialog when the user tries to discard the todo editing sheet without saving the content.
+- [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
+- [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
+- [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
+- [ios_style_declarative_modal_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart), an example of iOS-style modal NavigationSheet with go_router.
+- [showcase/todo_list](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/todo_list), which uses SheetDismissible to show a confirmation dialog when the user tries to discard the todo editing sheet without saving the content.
 
 <br/>
 
@@ -231,8 +231,8 @@ These physics can be combined to create more complex behavior (e.g. bouncing beh
 
 See also:
 
-- [sheet_physics.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_physics.dart) for basic usage.
-- [bouncing_behaviors.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/bouncing_behaviors.dart), which shows how to tweak the bouncing behavior of BouncingSheetPhysics.
+- [sheet_physics.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_physics.dart) for basic usage.
+- [bouncing_behaviors.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/bouncing_behaviors.dart), which shows how to tweak the bouncing behavior of BouncingSheetPhysics.
 
 <br/>
 
@@ -249,7 +249,7 @@ Like [ScrollController](https://api.flutter.dev/flutter/widgets/ScrollController
 
 See also:
 
-- [sheet_controller.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_controller.dart) for basic usage.
+- [sheet_controller.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_controller.dart) for basic usage.
 
 <br/>
 
@@ -268,8 +268,8 @@ See also:
 
 - [SheetContentScaffold](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetContentScaffold-class.html), the API documentation.
 - [BottomBarVisibility](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BottomBarVisibility-class.html), which can be used to control the visibility of the bottom bar based on the sheet position.
-- [tutorial/sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_content_scaffold.dart), which shows the basic usage of SheetContentScaffold.
-- [tutorial/bottom_bar_visibility.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/bottom_bar_visibility.dart), which shows the basic usage of BottomBarVisibility widgets.
+- [tutorial/sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_content_scaffold.dart), which shows the basic usage of SheetContentScaffold.
+- [tutorial/bottom_bar_visibility.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/bottom_bar_visibility.dart), which shows the basic usage of BottomBarVisibility widgets.
 
 <br/>
 
@@ -286,7 +286,7 @@ Note that SheetDraggable is not needed when using DraggableSheet since it implic
 
 See also:
 
-- [sheet_draggable.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_draggable.dart) for basic usage.
+- [sheet_draggable.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_draggable.dart) for basic usage.
 
 <br/>
 
@@ -302,8 +302,8 @@ It is easy to create sheet extent driven animations by using ExtentDrivenAnimati
 
 See also:
 
-- [extent_driven_animation](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/extent_driven_animation.dart) for basic usage.
-- [airbnb_mobile_app.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/showcase/airbnb_mobile_app.dart), which show how ExtentDrivenAnimation can be used to hide the bottom navigation bar and a FAB when the sheet is dragged down, and to show them when the sheet is dragged up again.
+- [extent_driven_animation](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/extent_driven_animation.dart) for basic usage.
+- [airbnb_mobile_app.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/airbnb_mobile_app.dart), which show how ExtentDrivenAnimation can be used to hide the bottom navigation bar and a FAB when the sheet is dragged down, and to show them when the sheet is dragged up again.
 
 <br/>
 
@@ -351,7 +351,7 @@ Although it is easy to create custom behaviors by implementing SheetKeyboardDism
 
 See also:
 
-- [tutorial/keyboard_dismiss_behavior.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/keyboard_dismiss_behavior.dart) for basic usage.
+- [tutorial/keyboard_dismiss_behavior.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/keyboard_dismiss_behavior.dart) for basic usage.
 
 <br/>
 
