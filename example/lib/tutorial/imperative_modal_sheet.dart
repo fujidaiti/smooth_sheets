@@ -68,17 +68,17 @@ class _ExampleSheet extends StatelessWidget {
       },
       child: DraggableSheet(
         minExtent: const Extent.proportional(0.5),
-      child: Card(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+        child: Card(
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const SizedBox(
+            height: 700,
+            width: double.infinity,
+          ),
         ),
-        child: const SizedBox(
-          height: 700,
-          width: double.infinity,
-        ),
-      ),
       ),
     );
   }

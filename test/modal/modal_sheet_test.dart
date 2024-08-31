@@ -121,7 +121,7 @@ void main() {
         expect(find.byKey(const Key('sheet')), findsNothing);
       },
     );
-    
+
     testWidgets(
       'modal should not be dismissed if drag distance is not enough',
       (tester) async {
