@@ -406,7 +406,7 @@ class _SwipeDismissibleController with SheetGestureTamperer {
     }
 
     if (invokePop) {
-      route.onPopInvoked(didPop);
+      route.onPopInvokedWithResult(didPop, null);
     }
 
     return true;
