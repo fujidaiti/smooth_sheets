@@ -204,6 +204,7 @@ Furthermore, [the modal sheets in the style of iOS 15](https://medium.com/surf-d
 
 See also:
 
+- [SwipeDismissSensitivity](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SwipeDismissSensitivity-class.html), which can be used to tweak the sensitivity of the swipe-to-dismiss action.
 - [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
 - [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
 - [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
