@@ -13,9 +13,25 @@
 
 <br/>
 
-**CAUTION🚨**
+## For developers using Flutter 3.24+
 
-This library is currently in the experimental stage. The API may undergo changes without prior notice. For documentation of the latest published version, please visit the [package site](https://pub.dev/packages/smooth_sheets) on pub.dev.
+If your project uses Flutter 3.24.0 or later, we recommend using the pre-release versions named `1.0.0-f324.x.x.x`. While you can still use the non-pre-release versions (e.g., `0.9.4`) with Flutter 3.24+, you may encounter issues related to the `PopScope` widget due to a breaking change in Flutter 3.24. There are no functional or API differences between the pre-release and non-pre-release versions, except that the pre-release versions require Flutter 3.24.0 or later.
+
+```yaml
+dependencies:
+  # For projects that uses the pre-release versions (requires Flutter 3.24+)
+  smooth_sheets: ^1.0.0-f324.0.9.4
+  # For projects that uses the non-pre-release versions
+  smooth_sheets: ^0.9.4
+```
+
+<details>
+<summary>Background</summary>
+
+This package previously used the `Route.onPopInvoked` method to invoke `PopScope.onPopInvoked` callbacks when users performed a swipe-to-dismiss gesture. However, these methods were deprecated in Flutter 3.24.0 as part of a [breaking change](https://docs.flutter.dev/release/breaking-changes/popscope-with-result) related to the `PopScope` widget. The problem is that `ModalRoute.onPopInvoked`, which was an override of `Route.onPopInvoked` and where `PopScope.onPopInvoked` callbacks were actually invoked, was removed. As a result, the `PopScope.onPopInvoked` callback is no longer invoked in Flutter 3.24+. These changes led to issues such as [#233](https://github.com/fujidaiti/smooth_sheets/issues/233).
+
+The only possible solution was to replace `Route.onPopInvoked` with `Route.onPopInvokedWithResult`, which was introduced in Flutter 3.24.0. However, migrating to the new API would require increasing the lower bound of the SDK constraint to 3.24.0. For those using an SDK version lower than 3.24, this change would be a significant breaking change. Ultimately, we decided to publish different versions for different SDK constraints to maintain backward compatibility.
+</details>
 
 <br/>
 
