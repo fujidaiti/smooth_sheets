@@ -16,7 +16,7 @@ jobs:
     outputs:
       flutter-file-changed: ${{ steps.filter.outputs.flutter-file-changed }}
       flutter-lower-bound: ${{ steps.flutter-version-constraint.outputs.lower-bound }}
-      flutter-upper-bound: ${{ steps.flutter-version-constraint.outputs.upper_bound }}
+      flutter-upper-bound: ${{ steps.flutter-version-constraint.outputs.upper-bound }}
     steps:
       - uses: actions/checkout@v4
 
