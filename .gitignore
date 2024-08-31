@@ -9,5 +9,16 @@
 .history
 .svn/
 migrate_working_dir/
-pubspec.lock
 
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter/Dart/Pub related
+/pubspec.lock
+**/doc/api/
+.dart_tool/
+.packages
+build/

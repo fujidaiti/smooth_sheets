@@ -4,7 +4,7 @@ version: 0.10.0
 repository: https://github.com/fujidaiti/smooth_sheets
 screenshots:
   - description: Practical examples of smooth_sheets.
-    path: resources/smooth-sheets-thumbnail.png
+    path: art/smooth-sheets-thumbnail.png
 topics:
   - ui
   - widget
