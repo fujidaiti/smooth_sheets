@@ -6,9 +6,8 @@ import 'package:flutter/material.dart';
 import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../internal/float_comp.dart';
+import 'swipe_dismiss_sensitivity.dart';
 
-const _minFlingVelocityToDismiss = 1.0;
-const _minDragDistanceToDismiss = 100.0; // Logical pixels.
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 
@@ -26,6 +25,7 @@ class ModalSheetPage<T> extends Page<T> {
     this.barrierColor = Colors.black54,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     required this.child,
   });
 
@@ -48,6 +48,8 @@ class ModalSheetPage<T> extends Page<T> {
   final Duration transitionDuration;
 
   final Curve transitionCurve;
+
+  final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -89,6 +91,10 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
+  SwipeDismissSensitivity get swipeDismissSensitivity =>
+      _page.swipeDismissSensitivity;
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -107,6 +113,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.swipeDismissible = false,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
   });
 
   final WidgetBuilder builder;
@@ -133,6 +140,9 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final Curve transitionCurve;
 
   @override
+  final SwipeDismissSensitivity swipeDismissSensitivity;
+
+  @override
   Widget buildContent(BuildContext context) {
     return builder(context);
   }
@@ -141,6 +151,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
 mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   bool get swipeDismissible;
   Curve get transitionCurve;
+  SwipeDismissSensitivity get swipeDismissSensitivity;
 
   @override
   bool get opaque => false;
@@ -149,6 +160,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   late final _swipeDismissibleController = _SwipeDismissibleController(
     route: this,
     transitionController: controller!,
+    sensitivity: swipeDismissSensitivity,
   );
 
   Widget buildContent(BuildContext context);
@@ -226,10 +238,12 @@ class _SwipeDismissibleController with SheetGestureTamperer {
   _SwipeDismissibleController({
     required this.route,
     required this.transitionController,
+    required this.sensitivity,
   });
 
   final ModalRoute<dynamic> route;
   final AnimationController transitionController;
+  final SwipeDismissSensitivity sensitivity;
 
   BuildContext get _context => route.subtreeContext!;
 
@@ -344,12 +358,12 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       invokePop = false;
     } else if (effectiveVelocity < 0) {
       // Flings down.
-      invokePop = effectiveVelocity.abs() > _minFlingVelocityToDismiss;
+      invokePop = effectiveVelocity.abs() > sensitivity.minFlingVelocityRatio;
     } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(_context))
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
-      invokePop = draggedDistance > _minDragDistanceToDismiss;
+      invokePop = draggedDistance > sensitivity.minDragDistance;
     } else {
       // Flings up.
       invokePop = false;

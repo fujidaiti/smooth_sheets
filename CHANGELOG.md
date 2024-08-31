@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.0 Aug 31, 2024
+
+- Add `SwipeDismissSensitivity`, a way to customize sensitivity of swipe-to-dismiss action on modal sheet (#222)
+
 ## 0.9.3 Aug 19, 2024
 
 - Fix: Press-and-hold gesture in PageView doesn't stop momentum scrolling (#219)
