@@ -67,6 +67,7 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   /// Whether the scroll view should prevent its contents from receiving
   /// pointer events.
+  @override
   bool get shouldIgnorePointer => activity!.shouldIgnorePointer;
 
   /// Sets the user scroll direction.
