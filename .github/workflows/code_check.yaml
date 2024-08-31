@@ -16,9 +16,13 @@ jobs:
       pull-requests: read
     outputs:
       flutter-file-changed: ${{ steps.filter.outputs.flutter-file-changed }}
+      lowest-flutter-version: ${{ steps.flutter-version-constraint.outputs.lowest }}
+      highest-flutter-version: ${{ steps.flutter-version-constraint.outputs.highest }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+
+      - name: Filter changed files
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
@@ -26,6 +30,21 @@ jobs:
               - '**.dart'
               - 'pubspec.yaml'
               - 'pubspec.lock'
+
+      - name: Get Flutter SDK version constraint
+        id: flutter-version-constraint
+        run: |
+          sdk_constraint=$(cat pubspec.yaml | yq .environment.flutter)
+          lowest=$(echo "$sdk_constraint" | grep -oP '(?<=\>=)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          highest=$(echo "$sdk_constraint" | grep -oP '(?<=\<)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          echo "lowest=$lowest" >> "$GITHUB_OUTPUT"
+          echo "highest=$highest" >> "$GITHUB_OUTPUT"
+
+      - name: Print output values
+        run: |
+          echo "flutter-file-changed=${{ steps.filter.outputs.flutter-file-changed }}"
+          echo "lowest-flutter-version=${{ steps.flutter-version-constraint.outputs.lowest }}"
+          echo "highest-flutter-version=${{ steps.flutter-version-constraint.outputs.highest }}"
 
   # Static code analysis
   analysis:
