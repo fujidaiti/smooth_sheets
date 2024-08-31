@@ -36,6 +36,10 @@ jobs:
           sdk_constraint=$(cat pubspec.yaml | yq .environment.flutter)
           lowest=$(echo "$sdk_constraint" | grep -oP '(?<=\>=)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
           highest=$(echo "$sdk_constraint" | grep -oP '(?<=\<)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          # If no upper bound is specified, default to 3.x
+          if [ -z "$highest" ]; then
+            highest="3.x"
+          fi
           echo "lowest=$lowest" >> "$GITHUB_OUTPUT"
           echo "highest=$highest" >> "$GITHUB_OUTPUT"
 
