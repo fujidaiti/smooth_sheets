@@ -13,9 +13,9 @@
 
 <br/>
 
-## For developers with Flutter 3.24+
+## For developers using Flutter 3.24+
 
-If your project uses Flutter 3.24.0 or later, it is recommended to use the pre-release versions named `1.0.0-f324.x.x.x`. You can still use the non-pre-release versions (e.g. `0.9.4`) with Flutter 3.24+, but you may encounter some issues related to `PopScope` widget due to a breaking change in Flutter 3.24. There are no functional and API differences between the pre-release versions and the non-pre-release versions, except that the pre-release versions require Flutter 3.24.0 or later.
+If your project uses Flutter 3.24.0 or later, we recommend using the pre-release versions named `1.0.0-f324.x.x.x`. While you can still use the non-pre-release versions (e.g., `0.9.4`) with Flutter 3.24+, you may encounter issues related to the `PopScope` widget due to a breaking change in Flutter 3.24. There are no functional or API differences between the pre-release and non-pre-release versions, except that the pre-release versions require Flutter 3.24.0 or later.
 
 ```yaml
 dependencies:
@@ -24,10 +24,6 @@ dependencies:
   # For projects that uses the non-pre-release versions
   smooth_sheets: ^0.9.4
 ```
-
-## For developers using Flutter 3.24+
-
-If your project uses Flutter 3.24.0 or later, we recommend using the pre-release versions named `1.0.0-f324.x.x.x`. While you can still use the non-pre-release versions (e.g., `0.9.4`) with Flutter 3.24+, you may encounter issues related to the `PopScope` widget due to a breaking change in Flutter 3.24. There are no functional or API differences between the pre-release and non-pre-release versions, except that the pre-release versions require Flutter 3.24.0 or later.
 
 <details>
 <summary>Background</summary>
