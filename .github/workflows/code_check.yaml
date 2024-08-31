@@ -10,27 +10,27 @@ env:
 
 jobs:
   # Change detection
-  changes:
+  setup:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
     outputs:
-      flutter-files: ${{ steps.filter.outputs.flutter-files }}
+      flutter-file-changed: ${{ steps.filter.outputs.flutter-file-changed }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
-            flutter-files:
+            flutter-file-changed:
               - '**.dart'
               - 'pubspec.yaml'
               - 'pubspec.lock'
 
   # Static code analysis
   analysis:
-    needs: changes
-    if: ${{ needs.changes.outputs.flutter-files == 'true' }}
+    needs: setup
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -50,8 +50,8 @@ jobs:
 
   # Unit testing
   testing:
-    needs: changes
-    if: ${{ needs.changes.outputs.flutter-files == 'true' }}
+    needs: setup
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
