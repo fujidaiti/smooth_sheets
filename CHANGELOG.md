@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.10.0 Aug 31, 2024
+## 0.9.4 Aug 31, 2024
 
 - Add `SwipeDismissSensitivity`, a way to customize sensitivity of swipe-to-dismiss action on modal sheet (#222)
 
