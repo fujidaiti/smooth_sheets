@@ -74,7 +74,7 @@ class _ExampleSheet extends StatelessWidget {
     // the system back gestures and tapping on the barrier, all in one place.
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, _) async {
         if (!didPop) {
           final shouldPop = await showConfirmationDialog(context);
           if (shouldPop == true && context.mounted) {

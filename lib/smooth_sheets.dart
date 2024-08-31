@@ -1,7 +1,7 @@
 /// Comprehensive bottom sheet library supporting imperative and declarative
 /// navigation APIs, nested navigation, persistent and modal styles (including
 /// the iOS flavor), and more.
-library smooth_sheets;
+library;
 
 export 'src/draggable/draggable.dart';
 export 'src/foundation/foundation.dart';

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0-f324.0.9.4 Sep 1, 2024
+
+**This version requires Flutter 3.24.0 or later.** See the [README](https://github.com/fujidaiti/smooth_sheets/edit/main/README.md#for-developers-using-flutter-324) for more details.
+
+- Fix: PopScope not working with modals in Flutter 3.24+ (#237)
+
 ## 0.9.4 Aug 31, 2024
 
 - Add `SwipeDismissSensitivity`, a way to customize sensitivity of swipe-to-dismiss action on modal sheet (#222)
