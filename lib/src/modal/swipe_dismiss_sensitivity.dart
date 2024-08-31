@@ -14,7 +14,7 @@ class SwipeDismissSensitivity {
   /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
     this.minFlingVelocityRatio = 2.0,
-    this.minDragDistance = 300.0,
+    this.minDragDistance = 200.0,
   });
 
   /// Minimum ratio of gesture velocity to viewport height required to
