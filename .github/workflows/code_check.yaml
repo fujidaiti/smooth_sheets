@@ -9,35 +9,63 @@ env:
   PATTERN_CHECKER: ${{github.workspace}}/scripts/pattern_checker.sh
 
 jobs:
-  # Change detection
-  changes:
+  setup:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
     outputs:
-      flutter-files: ${{ steps.filter.outputs.flutter-files }}
+      flutter-file-changed: ${{ steps.filter.outputs.flutter-file-changed }}
+      lowest-flutter-version: ${{ steps.flutter-version-constraint.outputs.lowest }}
+      highest-flutter-version: ${{ steps.flutter-version-constraint.outputs.highest }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+
+      - name: Filter changed files
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
-            flutter-files:
+            flutter-file-changed:
               - '**.dart'
               - 'pubspec.yaml'
               - 'pubspec.lock'
 
-  # Static code analysis
+      - name: Get Flutter SDK version constraint
+        id: flutter-version-constraint
+        run: |
+          sdk_constraint=$(cat pubspec.yaml | yq .environment.flutter)
+          lowest=$(echo "$sdk_constraint" | grep -oP '(?<=\>=)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          highest=$(echo "$sdk_constraint" | grep -oP '(?<=\<)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          # If no upper bound is specified, default to 3.x
+          if [ -z "$highest" ]; then
+            highest="3.x"
+          fi
+          echo "lowest=$lowest" >> "$GITHUB_OUTPUT"
+          echo "highest=$highest" >> "$GITHUB_OUTPUT"
+
+      - name: Print output values
+        run: |
+          echo "flutter-file-changed=${{ steps.filter.outputs.flutter-file-changed }}"
+          echo "lowest-flutter-version=${{ steps.flutter-version-constraint.outputs.lowest }}"
+          echo "highest-flutter-version=${{ steps.flutter-version-constraint.outputs.highest }}"
+
   analysis:
-    needs: changes
-    if: ${{ needs.changes.outputs.flutter-files == 'true' }}
+    needs: setup
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        flutter-version:
+          - ${{ needs.setup.outputs.lowest-flutter-version }}
+          - ${{ needs.setup.outputs.highest-flutter-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
+        with:
+          version: ${{ matrix.flutter-version }}
 
       - name: Format
         run: dart format . -o none --set-exit-if-changed
@@ -48,21 +76,27 @@ jobs:
       - name: Disallowed patterns check
         run: bash ${{ env.PATTERN_CHECKER }} "*.dart" "--" "debugPrint"
 
-  # Unit testing
   testing:
-    needs: changes
-    if: ${{ needs.changes.outputs.flutter-files == 'true' }}
+    needs: setup
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       actions: read
       checks: write
+    strategy:
+      matrix:
+        flutter-version:
+          - ${{ needs.setup.outputs.lowest-flutter-version }}
+          - ${{ needs.setup.outputs.highest-flutter-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
+        with:
+          version: ${{ matrix.flutter-version }}
 
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
@@ -72,7 +106,7 @@ jobs:
         # PRs from forks have no write permissions.
         if: github.event.pull_request.head.repo.fork == false && (success() || failure())
         with:
-          name: Test Report
+          name: Test Report (with Flutter ${{ matrix.flutter-version }})
           path: ${{ env.FLUTTER_TEST_REPORT }}
           reporter: flutter-json
 
