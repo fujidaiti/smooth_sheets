@@ -147,4 +147,79 @@ void main() {
       },
     );
   });
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/233
+  group('PopScope test', () {
+    late bool isOnPopInvokedCalled;
+    late Widget testWidget;
+
+    setUp(() {
+      isOnPopInvokedCalled = false;
+      testWidget = MaterialApp(
+        home: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      ModalSheetRoute<dynamic>(
+                        swipeDismissible: true,
+                        builder: (context) {
+                          return DraggableSheet(
+                            child: PopScope(
+                              canPop: false,
+                              onPopInvoked: (didPop) {
+                                isOnPopInvokedCalled = true;
+                              },
+                              child: Container(
+                                key: const Key('sheet'),
+                                color: Colors.white,
+                                width: double.infinity,
+                                height: 200,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  child: const Text('Open modal'),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    });
+
+    testWidgets(
+      'PopScope.onPopInvoked should be called when tap on barrier',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(AnimatedModalBarrier));
+        await tester.pumpAndSettle();
+        expect(isOnPopInvokedCalled, isTrue);
+      },
+    );
+
+    testWidgets(
+      'PopScope.onPopInvoked should be called when swipe to dismiss',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 200),
+          2000,
+        );
+        await tester.pumpAndSettle();
+        expect(isOnPopInvokedCalled, isTrue);
+      },
+    );
+  });
 }
