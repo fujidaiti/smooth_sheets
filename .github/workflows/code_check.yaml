@@ -15,8 +15,8 @@ jobs:
       pull-requests: read
     outputs:
       flutter-file-changed: ${{ steps.filter.outputs.flutter-file-changed }}
-      lowest-flutter-version: ${{ steps.flutter-version-constraint.outputs.lowest }}
-      highest-flutter-version: ${{ steps.flutter-version-constraint.outputs.highest }}
+      flutter-lower-bound: ${{ steps.flutter-version-constraint.outputs.lower-bound }}
+      flutter-upper-bound: ${{ steps.flutter-version-constraint.outputs.upper-bound }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,22 +32,19 @@ jobs:
 
       - name: Get Flutter SDK version constraint
         id: flutter-version-constraint
+        # Extract the lower bound from pubspec.yaml and the upper bound from .fvmrc
         run: |
           sdk_constraint=$(cat pubspec.yaml | yq .environment.flutter)
-          lowest=$(echo "$sdk_constraint" | grep -oP '(?<=\>=)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-          highest=$(echo "$sdk_constraint" | grep -oP '(?<=\<)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-          # If no upper bound is specified, default to 3.x
-          if [ -z "$highest" ]; then
-            highest="3.x"
-          fi
-          echo "lowest=$lowest" >> "$GITHUB_OUTPUT"
-          echo "highest=$highest" >> "$GITHUB_OUTPUT"
+          lower_bound=$(echo "$sdk_constraint" | grep -oP '(?<=\>=)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          upper_bound=$(cat .fvmrc | jq -r .flutter)
+          echo "lower-bound=$lower_bound" >> "$GITHUB_OUTPUT"
+          echo "upper-bound=$upper_bound" >> "$GITHUB_OUTPUT"
 
       - name: Print output values
         run: |
           echo "flutter-file-changed=${{ steps.filter.outputs.flutter-file-changed }}"
-          echo "lowest-flutter-version=${{ steps.flutter-version-constraint.outputs.lowest }}"
-          echo "highest-flutter-version=${{ steps.flutter-version-constraint.outputs.highest }}"
+          echo "flutter-lower-bound=${{ steps.flutter-version-constraint.outputs.lower-bound }}"
+          echo "flutter-upper-bound=${{ steps.flutter-version-constraint.outputs.upper-bound }}"
 
   analysis:
     needs: setup
@@ -56,8 +53,8 @@ jobs:
     strategy:
       matrix:
         flutter-version:
-          - ${{ needs.setup.outputs.lowest-flutter-version }}
-          - ${{ needs.setup.outputs.highest-flutter-version }}
+          - ${{ needs.setup.outputs.flutter-lower-bound }}
+          - ${{ needs.setup.outputs.flutter-upper-bound }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -87,8 +84,8 @@ jobs:
     strategy:
       matrix:
         flutter-version:
-          - ${{ needs.setup.outputs.lowest-flutter-version }}
-          - ${{ needs.setup.outputs.highest-flutter-version }}
+          - ${{ needs.setup.outputs.flutter-lower-bound }}
+          - ${{ needs.setup.outputs.flutter-upper-bound }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
