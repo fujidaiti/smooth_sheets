@@ -32,16 +32,13 @@ jobs:
 
       - name: Get Flutter SDK version constraint
         id: flutter-version-constraint
+        # Extract the lower bound from pubspec.yaml and the upper bound from .fvmrc
         run: |
           sdk_constraint=$(cat pubspec.yaml | yq .environment.flutter)
-          lowest=$(echo "$sdk_constraint" | grep -oP '(?<=\>=)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-          highest=$(echo "$sdk_constraint" | grep -oP '(?<=\<)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-          # If no upper bound is specified, default to 3.x
-          if [ -z "$highest" ]; then
-            highest="3.x"
-          fi
-          echo "lower-bound=$lowest" >> "$GITHUB_OUTPUT"
-          echo "upper-bound=$highest" >> "$GITHUB_OUTPUT"
+          lower_bound=$(echo "$sdk_constraint" | grep -oP '(?<=\>=)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          upper_bound=$(cat .fvmrc | jq -r .flutter)
+          echo "lower-bound=$lower_bound" >> "$GITHUB_OUTPUT"
+          echo "upper-bound=$upper_bound" >> "$GITHUB_OUTPUT"
 
       - name: Print output values
         run: |
