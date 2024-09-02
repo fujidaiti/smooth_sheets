@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -136,6 +137,18 @@ abstract class SheetActivity<T extends SheetExtent> {
   }
 }
 
+/// An activity that animates the [SheetExtent]'s `pixels` to a destination
+/// position resolved by [destination], using the specified [curve] and
+/// [duration].
+///
+/// This activity accepts the destination position as an [Extent], allowing
+/// the concrete end position (in pixels) to be adjusted during the animation
+/// in response to viewport changes, such as the appearance of the keyboard.
+///
+/// When the end position changes, this activity updates the [SheetExtent]'s
+/// `pixels` to maintain the sheet's visual position (referred to as *p*).
+/// In subsequent frames, the animated position is linearly interpolated
+/// between *p* and the new destination.
 @internal
 class AnimatedSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
@@ -143,27 +156,44 @@ class AnimatedSheetActivity extends SheetActivity
     required this.destination,
     required this.duration,
     required this.curve,
-  }) : assert(duration > Duration.zero);
+  })  : _effectiveCurve = curve,
+        assert(duration > Duration.zero);
 
   final Extent destination;
   final Duration duration;
   final Curve curve;
 
+  late double _startPixels;
+  Curve _effectiveCurve;
+
+  @override
+  void init(SheetExtent delegate) {
+    super.init(delegate);
+    _startPixels = owner.metrics.pixels;
+  }
+
   @override
   AnimationController createAnimationController() {
-    return AnimationController.unbounded(
-      value: owner.metrics.pixels,
-      vsync: owner.context.vsync,
-    );
+    return AnimationController.unbounded(vsync: owner.context.vsync);
   }
 
   @override
   TickerFuture onAnimationStart() {
     return controller.animateTo(
-      destination.resolve(owner.metrics.contentSize),
+      1.0,
       duration: duration,
       curve: curve,
     );
+  }
+
+  @override
+  void onAnimationTick() {
+    // The baseline may change during the animation, so we need to
+    // interpolate the current pixels in absolute coordinates. This ensures
+    // visual consistency regardless of baseline changes.
+    final endPixels = destination.resolve(owner.metrics.contentSize);
+    final progress = _effectiveCurve.transform(controller.value);
+    owner.setPixels(lerpDouble(_startPixels, endPixels, progress)!);
   }
 
   @override
@@ -177,25 +207,30 @@ class AnimatedSheetActivity extends SheetActivity
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    // 1. Appends the delta of the bottom inset (typically the keyboard height)
+    // Appends the delta of the bottom inset (typically the keyboard height)
     // to keep the visual sheet position unchanged.
     final newInsets = owner.metrics.viewportInsets;
     final oldInsets = oldViewportInsets ?? newInsets;
     final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+    final newPixels = owner.metrics.pixels - deltaInsetBottom;
     owner
-      ..setPixels(owner.metrics.pixels - deltaInsetBottom)
+      ..setPixels(newPixels)
       ..didUpdateMetrics();
 
-    // 2. If the animation is still running, we start a new linear animation
-    // to bring the sheet position to the recalculated final position in the
-    // remaining duration. We use a linear curve here because starting a curved
-    // animation in the middle of another curved animation tends to look jerky.
-    final newDestination = destination.resolve(owner.metrics.contentSize);
-    final elapsedDuration = controller.lastElapsedDuration ?? duration;
-    if (newDestination != controller.upperBound && elapsedDuration < duration) {
-      final carriedDuration = duration - elapsedDuration;
-      owner.animateTo(destination,
-          duration: carriedDuration, curve: Curves.linear);
+    if (oldContentSize == null) {
+      return;
+    }
+
+    final oldEndPixels = destination.resolve(oldContentSize);
+    final newEndPixels = destination.resolve(owner.metrics.contentSize);
+    final progress = controller.value;
+    if (oldEndPixels != newEndPixels && progress < 1) {
+      // The gradient of the line passing through the point
+      // (t=progress, newPixels) and (t=1.0, newEndPixels).
+      final gradient = (newEndPixels - newPixels) / (1 - progress);
+      // The new start position is the intersection of that line with t=0.
+      _startPixels = newEndPixels - gradient;
+      _effectiveCurve = Curves.linear;
     }
   }
 }
@@ -208,6 +243,13 @@ class BallisticSheetActivity extends SheetActivity
   });
 
   final Simulation simulation;
+  late double _lastAnimatedValue;
+
+  @override
+  void init(SheetExtent delegate) {
+    super.init(delegate);
+    _lastAnimatedValue = controller.value;
+  }
 
   @override
   AnimationController createAnimationController() {
@@ -217,6 +259,17 @@ class BallisticSheetActivity extends SheetActivity
   @override
   TickerFuture onAnimationStart() {
     return controller.animateWith(simulation);
+  }
+
+  @override
+  void onAnimationTick() {
+    if (mounted) {
+      final oldPixels = owner.metrics.pixels;
+      owner
+        ..setPixels(oldPixels + controller.value - _lastAnimatedValue)
+        ..didUpdateMetrics();
+      _lastAnimatedValue = controller.value;
+    }
   }
 
   @override
@@ -294,7 +347,6 @@ class DragSheetActivity extends SheetActivity
 @optionalTypeArgs
 mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
   late final AnimationController controller;
-  late double _lastAnimatedValue;
 
   final _completer = Completer<void>();
   Future<void> get done => _completer.future;
@@ -302,6 +354,7 @@ mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
   @factory
   AnimationController createAnimationController();
   TickerFuture onAnimationStart();
+  void onAnimationTick();
   void onAnimationEnd() {}
 
   @override
@@ -316,17 +369,6 @@ mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
     controller = createAnimationController()..addListener(onAnimationTick);
     // Won't trigger if we dispose 'animation' first.
     onAnimationStart().whenComplete(onAnimationEnd);
-    _lastAnimatedValue = controller.value;
-  }
-
-  void onAnimationTick() {
-    if (mounted) {
-      final oldPixels = owner.metrics.pixels;
-      owner
-        ..setPixels(oldPixels + controller.value - _lastAnimatedValue)
-        ..didUpdateMetrics();
-      _lastAnimatedValue = controller.value;
-    }
   }
 
   @override
