@@ -193,7 +193,9 @@ class AnimatedSheetActivity extends SheetActivity
     // visual consistency regardless of baseline changes.
     final endPixels = destination.resolve(owner.metrics.contentSize);
     final progress = _effectiveCurve.transform(controller.value);
-    owner.setPixels(lerpDouble(_startPixels, endPixels, progress)!);
+    owner
+      ..setPixels(lerpDouble(_startPixels, endPixels, progress)!)
+      ..didUpdateMetrics();
   }
 
   @override
