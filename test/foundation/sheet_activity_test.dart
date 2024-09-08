@@ -45,8 +45,8 @@ void main() {
       when(owner.metrics).thenReturn(
         const SheetMetrics(
           pixels: 300,
-          minPixels: 300,
-          maxPixels: 700,
+          minExtent: Extent.pixels(300),
+          maxExtent: Extent.pixels(700),
           contentSize: Size(400, 700),
           viewportSize: Size(400, 900),
           viewportInsets: EdgeInsets.zero,
@@ -84,8 +84,8 @@ void main() {
     test('should absorb viewport changes', () {
       var metrics = const SheetMetrics(
         pixels: 300,
-        minPixels: 300,
-        maxPixels: 900,
+        minExtent: Extent.pixels(300),
+        maxExtent: Extent.pixels(900),
         contentSize: Size(400, 900),
         viewportSize: Size(400, 900),
         viewportInsets: EdgeInsets.zero,
@@ -121,7 +121,7 @@ void main() {
       final oldViewportInsets = metrics.viewportInsets;
       final oldContentSize = metrics.contentSize;
       metrics = metrics.copyWith(
-        maxPixels: 850,
+        maxExtent: const Extent.pixels(850),
         viewportInsets: const EdgeInsets.only(bottom: 50),
         contentSize: const Size(400, 850),
       );
