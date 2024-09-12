@@ -64,6 +64,9 @@ class ProportionalExtent implements Extent {
 
   @override
   int get hashCode => Object.hash(runtimeType, factor);
+
+  @override
+  String toString() => '$ProportionalExtent(factor: $factor)';
 }
 
 /// An extent that has an concrete value in pixels.
@@ -88,6 +91,9 @@ class FixedExtent implements Extent {
 
   @override
   int get hashCode => Object.hash(runtimeType, pixels);
+
+  @override
+  String toString() => '$FixedExtent(pixels: $pixels)';
 }
 
 /// Manages the extent of a sheet.
@@ -594,6 +600,7 @@ class SheetMetrics {
 
   /// The [FlutterView.devicePixelRatio] of the view that the sheet
   /// associated with this metrics object is drawn into.
+  // TODO: Move this to SheetContext.
   final double devicePixelRatio;
 
   double? get maybeMinPixels => switch ((maybeMinExtent, maybeContentSize)) {
