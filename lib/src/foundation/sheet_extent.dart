@@ -416,6 +416,7 @@ abstract class SheetExtent extends ChangeNotifier
     beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
+  // TODO: Change the signature to `void settle(Extent settledPosition, [Duration? duration])`.
   void settle() {
     assert(metrics.hasDimensions);
     final simulation = physics.createSettlingSimulation(metrics);

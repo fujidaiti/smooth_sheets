@@ -465,6 +465,15 @@ class SettlingSheetActivity extends SheetActivity {
 class IdleSheetActivity extends SheetActivity {
   @override
   SheetStatus get status => SheetStatus.stable;
+
+  // TODO: Start a settling activity if the keyboard animation is running.
+  // @override
+  // void didFinalizeDimensions(
+  //   Size? oldContentSize,
+  //   Size? oldViewportSize,
+  //   EdgeInsets? oldViewportInsets,
+  // ) {
+  // }
 }
 
 @internal
