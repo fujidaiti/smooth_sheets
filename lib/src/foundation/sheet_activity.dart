@@ -225,6 +225,7 @@ class AnimatedSheetActivity extends SheetActivity
       return;
     }
 
+    // TODO: Begin a SettlingSheetActivity.
     final oldEndPixels = destination.resolve(oldContentSize);
     final newEndPixels = destination.resolve(owner.metrics.contentSize);
     final progress = controller.value;

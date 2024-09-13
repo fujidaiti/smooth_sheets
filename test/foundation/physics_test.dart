@@ -259,12 +259,14 @@ void main() {
       expect(
         physicsUnderTest.findSettledExtent(1000, _positionAtTopEdge),
         _referenceSheetMetrics.maxExtent,
-        reason: 'Should return the max extent if the position is at the upper bound',
+        reason:
+            'Should return the max extent if the position is at the upper bound',
       );
       expect(
         physicsUnderTest.findSettledExtent(1000, _positionAtBottomEdge),
         _referenceSheetMetrics.minExtent,
-        reason: 'Should return the min extent if the position is at the lower bound',
+        reason:
+            'Should return the min extent if the position is at the lower bound',
       );
     });
   });
