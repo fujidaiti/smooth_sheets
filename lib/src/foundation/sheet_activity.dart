@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 
 import 'sheet_drag.dart';
 import 'sheet_extent.dart';
+import 'sheet_physics.dart';
 import 'sheet_status.dart';
 
 @internal
@@ -211,6 +212,7 @@ class AnimatedSheetActivity extends SheetActivity
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
+    // TODO: DRY with other activities.
     // Appends the delta of the bottom inset (typically the keyboard height)
     // to keep the visual sheet position unchanged.
     final newInsets = owner.metrics.viewportInsets;
@@ -225,7 +227,7 @@ class AnimatedSheetActivity extends SheetActivity
       return;
     }
 
-    // TODO: Begin a SettlingSheetActivity.
+    // TODO: Remove the following logic and start a settling activity instead.
     final oldEndPixels = destination.resolve(oldContentSize);
     final newEndPixels = destination.resolve(owner.metrics.contentSize);
     final progress = controller.value;
@@ -324,7 +326,23 @@ class BallisticSheetActivity extends SheetActivity
   }
 }
 
+/// A [SheetActivity] that performs a settling motion in response to changes
+/// in the viewport dimensions or content size.
+///
+/// This activity animates the sheet position to the [destination] with a
+/// constant [velocity] until the destination is reached. Optionally, the
+/// animation [duration] can be specified to explicitly control the time it
+/// takes to reach the [destination]. In this case, the [velocity] is determined
+/// based on the distance to the [destination] and the specified [duration].
+///
+/// When the concrete value of the [destination] changes due to viewport
+/// metrics or content size changes, and the [duration] is specified,
+/// the [velocity] is recalculated to ensure the animation duration remains
+/// consistent.
+@internal
 class SettlingSheetActivity extends SheetActivity {
+  /// Creates a settling activity that animates the sheet position to the
+  /// [destination] with a constant [velocity].
   SettlingSheetActivity({
     required this.destination,
     required double velocity,
@@ -332,13 +350,22 @@ class SettlingSheetActivity extends SheetActivity {
         _velocity = velocity,
         duration = null;
 
+  /// Creates a settling activity that animates the sheet position to the
+  /// [destination] over the specified [duration].
   SettlingSheetActivity.withDuration(
     Duration this.duration, {
     required this.destination,
   }) : assert(duration > Duration.zero);
 
+  /// The amount of time the animation should take to reach the destination.
+  ///
+  /// If `null`, the animation lasts until the destination is reached
+  /// or this activity is disposed.
   final Duration? duration;
+
+  /// The destination position to which the sheet should settle.
   final Extent destination;
+
   late final Ticker _ticker;
 
   /// The amount of time that has passed between the time the animation
@@ -359,6 +386,12 @@ class SettlingSheetActivity extends SheetActivity {
     _invalidateVelocity();
   }
 
+  /// Updates the sheet position toward the destination based on the current
+  /// [_velocity] and the time elapsed since the last frame.
+  ///
+  /// If the destination is reached, a ballistic activity is started with
+  /// zero velocity to ensure consistency between the settled position
+  /// and the current [SheetPhysics].
   void _tick(Duration elapsedDuration) {
     final elapsedFrameTime =
         (elapsedDuration - _elapsedDuration).inMicroseconds /
@@ -407,6 +440,14 @@ class SettlingSheetActivity extends SheetActivity {
     super.dispose();
   }
 
+  /// Updates [_velocity] based on the remaining time and distance to the
+  /// destination position.
+  ///
+  /// Make sure to call this method on initialization and whenever the
+  /// destination changes due to the viewport size or content size changing.
+  ///
+  /// If the animation [duration] is not specified, this method preserves the
+  /// current velocity.
   void _invalidateVelocity() {
     if (duration case final duration?) {
       final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
