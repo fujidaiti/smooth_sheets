@@ -87,11 +87,11 @@ class _MySheet extends StatelessWidget {
     // - the extent at which ony (_halfwayFraction * 100)% of the content is visible, or
     // - the extent at which the entire content is visible.
     // Note that the "extent" is the visible height of the sheet.
-    final snappingPhysics = SnappingSheetPhysics(
+    const snappingPhysics = SnappingSheetPhysics(
       snappingBehavior: SnapToNearest(
         snapTo: [
-          const Extent.proportional(_halfwayFraction),
-          const Extent.proportional(1),
+          Extent.proportional(_halfwayFraction),
+          Extent.proportional(1),
         ],
       ),
       // Tips: The above configuration can be replaced with a 'SnapToNearestEdge',
@@ -104,9 +104,9 @@ class _MySheet extends StatelessWidget {
       _PhysicsKind.bouncing => const BouncingSheetPhysics(),
       _PhysicsKind.clampingSnapping =>
         // Use 'parent' to combine multiple physics behaviors.
-        ClampingSheetPhysics(parent: snappingPhysics),
+        const ClampingSheetPhysics(parent: snappingPhysics),
       _PhysicsKind.bouncingSnapping =>
-        BouncingSheetPhysics(parent: snappingPhysics),
+        const BouncingSheetPhysics(parent: snappingPhysics),
     };
   }
 

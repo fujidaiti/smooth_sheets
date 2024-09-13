@@ -137,10 +137,10 @@ class _ExampleSheet extends StatelessWidget {
     const halfSize = Extent.proportional(0.5);
     const fullSize = Extent.proportional(1);
 
-    final multiStopPhysics = BouncingSheetPhysics(
+    const multiStopPhysics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
         snappingBehavior: SnapToNearest(
-          snapTo: const [minSize, halfSize, fullSize],
+          snapTo: [minSize, halfSize, fullSize],
         ),
       ),
     );
