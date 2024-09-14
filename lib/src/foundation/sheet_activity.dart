@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'sheet_drag.dart';
 import 'sheet_extent.dart';
+import 'sheet_physics.dart';
 import 'sheet_status.dart';
 
 @internal
@@ -64,6 +66,7 @@ abstract class SheetActivity<T extends SheetExtent> {
 
   void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {}
 
+  // TODO: Change `double?` to `Extent?`.
   void didChangeBoundaryConstraints(
     double? oldMinPixels,
     double? oldMaxPixels,
@@ -209,6 +212,7 @@ class AnimatedSheetActivity extends SheetActivity
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
+    // TODO: DRY with other activities.
     // Appends the delta of the bottom inset (typically the keyboard height)
     // to keep the visual sheet position unchanged.
     final newInsets = owner.metrics.viewportInsets;
@@ -223,6 +227,7 @@ class AnimatedSheetActivity extends SheetActivity
       return;
     }
 
+    // TODO: Remove the following logic and start a settling activity instead.
     final oldEndPixels = destination.resolve(oldContentSize);
     final newEndPixels = destination.resolve(owner.metrics.contentSize);
     final progress = controller.value;
@@ -245,6 +250,7 @@ class BallisticSheetActivity extends SheetActivity
   });
 
   final Simulation simulation;
+  // TODO: Use controller.value instead.
   late double _lastAnimatedValue;
 
   @override
@@ -278,12 +284,196 @@ class BallisticSheetActivity extends SheetActivity
   void onAnimationEnd() {
     owner.goBallistic(0);
   }
+
+  @override
+  void didFinalizeDimensions(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {
+    if (oldContentSize == null &&
+        oldViewportSize == null &&
+        oldViewportInsets == null) {
+      return;
+    }
+
+    final oldMetrics = owner.metrics.copyWith(
+      contentSize: oldContentSize,
+      viewportSize: oldViewportSize,
+      viewportInsets: oldViewportInsets,
+    );
+
+    // TODO: DRY with other activities.
+    // Appends the delta of the bottom inset (typically the keyboard height)
+    // to keep the visual sheet position unchanged.
+    final newInsets = owner.metrics.viewportInsets;
+    final oldInsets = oldViewportInsets ?? newInsets;
+    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+    final newPixels = owner.metrics.pixels - deltaInsetBottom;
+    owner
+      ..setPixels(newPixels)
+      ..didUpdateMetrics();
+
+    if (owner.physics.findSettledExtent(velocity, oldMetrics) case final detent
+        when detent.resolve(owner.metrics.contentSize) != newPixels) {
+      owner.beginActivity(
+        SettlingSheetActivity.withDuration(
+          const Duration(milliseconds: 150),
+          destination: detent,
+        ),
+      );
+    }
+  }
+}
+
+/// A [SheetActivity] that performs a settling motion in response to changes
+/// in the viewport dimensions or content size.
+///
+/// This activity animates the sheet position to the [destination] with a
+/// constant [velocity] until the destination is reached. Optionally, the
+/// animation [duration] can be specified to explicitly control the time it
+/// takes to reach the [destination]. In this case, the [velocity] is determined
+/// based on the distance to the [destination] and the specified [duration].
+///
+/// When the concrete value of the [destination] changes due to viewport
+/// metrics or content size changes, and the [duration] is specified,
+/// the [velocity] is recalculated to ensure the animation duration remains
+/// consistent.
+@internal
+class SettlingSheetActivity extends SheetActivity {
+  /// Creates a settling activity that animates the sheet position to the
+  /// [destination] with a constant [velocity].
+  SettlingSheetActivity({
+    required this.destination,
+    required double velocity,
+  })  : assert(velocity > 0),
+        _velocity = velocity,
+        duration = null;
+
+  /// Creates a settling activity that animates the sheet position to the
+  /// [destination] over the specified [duration].
+  SettlingSheetActivity.withDuration(
+    Duration this.duration, {
+    required this.destination,
+  }) : assert(duration > Duration.zero);
+
+  /// The amount of time the animation should take to reach the destination.
+  ///
+  /// If `null`, the animation lasts until the destination is reached
+  /// or this activity is disposed.
+  final Duration? duration;
+
+  /// The destination position to which the sheet should settle.
+  final Extent destination;
+
+  late final Ticker _ticker;
+
+  /// The amount of time that has passed between the time the animation
+  /// started and the most recent tick of the animation.
+  var _elapsedDuration = Duration.zero;
+
+  @override
+  double get velocity => _velocity;
+  late double _velocity;
+
+  @override
+  SheetStatus get status => SheetStatus.animating;
+
+  @override
+  void init(SheetExtent owner) {
+    super.init(owner);
+    _ticker = owner.context.vsync.createTicker(_tick)..start();
+    _invalidateVelocity();
+  }
+
+  /// Updates the sheet position toward the destination based on the current
+  /// [_velocity] and the time elapsed since the last frame.
+  ///
+  /// If the destination is reached, a ballistic activity is started with
+  /// zero velocity to ensure consistency between the settled position
+  /// and the current [SheetPhysics].
+  void _tick(Duration elapsedDuration) {
+    final elapsedFrameTime =
+        (elapsedDuration - _elapsedDuration).inMicroseconds /
+            Duration.microsecondsPerSecond;
+    final destination = this.destination.resolve(owner.metrics.contentSize);
+    final pixels = owner.metrics.pixels;
+    final newPixels = destination > pixels
+        ? min(destination, pixels + velocity * elapsedFrameTime)
+        : max(destination, pixels - velocity * elapsedFrameTime);
+    owner
+      ..setPixels(newPixels)
+      ..didUpdateMetrics();
+
+    _elapsedDuration = elapsedDuration;
+
+    if (newPixels == destination) {
+      owner.goBallistic(0);
+    }
+  }
+
+  @override
+  void didFinalizeDimensions(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {
+    if (oldViewportInsets != null) {
+      // TODO: DRY with other activities.
+      // Appends the delta of the bottom inset (typically the keyboard height)
+      // to keep the visual sheet position unchanged.
+      final newInsets = owner.metrics.viewportInsets;
+      final oldInsets = oldViewportInsets;
+      final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+      final newPixels = owner.metrics.pixels - deltaInsetBottom;
+      owner
+        ..setPixels(newPixels)
+        ..didUpdateMetrics();
+    }
+
+    _invalidateVelocity();
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  /// Updates [_velocity] based on the remaining time and distance to the
+  /// destination position.
+  ///
+  /// Make sure to call this method on initialization and whenever the
+  /// destination changes due to the viewport size or content size changing.
+  ///
+  /// If the animation [duration] is not specified, this method preserves the
+  /// current velocity.
+  void _invalidateVelocity() {
+    if (duration case final duration?) {
+      final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
+          Duration.microsecondsPerSecond;
+      final destination = this.destination.resolve(owner.metrics.contentSize);
+      final pixels = owner.metrics.pixels;
+      _velocity = remainingSeconds > 0
+          ? (destination - pixels).abs() / remainingSeconds
+          : (destination - pixels).abs();
+    }
+  }
 }
 
 @internal
 class IdleSheetActivity extends SheetActivity {
   @override
   SheetStatus get status => SheetStatus.stable;
+
+  // TODO: Start a settling activity if the keyboard animation is running.
+  // @override
+  // void didFinalizeDimensions(
+  //   Size? oldContentSize,
+  //   Size? oldViewportSize,
+  //   EdgeInsets? oldViewportInsets,
+  // ) {
+  // }
 }
 
 @internal

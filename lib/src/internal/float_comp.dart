@@ -68,6 +68,11 @@ class FloatComp {
   bool isOutOfBounds(double a, double min, double max) =>
       isLessThan(a, min) || isGreaterThan(a, max);
 
+  /// Returns `true` if [a] is out of bounds or approximately equal to [min]
+  /// or [max].
+  bool isOutOfBoundsOrApprox(double a, double min, double max) =>
+      isOutOfBounds(a, min, max) || isApprox(a, min) || isApprox(a, max);
+
   /// Returns `true` if [a] is in the range `[min, max]`, inclusive.
   bool isInBounds(double a, double min, double max) =>
       !isOutOfBounds(a, min, max);

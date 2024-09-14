@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
@@ -71,9 +72,18 @@ abstract class SheetPhysics {
 
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics);
 
+  // TODO: Remove this in favor of findNearestDetent().
+  @Deprecated('Use findSettledExtent instead.')
   Simulation? createSettlingSimulation(SheetMetrics metrics);
+
+  /// {@template SheetPhysics.findSettledExtent}
+  /// Returns an extent to which a sheet should eventually settle
+  /// based on the current [metrics] and the [velocity] of a sheet.
+  /// {@endtemplate}
+  Extent findSettledExtent(double velocity, SheetMetrics metrics);
 }
 
+/// A mixin that provides default implementations for [SheetPhysics] methods.
 mixin SheetPhysicsMixin on SheetPhysics {
   SpringDescription get spring => kDefaultSheetSpring;
 
@@ -113,24 +123,28 @@ mixin SheetPhysicsMixin on SheetPhysics {
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
     if (parent case final parent?) {
       return parent.createBallisticSimulation(velocity, metrics);
-    } else if (metrics.isPixelsInBounds) {
-      return null;
     }
 
-    final destination =
-        metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
-    final direction = (destination - metrics.pixels).sign;
+    // Ensure that this method always uses the default implementation
+    // of findSettledExtent.
+    final detent = _findSettledExtentInternal(velocity, metrics)
+        .resolve(metrics.contentSize);
+    if (FloatComp.distance(metrics.devicePixelRatio)
+        .isNotApprox(detent, metrics.pixels)) {
+      final direction = (detent - metrics.pixels).sign;
+      return ScrollSpringSimulation(
+        spring,
+        metrics.pixels,
+        detent,
+        // The simulation velocity is intentionally set to 0 if the velocity is
+        // is in the opposite direction of the destination, as flinging up an
+        // over-dragged sheet or flinging down an under-dragged sheet tends to
+        // cause unstable motion.
+        velocity.sign == direction ? velocity : 0.0,
+      );
+    }
 
-    return ScrollSpringSimulation(
-      spring,
-      metrics.pixels,
-      destination,
-      // The simulation velocity is intentionally set to 0 if the velocity is
-      // is in the opposite direction of the destination, as flinging up an
-      // over-dragged sheet or flinging down an under-dragged sheet tends to
-      // cause unstable motion.
-      velocity.sign == direction ? velocity : 0.0,
-    );
+    return null;
   }
 
   @override
@@ -152,6 +166,28 @@ mixin SheetPhysicsMixin on SheetPhysics {
         _kMinSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
       ),
     );
+  }
+
+  /// Returns the closer of [SheetMetrics.minExtent] or [SheetMetrics.maxExtent]
+  /// to the current sheet position if it is out of bounds, regardless of the
+  /// [velocity]. Otherwise, it returns the current position.
+  @override
+  Extent findSettledExtent(double velocity, SheetMetrics metrics) {
+    return _findSettledExtentInternal(velocity, metrics);
+  }
+
+  Extent _findSettledExtentInternal(double velocity, SheetMetrics metrics) {
+    final pixels = metrics.pixels;
+    final minPixels = metrics.minPixels;
+    final maxPixels = metrics.maxPixels;
+    if (FloatComp.distance(metrics.devicePixelRatio)
+        .isInBounds(pixels, minPixels, maxPixels)) {
+      return Extent.pixels(pixels);
+    } else if ((pixels - minPixels).abs() < (pixels - maxPixels).abs()) {
+      return metrics.minExtent;
+    } else {
+      return metrics.maxExtent;
+    }
   }
 }
 
@@ -202,35 +238,11 @@ class InterpolationSimulation extends Simulation {
 }
 
 abstract interface class SnappingSheetBehavior {
-  double? findSnapPixels(double velocity, SheetMetrics metrics);
-}
-
-mixin _SnapToNearestMixin implements SnappingSheetBehavior {
-  /// The lowest speed (in logical pixels per second)
-  /// at which a gesture is considered to be a fling.
-  double get minFlingSpeed;
-
-  @protected
-  (double, double) _getSnapBoundsContains(SheetMetrics metrics);
-
-  @override
-  double? findSnapPixels(double velocity, SheetMetrics metrics) {
-    assert(minFlingSpeed >= 0);
-
-    if (FloatComp.distance(metrics.devicePixelRatio)
-        .isOutOfBounds(metrics.pixels, metrics.minPixels, metrics.maxPixels)) {
-      return null;
-    }
-
-    final (nearestSmaller, nearestGreater) = _getSnapBoundsContains(metrics);
-    if (velocity.abs() < minFlingSpeed) {
-      return metrics.pixels.nearest(nearestSmaller, nearestGreater);
-    } else if (velocity < 0) {
-      return nearestSmaller;
-    } else {
-      return nearestGreater;
-    }
-  }
+  /// {@macro SheetPhysics.findSettledExtent}
+  ///
+  /// Returning `null` indicates that this behavior has no preference for
+  /// for where the sheet should settle.
+  Extent? findSettledExtent(double velocity, SheetMetrics metrics);
 }
 
 /// A [SnappingSheetBehavior] that snaps to either [SheetMetrics.minPixels]
@@ -247,7 +259,7 @@ mixin _SnapToNearestMixin implements SnappingSheetBehavior {
 /// Using this behavior is functionally identical to using [SnapToNearest]
 /// with the snap positions of [SheetExtent.minExtent] and
 /// [SheetExtent.maxExtent], but more simplified and efficient.
-class SnapToNearestEdge with _SnapToNearestMixin {
+class SnapToNearestEdge implements SnappingSheetBehavior {
   /// Creates a [SnappingSheetBehavior] that snaps to either
   /// [SheetMetrics.minPixels] or [SheetMetrics.maxPixels].
   ///
@@ -257,76 +269,199 @@ class SnapToNearestEdge with _SnapToNearestMixin {
     this.minFlingSpeed = kMinFlingVelocity,
   }) : assert(minFlingSpeed >= 0);
 
-  @override
+  /// The lowest speed (in logical pixels per second)
+  /// at which a gesture is considered to be a fling.
   final double minFlingSpeed;
 
   @override
-  (double, double) _getSnapBoundsContains(SheetMetrics metrics) {
-    assert(FloatComp.distance(metrics.devicePixelRatio)
-        .isInBounds(metrics.pixels, metrics.minPixels, metrics.maxPixels));
-    return (metrics.minPixels, metrics.maxPixels);
+  Extent? findSettledExtent(double velocity, SheetMetrics metrics) {
+    assert(minFlingSpeed >= 0);
+    final pixels = metrics.pixels;
+    final minPixels = metrics.minPixels;
+    final maxPixels = metrics.maxPixels;
+    final cmp = FloatComp.distance(metrics.devicePixelRatio);
+    if (cmp.isOutOfBounds(pixels, minPixels, maxPixels)) {
+      return null;
+    }
+    if (velocity >= minFlingSpeed) {
+      return metrics.maxExtent;
+    }
+    if (velocity <= -minFlingSpeed) {
+      return metrics.minExtent;
+    }
+    if (cmp.isApprox(pixels, minPixels) || cmp.isApprox(pixels, maxPixels)) {
+      return null;
+    }
+    return (pixels - minPixels).abs() < (pixels - maxPixels).abs()
+        ? metrics.minExtent
+        : metrics.maxExtent;
   }
 }
 
-class SnapToNearest with _SnapToNearestMixin {
-  SnapToNearest({
+class SnapToNearest implements SnappingSheetBehavior {
+  const SnapToNearest({
     required this.snapTo,
     this.minFlingSpeed = kMinFlingVelocity,
-  })  : assert(snapTo.isNotEmpty),
-        assert(minFlingSpeed >= 0);
+  }) : assert(minFlingSpeed >= 0);
 
+  // TODO: Rename to `detents`.
   final List<Extent> snapTo;
 
-  @override
+  /// The lowest speed (in logical pixels per second)
+  /// at which a gesture is considered to be a fling.
   final double minFlingSpeed;
 
-  /// Cached results of [Extent.resolve] for each snap position in [snapTo].
-  ///
-  /// Always call [_ensureCacheIsValid] before accessing this list
-  /// to ensure that the cache is up-to-date and sorted in ascending order.
-  List<double> _snapTo = const [];
-  Size? _cachedContentSize;
-
-  void _ensureCacheIsValid(SheetMetrics metrics) {
-    if (_cachedContentSize != metrics.contentSize) {
-      _cachedContentSize = metrics.contentSize;
-      _snapTo = snapTo
-          .map((e) => e.resolve(metrics.contentSize))
-          .toList(growable: false)
-        ..sort();
-
-      assert(
-        FloatComp.distance(metrics.devicePixelRatio)
-                .isGreaterThanOrApprox(_snapTo.first, metrics.minPixels) &&
-            FloatComp.distance(metrics.devicePixelRatio)
-                .isLessThanOrApprox(_snapTo.last, metrics.maxPixels),
-        'The snap positions must be within the range of '
-        "'SheetMetrics.minPixels' and 'SheetMetrics.maxPixels'.",
-      );
-    }
-  }
-
   @override
-  (double, double) _getSnapBoundsContains(SheetMetrics metrics) {
-    _ensureCacheIsValid(metrics);
-    if (_snapTo.length == 1) {
-      return (_snapTo.first, _snapTo.first);
+  Extent? findSettledExtent(double velocity, SheetMetrics metrics) {
+    if (snapTo.length <= 1) {
+      return snapTo.firstOrNull;
     }
 
-    var nearestSmaller = _snapTo[0];
-    var nearestGreater = _snapTo[1];
-    for (var index = 0; index < _snapTo.length - 1; index++) {
-      if (FloatComp.distance(metrics.devicePixelRatio)
-          .isLessThan(_snapTo[index], metrics.pixels)) {
-        nearestSmaller = _snapTo[index];
-        nearestGreater = _snapTo[index + 1];
-      } else {
-        break;
-      }
+    final (sortedDetents, nearestIndex) =
+        sortExtentsAndFindNearest(snapTo, metrics.pixels, metrics.contentSize);
+    final cmp = FloatComp.distance(metrics.devicePixelRatio);
+    final pixels = metrics.pixels;
+
+    if (cmp.isOutOfBounds(
+      pixels,
+      sortedDetents.first.resolved,
+      sortedDetents.last.resolved,
+    )) {
+      return null;
     }
 
-    return (nearestSmaller, nearestGreater);
+    final nearest = sortedDetents[nearestIndex];
+    if (velocity.abs() < minFlingSpeed) {
+      return cmp.isApprox(pixels, nearest.resolved) ? null : nearest.extent;
+    }
+
+    final int floorIndex;
+    final int ceilIndex;
+    if (cmp.isApprox(pixels, nearest.resolved)) {
+      floorIndex = max(nearestIndex - 1, 0);
+      ceilIndex = min(nearestIndex + 1, sortedDetents.length - 1);
+    } else if (pixels < nearest.resolved) {
+      floorIndex = max(nearestIndex - 1, 0);
+      ceilIndex = nearestIndex;
+    } else {
+      assert(pixels > nearest.resolved);
+      floorIndex = nearestIndex;
+      ceilIndex = min(nearestIndex + 1, sortedDetents.length - 1);
+    }
+
+    assert(velocity.abs() >= minFlingSpeed);
+    return velocity < 0
+        ? sortedDetents[floorIndex].extent
+        : sortedDetents[ceilIndex].extent;
   }
+}
+
+typedef _SortedExtentList = List<({Extent extent, double resolved})>;
+
+/// Sorts the [extents] based on their resolved values and finds the nearest
+/// extent to the [pixels].
+///
+/// Returns a sorted copy of the [extents] and the index of the nearest extent.
+/// Note that the returned list may have a fixed length for better performance.
+@visibleForTesting
+(_SortedExtentList, int) sortExtentsAndFindNearest(
+  List<Extent> extents,
+  double pixels,
+  Size contentSize,
+) {
+  assert(extents.isNotEmpty);
+  switch (extents) {
+    case [final a, final b]:
+      return _sortTwoExtentsAndFindNearest(a, b, pixels, contentSize);
+    case [final a, final b, final c]:
+      return _sortThreeExtentsAndFindNearest(a, b, c, pixels, contentSize);
+    case _:
+      final sortedExtents = extents
+          .map((e) => (extent: e, resolved: e.resolve(contentSize)))
+          .sorted((a, b) => a.resolved.compareTo(b.resolved));
+      final nearestIndex = sortedExtents
+          .mapIndexed((i, e) => (index: i, dist: (pixels - e.resolved).abs()))
+          .reduce((a, b) => a.dist < b.dist ? a : b)
+          .index;
+      return (sortedExtents, nearestIndex);
+  }
+}
+
+/// Constant time sorting and nearest neighbor search for two [Extent]s.
+(_SortedExtentList, int) _sortTwoExtentsAndFindNearest(
+  Extent a,
+  Extent b,
+  double pixels,
+  Size contentSize,
+) {
+  var first = (extent: a, resolved: a.resolve(contentSize));
+  var second = (extent: b, resolved: b.resolve(contentSize));
+
+  if (first.resolved > second.resolved) {
+    final temp = first;
+    first = second;
+    second = temp;
+  }
+
+  final distToFirst = (pixels - first.resolved).abs();
+  final distToSecond = (pixels - second.resolved).abs();
+  final nearestIndex = distToFirst < distToSecond ? 0 : 1;
+
+  return (
+    // Create a fixed-length list.
+    List.filled(2, first)..[1] = second,
+    nearestIndex,
+  );
+}
+
+/// Constant time sorting and nearest neighbor search for three [Extent]s.
+(_SortedExtentList, int) _sortThreeExtentsAndFindNearest(
+  Extent a,
+  Extent b,
+  Extent c,
+  double pixels,
+  Size contentSize,
+) {
+  var first = (extent: a, resolved: a.resolve(contentSize));
+  var second = (extent: b, resolved: b.resolve(contentSize));
+  var third = (extent: c, resolved: c.resolve(contentSize));
+
+  if (first.resolved > second.resolved) {
+    final temp = first;
+    first = second;
+    second = temp;
+  }
+  if (second.resolved > third.resolved) {
+    final temp = second;
+    second = third;
+    third = temp;
+  }
+  if (first.resolved > second.resolved) {
+    final temp = first;
+    first = second;
+    second = temp;
+  }
+
+  final distToFirst = (pixels - first.resolved).abs();
+  final distToSecond = (pixels - second.resolved).abs();
+  final distToThird = (pixels - third.resolved).abs();
+
+  final int nearestIndex;
+  if (distToFirst < distToSecond && distToFirst < distToThird) {
+    nearestIndex = 0;
+  } else if (distToSecond < distToFirst && distToSecond < distToThird) {
+    nearestIndex = 1;
+  } else {
+    nearestIndex = 2;
+  }
+
+  return (
+    // Create a fixed-length list.
+    List.filled(3, first)
+      ..[1] = second
+      ..[2] = third,
+    nearestIndex,
+  );
 }
 
 class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
@@ -356,19 +491,27 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
-    final snapPixels = snappingBehavior.findSnapPixels(velocity, metrics);
-    if (snapPixels != null &&
+    final detent = snappingBehavior
+        .findSettledExtent(velocity, metrics)
+        ?.resolve(metrics.contentSize);
+    if (detent != null &&
         FloatComp.distance(metrics.devicePixelRatio)
-            .isNotApprox(snapPixels, metrics.pixels)) {
+            .isNotApprox(detent, metrics.pixels)) {
       return ScrollSpringSimulation(
         spring,
         metrics.pixels,
-        snapPixels,
+        detent,
         velocity,
       );
     } else {
       return super.createBallisticSimulation(velocity, metrics);
     }
+  }
+
+  @override
+  Extent findSettledExtent(double velocity, SheetMetrics metrics) {
+    return snappingBehavior.findSettledExtent(velocity, metrics) ??
+        super.findSettledExtent(velocity, metrics);
   }
 }
 
