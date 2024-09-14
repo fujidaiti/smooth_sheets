@@ -318,7 +318,7 @@ class BallisticSheetActivity extends SheetActivity
         when detent.resolve(owner.metrics.contentSize) != newPixels) {
       owner.beginActivity(
         SettlingSheetActivity.withDuration(
-          const Duration(milliseconds: 200),
+          const Duration(milliseconds: 150),
           destination: detent,
         ),
       );
