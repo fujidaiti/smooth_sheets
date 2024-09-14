@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import '../foundation/sheet_controller.dart';
 import '../internal/double_utils.dart';
 import 'modal_sheet.dart';
+import 'swipe_dismiss_sensitivity.dart';
 
 const _minimizedViewportScale = 0.92;
 const _cupertinoBarrierColor = Color(0x18000000);
@@ -422,6 +423,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
+    this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     required this.child,
   });
 
@@ -444,6 +446,8 @@ class CupertinoModalSheetPage<T> extends Page<T> {
   final Duration transitionDuration;
 
   final Curve transitionCurve;
+
+  final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -486,6 +490,10 @@ class _PageBasedCupertinoModalSheetRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
+  SwipeDismissSensitivity get swipeDismissSensitivity =>
+      _page.swipeDismissSensitivity;
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -504,6 +512,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
+    this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
   });
 
   final WidgetBuilder builder;
@@ -528,6 +537,9 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   final Curve transitionCurve;
+
+  @override
+  final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
   Widget buildContent(BuildContext context) {
