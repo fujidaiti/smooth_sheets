@@ -3,3 +3,7 @@
 ## Breaking changes in SheetMetrics
 
 `double? minPixels` and `double? maxPixels` parameters of the constructor and `copyWith` method have been replaced with `Extent? minExtent` and `Extent? maxExtent` respectively. The `minPixels` and `maxPixels` getters are still available in the new version.
+
+## Breaking change in SnappingSheetBehavior
+
+`findSnapPixels` method has been removed. Use `findSnapExtent` instead.
