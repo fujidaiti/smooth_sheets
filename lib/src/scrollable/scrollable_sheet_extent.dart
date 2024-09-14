@@ -208,18 +208,19 @@ class ScrollableSheetExtent extends SheetExtent
         draggableDistance + scrollableDistance;
     final scrollMetricsForScrollPhysics = scrollPosition.copyWith(
       minScrollExtent: 0,
-      // How many pixels the user can scroll and drag
+      // How many pixels the user can scroll and drag.
       maxScrollExtent: maxScrollExtentForScrollPhysics,
-      // How many pixels the user has scrolled and dragged
-      pixels: FloatComp.distance(context.devicePixelRatio).roundToIfApprox(
-        // Round the scrollPixelsForScrollPhysics to the maxScrollExtent if
-        // necessary to prevents issues with floating-point precision errors.
-        // For example, issue #207 was caused by infinite recursion of
+      // How many pixels the user has scrolled and dragged.
+      pixels: FloatComp.distance(context.devicePixelRatio).roundToEdgeIfApprox(
+        // Round the scrollPixelsForScrollPhysics to 0.0 or the maxScrollExtent
+        // if necessary to prevents issues with floating-point precision errors.
+        // For example, issue #207 and #212 were caused by infinite recursion of
         // SheetContentScrollPositionOwner.goBallisticWithScrollPosition calls,
         // triggered by ScrollMetrics.outOfRange always being true in
         // ScrollPhysics.createBallisticSimulation due to such a floating-point
         // precision error.
         scrollPixelsForScrollPhysics,
+        0,
         maxScrollExtentForScrollPhysics,
       ),
     );

@@ -79,4 +79,16 @@ class FloatComp {
 
   /// Returns [b] if [a] is approximately equal to [b], otherwise [a].
   double roundToIfApprox(double a, double b) => isApprox(a, b) ? b : a;
+
+  /// Rounds the given values to the nearest edge value if
+  /// they are approximately equal.
+  ///
+  /// If `a` is approximately equal to `b`, returns `b`.
+  /// If `a` is approximately equal to `c`, returns `c`.
+  /// Otherwise, returns `a`.
+  double roundToEdgeIfApprox(double a, double b, double c) {
+    if (isApprox(a, b)) return b;
+    if (isApprox(a, c)) return c;
+    return a;
+  }
 }
