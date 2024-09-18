@@ -72,6 +72,20 @@ abstract class SheetActivity<T extends SheetExtent> {
     double? oldMaxPixels,
   ) {}
 
+  /// Called when all relevant metrics of the sheet are finalized
+  /// for the current frame.
+  ///
+  /// The [oldContentSize], [oldViewportSize], and [oldViewportInsets] will be
+  /// `null` if the [SheetMetrics.contentSize], [SheetMetrics.viewportSize], and
+  /// [SheetMetrics.viewportInsets] have not changed since the previous frame.
+  ///
+  /// Since this is called after the layout phase and before the painting phase
+  /// of the sheet, it is safe to update [SheetMetrics.pixels] to reflect the
+  /// latest metrics.
+  ///
+  /// By default, this method updates [SheetMetrics.pixels] to maintain the
+  /// current [Extent], which is determined by [SheetPhysics.findSettledExtent]
+  /// using the metrics of the previous frame.
   void didFinalizeDimensions(
     Size? oldContentSize,
     Size? oldViewportSize,
