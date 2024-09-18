@@ -420,10 +420,17 @@ class MockSheetExtent extends _i1.Mock implements _i3.SheetExtent {
       );
 
   @override
-  void settle() => super.noSuchMethod(
+  void settleTo(
+    _i3.Extent? detent,
+    Duration? duration,
+  ) =>
+      super.noSuchMethod(
         Invocation.method(
-          #settle,
-          [],
+          #settleTo,
+          [
+            detent,
+            duration,
+          ],
         ),
         returnValueForMissingStub: null,
       );
