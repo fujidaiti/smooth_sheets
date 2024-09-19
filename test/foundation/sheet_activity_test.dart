@@ -87,7 +87,7 @@ void main() {
       var metrics = const SheetMetrics(
         pixels: 300,
         minExtent: Extent.pixels(300),
-        maxExtent: Extent.pixels(900),
+        maxExtent: Extent.proportional(1),
         contentSize: Size(400, 900),
         viewportSize: Size(400, 900),
         viewportInsets: EdgeInsets.zero,
@@ -107,11 +107,13 @@ void main() {
 
       when(controller.value).thenReturn(0.0);
       activity.onAnimationTick();
-      verify(owner.setPixels(300));
+      expect(metrics.pixels, 300);
 
       when(controller.value).thenReturn(0.25);
+      when(controller.lastElapsedDuration)
+          .thenReturn(const Duration(milliseconds: 75));
       activity.onAnimationTick();
-      verify(owner.setPixels(450));
+      expect(metrics.pixels, 450);
 
       // The following lines simulate a viewport change, in which:
       // 1. The viewport's bottom inset increases, simulating the
@@ -123,28 +125,19 @@ void main() {
       final oldViewportInsets = metrics.viewportInsets;
       final oldContentSize = metrics.contentSize;
       metrics = metrics.copyWith(
-        maxExtent: const Extent.pixels(850),
         viewportInsets: const EdgeInsets.only(bottom: 50),
         contentSize: const Size(400, 850),
       );
       activity.didChangeViewportDimensions(null, oldViewportInsets);
       activity.didChangeContentSize(oldContentSize);
       activity.didFinalizeDimensions(oldContentSize, null, oldViewportInsets);
-      verify(owner.setPixels(400));
+      expect(metrics.pixels, 400);
       expect(metrics.viewPixels, 450,
           reason: 'Visual position should not change when viewport changes.');
-
-      when(controller.value).thenReturn(0.5);
-      activity.onAnimationTick();
-      verify(owner.setPixels(550));
-
-      when(controller.value).thenReturn(0.75);
-      activity.onAnimationTick();
-      verify(owner.setPixels(700));
-
-      when(controller.value).thenReturn(1.0);
-      activity.onAnimationTick();
-      verify(owner.setPixels(850));
+      verify(owner.settleTo(
+        const Extent.proportional(1),
+        const Duration(milliseconds: 225),
+      ));
     });
   });
 
