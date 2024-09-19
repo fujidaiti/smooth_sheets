@@ -66,48 +66,79 @@ abstract class SheetActivity<T extends SheetExtent> {
 
   void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {}
 
-  // TODO: Change `double?` to `Extent?`.
+  // TODO: Change `double?`s to `Extent?`s.
   void didChangeBoundaryConstraints(
     double? oldMinPixels,
     double? oldMaxPixels,
   ) {}
 
+  /// Called when all relevant metrics of the sheet are finalized
+  /// for the current frame.
+  ///
+  /// The [oldContentSize], [oldViewportSize], and [oldViewportInsets] will be
+  /// `null` if the [SheetMetrics.contentSize], [SheetMetrics.viewportSize], and
+  /// [SheetMetrics.viewportInsets] have not changed since the previous frame.
+  ///
+  /// Since this is called after the layout phase and before the painting phase
+  /// of the sheet, it is safe to update [SheetMetrics.pixels] to reflect the
+  /// latest metrics.
+  ///
+  /// By default, this method updates [SheetMetrics.pixels] to maintain the
+  /// current [Extent], which is determined by [SheetPhysics.findSettledExtent]
+  /// using the metrics of the previous frame.
   void didFinalizeDimensions(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    if (oldContentSize == null && oldViewportSize == null) {
-      // The sheet was laid out, but not changed in size.
+    if (oldContentSize == null &&
+        oldViewportSize == null &&
+        oldViewportInsets == null) {
       return;
     }
 
-    final metrics = owner.metrics;
-    final oldPixels = metrics.pixels;
-    final newInsets = metrics.viewportInsets;
-    final oldInsets = oldViewportInsets ?? newInsets;
-    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+    final oldMetrics = owner.metrics.copyWith(
+      contentSize: oldContentSize,
+      viewportSize: oldViewportSize,
+      viewportInsets: oldViewportInsets,
+    );
+    final prevDetent = owner.physics.findSettledExtent(0, oldMetrics);
+    final newPixels = prevDetent.resolve(owner.metrics.contentSize);
 
-    switch (deltaInsetBottom) {
-      case > 0:
-        // Prevents the sheet from being pushed off the screen by the keyboard.
-        final correction = min(0.0, metrics.maxViewPixels - metrics.viewPixels);
-        owner
-          ..setPixels(oldPixels + correction)
-          ..didUpdateMetrics();
-
-      case < 0:
-        // Appends the delta of the bottom inset (typically the keyboard height)
-        // to keep the visual sheet position unchanged.
-        owner
-          ..setPixels(min(
-            oldPixels - deltaInsetBottom,
-            owner.metrics.maxPixels,
-          ))
-          ..didUpdateMetrics();
+    if (newPixels == owner.metrics.pixels) {
+      return;
+    } else if (oldViewportInsets != null &&
+        oldViewportInsets.bottom != owner.metrics.viewportInsets.bottom) {
+      // TODO: Is it possible to remove this assumption?
+      // We currently assume that when the bottom viewport inset changes,
+      // it is due to the appearance or disappearance of the keyboard,
+      // and that this change will gradually occur over several frames,
+      // likely due to animation.
+      owner
+        ..setPixels(newPixels)
+        ..didUpdateMetrics();
+      return;
     }
 
-    owner.settle();
+    const minAnimationDuration = Duration(milliseconds: 150);
+    const meanAnimationVelocity = 300 / 1000; // pixels per millisecond
+    final distance = (newPixels - owner.metrics.pixels).abs();
+    final estimatedDuration = Duration(
+      milliseconds: (distance / meanAnimationVelocity).round(),
+    );
+    if (estimatedDuration >= minAnimationDuration) {
+      owner.animateTo(
+        prevDetent,
+        duration: estimatedDuration,
+        curve: Curves.easeInOut,
+      );
+    } else {
+      // The destination is close enough to the current position,
+      // so we immediately snap to it without animation.
+      owner
+        ..setPixels(newPixels)
+        ..didUpdateMetrics();
+    }
   }
 
   @protected
@@ -316,6 +347,7 @@ class BallisticSheetActivity extends SheetActivity
 
     if (owner.physics.findSettledExtent(velocity, oldMetrics) case final detent
         when detent.resolve(owner.metrics.contentSize) != newPixels) {
+      // TODO: Use SheetExtent.settle instead.
       owner.beginActivity(
         SettlingSheetActivity.withDuration(
           const Duration(milliseconds: 150),
@@ -465,15 +497,6 @@ class SettlingSheetActivity extends SheetActivity {
 class IdleSheetActivity extends SheetActivity {
   @override
   SheetStatus get status => SheetStatus.stable;
-
-  // TODO: Start a settling activity if the keyboard animation is running.
-  // @override
-  // void didFinalizeDimensions(
-  //   Size? oldContentSize,
-  //   Size? oldViewportSize,
-  //   EdgeInsets? oldViewportInsets,
-  // ) {
-  // }
 }
 
 @internal

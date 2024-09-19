@@ -416,16 +416,13 @@ abstract class SheetExtent extends ChangeNotifier
     beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
-  // TODO: Change the signature to `void settle(Extent settledPosition, [Duration? duration])`.
-  void settle() {
-    assert(metrics.hasDimensions);
-    final simulation = physics.createSettlingSimulation(metrics);
-    if (simulation != null) {
-      // TODO: Begin a SettlingSheetActivity
-      goBallisticWith(simulation);
-    } else {
-      goIdle();
-    }
+  void settleTo(Extent detent, Duration duration) {
+    beginActivity(
+      SettlingSheetActivity.withDuration(
+        duration,
+        destination: detent,
+      ),
+    );
   }
 
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {

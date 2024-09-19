@@ -16,7 +16,7 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
 
 const _referenceSheetMetrics = SheetMetrics(
   minExtent: Extent.pixels(0),
-  maxExtent: Extent.pixels(600),
+  maxExtent: Extent.proportional(1),
   pixels: 600,
   contentSize: Size(360, 600),
   viewportSize: Size(360, 700),

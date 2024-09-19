@@ -181,7 +181,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
     final minPixels = metrics.minPixels;
     final maxPixels = metrics.maxPixels;
     if (FloatComp.distance(metrics.devicePixelRatio)
-        .isInBounds(pixels, minPixels, maxPixels)) {
+        .isInBoundsExclusive(pixels, minPixels, maxPixels)) {
       return Extent.pixels(pixels);
     } else if ((pixels - minPixels).abs() < (pixels - maxPixels).abs()) {
       return metrics.minExtent;

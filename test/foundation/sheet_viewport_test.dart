@@ -19,6 +19,9 @@ class _FakeSheetContext extends Fake implements SheetContext {
 
   @override
   double get devicePixelRatio => 3.0;
+
+  @override
+  TickerProvider get vsync => const TestVSync();
 }
 
 class _FakeSheetActivity extends SheetActivity {

@@ -3,8 +3,8 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 
 import '../src/matchers.dart';
 import '../src/stubbing.dart';
@@ -298,5 +298,90 @@ void main() {
       internalOnTickCallback!(const Duration(milliseconds: 100));
       expect(metrics.pixels, 376); // 1120 * 0.05 = 56 pixels in 50ms
     });
+  });
+
+  group('IdleSheetActivity', () {
+    late MockSheetExtent owner;
+    late SheetMetrics metrics;
+
+    setUp(() {
+      owner = MockSheetExtent();
+      when(owner.physics).thenReturn(kDefaultSheetPhysics);
+      when(owner.metrics).thenAnswer((_) => metrics);
+      when(owner.setPixels(any)).thenAnswer((invocation) {
+        final pixels = invocation.positionalArguments[0] as double;
+        metrics = metrics.copyWith(pixels: pixels);
+      });
+    });
+
+    test('should maintain previous extent when keyboard appears', () {
+      final activity = IdleSheetActivity()..init(owner);
+      const oldContentSize = Size(400, 900);
+      const oldViewportInsets = EdgeInsets.zero;
+      metrics = const SheetMetrics(
+        pixels: 450,
+        minExtent: Extent.proportional(0.5),
+        maxExtent: Extent.proportional(1),
+        contentSize: Size(400, 850),
+        viewportSize: Size(400, 900),
+        viewportInsets: EdgeInsets.only(bottom: 50),
+      );
+      activity
+        ..didChangeContentSize(oldContentSize)
+        ..didChangeViewportDimensions(oldContentSize, oldViewportInsets)
+        ..didFinalizeDimensions(oldContentSize, null, oldViewportInsets);
+      expect(metrics.pixels, 425);
+    });
+
+    test(
+      'should maintain previous extent when content size changes, '
+      'without animation if gap is small',
+      () {
+        final activity = IdleSheetActivity()..init(owner);
+        const oldContentSize = Size(400, 600);
+        metrics = const SheetMetrics(
+          pixels: 300,
+          minExtent: Extent.proportional(0.5),
+          maxExtent: Extent.proportional(1),
+          contentSize: Size(400, 580),
+          viewportSize: Size(400, 900),
+          viewportInsets: EdgeInsets.zero,
+        );
+        activity
+          ..didChangeContentSize(oldContentSize)
+          ..didFinalizeDimensions(oldContentSize, null, null);
+        expect(metrics.pixels, 290);
+        // Still in the idle activity.
+        verifyNever(owner.beginActivity(any));
+      },
+    );
+
+    test(
+      'should maintain previous extent when content size changes, '
+      'with animation if gap is large',
+      () {
+        final activity = IdleSheetActivity()..init(owner);
+        const oldContentSize = Size(400, 600);
+        metrics = const SheetMetrics(
+          pixels: 300,
+          minExtent: Extent.proportional(0.5),
+          maxExtent: Extent.proportional(1),
+          contentSize: Size(400, 500),
+          viewportSize: Size(400, 900),
+          viewportInsets: EdgeInsets.zero,
+        );
+        activity
+          ..didChangeContentSize(oldContentSize)
+          ..didFinalizeDimensions(oldContentSize, null, null);
+        expect(metrics.pixels, 300);
+        verify(
+          owner.animateTo(
+            const Extent.proportional(0.5),
+            duration: anyNamed('duration'),
+            curve: anyNamed('curve'),
+          ),
+        );
+      },
+    );
   });
 }

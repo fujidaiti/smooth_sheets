@@ -77,6 +77,10 @@ class FloatComp {
   bool isInBounds(double a, double min, double max) =>
       !isOutOfBounds(a, min, max);
 
+  /// Returns `true` if [a] is in the range `(min, max)`, exclusive.
+  bool isInBoundsExclusive(double a, double min, double max) =>
+      isGreaterThan(a, min) && isLessThan(a, max);
+
   /// Returns [b] if [a] is approximately equal to [b], otherwise [a].
   double roundToIfApprox(double a, double b) => isApprox(a, b) ? b : a;
 
