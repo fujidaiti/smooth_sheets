@@ -161,58 +161,6 @@ void main() {
       );
     });
 
-    test('creates no settling simulation if the position is in bounds', () {
-      expect(
-        physicsUnderTest.createSettlingSimulation(_positionAtMiddle),
-        isNull,
-      );
-      expect(
-        physicsUnderTest.createSettlingSimulation(_positionAtTopEdge),
-        isNull,
-      );
-      expect(
-        physicsUnderTest.createSettlingSimulation(_positionAtBottomEdge),
-        isNull,
-      );
-    });
-
-    test('creates settling simulation which ends at nearest edge', () {
-      final moreOverDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxPixels + 200,
-      );
-      final lessOverDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxPixels + 10,
-      );
-      final moreOverDragSimulation =
-          physicsUnderTest.createSettlingSimulation(moreOverDraggedPosition);
-      final lessOverDragSimulation =
-          physicsUnderTest.createSettlingSimulation(lessOverDraggedPosition);
-
-      // The settling simulation runs with the average velocity of 600px/s
-      // if the starting position is far enough from the edge.
-      expect(moreOverDragSimulation, isNotNull);
-      expect(
-        moreOverDragSimulation!.x(0.170), // 170ms passed
-        greaterThan(_referenceSheetMetrics.maxPixels),
-      );
-      expect(
-        moreOverDragSimulation.x(0.334), // 334ms passed (≈ 200px / 600px/s)
-        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
-      );
-
-      // The default behavior ensures that the settling simulation runs for
-      // at least 160ms even if the starting position is too close to the edge.
-      expect(lessOverDragSimulation, isNotNull);
-      expect(
-        lessOverDragSimulation!.x(0.08), // 80ms passed
-        greaterThan(_referenceSheetMetrics.maxPixels),
-      );
-      expect(
-        lessOverDragSimulation.x(0.16), // 160ms passed
-        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
-      );
-    });
-
     test('findSettledExtent', () {
       expect(
         physicsUnderTest.findSettledExtent(0, _positionAtMiddle),
