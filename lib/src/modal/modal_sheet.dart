@@ -172,7 +172,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Animation<double> secondaryAnimation,
   ) {
     return switch (swipeDismissible) {
-      true => TamperSheetGesture(
+      true => SheetGestureProxy(
           tamperer: _swipeDismissibleController,
           child: buildContent(context),
         ),
@@ -234,7 +234,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   }
 }
 
-class _SwipeDismissibleController with SheetGestureTamperer {
+class _SwipeDismissibleController with SheetGestureProxyMixin {
   _SwipeDismissibleController({
     required this.route,
     required this.transitionController,
@@ -258,7 +258,7 @@ class _SwipeDismissibleController with SheetGestureTamperer {
   }
 
   @override
-  SheetDragUpdateDetails tamperWithDragUpdate(
+  SheetDragUpdateDetails onDragUpdate(
     SheetDragUpdateDetails details,
     Offset minPotentialDeltaConsumption,
   ) {
@@ -288,7 +288,7 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       assert(dragDelta * effectiveDragDelta >= 0);
     } else {
       // Otherwise, the drag delta doesn't change the transition progress.
-      return super.tamperWithDragUpdate(details, minPotentialDeltaConsumption);
+      return super.onDragUpdate(details, minPotentialDeltaConsumption);
     }
 
     final viewport = _context.size!.height;
@@ -309,21 +309,21 @@ class _SwipeDismissibleController with SheetGestureTamperer {
       VerticalDirection.down => viewportDelta - dragDelta,
     };
 
-    return super.tamperWithDragUpdate(
+    return super.onDragUpdate(
       details.copyWith(deltaY: unconsumedDragDelta),
       minPotentialDeltaConsumption,
     );
   }
 
   @override
-  SheetDragEndDetails tamperWithDragEnd(SheetDragEndDetails details) {
+  SheetDragEndDetails onDragEnd(SheetDragEndDetails details) {
     final wasHandled = _handleDragEnd(
       velocity: details.velocity,
       axisDirection: details.axisDirection,
     );
     return wasHandled
-        ? super.tamperWithDragEnd(details.copyWith(velocityX: 0, velocityY: 0))
-        : super.tamperWithDragEnd(details);
+        ? super.onDragEnd(details.copyWith(velocityX: 0, velocityY: 0))
+        : super.onDragEnd(details);
   }
 
   @override

@@ -296,7 +296,7 @@ class MockSheetExtent extends _i1.Mock implements _i3.SheetExtent {
       );
 
   @override
-  void updateGestureTamperer(_i13.SheetGestureTamperer? gestureTamperer) =>
+  void updateGestureTamperer(_i13.SheetGestureProxyMixin? gestureTamperer) =>
       super.noSuchMethod(
         Invocation.method(
           #updateGestureTamperer,

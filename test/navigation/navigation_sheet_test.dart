@@ -12,7 +12,6 @@ class _TestWidget extends StatelessWidget {
     this.sheetTransitionObserver, {
     required this.initialRoute,
     required this.routes,
-    this.onTapBackgroundText,
     this.sheetKey,
     this.contentBuilder,
     this.sheetBuilder,
@@ -22,7 +21,6 @@ class _TestWidget extends StatelessWidget {
 
   final String initialRoute;
   final Map<String, ValueGetter<Route<dynamic>>> routes;
-  final VoidCallback? onTapBackgroundText;
   final Widget Function(BuildContext, Widget)? contentBuilder;
   final Widget Function(BuildContext, Widget)? sheetBuilder;
   final SheetController? sheetController;
@@ -53,7 +51,7 @@ class _TestWidget extends StatelessWidget {
     Widget content = Stack(
       children: [
         TextButton(
-          onPressed: onTapBackgroundText,
+          onPressed: () {},
           child: const Text('Background text'),
         ),
         navigationSheet,
@@ -536,7 +534,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       // Press and hold the list view in the second page
       // until the transition animation is finished.
-      // TODO: Change warnIfMissed to 'true' and verify that the long press gesture fails.
+      // TODO: Change warnIfMissed to 'true' and verify that
+      // the long press gesture fails.
       await tester.press(find.byKey(const Key('Second')), warnIfMissed: false);
       await tester.pumpAndSettle();
       // Ensure that the transition is completed without any exceptions.

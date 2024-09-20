@@ -47,7 +47,7 @@ class _NavigationSheetState extends State<NavigationSheet>
 
   @override
   Widget build(BuildContext context) {
-    final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 

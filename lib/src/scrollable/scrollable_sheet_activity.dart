@@ -191,7 +191,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
   }
 
   @override
-  void applyUserDragUpdate(SheetDragUpdateDetails details) {
+  void onDragUpdate(SheetDragUpdateDetails details) {
     scrollPosition.userScrollDirection = details.deltaY > 0.0
         ? ScrollDirection.forward
         : ScrollDirection.reverse;
@@ -206,7 +206,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
   }
 
   @override
-  void applyUserDragEnd(SheetDragEndDetails details) {
+  void onDragEnd(SheetDragEndDetails details) {
     owner
       ..didDragEnd(details)
       ..goBallisticWithScrollPosition(

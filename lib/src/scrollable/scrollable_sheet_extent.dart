@@ -152,7 +152,7 @@ class ScrollableSheetExtent extends SheetExtent
       kind: details.kind,
     );
     if (gestureTamperer case final tamperer?) {
-      startDetails = tamperer.tamperWithDragStart(startDetails);
+      startDetails = tamperer.onDragStart(startDetails);
     }
     final heldPreviousVelocity = switch (activity) {
       final HoldScrollDrivenSheetActivity holdActivity =>

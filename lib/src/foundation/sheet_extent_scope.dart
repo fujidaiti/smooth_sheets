@@ -80,7 +80,7 @@ abstract class SheetExtentScope extends StatefulWidget {
   final SheetPhysics physics;
 
   /// {@macro SheetExtent.gestureTamperer}
-  final SheetGestureTamperer? gestureTamperer;
+  final SheetGestureProxyMixin? gestureTamperer;
 
   // TODO: Remove this. Specifying null to `controller` is sufficient.
   final bool isPrimary;

@@ -34,7 +34,7 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
-    final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
 
     return NavigationSheetRouteContent(
       scopeBuilder: (context, key, child) {
@@ -76,7 +76,7 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
     final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
-    final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
 
     return NavigationSheetRouteContent(
       scopeBuilder: (context, key, child) {
