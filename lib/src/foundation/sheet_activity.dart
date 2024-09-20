@@ -66,10 +66,9 @@ abstract class SheetActivity<T extends SheetExtent> {
 
   void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {}
 
-  // TODO: Change `double?`s to `Extent?`s.
   void didChangeBoundaryConstraints(
-    double? oldMinPixels,
-    double? oldMaxPixels,
+    Extent? oldMinExtent,
+    Extent? oldMaxExtent,
   ) {}
 
   /// Called when all relevant metrics of the sheet are finalized

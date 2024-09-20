@@ -268,15 +268,9 @@ abstract class SheetExtent extends ChangeNotifier
   @mustCallSuper
   void applyNewContentSize(Size contentSize) {
     if (metrics.maybeContentSize != contentSize) {
-      final oldMaxPixels = metrics.maybeMaxPixels;
-      final oldMinPixels = metrics.maybeMinPixels;
       _oldContentSize = metrics.maybeContentSize;
       _updateMetrics(contentSize: contentSize);
       activity.didChangeContentSize(_oldContentSize);
-      if (oldMinPixels != metrics.minPixels ||
-          oldMaxPixels != metrics.maxPixels) {
-        activity.didChangeBoundaryConstraints(oldMinPixels, oldMaxPixels);
-      }
     }
   }
 
@@ -297,10 +291,10 @@ abstract class SheetExtent extends ChangeNotifier
   @mustCallSuper
   void applyNewBoundaryConstraints(Extent minExtent, Extent maxExtent) {
     if (minExtent != this.minExtent || maxExtent != this.maxExtent) {
+      final oldMinExtent = metrics.maybeMinExtent;
+      final oldMaxExtent = metrics.maybeMaxExtent;
       _updateMetrics(minExtent: minExtent, maxExtent: maxExtent);
-      final oldMinPixels = metrics.maybeMinPixels;
-      final oldMaxPixels = metrics.maybeMaxPixels;
-      activity.didChangeBoundaryConstraints(oldMinPixels, oldMaxPixels);
+      activity.didChangeBoundaryConstraints(oldMinExtent, oldMaxExtent);
     }
   }
 
