@@ -172,17 +172,19 @@ abstract class SheetActivity<T extends SheetExtent> {
 }
 
 /// An activity that animates the [SheetExtent]'s `pixels` to a destination
-/// position resolved by [destination], using the specified [curve] and
+/// position determined by [destination], using the specified [curve] and
 /// [duration].
 ///
 /// This activity accepts the destination position as an [Extent], allowing
-/// the concrete end position (in pixels) to be adjusted during the animation
-/// in response to viewport changes, such as the appearance of the keyboard.
+/// the concrete end position (in pixels) to be updated during the animation
+/// in response to viewport changes, such as the appearance of the on-screen
+/// keyboard.
 ///
-/// When the end position changes, this activity updates the [SheetExtent]'s
-/// `pixels` to maintain the sheet's visual position (referred to as *p*).
-/// In subsequent frames, the animated position is linearly interpolated
-/// between *p* and the new destination.
+/// When the bottom viewport inset changes, typically due to the appearance
+/// or disappearance of the on-screen keyboard, this activity updates the
+/// sheet position to maintain its visual position unchanged. If the
+/// end position changes, it starts a [SettlingSheetActivity] for the
+/// remaining duration to ensure the animation duration remains consistent.
 @internal
 class AnimatedSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
@@ -190,20 +192,20 @@ class AnimatedSheetActivity extends SheetActivity
     required this.destination,
     required this.duration,
     required this.curve,
-  })  : _effectiveCurve = curve,
-        assert(duration > Duration.zero);
+  }) : assert(duration > Duration.zero);
 
   final Extent destination;
   final Duration duration;
   final Curve curve;
 
-  late double _startPixels;
-  Curve _effectiveCurve;
+  late final double _startPixels;
+  late final double _endPixels;
 
   @override
   void init(SheetExtent delegate) {
     super.init(delegate);
     _startPixels = owner.metrics.pixels;
+    _endPixels = destination.resolve(owner.metrics.contentSize);
   }
 
   @override
@@ -222,13 +224,9 @@ class AnimatedSheetActivity extends SheetActivity
 
   @override
   void onAnimationTick() {
-    // The baseline may change during the animation, so we need to
-    // interpolate the current pixels in absolute coordinates. This ensures
-    // visual consistency regardless of baseline changes.
-    final endPixels = destination.resolve(owner.metrics.contentSize);
-    final progress = _effectiveCurve.transform(controller.value);
+    final progress = curve.transform(controller.value);
     owner
-      ..setPixels(lerpDouble(_startPixels, endPixels, progress)!)
+      ..setPixels(lerpDouble(_startPixels, _endPixels, progress)!)
       ..didUpdateMetrics();
   }
 
@@ -243,32 +241,31 @@ class AnimatedSheetActivity extends SheetActivity
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    // TODO: DRY with other activities.
-    // Appends the delta of the bottom inset (typically the keyboard height)
-    // to keep the visual sheet position unchanged.
-    final newInsets = owner.metrics.viewportInsets;
-    final oldInsets = oldViewportInsets ?? newInsets;
-    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
-    final newPixels = owner.metrics.pixels - deltaInsetBottom;
-    owner
-      ..setPixels(newPixels)
-      ..didUpdateMetrics();
-
-    if (oldContentSize == null) {
+    if (oldContentSize == null &&
+        oldViewportSize == null &&
+        oldViewportInsets == null) {
       return;
     }
 
-    // TODO: Remove the following logic and start a settling activity instead.
-    final oldEndPixels = destination.resolve(oldContentSize);
+    if (oldViewportInsets != null) {
+      // TODO: DRY with other activities.
+      // Appends the delta of the bottom inset (typically the keyboard height)
+      // to keep the visual sheet position unchanged.
+      final newInsets = owner.metrics.viewportInsets;
+      final deltaInsetBottom = newInsets.bottom - oldViewportInsets.bottom;
+      final correctedPixels = owner.metrics.pixels - deltaInsetBottom;
+      if (correctedPixels != owner.metrics.pixels) {
+        owner
+          ..setPixels(correctedPixels)
+          ..didUpdateMetrics();
+      }
+    }
+
     final newEndPixels = destination.resolve(owner.metrics.contentSize);
-    final progress = controller.value;
-    if (oldEndPixels != newEndPixels && progress < 1) {
-      // The gradient of the line passing through the point
-      // (t=progress, newPixels) and (t=1.0, newEndPixels).
-      final gradient = (newEndPixels - newPixels) / (1 - progress);
-      // The new start position is the intersection of that line with t=0.
-      _startPixels = newEndPixels - gradient;
-      _effectiveCurve = Curves.linear;
+    if (newEndPixels != _endPixels) {
+      final remainingDuration =
+          duration - (controller.lastElapsedDuration ?? Duration.zero);
+      owner.settleTo(destination, remainingDuration);
     }
   }
 }
@@ -333,6 +330,7 @@ class BallisticSheetActivity extends SheetActivity
       viewportSize: oldViewportSize,
       viewportInsets: oldViewportInsets,
     );
+    final destination = owner.physics.findSettledExtent(velocity, oldMetrics);
 
     // TODO: DRY with other activities.
     // Appends the delta of the bottom inset (typically the keyboard height)
@@ -345,21 +343,34 @@ class BallisticSheetActivity extends SheetActivity
       ..setPixels(newPixels)
       ..didUpdateMetrics();
 
-    if (owner.physics.findSettledExtent(velocity, oldMetrics) case final detent
-        when detent.resolve(owner.metrics.contentSize) != newPixels) {
-      // TODO: Use SheetExtent.settle instead.
-      owner.beginActivity(
-        SettlingSheetActivity.withDuration(
-          const Duration(milliseconds: 150),
-          destination: detent,
-        ),
-      );
+    final endPixels = destination.resolve(owner.metrics.contentSize);
+    if (endPixels == owner.metrics.pixels) {
+      return;
     }
+
+    const maxSettlingDuration = 150; // milliseconds
+    final distance = (endPixels - owner.metrics.pixels).abs();
+    final velocityNorm = velocity.abs();
+    final estimatedSettlingDuration = velocityNorm > 0
+        ? distance / velocityNorm * Duration.millisecondsPerSecond
+        : double.infinity;
+
+    owner.settleTo(
+      destination,
+      estimatedSettlingDuration > maxSettlingDuration
+          ? const Duration(milliseconds: maxSettlingDuration)
+          : Duration(milliseconds: estimatedSettlingDuration.round()),
+    );
   }
 }
 
 /// A [SheetActivity] that performs a settling motion in response to changes
 /// in the viewport dimensions or content size.
+///
+/// A [SheetExtent] may start this activity when the viewport insets change
+/// during an animation, typically due to the appearance or disappearance of
+/// the on-screen keyboard, or when the content size changes (e.g., due to
+/// entering a new line of text in a text field).
 ///
 /// This activity animates the sheet position to the [destination] with a
 /// constant [velocity] until the destination is reached. Optionally, the
