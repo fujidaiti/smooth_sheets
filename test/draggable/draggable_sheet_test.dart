@@ -36,13 +36,10 @@ class _TestApp extends StatelessWidget {
 
 class _TestSheetContent extends StatelessWidget {
   const _TestSheetContent({
-    super.key,
     this.height = 500,
-    this.child,
   });
 
   final double? height;
-  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +47,6 @@ class _TestSheetContent extends StatelessWidget {
       height: height,
       width: double.infinity,
       color: Colors.white,
-      child: child,
     );
   }
 }

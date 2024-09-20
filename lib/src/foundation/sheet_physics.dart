@@ -62,7 +62,8 @@ abstract class SheetPhysics {
 
   double computeOverflow(double offset, SheetMetrics metrics);
 
-  // TODO: Change to return a tuple of (physicsAppliedOffset, overflow) to avoid recomputation of the overflow.
+  // TODO: Change to return a tuple of (physicsAppliedOffset, overflow)
+  // to avoid recomputation of the overflow.
   double applyPhysicsToOffset(double offset, SheetMetrics metrics);
 
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics);

@@ -27,23 +27,24 @@ class _FakeSheetContext extends Fake implements SheetContext {
 class _FakeSheetActivity extends SheetActivity {
   _FakeSheetActivity({
     this.shouldIgnorePointer = false,
-    this.status = SheetStatus.stable,
   });
 
   @override
   final bool shouldIgnorePointer;
 
   @override
-  final SheetStatus status;
+  SheetStatus get status => SheetStatus.stable;
 }
 
 class _FakeSheetExtent extends SheetExtent {
   _FakeSheetExtent({
-    super.minExtent = const Extent.proportional(0.5),
-    super.maxExtent = const Extent.proportional(1),
-    super.physics = const ClampingSheetPhysics(),
     this.createIdleActivity,
-  }) : super(context: _FakeSheetContext());
+  }) : super(
+          context: _FakeSheetContext(),
+          minExtent: const Extent.proportional(0.5),
+          maxExtent: const Extent.proportional(1),
+          physics: const ClampingSheetPhysics(),
+        );
 
   final ValueGetter<SheetActivity>? createIdleActivity;
 

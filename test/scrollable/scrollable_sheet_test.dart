@@ -44,13 +44,11 @@ class _TestSheetContent extends StatelessWidget {
     this.height = 500,
     this.itemCount = 30,
     // Disable the snapping effect by default in tests.
-    this.scrollPhysics = const ClampingScrollPhysics(),
     this.onTapItem,
   });
 
   final double? height;
   final int itemCount;
-  final ScrollPhysics? scrollPhysics;
   final void Function(int index)? onTapItem;
 
   @override
@@ -60,7 +58,7 @@ class _TestSheetContent extends StatelessWidget {
       child: Material(
         color: Colors.white,
         child: ListView(
-          physics: scrollPhysics,
+          physics: const ClampingScrollPhysics(),
           children: List.generate(
             itemCount,
             (index) => ListTile(
