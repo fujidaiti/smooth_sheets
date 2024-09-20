@@ -206,7 +206,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
   }
 
   @override
-  void applyUserDragEnd(SheetDragEndDetails details) {
+  void onDragEnd(SheetDragEndDetails details) {
     owner
       ..didDragEnd(details)
       ..goBallisticWithScrollPosition(

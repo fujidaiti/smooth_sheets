@@ -525,7 +525,7 @@ class DragSheetActivity extends SheetActivity
   }
 
   @override
-  void applyUserDragEnd(SheetDragEndDetails details) {
+  void onDragEnd(SheetDragEndDetails details) {
     owner
       ..didDragEnd(details)
       ..goBallistic(details.velocityY);

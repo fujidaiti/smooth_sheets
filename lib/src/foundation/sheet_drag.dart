@@ -224,9 +224,7 @@ class SheetDragCancelDetails extends SheetDragDetails {
 abstract class SheetDragControllerTarget {
   VerticalDirection get dragAxisDirection;
   void onDragUpdate(SheetDragUpdateDetails details);
-  // TODO: Rename to onDragEnd.
-  void applyUserDragEnd(SheetDragEndDetails details);
-
+  void onDragEnd(SheetDragEndDetails details);
   void onDragCancel(SheetDragCancelDetails details);
 
   /// Returns the minimum number of pixels that the sheet being dragged
@@ -324,7 +322,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
         endDetails = tamper.tamperWithDragEnd(endDetails);
       }
       _lastDetails = endDetails;
-      _target.applyUserDragEnd(endDetails);
+      _target.onDragEnd(endDetails);
     } else {
       final cancelDetails = SheetDragCancelDetails(
         axisDirection: _target.dragAxisDirection,
