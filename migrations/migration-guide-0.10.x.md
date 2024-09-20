@@ -1,9 +1,15 @@
-# Migration guide to 0.10.x from 0.9.x
+# Migration Guide: 0.10.x from 0.9.x
 
-## Breaking changes in SheetMetrics
+The changes in v0.10.0 are summarized as follows. Breaking changes are marked with :boom:.
 
-`double? minPixels` and `double? maxPixels` parameters of the constructor and `copyWith` method have been replaced with `Extent? minExtent` and `Extent? maxExtent` respectively. The `minPixels` and `maxPixels` getters are still available in the new version.
+## Changes in `SheetMetrics` :boom:
 
-## Breaking change in SnappingSheetBehavior
+The `double? minPixels` and `double? maxPixels` parameters in the constructor and `copyWith` method have been replaced with `Extent? minExtent` and `Extent? maxExtent`, respectively. However, the `minPixels` and `maxPixels` getters are still available in this version.
 
-`findSnapPixels` method has been removed. Use `findSnapExtent` instead.
+## Change in `SnappingSheetBehavior` :boom:
+
+The `findSnapPixels` method has been removed. Use `findSnapExtent` instead.
+
+## Change in `SheetPhysics` :boom:
+
+The `createSettlingSimulation` method has been removed in favor of the `findSettledExtent` method. As a result, `InterpolationSimulation` has also been removed since it is no longer used and is not a core feature of the package.

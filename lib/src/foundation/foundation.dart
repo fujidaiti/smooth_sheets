@@ -41,7 +41,6 @@ export 'sheet_physics.dart'
         ClampingSheetPhysics,
         DirectionAwareBouncingBehavior,
         FixedBouncingBehavior,
-        InterpolationSimulation,
         SheetPhysics,
         SheetPhysicsMixin,
         SnapToNearest,

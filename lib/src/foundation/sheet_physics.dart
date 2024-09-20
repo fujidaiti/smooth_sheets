@@ -72,10 +72,6 @@ abstract class SheetPhysics {
 
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics);
 
-  // TODO: Remove this in favor of findNearestDetent().
-  @Deprecated('Use findSettledExtent instead.')
-  Simulation? createSettlingSimulation(SheetMetrics metrics);
-
   /// {@template SheetPhysics.findSettledExtent}
   /// Returns an extent to which a sheet should eventually settle
   /// based on the current [metrics] and the [velocity] of a sheet.
@@ -147,27 +143,6 @@ mixin SheetPhysicsMixin on SheetPhysics {
     return null;
   }
 
-  @override
-  Simulation? createSettlingSimulation(SheetMetrics metrics) {
-    if (parent case final parent?) {
-      return parent.createSettlingSimulation(metrics);
-    } else if (metrics.isPixelsInBounds) {
-      return null;
-    }
-    final settleTo =
-        metrics.pixels.nearest(metrics.minPixels, metrics.maxPixels);
-
-    return InterpolationSimulation(
-      start: metrics.pixels,
-      end: settleTo,
-      curve: Curves.easeInOut,
-      durationInSeconds: max(
-        (metrics.pixels - settleTo).abs() / _kDefaultSettlingSpeed,
-        _kMinSettlingDuration.inMicroseconds / Duration.microsecondsPerSecond,
-      ),
-    );
-  }
-
   /// Returns the closer of [SheetMetrics.minExtent] or [SheetMetrics.maxExtent]
   /// to the current sheet position if it is out of bounds, regardless of the
   /// [velocity]. Otherwise, it returns the current position.
@@ -188,52 +163,6 @@ mixin SheetPhysicsMixin on SheetPhysics {
     } else {
       return metrics.maxExtent;
     }
-  }
-}
-
-/// A [Simulation] that interpolates between two values over a given duration.
-class InterpolationSimulation extends Simulation {
-  /// Creates a [Simulation] that interpolates between two values
-  /// over a given duration.
-  ///
-  /// Make sure that [start] and [end] are not equal, and the
-  /// [durationInSeconds] must be greater than 0.
-  InterpolationSimulation({
-    required this.start,
-    required this.end,
-    required this.curve,
-    required this.durationInSeconds,
-    super.tolerance,
-  })  : assert(start != end),
-        assert(durationInSeconds > 0);
-
-  /// The start value of the interpolation.
-  final double start;
-
-  /// The end value of the interpolation.
-  final double end;
-
-  /// The curve to use for the interpolation.
-  final Curve curve;
-
-  /// The duration of the interpolation in seconds.
-  late final double durationInSeconds;
-
-  @override
-  double dx(double time) {
-    final epsilon = tolerance.time;
-    return (x(time + epsilon) - x(time - epsilon)) / (2 * epsilon);
-  }
-
-  @override
-  double x(double time) {
-    final t = curve.transform((time / durationInSeconds).clamp(0, 1));
-    return lerpDouble(start, end, t)!;
-  }
-
-  @override
-  bool isDone(double time) {
-    return nearEqual(x(time), end, tolerance.distance);
   }
 }
 
