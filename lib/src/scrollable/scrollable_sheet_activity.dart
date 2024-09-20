@@ -191,7 +191,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
   }
 
   @override
-  void applyUserDragUpdate(SheetDragUpdateDetails details) {
+  void onDragUpdate(SheetDragUpdateDetails details) {
     scrollPosition.userScrollDirection = details.deltaY > 0.0
         ? ScrollDirection.forward
         : ScrollDirection.reverse;

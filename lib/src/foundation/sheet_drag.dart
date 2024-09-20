@@ -223,8 +223,7 @@ class SheetDragCancelDetails extends SheetDragDetails {
 @internal
 abstract class SheetDragControllerTarget {
   VerticalDirection get dragAxisDirection;
-  // TODO: Rename to onDragUpdate.
-  void applyUserDragUpdate(SheetDragUpdateDetails details);
+  void onDragUpdate(SheetDragUpdateDetails details);
   // TODO: Rename to onDragEnd.
   void applyUserDragEnd(SheetDragEndDetails details);
 
@@ -364,7 +363,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     }
 
     _lastDetails = details;
-    _target.applyUserDragUpdate(details);
+    _target.onDragUpdate(details);
   }
 
   @override

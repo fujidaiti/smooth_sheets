@@ -508,7 +508,7 @@ class DragSheetActivity extends SheetActivity
   }
 
   @override
-  void applyUserDragUpdate(SheetDragUpdateDetails details) {
+  void onDragUpdate(SheetDragUpdateDetails details) {
     final physicsAppliedDelta =
         owner.physics.applyPhysicsToOffset(details.deltaY, owner.metrics);
     if (physicsAppliedDelta != 0) {
