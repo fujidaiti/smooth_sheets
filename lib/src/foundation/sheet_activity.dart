@@ -451,7 +451,7 @@ class SettlingSheetActivity extends SheetActivity {
     _elapsedDuration = elapsedDuration;
 
     if (newPixels == destination) {
-      owner.goBallistic(0);
+      owner.goIdle();
     }
   }
 

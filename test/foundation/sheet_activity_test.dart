@@ -243,7 +243,7 @@ void main() {
     });
 
     test(
-      'Should start a ballistic activity when it reaches destination',
+      'Should start an idle activity when it reaches destination',
       () {
         final _ = SettlingSheetActivity(
           destination: const Extent.proportional(1),
@@ -252,7 +252,7 @@ void main() {
 
         when(owner.metrics).thenReturn(initialMetrics.copyWith(pixels: 540));
         internalOnTickCallback!(const Duration(milliseconds: 1000));
-        verify(owner.goBallistic(0));
+        verify(owner.goIdle());
       },
     );
 
