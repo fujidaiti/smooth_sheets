@@ -131,7 +131,7 @@ abstract class SheetExtent extends ChangeNotifier
     required Extent maxExtent,
     required SheetPhysics physics,
     this.debugLabel,
-    SheetGestureTamperer? gestureTamperer,
+    SheetGestureProxyMixin? gestureTamperer,
   })  : _physics = physics,
         _gestureTamperer = gestureTamperer,
         _metrics = SheetMetrics.empty.copyWith(
@@ -177,8 +177,8 @@ abstract class SheetExtent extends ChangeNotifier
   /// {@template SheetExtent.gestureTamperer}
   /// An object that can modify the gesture details of the sheet.
   /// {@endtemplate}
-  SheetGestureTamperer? get gestureTamperer => _gestureTamperer;
-  SheetGestureTamperer? _gestureTamperer;
+  SheetGestureProxyMixin? get gestureTamperer => _gestureTamperer;
+  SheetGestureProxyMixin? _gestureTamperer;
 
   /// A label that is used to identify this object in debug output.
   final String? debugLabel;
@@ -253,7 +253,7 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   @mustCallSuper
-  void updateGestureTamperer(SheetGestureTamperer? gestureTamperer) {
+  void updateGestureTamperer(SheetGestureProxyMixin? gestureTamperer) {
     if (_gestureTamperer != gestureTamperer) {
       _gestureTamperer = gestureTamperer;
       currentDrag?.updateGestureTamperer(gestureTamperer);
@@ -432,7 +432,7 @@ abstract class SheetExtent extends ChangeNotifier
       kind: details.kind,
     );
     if (_gestureTamperer case final tamperer?) {
-      startDetails = tamperer.tamperWithDragStart(startDetails);
+      startDetails = tamperer.onDragStart(startDetails);
     }
 
     final drag = SheetDragController(

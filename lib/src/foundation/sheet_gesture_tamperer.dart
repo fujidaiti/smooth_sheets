@@ -4,40 +4,39 @@ import 'package:meta/meta.dart';
 import 'sheet_drag.dart';
 
 // TODO: Expose this as a public API.
-// TODO: Rename to SheetGestureProxy.
 @internal
-class TamperSheetGesture extends StatefulWidget {
-  const TamperSheetGesture({
+class SheetGestureProxy extends StatefulWidget {
+  const SheetGestureProxy({
     super.key,
     required this.tamperer,
     required this.child,
   });
 
-  final SheetGestureTamperer tamperer;
+  final SheetGestureProxyMixin tamperer;
   final Widget child;
 
   @override
-  State<TamperSheetGesture> createState() => _TamperSheetGestureState();
+  State<SheetGestureProxy> createState() => _SheetGestureProxyState();
 
-  static SheetGestureTamperer? maybeOf(BuildContext context) {
+  static SheetGestureProxyMixin? maybeOf(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<_TamperSheetGestureScope>()
+        .dependOnInheritedWidgetOfExactType<_SheetGestureProxyScope>()
         ?.tamperer;
   }
 }
 
-class _TamperSheetGestureState extends State<TamperSheetGesture> {
+class _SheetGestureProxyState extends State<SheetGestureProxy> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    widget.tamperer.updateParent(TamperSheetGesture.maybeOf(context));
+    widget.tamperer.updateParent(SheetGestureProxy.maybeOf(context));
   }
 
   @override
-  void didUpdateWidget(TamperSheetGesture oldWidget) {
+  void didUpdateWidget(SheetGestureProxy oldWidget) {
     super.didUpdateWidget(oldWidget);
     oldWidget.tamperer.updateParent(null);
-    widget.tamperer.updateParent(TamperSheetGesture.maybeOf(context));
+    widget.tamperer.updateParent(SheetGestureProxy.maybeOf(context));
   }
 
   @override
@@ -48,55 +47,51 @@ class _TamperSheetGestureState extends State<TamperSheetGesture> {
 
   @override
   Widget build(BuildContext context) {
-    return _TamperSheetGestureScope(
+    return _SheetGestureProxyScope(
       tamperer: widget.tamperer,
       child: widget.child,
     );
   }
 }
 
-// TODO: Rename to SheetGestureProxyScope.
-class _TamperSheetGestureScope extends InheritedWidget {
-  const _TamperSheetGestureScope({
+class _SheetGestureProxyScope extends InheritedWidget {
+  const _SheetGestureProxyScope({
     required this.tamperer,
     required super.child,
   });
 
-  final SheetGestureTamperer tamperer;
+  final SheetGestureProxyMixin tamperer;
 
   @override
-  bool updateShouldNotify(_TamperSheetGestureScope oldWidget) =>
+  bool updateShouldNotify(_SheetGestureProxyScope oldWidget) =>
       oldWidget.tamperer != tamperer;
 }
 
 // TODO: Expose this as a public API.
-// TODO: Rename to SheetGestureProxyMixin.
 @internal
-mixin SheetGestureTamperer {
-  SheetGestureTamperer? _parent;
+mixin SheetGestureProxyMixin {
+  SheetGestureProxyMixin? _parent;
 
   @mustCallSuper
-  void updateParent(SheetGestureTamperer? parent) {
+  void updateParent(SheetGestureProxyMixin? parent) {
     _parent = parent;
   }
 
   @useResult
   @mustCallSuper
-  // TODO: Rename to onDragStart.
-  SheetDragStartDetails tamperWithDragStart(SheetDragStartDetails details) {
-    return _parent?.tamperWithDragStart(details) ?? details;
+  SheetDragStartDetails onDragStart(SheetDragStartDetails details) {
+    return _parent?.onDragStart(details) ?? details;
   }
 
   @useResult
   @mustCallSuper
-  // TODO: Rename to onDragUpdate.
-  SheetDragUpdateDetails tamperWithDragUpdate(
+  SheetDragUpdateDetails onDragUpdate(
     SheetDragUpdateDetails details,
     Offset minPotentialDeltaConsumption,
   ) {
     return switch (_parent) {
       null => details,
-      final parent => parent.tamperWithDragUpdate(
+      final parent => parent.onDragUpdate(
           details,
           minPotentialDeltaConsumption,
         ),
@@ -105,9 +100,8 @@ mixin SheetGestureTamperer {
 
   @useResult
   @mustCallSuper
-  // TODO: Rename to onDragEnd.
-  SheetDragEndDetails tamperWithDragEnd(SheetDragEndDetails details) {
-    return _parent?.tamperWithDragEnd(details) ?? details;
+  SheetDragEndDetails onDragEnd(SheetDragEndDetails details) {
+    return _parent?.onDragEnd(details) ?? details;
   }
 
   @mustCallSuper

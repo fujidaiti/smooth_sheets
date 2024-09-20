@@ -72,7 +72,7 @@ class _DraggableSheetState extends State<DraggableSheet>
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
     final physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
-    final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 

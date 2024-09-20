@@ -242,13 +242,13 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
   /// finger across the screen.
   SheetDragController({
     required SheetDragControllerTarget target,
-    required SheetGestureTamperer? gestureTamperer,
+    required SheetGestureProxyMixin? gestureTamperer,
     required SheetDragStartDetails details,
     required VoidCallback onDragCanceled,
     required double? carriedVelocity,
     required double? motionStartDistanceThreshold,
   })  : _target = target,
-        _gestureTamperer = gestureTamperer,
+        _gestureProxy = gestureTamperer,
         _lastDetails = details,
         pointerDeviceKind = details.kind {
     // Actual work is done by this object.
@@ -274,8 +274,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
 
   late SheetDragControllerTarget _target;
 
-  // TODO: Rename to _gestureProxy.
-  SheetGestureTamperer? _gestureTamperer;
+  SheetGestureProxyMixin? _gestureProxy;
 
   /// The details of the most recently observed drag event.
   SheetDragDetails get lastDetails => _lastDetails;
@@ -289,8 +288,8 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     _target = delegate;
   }
 
-  void updateGestureTamperer(SheetGestureTamperer? gestureTamperer) {
-    _gestureTamperer = gestureTamperer;
+  void updateGestureTamperer(SheetGestureProxyMixin? gestureTamperer) {
+    _gestureProxy = gestureTamperer;
   }
 
   @override
@@ -318,8 +317,8 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
         velocityX: rawDetails.velocity.pixelsPerSecond.dx,
         velocityY: -1 * velocity,
       );
-      if (_gestureTamperer case final tamper?) {
-        endDetails = tamper.tamperWithDragEnd(endDetails);
+      if (_gestureProxy case final tamper?) {
+        endDetails = tamper.onDragEnd(endDetails);
       }
       _lastDetails = endDetails;
       _target.onDragEnd(endDetails);
@@ -328,7 +327,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
         axisDirection: _target.dragAxisDirection,
       );
       _lastDetails = cancelDetails;
-      _gestureTamperer?.onDragCancel(cancelDetails);
+      _gestureProxy?.onDragCancel(cancelDetails);
       _target.onDragCancel(cancelDetails);
     }
   }
@@ -349,12 +348,12 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
       deltaY: delta,
     );
 
-    if (_gestureTamperer case final tamper?) {
+    if (_gestureProxy case final tamper?) {
       final minPotentialDeltaConsumption =
           _target.computeMinPotentialDeltaConsumption(details.delta);
       assert(minPotentialDeltaConsumption.dx.abs() <= details.delta.dx.abs());
       assert(minPotentialDeltaConsumption.dy.abs() <= details.delta.dy.abs());
-      details = tamper.tamperWithDragUpdate(
+      details = tamper.onDragUpdate(
         details,
         minPotentialDeltaConsumption,
       );
@@ -385,7 +384,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
 
   @mustCallSuper
   void dispose() {
-    _gestureTamperer = null;
+    _gestureProxy = null;
     _impl.dispose();
   }
 }
