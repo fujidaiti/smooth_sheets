@@ -216,14 +216,6 @@ class BallisticSheetActivity extends SheetActivity
   });
 
   final Simulation simulation;
-  // TODO: Use controller.value instead.
-  late double _lastAnimatedValue;
-
-  @override
-  void init(SheetExtent delegate) {
-    super.init(delegate);
-    _lastAnimatedValue = controller.value;
-  }
 
   @override
   AnimationController createAnimationController() {
@@ -238,11 +230,9 @@ class BallisticSheetActivity extends SheetActivity
   @override
   void onAnimationTick() {
     if (mounted) {
-      final oldPixels = owner.metrics.pixels;
       owner
-        ..setPixels(oldPixels + controller.value - _lastAnimatedValue)
+        ..setPixels(controller.value)
         ..didUpdateMetrics();
-      _lastAnimatedValue = controller.value;
     }
   }
 
