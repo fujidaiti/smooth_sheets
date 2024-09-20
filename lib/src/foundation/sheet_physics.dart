@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 
 import '../internal/double_utils.dart';
@@ -23,9 +21,6 @@ const kDefaultSheetSpring = SpringDescription(
   // See the implementation of withDampingRatio() for the formula.
   damping: 15.5563491861, // 1.1 * 2.0 * sqrt(0.5 * 100.0)
 );
-
-const _kMinSettlingDuration = Duration(milliseconds: 160);
-const _kDefaultSettlingSpeed = 600.0; // logical pixels per second
 
 /// The default [SheetPhysics] used by sheet widgets.
 const kDefaultSheetPhysics =
