@@ -49,10 +49,8 @@ class TransitionSheetActivity extends NavigationSheetActivity {
 
   void _onAnimationTick() {
     final fraction = _curvedAnimation.value;
-    final startPixels =
-        currentRoute.scopeKey.maybeCurrentExtent?.metrics.maybePixels;
-    final endPixels =
-        nextRoute.scopeKey.maybeCurrentExtent?.metrics.maybePixels;
+    final startPixels = currentRoute.scopeKey.maybeCurrentExtent?.maybePixels;
+    final endPixels = nextRoute.scopeKey.maybeCurrentExtent?.maybePixels;
 
     if (startPixels != null && endPixels != null) {
       owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
@@ -105,7 +103,7 @@ class ProxySheetActivity extends NavigationSheetActivity {
   void _syncMetrics({bool notify = true}) {
     assert(route.scopeKey.maybeCurrentExtent != null);
     final localExtent = route.scopeKey.currentExtent;
-    final localMetrics = localExtent.metrics;
+    final localMetrics = localExtent.snapshot;
     owner.applyNewBoundaryConstraints(
       localExtent.minExtent,
       localExtent.maxExtent,

@@ -158,8 +158,8 @@ class AnimatedSheetActivity extends SheetActivity
   @override
   void init(SheetExtent delegate) {
     super.init(delegate);
-    _startPixels = owner.metrics.pixels;
-    _endPixels = destination.resolve(owner.metrics.contentSize);
+    _startPixels = owner.pixels;
+    _endPixels = destination.resolve(owner.contentSize);
   }
 
   @override
@@ -198,7 +198,7 @@ class AnimatedSheetActivity extends SheetActivity
     if (oldViewportInsets != null) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
-    final newEndPixels = destination.resolve(owner.metrics.contentSize);
+    final newEndPixels = destination.resolve(owner.contentSize);
     if (newEndPixels != _endPixels) {
       final remainingDuration =
           duration - (controller.lastElapsedDuration ?? Duration.zero);
@@ -252,7 +252,7 @@ class BallisticSheetActivity extends SheetActivity
       return;
     }
 
-    final oldMetrics = owner.metrics.copyWith(
+    final oldMetrics = owner.copyWith(
       contentSize: oldContentSize,
       viewportSize: oldViewportSize,
       viewportInsets: oldViewportInsets,
@@ -263,13 +263,13 @@ class BallisticSheetActivity extends SheetActivity
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
 
-    final endPixels = destination.resolve(owner.metrics.contentSize);
-    if (endPixels == owner.metrics.pixels) {
+    final endPixels = destination.resolve(owner.contentSize);
+    if (endPixels == owner.pixels) {
       return;
     }
 
     const maxSettlingDuration = 150; // milliseconds
-    final distance = (endPixels - owner.metrics.pixels).abs();
+    final distance = (endPixels - owner.pixels).abs();
     final velocityNorm = velocity.abs();
     final estimatedSettlingDuration = velocityNorm > 0
         ? distance / velocityNorm * Duration.millisecondsPerSecond
@@ -359,8 +359,8 @@ class SettlingSheetActivity extends SheetActivity {
     final elapsedFrameTime =
         (elapsedDuration - _elapsedDuration).inMicroseconds /
             Duration.microsecondsPerSecond;
-    final destination = this.destination.resolve(owner.metrics.contentSize);
-    final pixels = owner.metrics.pixels;
+    final destination = this.destination.resolve(owner.contentSize);
+    final pixels = owner.pixels;
     final newPixels = destination > pixels
         ? min(destination, pixels + velocity * elapsedFrameTime)
         : max(destination, pixels - velocity * elapsedFrameTime);
@@ -406,8 +406,8 @@ class SettlingSheetActivity extends SheetActivity {
     if (duration case final duration?) {
       final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
           Duration.microsecondsPerSecond;
-      final destination = this.destination.resolve(owner.metrics.contentSize);
-      final pixels = owner.metrics.pixels;
+      final destination = this.destination.resolve(owner.contentSize);
+      final pixels = owner.pixels;
       _velocity = remainingSeconds > 0
           ? (destination - pixels).abs() / remainingSeconds
           : (destination - pixels).abs();
@@ -435,18 +435,18 @@ class IdleSheetActivity extends SheetActivity {
       return;
     }
 
-    final oldMetrics = owner.metrics.copyWith(
+    final oldMetrics = owner.copyWith(
       contentSize: oldContentSize,
       viewportSize: oldViewportSize,
       viewportInsets: oldViewportInsets,
     );
     final prevDetent = owner.physics.findSettledExtent(0, oldMetrics);
-    final newPixels = prevDetent.resolve(owner.metrics.contentSize);
+    final newPixels = prevDetent.resolve(owner.contentSize);
 
-    if (newPixels == owner.metrics.pixels) {
+    if (newPixels == owner.pixels) {
       return;
     } else if (oldViewportInsets != null &&
-        oldViewportInsets.bottom != owner.metrics.viewportInsets.bottom) {
+        oldViewportInsets.bottom != owner.viewportInsets.bottom) {
       // TODO: Is it possible to remove this assumption?
       // We currently assume that when the bottom viewport inset changes,
       // it is due to the appearance or disappearance of the keyboard,
@@ -460,7 +460,7 @@ class IdleSheetActivity extends SheetActivity {
 
     const minAnimationDuration = Duration(milliseconds: 150);
     const meanAnimationVelocity = 300 / 1000; // pixels per millisecond
-    final distance = (newPixels - owner.metrics.pixels).abs();
+    final distance = (newPixels - owner.pixels).abs();
     final estimatedDuration = Duration(
       milliseconds: (distance / meanAnimationVelocity).round(),
     );
@@ -491,15 +491,13 @@ class DragSheetActivity extends SheetActivity
 
   @override
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
-    final metrics = owner.metrics;
-
     switch (delta.dy) {
       case > 0:
-        final draggableDistance = max(0.0, metrics.maxPixels - metrics.pixels);
+        final draggableDistance = max(0.0, owner.maxPixels - owner.pixels);
         return Offset(delta.dx, min(draggableDistance, delta.dy));
 
       case < 0:
-        final draggableDistance = max(0.0, metrics.pixels - metrics.minPixels);
+        final draggableDistance = max(0.0, owner.pixels - owner.minPixels);
         return Offset(delta.dx, max(-1 * draggableDistance, delta.dy));
 
       case _:
@@ -510,15 +508,14 @@ class DragSheetActivity extends SheetActivity
   @override
   void onDragUpdate(SheetDragUpdateDetails details) {
     final physicsAppliedDelta =
-        owner.physics.applyPhysicsToOffset(details.deltaY, owner.metrics);
+        owner.physics.applyPhysicsToOffset(details.deltaY, owner);
     if (physicsAppliedDelta != 0) {
       owner
-        ..setPixels(owner.metrics.pixels + physicsAppliedDelta)
+        ..setPixels(owner.pixels + physicsAppliedDelta)
         ..didDragUpdateMetrics(details);
     }
 
-    final overflow =
-        owner.physics.computeOverflow(details.deltaY, owner.metrics);
+    final overflow = owner.physics.computeOverflow(details.deltaY, owner);
     if (overflow != 0) {
       owner.didOverflowBy(overflow);
     }
@@ -588,7 +585,7 @@ mixin UserControlledSheetActivityMixin<T extends SheetExtent>
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    assert(owner.metrics.hasDimensions);
+    assert(owner.hasDimensions);
     if (oldViewportInsets != null) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
@@ -605,11 +602,11 @@ void absorbBottomViewportInset(
   SheetExtent activityOwner,
   EdgeInsets oldViewportInsets,
 ) {
-  final newInsets = activityOwner.metrics.viewportInsets;
+  final newInsets = activityOwner.viewportInsets;
   final oldInsets = oldViewportInsets;
   final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
-  final newPixels = activityOwner.metrics.pixels - deltaInsetBottom;
-  if (newPixels != activityOwner.metrics.pixels) {
+  final newPixels = activityOwner.pixels - deltaInsetBottom;
+  if (newPixels != activityOwner.pixels) {
     activityOwner
       ..setPixels(newPixels)
       ..didUpdateMetrics();

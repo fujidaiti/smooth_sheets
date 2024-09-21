@@ -84,8 +84,8 @@ class ScrollableSheetExtent extends SheetExtent
   @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
-    if (metrics.maybePixels == null) {
-      setPixels(initialExtent.resolve(metrics.contentSize));
+    if (maybePixels == null) {
+      setPixels(initialExtent.resolve(contentSize));
     }
   }
 
@@ -187,10 +187,10 @@ class ScrollableSheetExtent extends SheetExtent
     required double velocity,
     required SheetContentScrollPosition scrollPosition,
   }) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     if (FloatComp.distance(context.devicePixelRatio)
         .isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
-      final simulation = physics.createBallisticSimulation(velocity, metrics);
+      final simulation = physics.createBallisticSimulation(velocity, snapshot);
       if (simulation != null) {
         scrollPosition.goIdle(calledByOwner: true);
         goBallisticWith(simulation);
@@ -199,8 +199,8 @@ class ScrollableSheetExtent extends SheetExtent
     }
 
     final scrolledDistance = scrollPosition.pixels;
-    final draggedDistance = metrics.pixels - metrics.minPixels;
-    final draggableDistance = metrics.maxPixels - metrics.minPixels;
+    final draggedDistance = pixels - minPixels;
+    final draggableDistance = maxPixels - minPixels;
     final scrollableDistance =
         scrollPosition.maxScrollExtent - scrollPosition.minScrollExtent;
     final scrollPixelsForScrollPhysics = scrolledDistance + draggedDistance;

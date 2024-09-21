@@ -50,7 +50,7 @@ abstract class ScrollableSheetActivity
   }
 
   double _applyPhysicsToOffset(double offset) {
-    return owner.physics.applyPhysicsToOffset(offset, owner.metrics);
+    return owner.physics.applyPhysicsToOffset(offset, owner.snapshot);
   }
 
   double _applyScrollOffset(double offset) {
@@ -58,8 +58,8 @@ abstract class ScrollableSheetActivity
     if (cmp.isApprox(offset, 0)) return 0;
 
     final position = scrollPosition;
-    final maxPixels = owner.metrics.maxPixels;
-    final oldPixels = owner.metrics.pixels;
+    final maxPixels = owner.maxPixels;
+    final oldPixels = owner.pixels;
     final oldScrollPixels = position.pixels;
     final minScrollPixels = position.minScrollExtent;
     final maxScrollPixels = position.maxScrollExtent;
@@ -123,7 +123,7 @@ abstract class ScrollableSheetActivity
 
     owner.setPixels(newPixels);
 
-    final overflow = owner.physics.computeOverflow(delta, owner.metrics);
+    final overflow = owner.physics.computeOverflow(delta, owner.snapshot);
     if (overflow.abs() > 0) {
       position.didOverscrollBy(overflow);
       return overflow;
@@ -170,7 +170,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
 
   @override
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
-    final metrics = owner.metrics;
+    final metrics = owner.snapshot;
 
     switch (delta.dy) {
       case < 0:
@@ -195,9 +195,9 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
     scrollPosition.userScrollDirection = details.deltaY > 0.0
         ? ScrollDirection.forward
         : ScrollDirection.reverse;
-    final oldPixels = owner.metrics.pixels;
+    final oldPixels = owner.pixels;
     final overflow = _applyScrollOffset(-1 * details.deltaY);
-    if (owner.metrics.pixels != oldPixels) {
+    if (owner.pixels != oldPixels) {
       owner.didDragUpdateMetrics(details);
     }
     if (overflow > 0) {
@@ -261,7 +261,7 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
     final delta = controller.value - _oldPixels;
     _oldPixels = controller.value;
     final overflow = _applyScrollOffset(delta);
-    if (owner.metrics.pixels != _oldPixels) {
+    if (owner.pixels != _oldPixels) {
       owner.didUpdateMetrics();
     }
     if (cmp.isNotApprox(overflow, 0)) {
@@ -277,7 +277,7 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
         ((cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
                 (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0)) &&
             owner.physics
-                .shouldInterruptBallisticScroll(velocity, owner.metrics);
+                .shouldInterruptBallisticScroll(velocity, owner.snapshot);
 
     if (shouldInterruptBallisticScroll) {
       _end();

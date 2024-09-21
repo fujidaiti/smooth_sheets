@@ -27,13 +27,10 @@ class _TestAnimatedSheetActivity extends AnimatedSheetActivity {
 
 void main() {
   group('AnimatedSheetActivity', () {
-    late MockSheetExtent owner;
     late MockAnimationController controller;
 
     setUp(() {
-      owner = MockSheetExtent();
       controller = MockAnimationController();
-
       when(
         controller.animateTo(
           any,
@@ -44,15 +41,14 @@ void main() {
     });
 
     test('should animate to the destination', () {
-      when(owner.metrics).thenReturn(
-        const SheetMetricsSnapshot(
-          pixels: 300,
-          minExtent: Extent.pixels(300),
-          maxExtent: Extent.pixels(700),
-          contentSize: Size(400, 700),
-          viewportSize: Size(400, 900),
-          viewportInsets: EdgeInsets.zero,
-        ),
+      final (ownerMetrics, owner) = createMockSheetExtent(
+        pixels: 300,
+        minExtent: const Extent.pixels(300),
+        maxExtent: const Extent.pixels(700),
+        contentSize: const Size(400, 700),
+        viewportSize: const Size(400, 900),
+        viewportInsets: EdgeInsets.zero,
+        devicePixelRatio: 1,
       );
 
       final activity = _TestAnimatedSheetActivity(
@@ -72,31 +68,27 @@ void main() {
 
       when(controller.value).thenReturn(0.0);
       activity.onAnimationTick();
-      verify(owner.setPixels(300));
+      expect(ownerMetrics.pixels, 300);
 
       when(controller.value).thenReturn(0.5);
       activity.onAnimationTick();
-      verify(owner.setPixels(500));
+      expect(ownerMetrics.pixels, 500);
 
       when(controller.value).thenReturn(1.0);
       activity.onAnimationTick();
-      verify(owner.setPixels(700));
+      expect(ownerMetrics.pixels, 700);
     });
 
     test('should absorb viewport changes', () {
-      var metrics = const SheetMetricsSnapshot(
+      final (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 300,
-        minExtent: Extent.pixels(300),
-        maxExtent: Extent.proportional(1),
-        contentSize: Size(400, 900),
-        viewportSize: Size(400, 900),
+        minExtent: const Extent.pixels(300),
+        maxExtent: const Extent.proportional(1),
+        contentSize: const Size(400, 900),
+        viewportSize: const Size(400, 900),
         viewportInsets: EdgeInsets.zero,
+        devicePixelRatio: 1,
       );
-      when(owner.metrics).thenAnswer((_) => metrics);
-      when(owner.setPixels(any)).thenAnswer((invocation) {
-        final pixels = invocation.positionalArguments[0] as double;
-        metrics = metrics.copyWith(pixels: pixels);
-      });
 
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
@@ -107,13 +99,13 @@ void main() {
 
       when(controller.value).thenReturn(0.0);
       activity.onAnimationTick();
-      expect(metrics.pixels, 300);
+      expect(ownerMetrics.pixels, 300);
 
       when(controller.value).thenReturn(0.25);
       when(controller.lastElapsedDuration)
           .thenReturn(const Duration(milliseconds: 75));
       activity.onAnimationTick();
-      expect(metrics.pixels, 450);
+      expect(ownerMetrics.pixels, 450);
 
       // The following lines simulate a viewport change, in which:
       // 1. The viewport's bottom inset increases, simulating the
@@ -122,17 +114,17 @@ void main() {
       //    increased bottom inset.
       // This scenario mimics the behavior when opening a keyboard
       // on a sheet that uses SheetContentScaffold.
-      final oldViewportInsets = metrics.viewportInsets;
-      final oldContentSize = metrics.contentSize;
-      metrics = metrics.copyWith(
-        viewportInsets: const EdgeInsets.only(bottom: 50),
-        contentSize: const Size(400, 850),
-      );
+      final oldViewportInsets = ownerMetrics.viewportInsets;
+      final oldContentSize = ownerMetrics.contentSize;
+      ownerMetrics
+        ..maybeViewportInsets = const EdgeInsets.only(bottom: 50)
+        ..maybeContentSize = const Size(400, 850);
+
       activity.didChangeViewportDimensions(null, oldViewportInsets);
       activity.didChangeContentSize(oldContentSize);
       activity.didFinalizeDimensions(oldContentSize, null, oldViewportInsets);
-      expect(metrics.pixels, 400);
-      expect(metrics.viewPixels, 450,
+      expect(ownerMetrics.pixels, 400);
+      expect(ownerMetrics.viewPixels, 450,
           reason: 'Visual position should not change when viewport changes.');
       verify(owner.settleTo(
         const Extent.proportional(1),
@@ -143,20 +135,20 @@ void main() {
 
   group('SettlingSheetActivity', () {
     late MockSheetExtent owner;
+    late MutableSheetMetrics ownerMetrics;
     late MockTicker internalTicker;
     late TickerCallback? internalOnTickCallback;
 
-    const initialMetrics = SheetMetricsSnapshot(
-      pixels: 300,
-      minExtent: Extent.proportional(0.5),
-      maxExtent: Extent.proportional(1),
-      contentSize: Size(400, 600),
-      viewportSize: Size(400, 900),
-      viewportInsets: EdgeInsets.zero,
-    );
-
     setUp(() {
-      owner = MockSheetExtent();
+      (ownerMetrics, owner) = createMockSheetExtent(
+        pixels: 300,
+        minExtent: const Extent.proportional(0.5),
+        maxExtent: const Extent.proportional(1),
+        contentSize: const Size(400, 600),
+        viewportSize: const Size(400, 900),
+        viewportInsets: EdgeInsets.zero,
+        devicePixelRatio: 1,
+      );
       internalTicker = MockTicker();
       final tickerProvider = MockTickerProvider();
       final context = MockSheetContext();
@@ -206,7 +198,6 @@ void main() {
         );
         expect(() => activity.velocity, isNotInitialized);
 
-        when(owner.metrics).thenReturn(initialMetrics);
         activity.init(owner);
         expect(activity.velocity, 1000); // (300pixels / 300ms) = 1000 pixels/s
       },
@@ -221,25 +212,20 @@ void main() {
       activity.init(owner);
       verify(internalTicker.start());
 
-      when(owner.metrics).thenReturn(initialMetrics);
       internalOnTickCallback!(const Duration(milliseconds: 200));
-      verify(owner.setPixels(360)); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.pixels, 360); // 300 * 0.2 = 60 pixels in 200ms
 
-      when(owner.metrics).thenReturn(initialMetrics.copyWith(pixels: 360));
       internalOnTickCallback!(const Duration(milliseconds: 400));
-      verify(owner.setPixels(420)); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.pixels, 420); // 300 * 0.2 = 60 pixels in 200ms
 
-      when(owner.metrics).thenReturn(initialMetrics.copyWith(pixels: 420));
       internalOnTickCallback!(const Duration(milliseconds: 500));
-      verify(owner.setPixels(450)); // 300 * 0.1 = 30 pixels in 100ms
+      expect(ownerMetrics.pixels, 450); // 300 * 0.1 = 30 pixels in 100ms
 
-      when(owner.metrics).thenReturn(initialMetrics.copyWith(pixels: 450));
       internalOnTickCallback!(const Duration(milliseconds: 800));
-      verify(owner.setPixels(540)); // 300 * 0.3 = 90 pixels in 300ms
+      expect(ownerMetrics.pixels, 540); // 300 * 0.3 = 90 pixels in 300ms
 
-      when(owner.metrics).thenReturn(initialMetrics.copyWith(pixels: 540));
       internalOnTickCallback!(const Duration(milliseconds: 1000));
-      verify(owner.setPixels(600)); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.pixels, 600); // 300 * 0.2 = 60 pixels in 200ms
     });
 
     test(
@@ -250,20 +236,13 @@ void main() {
           velocity: 300,
         )..init(owner);
 
-        when(owner.metrics).thenReturn(initialMetrics.copyWith(pixels: 540));
+        ownerMetrics.maybePixels = 540;
         internalOnTickCallback!(const Duration(milliseconds: 1000));
         verify(owner.goIdle());
       },
     );
 
     test('Should absorb viewport changes', () {
-      var metrics = initialMetrics;
-      when(owner.metrics).thenAnswer((_) => metrics);
-      when(owner.setPixels(any)).thenAnswer((invocation) {
-        final pixels = invocation.positionalArguments[0] as double;
-        metrics = metrics.copyWith(pixels: pixels);
-      });
-
       final activity = SettlingSheetActivity.withDuration(
         const Duration(milliseconds: 300),
         destination: const Extent.proportional(1),
@@ -272,78 +251,69 @@ void main() {
       expect(activity.velocity, 1000); // (300 pixels / 0.3s) = 1000 pixels/s
 
       internalOnTickCallback!(const Duration(milliseconds: 50));
-      expect(metrics.pixels, 350); // 1000 * 0.05 = 50 pixels in 50ms
+      expect(ownerMetrics.pixels, 350); // 1000 * 0.05 = 50 pixels in 50ms
 
+      final oldViewportInsets = ownerMetrics.viewportInsets;
+      final oldContentSize = ownerMetrics.contentSize;
       // Show the on-screen keyboard.
-      metrics = metrics.copyWith(
-        viewportInsets: const EdgeInsets.only(bottom: 30),
-      );
-      final oldViewportInsets = initialMetrics.viewportInsets;
-      final oldContentSize = initialMetrics.contentSize;
+      ownerMetrics.maybeViewportInsets = const EdgeInsets.only(bottom: 30);
       activity.didChangeViewportDimensions(null, oldViewportInsets);
       activity.didChangeContentSize(oldContentSize);
       activity.didFinalizeDimensions(oldContentSize, null, oldViewportInsets);
-      expect(metrics.pixels, 320,
+      expect(ownerMetrics.pixels, 320,
           reason: 'Visual position should not change when viewport changes.');
       expect(activity.velocity, 1120, // 280 pixels / 0.25s = 1120 pixels/s
           reason: 'Velocity should be updated when viewport changes.');
 
       internalOnTickCallback!(const Duration(milliseconds: 100));
-      expect(metrics.pixels, 376); // 1120 * 0.05 = 56 pixels in 50ms
+      expect(ownerMetrics.pixels, 376); // 1120 * 0.05 = 56 pixels in 50ms
     });
   });
 
   group('IdleSheetActivity', () {
-    late MockSheetExtent owner;
-    late SheetMetrics metrics;
-
-    setUp(() {
-      owner = MockSheetExtent();
-      when(owner.physics).thenReturn(kDefaultSheetPhysics);
-      when(owner.metrics).thenAnswer((_) => metrics);
-      when(owner.setPixels(any)).thenAnswer((invocation) {
-        final pixels = invocation.positionalArguments[0] as double;
-        metrics = metrics.copyWith(pixels: pixels);
-      });
-    });
-
     test('should maintain previous extent when keyboard appears', () {
+      final (ownerMetrics, owner) = createMockSheetExtent(
+        pixels: 450,
+        minExtent: const Extent.proportional(0.5),
+        maxExtent: const Extent.proportional(1),
+        contentSize: const Size(400, 850),
+        viewportSize: const Size(400, 900),
+        viewportInsets: const EdgeInsets.only(bottom: 50),
+        devicePixelRatio: 1,
+        physics: kDefaultSheetPhysics,
+      );
+
       final activity = IdleSheetActivity()..init(owner);
       const oldContentSize = Size(400, 900);
       const oldViewportInsets = EdgeInsets.zero;
-      metrics = const SheetMetricsSnapshot(
-        pixels: 450,
-        minExtent: Extent.proportional(0.5),
-        maxExtent: Extent.proportional(1),
-        contentSize: Size(400, 850),
-        viewportSize: Size(400, 900),
-        viewportInsets: EdgeInsets.only(bottom: 50),
-      );
       activity
         ..didChangeContentSize(oldContentSize)
         ..didChangeViewportDimensions(oldContentSize, oldViewportInsets)
         ..didFinalizeDimensions(oldContentSize, null, oldViewportInsets);
-      expect(metrics.pixels, 425);
+      expect(ownerMetrics.pixels, 425);
     });
 
     test(
       'should maintain previous extent when content size changes, '
       'without animation if gap is small',
       () {
+        final (ownerMetrics, owner) = createMockSheetExtent(
+          pixels: 300,
+          minExtent: const Extent.proportional(0.5),
+          maxExtent: const Extent.proportional(1),
+          contentSize: const Size(400, 580),
+          viewportSize: const Size(400, 900),
+          viewportInsets: EdgeInsets.zero,
+          devicePixelRatio: 1,
+          physics: kDefaultSheetPhysics,
+        );
+
         final activity = IdleSheetActivity()..init(owner);
         const oldContentSize = Size(400, 600);
-        metrics = const SheetMetricsSnapshot(
-          pixels: 300,
-          minExtent: Extent.proportional(0.5),
-          maxExtent: Extent.proportional(1),
-          contentSize: Size(400, 580),
-          viewportSize: Size(400, 900),
-          viewportInsets: EdgeInsets.zero,
-        );
         activity
           ..didChangeContentSize(oldContentSize)
           ..didFinalizeDimensions(oldContentSize, null, null);
-        expect(metrics.pixels, 290);
+        expect(ownerMetrics.pixels, 290);
         // Still in the idle activity.
         verifyNever(owner.beginActivity(any));
       },
@@ -353,20 +323,23 @@ void main() {
       'should maintain previous extent when content size changes, '
       'with animation if gap is large',
       () {
+        final (ownerMetrics, owner) = createMockSheetExtent(
+          pixels: 300,
+          minExtent: const Extent.proportional(0.5),
+          maxExtent: const Extent.proportional(1),
+          contentSize: const Size(400, 500),
+          viewportSize: const Size(400, 900),
+          viewportInsets: EdgeInsets.zero,
+          devicePixelRatio: 1,
+          physics: kDefaultSheetPhysics,
+        );
+
         final activity = IdleSheetActivity()..init(owner);
         const oldContentSize = Size(400, 600);
-        metrics = const SheetMetricsSnapshot(
-          pixels: 300,
-          minExtent: Extent.proportional(0.5),
-          maxExtent: Extent.proportional(1),
-          contentSize: Size(400, 500),
-          viewportSize: Size(400, 900),
-          viewportInsets: EdgeInsets.zero,
-        );
         activity
           ..didChangeContentSize(oldContentSize)
           ..didFinalizeDimensions(oldContentSize, null, null);
-        expect(metrics.pixels, 300);
+        expect(ownerMetrics.pixels, 300);
         verify(
           owner.animateTo(
             const Extent.proportional(0.5),

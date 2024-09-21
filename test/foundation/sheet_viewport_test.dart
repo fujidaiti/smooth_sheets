@@ -51,8 +51,8 @@ class _FakeSheetExtent extends SheetExtent {
   @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
-    if (metrics.maybePixels == null) {
-      setPixels(maxExtent.resolve(metrics.contentSize));
+    if (maybePixels == null) {
+      setPixels(maxExtent.resolve(contentSize));
     }
   }
 

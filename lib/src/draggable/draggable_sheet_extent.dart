@@ -24,8 +24,8 @@ class DraggableSheetExtent extends SheetExtent {
   @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
-    if (metrics.maybePixels == null) {
-      setPixels(initialExtent.resolve(metrics.contentSize));
+    if (maybePixels == null) {
+      setPixels(initialExtent.resolve(contentSize));
     }
   }
 }

@@ -18,7 +18,7 @@ class SheetController extends ChangeNotifier
   final _immediateListeners = ChangeNotifier();
 
   @override
-  SheetMetrics get value => _client?.metrics ?? SheetMetrics.empty;
+  SheetMetrics get value => _client?.snapshot ?? SheetMetrics.empty;
 
   SheetStatus? get status => _client?.status;
 

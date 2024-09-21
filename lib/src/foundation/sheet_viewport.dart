@@ -85,7 +85,7 @@ class RenderSheetViewport extends RenderTransform {
     );
 
     assert(
-      _extent.metrics.hasDimensions,
+      _extent.hasDimensions,
       'The sheet extent and the dimensions values '
       'must be finalized during the layout phase.',
     );
@@ -101,7 +101,7 @@ class RenderSheetViewport extends RenderTransform {
   }
 
   void _invalidateTranslationValue() {
-    final currentExtent = _extent.metrics.maybePixels;
+    final currentExtent = _extent.maybePixels;
     final viewportSize = _lastMeasuredSize;
     if (currentExtent != null && viewportSize != null) {
       final dy = viewportSize.height - _insets.bottom - currentExtent;

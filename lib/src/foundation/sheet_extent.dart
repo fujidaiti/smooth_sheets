@@ -123,6 +123,7 @@ class FixedExtent implements Extent {
 @internal
 @optionalTypeArgs
 abstract class SheetExtent extends ChangeNotifier
+    with SheetMetrics
     implements ValueListenable<SheetMetrics> {
   /// Creates an object that manages the extent of a sheet.
   SheetExtent({
@@ -134,7 +135,7 @@ abstract class SheetExtent extends ChangeNotifier
     SheetGestureProxyMixin? gestureTamperer,
   })  : _physics = physics,
         _gestureTamperer = gestureTamperer,
-        _metrics = SheetMetrics.empty.copyWith(
+        _snapshot = SheetMetrics.empty.copyWith(
           minExtent: minExtent,
           maxExtent: maxExtent,
         ) {
@@ -142,28 +143,33 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   @override
-  SheetMetrics get value => metrics;
+  SheetMetrics get value => snapshot;
+
+  @override
+  double? get maybePixels => snapshot.maybePixels;
+
+  @override
+  Extent? get maybeMinExtent => snapshot.maybeMinExtent;
+
+  @override
+  Extent? get maybeMaxExtent => snapshot.maybeMaxExtent;
+
+  @override
+  Size? get maybeContentSize => snapshot.maybeContentSize;
+
+  @override
+  Size? get maybeViewportSize => snapshot.maybeViewportSize;
+
+  @override
+  EdgeInsets? get maybeViewportInsets => snapshot.maybeViewportInsets;
+
+  @override
+  double get devicePixelRatio => context.devicePixelRatio;
 
   SheetStatus get status => activity.status;
 
   /// A handle to the owner of this object.
   final SheetContext context;
-
-  /// {@template SheetExtent.minExtent}
-  /// The minimum extent of the sheet.
-  ///
-  /// The sheet may below this extent if the [physics] allows it.
-  /// {@endtemplate}
-  // TODO: Remove this in favor of SheetMetrics.minExtent.
-  Extent get minExtent => _metrics.minExtent;
-
-  /// {@template SheetExtent.maxExtent}
-  /// The maximum extent of the sheet.
-  ///
-  /// The sheet may exceed this extent if the [physics] allows it.
-  /// {@endtemplate}
-  // TODO: Remove this in favor of SheetMetrics.maxExtent.
-  Extent get maxExtent => _metrics.maxExtent;
 
   /// {@template SheetExtent.physics}
   /// How the sheet extent should respond to user input.
@@ -195,8 +201,8 @@ abstract class SheetExtent extends ChangeNotifier
   SheetDragController? currentDrag;
 
   /// Snapshot of the current sheet's state.
-  SheetMetrics get metrics => _metrics;
-  SheetMetrics _metrics;
+  SheetMetrics get snapshot => _snapshot;
+  SheetMetrics _snapshot;
 
   /// Updates the metrics with the given values.
   ///
@@ -210,13 +216,13 @@ abstract class SheetExtent extends ChangeNotifier
     Size? viewportSize,
     EdgeInsets? viewportInsets,
   }) {
-    _metrics = SheetMetricsSnapshot(
-      pixels: pixels ?? metrics.maybePixels,
-      minExtent: minExtent ?? metrics.maybeMinExtent,
-      maxExtent: maxExtent ?? metrics.maybeMaxExtent,
-      contentSize: contentSize ?? metrics.maybeContentSize,
-      viewportSize: viewportSize ?? metrics.maybeViewportSize,
-      viewportInsets: viewportInsets ?? metrics.maybeViewportInsets,
+    _snapshot = SheetMetricsSnapshot(
+      pixels: pixels ?? maybePixels,
+      minExtent: minExtent ?? maybeMinExtent,
+      maxExtent: maxExtent ?? maybeMaxExtent,
+      contentSize: contentSize ?? maybeContentSize,
+      viewportSize: viewportSize ?? maybeViewportSize,
+      viewportInsets: viewportInsets ?? maybeViewportInsets,
       // Ensure that the devicePixelRatio is always up-to-date.
       devicePixelRatio: context.devicePixelRatio,
     );
@@ -241,18 +247,19 @@ abstract class SheetExtent extends ChangeNotifier
     } else {
       goIdle();
     }
-    if (other.metrics.maybePixels case final pixels?) {
+    if (other.maybePixels case final pixels?) {
       correctPixels(pixels);
     }
     applyNewBoundaryConstraints(other.minExtent, other.maxExtent);
     applyNewViewportDimensions(
-      other.metrics.viewportSize,
-      other.metrics.viewportInsets,
+      other.viewportSize,
+      other.viewportInsets,
     );
-    applyNewContentSize(other.metrics.contentSize);
+    applyNewContentSize(other.contentSize);
   }
 
   @mustCallSuper
+  // TODO: Rename to updateGestureProxy
   void updateGestureTamperer(SheetGestureProxyMixin? gestureTamperer) {
     if (_gestureTamperer != gestureTamperer) {
       _gestureTamperer = gestureTamperer;
@@ -267,8 +274,8 @@ abstract class SheetExtent extends ChangeNotifier
 
   @mustCallSuper
   void applyNewContentSize(Size contentSize) {
-    if (metrics.maybeContentSize != contentSize) {
-      _oldContentSize = metrics.maybeContentSize;
+    if (maybeContentSize != contentSize) {
+      _oldContentSize = maybeContentSize;
       _updateMetrics(contentSize: contentSize);
       activity.didChangeContentSize(_oldContentSize);
     }
@@ -276,10 +283,9 @@ abstract class SheetExtent extends ChangeNotifier
 
   @mustCallSuper
   void applyNewViewportDimensions(Size size, EdgeInsets insets) {
-    if (metrics.maybeViewportSize != size ||
-        metrics.maybeViewportInsets != insets) {
-      _oldViewportSize = metrics.maybeViewportSize;
-      _oldViewportInsets = metrics.maybeViewportInsets;
+    if (maybeViewportSize != size || maybeViewportInsets != insets) {
+      _oldViewportSize = maybeViewportSize;
+      _oldViewportInsets = maybeViewportInsets;
       _updateMetrics(viewportSize: size, viewportInsets: insets);
       activity.didChangeViewportDimensions(
         _oldViewportSize,
@@ -291,8 +297,8 @@ abstract class SheetExtent extends ChangeNotifier
   @mustCallSuper
   void applyNewBoundaryConstraints(Extent minExtent, Extent maxExtent) {
     if (minExtent != this.minExtent || maxExtent != this.maxExtent) {
-      final oldMinExtent = metrics.maybeMinExtent;
-      final oldMaxExtent = metrics.maybeMaxExtent;
+      final oldMinExtent = maybeMinExtent;
+      final oldMaxExtent = maybeMaxExtent;
       _updateMetrics(minExtent: minExtent, maxExtent: maxExtent);
       activity.didChangeBoundaryConstraints(oldMinExtent, oldMaxExtent);
     }
@@ -361,7 +367,7 @@ abstract class SheetExtent extends ChangeNotifier
       ),
     );
     assert(
-      metrics.hasDimensions,
+      hasDimensions,
       _debugMessage(
         'All the dimension values must be finalized '
         'at the time onDimensionsFinalized() is called.',
@@ -397,8 +403,8 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   void goBallistic(double velocity) {
-    assert(metrics.hasDimensions);
-    final simulation = physics.createBallisticSimulation(velocity, metrics);
+    assert(hasDimensions);
+    final simulation = physics.createBallisticSimulation(velocity, snapshot);
     if (simulation != null) {
       goBallisticWith(simulation);
     } else {
@@ -460,7 +466,7 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   void setPixels(double pixels) {
-    final oldPixels = metrics.maybePixels;
+    final oldPixels = maybePixels;
     correctPixels(pixels);
     if (oldPixels != pixels) {
       notifyListeners();
@@ -468,7 +474,7 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   void correctPixels(double pixels) {
-    if (metrics.maybePixels != pixels) {
+    if (maybePixels != pixels) {
       _updateMetrics(pixels: pixels);
     }
   }
@@ -483,8 +489,8 @@ abstract class SheetExtent extends ChangeNotifier
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    assert(metrics.hasDimensions);
-    if (metrics.pixels == newExtent.resolve(metrics.contentSize)) {
+    assert(hasDimensions);
+    if (pixels == newExtent.resolve(contentSize)) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
@@ -498,50 +504,71 @@ abstract class SheetExtent extends ChangeNotifier
     }
   }
 
+  @override
+  SheetMetrics copyWith({
+    double? pixels,
+    Extent? minExtent,
+    Extent? maxExtent,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
+    double? devicePixelRatio,
+  }) {
+    return snapshot.copyWith(
+      pixels: pixels,
+      minExtent: minExtent,
+      maxExtent: maxExtent,
+      contentSize: contentSize,
+      viewportSize: viewportSize,
+      viewportInsets: viewportInsets,
+      devicePixelRatio: devicePixelRatio,
+    );
+  }
+
   void didUpdateMetrics() {
-    if (metrics.hasDimensions) {
+    if (hasDimensions) {
       SheetUpdateNotification(
-        metrics: metrics,
+        metrics: snapshot,
         status: status,
       ).dispatch(context.notificationContext);
     }
   }
 
   void didDragStart(SheetDragStartDetails details) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetDragStartNotification(
-      metrics: metrics,
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragEnd(SheetDragEndDetails details) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetDragEndNotification(
-      metrics: metrics,
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragUpdateMetrics(SheetDragUpdateDetails details) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetDragUpdateNotification(
-      metrics: metrics,
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragCancel() {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetDragCancelNotification(
-      metrics: metrics,
+      metrics: snapshot,
     ).dispatch(context.notificationContext);
   }
 
   void didOverflowBy(double overflow) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetOverflowNotification(
-      metrics: metrics,
+      metrics: snapshot,
       status: status,
       overflow: overflow,
     ).dispatch(context.notificationContext);
