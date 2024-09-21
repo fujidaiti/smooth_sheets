@@ -15,3 +15,7 @@ The `findSnapPixels` method has been removed. Use `findSnapExtent` instead.
 ## Changes in `SheetPhysics` :boom:
 
 The `createSettlingSimulation` method has been removed in favor of the `findSettledExtent` method. As a result, `InterpolationSimulation` has also been removed since it is no longer used internally and is not a core feature of the package.
+
+## Changes in `SheetController` :boom:
+
+`SheetController` is no longer a notifier of `SheetMetrics`, and is now a notifier of the sheet position (`double?`) instead. It is still possible to access the `SheetMetrics` object through the `SheetController.metrics` getter.

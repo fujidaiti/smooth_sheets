@@ -42,7 +42,7 @@ class ExtentDrivenAnimation extends Animation<double> {
 
   @override
   double get value {
-    final metrics = _controller.value;
+    final metrics = _controller.metrics;
     if (!metrics.hasDimensions) {
       return initialValue;
     }

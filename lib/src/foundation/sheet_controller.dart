@@ -3,11 +3,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+import 'foundation.dart';
 import 'sheet_extent.dart';
-import 'sheet_status.dart';
 
 class SheetController extends ChangeNotifier
-    implements ValueListenable<SheetMetrics> {
+    implements ValueListenable<double?> {
   SheetExtent? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
@@ -17,10 +17,20 @@ class SheetController extends ChangeNotifier
   /// not be notified during the middle of a frame.
   final _immediateListeners = ChangeNotifier();
 
+  /// The current sheet position.
+  ///
+  /// Returns [SheetExtent.value] of the attached [SheetExtent],
+  /// or `null` if no [SheetExtent] is attached.
   @override
-  SheetMetrics get value => _client?.snapshot ?? SheetMetrics.empty;
+  double? get value => _client?.value;
 
   SheetStatus? get status => _client?.status;
+
+  /// The current metrics of the sheet.
+  ///
+  /// Returns [SheetExtent.snapshot] of the attached [SheetExtent],
+  /// or [SheetMetrics.empty] if no [SheetExtent] is attached.
+  SheetMetrics get metrics => _client?.snapshot ?? SheetMetrics.empty;
 
   /// Whether a [SheetExtent] is attached to this controller.
   bool get hasClient => _client != null;

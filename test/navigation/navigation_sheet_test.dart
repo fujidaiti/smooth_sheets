@@ -242,7 +242,7 @@ void main() {
       final pixelTracking = <double?>[];
       final controller = SheetController();
       controller.addListener(() {
-        pixelTracking.add(controller.value.maybePixels);
+        pixelTracking.add(controller.metrics.maybePixels);
       });
 
       await tester.pumpWidget(
@@ -286,8 +286,8 @@ void main() {
       (double?, double?)? lastBoundaryValues; // (minPixels, maxPixels)
       controller.addListener(() {
         lastBoundaryValues = (
-          controller.value.maybeMinPixels,
-          controller.value.maybeMaxPixels,
+          controller.metrics.maybeMinPixels,
+          controller.metrics.maybeMaxPixels,
         );
       });
 
@@ -472,10 +472,13 @@ void main() {
         ),
       );
 
-      expect(controller.value.pixels, 200,
+      expect(controller.metrics.pixels, 200,
           reason: 'The sheet should be at the initial extent.');
-      expect(controller.value.minPixels < controller.value.maxPixels, isTrue,
-          reason: 'The sheet should be draggable.');
+      expect(
+        controller.metrics.minPixels < controller.metrics.maxPixels,
+        isTrue,
+        reason: 'The sheet should be draggable.',
+      );
 
       // Start animating the sheet to the max extent.
       unawaited(
@@ -493,8 +496,8 @@ void main() {
       expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
           reason: 'The keyboard should be fully shown.');
       expect(
-        controller.value.pixels,
-        controller.value.maxPixels,
+        controller.metrics.pixels,
+        controller.metrics.maxPixels,
         reason: 'After the keyboard is fully shown, '
             'the entire sheet should also be visible.',
       );

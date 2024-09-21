@@ -50,9 +50,9 @@ class _ExampleHomeState extends State<_ExampleHome> {
               // SheetController can be used to observe changes in the sheet extent.
               child: ValueListenableBuilder(
                 valueListenable: controller,
-                builder: (context, metrics, child) {
+                builder: (context, pixels, child) {
                   return Text(
-                    'Extent: ${metrics.maybePixels?.toStringAsFixed(1)}',
+                    'Extent: ${pixels?.toStringAsFixed(1)}',
                     style: Theme.of(context).textTheme.displaySmall,
                   );
                 },
