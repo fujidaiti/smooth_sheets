@@ -210,7 +210,7 @@ abstract class SheetExtent extends ChangeNotifier
     Size? viewportSize,
     EdgeInsets? viewportInsets,
   }) {
-    _metrics = SheetMetrics(
+    _metrics = SheetMetricsSnapshot(
       pixels: pixels ?? metrics.maybePixels,
       minExtent: minExtent ?? metrics.maybeMinExtent,
       maxExtent: maxExtent ?? metrics.maybeMaxExtent,
@@ -555,26 +555,10 @@ abstract class SheetExtent extends ChangeNotifier
   }
 }
 
-/// An immutable snapshot of the state of a sheet.
-class SheetMetrics {
-  /// Creates an immutable snapshot of the state of a sheet.
-  const SheetMetrics({
-    required double? pixels,
-    required Extent? minExtent,
-    required Extent? maxExtent,
-    required Size? contentSize,
-    required Size? viewportSize,
-    required EdgeInsets? viewportInsets,
-    this.devicePixelRatio = 1.0,
-  })  : maybePixels = pixels,
-        maybeMinExtent = minExtent,
-        maybeMaxExtent = maxExtent,
-        maybeContentSize = contentSize,
-        maybeViewportSize = viewportSize,
-        maybeViewportInsets = viewportInsets;
-
+/// The metrics of a sheet.
+mixin SheetMetrics {
   /// An empty metrics object with all values set to null.
-  static const empty = SheetMetrics(
+  static const SheetMetrics empty = SheetMetricsSnapshot(
     pixels: null,
     minExtent: null,
     maxExtent: null,
@@ -583,17 +567,28 @@ class SheetMetrics {
     viewportInsets: null,
   );
 
-  final double? maybePixels;
-  final Extent? maybeMinExtent;
-  final Extent? maybeMaxExtent;
-  final Size? maybeContentSize;
-  final Size? maybeViewportSize;
-  final EdgeInsets? maybeViewportInsets;
+  double? get maybePixels;
+  Extent? get maybeMinExtent;
+  Extent? get maybeMaxExtent;
+  Size? get maybeContentSize;
+  Size? get maybeViewportSize;
+  EdgeInsets? get maybeViewportInsets;
 
   /// The [FlutterView.devicePixelRatio] of the view that the sheet
-  /// associated with this metrics object is drawn into.
+  /// associated with this metrics is drawn into.
   // TODO: Move this to SheetContext.
-  final double devicePixelRatio;
+  double get devicePixelRatio;
+
+  /// Creates a copy of the metrics with the given fields replaced.
+  SheetMetrics copyWith({
+    double? pixels,
+    Extent? minExtent,
+    Extent? maxExtent,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
+    double? devicePixelRatio,
+  });
 
   double? get maybeMinPixels => switch ((maybeMinExtent, maybeContentSize)) {
         (final minExtent?, final contentSize?) =>
@@ -698,9 +693,9 @@ class SheetMetrics {
     assert(() {
       if (value == null) {
         throw FlutterError(
-          'SheetMetrics.$name cannot be accessed before the value is set. '
-          'Consider using the corresponding SheetMetrics.maybe* getter '
-          'to handle the case when the value is null. SheetMetrics.hasPixels '
+          '$runtimeType.$name cannot be accessed before the value is set. '
+          'Consider using the corresponding $runtimeType.maybe* getter '
+          'to handle the case when the value is null. $runtimeType.hasPixels '
           'is also useful to check if all the metrics values are set '
           'before accessing them.',
         );
@@ -709,9 +704,49 @@ class SheetMetrics {
     }());
     return true;
   }
+}
 
-  /// Creates a copy of this object with the given fields replaced.
-  SheetMetrics copyWith({
+/// An immutable snapshot of the state of a sheet.
+class SheetMetricsSnapshot with SheetMetrics {
+  /// Creates an immutable snapshot of the state of a sheet.
+  const SheetMetricsSnapshot({
+    required double? pixels,
+    required Extent? minExtent,
+    required Extent? maxExtent,
+    required Size? contentSize,
+    required Size? viewportSize,
+    required EdgeInsets? viewportInsets,
+    this.devicePixelRatio = 1.0,
+  })  : maybePixels = pixels,
+        maybeMinExtent = minExtent,
+        maybeMaxExtent = maxExtent,
+        maybeContentSize = contentSize,
+        maybeViewportSize = viewportSize,
+        maybeViewportInsets = viewportInsets;
+
+  @override
+  final double? maybePixels;
+
+  @override
+  final Extent? maybeMinExtent;
+
+  @override
+  final Extent? maybeMaxExtent;
+
+  @override
+  final Size? maybeContentSize;
+
+  @override
+  final Size? maybeViewportSize;
+
+  @override
+  final EdgeInsets? maybeViewportInsets;
+
+  @override
+  final double devicePixelRatio;
+
+  @override
+  SheetMetricsSnapshot copyWith({
     double? pixels,
     Extent? minExtent,
     Extent? maxExtent,
@@ -720,7 +755,7 @@ class SheetMetrics {
     EdgeInsets? viewportInsets,
     double? devicePixelRatio,
   }) {
-    return SheetMetrics(
+    return SheetMetricsSnapshot(
       pixels: pixels ?? maybePixels,
       minExtent: minExtent ?? maybeMinExtent,
       maxExtent: maxExtent ?? maybeMaxExtent,

@@ -45,7 +45,7 @@ void main() {
 
     test('should animate to the destination', () {
       when(owner.metrics).thenReturn(
-        const SheetMetrics(
+        const SheetMetricsSnapshot(
           pixels: 300,
           minExtent: Extent.pixels(300),
           maxExtent: Extent.pixels(700),
@@ -84,7 +84,7 @@ void main() {
     });
 
     test('should absorb viewport changes', () {
-      var metrics = const SheetMetrics(
+      var metrics = const SheetMetricsSnapshot(
         pixels: 300,
         minExtent: Extent.pixels(300),
         maxExtent: Extent.proportional(1),
@@ -146,7 +146,7 @@ void main() {
     late MockTicker internalTicker;
     late TickerCallback? internalOnTickCallback;
 
-    const initialMetrics = SheetMetrics(
+    const initialMetrics = SheetMetricsSnapshot(
       pixels: 300,
       minExtent: Extent.proportional(0.5),
       maxExtent: Extent.proportional(1),
@@ -311,7 +311,7 @@ void main() {
       final activity = IdleSheetActivity()..init(owner);
       const oldContentSize = Size(400, 900);
       const oldViewportInsets = EdgeInsets.zero;
-      metrics = const SheetMetrics(
+      metrics = const SheetMetricsSnapshot(
         pixels: 450,
         minExtent: Extent.proportional(0.5),
         maxExtent: Extent.proportional(1),
@@ -332,7 +332,7 @@ void main() {
       () {
         final activity = IdleSheetActivity()..init(owner);
         const oldContentSize = Size(400, 600);
-        metrics = const SheetMetrics(
+        metrics = const SheetMetricsSnapshot(
           pixels: 300,
           minExtent: Extent.proportional(0.5),
           maxExtent: Extent.proportional(1),
@@ -355,7 +355,7 @@ void main() {
       () {
         final activity = IdleSheetActivity()..init(owner);
         const oldContentSize = Size(400, 600);
-        metrics = const SheetMetrics(
+        metrics = const SheetMetricsSnapshot(
           pixels: 300,
           minExtent: Extent.proportional(0.5),
           maxExtent: Extent.proportional(1),

@@ -14,7 +14,7 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
   }
 }
 
-const _referenceSheetMetrics = SheetMetrics(
+const _referenceSheetMetrics = SheetMetricsSnapshot(
   minExtent: Extent.pixels(0),
   maxExtent: Extent.proportional(1),
   pixels: 600,

@@ -24,7 +24,12 @@ export 'sheet_drag.dart'
         SheetDragStartDetails,
         SheetDragUpdateDetails;
 export 'sheet_extent.dart'
-    show Extent, FixedExtent, ProportionalExtent, SheetMetrics;
+    show
+        Extent,
+        FixedExtent,
+        ProportionalExtent,
+        SheetMetrics,
+        SheetMetricsSnapshot;
 export 'sheet_notification.dart'
     show
         SheetDragCancelNotification,
