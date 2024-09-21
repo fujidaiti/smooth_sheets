@@ -124,7 +124,7 @@ class FixedExtent implements Extent {
 @optionalTypeArgs
 abstract class SheetExtent extends ChangeNotifier
     with SheetMetrics
-    implements ValueListenable<SheetMetrics> {
+    implements ValueListenable<double?> {
   /// Creates an object that manages the extent of a sheet.
   SheetExtent({
     required this.context,
@@ -143,7 +143,7 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   @override
-  SheetMetrics get value => snapshot;
+  double? get value => snapshot.maybePixels;
 
   @override
   double? get maybePixels => snapshot.maybePixels;
