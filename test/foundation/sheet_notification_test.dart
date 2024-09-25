@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
 void main() {

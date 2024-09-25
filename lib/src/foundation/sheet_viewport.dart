@@ -4,8 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_extent.dart';
 import 'sheet_extent_scope.dart';
+import 'sheet_position.dart';
 
 @internal
 class SheetViewport extends SingleChildRenderObjectWidget {

@@ -16,7 +16,7 @@ import 'package:mockito/src/dummies.dart' as _i16;
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart' as _i5;
 import 'package:smooth_sheets/src/foundation/sheet_context.dart' as _i2;
 import 'package:smooth_sheets/src/foundation/sheet_drag.dart' as _i12;
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart' as _i4;
+import 'package:smooth_sheets/src/foundation/sheet_position.dart' as _i4;
 import 'package:smooth_sheets/src/foundation/sheet_gesture_tamperer.dart'
     as _i14;
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart' as _i3;

@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_extent_scope.dart';
+import '../foundation/sheet_position.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'draggable_sheet.dart';
 

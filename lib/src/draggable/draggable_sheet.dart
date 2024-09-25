@@ -3,9 +3,9 @@ import 'package:flutter/widgets.dart';
 
 import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
-import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_position.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
 import '../scrollable/scrollable_sheet.dart';

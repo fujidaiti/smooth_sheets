@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_position.dart';
 
 @internal
 class DraggableSheetExtent extends SheetExtent {

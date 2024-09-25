@@ -23,13 +23,6 @@ export 'sheet_drag.dart'
         SheetDragEndDetails,
         SheetDragStartDetails,
         SheetDragUpdateDetails;
-export 'sheet_extent.dart'
-    show
-        Extent,
-        FixedExtent,
-        ProportionalExtent,
-        SheetMetrics,
-        SheetMetricsSnapshot;
 export 'sheet_notification.dart'
     show
         SheetDragCancelNotification,
@@ -54,5 +47,12 @@ export 'sheet_physics.dart'
         SnappingSheetPhysics,
         kDefaultSheetPhysics,
         kDefaultSheetSpring;
+export 'sheet_position.dart'
+    show
+        Extent,
+        FixedExtent,
+        ProportionalExtent,
+        SheetMetrics,
+        SheetMetricsSnapshot;
 export 'sheet_status.dart' show SheetStatus;
 export 'sheet_theme.dart' show SheetTheme, SheetThemeData;

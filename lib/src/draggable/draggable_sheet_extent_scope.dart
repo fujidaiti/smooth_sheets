@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_context.dart';
-import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_extent_scope.dart';
+import '../foundation/sheet_position.dart';
 import 'draggable_sheet_extent.dart';
 
 @internal

@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import '../internal/double_utils.dart';
 import '../internal/float_comp.dart';
-import 'sheet_extent.dart';
+import 'sheet_position.dart';
 
 /// The default [SpringDescription] used by [SheetPhysics] subclasses.
 ///

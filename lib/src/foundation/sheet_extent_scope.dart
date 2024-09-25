@@ -5,9 +5,9 @@ import 'package:meta/meta.dart';
 
 import 'sheet_context.dart';
 import 'sheet_controller.dart';
-import 'sheet_extent.dart';
 import 'sheet_gesture_tamperer.dart';
 import 'sheet_physics.dart';
+import 'sheet_position.dart';
 
 @internal
 @optionalTypeArgs

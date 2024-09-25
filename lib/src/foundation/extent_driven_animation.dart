@@ -1,7 +1,7 @@
 import 'package:flutter/animation.dart';
 
 import 'sheet_controller.dart';
-import 'sheet_extent.dart';
+import 'sheet_position.dart';
 
 class ExtentDrivenAnimation extends Animation<double> {
   ExtentDrivenAnimation({
