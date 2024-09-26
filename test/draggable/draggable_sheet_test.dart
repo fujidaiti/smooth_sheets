@@ -85,7 +85,7 @@ void main() {
           child: DraggableSheet(
             key: sheetKey,
             controller: controller,
-            minExtent: const SheetAnchor.pixels(200),
+            minPosition: const SheetAnchor.pixels(200),
             initialExtent: const SheetAnchor.pixels(200),
             child: const Material(
               child: _TestSheetContent(

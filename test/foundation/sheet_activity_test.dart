@@ -43,7 +43,7 @@ void main() {
     test('should animate to the destination', () {
       final (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 300,
-        minExtent: const SheetAnchor.pixels(300),
+        minPosition: const SheetAnchor.pixels(300),
         maxExtent: const SheetAnchor.pixels(700),
         contentSize: const Size(400, 700),
         viewportSize: const Size(400, 900),
@@ -82,7 +82,7 @@ void main() {
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 300,
-        minExtent: const SheetAnchor.pixels(300),
+        minPosition: const SheetAnchor.pixels(300),
         maxExtent: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 900),
         viewportSize: const Size(400, 900),
@@ -134,7 +134,7 @@ void main() {
   });
 
   group('SettlingSheetActivity', () {
-    late MockSheetExtent owner;
+    late MockSheetPosition owner;
     late MutableSheetMetrics ownerMetrics;
     late MockTicker internalTicker;
     late TickerCallback? internalOnTickCallback;
@@ -142,7 +142,7 @@ void main() {
     setUp(() {
       (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 300,
-        minExtent: const SheetAnchor.proportional(0.5),
+        minPosition: const SheetAnchor.proportional(0.5),
         maxExtent: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 600),
         viewportSize: const Size(400, 900),
@@ -274,7 +274,7 @@ void main() {
     test('should maintain previous extent when keyboard appears', () {
       final (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 450,
-        minExtent: const SheetAnchor.proportional(0.5),
+        minPosition: const SheetAnchor.proportional(0.5),
         maxExtent: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 850),
         viewportSize: const Size(400, 900),
@@ -299,7 +299,7 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetExtent(
           pixels: 300,
-          minExtent: const SheetAnchor.proportional(0.5),
+          minPosition: const SheetAnchor.proportional(0.5),
           maxExtent: const SheetAnchor.proportional(1),
           contentSize: const Size(400, 580),
           viewportSize: const Size(400, 900),
@@ -325,7 +325,7 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetExtent(
           pixels: 300,
-          minExtent: const SheetAnchor.proportional(0.5),
+          minPosition: const SheetAnchor.proportional(0.5),
           maxExtent: const SheetAnchor.proportional(1),
           contentSize: const Size(400, 500),
           viewportSize: const Size(400, 900),

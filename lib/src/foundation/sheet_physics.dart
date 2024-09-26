@@ -139,9 +139,10 @@ mixin SheetPhysicsMixin on SheetPhysics {
     return null;
   }
 
-  /// Returns the closer of [SheetMetrics.minExtent] or [SheetMetrics.maxExtent]
-  /// to the current sheet position if it is out of bounds, regardless of the
-  /// [velocity]. Otherwise, it returns the current position.
+  /// Returns the closer of [SheetMetrics.minPosition] or
+  /// [SheetMetrics.maxExtent] to the current sheet position
+  /// if it is out of bounds, regardless of the [velocity].
+  /// Otherwise, it returns the current position.
   @override
   SheetAnchor findSettledExtent(double velocity, SheetMetrics metrics) {
     return _findSettledExtentInternal(velocity, metrics);
@@ -156,7 +157,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
         .isInBoundsExclusive(pixels, minPixels, maxPixels)) {
       return SheetAnchor.pixels(pixels);
     } else if ((pixels - minPixels).abs() < (pixels - maxPixels).abs()) {
-      return metrics.minExtent;
+      return metrics.minPosition;
     } else {
       return metrics.maxExtent;
     }
@@ -183,7 +184,7 @@ abstract interface class SnappingSheetBehavior {
 /// it will snap to [SheetMetrics.maxPixels].
 ///
 /// Using this behavior is functionally identical to using [SnapToNearest]
-/// with the snap positions of [SheetPosition.minExtent] and
+/// with the snap positions of [SheetPosition.minPosition] and
 /// [SheetPosition.maxExtent], but more simplified and efficient.
 class SnapToNearestEdge implements SnappingSheetBehavior {
   /// Creates a [SnappingSheetBehavior] that snaps to either
@@ -213,13 +214,13 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
       return metrics.maxExtent;
     }
     if (velocity <= -minFlingSpeed) {
-      return metrics.minExtent;
+      return metrics.minPosition;
     }
     if (cmp.isApprox(pixels, minPixels) || cmp.isApprox(pixels, maxPixels)) {
       return null;
     }
     return (pixels - minPixels).abs() < (pixels - maxPixels).abs()
-        ? metrics.minExtent
+        ? metrics.minPosition
         : metrics.maxExtent;
   }
 }

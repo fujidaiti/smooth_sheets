@@ -48,18 +48,18 @@ class _ExampleSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final minExtent = SheetAnchor.pixels(56 + bottomPadding);
+    final minPosition = SheetAnchor.pixels(56 + bottomPadding);
 
     final physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
         snappingBehavior: SnapToNearest(
-          snapTo: [minExtent, const SheetAnchor.proportional(1)],
+          snapTo: [minPosition, const SheetAnchor.proportional(1)],
         ),
       ),
     );
 
     return DraggableSheet(
-      minExtent: minExtent,
+      minPosition: minPosition,
       physics: physics,
       child: Card(
         margin: EdgeInsets.zero,

@@ -45,7 +45,7 @@ class _MySheet extends StatelessWidget {
       child: buildSheetBackground(context, content),
       // Optional: Comment out the following lines to add multiple stop positions.
       //
-      // minExtent: const SheetAnchor.proportional(0.2),
+      // minPosition: const SheetAnchor.proportional(0.2),
       // physics: BouncingSheetPhysics(
       //   parent: SnappingSheetPhysics(
       //     snappingBehavior: SnapToNearest(

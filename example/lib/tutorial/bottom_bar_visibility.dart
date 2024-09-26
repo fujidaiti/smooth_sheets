@@ -148,7 +148,7 @@ class _ExampleSheet extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: DraggableSheet(
-        minExtent: minSize,
+        minPosition: minSize,
         initialExtent: halfSize,
         physics: multiStopPhysics,
         child: SheetContentScaffold(

@@ -8,7 +8,7 @@ import '../foundation/sheet_position.dart';
 class DraggableSheetExtent extends SheetPosition {
   DraggableSheetExtent({
     required super.context,
-    required super.minExtent,
+    required super.minPosition,
     required super.maxExtent,
     required this.initialExtent,
     required super.physics,

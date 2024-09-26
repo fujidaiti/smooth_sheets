@@ -19,7 +19,7 @@ class ScrollableSheetExtent extends SheetPosition
   ScrollableSheetExtent({
     required super.context,
     required this.initialExtent,
-    required super.minExtent,
+    required super.minPosition,
     required super.maxExtent,
     required SheetPhysics physics,
     super.gestureTamperer,

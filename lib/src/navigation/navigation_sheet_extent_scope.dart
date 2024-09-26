@@ -16,7 +16,7 @@ class NavigationSheetExtentScope extends SheetExtentScope {
     this.debugLabel,
     required super.child,
   }) : super(
-          minExtent: const SheetAnchor.pixels(0),
+          minPosition: const SheetAnchor.pixels(0),
           maxExtent: const SheetAnchor.proportional(1),
           // TODO: Use more appropriate physics.
           physics: const ClampingSheetPhysics(),
@@ -44,7 +44,7 @@ class _NavigationSheetExtentScopeState extends SheetExtentScopeState<
   NavigationSheetExtent buildExtent(SheetContext context) {
     return NavigationSheetExtent(
       context: context,
-      minExtent: widget.minExtent,
+      minPosition: widget.minPosition,
       maxExtent: widget.maxExtent,
       physics: widget.physics,
       gestureTamperer: widget.gestureTamperer,

@@ -67,7 +67,7 @@ abstract class SheetActivity<T extends SheetPosition> {
   void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {}
 
   void didChangeBoundaryConstraints(
-    SheetAnchor? oldMinExtent,
+    SheetAnchor? oldMinPosition,
     SheetAnchor? oldMaxExtent,
   ) {}
 

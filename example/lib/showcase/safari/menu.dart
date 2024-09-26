@@ -25,7 +25,7 @@ class MenuSheet extends StatelessWidget {
     const halfWayExtent = SheetAnchor.proportional(0.5);
     return ScrollableSheet(
       initialExtent: halfWayExtent,
-      minExtent: halfWayExtent,
+      minPosition: halfWayExtent,
       physics: const BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),

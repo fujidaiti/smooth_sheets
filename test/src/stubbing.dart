@@ -21,7 +21,7 @@ export 'stubbing.mocks.dart';
 class MutableSheetMetrics with SheetMetrics {
   MutableSheetMetrics({
     required this.maybePixels,
-    required this.maybeMinExtent,
+    required this.maybeMinPosition,
     required this.maybeMaxExtent,
     required this.maybeContentSize,
     required this.maybeViewportSize,
@@ -36,7 +36,7 @@ class MutableSheetMetrics with SheetMetrics {
   SheetAnchor? maybeMaxExtent;
 
   @override
-  SheetAnchor? maybeMinExtent;
+  SheetAnchor? maybeMinPosition;
 
   @override
   double? maybePixels;
@@ -53,7 +53,7 @@ class MutableSheetMetrics with SheetMetrics {
   @override
   SheetMetrics copyWith({
     double? pixels,
-    SheetAnchor? minExtent,
+    SheetAnchor? minPosition,
     SheetAnchor? maxExtent,
     Size? contentSize,
     Size? viewportSize,
@@ -62,7 +62,7 @@ class MutableSheetMetrics with SheetMetrics {
   }) {
     return SheetMetricsSnapshot(
       pixels: pixels ?? maybePixels,
-      minExtent: minExtent ?? maybeMinExtent,
+      minPosition: minPosition ?? maybeMinPosition,
       maxExtent: maxExtent ?? maybeMaxExtent,
       contentSize: contentSize ?? maybeContentSize,
       viewportSize: viewportSize ?? maybeViewportSize,
@@ -72,9 +72,9 @@ class MutableSheetMetrics with SheetMetrics {
   }
 }
 
-(MutableSheetMetrics, MockSheetExtent) createMockSheetExtent({
+(MutableSheetMetrics, MockSheetPosition) createMockSheetExtent({
   required double pixels,
-  required SheetAnchor minExtent,
+  required SheetAnchor minPosition,
   required SheetAnchor maxExtent,
   required Size contentSize,
   required Size viewportSize,
@@ -84,7 +84,7 @@ class MutableSheetMetrics with SheetMetrics {
 }) {
   final metricsRegistry = MutableSheetMetrics(
     maybePixels: pixels,
-    maybeMinExtent: minExtent,
+    maybeMinPosition: minPosition,
     maybeMaxExtent: maxExtent,
     maybeContentSize: contentSize,
     maybeViewportSize: viewportSize,
@@ -92,11 +92,12 @@ class MutableSheetMetrics with SheetMetrics {
     devicePixelRatio: devicePixelRatio,
   );
 
-  final extent = MockSheetExtent();
+  final extent = MockSheetPosition();
   when(extent.pixels).thenAnswer((_) => metricsRegistry.pixels);
   when(extent.maybePixels).thenAnswer((_) => metricsRegistry.maybePixels);
-  when(extent.minExtent).thenAnswer((_) => metricsRegistry.minExtent);
-  when(extent.maybeMinExtent).thenAnswer((_) => metricsRegistry.maybeMinExtent);
+  when(extent.minPosition).thenAnswer((_) => metricsRegistry.minPosition);
+  when(extent.maybeMinPosition)
+      .thenAnswer((_) => metricsRegistry.maybeMinPosition);
   when(extent.maxExtent).thenAnswer((_) => metricsRegistry.maxExtent);
   when(extent.maybeMaxExtent).thenAnswer((_) => metricsRegistry.maybeMaxExtent);
   when(extent.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
@@ -127,12 +128,12 @@ class MutableSheetMetrics with SheetMetrics {
   });
   when(extent.applyNewBoundaryConstraints(any, any)).thenAnswer((invocation) {
     metricsRegistry
-      ..maybeMinExtent = invocation.positionalArguments.first as SheetAnchor
+      ..maybeMinPosition = invocation.positionalArguments.first as SheetAnchor
       ..maybeMaxExtent = invocation.positionalArguments.last as SheetAnchor;
   });
   when(extent.copyWith(
     pixels: anyNamed('pixels'),
-    minExtent: anyNamed('minExtent'),
+    minPosition: anyNamed('minPosition'),
     maxExtent: anyNamed('maxExtent'),
     contentSize: anyNamed('contentSize'),
     viewportSize: anyNamed('viewportSize'),
@@ -141,7 +142,7 @@ class MutableSheetMetrics with SheetMetrics {
   )).thenAnswer((invocation) {
     return metricsRegistry.copyWith(
       pixels: invocation.namedArguments[#pixels] as double?,
-      minExtent: invocation.namedArguments[#minExtent] as SheetAnchor?,
+      minPosition: invocation.namedArguments[#minPosition] as SheetAnchor?,
       maxExtent: invocation.namedArguments[#maxExtent] as SheetAnchor?,
       contentSize: invocation.namedArguments[#contentSize] as Size?,
       viewportSize: invocation.namedArguments[#viewportSize] as Size?,

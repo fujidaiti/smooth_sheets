@@ -12,7 +12,7 @@ import 'navigation_sheet_activity.dart';
 class NavigationSheetExtent extends SheetPosition {
   NavigationSheetExtent({
     required super.context,
-    required super.minExtent,
+    required super.minPosition,
     required super.maxExtent,
     required super.physics,
     super.gestureTamperer,

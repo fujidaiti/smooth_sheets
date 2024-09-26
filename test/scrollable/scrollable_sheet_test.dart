@@ -106,7 +106,7 @@ void main() {
           child: ScrollableSheet(
             key: sheetKey,
             controller: controller,
-            minExtent: const SheetAnchor.pixels(200),
+            minPosition: const SheetAnchor.pixels(200),
             initialExtent: const SheetAnchor.pixels(200),
             child: const _TestSheetContent(height: 500),
           ),

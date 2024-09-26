@@ -177,7 +177,7 @@ class _ContentSheet extends StatelessWidget {
 
         return ScrollableSheet(
           physics: sheetPhysics,
-          minExtent: minSheetExtent,
+          minPosition: minSheetExtent,
           child: SizedBox(
             height: sheetHeight,
             child: const Card(

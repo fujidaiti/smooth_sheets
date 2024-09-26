@@ -15,7 +15,7 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
 }
 
 const _referenceSheetMetrics = SheetMetricsSnapshot(
-  minExtent: SheetAnchor.pixels(0),
+  minPosition: SheetAnchor.pixels(0),
   maxExtent: SheetAnchor.proportional(1),
   pixels: 600,
   contentSize: Size(360, 600),
@@ -193,13 +193,13 @@ void main() {
       );
       expect(
         physicsUnderTest.findSettledExtent(0, underDraggedPosition),
-        _referenceSheetMetrics.minExtent,
+        _referenceSheetMetrics.minPosition,
         reason: 'Should return the min extent if the position '
             'is out of the lower bound',
       );
       expect(
         physicsUnderTest.findSettledExtent(1000, underDraggedPosition),
-        _referenceSheetMetrics.minExtent,
+        _referenceSheetMetrics.minPosition,
         reason: 'The velocity should not affect the result',
       );
 
@@ -212,7 +212,7 @@ void main() {
       );
       expect(
         physicsUnderTest.findSettledExtent(1000, _positionAtBottomEdge),
-        _referenceSheetMetrics.minExtent,
+        _referenceSheetMetrics.minPosition,
         reason:
             'Should return the min extent if the position is at the lower bound',
       );
@@ -240,7 +240,7 @@ void main() {
       );
       expect(
         behaviorUnderTest.findSettledExtent(0, positionAtNearBottomEdge),
-        _referenceSheetMetrics.minExtent,
+        _referenceSheetMetrics.minPosition,
       );
     });
 
@@ -251,7 +251,7 @@ void main() {
       );
       expect(
         behaviorUnderTest.findSettledExtent(-50, _positionAtTopEdge),
-        _referenceSheetMetrics.minExtent,
+        _referenceSheetMetrics.minPosition,
       );
     });
 
@@ -280,7 +280,7 @@ void main() {
           isNull);
       expect(
         behaviorUnderTest.findSettledExtent(-50, _positionAtTopEdge),
-        _referenceSheetMetrics.minExtent,
+        _referenceSheetMetrics.minPosition,
       );
       expect(
         behaviorUnderTest.findSettledExtent(50, _positionAtBottomEdge),

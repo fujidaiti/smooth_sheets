@@ -76,8 +76,8 @@ class _FakeSheetMetrics_3 extends _i1.SmartFake implements _i4.SheetMetrics {
         );
 }
 
-class _FakeExtent_4 extends _i1.SmartFake implements _i4.SheetAnchor {
-  _FakeExtent_4(
+class _FakeSheetAnchor_4 extends _i1.SmartFake implements _i4.SheetAnchor {
+  _FakeSheetAnchor_4(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -188,10 +188,10 @@ class _FakeTicker_13 extends _i1.SmartFake implements _i11.Ticker {
   String toString({bool? debugIncludeStack = false}) => super.toString();
 }
 
-/// A class which mocks [SheetExtent].
+/// A class which mocks [SheetPosition].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
+class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
   @override
   _i2.SheetContext get context => (super.noSuchMethod(
         Invocation.getter(#context),
@@ -296,26 +296,26 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
       ) as double);
 
   @override
-  _i4.SheetAnchor get minExtent => (super.noSuchMethod(
-        Invocation.getter(#minExtent),
-        returnValue: _FakeExtent_4(
+  _i4.SheetAnchor get minPosition => (super.noSuchMethod(
+        Invocation.getter(#minPosition),
+        returnValue: _FakeSheetAnchor_4(
           this,
-          Invocation.getter(#minExtent),
+          Invocation.getter(#minPosition),
         ),
-        returnValueForMissingStub: _FakeExtent_4(
+        returnValueForMissingStub: _FakeSheetAnchor_4(
           this,
-          Invocation.getter(#minExtent),
+          Invocation.getter(#minPosition),
         ),
       ) as _i4.SheetAnchor);
 
   @override
   _i4.SheetAnchor get maxExtent => (super.noSuchMethod(
         Invocation.getter(#maxExtent),
-        returnValue: _FakeExtent_4(
+        returnValue: _FakeSheetAnchor_4(
           this,
           Invocation.getter(#maxExtent),
         ),
-        returnValueForMissingStub: _FakeExtent_4(
+        returnValueForMissingStub: _FakeSheetAnchor_4(
           this,
           Invocation.getter(#maxExtent),
         ),
@@ -457,14 +457,14 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
 
   @override
   void applyNewBoundaryConstraints(
-    _i4.SheetAnchor? minExtent,
+    _i4.SheetAnchor? minPosition,
     _i4.SheetAnchor? maxExtent,
   ) =>
       super.noSuchMethod(
         Invocation.method(
           #applyNewBoundaryConstraints,
           [
-            minExtent,
+            minPosition,
             maxExtent,
           ],
         ),
@@ -635,7 +635,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
   @override
   _i4.SheetMetrics copyWith({
     double? pixels,
-    _i4.SheetAnchor? minExtent,
+    _i4.SheetAnchor? minPosition,
     _i4.SheetAnchor? maxExtent,
     _i6.Size? contentSize,
     _i6.Size? viewportSize,
@@ -648,7 +648,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
           [],
           {
             #pixels: pixels,
-            #minExtent: minExtent,
+            #minPosition: minPosition,
             #maxExtent: maxExtent,
             #contentSize: contentSize,
             #viewportSize: viewportSize,
@@ -663,7 +663,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
             [],
             {
               #pixels: pixels,
-              #minExtent: minExtent,
+              #minPosition: minPosition,
               #maxExtent: maxExtent,
               #contentSize: contentSize,
               #viewportSize: viewportSize,
@@ -679,7 +679,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
             [],
             {
               #pixels: pixels,
-              #minExtent: minExtent,
+              #minPosition: minPosition,
               #maxExtent: maxExtent,
               #contentSize: contentSize,
               #viewportSize: viewportSize,

@@ -13,7 +13,7 @@ class DraggableSheetExtentScope extends SheetExtentScope {
     super.isPrimary,
     required super.context,
     required this.initialExtent,
-    required super.minExtent,
+    required super.minPosition,
     required super.maxExtent,
     required super.physics,
     super.gestureTamperer,
@@ -47,7 +47,7 @@ class _DraggableSheetExtentScopeState extends SheetExtentScopeState<
     return DraggableSheetExtent(
       context: context,
       initialExtent: widget.initialExtent,
-      minExtent: widget.minExtent,
+      minPosition: widget.minPosition,
       maxExtent: widget.maxExtent,
       physics: widget.physics,
       gestureTamperer: widget.gestureTamperer,

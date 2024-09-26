@@ -24,7 +24,7 @@ void main() {
             return false;
           },
           child: DraggableSheet(
-            minExtent: const SheetAnchor.pixels(0),
+            minPosition: const SheetAnchor.pixels(0),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(
@@ -168,7 +168,7 @@ void main() {
           },
           child: DraggableSheet(
             controller: controller,
-            minExtent: const SheetAnchor.pixels(0),
+            minPosition: const SheetAnchor.pixels(0),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(
@@ -244,7 +244,7 @@ void main() {
           },
           child: DraggableSheet(
             // Make sure the sheet can't be dragged
-            minExtent: const SheetAnchor.proportional(1),
+            minPosition: const SheetAnchor.proportional(1),
             maxExtent: const SheetAnchor.proportional(1),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
@@ -319,7 +319,7 @@ void main() {
             return false;
           },
           child: DraggableSheet(
-            minExtent: const SheetAnchor.pixels(0),
+            minPosition: const SheetAnchor.pixels(0),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(

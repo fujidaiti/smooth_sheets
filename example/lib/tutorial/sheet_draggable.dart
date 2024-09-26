@@ -65,7 +65,7 @@ class _ExampleSheet extends StatelessWidget {
       ],
     );
 
-    const minExtent = SheetAnchor.proportional(0.5);
+    const minPosition = SheetAnchor.proportional(0.5);
     const physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(),
     );
@@ -74,8 +74,8 @@ class _ExampleSheet extends StatelessWidget {
       bottom: false,
       child: ScrollableSheet(
         physics: physics,
-        minExtent: minExtent,
-        initialExtent: minExtent,
+        minPosition: minPosition,
+        initialExtent: minPosition,
         child: Card(
           margin: EdgeInsets.zero,
           color: Theme.of(context).colorScheme.secondaryContainer,
