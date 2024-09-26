@@ -49,7 +49,7 @@ export 'sheet_physics.dart'
         kDefaultSheetSpring;
 export 'sheet_position.dart'
     show
-        FixedExtent,
+        FixedSheetAnchor,
         ProportionalSheetAnchor,
         SheetAnchor,
         SheetMetrics,

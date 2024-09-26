@@ -24,10 +24,10 @@ import 'sheet_status.dart';
 ///
 /// See also:
 /// - [ProportionalSheetAnchor], which is proportional to the content height.
-/// - [FixedExtent], which is defined by a concrete value in pixels.
+/// - [FixedSheetAnchor], which is defined by a concrete value in pixels.
 abstract interface class SheetAnchor {
-  /// {@macro fixed_extent}
-  const factory SheetAnchor.pixels(double pixels) = FixedExtent;
+  /// {@macro FixedSheetAnchor}
+  const factory SheetAnchor.pixels(double pixels) = FixedSheetAnchor;
 
   /// {@macro proportional_extent}
   const factory SheetAnchor.proportional(double size) = ProportionalSheetAnchor;
@@ -69,12 +69,12 @@ class ProportionalSheetAnchor implements SheetAnchor {
   String toString() => '$ProportionalSheetAnchor(factor: $factor)';
 }
 
-/// An extent that has an concrete value in pixels.
-class FixedExtent implements SheetAnchor {
-  /// {@template fixed_extent}
-  /// Creates an extent from a concrete value in pixels.
+/// A [SheetAnchor] that has a concrete value in pixels.
+class FixedSheetAnchor implements SheetAnchor {
+  /// {@template FixedSheetAnchor}
+  /// Creates an anchor from a concrete value in pixels.
   /// {@endtemplate}
-  const FixedExtent(this.pixels) : assert(pixels >= 0);
+  const FixedSheetAnchor(this.pixels) : assert(pixels >= 0);
 
   /// The value in pixels.
   final double pixels;
@@ -85,7 +85,7 @@ class FixedExtent implements SheetAnchor {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is FixedExtent &&
+      (other is FixedSheetAnchor &&
           runtimeType == other.runtimeType &&
           pixels == other.pixels);
 
@@ -93,7 +93,7 @@ class FixedExtent implements SheetAnchor {
   int get hashCode => Object.hash(runtimeType, pixels);
 
   @override
-  String toString() => '$FixedExtent(pixels: $pixels)';
+  String toString() => '$FixedSheetAnchor(pixels: $pixels)';
 }
 
 /// Manages the extent of a sheet.
