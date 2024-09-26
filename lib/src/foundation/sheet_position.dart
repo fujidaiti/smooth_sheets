@@ -23,14 +23,14 @@ import 'sheet_status.dart';
 /// or to limit the range of sheet dragging.
 ///
 /// See also:
-/// - [ProportionalExtent], which is proportional to the content height.
+/// - [ProportionalSheetAnchor], which is proportional to the content height.
 /// - [FixedExtent], which is defined by a concrete value in pixels.
 abstract interface class SheetAnchor {
   /// {@macro fixed_extent}
   const factory SheetAnchor.pixels(double pixels) = FixedExtent;
 
   /// {@macro proportional_extent}
-  const factory SheetAnchor.proportional(double size) = ProportionalExtent;
+  const factory SheetAnchor.proportional(double size) = ProportionalSheetAnchor;
 
   /// Resolves the extent to a concrete value in pixels.
   ///
@@ -39,15 +39,15 @@ abstract interface class SheetAnchor {
   double resolve(Size contentSize);
 }
 
-/// An extent that is proportional to the content height.
-class ProportionalExtent implements SheetAnchor {
+/// An [SheetAnchor] that is proportional to the content height.
+class ProportionalSheetAnchor implements SheetAnchor {
   /// {@template proportional_extent}
   /// Creates an extent that is proportional to the content height.
   ///
   /// The [factor] must be greater than or equal to 0.
   /// This extent will resolve to `contentSize.height * factor`.
   /// {@endtemplate}
-  const ProportionalExtent(this.factor) : assert(factor >= 0);
+  const ProportionalSheetAnchor(this.factor) : assert(factor >= 0);
 
   /// The fraction of the content height.
   final double factor;
@@ -58,7 +58,7 @@ class ProportionalExtent implements SheetAnchor {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ProportionalExtent &&
+      (other is ProportionalSheetAnchor &&
           runtimeType == other.runtimeType &&
           factor == other.factor);
 
@@ -66,7 +66,7 @@ class ProportionalExtent implements SheetAnchor {
   int get hashCode => Object.hash(runtimeType, factor);
 
   @override
-  String toString() => '$ProportionalExtent(factor: $factor)';
+  String toString() => '$ProportionalSheetAnchor(factor: $factor)';
 }
 
 /// An extent that has an concrete value in pixels.

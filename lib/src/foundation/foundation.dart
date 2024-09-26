@@ -50,7 +50,7 @@ export 'sheet_physics.dart'
 export 'sheet_position.dart'
     show
         FixedExtent,
-        ProportionalExtent,
+        ProportionalSheetAnchor,
         SheetAnchor,
         SheetMetrics,
         SheetMetricsSnapshot;
