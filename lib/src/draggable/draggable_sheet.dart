@@ -32,21 +32,21 @@ class DraggableSheet extends StatefulWidget {
   const DraggableSheet({
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialExtent = const SheetAnchor.proportional(1),
+    this.minExtent = const SheetAnchor.proportional(1),
+    this.maxExtent = const SheetAnchor.proportional(1),
     this.physics,
     required this.child,
     this.controller,
   });
 
-  final Extent initialExtent;
+  final SheetAnchor initialExtent;
 
   /// {@macro SheetExtentConfig.minExtent}
-  final Extent minExtent;
+  final SheetAnchor minExtent;
 
   /// {@macro SheetExtentConfig.maxExtent}
-  final Extent maxExtent;
+  final SheetAnchor maxExtent;
 
   /// {@macro SheetExtentConfig.physics}
   final SheetPhysics? physics;

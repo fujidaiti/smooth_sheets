@@ -49,9 +49,9 @@ export 'sheet_physics.dart'
         kDefaultSheetSpring;
 export 'sheet_position.dart'
     show
-        Extent,
         FixedExtent,
         ProportionalExtent,
+        SheetAnchor,
         SheetMetrics,
         SheetMetricsSnapshot;
 export 'sheet_status.dart' show SheetStatus;

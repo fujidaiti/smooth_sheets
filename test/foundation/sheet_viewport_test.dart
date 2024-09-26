@@ -41,8 +41,8 @@ class _FakeSheetExtent extends SheetPosition {
     this.createIdleActivity,
   }) : super(
           context: _FakeSheetContext(),
-          minExtent: const Extent.proportional(0.5),
-          maxExtent: const Extent.proportional(1),
+          minExtent: const SheetAnchor.proportional(0.5),
+          maxExtent: const SheetAnchor.proportional(1),
           physics: const ClampingSheetPhysics(),
         );
 

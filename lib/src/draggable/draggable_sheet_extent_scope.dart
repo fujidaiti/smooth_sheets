@@ -22,7 +22,7 @@ class DraggableSheetExtentScope extends SheetExtentScope {
   });
 
   /// {@macro DraggableSheetExtent.initialExtent}
-  final Extent initialExtent;
+  final SheetAnchor initialExtent;
 
   /// {@macro SheetExtent.debugLabel}
   final String? debugLabel;

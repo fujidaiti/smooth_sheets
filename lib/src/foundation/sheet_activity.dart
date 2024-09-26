@@ -67,8 +67,8 @@ abstract class SheetActivity<T extends SheetPosition> {
   void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {}
 
   void didChangeBoundaryConstraints(
-    Extent? oldMinExtent,
-    Extent? oldMaxExtent,
+    SheetAnchor? oldMinExtent,
+    SheetAnchor? oldMaxExtent,
   ) {}
 
   /// Called when all relevant metrics of the sheet are finalized
@@ -129,7 +129,7 @@ abstract class SheetActivity<T extends SheetPosition> {
 /// position determined by [destination], using the specified [curve] and
 /// [duration].
 ///
-/// This activity accepts the destination position as an [Extent], allowing
+/// This activity accepts the destination position as an [SheetAnchor], allowing
 /// the concrete end position (in pixels) to be updated during the animation
 /// in response to viewport changes, such as the appearance of the on-screen
 /// keyboard.
@@ -148,7 +148,7 @@ class AnimatedSheetActivity extends SheetActivity
     required this.curve,
   }) : assert(duration > Duration.zero);
 
-  final Extent destination;
+  final SheetAnchor destination;
   final Duration duration;
   final Curve curve;
 
@@ -327,7 +327,7 @@ class SettlingSheetActivity extends SheetActivity {
   final Duration? duration;
 
   /// The destination position to which the sheet should settle.
-  final Extent destination;
+  final SheetAnchor destination;
 
   late final Ticker _ticker;
 
@@ -420,7 +420,7 @@ class IdleSheetActivity extends SheetActivity {
   @override
   SheetStatus get status => SheetStatus.stable;
 
-  /// Updates [SheetMetrics.pixels] to maintain the current [Extent], which
+  /// Updates [SheetMetrics.pixels] to maintain the current [SheetAnchor], which
   /// is determined by [SheetPhysics.findSettledExtent] using the metrics of
   /// the previous frame.
   @override

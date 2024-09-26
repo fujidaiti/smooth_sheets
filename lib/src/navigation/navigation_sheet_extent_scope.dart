@@ -16,8 +16,8 @@ class NavigationSheetExtentScope extends SheetExtentScope {
     this.debugLabel,
     required super.child,
   }) : super(
-          minExtent: const Extent.pixels(0),
-          maxExtent: const Extent.proportional(1),
+          minExtent: const SheetAnchor.pixels(0),
+          maxExtent: const SheetAnchor.proportional(1),
           // TODO: Use more appropriate physics.
           physics: const ClampingSheetPhysics(),
           isPrimary: true,

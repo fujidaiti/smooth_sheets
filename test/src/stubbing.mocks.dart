@@ -76,7 +76,7 @@ class _FakeSheetMetrics_3 extends _i1.SmartFake implements _i4.SheetMetrics {
         );
 }
 
-class _FakeExtent_4 extends _i1.SmartFake implements _i4.Extent {
+class _FakeExtent_4 extends _i1.SmartFake implements _i4.SheetAnchor {
   _FakeExtent_4(
     Object parent,
     Invocation parentInvocation,
@@ -296,7 +296,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
       ) as double);
 
   @override
-  _i4.Extent get minExtent => (super.noSuchMethod(
+  _i4.SheetAnchor get minExtent => (super.noSuchMethod(
         Invocation.getter(#minExtent),
         returnValue: _FakeExtent_4(
           this,
@@ -306,10 +306,10 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
           this,
           Invocation.getter(#minExtent),
         ),
-      ) as _i4.Extent);
+      ) as _i4.SheetAnchor);
 
   @override
-  _i4.Extent get maxExtent => (super.noSuchMethod(
+  _i4.SheetAnchor get maxExtent => (super.noSuchMethod(
         Invocation.getter(#maxExtent),
         returnValue: _FakeExtent_4(
           this,
@@ -319,7 +319,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
           this,
           Invocation.getter(#maxExtent),
         ),
-      ) as _i4.Extent);
+      ) as _i4.SheetAnchor);
 
   @override
   _i6.Size get contentSize => (super.noSuchMethod(
@@ -457,8 +457,8 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
 
   @override
   void applyNewBoundaryConstraints(
-    _i4.Extent? minExtent,
-    _i4.Extent? maxExtent,
+    _i4.SheetAnchor? minExtent,
+    _i4.SheetAnchor? maxExtent,
   ) =>
       super.noSuchMethod(
         Invocation.method(
@@ -537,7 +537,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
 
   @override
   void settleTo(
-    _i4.Extent? detent,
+    _i4.SheetAnchor? detent,
     Duration? duration,
   ) =>
       super.noSuchMethod(
@@ -615,7 +615,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
 
   @override
   _i9.Future<void> animateTo(
-    _i4.Extent? newExtent, {
+    _i4.SheetAnchor? newExtent, {
     _i7.Curve? curve = _i7.Curves.easeInOut,
     Duration? duration = const Duration(milliseconds: 300),
   }) =>
@@ -635,8 +635,8 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
   @override
   _i4.SheetMetrics copyWith({
     double? pixels,
-    _i4.Extent? minExtent,
-    _i4.Extent? maxExtent,
+    _i4.SheetAnchor? minExtent,
+    _i4.SheetAnchor? maxExtent,
     _i6.Size? contentSize,
     _i6.Size? viewportSize,
     _i7.EdgeInsets? viewportInsets,

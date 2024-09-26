@@ -123,8 +123,8 @@ class _TestDraggablePageWidget extends StatelessWidget {
     required String label,
     required double height,
     String? nextRoute,
-    Extent initialExtent = const Extent.proportional(1),
-    Extent minExtent = const Extent.proportional(1),
+    SheetAnchor initialExtent = const SheetAnchor.proportional(1),
+    SheetAnchor minExtent = const SheetAnchor.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
     SheetPhysics? physics,
   }) {
@@ -202,8 +202,8 @@ class _TestScrollablePageWidget extends StatelessWidget {
     double? height,
     int itemCount = 30,
     String? nextRoute,
-    Extent initialExtent = const Extent.proportional(1),
-    Extent minExtent = const Extent.proportional(1),
+    SheetAnchor initialExtent = const SheetAnchor.proportional(1),
+    SheetAnchor minExtent = const SheetAnchor.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
     SheetPhysics? physics,
     void Function(int index)? onTapItem,
@@ -255,7 +255,7 @@ void main() {
                   key: const Key('First'),
                   label: 'First',
                   height: 300,
-                  minExtent: const Extent.pixels(0),
+                  minExtent: const SheetAnchor.pixels(0),
                   // Disable the snapping effect.
                   physics: const ClampingSheetPhysics(),
                 ),
@@ -302,13 +302,13 @@ void main() {
                   label: 'First',
                   nextRoute: 'second',
                   height: 300,
-                  minExtent: const Extent.proportional(1),
+                  minExtent: const SheetAnchor.proportional(1),
                 ),
             'second': () => _TestDraggablePageWidget.createRoute(
                   key: const Key('Second'),
                   label: 'Second',
                   height: 500,
-                  minExtent: const Extent.pixels(200),
+                  minExtent: const SheetAnchor.pixels(200),
                   transitionDuration: const Duration(milliseconds: 300),
                 ),
           },
@@ -360,7 +360,7 @@ void main() {
                   key: const Key('First'),
                   label: 'First',
                   height: 300,
-                  minExtent: const Extent.pixels(0),
+                  minExtent: const SheetAnchor.pixels(0),
                   physics: const ClampingSheetPhysics(),
                 ),
           },
@@ -458,8 +458,8 @@ void main() {
             'first': () => _TestDraggablePageWidget.createRoute(
                   label: 'First',
                   height: 500,
-                  minExtent: const Extent.pixels(200),
-                  initialExtent: const Extent.pixels(200),
+                  minExtent: const SheetAnchor.pixels(200),
+                  initialExtent: const SheetAnchor.pixels(200),
                 ),
           },
           contentBuilder: (context, child) {
@@ -483,7 +483,7 @@ void main() {
       // Start animating the sheet to the max extent.
       unawaited(
         controller.animateTo(
-          const Extent.proportional(1),
+          const SheetAnchor.proportional(1),
           duration: const Duration(milliseconds: 250),
         ),
       );

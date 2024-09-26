@@ -43,8 +43,8 @@ void main() {
     test('should animate to the destination', () {
       final (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 300,
-        minExtent: const Extent.pixels(300),
-        maxExtent: const Extent.pixels(700),
+        minExtent: const SheetAnchor.pixels(300),
+        maxExtent: const SheetAnchor.pixels(700),
         contentSize: const Size(400, 700),
         viewportSize: const Size(400, 900),
         viewportInsets: EdgeInsets.zero,
@@ -53,7 +53,7 @@ void main() {
 
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
-        destination: const Extent.pixels(700),
+        destination: const SheetAnchor.pixels(700),
         duration: const Duration(milliseconds: 300),
         curve: Curves.linear,
       )..init(owner);
@@ -82,8 +82,8 @@ void main() {
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 300,
-        minExtent: const Extent.pixels(300),
-        maxExtent: const Extent.proportional(1),
+        minExtent: const SheetAnchor.pixels(300),
+        maxExtent: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 900),
         viewportSize: const Size(400, 900),
         viewportInsets: EdgeInsets.zero,
@@ -92,7 +92,7 @@ void main() {
 
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
-        destination: const Extent.proportional(1),
+        destination: const SheetAnchor.proportional(1),
         duration: const Duration(milliseconds: 300),
         curve: Curves.linear,
       )..init(owner);
@@ -127,7 +127,7 @@ void main() {
       expect(ownerMetrics.viewPixels, 450,
           reason: 'Visual position should not change when viewport changes.');
       verify(owner.settleTo(
-        const Extent.proportional(1),
+        const SheetAnchor.proportional(1),
         const Duration(milliseconds: 225),
       ));
     });
@@ -142,8 +142,8 @@ void main() {
     setUp(() {
       (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 300,
-        minExtent: const Extent.proportional(0.5),
-        maxExtent: const Extent.proportional(1),
+        minExtent: const SheetAnchor.proportional(0.5),
+        maxExtent: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 600),
         viewportSize: const Size(400, 900),
         viewportInsets: EdgeInsets.zero,
@@ -167,11 +167,11 @@ void main() {
 
     test('Create with velocity', () {
       final activity = SettlingSheetActivity(
-        destination: const Extent.pixels(0),
+        destination: const SheetAnchor.pixels(0),
         velocity: 100,
       );
 
-      expect(activity.destination, const Extent.pixels(0));
+      expect(activity.destination, const SheetAnchor.pixels(0));
       expect(activity.duration, isNull);
       expect(activity.velocity, 100);
       expect(activity.shouldIgnorePointer, isFalse);
@@ -180,10 +180,10 @@ void main() {
     test('Create with duration', () {
       final activity = SettlingSheetActivity.withDuration(
         const Duration(milliseconds: 300),
-        destination: const Extent.pixels(0),
+        destination: const SheetAnchor.pixels(0),
       );
 
-      expect(activity.destination, const Extent.pixels(0));
+      expect(activity.destination, const SheetAnchor.pixels(0));
       expect(activity.duration, const Duration(milliseconds: 300));
       expect(activity.shouldIgnorePointer, isFalse);
       expect(() => activity.velocity, isNotInitialized);
@@ -194,7 +194,7 @@ void main() {
       () {
         final activity = SettlingSheetActivity.withDuration(
           const Duration(milliseconds: 300),
-          destination: const Extent.proportional(1),
+          destination: const SheetAnchor.proportional(1),
         );
         expect(() => activity.velocity, isNotInitialized);
 
@@ -205,7 +205,7 @@ void main() {
 
     test('Progressively updates current position toward destination', () {
       final activity = SettlingSheetActivity(
-        destination: const Extent.proportional(1),
+        destination: const SheetAnchor.proportional(1),
         velocity: 300,
       );
 
@@ -232,7 +232,7 @@ void main() {
       'Should start an idle activity when it reaches destination',
       () {
         final _ = SettlingSheetActivity(
-          destination: const Extent.proportional(1),
+          destination: const SheetAnchor.proportional(1),
           velocity: 300,
         )..init(owner);
 
@@ -245,7 +245,7 @@ void main() {
     test('Should absorb viewport changes', () {
       final activity = SettlingSheetActivity.withDuration(
         const Duration(milliseconds: 300),
-        destination: const Extent.proportional(1),
+        destination: const SheetAnchor.proportional(1),
       )..init(owner);
 
       expect(activity.velocity, 1000); // (300 pixels / 0.3s) = 1000 pixels/s
@@ -274,8 +274,8 @@ void main() {
     test('should maintain previous extent when keyboard appears', () {
       final (ownerMetrics, owner) = createMockSheetExtent(
         pixels: 450,
-        minExtent: const Extent.proportional(0.5),
-        maxExtent: const Extent.proportional(1),
+        minExtent: const SheetAnchor.proportional(0.5),
+        maxExtent: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 850),
         viewportSize: const Size(400, 900),
         viewportInsets: const EdgeInsets.only(bottom: 50),
@@ -299,8 +299,8 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetExtent(
           pixels: 300,
-          minExtent: const Extent.proportional(0.5),
-          maxExtent: const Extent.proportional(1),
+          minExtent: const SheetAnchor.proportional(0.5),
+          maxExtent: const SheetAnchor.proportional(1),
           contentSize: const Size(400, 580),
           viewportSize: const Size(400, 900),
           viewportInsets: EdgeInsets.zero,
@@ -325,8 +325,8 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetExtent(
           pixels: 300,
-          minExtent: const Extent.proportional(0.5),
-          maxExtent: const Extent.proportional(1),
+          minExtent: const SheetAnchor.proportional(0.5),
+          maxExtent: const SheetAnchor.proportional(1),
           contentSize: const Size(400, 500),
           viewportSize: const Size(400, 900),
           viewportInsets: EdgeInsets.zero,
@@ -342,7 +342,7 @@ void main() {
         expect(ownerMetrics.pixels, 300);
         verify(
           owner.animateTo(
-            const Extent.proportional(0.5),
+            const SheetAnchor.proportional(0.5),
             duration: anyNamed('duration'),
             curve: anyNamed('curve'),
           ),

@@ -14,8 +14,8 @@ class ExtentDrivenAnimation extends Animation<double> {
 
   final SheetController _controller;
   final double initialValue;
-  final Extent? startExtent;
-  final Extent? endExtent;
+  final SheetAnchor? startExtent;
+  final SheetAnchor? endExtent;
 
   @override
   void addListener(VoidCallback listener) {

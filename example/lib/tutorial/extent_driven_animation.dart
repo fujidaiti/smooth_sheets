@@ -48,12 +48,12 @@ class _ExampleSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final minExtent = Extent.pixels(56 + bottomPadding);
+    final minExtent = SheetAnchor.pixels(56 + bottomPadding);
 
     final physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
         snappingBehavior: SnapToNearest(
-          snapTo: [minExtent, const Extent.proportional(1)],
+          snapTo: [minExtent, const SheetAnchor.proportional(1)],
         ),
       ),
     );

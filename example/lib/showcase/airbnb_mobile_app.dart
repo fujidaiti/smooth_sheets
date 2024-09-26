@@ -84,7 +84,7 @@ class _MapButton extends StatelessWidget {
       if (metrics.hasDimensions) {
         // Collapse the sheet to reveal the map behind.
         sheetController.animateTo(
-          Extent.pixels(metrics.minPixels),
+          SheetAnchor.pixels(metrics.minPixels),
           curve: Curves.fastOutSlowIn,
         );
       }
@@ -156,7 +156,7 @@ class _ContentSheet extends StatelessWidget {
         final handleHeight = const _ContentSheetHandle().preferredSize.height;
         final sheetHeight = parentHeight - appbarHeight + handleHeight;
         final minSheetExtent =
-            Extent.pixels(handleHeight + systemUiInsets.bottom);
+            SheetAnchor.pixels(handleHeight + systemUiInsets.bottom);
 
         const sheetShape = RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -169,7 +169,7 @@ class _ContentSheet extends StatelessWidget {
             snappingBehavior: SnapToNearest(
               snapTo: [
                 minSheetExtent,
-                const Extent.proportional(1),
+                const SheetAnchor.proportional(1),
               ],
             ),
           ),

@@ -513,7 +513,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 ///     getIsVisible: (metrics) =>
 ///         metrics.viewportInsets.bottom == 0 &&
 ///         metrics.pixels >
-///             const Extent.proportional(0.5)
+///             const SheetAnchor.proportional(0.5)
 ///                 .resolve(metrics.contentSize),
 ///     child: BottomAppBar(),
 ///   ),

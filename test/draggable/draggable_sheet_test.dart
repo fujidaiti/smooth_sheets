@@ -85,8 +85,8 @@ void main() {
           child: DraggableSheet(
             key: sheetKey,
             controller: controller,
-            minExtent: const Extent.pixels(200),
-            initialExtent: const Extent.pixels(200),
+            minExtent: const SheetAnchor.pixels(200),
+            initialExtent: const SheetAnchor.pixels(200),
             child: const Material(
               child: _TestSheetContent(
                 height: 500,
@@ -105,7 +105,7 @@ void main() {
     // Start animating the sheet to the max extent.
     unawaited(
       controller.animateTo(
-        const Extent.proportional(1),
+        const SheetAnchor.proportional(1),
         duration: const Duration(milliseconds: 250),
       ),
     );

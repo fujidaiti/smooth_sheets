@@ -19,7 +19,7 @@ class DraggableSheetExtent extends SheetPosition {
   /// {@template DraggableSheetExtent.initialExtent}
   /// The initial extent of the sheet.
   /// {@endtemplate}
-  final Extent initialExtent;
+  final SheetAnchor initialExtent;
 
   @override
   void applyNewContentSize(Size contentSize) {

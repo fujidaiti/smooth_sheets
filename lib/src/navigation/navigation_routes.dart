@@ -25,9 +25,9 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
   });
 
   final String? debugLabel;
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialExtent;
+  final SheetAnchor minExtent;
+  final SheetAnchor maxExtent;
   final SheetPhysics? physics;
   final Widget child;
 
@@ -66,9 +66,9 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
   });
 
   final String? debugLabel;
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialExtent;
+  final SheetAnchor minExtent;
+  final SheetAnchor maxExtent;
   final SheetPhysics? physics;
   final Widget child;
 
@@ -104,17 +104,17 @@ class ScrollableNavigationSheetRoute<T>
     super.settings,
     this.maintainState = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialExtent = const SheetAnchor.proportional(1),
+    this.minExtent = const SheetAnchor.proportional(1),
+    this.maxExtent = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.builder,
   });
 
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialExtent;
+  final SheetAnchor minExtent;
+  final SheetAnchor maxExtent;
   final SheetPhysics? physics;
 
   @override
@@ -158,17 +158,17 @@ class DraggableNavigationSheetRoute<T>
     super.settings,
     this.maintainState = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialExtent = const SheetAnchor.proportional(1),
+    this.minExtent = const SheetAnchor.proportional(1),
+    this.maxExtent = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.builder,
   });
 
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialExtent;
+  final SheetAnchor minExtent;
+  final SheetAnchor maxExtent;
   final SheetPhysics? physics;
 
   @override
@@ -214,9 +214,9 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
     super.restorationId,
     this.maintainState = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialExtent = const SheetAnchor.proportional(1),
+    this.minExtent = const SheetAnchor.proportional(1),
+    this.maxExtent = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.child,
@@ -227,9 +227,9 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
 
   final Duration transitionDuration;
 
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialExtent;
+  final SheetAnchor minExtent;
+  final SheetAnchor maxExtent;
 
   final SheetPhysics? physics;
 
@@ -294,9 +294,9 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
     super.restorationId,
     this.maintainState = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialExtent = const SheetAnchor.proportional(1),
+    this.minExtent = const SheetAnchor.proportional(1),
+    this.maxExtent = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.child,
@@ -307,9 +307,9 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
 
   final Duration transitionDuration;
 
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialExtent;
+  final SheetAnchor minExtent;
+  final SheetAnchor maxExtent;
 
   final SheetPhysics? physics;
 

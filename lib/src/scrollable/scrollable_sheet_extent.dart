@@ -29,7 +29,7 @@ class ScrollableSheetExtent extends SheetPosition
   /// {@template ScrollableSheetExtent.initialExtent}
   /// The initial extent of the sheet.
   /// {@endtemplate}
-  final Extent initialExtent;
+  final SheetAnchor initialExtent;
 
   @override
   ScrollableSheetPhysics get physics => super.physics as ScrollableSheetPhysics;

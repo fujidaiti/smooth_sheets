@@ -72,7 +72,7 @@ abstract class SheetPhysics {
   /// Returns an extent to which a sheet should eventually settle
   /// based on the current [metrics] and the [velocity] of a sheet.
   /// {@endtemplate}
-  Extent findSettledExtent(double velocity, SheetMetrics metrics);
+  SheetAnchor findSettledExtent(double velocity, SheetMetrics metrics);
 }
 
 /// A mixin that provides default implementations for [SheetPhysics] methods.
@@ -143,17 +143,18 @@ mixin SheetPhysicsMixin on SheetPhysics {
   /// to the current sheet position if it is out of bounds, regardless of the
   /// [velocity]. Otherwise, it returns the current position.
   @override
-  Extent findSettledExtent(double velocity, SheetMetrics metrics) {
+  SheetAnchor findSettledExtent(double velocity, SheetMetrics metrics) {
     return _findSettledExtentInternal(velocity, metrics);
   }
 
-  Extent _findSettledExtentInternal(double velocity, SheetMetrics metrics) {
+  SheetAnchor _findSettledExtentInternal(
+      double velocity, SheetMetrics metrics) {
     final pixels = metrics.pixels;
     final minPixels = metrics.minPixels;
     final maxPixels = metrics.maxPixels;
     if (FloatComp.distance(metrics.devicePixelRatio)
         .isInBoundsExclusive(pixels, minPixels, maxPixels)) {
-      return Extent.pixels(pixels);
+      return SheetAnchor.pixels(pixels);
     } else if ((pixels - minPixels).abs() < (pixels - maxPixels).abs()) {
       return metrics.minExtent;
     } else {
@@ -167,7 +168,7 @@ abstract interface class SnappingSheetBehavior {
   ///
   /// Returning `null` indicates that this behavior has no preference for
   /// for where the sheet should settle.
-  Extent? findSettledExtent(double velocity, SheetMetrics metrics);
+  SheetAnchor? findSettledExtent(double velocity, SheetMetrics metrics);
 }
 
 /// A [SnappingSheetBehavior] that snaps to either [SheetMetrics.minPixels]
@@ -199,7 +200,7 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
   final double minFlingSpeed;
 
   @override
-  Extent? findSettledExtent(double velocity, SheetMetrics metrics) {
+  SheetAnchor? findSettledExtent(double velocity, SheetMetrics metrics) {
     assert(minFlingSpeed >= 0);
     final pixels = metrics.pixels;
     final minPixels = metrics.minPixels;
@@ -230,14 +231,14 @@ class SnapToNearest implements SnappingSheetBehavior {
   }) : assert(minFlingSpeed >= 0);
 
   // TODO: Rename to `detents`.
-  final List<Extent> snapTo;
+  final List<SheetAnchor> snapTo;
 
   /// The lowest speed (in logical pixels per second)
   /// at which a gesture is considered to be a fling.
   final double minFlingSpeed;
 
   @override
-  Extent? findSettledExtent(double velocity, SheetMetrics metrics) {
+  SheetAnchor? findSettledExtent(double velocity, SheetMetrics metrics) {
     if (snapTo.length <= 1) {
       return snapTo.firstOrNull;
     }
@@ -281,7 +282,7 @@ class SnapToNearest implements SnappingSheetBehavior {
   }
 }
 
-typedef _SortedExtentList = List<({Extent extent, double resolved})>;
+typedef _SortedExtentList = List<({SheetAnchor extent, double resolved})>;
 
 /// Sorts the [extents] based on their resolved values and finds the nearest
 /// extent to the [pixels].
@@ -290,7 +291,7 @@ typedef _SortedExtentList = List<({Extent extent, double resolved})>;
 /// Note that the returned list may have a fixed length for better performance.
 @visibleForTesting
 (_SortedExtentList, int) sortExtentsAndFindNearest(
-  List<Extent> extents,
+  List<SheetAnchor> extents,
   double pixels,
   Size contentSize,
 ) {
@@ -312,10 +313,10 @@ typedef _SortedExtentList = List<({Extent extent, double resolved})>;
   }
 }
 
-/// Constant time sorting and nearest neighbor search for two [Extent]s.
+/// Constant time sorting and nearest neighbor search for two [SheetAnchor]s.
 (_SortedExtentList, int) _sortTwoExtentsAndFindNearest(
-  Extent a,
-  Extent b,
+  SheetAnchor a,
+  SheetAnchor b,
   double pixels,
   Size contentSize,
 ) {
@@ -339,11 +340,11 @@ typedef _SortedExtentList = List<({Extent extent, double resolved})>;
   );
 }
 
-/// Constant time sorting and nearest neighbor search for three [Extent]s.
+/// Constant time sorting and nearest neighbor search for three [SheetAnchor]s.
 (_SortedExtentList, int) _sortThreeExtentsAndFindNearest(
-  Extent a,
-  Extent b,
-  Extent c,
+  SheetAnchor a,
+  SheetAnchor b,
+  SheetAnchor c,
   double pixels,
   Size contentSize,
 ) {
@@ -434,7 +435,7 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   }
 
   @override
-  Extent findSettledExtent(double velocity, SheetMetrics metrics) {
+  SheetAnchor findSettledExtent(double velocity, SheetMetrics metrics) {
     return snappingBehavior.findSettledExtent(velocity, metrics) ??
         super.findSettledExtent(velocity, metrics);
   }
@@ -491,7 +492,7 @@ abstract class BouncingBehavior {
 ///
 /// ```dart
 /// const physics = BouncingSheetPhysics(
-///   behavior: FixedBouncingBehavior(Extent.proportional(0.12)),
+///   behavior: FixedBouncingBehavior(SheetAnchor.proportional(0.12)),
 /// );
 /// ```
 class FixedBouncingBehavior implements BouncingBehavior {
@@ -500,7 +501,7 @@ class FixedBouncingBehavior implements BouncingBehavior {
   const FixedBouncingBehavior(this.range);
 
   /// How much the sheet can bounce beyond the content bounds.
-  final Extent range;
+  final SheetAnchor range;
 
   @override
   double computeBounceablePixels(double offset, SheetMetrics metrics) {
@@ -519,8 +520,8 @@ class FixedBouncingBehavior implements BouncingBehavior {
 /// ```dart
 /// const physics = BouncingSheetPhysics(
 ///   behavior: DirectionAwareBouncingBehavior(
-///     upward: Extent.pixels(8),
-///     downward: Extent.proportional(0.12),
+///     upward: SheetAnchor.pixels(8),
+///     downward: SheetAnchor.proportional(0.12),
 ///   ),
 /// );
 /// ```
@@ -528,15 +529,15 @@ class DirectionAwareBouncingBehavior implements BouncingBehavior {
   /// Creates a [BouncingBehavior] that allows the sheet to bounce by different
   /// amounts based on the direction of a drag gesture.
   const DirectionAwareBouncingBehavior({
-    this.upward = const Extent.pixels(0),
-    this.downward = const Extent.pixels(0),
+    this.upward = const SheetAnchor.pixels(0),
+    this.downward = const SheetAnchor.pixels(0),
   });
 
   /// Amount of bounceable pixels when dragged upward.
-  final Extent upward;
+  final SheetAnchor upward;
 
   /// Amount of bounceable pixels when dragged downward.
-  final Extent downward;
+  final SheetAnchor downward;
 
   @override
   double computeBounceablePixels(double offset, SheetMetrics metrics) {
@@ -551,7 +552,7 @@ class DirectionAwareBouncingBehavior implements BouncingBehavior {
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
     super.parent,
-    this.behavior = const FixedBouncingBehavior(Extent.proportional(0.12)),
+    this.behavior = const FixedBouncingBehavior(SheetAnchor.proportional(0.12)),
     this.frictionCurve = Curves.easeOutSine,
     this.spring = kDefaultSheetSpring,
   });

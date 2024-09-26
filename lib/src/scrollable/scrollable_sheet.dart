@@ -16,22 +16,22 @@ import 'sheet_scrollable.dart';
 class ScrollableSheet extends StatefulWidget {
   const ScrollableSheet({
     super.key,
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialExtent = const SheetAnchor.proportional(1),
+    this.minExtent = const SheetAnchor.proportional(1),
+    this.maxExtent = const SheetAnchor.proportional(1),
     this.physics,
     this.controller,
     required this.child,
   });
 
   /// {@macro ScrollableSheetExtent.initialExtent}
-  final Extent initialExtent;
+  final SheetAnchor initialExtent;
 
   /// {@macro SheetExtent.minExtent}
-  final Extent minExtent;
+  final SheetAnchor minExtent;
 
   /// {@macro SheetExtent.maxExtent}
-  final Extent maxExtent;
+  final SheetAnchor maxExtent;
 
   /// {@macro SheetExtent.physics}
   final SheetPhysics? physics;

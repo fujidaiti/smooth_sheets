@@ -71,10 +71,10 @@ abstract class SheetExtentScope extends StatefulWidget {
   final SheetController? controller;
 
   /// {@macro SheetExtent.minExtent}
-  final Extent minExtent;
+  final SheetAnchor minExtent;
 
   /// {@macro SheetExtent.maxExtent}
-  final Extent maxExtent;
+  final SheetAnchor maxExtent;
 
   /// {@macro SheetExtent.physics}
   final SheetPhysics physics;

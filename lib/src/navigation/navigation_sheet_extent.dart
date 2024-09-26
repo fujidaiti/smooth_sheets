@@ -90,7 +90,7 @@ class NavigationSheetExtent extends SheetPosition {
 
   @override
   Future<void> animateTo(
-    Extent newExtent, {
+    SheetAnchor newExtent, {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {

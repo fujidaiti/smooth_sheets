@@ -33,10 +33,10 @@ class MutableSheetMetrics with SheetMetrics {
   double devicePixelRatio;
 
   @override
-  Extent? maybeMaxExtent;
+  SheetAnchor? maybeMaxExtent;
 
   @override
-  Extent? maybeMinExtent;
+  SheetAnchor? maybeMinExtent;
 
   @override
   double? maybePixels;
@@ -53,8 +53,8 @@ class MutableSheetMetrics with SheetMetrics {
   @override
   SheetMetrics copyWith({
     double? pixels,
-    Extent? minExtent,
-    Extent? maxExtent,
+    SheetAnchor? minExtent,
+    SheetAnchor? maxExtent,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
@@ -74,8 +74,8 @@ class MutableSheetMetrics with SheetMetrics {
 
 (MutableSheetMetrics, MockSheetExtent) createMockSheetExtent({
   required double pixels,
-  required Extent minExtent,
-  required Extent maxExtent,
+  required SheetAnchor minExtent,
+  required SheetAnchor maxExtent,
   required Size contentSize,
   required Size viewportSize,
   required EdgeInsets viewportInsets,
@@ -127,8 +127,8 @@ class MutableSheetMetrics with SheetMetrics {
   });
   when(extent.applyNewBoundaryConstraints(any, any)).thenAnswer((invocation) {
     metricsRegistry
-      ..maybeMinExtent = invocation.positionalArguments.first as Extent
-      ..maybeMaxExtent = invocation.positionalArguments.last as Extent;
+      ..maybeMinExtent = invocation.positionalArguments.first as SheetAnchor
+      ..maybeMaxExtent = invocation.positionalArguments.last as SheetAnchor;
   });
   when(extent.copyWith(
     pixels: anyNamed('pixels'),
@@ -141,8 +141,8 @@ class MutableSheetMetrics with SheetMetrics {
   )).thenAnswer((invocation) {
     return metricsRegistry.copyWith(
       pixels: invocation.namedArguments[#pixels] as double?,
-      minExtent: invocation.namedArguments[#minExtent] as Extent?,
-      maxExtent: invocation.namedArguments[#maxExtent] as Extent?,
+      minExtent: invocation.namedArguments[#minExtent] as SheetAnchor?,
+      maxExtent: invocation.namedArguments[#maxExtent] as SheetAnchor?,
       contentSize: invocation.namedArguments[#contentSize] as Size?,
       viewportSize: invocation.namedArguments[#viewportSize] as Size?,
       viewportInsets: invocation.namedArguments[#viewportInsets] as EdgeInsets?,

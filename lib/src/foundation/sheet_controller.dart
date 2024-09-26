@@ -73,7 +73,7 @@ class SheetController extends ChangeNotifier
   }
 
   Future<void> animateTo(
-    Extent to, {
+    SheetAnchor to, {
     Duration duration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeInOut,
   }) {

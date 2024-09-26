@@ -70,7 +70,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
         child: const Icon(Icons.arrow_downward_rounded),
         onPressed: () {
           // SheetController can also be used to animate the sheet extent.
-          controller.animateTo(const Extent.proportional(0.5));
+          controller.animateTo(const SheetAnchor.proportional(0.5));
         },
       ),
     );
@@ -88,7 +88,7 @@ class _ExampleSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableSheet(
       controller: controller,
-      minExtent: const Extent.proportional(0.5),
+      minExtent: const SheetAnchor.proportional(0.5),
       physics: const BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),
