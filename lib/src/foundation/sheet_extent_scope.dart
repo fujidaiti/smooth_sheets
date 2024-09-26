@@ -76,7 +76,7 @@ abstract class SheetExtentScope extends StatefulWidget {
   /// {@macro SheetExtent.maxExtent}
   final SheetAnchor maxExtent;
 
-  /// {@macro SheetExtent.physics}
+  /// {@macro SheetPosition.physics}
   final SheetPhysics physics;
 
   /// {@macro SheetExtent.gestureTamperer}

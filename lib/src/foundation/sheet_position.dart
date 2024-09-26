@@ -16,40 +16,48 @@ import 'sheet_notification.dart';
 import 'sheet_physics.dart';
 import 'sheet_status.dart';
 
-/// Abstracted representation of a sheet position.
+/// An abstract representation of a sheet's position.
 ///
-/// It is used in a variety of situations by sheets, for example,
-/// to specify how much area of a sheet is initially visible at first build,
-/// or to limit the range of sheet dragging.
+/// It is used in various contexts by sheets, for example,
+/// to define how much of the sheet is initially visible at the first build
+/// or to limit the range within which the sheet can be dragged.
 ///
 /// See also:
-/// - [ProportionalSheetAnchor], which is proportional to the content height.
-/// - [FixedSheetAnchor], which is defined by a concrete value in pixels.
+/// - [ProportionalSheetAnchor], which defines the position
+///   proportionally to the sheet's content height.
+/// - [FixedSheetAnchor], which defines the position
+///   using a fixed value in pixels.
 abstract interface class SheetAnchor {
   /// {@macro FixedSheetAnchor}
   const factory SheetAnchor.pixels(double pixels) = FixedSheetAnchor;
 
-  /// {@macro proportional_extent}
+  /// {@macro ProportionalSheetAnchor}
   const factory SheetAnchor.proportional(double size) = ProportionalSheetAnchor;
 
-  /// Resolves the extent to a concrete value in pixels.
+  /// Resolves the position to an actual value in pixels.
   ///
-  /// Do not cache the value of [contentSize] because
-  /// it may change over time.
+  /// The [contentSize] parameter should not be cached
+  /// as it may change over time.
   double resolve(Size contentSize);
 }
 
-/// An [SheetAnchor] that is proportional to the content height.
+/// A [SheetAnchor] that represents a position proportional
+/// to the content height of the sheet.
 class ProportionalSheetAnchor implements SheetAnchor {
-  /// {@template proportional_extent}
-  /// Creates an extent that is proportional to the content height.
+  /// {@template ProportionalSheetAnchor}
+  /// Creates an anchor that positions the sheet
+  /// proportionally to its content height.
   ///
   /// The [factor] must be greater than or equal to 0.
-  /// This extent will resolve to `contentSize.height * factor`.
+  /// This anchor resolves to `contentSize.height * factor`.
+  /// For example, `ProportionalSheetAnchor(0.6)` represents a position
+  /// where 60% of the sheet content is visible.
   /// {@endtemplate}
   const ProportionalSheetAnchor(this.factor) : assert(factor >= 0);
 
-  /// The fraction of the content height.
+  /// The proportion of the sheet's content height.
+  ///
+  /// This value is a fraction (e.g., 0.6 for 60% visibility).
   final double factor;
 
   @override
@@ -69,14 +77,17 @@ class ProportionalSheetAnchor implements SheetAnchor {
   String toString() => '$ProportionalSheetAnchor(factor: $factor)';
 }
 
-/// A [SheetAnchor] that has a concrete value in pixels.
+/// A [SheetAnchor] that represents a position with a fixed value in pixels.
 class FixedSheetAnchor implements SheetAnchor {
   /// {@template FixedSheetAnchor}
-  /// Creates an anchor from a concrete value in pixels.
+  /// Creates an anchor that represents a fixed position in pixels.
+  ///
+  /// For example, `FixedSheetAnchor(200)` represents a position
+  /// where 200 pixels from the top of the sheet content are visible.
   /// {@endtemplate}
   const FixedSheetAnchor(this.pixels) : assert(pixels >= 0);
 
-  /// The value in pixels.
+  /// The position in pixels.
   final double pixels;
 
   @override
@@ -96,13 +107,13 @@ class FixedSheetAnchor implements SheetAnchor {
   String toString() => '$FixedSheetAnchor(pixels: $pixels)';
 }
 
-/// Manages the extent of a sheet.
+/// Manages the position of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
-/// The [SheetMetrics.pixels] value determines the visible height of a sheet.
+/// The [SheetPosition.pixels] value determines the visible height of a sheet.
 /// As this value changes, the sheet translates its position, which changes the
-/// visible area of the content. The [SheetMetrics.minPixels] and
-/// [SheetMetrics.maxPixels] values limit the range of the *pixels*, but it can
+/// visible area of the content. The [SheetPosition.minPixels] and
+/// [SheetPosition.maxPixels] values limit the range of the *pixels*, but it can
 /// be outside of the range if the [SheetPosition.physics] allows it.
 ///
 /// The current [activity] is responsible for how the *pixels* changes
@@ -111,13 +122,14 @@ class FixedSheetAnchor implements SheetAnchor {
 /// [SheetPosition] starts with [IdleSheetActivity] as the initial activity,
 /// and it can be changed by calling [beginActivity].
 ///
-/// This object is [Listenable] that notifies its listeners when *pixels*
+/// This object is a [Listenable] that notifies its listeners when the *pixels*
 /// changes, even during build or layout phase. For listeners that can cause
 /// any widget to rebuild, consider using [SheetController], which is also
-/// [Listenable] of the extent, but only notifies its listeners between frames.
+/// [Listenable] of the *pixels*, but avoids notifying listeners during a build.
 ///
 /// See also:
-/// - [SheetController], which can be attached to a sheet to control its extent.
+/// - [SheetController], which can be attached to a sheet to observe and control
+///   its position.
 /// - [SheetExtentScope], which creates a [SheetPosition], manages its lifecycle
 ///   and exposes it to the descendant widgets.
 @internal
@@ -125,7 +137,7 @@ class FixedSheetAnchor implements SheetAnchor {
 abstract class SheetPosition extends ChangeNotifier
     with SheetMetrics
     implements ValueListenable<double?> {
-  /// Creates an object that manages the extent of a sheet.
+  /// Creates an object that manages the position of a sheet.
   SheetPosition({
     required this.context,
     required SheetAnchor minExtent,
@@ -171,8 +183,8 @@ abstract class SheetPosition extends ChangeNotifier
   /// A handle to the owner of this object.
   final SheetContext context;
 
-  /// {@template SheetExtent.physics}
-  /// How the sheet extent should respond to user input.
+  /// {@template SheetPosition.physics}
+  /// How the sheet position should respond to user input.
   ///
   /// This determines how the sheet will behave when over-dragged or
   /// under-dragged, or when the user stops dragging.
@@ -235,7 +247,7 @@ abstract class SheetPosition extends ChangeNotifier
       activity.dispose();
       _activity = other.activity;
       // This is necessary to prevent the activity from being disposed of
-      // when `other` extent is disposed of.
+      // when `other` is disposed of.
       other._activity = null;
       activity.updateOwner(this);
 
@@ -480,7 +492,7 @@ abstract class SheetPosition extends ChangeNotifier
     }
   }
 
-  /// Animates the extent to the given value.
+  /// Animates the sheet position to the given value.
   ///
   /// The returned future completes when the animation ends,
   /// whether it completed successfully or whether it was
@@ -630,31 +642,31 @@ mixin SheetMetrics {
         _ => null,
       };
 
-  /// The current extent of the sheet in pixels.
+  /// The current position of the sheet in pixels.
   double get pixels {
     assert(_debugAssertHasProperty('pixels', maybePixels));
     return maybePixels!;
   }
 
-  /// The minimum extent of the sheet in pixels.
+  /// The minimum position of the sheet in pixels.
   double get minPixels {
     assert(_debugAssertHasProperty('minPixels', maybeMinPixels));
     return maybeMinPixels!;
   }
 
-  /// The maximum extent of the sheet in pixels.
+  /// The maximum position of the sheet in pixels.
   double get maxPixels {
     assert(_debugAssertHasProperty('maxPixels', maybeMaxPixels));
     return maybeMaxPixels!;
   }
 
-  /// The minimum extent of the sheet.
+  /// The minimum position of the sheet.
   SheetAnchor get minExtent {
     assert(_debugAssertHasProperty('minExtent', maybeMinExtent));
     return maybeMinExtent!;
   }
 
-  /// The maximum extent of the sheet.
+  /// The maximum position of the sheet.
   SheetAnchor get maxExtent {
     assert(_debugAssertHasProperty('maxExtent', maybeMaxExtent));
     return maybeMaxExtent!;

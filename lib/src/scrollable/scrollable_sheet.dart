@@ -33,7 +33,7 @@ class ScrollableSheet extends StatefulWidget {
   /// {@macro SheetExtent.maxExtent}
   final SheetAnchor maxExtent;
 
-  /// {@macro SheetExtent.physics}
+  /// {@macro SheetPosition.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
