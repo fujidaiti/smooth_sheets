@@ -8,7 +8,7 @@ import 'sheet_position.dart';
 
 class SheetController extends ChangeNotifier
     implements ValueListenable<double?> {
-  SheetExtent? _client;
+  SheetPosition? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
   ///
@@ -19,8 +19,8 @@ class SheetController extends ChangeNotifier
 
   /// The current sheet position.
   ///
-  /// Returns [SheetExtent.value] of the attached [SheetExtent],
-  /// or `null` if no [SheetExtent] is attached.
+  /// Returns [SheetPosition.value] of the attached [SheetPosition],
+  /// or `null` if no [SheetPosition] is attached.
   @override
   double? get value => _client?.value;
 
@@ -28,11 +28,11 @@ class SheetController extends ChangeNotifier
 
   /// The current metrics of the sheet.
   ///
-  /// Returns [SheetExtent.snapshot] of the attached [SheetExtent],
-  /// or [SheetMetrics.empty] if no [SheetExtent] is attached.
+  /// Returns [SheetPosition.snapshot] of the attached [SheetPosition],
+  /// or [SheetMetrics.empty] if no [SheetPosition] is attached.
   SheetMetrics get metrics => _client?.snapshot ?? SheetMetrics.empty;
 
-  /// Whether a [SheetExtent] is attached to this controller.
+  /// Whether a [SheetPosition] is attached to this controller.
   bool get hasClient => _client != null;
 
   @override
@@ -50,7 +50,7 @@ class SheetController extends ChangeNotifier
     super.removeListener(listener);
   }
 
-  void attach(SheetExtent extent) {
+  void attach(SheetPosition extent) {
     if (_client case final oldExtent?) {
       detach(oldExtent);
     }
@@ -58,7 +58,7 @@ class SheetController extends ChangeNotifier
     _client = extent..addListener(notifyListeners);
   }
 
-  void detach(SheetExtent? extent) {
+  void detach(SheetPosition? extent) {
     if (extent == _client) {
       extent?.removeListener(notifyListeners);
       _client = null;

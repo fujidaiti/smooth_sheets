@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_position.dart';
 
 @internal
-class DraggableSheetExtent extends SheetExtent {
+class DraggableSheetExtent extends SheetPosition {
   DraggableSheetExtent({
     required super.context,
     required super.minExtent,

@@ -11,7 +11,7 @@ import 'sheet_position.dart';
 
 @internal
 @optionalTypeArgs
-class SheetExtentScopeKey<T extends SheetExtent>
+class SheetExtentScopeKey<T extends SheetPosition>
     extends LabeledGlobalKey<SheetExtentScopeState> {
   SheetExtentScopeKey({String? debugLabel}) : super(debugLabel);
 
@@ -46,12 +46,12 @@ class SheetExtentScopeKey<T extends SheetExtent>
   }
 }
 
-/// A widget that creates a [SheetExtent], manages its lifecycle,
+/// A widget that creates a [SheetPosition], manages its lifecycle,
 /// and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
 abstract class SheetExtentScope extends StatefulWidget {
-  /// Creates a widget that hosts a [SheetExtent].
+  /// Creates a widget that hosts a [SheetPosition].
   const SheetExtentScope({
     super.key,
     required this.context,
@@ -67,7 +67,7 @@ abstract class SheetExtentScope extends StatefulWidget {
   /// The context the extent object belongs to.
   final SheetContext context;
 
-  /// The [SheetController] attached to the [SheetExtent].
+  /// The [SheetController] attached to the [SheetPosition].
   final SheetController? controller;
 
   /// {@macro SheetExtent.minExtent}
@@ -91,10 +91,10 @@ abstract class SheetExtentScope extends StatefulWidget {
   @override
   SheetExtentScopeState createState();
 
-  /// Retrieves a [SheetExtent] from the closest [SheetExtentScope]
+  /// Retrieves a [SheetPosition] from the closest [SheetExtentScope]
   /// that encloses the given context, if any.
   // TODO: Add 'useRoot' option.
-  static E? maybeOf<E extends SheetExtent>(BuildContext context) {
+  static E? maybeOf<E extends SheetPosition>(BuildContext context) {
     final inherited = context
         .dependOnInheritedWidgetOfExactType<InheritedSheetExtentScope>()
         ?.extent;
@@ -102,9 +102,9 @@ abstract class SheetExtentScope extends StatefulWidget {
     return inherited is E ? inherited : null;
   }
 
-  /// Retrieves a [SheetExtent] from the closest [SheetExtentScope]
+  /// Retrieves a [SheetPosition] from the closest [SheetExtentScope]
   /// that encloses the given context.
-  static E of<E extends SheetExtent>(BuildContext context) {
+  static E of<E extends SheetPosition>(BuildContext context) {
     final extent = maybeOf<E>(context);
 
     assert(() {
@@ -124,7 +124,7 @@ abstract class SheetExtentScope extends StatefulWidget {
 }
 
 @internal
-abstract class SheetExtentScopeState<E extends SheetExtent,
+abstract class SheetExtentScopeState<E extends SheetPosition,
     W extends SheetExtentScope> extends State<W> {
   late E _extent;
   SheetController? _controller;
@@ -260,7 +260,7 @@ class InheritedSheetExtentScope extends InheritedWidget {
     required super.child,
   });
 
-  final SheetExtent extent;
+  final SheetPosition extent;
   final bool isPrimary;
 
   @override

@@ -36,7 +36,7 @@ class _FakeSheetActivity extends SheetActivity {
   SheetStatus get status => SheetStatus.stable;
 }
 
-class _FakeSheetExtent extends SheetExtent {
+class _FakeSheetExtent extends SheetPosition {
   _FakeSheetExtent({
     this.createIdleActivity,
   }) : super(
@@ -73,7 +73,7 @@ class _TestWidget extends StatelessWidget {
     this.sheetContent,
   });
 
-  final SheetExtent extent;
+  final SheetPosition extent;
   final Widget? sheetContent;
   final Widget? background;
 
@@ -112,7 +112,7 @@ class _TestWidget extends StatelessWidget {
 void main() {
   group('Ignore pointer test:', () {
     ({
-      SheetExtent extent,
+      SheetPosition extent,
       Widget testWidget,
       ValueGetter<bool> didTapForeground,
       ValueGetter<bool> didTapBackgroundTop,

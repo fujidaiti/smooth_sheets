@@ -103,12 +103,12 @@ class FixedExtent implements Extent {
 /// As this value changes, the sheet translates its position, which changes the
 /// visible area of the content. The [SheetMetrics.minPixels] and
 /// [SheetMetrics.maxPixels] values limit the range of the *pixels*, but it can
-/// be outside of the range if the [SheetExtent.physics] allows it.
+/// be outside of the range if the [SheetPosition.physics] allows it.
 ///
 /// The current [activity] is responsible for how the *pixels* changes
 /// over time, for example, [AnimatedSheetActivity] animates the *pixels* to
 /// a target value, and [IdleSheetActivity] keeps the *pixels* unchanged.
-/// [SheetExtent] starts with [IdleSheetActivity] as the initial activity,
+/// [SheetPosition] starts with [IdleSheetActivity] as the initial activity,
 /// and it can be changed by calling [beginActivity].
 ///
 /// This object is [Listenable] that notifies its listeners when *pixels*
@@ -118,15 +118,15 @@ class FixedExtent implements Extent {
 ///
 /// See also:
 /// - [SheetController], which can be attached to a sheet to control its extent.
-/// - [SheetExtentScope], which creates a [SheetExtent], manages its lifecycle,
+/// - [SheetExtentScope], which creates a [SheetPosition], manages its lifecycle
 ///   and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
-abstract class SheetExtent extends ChangeNotifier
+abstract class SheetPosition extends ChangeNotifier
     with SheetMetrics
     implements ValueListenable<double?> {
   /// Creates an object that manages the extent of a sheet.
-  SheetExtent({
+  SheetPosition({
     required this.context,
     required Extent minExtent,
     required Extent maxExtent,
@@ -229,7 +229,7 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   @mustCallSuper
-  void takeOver(SheetExtent other) {
+  void takeOver(SheetPosition other) {
     assert(currentDrag == null);
     if (other.activity.isCompatibleWith(this)) {
       activity.dispose();

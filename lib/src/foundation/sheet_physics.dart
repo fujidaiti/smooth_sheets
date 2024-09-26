@@ -182,8 +182,8 @@ abstract interface class SnappingSheetBehavior {
 /// it will snap to [SheetMetrics.maxPixels].
 ///
 /// Using this behavior is functionally identical to using [SnapToNearest]
-/// with the snap positions of [SheetExtent.minExtent] and
-/// [SheetExtent.maxExtent], but more simplified and efficient.
+/// with the snap positions of [SheetPosition.minExtent] and
+/// [SheetPosition.maxExtent], but more simplified and efficient.
 class SnapToNearestEdge implements SnappingSheetBehavior {
   /// Creates a [SnappingSheetBehavior] that snaps to either
   /// [SheetMetrics.minPixels] or [SheetMetrics.maxPixels].

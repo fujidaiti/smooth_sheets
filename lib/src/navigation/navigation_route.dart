@@ -9,7 +9,7 @@ import 'navigation_sheet_extent.dart';
 import 'navigation_sheet_viewport.dart';
 
 @optionalTypeArgs
-abstract class NavigationSheetRoute<T, E extends SheetExtent>
+abstract class NavigationSheetRoute<T, E extends SheetPosition>
     extends PageRoute<T> {
   NavigationSheetRoute({super.settings});
 

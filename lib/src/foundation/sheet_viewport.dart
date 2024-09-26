@@ -32,7 +32,7 @@ class SheetViewport extends SingleChildRenderObjectWidget {
 
 @internal
 class RenderSheetViewport extends RenderTransform {
-  RenderSheetViewport(SheetExtent extent, EdgeInsets insets)
+  RenderSheetViewport(SheetPosition extent, EdgeInsets insets)
       : _extent = extent,
         _insets = insets,
         super(transform: Matrix4.zero(), transformHitTests: true) {
@@ -44,9 +44,9 @@ class RenderSheetViewport extends RenderTransform {
   Size? _lastMeasuredSize;
   Size? get lastMeasuredSize => _lastMeasuredSize;
 
-  SheetExtent _extent;
+  SheetPosition _extent;
   // ignore: avoid_setters_without_getters
-  set extent(SheetExtent value) {
+  set extent(SheetPosition value) {
     if (_extent != value) {
       _extent.removeListener(_invalidateTranslationValue);
       _extent = value..addListener(_invalidateTranslationValue);
@@ -217,7 +217,7 @@ class _SheetContentLayoutObserver extends SingleChildRenderObjectWidget {
   });
 
   final ValueGetter<bool> isEnabled;
-  final SheetExtent? extent;
+  final SheetPosition? extent;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -238,14 +238,14 @@ class _SheetContentLayoutObserver extends SingleChildRenderObjectWidget {
 class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
   _RenderSheetContentLayoutObserver({
     required ValueGetter<bool> isEnabled,
-    required SheetExtent? extent,
+    required SheetPosition? extent,
   })  : _isEnabled = isEnabled,
         _extent = extent,
         super(alignment: Alignment.topCenter);
 
-  SheetExtent? _extent;
+  SheetPosition? _extent;
   // ignore: avoid_setters_without_getters
-  set extent(SheetExtent? value) {
+  set extent(SheetPosition? value) {
     if (_extent != value) {
       _extent = value;
       markNeedsLayout();

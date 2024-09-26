@@ -14,7 +14,7 @@ import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
 @internal
-class ScrollableSheetExtent extends SheetExtent
+class ScrollableSheetExtent extends SheetPosition
     implements SheetContentScrollPositionOwner {
   ScrollableSheetExtent({
     required super.context,
@@ -90,7 +90,7 @@ class ScrollableSheetExtent extends SheetExtent
   }
 
   @override
-  void takeOver(SheetExtent other) {
+  void takeOver(SheetPosition other) {
     super.takeOver(other);
     if (other is ScrollableSheetExtent) {
       assert(_scrollPositions.isEmpty);

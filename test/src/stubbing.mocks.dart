@@ -16,10 +16,10 @@ import 'package:mockito/src/dummies.dart' as _i16;
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart' as _i5;
 import 'package:smooth_sheets/src/foundation/sheet_context.dart' as _i2;
 import 'package:smooth_sheets/src/foundation/sheet_drag.dart' as _i12;
-import 'package:smooth_sheets/src/foundation/sheet_position.dart' as _i4;
 import 'package:smooth_sheets/src/foundation/sheet_gesture_tamperer.dart'
     as _i14;
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart' as _i3;
+import 'package:smooth_sheets/src/foundation/sheet_position.dart' as _i4;
 import 'package:smooth_sheets/src/foundation/sheet_status.dart' as _i13;
 
 // ignore_for_file: type=lint
@@ -55,7 +55,7 @@ class _FakeSheetPhysics_1 extends _i1.SmartFake implements _i3.SheetPhysics {
         );
 }
 
-class _FakeSheetActivity_2<T extends _i4.SheetExtent> extends _i1.SmartFake
+class _FakeSheetActivity_2<T extends _i4.SheetPosition> extends _i1.SmartFake
     implements _i5.SheetActivity<T> {
   _FakeSheetActivity_2(
     Object parent,
@@ -191,7 +191,7 @@ class _FakeTicker_13 extends _i1.SmartFake implements _i11.Ticker {
 /// A class which mocks [SheetExtent].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSheetExtent extends _i1.Mock implements _i4.SheetExtent {
+class MockSheetExtent extends _i1.Mock implements _i4.SheetPosition {
   @override
   _i2.SheetContext get context => (super.noSuchMethod(
         Invocation.getter(#context),
@@ -242,17 +242,17 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetExtent {
       ) as _i3.SheetPhysics);
 
   @override
-  _i5.SheetActivity<_i4.SheetExtent> get activity => (super.noSuchMethod(
+  _i5.SheetActivity<_i4.SheetPosition> get activity => (super.noSuchMethod(
         Invocation.getter(#activity),
-        returnValue: _FakeSheetActivity_2<_i4.SheetExtent>(
+        returnValue: _FakeSheetActivity_2<_i4.SheetPosition>(
           this,
           Invocation.getter(#activity),
         ),
-        returnValueForMissingStub: _FakeSheetActivity_2<_i4.SheetExtent>(
+        returnValueForMissingStub: _FakeSheetActivity_2<_i4.SheetPosition>(
           this,
           Invocation.getter(#activity),
         ),
-      ) as _i5.SheetActivity<_i4.SheetExtent>);
+      ) as _i5.SheetActivity<_i4.SheetPosition>);
 
   @override
   _i4.SheetMetrics get snapshot => (super.noSuchMethod(
@@ -403,7 +403,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetExtent {
       ) as bool);
 
   @override
-  void takeOver(_i4.SheetExtent? other) => super.noSuchMethod(
+  void takeOver(_i4.SheetPosition? other) => super.noSuchMethod(
         Invocation.method(
           #takeOver,
           [other],
@@ -499,7 +499,7 @@ class MockSheetExtent extends _i1.Mock implements _i4.SheetExtent {
       );
 
   @override
-  void beginActivity(_i5.SheetActivity<_i4.SheetExtent>? activity) =>
+  void beginActivity(_i5.SheetActivity<_i4.SheetPosition>? activity) =>
       super.noSuchMethod(
         Invocation.method(
           #beginActivity,

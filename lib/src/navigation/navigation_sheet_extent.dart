@@ -9,7 +9,7 @@ import 'navigation_route.dart';
 import 'navigation_sheet_activity.dart';
 
 @internal
-class NavigationSheetExtent extends SheetExtent {
+class NavigationSheetExtent extends SheetPosition {
   NavigationSheetExtent({
     required super.context,
     required super.minExtent,
@@ -22,7 +22,7 @@ class NavigationSheetExtent extends SheetExtent {
   Transition? _lastReportedTransition;
 
   @override
-  void takeOver(SheetExtent other) {
+  void takeOver(SheetPosition other) {
     super.takeOver(other);
     assert(_debugAssertActivityTypeConsistency());
   }

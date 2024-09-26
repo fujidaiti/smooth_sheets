@@ -99,7 +99,7 @@ class NavigationSheetRouteViewport extends SingleChildRenderObjectWidget {
 class _RenderNavigationSheetRouteViewport extends RenderProxyBox {
   _RenderNavigationSheetRouteViewport({
     required _RenderNavigationSheetViewport globalViewport,
-    required SheetExtent localExtent,
+    required SheetPosition localExtent,
   })  : _globalViewport = globalViewport,
         _localExtent = localExtent {
     _globalViewport.addChild(this);
@@ -114,9 +114,9 @@ class _RenderNavigationSheetRouteViewport extends RenderProxyBox {
     }
   }
 
-  SheetExtent _localExtent;
+  SheetPosition _localExtent;
   // ignore: avoid_setters_without_getters
-  set localExtent(SheetExtent value) {
+  set localExtent(SheetPosition value) {
     if (_localExtent != value) {
       _localExtent = value;
       markNeedsLayout();

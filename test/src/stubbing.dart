@@ -7,7 +7,7 @@ import 'package:smooth_sheets/src/foundation/sheet_context.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 
 @GenerateNiceMocks([
-  MockSpec<SheetExtent>(),
+  MockSpec<SheetPosition>(),
   MockSpec<SheetContext>(),
   MockSpec<AnimationController>(),
   MockSpec<TickerFuture>(),

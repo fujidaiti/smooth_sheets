@@ -13,7 +13,7 @@ import 'sheet_status.dart';
 
 @internal
 @optionalTypeArgs
-abstract class SheetActivity<T extends SheetExtent> {
+abstract class SheetActivity<T extends SheetPosition> {
   bool _disposed = false;
   bool get disposed {
     assert(!_mounted || !_disposed);
@@ -60,7 +60,7 @@ abstract class SheetActivity<T extends SheetExtent> {
   /// this activity.
   bool get shouldIgnorePointer => false;
 
-  bool isCompatibleWith(SheetExtent newOwner) => newOwner is T;
+  bool isCompatibleWith(SheetPosition newOwner) => newOwner is T;
 
   void didChangeContentSize(Size? oldSize) {}
 
@@ -125,7 +125,7 @@ abstract class SheetActivity<T extends SheetExtent> {
   }
 }
 
-/// An activity that animates the [SheetExtent]'s `pixels` to a destination
+/// An activity that animates the [SheetPosition]'s `pixels` to a destination
 /// position determined by [destination], using the specified [curve] and
 /// [duration].
 ///
@@ -156,7 +156,7 @@ class AnimatedSheetActivity extends SheetActivity
   late final double _endPixels;
 
   @override
-  void init(SheetExtent delegate) {
+  void init(SheetPosition delegate) {
     super.init(delegate);
     _startPixels = owner.pixels;
     _endPixels = destination.resolve(owner.contentSize);
@@ -287,7 +287,7 @@ class BallisticSheetActivity extends SheetActivity
 /// A [SheetActivity] that performs a settling motion in response to changes
 /// in the viewport dimensions or content size.
 ///
-/// A [SheetExtent] may start this activity when the viewport insets change
+/// A [SheetPosition] may start this activity when the viewport insets change
 /// during an animation, typically due to the appearance or disappearance of
 /// the on-screen keyboard, or when the content size changes (e.g., due to
 /// entering a new line of text in a text field).
@@ -343,7 +343,7 @@ class SettlingSheetActivity extends SheetActivity {
   SheetStatus get status => SheetStatus.animating;
 
   @override
-  void init(SheetExtent owner) {
+  void init(SheetPosition owner) {
     super.init(owner);
     _ticker = owner.context.vsync.createTicker(_tick)..start();
     _invalidateVelocity();
@@ -538,7 +538,8 @@ class DragSheetActivity extends SheetActivity
 
 @internal
 @optionalTypeArgs
-mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
+mixin ControlledSheetActivityMixin<T extends SheetPosition>
+    on SheetActivity<T> {
   late final AnimationController controller;
 
   final _completer = Completer<void>();
@@ -574,7 +575,7 @@ mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
 
 @internal
 @optionalTypeArgs
-mixin UserControlledSheetActivityMixin<T extends SheetExtent>
+mixin UserControlledSheetActivityMixin<T extends SheetPosition>
     on SheetActivity<T> {
   @override
   SheetStatus get status => SheetStatus.dragging;
@@ -599,7 +600,7 @@ mixin UserControlledSheetActivityMixin<T extends SheetExtent>
 /// `pixels` to maintain the visual sheet position.
 @internal
 void absorbBottomViewportInset(
-  SheetExtent activityOwner,
+  SheetPosition activityOwner,
   EdgeInsets oldViewportInsets,
 ) {
   final newInsets = activityOwner.viewportInsets;
