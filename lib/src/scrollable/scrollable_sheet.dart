@@ -16,7 +16,7 @@ import 'sheet_scrollable.dart';
 class ScrollableSheet extends StatefulWidget {
   const ScrollableSheet({
     super.key,
-    this.initialExtent = const SheetAnchor.proportional(1),
+    this.initialPosition = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
     this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
@@ -24,13 +24,13 @@ class ScrollableSheet extends StatefulWidget {
     required this.child,
   });
 
-  /// {@macro ScrollableSheetExtent.initialExtent}
-  final SheetAnchor initialExtent;
+  /// {@macro ScrollableSheetPosition.initialPosition}
+  final SheetAnchor initialPosition;
 
-  /// {@macro SheetExtent.minPosition}
+  /// {@macro SheetPosition.minPosition}
   final SheetAnchor minPosition;
 
-  /// {@macro SheetExtent.maxPosition}
+  /// {@macro SheetPosition.maxPosition}
   final SheetAnchor maxPosition;
 
   /// {@macro SheetPosition.physics}
@@ -56,10 +56,10 @@ class _ScrollableSheetState extends State<ScrollableSheet>
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return ScrollableSheetExtentScope(
+    return ScrollableSheetPositionScope(
       context: this,
       controller: controller,
-      initialExtent: widget.initialExtent,
+      initialPosition: widget.initialPosition,
       minPosition: widget.minPosition,
       maxPosition: widget.maxPosition,
       physics: physics,

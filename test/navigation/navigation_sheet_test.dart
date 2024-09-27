@@ -123,14 +123,14 @@ class _TestDraggablePageWidget extends StatelessWidget {
     required String label,
     required double height,
     String? nextRoute,
-    SheetAnchor initialExtent = const SheetAnchor.proportional(1),
+    SheetAnchor initialPosition = const SheetAnchor.proportional(1),
     SheetAnchor minPosition = const SheetAnchor.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
     SheetPhysics? physics,
   }) {
     return DraggableNavigationSheetRoute(
       physics: physics,
-      initialExtent: initialExtent,
+      initialPosition: initialPosition,
       minPosition: minPosition,
       transitionDuration: transitionDuration,
       builder: (context) => _TestDraggablePageWidget(
@@ -202,7 +202,7 @@ class _TestScrollablePageWidget extends StatelessWidget {
     double? height,
     int itemCount = 30,
     String? nextRoute,
-    SheetAnchor initialExtent = const SheetAnchor.proportional(1),
+    SheetAnchor initialPosition = const SheetAnchor.proportional(1),
     SheetAnchor minPosition = const SheetAnchor.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
     SheetPhysics? physics,
@@ -210,7 +210,7 @@ class _TestScrollablePageWidget extends StatelessWidget {
   }) {
     return ScrollableNavigationSheetRoute(
       physics: physics,
-      initialExtent: initialExtent,
+      initialPosition: initialPosition,
       minPosition: minPosition,
       transitionDuration: transitionDuration,
       builder: (context) => _TestScrollablePageWidget(
@@ -459,7 +459,7 @@ void main() {
                   label: 'First',
                   height: 500,
                   minPosition: const SheetAnchor.pixels(200),
-                  initialExtent: const SheetAnchor.pixels(200),
+                  initialPosition: const SheetAnchor.pixels(200),
                 ),
           },
           contentBuilder: (context, child) {
@@ -473,14 +473,14 @@ void main() {
       );
 
       expect(controller.metrics.pixels, 200,
-          reason: 'The sheet should be at the initial extent.');
+          reason: 'The sheet should be at the initial position.');
       expect(
         controller.metrics.minPixels < controller.metrics.maxPixels,
         isTrue,
         reason: 'The sheet should be draggable.',
       );
 
-      // Start animating the sheet to the max extent.
+      // Start animating the sheet to the max position.
       unawaited(
         controller.animateTo(
           const SheetAnchor.proportional(1),

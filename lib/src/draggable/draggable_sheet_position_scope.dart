@@ -6,13 +6,13 @@ import '../foundation/sheet_position_scope.dart';
 import 'draggable_sheet_position.dart';
 
 @internal
-class DraggableSheetExtentScope extends SheetPositionScope {
-  const DraggableSheetExtentScope({
+class DraggableSheetPositionScope extends SheetPositionScope {
+  const DraggableSheetPositionScope({
     super.key,
     super.controller,
     super.isPrimary,
     required super.context,
-    required this.initialExtent,
+    required this.initialPosition,
     required super.minPosition,
     required super.maxPosition,
     required super.physics,
@@ -21,32 +21,32 @@ class DraggableSheetExtentScope extends SheetPositionScope {
     required super.child,
   });
 
-  /// {@macro DraggableSheetExtent.initialExtent}
-  final SheetAnchor initialExtent;
+  /// {@macro DraggableSheetPosition.initialPosition}
+  final SheetAnchor initialPosition;
 
-  /// {@macro SheetExtent.debugLabel}
+  /// {@macro SheetPosition.debugLabel}
   final String? debugLabel;
 
   @override
   SheetPositionScopeState createState() {
-    return _DraggableSheetExtentScopeState();
+    return _DraggableSheetPositionScopeState();
   }
 }
 
-class _DraggableSheetExtentScopeState extends SheetPositionScopeState<
-    DraggableSheetExtent, DraggableSheetExtentScope> {
+class _DraggableSheetPositionScopeState extends SheetPositionScopeState<
+    DraggableSheetPosition, DraggableSheetPositionScope> {
   @override
-  bool shouldRebuildExtent(DraggableSheetExtent oldExtent) {
-    return widget.initialExtent != oldExtent.initialExtent ||
-        widget.debugLabel != oldExtent.debugLabel ||
-        super.shouldRebuildExtent(oldExtent);
+  bool shouldRebuildPosition(DraggableSheetPosition oldPosition) {
+    return widget.initialPosition != oldPosition.initialPosition ||
+        widget.debugLabel != oldPosition.debugLabel ||
+        super.shouldRebuildPosition(oldPosition);
   }
 
   @override
-  DraggableSheetExtent buildExtent(SheetContext context) {
-    return DraggableSheetExtent(
+  DraggableSheetPosition buildPosition(SheetContext context) {
+    return DraggableSheetPosition(
       context: context,
-      initialExtent: widget.initialExtent,
+      initialPosition: widget.initialPosition,
       minPosition: widget.minPosition,
       maxPosition: widget.maxPosition,
       physics: widget.physics,

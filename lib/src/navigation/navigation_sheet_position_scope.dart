@@ -23,7 +23,7 @@ class NavigationSheetPositionScope extends SheetPositionScope {
           isPrimary: true,
         );
 
-  /// {@macro SheetExtent.debugLabel}
+  /// {@macro SheetPosition.debugLabel}
   final String? debugLabel;
 
   @override
@@ -35,13 +35,13 @@ class NavigationSheetPositionScope extends SheetPositionScope {
 class _NavigationSheetPositionScopeState extends SheetPositionScopeState<
     NavigationSheetPosition, NavigationSheetPositionScope> {
   @override
-  bool shouldRebuildExtent(NavigationSheetPosition oldExtent) {
-    return widget.debugLabel != oldExtent.debugLabel ||
-        super.shouldRebuildExtent(oldExtent);
+  bool shouldRebuildPosition(NavigationSheetPosition oldPosition) {
+    return widget.debugLabel != oldPosition.debugLabel ||
+        super.shouldRebuildPosition(oldPosition);
   }
 
   @override
-  NavigationSheetPosition buildExtent(SheetContext context) {
+  NavigationSheetPosition buildPosition(SheetContext context) {
     return NavigationSheetPosition(
       context: context,
       minPosition: widget.minPosition,

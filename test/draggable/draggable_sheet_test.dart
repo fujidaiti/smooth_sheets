@@ -86,7 +86,7 @@ void main() {
             key: sheetKey,
             controller: controller,
             minPosition: const SheetAnchor.pixels(200),
-            initialExtent: const SheetAnchor.pixels(200),
+            initialPosition: const SheetAnchor.pixels(200),
             child: const Material(
               child: _TestSheetContent(
                 height: 500,
@@ -98,11 +98,11 @@ void main() {
     );
 
     expect(controller.metrics.pixels, 200,
-        reason: 'The sheet should be at the initial extent.');
+        reason: 'The sheet should be at the initial position.');
     expect(controller.metrics.minPixels < controller.metrics.maxPixels, isTrue,
         reason: 'The sheet should be draggable.');
 
-    // Start animating the sheet to the max extent.
+    // Start animating the sheet to the max position.
     unawaited(
       controller.animateTo(
         const SheetAnchor.proportional(1),

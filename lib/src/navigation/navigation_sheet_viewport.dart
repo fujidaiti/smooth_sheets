@@ -42,7 +42,7 @@ class NavigationSheetViewport extends SheetViewport {
 }
 
 class _RenderNavigationSheetViewport extends RenderSheetViewport {
-  _RenderNavigationSheetViewport(super.extent, super.insets);
+  _RenderNavigationSheetViewport(super.position, super.insets);
 
   final _children = <_RenderNavigationSheetRouteViewport>[];
 
@@ -84,7 +84,7 @@ class NavigationSheetRouteViewport extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return _RenderNavigationSheetRouteViewport(
       globalViewport: NavigationSheetViewport._of(context),
-      localExtent: SheetPositionScope.of(context),
+      localPosition: SheetPositionScope.of(context),
     );
   }
 
@@ -92,16 +92,16 @@ class NavigationSheetRouteViewport extends SingleChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderNavigationSheetRouteViewport)
       ..globalViewport = NavigationSheetViewport._of(context)
-      ..localExtent = SheetPositionScope.of(context);
+      ..localPosition = SheetPositionScope.of(context);
   }
 }
 
 class _RenderNavigationSheetRouteViewport extends RenderProxyBox {
   _RenderNavigationSheetRouteViewport({
     required _RenderNavigationSheetViewport globalViewport,
-    required SheetPosition localExtent,
+    required SheetPosition localPosition,
   })  : _globalViewport = globalViewport,
-        _localExtent = localExtent {
+        _localPosition = localPosition {
     _globalViewport.addChild(this);
   }
 
@@ -115,12 +115,12 @@ class _RenderNavigationSheetRouteViewport extends RenderProxyBox {
     }
   }
 
-  SheetPosition _localExtent;
+  SheetPosition _localPosition;
 
   // ignore: avoid_setters_without_getters
-  set localExtent(SheetPosition value) {
-    if (_localExtent != value) {
-      _localExtent = value;
+  set localPosition(SheetPosition value) {
+    if (_localPosition != value) {
+      _localPosition = value;
       markNeedsLayout();
     }
   }
@@ -133,15 +133,15 @@ class _RenderNavigationSheetRouteViewport extends RenderProxyBox {
 
   @override
   void performLayout() {
-    _localExtent.markAsDimensionsWillChange();
-    // Notify the SheetExtent about the viewport size changes
+    _localPosition.markAsDimensionsWillChange();
+    // Notify the SheetPosition about the viewport size changes
     // before performing the layout so that the descendant widgets
     // can use the viewport size during the layout phase.
-    _localExtent.applyNewViewportDimensions(
+    _localPosition.applyNewViewportDimensions(
       Size.copy(_globalViewport.lastMeasuredSize!),
       _globalViewport.insets,
     );
     super.performLayout();
-    _localExtent.markAsDimensionsChanged();
+    _localPosition.markAsDimensionsChanged();
   }
 }

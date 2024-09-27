@@ -15,18 +15,21 @@ import 'sheet_status.dart';
 @optionalTypeArgs
 abstract class SheetActivity<T extends SheetPosition> {
   bool _disposed = false;
+
   bool get disposed {
     assert(!_mounted || !_disposed);
     return _disposed;
   }
 
   bool _mounted = false;
+
   bool get mounted {
     assert(!_mounted || !_disposed);
     return _mounted;
   }
 
   T? _owner;
+
   T get owner {
     assert(debugAssertMounted());
     return _owner!;
@@ -257,7 +260,7 @@ class BallisticSheetActivity extends SheetActivity
       viewportSize: oldViewportSize,
       viewportInsets: oldViewportInsets,
     );
-    final destination = owner.physics.findSettledExtent(velocity, oldMetrics);
+    final destination = owner.physics.findSettledPosition(velocity, oldMetrics);
 
     if (oldViewportInsets != null) {
       absorbBottomViewportInset(owner, oldViewportInsets);
@@ -421,7 +424,7 @@ class IdleSheetActivity extends SheetActivity {
   SheetStatus get status => SheetStatus.stable;
 
   /// Updates [SheetMetrics.pixels] to maintain the current [SheetAnchor], which
-  /// is determined by [SheetPhysics.findSettledExtent] using the metrics of
+  /// is determined by [SheetPhysics.findSettledPosition] using the metrics of
   /// the previous frame.
   @override
   void didFinalizeDimensions(
@@ -440,7 +443,7 @@ class IdleSheetActivity extends SheetActivity {
       viewportSize: oldViewportSize,
       viewportInsets: oldViewportInsets,
     );
-    final prevDetent = owner.physics.findSettledExtent(0, oldMetrics);
+    final prevDetent = owner.physics.findSettledPosition(0, oldMetrics);
     final newPixels = prevDetent.resolve(owner.contentSize);
 
     if (newPixels == owner.pixels) {
@@ -543,12 +546,16 @@ mixin ControlledSheetActivityMixin<T extends SheetPosition>
   late final AnimationController controller;
 
   final _completer = Completer<void>();
+
   Future<void> get done => _completer.future;
 
   @factory
   AnimationController createAnimationController();
+
   TickerFuture onAnimationStart();
+
   void onAnimationTick();
+
   void onAnimationEnd() {}
 
   @override

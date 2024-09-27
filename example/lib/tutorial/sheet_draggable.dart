@@ -75,7 +75,7 @@ class _ExampleSheet extends StatelessWidget {
       child: ScrollableSheet(
         physics: physics,
         minPosition: minPosition,
-        initialExtent: minPosition,
+        initialPosition: minPosition,
         child: Card(
           margin: EdgeInsets.zero,
           color: Theme.of(context).colorScheme.secondaryContainer,

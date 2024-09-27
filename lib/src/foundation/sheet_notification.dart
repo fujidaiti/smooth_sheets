@@ -5,14 +5,14 @@ import 'sheet_physics.dart';
 import 'sheet_position.dart';
 import 'sheet_status.dart';
 
-/// A [Notification] that is dispatched when the sheet extent changes.
+/// A [Notification] that is dispatched when the sheet position changes.
 ///
-/// Sheet widgets notify their ancestors about changes to their extent.
+/// Sheet widgets notify their ancestors about changes to their position.
 /// There are 6 types of notifications:
 /// - [SheetOverflowNotification], which is dispatched when the user tries
 ///   to drag the sheet beyond its draggable bounds but the sheet has not
-///   changed its extent because its [SheetPhysics] does not allow it to be.
-/// - [SheetUpdateNotification], which is dispatched when the sheet extent
+///   changed its position because its [SheetPhysics] does not allow it to be.
+/// - [SheetUpdateNotification], which is dispatched when the sheet position
 ///   is updated by other than user interaction such as animation.
 /// - [SheetDragUpdateNotification], which is dispatched when the sheet
 ///   is dragged.
@@ -52,7 +52,7 @@ sealed class SheetNotification extends Notification {
   }
 }
 
-/// A [SheetNotification] that is dispatched when the sheet extent
+/// A [SheetNotification] that is dispatched when the sheet position
 /// is updated by other than user interaction such as animation.
 class SheetUpdateNotification extends SheetNotification {
   const SheetUpdateNotification({
@@ -130,7 +130,7 @@ class SheetDragCancelNotification extends SheetNotification {
 
 /// A [SheetNotification] that is dispatched when the user tries
 /// to drag the sheet beyond its draggable bounds but the sheet has not
-/// changed its extent because its [SheetPhysics] does not allow it to be.
+/// changed its position because its [SheetPhysics] does not allow it to be.
 class SheetOverflowNotification extends SheetNotification {
   const SheetOverflowNotification({
     required super.metrics,

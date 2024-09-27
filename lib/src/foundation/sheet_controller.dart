@@ -50,17 +50,17 @@ class SheetController extends ChangeNotifier
     super.removeListener(listener);
   }
 
-  void attach(SheetPosition extent) {
-    if (_client case final oldExtent?) {
-      detach(oldExtent);
+  void attach(SheetPosition position) {
+    if (_client case final oldPosition?) {
+      detach(oldPosition);
     }
 
-    _client = extent..addListener(notifyListeners);
+    _client = position..addListener(notifyListeners);
   }
 
-  void detach(SheetPosition? extent) {
-    if (extent == _client) {
-      extent?.removeListener(notifyListeners);
+  void detach(SheetPosition? position) {
+    if (position == _client) {
+      position?.removeListener(notifyListeners);
       _client = null;
     }
   }

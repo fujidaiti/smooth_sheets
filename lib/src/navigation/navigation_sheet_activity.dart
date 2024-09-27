@@ -49,8 +49,8 @@ class TransitionSheetActivity extends NavigationSheetActivity {
 
   void _onAnimationTick() {
     final fraction = _curvedAnimation.value;
-    final startPixels = currentRoute.scopeKey.maybeCurrentExtent?.maybePixels;
-    final endPixels = nextRoute.scopeKey.maybeCurrentExtent?.maybePixels;
+    final startPixels = currentRoute.scopeKey.maybeCurrentPosition?.maybePixels;
+    final endPixels = nextRoute.scopeKey.maybeCurrentPosition?.maybePixels;
 
     if (startPixels != null && endPixels != null) {
       owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
@@ -77,17 +77,17 @@ class ProxySheetActivity extends NavigationSheetActivity {
 
   @override
   SheetStatus get status =>
-      route.scopeKey.maybeCurrentExtent?.status ?? SheetStatus.stable;
+      route.scopeKey.maybeCurrentPosition?.status ?? SheetStatus.stable;
 
   @override
   void init(NavigationSheetPosition owner) {
     super.init(owner);
-    route.scopeKey.addOnCreatedListener(_onLocalExtentCreated);
+    route.scopeKey.addOnCreatedListener(_onLocalPositionCreated);
   }
 
-  void _onLocalExtentCreated() {
+  void _onLocalPositionCreated() {
     if (mounted) {
-      route.scopeKey.currentExtent.addListener(_syncMetrics);
+      route.scopeKey.currentPosition.addListener(_syncMetrics);
       _syncMetrics(notify: false);
     }
   }
@@ -95,18 +95,18 @@ class ProxySheetActivity extends NavigationSheetActivity {
   @override
   void dispose() {
     route.scopeKey
-      ..maybeCurrentExtent?.removeListener(_syncMetrics)
-      ..removeOnCreatedListener(_onLocalExtentCreated);
+      ..maybeCurrentPosition?.removeListener(_syncMetrics)
+      ..removeOnCreatedListener(_onLocalPositionCreated);
     super.dispose();
   }
 
   void _syncMetrics({bool notify = true}) {
-    assert(route.scopeKey.maybeCurrentExtent != null);
-    final localExtent = route.scopeKey.currentExtent;
-    final localMetrics = localExtent.snapshot;
+    assert(route.scopeKey.maybeCurrentPosition != null);
+    final localPosition = route.scopeKey.currentPosition;
+    final localMetrics = localPosition.snapshot;
     owner.applyNewBoundaryConstraints(
-      localExtent.minPosition,
-      localExtent.maxPosition,
+      localPosition.minPosition,
+      localPosition.maxPosition,
     );
     if (localMetrics.maybeContentSize case final contentSize?) {
       owner.applyNewContentSize(contentSize);
@@ -122,7 +122,7 @@ class ProxySheetActivity extends NavigationSheetActivity {
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    // The proxied extent will handle the dimension changes,
+    // The proxied position will handle the dimension changes,
     // so we do nothing here to avoid data races.
   }
 }

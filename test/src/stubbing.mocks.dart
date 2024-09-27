@@ -615,14 +615,14 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
 
   @override
   _i9.Future<void> animateTo(
-    _i4.SheetAnchor? newExtent, {
+    _i4.SheetAnchor? newPosition, {
     _i7.Curve? curve = _i7.Curves.easeInOut,
     Duration? duration = const Duration(milliseconds: 300),
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #animateTo,
-          [newExtent],
+          [newPosition],
           {
             #curve: curve,
             #duration: duration,

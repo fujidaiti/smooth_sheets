@@ -22,10 +22,10 @@ class MenuSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const halfWayExtent = SheetAnchor.proportional(0.5);
+    const halfWayPosition = SheetAnchor.proportional(0.5);
     return ScrollableSheet(
-      initialExtent: halfWayExtent,
-      minPosition: halfWayExtent,
+      initialPosition: halfWayPosition,
+      minPosition: halfWayPosition,
       physics: const BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),

@@ -14,11 +14,11 @@ import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
 @internal
-class ScrollableSheetExtent extends SheetPosition
+class ScrollableSheetPosition extends SheetPosition
     implements SheetContentScrollPositionOwner {
-  ScrollableSheetExtent({
+  ScrollableSheetPosition({
     required super.context,
-    required this.initialExtent,
+    required this.initialPosition,
     required super.minPosition,
     required super.maxPosition,
     required SheetPhysics physics,
@@ -26,17 +26,17 @@ class ScrollableSheetExtent extends SheetPosition
     super.debugLabel,
   }) : super(physics: ScrollableSheetPhysics.wrap(physics));
 
-  /// {@template ScrollableSheetExtent.initialExtent}
-  /// The initial extent of the sheet.
+  /// {@template ScrollableSheetPosition.initialPosition}
+  /// The initial position of the sheet.
   /// {@endtemplate}
-  final SheetAnchor initialExtent;
+  final SheetAnchor initialPosition;
 
   @override
   ScrollableSheetPhysics get physics => super.physics as ScrollableSheetPhysics;
 
   final _scrollPositions = HashSet<SheetContentScrollPosition>();
 
-  /// A [ScrollPosition] that is currently driving the sheet extent.
+  /// A [ScrollPosition] that is currently driving the sheet position.
   SheetContentScrollPosition? get _primaryScrollPosition => switch (activity) {
         final ScrollableSheetActivity activity => activity.scrollPosition,
         _ => null,
@@ -85,14 +85,14 @@ class ScrollableSheetExtent extends SheetPosition
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
     if (maybePixels == null) {
-      setPixels(initialExtent.resolve(contentSize));
+      setPixels(initialPosition.resolve(contentSize));
     }
   }
 
   @override
   void takeOver(SheetPosition other) {
     super.takeOver(other);
-    if (other is ScrollableSheetExtent) {
+    if (other is ScrollableSheetPosition) {
       assert(_scrollPositions.isEmpty);
       _scrollPositions.addAll(other._scrollPositions);
       other._scrollPositions.clear();

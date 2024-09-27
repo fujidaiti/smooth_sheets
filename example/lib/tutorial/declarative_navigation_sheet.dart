@@ -13,7 +13,7 @@ void main() {
 }
 
 // NavigationSheet requires a special NavigatorObserver in order to
-// smoothly change its extent during a route transition.
+// smoothly change its position during a route transition.
 final transitionObserver = NavigationSheetTransitionObserver();
 
 // To use declarative navigation, we utilize the 'go_router' package.

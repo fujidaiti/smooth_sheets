@@ -107,7 +107,7 @@ void main() {
             key: sheetKey,
             controller: controller,
             minPosition: const SheetAnchor.pixels(200),
-            initialExtent: const SheetAnchor.pixels(200),
+            initialPosition: const SheetAnchor.pixels(200),
             child: const _TestSheetContent(height: 500),
           ),
         ),
@@ -115,11 +115,11 @@ void main() {
     );
 
     expect(controller.metrics.pixels, 200,
-        reason: 'The sheet should be at the initial extent.');
+        reason: 'The sheet should be at the initial position.');
     expect(controller.metrics.minPixels < controller.metrics.maxPixels, isTrue,
         reason: 'The sheet should be draggable.');
 
-    // Start animating the sheet to the max extent.
+    // Start animating the sheet to the max position.
     unawaited(
       controller.animateTo(
         const SheetAnchor.proportional(1),
@@ -342,7 +342,7 @@ void main() {
   // - https://github.com/fujidaiti/smooth_sheets/issues/212
   group('Infinite ballistic scroll activity test', () {
     late ScrollController scrollController;
-    late ScrollableSheetExtent sheetExtent;
+    late ScrollableSheetPosition sheetPosition;
     late Widget testWidget;
 
     setUp(() {
@@ -350,7 +350,7 @@ void main() {
         child: Builder(
           builder: (context) {
             scrollController = PrimaryScrollController.of(context);
-            sheetExtent = SheetPositionScope.of(context);
+            sheetPosition = SheetPositionScope.of(context);
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Container(
@@ -372,13 +372,13 @@ void main() {
       // Start a ballistic animation from a position extremely close to,
       // but not equal, to the initial position.
       scrollController.position.correctPixels(-0.000000001);
-      sheetExtent.goBallisticWithScrollPosition(
+      sheetPosition.goBallisticWithScrollPosition(
         velocity: 0,
         scrollPosition: scrollController.position as SheetContentScrollPosition,
       );
       await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 0);
-      expect(sheetExtent.activity, isA<IdleSheetActivity>(),
+      expect(sheetPosition.activity, isA<IdleSheetActivity>(),
           reason: 'Should not enter an infinite recursion '
               'of BallisticScrollDrivenSheetActivity');
     });
@@ -393,13 +393,13 @@ void main() {
       // Start a ballistic animation from a position extremely close to,
       // but not equal, to the current position.
       scrollController.position.correctPixels(600.000000001);
-      sheetExtent.goBallisticWithScrollPosition(
+      sheetPosition.goBallisticWithScrollPosition(
         velocity: 0,
         scrollPosition: scrollController.position as SheetContentScrollPosition,
       );
       await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 600.0);
-      expect(sheetExtent.activity, isA<IdleSheetActivity>(),
+      expect(sheetPosition.activity, isA<IdleSheetActivity>(),
           reason: 'Should not enter an infinite recursion '
               'of BallisticScrollDrivenSheetActivity');
     });

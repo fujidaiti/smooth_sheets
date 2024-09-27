@@ -161,14 +161,14 @@ void main() {
       );
     });
 
-    test('findSettledExtent', () {
+    test('findSettledPosition', () {
       expect(
-        physicsUnderTest.findSettledExtent(0, _positionAtMiddle),
+        physicsUnderTest.findSettledPosition(0, _positionAtMiddle),
         SheetAnchor.pixels(_positionAtMiddle.pixels),
         reason: 'Should return the current position if it is in bounds',
       );
       expect(
-        physicsUnderTest.findSettledExtent(1000, _positionAtMiddle),
+        physicsUnderTest.findSettledPosition(1000, _positionAtMiddle),
         SheetAnchor.pixels(_positionAtMiddle.pixels),
         reason: 'The velocity should not affect the result',
       );
@@ -177,13 +177,13 @@ void main() {
         pixels: _positionAtTopEdge.maxPixels + 10,
       );
       expect(
-        physicsUnderTest.findSettledExtent(0, overDraggedPosition),
+        physicsUnderTest.findSettledPosition(0, overDraggedPosition),
         _referenceSheetMetrics.maxPosition,
-        reason: 'Should return the max extent if the position '
+        reason: 'Should return the max position if the position '
             'is out of the upper bound',
       );
       expect(
-        physicsUnderTest.findSettledExtent(1000, overDraggedPosition),
+        physicsUnderTest.findSettledPosition(1000, overDraggedPosition),
         _referenceSheetMetrics.maxPosition,
         reason: 'The velocity should not affect the result',
       );
@@ -192,29 +192,29 @@ void main() {
         pixels: _positionAtBottomEdge.minPixels - 10,
       );
       expect(
-        physicsUnderTest.findSettledExtent(0, underDraggedPosition),
+        physicsUnderTest.findSettledPosition(0, underDraggedPosition),
         _referenceSheetMetrics.minPosition,
-        reason: 'Should return the min extent if the position '
+        reason: 'Should return the min position if the position '
             'is out of the lower bound',
       );
       expect(
-        physicsUnderTest.findSettledExtent(1000, underDraggedPosition),
+        physicsUnderTest.findSettledPosition(1000, underDraggedPosition),
         _referenceSheetMetrics.minPosition,
         reason: 'The velocity should not affect the result',
       );
 
       // Boundary conditions
       expect(
-        physicsUnderTest.findSettledExtent(1000, _positionAtTopEdge),
+        physicsUnderTest.findSettledPosition(1000, _positionAtTopEdge),
         _referenceSheetMetrics.maxPosition,
         reason:
-            'Should return the max extent if the position is at the upper bound',
+            'Should return the max position if the position is at the upper bound',
       );
       expect(
-        physicsUnderTest.findSettledExtent(1000, _positionAtBottomEdge),
+        physicsUnderTest.findSettledPosition(1000, _positionAtBottomEdge),
         _referenceSheetMetrics.minPosition,
         reason:
-            'Should return the min extent if the position is at the lower bound',
+            'Should return the min position if the position is at the lower bound',
       );
     });
   });
@@ -235,22 +235,22 @@ void main() {
       );
 
       expect(
-        behaviorUnderTest.findSettledExtent(0, positionAtNearTopEdge),
+        behaviorUnderTest.findSettledPosition(0, positionAtNearTopEdge),
         _referenceSheetMetrics.maxPosition,
       );
       expect(
-        behaviorUnderTest.findSettledExtent(0, positionAtNearBottomEdge),
+        behaviorUnderTest.findSettledPosition(0, positionAtNearBottomEdge),
         _referenceSheetMetrics.minPosition,
       );
     });
 
     test('is aware of fling gesture direction', () {
       expect(
-        behaviorUnderTest.findSettledExtent(50, _positionAtBottomEdge),
+        behaviorUnderTest.findSettledPosition(50, _positionAtBottomEdge),
         _referenceSheetMetrics.maxPosition,
       );
       expect(
-        behaviorUnderTest.findSettledExtent(-50, _positionAtTopEdge),
+        behaviorUnderTest.findSettledPosition(-50, _positionAtTopEdge),
         _referenceSheetMetrics.minPosition,
       );
     });
@@ -264,26 +264,26 @@ void main() {
       );
 
       expect(
-        behaviorUnderTest.findSettledExtent(0, overDraggedPosition),
+        behaviorUnderTest.findSettledPosition(0, overDraggedPosition),
         isNull,
       );
       expect(
-        behaviorUnderTest.findSettledExtent(0, underDraggedPosition),
+        behaviorUnderTest.findSettledPosition(0, underDraggedPosition),
         isNull,
       );
     });
 
     test('Boundary conditions', () {
       expect(
-          behaviorUnderTest.findSettledExtent(0, _positionAtTopEdge), isNull);
-      expect(behaviorUnderTest.findSettledExtent(0, _positionAtBottomEdge),
+          behaviorUnderTest.findSettledPosition(0, _positionAtTopEdge), isNull);
+      expect(behaviorUnderTest.findSettledPosition(0, _positionAtBottomEdge),
           isNull);
       expect(
-        behaviorUnderTest.findSettledExtent(-50, _positionAtTopEdge),
+        behaviorUnderTest.findSettledPosition(-50, _positionAtTopEdge),
         _referenceSheetMetrics.minPosition,
       );
       expect(
-        behaviorUnderTest.findSettledExtent(50, _positionAtBottomEdge),
+        behaviorUnderTest.findSettledPosition(50, _positionAtBottomEdge),
         _referenceSheetMetrics.maxPosition,
       );
     });
@@ -314,15 +314,15 @@ void main() {
       );
 
       expect(
-        behaviorUnderTest.findSettledExtent(0, positionAtNearTopEdge),
+        behaviorUnderTest.findSettledPosition(0, positionAtNearTopEdge),
         SheetAnchor.pixels(_referenceSheetMetrics.maxPixels),
       );
       expect(
-        behaviorUnderTest.findSettledExtent(0, positionAtNearMiddle),
+        behaviorUnderTest.findSettledPosition(0, positionAtNearMiddle),
         SheetAnchor.pixels(_positionAtMiddle.pixels),
       );
       expect(
-        behaviorUnderTest.findSettledExtent(0, positionAtNearBottomEdge),
+        behaviorUnderTest.findSettledPosition(0, positionAtNearBottomEdge),
         SheetAnchor.pixels(_referenceSheetMetrics.minPixels),
       );
     });
@@ -336,22 +336,22 @@ void main() {
       );
       // Flings up at the bottom edge
       expect(
-        behaviorUnderTest.findSettledExtent(50, _positionAtBottomEdge),
+        behaviorUnderTest.findSettledPosition(50, _positionAtBottomEdge),
         SheetAnchor.pixels(_positionAtMiddle.pixels),
       );
       // Flings up at the slightly above the middle position
       expect(
-        behaviorUnderTest.findSettledExtent(50, positionAtAboveMiddle),
+        behaviorUnderTest.findSettledPosition(50, positionAtAboveMiddle),
         SheetAnchor.pixels(_positionAtTopEdge.pixels),
       );
       // Flings down at the top edge
       expect(
-        behaviorUnderTest.findSettledExtent(-50, _positionAtTopEdge),
+        behaviorUnderTest.findSettledPosition(-50, _positionAtTopEdge),
         SheetAnchor.pixels(_positionAtMiddle.pixels),
       );
       // Flings down at the slightly below the middle position
       expect(
-        behaviorUnderTest.findSettledExtent(-50, positionAtBelowMiddle),
+        behaviorUnderTest.findSettledPosition(-50, positionAtBelowMiddle),
         SheetAnchor.pixels(_positionAtBottomEdge.pixels),
       );
     });
@@ -365,74 +365,74 @@ void main() {
       );
 
       expect(
-        behaviorUnderTest.findSettledExtent(0, overDraggedPosition),
+        behaviorUnderTest.findSettledPosition(0, overDraggedPosition),
         isNull,
       );
       expect(
-        behaviorUnderTest.findSettledExtent(0, underDraggedPosition),
+        behaviorUnderTest.findSettledPosition(0, underDraggedPosition),
         isNull,
       );
     });
 
     test('Boundary condition: a drag ends exactly at the top detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(0, _positionAtTopEdge),
+        behaviorUnderTest.findSettledPosition(0, _positionAtTopEdge),
         isNull,
       );
     });
 
     test('Boundary condition: flings up exactly at the top detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(50, _positionAtTopEdge),
+        behaviorUnderTest.findSettledPosition(50, _positionAtTopEdge),
         SheetAnchor.pixels(_positionAtTopEdge.pixels),
       );
     });
 
     test('Boundary condition: flings down exactly at the top detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(-50, _positionAtTopEdge),
+        behaviorUnderTest.findSettledPosition(-50, _positionAtTopEdge),
         SheetAnchor.pixels(_positionAtMiddle.pixels),
       );
     });
 
     test('Boundary condition: a drag ends exactly at the middle detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(0, _positionAtMiddle),
+        behaviorUnderTest.findSettledPosition(0, _positionAtMiddle),
         isNull,
       );
     });
 
     test('Boundary condition: flings up exactly at the middle detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(50, _positionAtMiddle),
+        behaviorUnderTest.findSettledPosition(50, _positionAtMiddle),
         SheetAnchor.pixels(_positionAtTopEdge.pixels),
       );
     });
 
     test('Boundary condition: flings down exactly at the middle detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(-50, _positionAtMiddle),
+        behaviorUnderTest.findSettledPosition(-50, _positionAtMiddle),
         SheetAnchor.pixels(_positionAtBottomEdge.pixels),
       );
     });
 
     test('Boundary condition: a drag ends exactly at the bottom detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(0, _positionAtBottomEdge),
+        behaviorUnderTest.findSettledPosition(0, _positionAtBottomEdge),
         isNull,
       );
     });
 
     test('Boundary condition: flings up exactly at the bottom detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(50, _positionAtBottomEdge),
+        behaviorUnderTest.findSettledPosition(50, _positionAtBottomEdge),
         SheetAnchor.pixels(_positionAtMiddle.pixels),
       );
     });
 
     test('Boundary condition: flings down exactly at the bottom detent', () {
       expect(
-        behaviorUnderTest.findSettledExtent(-50, _positionAtBottomEdge),
+        behaviorUnderTest.findSettledPosition(-50, _positionAtBottomEdge),
         SheetAnchor.pixels(_positionAtBottomEdge.pixels),
       );
     });
@@ -528,22 +528,22 @@ void main() {
     });
   });
 
-  group('sortExtentsAndFindNearest', () {
-    test('with two extents', () {
-      final (sortedExtents, nearestIndex) = sortExtentsAndFindNearest(
+  group('sortPositionsAndFindNearest', () {
+    test('with two positions', () {
+      final (sortedPositions, nearestIndex) = sortPositionsAndFindNearest(
         const [SheetAnchor.proportional(1), SheetAnchor.pixels(0)],
         250,
         const Size(400, 600),
       );
-      expect(sortedExtents, const [
-        (extent: SheetAnchor.pixels(0), resolved: 0),
-        (extent: SheetAnchor.proportional(1), resolved: 600),
+      expect(sortedPositions, const [
+        (position: SheetAnchor.pixels(0), resolved: 0),
+        (position: SheetAnchor.proportional(1), resolved: 600),
       ]);
       expect(nearestIndex, 0);
     });
 
-    test('with three extents', () {
-      final (sortedExtents, nearestIndex) = sortExtentsAndFindNearest(
+    test('with three positions', () {
+      final (sortedPositions, nearestIndex) = sortPositionsAndFindNearest(
         const [
           SheetAnchor.proportional(1),
           SheetAnchor.proportional(0.5),
@@ -552,16 +552,16 @@ void main() {
         250,
         const Size(400, 600),
       );
-      expect(sortedExtents, const [
-        (extent: SheetAnchor.pixels(0), resolved: 0),
-        (extent: SheetAnchor.proportional(0.5), resolved: 300),
-        (extent: SheetAnchor.proportional(1), resolved: 600),
+      expect(sortedPositions, const [
+        (position: SheetAnchor.pixels(0), resolved: 0),
+        (position: SheetAnchor.proportional(0.5), resolved: 300),
+        (position: SheetAnchor.proportional(1), resolved: 600),
       ]);
       expect(nearestIndex, 1);
     });
 
-    test('with more than three extents', () {
-      final (sortedExtents, nearestIndex) = sortExtentsAndFindNearest(
+    test('with more than three positions', () {
+      final (sortedPositions, nearestIndex) = sortPositionsAndFindNearest(
         const [
           SheetAnchor.proportional(0.25),
           SheetAnchor.proportional(0.5),
@@ -572,12 +572,12 @@ void main() {
         500,
         const Size(400, 600),
       );
-      expect(sortedExtents, const [
-        (extent: SheetAnchor.pixels(0), resolved: 0),
-        (extent: SheetAnchor.proportional(0.25), resolved: 150),
-        (extent: SheetAnchor.proportional(0.5), resolved: 300),
-        (extent: SheetAnchor.proportional(0.75), resolved: 450),
-        (extent: SheetAnchor.proportional(1), resolved: 600),
+      expect(sortedPositions, const [
+        (position: SheetAnchor.pixels(0), resolved: 0),
+        (position: SheetAnchor.proportional(0.25), resolved: 150),
+        (position: SheetAnchor.proportional(0.5), resolved: 300),
+        (position: SheetAnchor.proportional(0.75), resolved: 450),
+        (position: SheetAnchor.proportional(1), resolved: 600),
       ]);
       expect(nearestIndex, 3);
     });

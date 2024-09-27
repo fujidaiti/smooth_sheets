@@ -32,7 +32,7 @@ class DraggableSheet extends StatefulWidget {
   const DraggableSheet({
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
-    this.initialExtent = const SheetAnchor.proportional(1),
+    this.initialPosition = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
     this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
@@ -40,15 +40,15 @@ class DraggableSheet extends StatefulWidget {
     this.controller,
   });
 
-  final SheetAnchor initialExtent;
+  final SheetAnchor initialPosition;
 
-  /// {@macro SheetExtentConfig.minPosition}
+  /// {@macro SheetPositionConfig.minPosition}
   final SheetAnchor minPosition;
 
-  /// {@macro SheetExtentConfig.maxPosition}
+  /// {@macro SheetPositionConfig.maxPosition}
   final SheetAnchor maxPosition;
 
-  /// {@macro SheetExtentConfig.physics}
+  /// {@macro SheetPositionConfig.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
@@ -76,10 +76,10 @@ class _DraggableSheetState extends State<DraggableSheet>
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return DraggableSheetExtentScope(
+    return DraggableSheetPositionScope(
       context: this,
       controller: controller,
-      initialExtent: widget.initialExtent,
+      initialPosition: widget.initialPosition,
       minPosition: widget.minPosition,
       maxPosition: widget.maxPosition,
       physics: physics,

@@ -40,10 +40,10 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
   bool _debugAssertDependencies() {
     assert(
       () {
-        final globalExtent =
+        final globalPosition =
             SheetPositionScope.maybeOf<NavigationSheetPosition>(
                 navigator!.context);
-        if (globalExtent == null) {
+        if (globalPosition == null) {
           throw FlutterError(
             'A $SheetPositionScope that hosts a $NavigationSheetPosition '
             'is not found in the given context. This is likely because '
@@ -126,7 +126,7 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
   }
 }
 
-typedef ExtentScopeBuilder = SheetPositionScope Function(
+typedef PositionScopeBuilder = SheetPositionScope Function(
   SheetContext context,
   SheetPositionScopeKey key,
   Widget child,
@@ -139,20 +139,20 @@ class NavigationSheetRouteContent extends StatelessWidget {
     required this.child,
   });
 
-  final ExtentScopeBuilder scopeBuilder;
+  final PositionScopeBuilder scopeBuilder;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     assert(_debugAssertDependencies(context));
     final parentRoute = ModalRoute.of(context)! as NavigationSheetRoute;
-    final globalExtent =
+    final globalPosition =
         SheetPositionScope.of<NavigationSheetPosition>(context);
     final routeViewport = NavigationSheetRouteViewport(
       child: SheetContentViewport(child: child),
     );
     final localScope = scopeBuilder(
-      globalExtent.context,
+      globalPosition.context,
       parentRoute.scopeKey,
       routeViewport,
     );
@@ -194,9 +194,9 @@ class NavigationSheetRouteContent extends StatelessWidget {
   bool _debugAssertDependencies(BuildContext context) {
     assert(
       () {
-        final globalExtent =
+        final globalPosition =
             SheetPositionScope.maybeOf<NavigationSheetPosition>(context);
-        if (globalExtent == null) {
+        if (globalPosition == null) {
           throw FlutterError(
             'A SheetPositionScope that hosts a $NavigationSheetPosition '
             'is not found in the given context. This is likely because '

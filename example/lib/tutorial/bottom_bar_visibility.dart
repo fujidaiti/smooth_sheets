@@ -149,7 +149,7 @@ class _ExampleSheet extends StatelessWidget {
       bottom: false,
       child: DraggableSheet(
         minPosition: minSize,
-        initialExtent: halfSize,
+        initialPosition: halfSize,
         physics: multiStopPhysics,
         child: SheetContentScaffold(
           appBar: AppBar(),

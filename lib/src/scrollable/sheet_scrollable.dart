@@ -25,7 +25,7 @@ class SheetScrollable extends StatefulWidget {
 
 class _SheetScrollableState extends State<SheetScrollable> {
   late ScrollController _scrollController;
-  ScrollableSheetExtent? _extent;
+  ScrollableSheetPosition? _position;
 
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _extent = SheetPositionScope.maybeOf(context);
+    _position = SheetPositionScope.maybeOf(context);
   }
 
   @override
@@ -53,7 +53,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
   @factory
   SheetContentScrollController createController() {
     return SheetContentScrollController(
-      getOwner: () => _extent,
+      getOwner: () => _position,
       debugLabel: widget.debugLabel,
       initialScrollOffset: widget.initialScrollOffset,
       keepScrollOffset: widget.keepScrollOffset,
@@ -62,7 +62,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
 
   @override
   void dispose() {
-    _extent = null;
+    _position = null;
     _scrollController.dispose();
     super.dispose();
   }

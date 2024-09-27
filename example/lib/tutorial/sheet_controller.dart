@@ -47,12 +47,12 @@ class _ExampleHomeState extends State<_ExampleHome> {
             child: Align(
               alignment: Alignment.topCenter,
               // Like ScrollController for scrollable widgets,
-              // SheetController can be used to observe changes in the sheet extent.
+              // SheetController can be used to observe changes in the sheet position.
               child: ValueListenableBuilder(
                 valueListenable: controller,
                 builder: (context, pixels, child) {
                   return Text(
-                    'Extent: ${pixels?.toStringAsFixed(1)}',
+                    'Position: ${pixels?.toStringAsFixed(1)}',
                     style: Theme.of(context).textTheme.displaySmall,
                   );
                 },
@@ -69,7 +69,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         child: const Icon(Icons.arrow_downward_rounded),
         onPressed: () {
-          // SheetController can also be used to animate the sheet extent.
+          // SheetController can also be used to animate the sheet position.
           controller.animateTo(const SheetAnchor.proportional(0.5));
         },
       ),

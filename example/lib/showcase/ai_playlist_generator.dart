@@ -104,7 +104,7 @@ final _confirmRoute = GoRoute(
   path: 'confirm',
   pageBuilder: (context, state) {
     return const ScrollableNavigationSheetPage(
-      initialExtent: SheetAnchor.proportional(0.7),
+      initialPosition: SheetAnchor.proportional(0.7),
       minPosition: SheetAnchor.proportional(0.7),
       physics: BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),

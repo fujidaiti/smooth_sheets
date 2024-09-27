@@ -72,7 +72,7 @@ class MutableSheetMetrics with SheetMetrics {
   }
 }
 
-(MutableSheetMetrics, MockSheetPosition) createMockSheetExtent({
+(MutableSheetMetrics, MockSheetPosition) createMockSheetPosition({
   required double pixels,
   required SheetAnchor minPosition,
   required SheetAnchor maxPosition,
@@ -92,47 +92,48 @@ class MutableSheetMetrics with SheetMetrics {
     devicePixelRatio: devicePixelRatio,
   );
 
-  final extent = MockSheetPosition();
-  when(extent.pixels).thenAnswer((_) => metricsRegistry.pixels);
-  when(extent.maybePixels).thenAnswer((_) => metricsRegistry.maybePixels);
-  when(extent.minPosition).thenAnswer((_) => metricsRegistry.minPosition);
-  when(extent.maybeMinPosition)
+  final position = MockSheetPosition();
+  when(position.pixels).thenAnswer((_) => metricsRegistry.pixels);
+  when(position.maybePixels).thenAnswer((_) => metricsRegistry.maybePixels);
+  when(position.minPosition).thenAnswer((_) => metricsRegistry.minPosition);
+  when(position.maybeMinPosition)
       .thenAnswer((_) => metricsRegistry.maybeMinPosition);
-  when(extent.maxPosition).thenAnswer((_) => metricsRegistry.maxPosition);
-  when(extent.maybeMaxPosition)
+  when(position.maxPosition).thenAnswer((_) => metricsRegistry.maxPosition);
+  when(position.maybeMaxPosition)
       .thenAnswer((_) => metricsRegistry.maybeMaxPosition);
-  when(extent.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
-  when(extent.maybeContentSize)
+  when(position.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
+  when(position.maybeContentSize)
       .thenAnswer((_) => metricsRegistry.maybeContentSize);
-  when(extent.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
-  when(extent.maybeViewportSize)
+  when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
+  when(position.maybeViewportSize)
       .thenAnswer((_) => metricsRegistry.maybeViewportSize);
-  when(extent.viewportInsets).thenAnswer((_) => metricsRegistry.viewportInsets);
-  when(extent.maybeViewportInsets)
+  when(position.viewportInsets)
+      .thenAnswer((_) => metricsRegistry.viewportInsets);
+  when(position.maybeViewportInsets)
       .thenAnswer((_) => metricsRegistry.maybeViewportInsets);
-  when(extent.devicePixelRatio)
+  when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);
-  when(extent.snapshot).thenAnswer((_) => metricsRegistry);
+  when(position.snapshot).thenAnswer((_) => metricsRegistry);
 
-  when(extent.setPixels(any)).thenAnswer((invocation) {
+  when(position.setPixels(any)).thenAnswer((invocation) {
     metricsRegistry.maybePixels =
         invocation.positionalArguments.first as double;
   });
-  when(extent.applyNewContentSize(any)).thenAnswer((invocation) {
+  when(position.applyNewContentSize(any)).thenAnswer((invocation) {
     metricsRegistry.maybeContentSize =
         invocation.positionalArguments.first as Size;
   });
-  when(extent.applyNewViewportDimensions(any, any)).thenAnswer((invocation) {
+  when(position.applyNewViewportDimensions(any, any)).thenAnswer((invocation) {
     metricsRegistry
       ..maybeViewportSize = invocation.positionalArguments.first as Size
       ..maybeViewportInsets = invocation.positionalArguments.last as EdgeInsets;
   });
-  when(extent.applyNewBoundaryConstraints(any, any)).thenAnswer((invocation) {
+  when(position.applyNewBoundaryConstraints(any, any)).thenAnswer((invocation) {
     metricsRegistry
       ..maybeMinPosition = invocation.positionalArguments.first as SheetAnchor
       ..maybeMaxPosition = invocation.positionalArguments.last as SheetAnchor;
   });
-  when(extent.copyWith(
+  when(position.copyWith(
     pixels: anyNamed('pixels'),
     minPosition: anyNamed('minPosition'),
     maxPosition: anyNamed('maxPosition'),
@@ -153,8 +154,8 @@ class MutableSheetMetrics with SheetMetrics {
   });
 
   if (physics != null) {
-    when(extent.physics).thenReturn(physics);
+    when(position.physics).thenReturn(physics);
   }
 
-  return (metricsRegistry, extent);
+  return (metricsRegistry, position);
 }

@@ -41,18 +41,18 @@ class SheetDraggable extends StatefulWidget {
 }
 
 class _SheetDraggableState extends State<SheetDraggable> {
-  SheetPosition? _extent;
+  SheetPosition? _position;
   Drag? _currentDrag;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _extent = SheetPositionScope.maybeOf(context);
+    _position = SheetPositionScope.maybeOf(context);
   }
 
   @override
   void dispose() {
-    _extent = null;
+    _position = null;
     _disposeDrag();
     super.dispose();
   }
@@ -63,7 +63,7 @@ class _SheetDraggableState extends State<SheetDraggable> {
 
   void _handleDragStart(DragStartDetails details) {
     assert(_currentDrag == null);
-    _currentDrag = _extent?.drag(details, _disposeDrag);
+    _currentDrag = _position?.drag(details, _disposeDrag);
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {

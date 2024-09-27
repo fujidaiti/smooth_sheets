@@ -6,13 +6,13 @@ import '../foundation/sheet_position_scope.dart';
 import 'scrollable_sheet_position.dart';
 
 @internal
-class ScrollableSheetExtentScope extends SheetPositionScope {
-  const ScrollableSheetExtentScope({
+class ScrollableSheetPositionScope extends SheetPositionScope {
+  const ScrollableSheetPositionScope({
     super.key,
     super.controller,
     super.isPrimary,
     required super.context,
-    required this.initialExtent,
+    required this.initialPosition,
     required super.minPosition,
     required super.maxPosition,
     required super.physics,
@@ -21,32 +21,32 @@ class ScrollableSheetExtentScope extends SheetPositionScope {
     required super.child,
   });
 
-  /// {@macro ScrollableSheetExtent.initialExtent}
-  final SheetAnchor initialExtent;
+  /// {@macro ScrollableSheetPosition.initialPosition}
+  final SheetAnchor initialPosition;
 
-  /// {@macro SheetExtent.debugLabel}
+  /// {@macro SheetPosition.debugLabel}
   final String? debugLabel;
 
   @override
   SheetPositionScopeState createState() {
-    return _ScrollableSheetExtentScopeState();
+    return _ScrollableSheetPositionScopeState();
   }
 }
 
-class _ScrollableSheetExtentScopeState extends SheetPositionScopeState<
-    ScrollableSheetExtent, ScrollableSheetExtentScope> {
+class _ScrollableSheetPositionScopeState extends SheetPositionScopeState<
+    ScrollableSheetPosition, ScrollableSheetPositionScope> {
   @override
-  bool shouldRebuildExtent(ScrollableSheetExtent oldExtent) {
-    return widget.initialExtent != oldExtent.initialExtent ||
-        widget.debugLabel != oldExtent.debugLabel ||
-        super.shouldRebuildExtent(oldExtent);
+  bool shouldRebuildPosition(ScrollableSheetPosition oldPosition) {
+    return widget.initialPosition != oldPosition.initialPosition ||
+        widget.debugLabel != oldPosition.debugLabel ||
+        super.shouldRebuildPosition(oldPosition);
   }
 
   @override
-  ScrollableSheetExtent buildExtent(SheetContext context) {
-    return ScrollableSheetExtent(
+  ScrollableSheetPosition buildPosition(SheetContext context) {
+    return ScrollableSheetPosition(
       context: context,
-      initialExtent: widget.initialExtent,
+      initialPosition: widget.initialPosition,
       minPosition: widget.minPosition,
       maxPosition: widget.maxPosition,
       physics: widget.physics,

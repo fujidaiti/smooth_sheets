@@ -42,7 +42,7 @@ class _NavigationSheetState extends State<NavigationSheet>
 
   @override
   void didChangeTransitionState(Transition? transition) {
-    _scopeKey.maybeCurrentExtent?.handleRouteTransition(transition);
+    _scopeKey.maybeCurrentPosition?.handleRouteTransition(transition);
   }
 
   @override

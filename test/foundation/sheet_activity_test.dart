@@ -41,7 +41,7 @@ void main() {
     });
 
     test('should animate to the destination', () {
-      final (ownerMetrics, owner) = createMockSheetExtent(
+      final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
         minPosition: const SheetAnchor.pixels(300),
         maxPosition: const SheetAnchor.pixels(700),
@@ -80,7 +80,7 @@ void main() {
     });
 
     test('should absorb viewport changes', () {
-      final (ownerMetrics, owner) = createMockSheetExtent(
+      final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
         minPosition: const SheetAnchor.pixels(300),
         maxPosition: const SheetAnchor.proportional(1),
@@ -140,7 +140,7 @@ void main() {
     late TickerCallback? internalOnTickCallback;
 
     setUp(() {
-      (ownerMetrics, owner) = createMockSheetExtent(
+      (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
         minPosition: const SheetAnchor.proportional(0.5),
         maxPosition: const SheetAnchor.proportional(1),
@@ -271,8 +271,8 @@ void main() {
   });
 
   group('IdleSheetActivity', () {
-    test('should maintain previous extent when keyboard appears', () {
-      final (ownerMetrics, owner) = createMockSheetExtent(
+    test('should maintain previous position when keyboard appears', () {
+      final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 450,
         minPosition: const SheetAnchor.proportional(0.5),
         maxPosition: const SheetAnchor.proportional(1),
@@ -294,10 +294,10 @@ void main() {
     });
 
     test(
-      'should maintain previous extent when content size changes, '
+      'should maintain previous position when content size changes, '
       'without animation if gap is small',
       () {
-        final (ownerMetrics, owner) = createMockSheetExtent(
+        final (ownerMetrics, owner) = createMockSheetPosition(
           pixels: 300,
           minPosition: const SheetAnchor.proportional(0.5),
           maxPosition: const SheetAnchor.proportional(1),
@@ -320,10 +320,10 @@ void main() {
     );
 
     test(
-      'should maintain previous extent when content size changes, '
+      'should maintain previous position when content size changes, '
       'with animation if gap is large',
       () {
-        final (ownerMetrics, owner) = createMockSheetExtent(
+        final (ownerMetrics, owner) = createMockSheetPosition(
           pixels: 300,
           minPosition: const SheetAnchor.proportional(0.5),
           maxPosition: const SheetAnchor.proportional(1),

@@ -192,7 +192,7 @@ abstract class SheetPosition extends ChangeNotifier
   SheetPhysics get physics => _physics;
   SheetPhysics _physics;
 
-  /// {@template SheetExtent.gestureTamperer}
+  /// {@template SheetPosition.gestureTamperer}
   /// An object that can modify the gesture details of the sheet.
   /// {@endtemplate}
   SheetGestureProxyMixin? get gestureTamperer => _gestureTamperer;
@@ -498,16 +498,16 @@ abstract class SheetPosition extends ChangeNotifier
   /// whether it completed successfully or whether it was
   /// interrupted prematurely.
   Future<void> animateTo(
-    SheetAnchor newExtent, {
+    SheetAnchor newPosition, {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
     assert(hasDimensions);
-    if (pixels == newExtent.resolve(contentSize)) {
+    if (pixels == newPosition.resolve(contentSize)) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
-        destination: newExtent,
+        destination: newPosition,
         duration: duration,
         curve: curve,
       );

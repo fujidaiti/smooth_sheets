@@ -84,9 +84,9 @@ class _MySheet extends StatelessWidget {
 
   SheetPhysics createPhysics(_PhysicsKind kind) {
     // With this configuration, the sheet will snap to:
-    // - the extent at which ony (_halfwayFraction * 100)% of the content is visible, or
-    // - the extent at which the entire content is visible.
-    // Note that the "extent" is the visible height of the sheet.
+    // - the position at which ony (_halfwayFraction * 100)% of the content is visible, or
+    // - the position at which the entire content is visible.
+    // Note that the "position" is the visible height of the sheet.
     const snappingPhysics = SnappingSheetPhysics(
       snappingBehavior: SnapToNearest(
         snapTo: [
@@ -114,16 +114,18 @@ class _MySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableSheet(
       // The 'minPosition' and 'maxPosition' properties determine
-      // how far the sheet can be dragged.  Note that "extent"
+      // how far the sheet can be dragged.  Note that "position"
       // refers to the visible height of the sheet. For example,
       // the configuration below ensures that the sheet is fully visible
       // at first and can then be dragged down to (_halfwayFraction * 100)%
       // of the sheet height at minimum.
       minPosition: const SheetAnchor.proportional(_halfwayFraction),
-      maxPosition: const SheetAnchor.proportional(1), // Default
-      initialExtent: const SheetAnchor.proportional(1), // Default
+      maxPosition: const SheetAnchor.proportional(1),
+      // Default
+      initialPosition: const SheetAnchor.proportional(1),
+      // Default
       // 'physics' determines how the sheet will behave when the user reaches
-      // the maximum or minimum extent, or when the user stops dragging.
+      // the maximum or minimum position, or when the user stops dragging.
       physics: createPhysics(physicsKind),
       child: buildContent(context),
     );

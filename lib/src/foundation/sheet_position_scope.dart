@@ -17,15 +17,17 @@ class SheetPositionScopeKey<T extends SheetPosition>
 
   final List<VoidCallback> _onCreatedListeners = [];
 
-  T? get maybeCurrentExtent =>
-      switch (currentState?._extent) { final T extent => extent, _ => null };
+  T? get maybeCurrentPosition => switch (currentState?._position) {
+        final T position => position,
+        _ => null
+      };
 
-  T get currentExtent => maybeCurrentExtent!;
+  T get currentPosition => maybeCurrentPosition!;
 
   void addOnCreatedListener(VoidCallback listener) {
     _onCreatedListeners.add(listener);
-    // Immediately notify the listener if the extent is already created.
-    if (maybeCurrentExtent != null) {
+    // Immediately notify the listener if the position is already created.
+    if (maybeCurrentPosition != null) {
       listener();
     }
   }
@@ -34,7 +36,7 @@ class SheetPositionScopeKey<T extends SheetPosition>
     _onCreatedListeners.remove(listener);
   }
 
-  void _notifySheetExtentCreation() {
+  void _notifySheetPositionCreation() {
     for (final listener in _onCreatedListeners) {
       listener();
     }
@@ -64,22 +66,22 @@ abstract class SheetPositionScope extends StatefulWidget {
     required this.child,
   });
 
-  /// The context the extent object belongs to.
+  /// The context the position object belongs to.
   final SheetContext context;
 
   /// The [SheetController] attached to the [SheetPosition].
   final SheetController? controller;
 
-  /// {@macro SheetExtent.minPosition}
+  /// {@macro SheetPosition.minPosition}
   final SheetAnchor minPosition;
 
-  /// {@macro SheetExtent.maxPosition}
+  /// {@macro SheetPosition.maxPosition}
   final SheetAnchor maxPosition;
 
   /// {@macro SheetPosition.physics}
   final SheetPhysics physics;
 
-  /// {@macro SheetExtent.gestureTamperer}
+  /// {@macro SheetPosition.gestureTamperer}
   final SheetGestureProxyMixin? gestureTamperer;
 
   // TODO: Remove this. Specifying null to `controller` is sufficient.
@@ -97,7 +99,7 @@ abstract class SheetPositionScope extends StatefulWidget {
   static E? maybeOf<E extends SheetPosition>(BuildContext context) {
     final inherited = context
         .dependOnInheritedWidgetOfExactType<InheritedSheetPositionScope>()
-        ?.extent;
+        ?.position;
 
     return inherited is E ? inherited : null;
   }
@@ -105,10 +107,10 @@ abstract class SheetPositionScope extends StatefulWidget {
   /// Retrieves a [SheetPosition] from the closest [SheetPositionScope]
   /// that encloses the given context.
   static E of<E extends SheetPosition>(BuildContext context) {
-    final extent = maybeOf<E>(context);
+    final position = maybeOf<E>(context);
 
     assert(() {
-      if (extent == null) {
+      if (position == null) {
         throw FlutterError(
           'No $SheetPositionScope ancestor for $E could be found starting '
           'from the context that was passed to $SheetPositionScope.of(). '
@@ -119,22 +121,22 @@ abstract class SheetPositionScope extends StatefulWidget {
       return true;
     }());
 
-    return extent!;
+    return position!;
   }
 }
 
 @internal
 abstract class SheetPositionScopeState<E extends SheetPosition,
     W extends SheetPositionScope> extends State<W> {
-  late E _extent;
+  late E _position;
   SheetController? _controller;
 
   SheetPositionScopeKey<E>? get _scopeKey {
     assert(() {
       if (widget.key != null && widget.key is! SheetPositionScopeKey<E>) {
         throw FlutterError(
-          'The key for a SheetExtentScope<$E> must be a '
-          'SheetExtentScopeKey<$E>, but got a ${widget.key.runtimeType}.',
+          'The key for a SheetPositionScope<$E> must be a '
+          'SheetPositionScopeKey<$E>, but got a ${widget.key.runtimeType}.',
         );
       }
       return true;
@@ -149,13 +151,13 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
   @override
   void initState() {
     super.initState();
-    _extent = buildExtent(widget.context);
-    _scopeKey?._notifySheetExtentCreation();
+    _position = buildPosition(widget.context);
+    _scopeKey?._notifySheetPositionCreation();
   }
 
   @override
   void dispose() {
-    _disposeExtent(_extent);
+    _disposePosition(_position);
     _controller = null;
     super.dispose();
   }
@@ -164,59 +166,60 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
   void didChangeDependencies() {
     super.didChangeDependencies();
     _rewireControllerAndScope();
-    _rewireControllerAndExtent();
+    _rewireControllerAndPosition();
   }
 
   @override
   void didUpdateWidget(W oldWidget) {
     super.didUpdateWidget(oldWidget);
     _rewireControllerAndScope();
-    if (shouldRebuildExtent(_extent)) {
-      final oldExtent = _extent;
-      _extent = buildExtent(widget.context)..takeOver(oldExtent);
-      _scopeKey?._notifySheetExtentCreation();
-      _disposeExtent(oldExtent);
-      _rewireControllerAndExtent();
+    if (shouldRebuildPosition(_position)) {
+      final oldPosition = _position;
+      _position = buildPosition(widget.context)..takeOver(oldPosition);
+      _scopeKey?._notifySheetPositionCreation();
+      _disposePosition(oldPosition);
+      _rewireControllerAndPosition();
     }
-    if (_extent.minPosition != widget.minPosition ||
-        _extent.maxPosition != widget.maxPosition) {
-      _extent.applyNewBoundaryConstraints(
+    if (_position.minPosition != widget.minPosition ||
+        _position.maxPosition != widget.maxPosition) {
+      _position.applyNewBoundaryConstraints(
           widget.minPosition, widget.maxPosition);
     }
-    if (_extent.physics != widget.physics) {
-      _extent.updatePhysics(widget.physics);
+    if (_position.physics != widget.physics) {
+      _position.updatePhysics(widget.physics);
     }
-    if (_extent.gestureTamperer != widget.gestureTamperer) {
-      _extent.updateGestureTamperer(widget.gestureTamperer);
+    if (_position.gestureTamperer != widget.gestureTamperer) {
+      _position.updateGestureTamperer(widget.gestureTamperer);
     }
   }
 
   @factory
   @protected
-  E buildExtent(SheetContext context);
+  E buildPosition(SheetContext context);
 
   @protected
   @mustCallSuper
-  bool shouldRebuildExtent(E oldExtent) => widget.context != oldExtent.context;
+  bool shouldRebuildPosition(E oldPosition) =>
+      widget.context != oldPosition.context;
 
-  void _disposeExtent(E extent) {
-    _controller?.detach(extent);
-    extent.dispose();
+  void _disposePosition(E position) {
+    _controller?.detach(position);
+    position.dispose();
   }
 
   void _rewireControllerAndScope() {
     if (_controller != widget.controller) {
-      _controller?.detach(_extent);
-      _controller = widget.controller?..attach(_extent);
+      _controller?.detach(_position);
+      _controller = widget.controller?..attach(_position);
     }
   }
 
-  void _rewireControllerAndExtent() {
+  void _rewireControllerAndPosition() {
     assert(_debugAssertPrimaryScopeNotNested());
     if (widget.isPrimary) {
-      _controller?.attach(_extent);
+      _controller?.attach(_position);
     } else {
-      _controller?.detach(_extent);
+      _controller?.detach(_position);
     }
   }
 
@@ -245,7 +248,7 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
   @override
   Widget build(BuildContext context) {
     return InheritedSheetPositionScope(
-      extent: _extent,
+      position: _position,
       isPrimary: widget.isPrimary,
       child: widget.child,
     );
@@ -256,15 +259,15 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
 class InheritedSheetPositionScope extends InheritedWidget {
   const InheritedSheetPositionScope({
     super.key,
-    required this.extent,
+    required this.position,
     required this.isPrimary,
     required super.child,
   });
 
-  final SheetPosition extent;
+  final SheetPosition position;
   final bool isPrimary;
 
   @override
   bool updateShouldNotify(InheritedSheetPositionScope oldWidget) =>
-      extent != oldWidget.extent || isPrimary != oldWidget.isPrimary;
+      position != oldWidget.position || isPrimary != oldWidget.isPrimary;
 }

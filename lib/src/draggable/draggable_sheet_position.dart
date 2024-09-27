@@ -5,27 +5,27 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_position.dart';
 
 @internal
-class DraggableSheetExtent extends SheetPosition {
-  DraggableSheetExtent({
+class DraggableSheetPosition extends SheetPosition {
+  DraggableSheetPosition({
     required super.context,
     required super.minPosition,
     required super.maxPosition,
-    required this.initialExtent,
+    required this.initialPosition,
     required super.physics,
     super.gestureTamperer,
     super.debugLabel,
   });
 
-  /// {@template DraggableSheetExtent.initialExtent}
-  /// The initial extent of the sheet.
+  /// {@template DraggableSheetPosition.initialPosition}
+  /// The initial position of the sheet.
   /// {@endtemplate}
-  final SheetAnchor initialExtent;
+  final SheetAnchor initialPosition;
 
   @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
     if (maybePixels == null) {
-      setPixels(initialExtent.resolve(contentSize));
+      setPixels(initialPosition.resolve(contentSize));
     }
   }
 }

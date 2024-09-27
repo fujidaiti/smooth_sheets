@@ -38,8 +38,8 @@ class _FakeSheetActivity extends SheetActivity {
   SheetStatus get status => SheetStatus.stable;
 }
 
-class _FakeSheetExtent extends SheetPosition {
-  _FakeSheetExtent({
+class _FakeSheetPosition extends SheetPosition {
+  _FakeSheetPosition({
     this.createIdleActivity,
   }) : super(
           context: _FakeSheetContext(),
@@ -70,12 +70,12 @@ class _FakeSheetExtent extends SheetPosition {
 
 class _TestWidget extends StatelessWidget {
   const _TestWidget({
-    required this.extent,
+    required this.position,
     this.background,
     this.sheetContent,
   });
 
-  final SheetPosition extent;
+  final SheetPosition position;
   final Widget? sheetContent;
   final Widget? background;
 
@@ -83,7 +83,7 @@ class _TestWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final sheet = InheritedSheetPositionScope(
       isPrimary: true,
-      extent: extent,
+      position: position,
       child: SheetViewport(
         child: SheetContentViewport(
           child: sheetContent ??
@@ -114,7 +114,7 @@ class _TestWidget extends StatelessWidget {
 void main() {
   group('Ignore pointer test:', () {
     ({
-      SheetPosition extent,
+      SheetPosition position,
       Widget testWidget,
       ValueGetter<bool> didTapForeground,
       ValueGetter<bool> didTapBackgroundTop,
@@ -126,14 +126,14 @@ void main() {
       var didTapBackgroundTop = false;
       var didTapBackgroundBottom = false;
 
-      final extent = _FakeSheetExtent(
+      final position = _FakeSheetPosition(
         createIdleActivity: () => _FakeSheetActivity(
           shouldIgnorePointer: shouldIgnorePointer,
         ),
       );
 
       final testWidget = _TestWidget(
-        extent: extent,
+        position: position,
         background: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -160,7 +160,7 @@ void main() {
       );
 
       return (
-        extent: extent,
+        position: position,
         testWidget: testWidget,
         didTapForeground: () => didTapForeground,
         didTapBackgroundTop: () => didTapBackgroundTop,
