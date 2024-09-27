@@ -7,26 +7,29 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'sheet_drag.dart';
-import 'sheet_extent.dart';
 import 'sheet_physics.dart';
+import 'sheet_position.dart';
 import 'sheet_status.dart';
 
 @internal
 @optionalTypeArgs
-abstract class SheetActivity<T extends SheetExtent> {
+abstract class SheetActivity<T extends SheetPosition> {
   bool _disposed = false;
+
   bool get disposed {
     assert(!_mounted || !_disposed);
     return _disposed;
   }
 
   bool _mounted = false;
+
   bool get mounted {
     assert(!_mounted || !_disposed);
     return _mounted;
   }
 
   T? _owner;
+
   T get owner {
     assert(debugAssertMounted());
     return _owner!;
@@ -60,15 +63,15 @@ abstract class SheetActivity<T extends SheetExtent> {
   /// this activity.
   bool get shouldIgnorePointer => false;
 
-  bool isCompatibleWith(SheetExtent newOwner) => newOwner is T;
+  bool isCompatibleWith(SheetPosition newOwner) => newOwner is T;
 
   void didChangeContentSize(Size? oldSize) {}
 
   void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {}
 
   void didChangeBoundaryConstraints(
-    Extent? oldMinExtent,
-    Extent? oldMaxExtent,
+    SheetAnchor? oldMinPosition,
+    SheetAnchor? oldMaxPosition,
   ) {}
 
   /// Called when all relevant metrics of the sheet are finalized
@@ -125,11 +128,11 @@ abstract class SheetActivity<T extends SheetExtent> {
   }
 }
 
-/// An activity that animates the [SheetExtent]'s `pixels` to a destination
+/// An activity that animates the [SheetPosition]'s `pixels` to a destination
 /// position determined by [destination], using the specified [curve] and
 /// [duration].
 ///
-/// This activity accepts the destination position as an [Extent], allowing
+/// This activity accepts the destination position as an [SheetAnchor], allowing
 /// the concrete end position (in pixels) to be updated during the animation
 /// in response to viewport changes, such as the appearance of the on-screen
 /// keyboard.
@@ -148,7 +151,7 @@ class AnimatedSheetActivity extends SheetActivity
     required this.curve,
   }) : assert(duration > Duration.zero);
 
-  final Extent destination;
+  final SheetAnchor destination;
   final Duration duration;
   final Curve curve;
 
@@ -156,10 +159,10 @@ class AnimatedSheetActivity extends SheetActivity
   late final double _endPixels;
 
   @override
-  void init(SheetExtent delegate) {
+  void init(SheetPosition delegate) {
     super.init(delegate);
-    _startPixels = owner.metrics.pixels;
-    _endPixels = destination.resolve(owner.metrics.contentSize);
+    _startPixels = owner.pixels;
+    _endPixels = destination.resolve(owner.contentSize);
   }
 
   @override
@@ -198,7 +201,7 @@ class AnimatedSheetActivity extends SheetActivity
     if (oldViewportInsets != null) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
-    final newEndPixels = destination.resolve(owner.metrics.contentSize);
+    final newEndPixels = destination.resolve(owner.contentSize);
     if (newEndPixels != _endPixels) {
       final remainingDuration =
           duration - (controller.lastElapsedDuration ?? Duration.zero);
@@ -252,24 +255,24 @@ class BallisticSheetActivity extends SheetActivity
       return;
     }
 
-    final oldMetrics = owner.metrics.copyWith(
+    final oldMetrics = owner.copyWith(
       contentSize: oldContentSize,
       viewportSize: oldViewportSize,
       viewportInsets: oldViewportInsets,
     );
-    final destination = owner.physics.findSettledExtent(velocity, oldMetrics);
+    final destination = owner.physics.findSettledPosition(velocity, oldMetrics);
 
     if (oldViewportInsets != null) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
 
-    final endPixels = destination.resolve(owner.metrics.contentSize);
-    if (endPixels == owner.metrics.pixels) {
+    final endPixels = destination.resolve(owner.contentSize);
+    if (endPixels == owner.pixels) {
       return;
     }
 
     const maxSettlingDuration = 150; // milliseconds
-    final distance = (endPixels - owner.metrics.pixels).abs();
+    final distance = (endPixels - owner.pixels).abs();
     final velocityNorm = velocity.abs();
     final estimatedSettlingDuration = velocityNorm > 0
         ? distance / velocityNorm * Duration.millisecondsPerSecond
@@ -287,7 +290,7 @@ class BallisticSheetActivity extends SheetActivity
 /// A [SheetActivity] that performs a settling motion in response to changes
 /// in the viewport dimensions or content size.
 ///
-/// A [SheetExtent] may start this activity when the viewport insets change
+/// A [SheetPosition] may start this activity when the viewport insets change
 /// during an animation, typically due to the appearance or disappearance of
 /// the on-screen keyboard, or when the content size changes (e.g., due to
 /// entering a new line of text in a text field).
@@ -327,7 +330,7 @@ class SettlingSheetActivity extends SheetActivity {
   final Duration? duration;
 
   /// The destination position to which the sheet should settle.
-  final Extent destination;
+  final SheetAnchor destination;
 
   late final Ticker _ticker;
 
@@ -343,7 +346,7 @@ class SettlingSheetActivity extends SheetActivity {
   SheetStatus get status => SheetStatus.animating;
 
   @override
-  void init(SheetExtent owner) {
+  void init(SheetPosition owner) {
     super.init(owner);
     _ticker = owner.context.vsync.createTicker(_tick)..start();
     _invalidateVelocity();
@@ -359,8 +362,8 @@ class SettlingSheetActivity extends SheetActivity {
     final elapsedFrameTime =
         (elapsedDuration - _elapsedDuration).inMicroseconds /
             Duration.microsecondsPerSecond;
-    final destination = this.destination.resolve(owner.metrics.contentSize);
-    final pixels = owner.metrics.pixels;
+    final destination = this.destination.resolve(owner.contentSize);
+    final pixels = owner.pixels;
     final newPixels = destination > pixels
         ? min(destination, pixels + velocity * elapsedFrameTime)
         : max(destination, pixels - velocity * elapsedFrameTime);
@@ -406,8 +409,8 @@ class SettlingSheetActivity extends SheetActivity {
     if (duration case final duration?) {
       final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
           Duration.microsecondsPerSecond;
-      final destination = this.destination.resolve(owner.metrics.contentSize);
-      final pixels = owner.metrics.pixels;
+      final destination = this.destination.resolve(owner.contentSize);
+      final pixels = owner.pixels;
       _velocity = remainingSeconds > 0
           ? (destination - pixels).abs() / remainingSeconds
           : (destination - pixels).abs();
@@ -420,8 +423,8 @@ class IdleSheetActivity extends SheetActivity {
   @override
   SheetStatus get status => SheetStatus.stable;
 
-  /// Updates [SheetMetrics.pixels] to maintain the current [Extent], which
-  /// is determined by [SheetPhysics.findSettledExtent] using the metrics of
+  /// Updates [SheetMetrics.pixels] to maintain the current [SheetAnchor], which
+  /// is determined by [SheetPhysics.findSettledPosition] using the metrics of
   /// the previous frame.
   @override
   void didFinalizeDimensions(
@@ -435,18 +438,18 @@ class IdleSheetActivity extends SheetActivity {
       return;
     }
 
-    final oldMetrics = owner.metrics.copyWith(
+    final oldMetrics = owner.copyWith(
       contentSize: oldContentSize,
       viewportSize: oldViewportSize,
       viewportInsets: oldViewportInsets,
     );
-    final prevDetent = owner.physics.findSettledExtent(0, oldMetrics);
-    final newPixels = prevDetent.resolve(owner.metrics.contentSize);
+    final prevDetent = owner.physics.findSettledPosition(0, oldMetrics);
+    final newPixels = prevDetent.resolve(owner.contentSize);
 
-    if (newPixels == owner.metrics.pixels) {
+    if (newPixels == owner.pixels) {
       return;
     } else if (oldViewportInsets != null &&
-        oldViewportInsets.bottom != owner.metrics.viewportInsets.bottom) {
+        oldViewportInsets.bottom != owner.viewportInsets.bottom) {
       // TODO: Is it possible to remove this assumption?
       // We currently assume that when the bottom viewport inset changes,
       // it is due to the appearance or disappearance of the keyboard,
@@ -460,7 +463,7 @@ class IdleSheetActivity extends SheetActivity {
 
     const minAnimationDuration = Duration(milliseconds: 150);
     const meanAnimationVelocity = 300 / 1000; // pixels per millisecond
-    final distance = (newPixels - owner.metrics.pixels).abs();
+    final distance = (newPixels - owner.pixels).abs();
     final estimatedDuration = Duration(
       milliseconds: (distance / meanAnimationVelocity).round(),
     );
@@ -491,15 +494,13 @@ class DragSheetActivity extends SheetActivity
 
   @override
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
-    final metrics = owner.metrics;
-
     switch (delta.dy) {
       case > 0:
-        final draggableDistance = max(0.0, metrics.maxPixels - metrics.pixels);
+        final draggableDistance = max(0.0, owner.maxPixels - owner.pixels);
         return Offset(delta.dx, min(draggableDistance, delta.dy));
 
       case < 0:
-        final draggableDistance = max(0.0, metrics.pixels - metrics.minPixels);
+        final draggableDistance = max(0.0, owner.pixels - owner.minPixels);
         return Offset(delta.dx, max(-1 * draggableDistance, delta.dy));
 
       case _:
@@ -510,15 +511,14 @@ class DragSheetActivity extends SheetActivity
   @override
   void onDragUpdate(SheetDragUpdateDetails details) {
     final physicsAppliedDelta =
-        owner.physics.applyPhysicsToOffset(details.deltaY, owner.metrics);
+        owner.physics.applyPhysicsToOffset(details.deltaY, owner);
     if (physicsAppliedDelta != 0) {
       owner
-        ..setPixels(owner.metrics.pixels + physicsAppliedDelta)
+        ..setPixels(owner.pixels + physicsAppliedDelta)
         ..didDragUpdateMetrics(details);
     }
 
-    final overflow =
-        owner.physics.computeOverflow(details.deltaY, owner.metrics);
+    final overflow = owner.physics.computeOverflow(details.deltaY, owner);
     if (overflow != 0) {
       owner.didOverflowBy(overflow);
     }
@@ -541,16 +541,21 @@ class DragSheetActivity extends SheetActivity
 
 @internal
 @optionalTypeArgs
-mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
+mixin ControlledSheetActivityMixin<T extends SheetPosition>
+    on SheetActivity<T> {
   late final AnimationController controller;
 
   final _completer = Completer<void>();
+
   Future<void> get done => _completer.future;
 
   @factory
   AnimationController createAnimationController();
+
   TickerFuture onAnimationStart();
+
   void onAnimationTick();
+
   void onAnimationEnd() {}
 
   @override
@@ -577,7 +582,7 @@ mixin ControlledSheetActivityMixin<T extends SheetExtent> on SheetActivity<T> {
 
 @internal
 @optionalTypeArgs
-mixin UserControlledSheetActivityMixin<T extends SheetExtent>
+mixin UserControlledSheetActivityMixin<T extends SheetPosition>
     on SheetActivity<T> {
   @override
   SheetStatus get status => SheetStatus.dragging;
@@ -588,7 +593,7 @@ mixin UserControlledSheetActivityMixin<T extends SheetExtent>
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    assert(owner.metrics.hasDimensions);
+    assert(owner.hasDimensions);
     if (oldViewportInsets != null) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
@@ -602,14 +607,14 @@ mixin UserControlledSheetActivityMixin<T extends SheetExtent>
 /// `pixels` to maintain the visual sheet position.
 @internal
 void absorbBottomViewportInset(
-  SheetExtent activityOwner,
+  SheetPosition activityOwner,
   EdgeInsets oldViewportInsets,
 ) {
-  final newInsets = activityOwner.metrics.viewportInsets;
+  final newInsets = activityOwner.viewportInsets;
   final oldInsets = oldViewportInsets;
   final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
-  final newPixels = activityOwner.metrics.pixels - deltaInsetBottom;
-  if (newPixels != activityOwner.metrics.pixels) {
+  final newPixels = activityOwner.pixels - deltaInsetBottom;
+  if (newPixels != activityOwner.pixels) {
     activityOwner
       ..setPixels(newPixels)
       ..didUpdateMetrics();

@@ -123,15 +123,15 @@ class _TestDraggablePageWidget extends StatelessWidget {
     required String label,
     required double height,
     String? nextRoute,
-    Extent initialExtent = const Extent.proportional(1),
-    Extent minExtent = const Extent.proportional(1),
+    SheetAnchor initialPosition = const SheetAnchor.proportional(1),
+    SheetAnchor minPosition = const SheetAnchor.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
     SheetPhysics? physics,
   }) {
     return DraggableNavigationSheetRoute(
       physics: physics,
-      initialExtent: initialExtent,
-      minExtent: minExtent,
+      initialPosition: initialPosition,
+      minPosition: minPosition,
       transitionDuration: transitionDuration,
       builder: (context) => _TestDraggablePageWidget(
         key: key,
@@ -202,16 +202,16 @@ class _TestScrollablePageWidget extends StatelessWidget {
     double? height,
     int itemCount = 30,
     String? nextRoute,
-    Extent initialExtent = const Extent.proportional(1),
-    Extent minExtent = const Extent.proportional(1),
+    SheetAnchor initialPosition = const SheetAnchor.proportional(1),
+    SheetAnchor minPosition = const SheetAnchor.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
     SheetPhysics? physics,
     void Function(int index)? onTapItem,
   }) {
     return ScrollableNavigationSheetRoute(
       physics: physics,
-      initialExtent: initialExtent,
-      minExtent: minExtent,
+      initialPosition: initialPosition,
+      minPosition: minPosition,
       transitionDuration: transitionDuration,
       builder: (context) => _TestScrollablePageWidget(
         key: ValueKey(label),
@@ -242,7 +242,7 @@ void main() {
       final pixelTracking = <double?>[];
       final controller = SheetController();
       controller.addListener(() {
-        pixelTracking.add(controller.value.maybePixels);
+        pixelTracking.add(controller.metrics.maybePixels);
       });
 
       await tester.pumpWidget(
@@ -255,7 +255,7 @@ void main() {
                   key: const Key('First'),
                   label: 'First',
                   height: 300,
-                  minExtent: const Extent.pixels(0),
+                  minPosition: const SheetAnchor.pixels(0),
                   // Disable the snapping effect.
                   physics: const ClampingSheetPhysics(),
                 ),
@@ -286,8 +286,8 @@ void main() {
       (double?, double?)? lastBoundaryValues; // (minPixels, maxPixels)
       controller.addListener(() {
         lastBoundaryValues = (
-          controller.value.maybeMinPixels,
-          controller.value.maybeMaxPixels,
+          controller.metrics.maybeMinPixels,
+          controller.metrics.maybeMaxPixels,
         );
       });
 
@@ -302,13 +302,13 @@ void main() {
                   label: 'First',
                   nextRoute: 'second',
                   height: 300,
-                  minExtent: const Extent.proportional(1),
+                  minPosition: const SheetAnchor.proportional(1),
                 ),
             'second': () => _TestDraggablePageWidget.createRoute(
                   key: const Key('Second'),
                   label: 'Second',
                   height: 500,
-                  minExtent: const Extent.pixels(200),
+                  minPosition: const SheetAnchor.pixels(200),
                   transitionDuration: const Duration(milliseconds: 300),
                 ),
           },
@@ -360,7 +360,7 @@ void main() {
                   key: const Key('First'),
                   label: 'First',
                   height: 300,
-                  minExtent: const Extent.pixels(0),
+                  minPosition: const SheetAnchor.pixels(0),
                   physics: const ClampingSheetPhysics(),
                 ),
           },
@@ -458,8 +458,8 @@ void main() {
             'first': () => _TestDraggablePageWidget.createRoute(
                   label: 'First',
                   height: 500,
-                  minExtent: const Extent.pixels(200),
-                  initialExtent: const Extent.pixels(200),
+                  minPosition: const SheetAnchor.pixels(200),
+                  initialPosition: const SheetAnchor.pixels(200),
                 ),
           },
           contentBuilder: (context, child) {
@@ -472,15 +472,18 @@ void main() {
         ),
       );
 
-      expect(controller.value.pixels, 200,
-          reason: 'The sheet should be at the initial extent.');
-      expect(controller.value.minPixels < controller.value.maxPixels, isTrue,
-          reason: 'The sheet should be draggable.');
+      expect(controller.metrics.pixels, 200,
+          reason: 'The sheet should be at the initial position.');
+      expect(
+        controller.metrics.minPixels < controller.metrics.maxPixels,
+        isTrue,
+        reason: 'The sheet should be draggable.',
+      );
 
-      // Start animating the sheet to the max extent.
+      // Start animating the sheet to the max position.
       unawaited(
         controller.animateTo(
-          const Extent.proportional(1),
+          const SheetAnchor.proportional(1),
           duration: const Duration(milliseconds: 250),
         ),
       );
@@ -493,8 +496,8 @@ void main() {
       expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
           reason: 'The keyboard should be fully shown.');
       expect(
-        controller.value.pixels,
-        controller.value.maxPixels,
+        controller.metrics.pixels,
+        controller.metrics.maxPixels,
         reason: 'After the keyboard is fully shown, '
             'the entire sheet should also be visible.',
       );

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 void main() {
-  runApp(const _ExtentDrivenAnimationExample());
+  runApp(const _PositionDrivenAnimationExample());
 }
 
-class _ExtentDrivenAnimationExample extends StatelessWidget {
-  const _ExtentDrivenAnimationExample();
+class _PositionDrivenAnimationExample extends StatelessWidget {
+  const _PositionDrivenAnimationExample();
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class _ExampleScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Provides a SheetController to the descendant widgets
-    // to perform some sheet extent driven animations.
+    // to perform some sheet position driven animations.
     // The sheet will look up and use this controller unless
     // another one is manually specified in the constructor.
     // The descendant widgets can also get this controller by
@@ -48,18 +48,18 @@ class _ExampleSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    final minExtent = Extent.pixels(56 + bottomPadding);
+    final minPosition = SheetAnchor.pixels(56 + bottomPadding);
 
     final physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
         snappingBehavior: SnapToNearest(
-          snapTo: [minExtent, const Extent.proportional(1)],
+          snapTo: [minPosition, const SheetAnchor.proportional(1)],
         ),
       ),
     );
 
     return DraggableSheet(
-      minExtent: minExtent,
+      minPosition: minPosition,
       physics: physics,
       child: Card(
         margin: EdgeInsets.zero,
@@ -84,19 +84,19 @@ class _BottomAppBar extends StatelessWidget {
     // Lookup the nearest controller.
     final controller = DefaultSheetController.of(context);
 
-    // It is easy to create sheet extent driven animations
-    // by using 'ExtentDrivenAnimation', a special kind of
+    // It is easy to create sheet position driven animations
+    // by using 'PositionDrivenAnimation', a special kind of
     // 'Animation<double>' whose value changes from 0 to 1 as
-    // the sheet extent changes from 'startExtent' to 'endExtent'.
-    final animation = ExtentDrivenAnimation(
+    // the sheet position changes from 'startPosition' to 'endPosition'.
+    final animation = SheetPositionDrivenAnimation(
       controller: controller,
       // The initial value of the animation is required
-      // since the sheet extent is not available at the first build.
+      // since the sheet position is not available at the first build.
       initialValue: 1,
-      // If null, the minimum extent will be used. (Default)
-      startExtent: null,
-      // If null, the maximum extent will be used. (Default)
-      endExtent: null,
+      // If null, the minimum position will be used. (Default)
+      startPosition: null,
+      // If null, the maximum position will be used. (Default)
+      endPosition: null,
     );
 
     final bottomAppBar = BottomAppBar(
@@ -134,7 +134,7 @@ class _RotatedFlutterLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logo = RotationTransition(
-      turns: ExtentDrivenAnimation(
+      turns: SheetPositionDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ),

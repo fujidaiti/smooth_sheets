@@ -3,12 +3,12 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_extent.dart';
-import 'sheet_status.dart';
+import 'foundation.dart';
+import 'sheet_position.dart';
 
 class SheetController extends ChangeNotifier
-    implements ValueListenable<SheetMetrics> {
-  SheetExtent? _client;
+    implements ValueListenable<double?> {
+  SheetPosition? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
   ///
@@ -17,12 +17,22 @@ class SheetController extends ChangeNotifier
   /// not be notified during the middle of a frame.
   final _immediateListeners = ChangeNotifier();
 
+  /// The current sheet position.
+  ///
+  /// Returns [SheetPosition.value] of the attached [SheetPosition],
+  /// or `null` if no [SheetPosition] is attached.
   @override
-  SheetMetrics get value => _client?.metrics ?? SheetMetrics.empty;
+  double? get value => _client?.value;
 
   SheetStatus? get status => _client?.status;
 
-  /// Whether a [SheetExtent] is attached to this controller.
+  /// The current metrics of the sheet.
+  ///
+  /// Returns [SheetPosition.snapshot] of the attached [SheetPosition],
+  /// or [SheetMetrics.empty] if no [SheetPosition] is attached.
+  SheetMetrics get metrics => _client?.snapshot ?? SheetMetrics.empty;
+
+  /// Whether a [SheetPosition] is attached to this controller.
   bool get hasClient => _client != null;
 
   @override
@@ -40,17 +50,17 @@ class SheetController extends ChangeNotifier
     super.removeListener(listener);
   }
 
-  void attach(SheetExtent extent) {
-    if (_client case final oldExtent?) {
-      detach(oldExtent);
+  void attach(SheetPosition position) {
+    if (_client case final oldPosition?) {
+      detach(oldPosition);
     }
 
-    _client = extent..addListener(notifyListeners);
+    _client = position..addListener(notifyListeners);
   }
 
-  void detach(SheetExtent? extent) {
-    if (extent == _client) {
-      extent?.removeListener(notifyListeners);
+  void detach(SheetPosition? position) {
+    if (position == _client) {
+      position?.removeListener(notifyListeners);
       _client = null;
     }
   }
@@ -63,7 +73,7 @@ class SheetController extends ChangeNotifier
   }
 
   Future<void> animateTo(
-    Extent to, {
+    SheetAnchor to, {
     Duration duration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeInOut,
   }) {

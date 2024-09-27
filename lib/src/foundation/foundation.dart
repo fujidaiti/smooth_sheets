@@ -1,4 +1,3 @@
-export 'extent_driven_animation.dart' show ExtentDrivenAnimation;
 export 'keyboard_dismissible.dart'
     show
         DragDownSheetKeyboardDismissBehavior,
@@ -23,8 +22,6 @@ export 'sheet_drag.dart'
         SheetDragEndDetails,
         SheetDragStartDetails,
         SheetDragUpdateDetails;
-export 'sheet_extent.dart'
-    show Extent, FixedExtent, ProportionalExtent, SheetMetrics;
 export 'sheet_notification.dart'
     show
         SheetDragCancelNotification,
@@ -49,5 +46,13 @@ export 'sheet_physics.dart'
         SnappingSheetPhysics,
         kDefaultSheetPhysics,
         kDefaultSheetSpring;
+export 'sheet_position.dart'
+    show
+        FixedSheetAnchor,
+        ProportionalSheetAnchor,
+        SheetAnchor,
+        SheetMetrics,
+        SheetMetricsSnapshot;
+export 'sheet_position_driven_animation.dart' show SheetPositionDrivenAnimation;
 export 'sheet_status.dart' show SheetStatus;
 export 'sheet_theme.dart' show SheetTheme, SheetThemeData;

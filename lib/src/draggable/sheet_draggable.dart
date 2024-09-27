@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-import '../foundation/sheet_extent.dart';
-import '../foundation/sheet_extent_scope.dart';
+import '../foundation/sheet_position.dart';
+import '../foundation/sheet_position_scope.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'draggable_sheet.dart';
 
@@ -41,18 +41,18 @@ class SheetDraggable extends StatefulWidget {
 }
 
 class _SheetDraggableState extends State<SheetDraggable> {
-  SheetExtent? _extent;
+  SheetPosition? _position;
   Drag? _currentDrag;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _extent = SheetExtentScope.maybeOf(context);
+    _position = SheetPositionScope.maybeOf(context);
   }
 
   @override
   void dispose() {
-    _extent = null;
+    _position = null;
     _disposeDrag();
     super.dispose();
   }
@@ -63,7 +63,7 @@ class _SheetDraggableState extends State<SheetDraggable> {
 
   void _handleDragStart(DragStartDetails details) {
     assert(_currentDrag == null);
-    _currentDrag = _extent?.drag(details, _disposeDrag);
+    _currentDrag = _position?.drag(details, _disposeDrag);
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {

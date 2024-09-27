@@ -70,10 +70,10 @@ class _HalfScreenSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // `CupertinoStackedTransition` won't start the transition animation until
-    // the visible height of a modal sheet (the extent) exceeds 50% of the screen height.
+    // the visible height of a modal sheet (the position) exceeds 50% of the screen height.
     return const DraggableSheet(
-      initialExtent: Extent.proportional(0.5),
-      minExtent: Extent.proportional(0.5),
+      initialPosition: SheetAnchor.proportional(0.5),
+      minPosition: SheetAnchor.proportional(0.5),
       physics: BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),
@@ -120,7 +120,7 @@ class _SheetContent extends StatelessWidget {
                   // `DefaultSheetController.of` is a handy way to obtain a `SheetController`
                   // that is exposed by the parent `CupertinoModalSheetRoute`.
                   DefaultSheetController.maybeOf(context)
-                      ?.animateTo(const Extent.proportional(1));
+                      ?.animateTo(const SheetAnchor.proportional(1));
                   _showModalSheet(context, isFullScreen: true);
                 },
                 child: const Text('Stack'),

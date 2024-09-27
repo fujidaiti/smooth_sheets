@@ -4,8 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_extent.dart';
-import 'sheet_extent_scope.dart';
+import 'sheet_position.dart';
+import 'sheet_position_scope.dart';
 
 @internal
 class SheetViewport extends SingleChildRenderObjectWidget {
@@ -17,7 +17,7 @@ class SheetViewport extends SingleChildRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderSheetViewport(
-      SheetExtentScope.of(context),
+      SheetPositionScope.of(context),
       MediaQuery.viewInsetsOf(context),
     );
   }
@@ -25,37 +25,41 @@ class SheetViewport extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as RenderSheetViewport)
-      ..extent = SheetExtentScope.of(context)
+      ..position = SheetPositionScope.of(context)
       ..insets = MediaQuery.viewInsetsOf(context);
   }
 }
 
 @internal
 class RenderSheetViewport extends RenderTransform {
-  RenderSheetViewport(SheetExtent extent, EdgeInsets insets)
-      : _extent = extent,
+  RenderSheetViewport(SheetPosition position, EdgeInsets insets)
+      : _position = position,
         _insets = insets,
         super(transform: Matrix4.zero(), transformHitTests: true) {
-    _extent.addListener(_invalidateTranslationValue);
+    _position.addListener(_invalidateTranslationValue);
   }
 
   // Cache the last measured size because we can't access
   // 'size' property from outside of the layout phase.
   Size? _lastMeasuredSize;
+
   Size? get lastMeasuredSize => _lastMeasuredSize;
 
-  SheetExtent _extent;
+  SheetPosition _position;
+
   // ignore: avoid_setters_without_getters
-  set extent(SheetExtent value) {
-    if (_extent != value) {
-      _extent.removeListener(_invalidateTranslationValue);
-      _extent = value..addListener(_invalidateTranslationValue);
+  set position(SheetPosition value) {
+    if (_position != value) {
+      _position.removeListener(_invalidateTranslationValue);
+      _position = value..addListener(_invalidateTranslationValue);
       markNeedsLayout();
     }
   }
 
   EdgeInsets _insets;
+
   EdgeInsets get insets => _insets;
+
   set insets(EdgeInsets value) {
     if (value != _insets) {
       _insets = value;
@@ -67,11 +71,11 @@ class RenderSheetViewport extends RenderTransform {
   void performLayout() {
     // We can assume that the viewport will always be as big as possible.
     _lastMeasuredSize = constraints.biggest;
-    _extent.markAsDimensionsWillChange();
-    // Notify the SheetExtent about the viewport size changes
+    _position.markAsDimensionsWillChange();
+    // Notify the SheetPosition about the viewport size changes
     // before performing the layout so that the descendant widgets
     // can use the viewport size during the layout phase.
-    _extent.applyNewViewportDimensions(
+    _position.applyNewViewportDimensions(
       Size(_lastMeasuredSize!.width, _lastMeasuredSize!.height),
       _insets,
     );
@@ -85,12 +89,12 @@ class RenderSheetViewport extends RenderTransform {
     );
 
     assert(
-      _extent.metrics.hasDimensions,
-      'The sheet extent and the dimensions values '
+      _position.hasDimensions,
+      'The sheet position and the dimensions values '
       'must be finalized during the layout phase.',
     );
 
-    _extent.markAsDimensionsChanged();
+    _position.markAsDimensionsChanged();
     _invalidateTranslationValue();
   }
 
@@ -101,10 +105,10 @@ class RenderSheetViewport extends RenderTransform {
   }
 
   void _invalidateTranslationValue() {
-    final currentExtent = _extent.metrics.maybePixels;
+    final currentPosition = _position.maybePixels;
     final viewportSize = _lastMeasuredSize;
-    if (currentExtent != null && viewportSize != null) {
-      final dy = viewportSize.height - _insets.bottom - currentExtent;
+    if (currentPosition != null && viewportSize != null) {
+      final dy = viewportSize.height - _insets.bottom - currentPosition;
       // Update the translation value and mark this render object
       // as needing to be repainted.
       transform = Matrix4.translationValues(0, dy, 0);
@@ -123,7 +127,7 @@ class RenderSheetViewport extends RenderTransform {
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    if (_extent.activity.shouldIgnorePointer) {
+    if (_position.activity.shouldIgnorePointer) {
       final invTransform = Matrix4.tryInvert(
         PointerEvent.removePerspectiveTransform(_transform),
       );
@@ -136,7 +140,7 @@ class RenderSheetViewport extends RenderTransform {
 
   @override
   void dispose() {
-    _extent.removeListener(_invalidateTranslationValue);
+    _position.removeListener(_invalidateTranslationValue);
     super.dispose();
   }
 }
@@ -184,7 +188,7 @@ class _SheetContentViewportState extends State<SheetContentViewport> {
       state: this,
       child: _SheetContentLayoutObserver(
         isEnabled: _isEnabled,
-        extent: SheetExtentScope.maybeOf(context),
+        position: SheetPositionScope.maybeOf(context),
         child: widget.child,
       ),
     );
@@ -212,17 +216,17 @@ class _SheetContentViewportScope extends InheritedWidget {
 class _SheetContentLayoutObserver extends SingleChildRenderObjectWidget {
   const _SheetContentLayoutObserver({
     required this.isEnabled,
-    required this.extent,
+    required this.position,
     required super.child,
   });
 
   final ValueGetter<bool> isEnabled;
-  final SheetExtent? extent;
+  final SheetPosition? position;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetContentLayoutObserver(
-      extent: extent,
+      position: position,
       isEnabled: isEnabled,
     );
   }
@@ -230,7 +234,7 @@ class _SheetContentLayoutObserver extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetContentLayoutObserver)
-      ..extent = extent
+      ..position = position
       ..isEnabled = isEnabled;
   }
 }
@@ -238,21 +242,23 @@ class _SheetContentLayoutObserver extends SingleChildRenderObjectWidget {
 class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
   _RenderSheetContentLayoutObserver({
     required ValueGetter<bool> isEnabled,
-    required SheetExtent? extent,
+    required SheetPosition? position,
   })  : _isEnabled = isEnabled,
-        _extent = extent,
+        _position = position,
         super(alignment: Alignment.topCenter);
 
-  SheetExtent? _extent;
+  SheetPosition? _position;
+
   // ignore: avoid_setters_without_getters
-  set extent(SheetExtent? value) {
-    if (_extent != value) {
-      _extent = value;
+  set position(SheetPosition? value) {
+    if (_position != value) {
+      _position = value;
       markNeedsLayout();
     }
   }
 
   ValueGetter<bool> _isEnabled;
+
   // ignore: avoid_setters_without_getters
   set isEnabled(ValueGetter<bool> value) {
     if (_isEnabled != value) {
@@ -263,7 +269,7 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
 
   @override
   void performLayout() {
-    _extent?.markAsDimensionsWillChange();
+    _position?.markAsDimensionsWillChange();
     super.performLayout();
     final childSize = child?.size;
     // The evaluation of _isEnabled() is intentionally delayed
@@ -272,8 +278,8 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
     // and if another SheetContentViewport exists in the subtree,
     // it will change the result of _isEnabled().
     if (_isEnabled() && childSize != null) {
-      _extent?.applyNewContentSize(childSize);
+      _position?.applyNewContentSize(childSize);
     }
-    _extent?.markAsDimensionsChanged();
+    _position?.markAsDimensionsChanged();
   }
 }

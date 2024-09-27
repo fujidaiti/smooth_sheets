@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
+import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_viewport.dart';
 import '../internal/transition_observer.dart';
-import 'navigation_sheet_extent.dart';
-import 'navigation_sheet_extent_scope.dart';
+import 'navigation_sheet_position.dart';
+import 'navigation_sheet_position_scope.dart';
 import 'navigation_sheet_viewport.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
@@ -36,13 +36,13 @@ class _NavigationSheetState extends State<NavigationSheet>
         TransitionAwareStateMixin,
         TickerProviderStateMixin,
         SheetContextStateMixin {
-  final _scopeKey = SheetExtentScopeKey<NavigationSheetExtent>(
+  final _scopeKey = SheetPositionScopeKey<NavigationSheetPosition>(
     debugLabel: kDebugMode ? 'NavigationSheet' : null,
   );
 
   @override
   void didChangeTransitionState(Transition? transition) {
-    _scopeKey.maybeCurrentExtent?.handleRouteTransition(transition);
+    _scopeKey.maybeCurrentPosition?.handleRouteTransition(transition);
   }
 
   @override
@@ -51,7 +51,7 @@ class _NavigationSheetState extends State<NavigationSheet>
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return NavigationSheetExtentScope(
+    return NavigationSheetPositionScope(
       key: _scopeKey,
       context: this,
       controller: controller,

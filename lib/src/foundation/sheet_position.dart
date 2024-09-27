@@ -10,46 +10,54 @@ import 'sheet_activity.dart';
 import 'sheet_context.dart';
 import 'sheet_controller.dart';
 import 'sheet_drag.dart';
-import 'sheet_extent_scope.dart';
 import 'sheet_gesture_tamperer.dart';
 import 'sheet_notification.dart';
 import 'sheet_physics.dart';
+import 'sheet_position_scope.dart';
 import 'sheet_status.dart';
 
-/// A representation of a visible height of the sheet.
+/// An abstract representation of a sheet's position.
 ///
-/// It is used in a variety of situations, for example, to specify
-/// how much area of a sheet is initially visible at first build,
-/// or to limit the range of sheet dragging.
+/// It is used in various contexts by sheets, for example,
+/// to define how much of the sheet is initially visible at the first build
+/// or to limit the range within which the sheet can be dragged.
 ///
 /// See also:
-/// - [ProportionalExtent], which is proportional to the content height.
-/// - [FixedExtent], which is defined by a concrete value in pixels.
-abstract interface class Extent {
-  /// {@macro fixed_extent}
-  const factory Extent.pixels(double pixels) = FixedExtent;
+/// - [ProportionalSheetAnchor], which defines the position
+///   proportionally to the sheet's content height.
+/// - [FixedSheetAnchor], which defines the position
+///   using a fixed value in pixels.
+abstract interface class SheetAnchor {
+  /// {@macro FixedSheetAnchor}
+  const factory SheetAnchor.pixels(double pixels) = FixedSheetAnchor;
 
-  /// {@macro proportional_extent}
-  const factory Extent.proportional(double size) = ProportionalExtent;
+  /// {@macro ProportionalSheetAnchor}
+  const factory SheetAnchor.proportional(double size) = ProportionalSheetAnchor;
 
-  /// Resolves the extent to a concrete value in pixels.
+  /// Resolves the position to an actual value in pixels.
   ///
-  /// Do not cache the value of [contentSize] because
-  /// it may change over time.
+  /// The [contentSize] parameter should not be cached
+  /// as it may change over time.
   double resolve(Size contentSize);
 }
 
-/// An extent that is proportional to the content height.
-class ProportionalExtent implements Extent {
-  /// {@template proportional_extent}
-  /// Creates an extent that is proportional to the content height.
+/// A [SheetAnchor] that represents a position proportional
+/// to the content height of the sheet.
+class ProportionalSheetAnchor implements SheetAnchor {
+  /// {@template ProportionalSheetAnchor}
+  /// Creates an anchor that positions the sheet
+  /// proportionally to its content height.
   ///
   /// The [factor] must be greater than or equal to 0.
-  /// This extent will resolve to `contentSize.height * factor`.
+  /// This anchor resolves to `contentSize.height * factor`.
+  /// For example, `ProportionalSheetAnchor(0.6)` represents a position
+  /// where 60% of the sheet content is visible.
   /// {@endtemplate}
-  const ProportionalExtent(this.factor) : assert(factor >= 0);
+  const ProportionalSheetAnchor(this.factor) : assert(factor >= 0);
 
-  /// The fraction of the content height.
+  /// The proportion of the sheet's content height.
+  ///
+  /// This value is a fraction (e.g., 0.6 for 60% visibility).
   final double factor;
 
   @override
@@ -58,7 +66,7 @@ class ProportionalExtent implements Extent {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ProportionalExtent &&
+      (other is ProportionalSheetAnchor &&
           runtimeType == other.runtimeType &&
           factor == other.factor);
 
@@ -66,17 +74,20 @@ class ProportionalExtent implements Extent {
   int get hashCode => Object.hash(runtimeType, factor);
 
   @override
-  String toString() => '$ProportionalExtent(factor: $factor)';
+  String toString() => '$ProportionalSheetAnchor(factor: $factor)';
 }
 
-/// An extent that has an concrete value in pixels.
-class FixedExtent implements Extent {
-  /// {@template fixed_extent}
-  /// Creates an extent from a concrete value in pixels.
+/// A [SheetAnchor] that represents a position with a fixed value in pixels.
+class FixedSheetAnchor implements SheetAnchor {
+  /// {@template FixedSheetAnchor}
+  /// Creates an anchor that represents a fixed position in pixels.
+  ///
+  /// For example, `FixedSheetAnchor(200)` represents a position
+  /// where 200 pixels from the top of the sheet content are visible.
   /// {@endtemplate}
-  const FixedExtent(this.pixels) : assert(pixels >= 0);
+  const FixedSheetAnchor(this.pixels) : assert(pixels >= 0);
 
-  /// The value in pixels.
+  /// The position in pixels.
   final double pixels;
 
   @override
@@ -85,7 +96,7 @@ class FixedExtent implements Extent {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is FixedExtent &&
+      (other is FixedSheetAnchor &&
           runtimeType == other.runtimeType &&
           pixels == other.pixels);
 
@@ -93,80 +104,87 @@ class FixedExtent implements Extent {
   int get hashCode => Object.hash(runtimeType, pixels);
 
   @override
-  String toString() => '$FixedExtent(pixels: $pixels)';
+  String toString() => '$FixedSheetAnchor(pixels: $pixels)';
 }
 
-/// Manages the extent of a sheet.
+/// Manages the position of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
-/// The [SheetMetrics.pixels] value determines the visible height of a sheet.
+/// The [SheetPosition.pixels] value determines the visible height of a sheet.
 /// As this value changes, the sheet translates its position, which changes the
-/// visible area of the content. The [SheetMetrics.minPixels] and
-/// [SheetMetrics.maxPixels] values limit the range of the *pixels*, but it can
-/// be outside of the range if the [SheetExtent.physics] allows it.
+/// visible area of the content. The [SheetPosition.minPixels] and
+/// [SheetPosition.maxPixels] values limit the range of the *pixels*, but it can
+/// be outside of the range if the [SheetPosition.physics] allows it.
 ///
 /// The current [activity] is responsible for how the *pixels* changes
 /// over time, for example, [AnimatedSheetActivity] animates the *pixels* to
 /// a target value, and [IdleSheetActivity] keeps the *pixels* unchanged.
-/// [SheetExtent] starts with [IdleSheetActivity] as the initial activity,
+/// [SheetPosition] starts with [IdleSheetActivity] as the initial activity,
 /// and it can be changed by calling [beginActivity].
 ///
-/// This object is [Listenable] that notifies its listeners when *pixels*
+/// This object is a [Listenable] that notifies its listeners when the *pixels*
 /// changes, even during build or layout phase. For listeners that can cause
 /// any widget to rebuild, consider using [SheetController], which is also
-/// [Listenable] of the extent, but only notifies its listeners between frames.
+/// [Listenable] of the *pixels*, but avoids notifying listeners during a build.
 ///
 /// See also:
-/// - [SheetController], which can be attached to a sheet to control its extent.
-/// - [SheetExtentScope], which creates a [SheetExtent], manages its lifecycle,
-///   and exposes it to the descendant widgets.
+/// - [SheetController], which can be attached to a sheet to observe and control
+///   its position.
+/// - [SheetPositionScope], which creates a [SheetPosition], manages its
+///   lifecycle and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
-abstract class SheetExtent extends ChangeNotifier
-    implements ValueListenable<SheetMetrics> {
-  /// Creates an object that manages the extent of a sheet.
-  SheetExtent({
+abstract class SheetPosition extends ChangeNotifier
+    with SheetMetrics
+    implements ValueListenable<double?> {
+  /// Creates an object that manages the position of a sheet.
+  SheetPosition({
     required this.context,
-    required Extent minExtent,
-    required Extent maxExtent,
+    required SheetAnchor minPosition,
+    required SheetAnchor maxPosition,
     required SheetPhysics physics,
     this.debugLabel,
     SheetGestureProxyMixin? gestureTamperer,
   })  : _physics = physics,
         _gestureTamperer = gestureTamperer,
-        _metrics = SheetMetrics.empty.copyWith(
-          minExtent: minExtent,
-          maxExtent: maxExtent,
+        _snapshot = SheetMetrics.empty.copyWith(
+          minPosition: minPosition,
+          maxPosition: maxPosition,
         ) {
     goIdle();
   }
 
   @override
-  SheetMetrics get value => metrics;
+  double? get value => snapshot.maybePixels;
+
+  @override
+  double? get maybePixels => snapshot.maybePixels;
+
+  @override
+  SheetAnchor? get maybeMinPosition => snapshot.maybeMinPosition;
+
+  @override
+  SheetAnchor? get maybeMaxPosition => snapshot.maybeMaxPosition;
+
+  @override
+  Size? get maybeContentSize => snapshot.maybeContentSize;
+
+  @override
+  Size? get maybeViewportSize => snapshot.maybeViewportSize;
+
+  @override
+  EdgeInsets? get maybeViewportInsets => snapshot.maybeViewportInsets;
+
+  @override
+  double get devicePixelRatio => context.devicePixelRatio;
 
   SheetStatus get status => activity.status;
 
   /// A handle to the owner of this object.
   final SheetContext context;
 
-  /// {@template SheetExtent.minExtent}
-  /// The minimum extent of the sheet.
-  ///
-  /// The sheet may below this extent if the [physics] allows it.
-  /// {@endtemplate}
-  // TODO: Remove this in favor of SheetMetrics.minExtent.
-  Extent get minExtent => _metrics.minExtent;
-
-  /// {@template SheetExtent.maxExtent}
-  /// The maximum extent of the sheet.
-  ///
-  /// The sheet may exceed this extent if the [physics] allows it.
-  /// {@endtemplate}
-  // TODO: Remove this in favor of SheetMetrics.maxExtent.
-  Extent get maxExtent => _metrics.maxExtent;
-
-  /// {@template SheetExtent.physics}
-  /// How the sheet extent should respond to user input.
+  /// {@template SheetPosition.physics}
+  /// How the sheet position should respond to user input.
   ///
   /// This determines how the sheet will behave when over-dragged or
   /// under-dragged, or when the user stops dragging.
@@ -174,7 +192,7 @@ abstract class SheetExtent extends ChangeNotifier
   SheetPhysics get physics => _physics;
   SheetPhysics _physics;
 
-  /// {@template SheetExtent.gestureTamperer}
+  /// {@template SheetPosition.gestureTamperer}
   /// An object that can modify the gesture details of the sheet.
   /// {@endtemplate}
   SheetGestureProxyMixin? get gestureTamperer => _gestureTamperer;
@@ -195,8 +213,8 @@ abstract class SheetExtent extends ChangeNotifier
   SheetDragController? currentDrag;
 
   /// Snapshot of the current sheet's state.
-  SheetMetrics get metrics => _metrics;
-  SheetMetrics _metrics;
+  SheetMetrics get snapshot => _snapshot;
+  SheetMetrics _snapshot;
 
   /// Updates the metrics with the given values.
   ///
@@ -204,32 +222,32 @@ abstract class SheetExtent extends ChangeNotifier
   /// to ensure that the [SheetMetrics.devicePixelRatio] is always up-to-date.
   void _updateMetrics({
     double? pixels,
-    Extent? minExtent,
-    Extent? maxExtent,
+    SheetAnchor? minPosition,
+    SheetAnchor? maxPosition,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
   }) {
-    _metrics = SheetMetrics(
-      pixels: pixels ?? metrics.maybePixels,
-      minExtent: minExtent ?? metrics.maybeMinExtent,
-      maxExtent: maxExtent ?? metrics.maybeMaxExtent,
-      contentSize: contentSize ?? metrics.maybeContentSize,
-      viewportSize: viewportSize ?? metrics.maybeViewportSize,
-      viewportInsets: viewportInsets ?? metrics.maybeViewportInsets,
+    _snapshot = SheetMetricsSnapshot(
+      pixels: pixels ?? maybePixels,
+      minPosition: minPosition ?? maybeMinPosition,
+      maxPosition: maxPosition ?? maybeMaxPosition,
+      contentSize: contentSize ?? maybeContentSize,
+      viewportSize: viewportSize ?? maybeViewportSize,
+      viewportInsets: viewportInsets ?? maybeViewportInsets,
       // Ensure that the devicePixelRatio is always up-to-date.
       devicePixelRatio: context.devicePixelRatio,
     );
   }
 
   @mustCallSuper
-  void takeOver(SheetExtent other) {
+  void takeOver(SheetPosition other) {
     assert(currentDrag == null);
     if (other.activity.isCompatibleWith(this)) {
       activity.dispose();
       _activity = other.activity;
       // This is necessary to prevent the activity from being disposed of
-      // when `other` extent is disposed of.
+      // when `other` is disposed of.
       other._activity = null;
       activity.updateOwner(this);
 
@@ -241,18 +259,19 @@ abstract class SheetExtent extends ChangeNotifier
     } else {
       goIdle();
     }
-    if (other.metrics.maybePixels case final pixels?) {
+    if (other.maybePixels case final pixels?) {
       correctPixels(pixels);
     }
-    applyNewBoundaryConstraints(other.minExtent, other.maxExtent);
+    applyNewBoundaryConstraints(other.minPosition, other.maxPosition);
     applyNewViewportDimensions(
-      other.metrics.viewportSize,
-      other.metrics.viewportInsets,
+      other.viewportSize,
+      other.viewportInsets,
     );
-    applyNewContentSize(other.metrics.contentSize);
+    applyNewContentSize(other.contentSize);
   }
 
   @mustCallSuper
+  // TODO: Rename to updateGestureProxy
   void updateGestureTamperer(SheetGestureProxyMixin? gestureTamperer) {
     if (_gestureTamperer != gestureTamperer) {
       _gestureTamperer = gestureTamperer;
@@ -267,8 +286,8 @@ abstract class SheetExtent extends ChangeNotifier
 
   @mustCallSuper
   void applyNewContentSize(Size contentSize) {
-    if (metrics.maybeContentSize != contentSize) {
-      _oldContentSize = metrics.maybeContentSize;
+    if (maybeContentSize != contentSize) {
+      _oldContentSize = maybeContentSize;
       _updateMetrics(contentSize: contentSize);
       activity.didChangeContentSize(_oldContentSize);
     }
@@ -276,10 +295,9 @@ abstract class SheetExtent extends ChangeNotifier
 
   @mustCallSuper
   void applyNewViewportDimensions(Size size, EdgeInsets insets) {
-    if (metrics.maybeViewportSize != size ||
-        metrics.maybeViewportInsets != insets) {
-      _oldViewportSize = metrics.maybeViewportSize;
-      _oldViewportInsets = metrics.maybeViewportInsets;
+    if (maybeViewportSize != size || maybeViewportInsets != insets) {
+      _oldViewportSize = maybeViewportSize;
+      _oldViewportInsets = maybeViewportInsets;
       _updateMetrics(viewportSize: size, viewportInsets: insets);
       activity.didChangeViewportDimensions(
         _oldViewportSize,
@@ -289,12 +307,13 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   @mustCallSuper
-  void applyNewBoundaryConstraints(Extent minExtent, Extent maxExtent) {
-    if (minExtent != this.minExtent || maxExtent != this.maxExtent) {
-      final oldMinExtent = metrics.maybeMinExtent;
-      final oldMaxExtent = metrics.maybeMaxExtent;
-      _updateMetrics(minExtent: minExtent, maxExtent: maxExtent);
-      activity.didChangeBoundaryConstraints(oldMinExtent, oldMaxExtent);
+  void applyNewBoundaryConstraints(
+      SheetAnchor minPosition, SheetAnchor maxPosition) {
+    if (minPosition != this.minPosition || maxPosition != this.maxPosition) {
+      final oldMinPosition = maybeMinPosition;
+      final oldMaxPosition = maybeMaxPosition;
+      _updateMetrics(minPosition: minPosition, maxPosition: maxPosition);
+      activity.didChangeBoundaryConstraints(oldMinPosition, oldMaxPosition);
     }
   }
 
@@ -361,7 +380,7 @@ abstract class SheetExtent extends ChangeNotifier
       ),
     );
     assert(
-      metrics.hasDimensions,
+      hasDimensions,
       _debugMessage(
         'All the dimension values must be finalized '
         'at the time onDimensionsFinalized() is called.',
@@ -397,8 +416,8 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   void goBallistic(double velocity) {
-    assert(metrics.hasDimensions);
-    final simulation = physics.createBallisticSimulation(velocity, metrics);
+    assert(hasDimensions);
+    final simulation = physics.createBallisticSimulation(velocity, snapshot);
     if (simulation != null) {
       goBallisticWith(simulation);
     } else {
@@ -410,7 +429,7 @@ abstract class SheetExtent extends ChangeNotifier
     beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
-  void settleTo(Extent detent, Duration duration) {
+  void settleTo(SheetAnchor detent, Duration duration) {
     beginActivity(
       SettlingSheetActivity.withDuration(
         duration,
@@ -460,7 +479,7 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   void setPixels(double pixels) {
-    final oldPixels = metrics.maybePixels;
+    final oldPixels = maybePixels;
     correctPixels(pixels);
     if (oldPixels != pixels) {
       notifyListeners();
@@ -468,27 +487,27 @@ abstract class SheetExtent extends ChangeNotifier
   }
 
   void correctPixels(double pixels) {
-    if (metrics.maybePixels != pixels) {
+    if (maybePixels != pixels) {
       _updateMetrics(pixels: pixels);
     }
   }
 
-  /// Animates the extent to the given value.
+  /// Animates the sheet position to the given value.
   ///
   /// The returned future completes when the animation ends,
   /// whether it completed successfully or whether it was
   /// interrupted prematurely.
   Future<void> animateTo(
-    Extent newExtent, {
+    SheetAnchor newPosition, {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    assert(metrics.hasDimensions);
-    if (metrics.pixels == newExtent.resolve(metrics.contentSize)) {
+    assert(hasDimensions);
+    if (pixels == newPosition.resolve(contentSize)) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
-        destination: newExtent,
+        destination: newPosition,
         duration: duration,
         curve: curve,
       );
@@ -498,50 +517,71 @@ abstract class SheetExtent extends ChangeNotifier
     }
   }
 
+  @override
+  SheetMetrics copyWith({
+    double? pixels,
+    SheetAnchor? minPosition,
+    SheetAnchor? maxPosition,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
+    double? devicePixelRatio,
+  }) {
+    return snapshot.copyWith(
+      pixels: pixels,
+      minPosition: minPosition,
+      maxPosition: maxPosition,
+      contentSize: contentSize,
+      viewportSize: viewportSize,
+      viewportInsets: viewportInsets,
+      devicePixelRatio: devicePixelRatio,
+    );
+  }
+
   void didUpdateMetrics() {
-    if (metrics.hasDimensions) {
+    if (hasDimensions) {
       SheetUpdateNotification(
-        metrics: metrics,
+        metrics: snapshot,
         status: status,
       ).dispatch(context.notificationContext);
     }
   }
 
   void didDragStart(SheetDragStartDetails details) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetDragStartNotification(
-      metrics: metrics,
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragEnd(SheetDragEndDetails details) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetDragEndNotification(
-      metrics: metrics,
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragUpdateMetrics(SheetDragUpdateDetails details) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetDragUpdateNotification(
-      metrics: metrics,
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragCancel() {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetDragCancelNotification(
-      metrics: metrics,
+      metrics: snapshot,
     ).dispatch(context.notificationContext);
   }
 
   void didOverflowBy(double overflow) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     SheetOverflowNotification(
-      metrics: metrics,
+      metrics: snapshot,
       status: status,
       overflow: overflow,
     ).dispatch(context.notificationContext);
@@ -555,86 +595,86 @@ abstract class SheetExtent extends ChangeNotifier
   }
 }
 
-/// An immutable snapshot of the state of a sheet.
-class SheetMetrics {
-  /// Creates an immutable snapshot of the state of a sheet.
-  const SheetMetrics({
-    required double? pixels,
-    required Extent? minExtent,
-    required Extent? maxExtent,
-    required Size? contentSize,
-    required Size? viewportSize,
-    required EdgeInsets? viewportInsets,
-    this.devicePixelRatio = 1.0,
-  })  : maybePixels = pixels,
-        maybeMinExtent = minExtent,
-        maybeMaxExtent = maxExtent,
-        maybeContentSize = contentSize,
-        maybeViewportSize = viewportSize,
-        maybeViewportInsets = viewportInsets;
-
+/// The metrics of a sheet.
+mixin SheetMetrics {
   /// An empty metrics object with all values set to null.
-  static const empty = SheetMetrics(
+  static const SheetMetrics empty = SheetMetricsSnapshot(
     pixels: null,
-    minExtent: null,
-    maxExtent: null,
+    minPosition: null,
+    maxPosition: null,
     contentSize: null,
     viewportSize: null,
     viewportInsets: null,
   );
 
-  final double? maybePixels;
-  final Extent? maybeMinExtent;
-  final Extent? maybeMaxExtent;
-  final Size? maybeContentSize;
-  final Size? maybeViewportSize;
-  final EdgeInsets? maybeViewportInsets;
+  double? get maybePixels;
+
+  SheetAnchor? get maybeMinPosition;
+
+  SheetAnchor? get maybeMaxPosition;
+
+  Size? get maybeContentSize;
+
+  Size? get maybeViewportSize;
+
+  EdgeInsets? get maybeViewportInsets;
 
   /// The [FlutterView.devicePixelRatio] of the view that the sheet
-  /// associated with this metrics object is drawn into.
+  /// associated with this metrics is drawn into.
   // TODO: Move this to SheetContext.
-  final double devicePixelRatio;
+  double get devicePixelRatio;
 
-  double? get maybeMinPixels => switch ((maybeMinExtent, maybeContentSize)) {
-        (final minExtent?, final contentSize?) =>
-          minExtent.resolve(contentSize),
+  /// Creates a copy of the metrics with the given fields replaced.
+  SheetMetrics copyWith({
+    double? pixels,
+    SheetAnchor? minPosition,
+    SheetAnchor? maxPosition,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
+    double? devicePixelRatio,
+  });
+
+  double? get maybeMinPixels => switch ((maybeMinPosition, maybeContentSize)) {
+        (final minPosition?, final contentSize?) =>
+          minPosition.resolve(contentSize),
         _ => null,
       };
 
-  double? get maybeMaxPixels => switch ((maybeMaxExtent, maybeContentSize)) {
-        (final maxExtent?, final contentSize?) =>
-          maxExtent.resolve(contentSize),
+  double? get maybeMaxPixels => switch ((maybeMaxPosition, maybeContentSize)) {
+        (final maxPosition?, final contentSize?) =>
+          maxPosition.resolve(contentSize),
         _ => null,
       };
 
-  /// The current extent of the sheet in pixels.
+  /// The current position of the sheet in pixels.
   double get pixels {
     assert(_debugAssertHasProperty('pixels', maybePixels));
     return maybePixels!;
   }
 
-  /// The minimum extent of the sheet in pixels.
+  /// The minimum position of the sheet in pixels.
   double get minPixels {
     assert(_debugAssertHasProperty('minPixels', maybeMinPixels));
     return maybeMinPixels!;
   }
 
-  /// The maximum extent of the sheet in pixels.
+  /// The maximum position of the sheet in pixels.
   double get maxPixels {
     assert(_debugAssertHasProperty('maxPixels', maybeMaxPixels));
     return maybeMaxPixels!;
   }
 
-  /// The minimum extent of the sheet.
-  Extent get minExtent {
-    assert(_debugAssertHasProperty('minExtent', maybeMinExtent));
-    return maybeMinExtent!;
+  /// The minimum position of the sheet.
+  SheetAnchor get minPosition {
+    assert(_debugAssertHasProperty('minPosition', maybeMinPosition));
+    return maybeMinPosition!;
   }
 
-  /// The maximum extent of the sheet.
-  Extent get maxExtent {
-    assert(_debugAssertHasProperty('maxExtent', maybeMaxExtent));
-    return maybeMaxExtent!;
+  /// The maximum position of the sheet.
+  SheetAnchor get maxPosition {
+    assert(_debugAssertHasProperty('maxPosition', maybeMaxPosition));
+    return maybeMaxPosition!;
   }
 
   /// The size of the sheet's content.
@@ -659,16 +699,19 @@ class SheetMetrics {
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [pixels] and the keyboard's height. Otherwise, it is equal to [pixels].
   double get viewPixels => pixels + viewportInsets.bottom;
+
   double? get maybeViewPixels => hasDimensions ? viewPixels : null;
 
   /// The minimum visible height of the sheet measured from the bottom
   /// of the viewport.
   double get minViewPixels => minPixels + viewportInsets.bottom;
+
   double? get maybeMinViewPixels => hasDimensions ? minViewPixels : null;
 
   /// The maximum visible height of the sheet measured from the bottom
   /// of the viewport.
   double get maxViewPixels => maxPixels + viewportInsets.bottom;
+
   double? get maybeMaxViewPixels => hasDimensions ? maxViewPixels : null;
 
   /// Whether the all metrics are available.
@@ -678,8 +721,8 @@ class SheetMetrics {
   /// null.
   bool get hasDimensions =>
       maybePixels != null &&
-      maybeMinExtent != null &&
-      maybeMaxExtent != null &&
+      maybeMinPosition != null &&
+      maybeMaxPosition != null &&
       maybeContentSize != null &&
       maybeViewportSize != null &&
       maybeViewportInsets != null;
@@ -698,9 +741,9 @@ class SheetMetrics {
     assert(() {
       if (value == null) {
         throw FlutterError(
-          'SheetMetrics.$name cannot be accessed before the value is set. '
-          'Consider using the corresponding SheetMetrics.maybe* getter '
-          'to handle the case when the value is null. SheetMetrics.hasPixels '
+          '$runtimeType.$name cannot be accessed before the value is set. '
+          'Consider using the corresponding $runtimeType.maybe* getter '
+          'to handle the case when the value is null. $runtimeType.hasPixels '
           'is also useful to check if all the metrics values are set '
           'before accessing them.',
         );
@@ -709,21 +752,61 @@ class SheetMetrics {
     }());
     return true;
   }
+}
 
-  /// Creates a copy of this object with the given fields replaced.
-  SheetMetrics copyWith({
+/// An immutable snapshot of the state of a sheet.
+class SheetMetricsSnapshot with SheetMetrics {
+  /// Creates an immutable snapshot of the state of a sheet.
+  const SheetMetricsSnapshot({
+    required double? pixels,
+    required SheetAnchor? minPosition,
+    required SheetAnchor? maxPosition,
+    required Size? contentSize,
+    required Size? viewportSize,
+    required EdgeInsets? viewportInsets,
+    this.devicePixelRatio = 1.0,
+  })  : maybePixels = pixels,
+        maybeMinPosition = minPosition,
+        maybeMaxPosition = maxPosition,
+        maybeContentSize = contentSize,
+        maybeViewportSize = viewportSize,
+        maybeViewportInsets = viewportInsets;
+
+  @override
+  final double? maybePixels;
+
+  @override
+  final SheetAnchor? maybeMinPosition;
+
+  @override
+  final SheetAnchor? maybeMaxPosition;
+
+  @override
+  final Size? maybeContentSize;
+
+  @override
+  final Size? maybeViewportSize;
+
+  @override
+  final EdgeInsets? maybeViewportInsets;
+
+  @override
+  final double devicePixelRatio;
+
+  @override
+  SheetMetricsSnapshot copyWith({
     double? pixels,
-    Extent? minExtent,
-    Extent? maxExtent,
+    SheetAnchor? minPosition,
+    SheetAnchor? maxPosition,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
     double? devicePixelRatio,
   }) {
-    return SheetMetrics(
+    return SheetMetricsSnapshot(
       pixels: pixels ?? maybePixels,
-      minExtent: minExtent ?? maybeMinExtent,
-      maxExtent: maxExtent ?? maybeMaxExtent,
+      minPosition: minPosition ?? maybeMinPosition,
+      maxPosition: maxPosition ?? maybeMaxPosition,
       contentSize: contentSize ?? maybeContentSize,
       viewportSize: viewportSize ?? maybeViewportSize,
       viewportInsets: viewportInsets ?? maybeViewportInsets,
@@ -737,8 +820,8 @@ class SheetMetrics {
       (other is SheetMetrics &&
           runtimeType == other.runtimeType &&
           maybePixels == other.maybePixels &&
-          maybeMinExtent == other.maybeMinExtent &&
-          maybeMaxExtent == other.maybeMaxExtent &&
+          maybeMinPosition == other.maybeMinPosition &&
+          maybeMaxPosition == other.maybeMaxPosition &&
           maybeContentSize == other.maybeContentSize &&
           maybeViewportSize == other.maybeViewportSize &&
           maybeViewportInsets == other.maybeViewportInsets &&
@@ -748,8 +831,8 @@ class SheetMetrics {
   int get hashCode => Object.hash(
         runtimeType,
         maybePixels,
-        maybeMinExtent,
-        maybeMaxExtent,
+        maybeMinPosition,
+        maybeMaxPosition,
         maybeContentSize,
         maybeViewportSize,
         maybeViewportInsets,
@@ -765,8 +848,8 @@ class SheetMetrics {
         viewPixels: maybeViewPixels,
         minViewPixels: maybeMinViewPixels,
         maxViewPixels: maybeMaxViewPixels,
-        minExtent: maybeMinExtent,
-        maxExtent: maybeMaxExtent,
+        minPosition: maybeMinPosition,
+        maxPosition: maybeMaxPosition,
         contentSize: maybeContentSize,
         viewportSize: maybeViewportSize,
         viewportInsets: maybeViewportInsets,

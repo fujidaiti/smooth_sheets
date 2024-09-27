@@ -47,12 +47,12 @@ class _ExampleHomeState extends State<_ExampleHome> {
             child: Align(
               alignment: Alignment.topCenter,
               // Like ScrollController for scrollable widgets,
-              // SheetController can be used to observe changes in the sheet extent.
+              // SheetController can be used to observe changes in the sheet position.
               child: ValueListenableBuilder(
                 valueListenable: controller,
-                builder: (context, metrics, child) {
+                builder: (context, pixels, child) {
                   return Text(
-                    'Extent: ${metrics.maybePixels?.toStringAsFixed(1)}',
+                    'Position: ${pixels?.toStringAsFixed(1)}',
                     style: Theme.of(context).textTheme.displaySmall,
                   );
                 },
@@ -69,8 +69,8 @@ class _ExampleHomeState extends State<_ExampleHome> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         child: const Icon(Icons.arrow_downward_rounded),
         onPressed: () {
-          // SheetController can also be used to animate the sheet extent.
-          controller.animateTo(const Extent.proportional(0.5));
+          // SheetController can also be used to animate the sheet position.
+          controller.animateTo(const SheetAnchor.proportional(0.5));
         },
       ),
     );
@@ -88,7 +88,7 @@ class _ExampleSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableSheet(
       controller: controller,
-      minExtent: const Extent.proportional(0.5),
+      minPosition: const SheetAnchor.proportional(0.5),
       physics: const BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),

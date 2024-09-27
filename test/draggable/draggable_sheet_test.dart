@@ -85,8 +85,8 @@ void main() {
           child: DraggableSheet(
             key: sheetKey,
             controller: controller,
-            minExtent: const Extent.pixels(200),
-            initialExtent: const Extent.pixels(200),
+            minPosition: const SheetAnchor.pixels(200),
+            initialPosition: const SheetAnchor.pixels(200),
             child: const Material(
               child: _TestSheetContent(
                 height: 500,
@@ -97,15 +97,15 @@ void main() {
       ),
     );
 
-    expect(controller.value.pixels, 200,
-        reason: 'The sheet should be at the initial extent.');
-    expect(controller.value.minPixels < controller.value.maxPixels, isTrue,
+    expect(controller.metrics.pixels, 200,
+        reason: 'The sheet should be at the initial position.');
+    expect(controller.metrics.minPixels < controller.metrics.maxPixels, isTrue,
         reason: 'The sheet should be draggable.');
 
-    // Start animating the sheet to the max extent.
+    // Start animating the sheet to the max position.
     unawaited(
       controller.animateTo(
-        const Extent.proportional(1),
+        const SheetAnchor.proportional(1),
         duration: const Duration(milliseconds: 250),
       ),
     );
@@ -118,8 +118,8 @@ void main() {
     expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
         reason: 'The keyboard should be fully shown.');
     expect(
-      controller.value.pixels,
-      controller.value.maxPixels,
+      controller.metrics.pixels,
+      controller.metrics.maxPixels,
       reason: 'After the keyboard is fully shown, '
           'the entire sheet should also be visible.',
     );
