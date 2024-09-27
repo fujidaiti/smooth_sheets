@@ -6,11 +6,11 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_activity.dart';
 import '../foundation/sheet_status.dart';
 import 'navigation_route.dart';
-import 'navigation_sheet_extent.dart';
+import 'navigation_sheet_position.dart';
 
 @internal
 abstract class NavigationSheetActivity
-    extends SheetActivity<NavigationSheetExtent> {}
+    extends SheetActivity<NavigationSheetPosition> {}
 
 @internal
 class TransitionSheetActivity extends NavigationSheetActivity {
@@ -34,7 +34,7 @@ class TransitionSheetActivity extends NavigationSheetActivity {
   bool get shouldIgnorePointer => true;
 
   @override
-  void init(NavigationSheetExtent owner) {
+  void init(NavigationSheetPosition owner) {
     super.init(owner);
     _curvedAnimation = animation.drive(
       CurveTween(curve: animationCurve),
@@ -80,7 +80,7 @@ class ProxySheetActivity extends NavigationSheetActivity {
       route.scopeKey.maybeCurrentExtent?.status ?? SheetStatus.stable;
 
   @override
-  void init(NavigationSheetExtent owner) {
+  void init(NavigationSheetPosition owner) {
     super.init(owner);
     route.scopeKey.addOnCreatedListener(_onLocalExtentCreated);
   }

@@ -7,8 +7,8 @@ import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_viewport.dart';
 import '../internal/transition_observer.dart';
-import 'navigation_sheet_extent.dart';
-import 'navigation_sheet_extent_scope.dart';
+import 'navigation_sheet_position.dart';
+import 'navigation_sheet_position_scope.dart';
 import 'navigation_sheet_viewport.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
@@ -36,7 +36,7 @@ class _NavigationSheetState extends State<NavigationSheet>
         TransitionAwareStateMixin,
         TickerProviderStateMixin,
         SheetContextStateMixin {
-  final _scopeKey = SheetPositionScopeKey<NavigationSheetExtent>(
+  final _scopeKey = SheetPositionScopeKey<NavigationSheetPosition>(
     debugLabel: kDebugMode ? 'NavigationSheet' : null,
   );
 
@@ -51,7 +51,7 @@ class _NavigationSheetState extends State<NavigationSheet>
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return NavigationSheetExtentScope(
+    return NavigationSheetPositionScope(
       key: _scopeKey,
       context: this,
       controller: controller,

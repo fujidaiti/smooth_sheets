@@ -9,8 +9,8 @@ import 'navigation_route.dart';
 import 'navigation_sheet_activity.dart';
 
 @internal
-class NavigationSheetExtent extends SheetPosition {
-  NavigationSheetExtent({
+class NavigationSheetPosition extends SheetPosition {
+  NavigationSheetPosition({
     required super.context,
     required super.minPosition,
     required super.maxPosition,

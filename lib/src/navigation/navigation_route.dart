@@ -5,7 +5,7 @@ import '../foundation/sheet_position.dart';
 import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_viewport.dart';
 import 'navigation_sheet.dart';
-import 'navigation_sheet_extent.dart';
+import 'navigation_sheet_position.dart';
 import 'navigation_sheet_viewport.dart';
 
 @optionalTypeArgs
@@ -40,11 +40,12 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
   bool _debugAssertDependencies() {
     assert(
       () {
-        final globalExtent = SheetPositionScope.maybeOf<NavigationSheetExtent>(
-            navigator!.context);
+        final globalExtent =
+            SheetPositionScope.maybeOf<NavigationSheetPosition>(
+                navigator!.context);
         if (globalExtent == null) {
           throw FlutterError(
-            'A $SheetPositionScope that hosts a $NavigationSheetExtent '
+            'A $SheetPositionScope that hosts a $NavigationSheetPosition '
             'is not found in the given context. This is likely because '
             'this $NavigationSheetRoute is not a route of the navigator '
             'enclosed by a $NavigationSheet.',
@@ -145,7 +146,8 @@ class NavigationSheetRouteContent extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(_debugAssertDependencies(context));
     final parentRoute = ModalRoute.of(context)! as NavigationSheetRoute;
-    final globalExtent = SheetPositionScope.of<NavigationSheetExtent>(context);
+    final globalExtent =
+        SheetPositionScope.of<NavigationSheetPosition>(context);
     final routeViewport = NavigationSheetRouteViewport(
       child: SheetContentViewport(child: child),
     );
@@ -193,10 +195,10 @@ class NavigationSheetRouteContent extends StatelessWidget {
     assert(
       () {
         final globalExtent =
-            SheetPositionScope.maybeOf<NavigationSheetExtent>(context);
+            SheetPositionScope.maybeOf<NavigationSheetPosition>(context);
         if (globalExtent == null) {
           throw FlutterError(
-            'A SheetPositionScope that hosts a $NavigationSheetExtent '
+            'A SheetPositionScope that hosts a $NavigationSheetPosition '
             'is not found in the given context. This is likely because '
             'this NavigationSheetRouteContent is not in the subtree of '
             'the navigator enclosed by a NavigationSheet.',

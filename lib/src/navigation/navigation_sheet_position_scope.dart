@@ -4,11 +4,11 @@ import '../foundation/sheet_context.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
 import '../foundation/sheet_position_scope.dart';
-import 'navigation_sheet_extent.dart';
+import 'navigation_sheet_position.dart';
 
 @internal
-class NavigationSheetExtentScope extends SheetPositionScope {
-  const NavigationSheetExtentScope({
+class NavigationSheetPositionScope extends SheetPositionScope {
+  const NavigationSheetPositionScope({
     super.key,
     super.controller,
     super.gestureTamperer,
@@ -28,21 +28,21 @@ class NavigationSheetExtentScope extends SheetPositionScope {
 
   @override
   SheetPositionScopeState createState() {
-    return _NavigationSheetExtentScopeState();
+    return _NavigationSheetPositionScopeState();
   }
 }
 
-class _NavigationSheetExtentScopeState extends SheetPositionScopeState<
-    NavigationSheetExtent, NavigationSheetExtentScope> {
+class _NavigationSheetPositionScopeState extends SheetPositionScopeState<
+    NavigationSheetPosition, NavigationSheetPositionScope> {
   @override
-  bool shouldRebuildExtent(NavigationSheetExtent oldExtent) {
+  bool shouldRebuildExtent(NavigationSheetPosition oldExtent) {
     return widget.debugLabel != oldExtent.debugLabel ||
         super.shouldRebuildExtent(oldExtent);
   }
 
   @override
-  NavigationSheetExtent buildExtent(SheetContext context) {
-    return NavigationSheetExtent(
+  NavigationSheetPosition buildExtent(SheetContext context) {
+    return NavigationSheetPosition(
       context: context,
       minPosition: widget.minPosition,
       maxPosition: widget.maxPosition,
