@@ -10,8 +10,8 @@ import '../foundation/sheet_position.dart';
 import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
-import '../scrollable/scrollable_sheet_extent_scope.dart';
 import '../scrollable/scrollable_sheet_position.dart';
+import '../scrollable/scrollable_sheet_position_scope.dart';
 import 'navigation_route.dart';
 
 class _ScrollableNavigationSheetRouteContent extends StatelessWidget {

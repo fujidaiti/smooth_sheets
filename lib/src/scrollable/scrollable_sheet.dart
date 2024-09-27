@@ -10,7 +10,7 @@ import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
-import 'scrollable_sheet_extent_scope.dart';
+import 'scrollable_sheet_position_scope.dart';
 import 'sheet_scrollable.dart';
 
 class ScrollableSheet extends StatefulWidget {
