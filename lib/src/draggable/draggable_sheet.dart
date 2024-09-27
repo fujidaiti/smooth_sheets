@@ -9,7 +9,7 @@ import '../foundation/sheet_position.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
 import '../scrollable/scrollable_sheet.dart';
-import 'draggable_sheet_extent_scope.dart';
+import 'draggable_sheet_position_scope.dart';
 import 'sheet_draggable.dart';
 
 /// A sheet that can be dragged.
