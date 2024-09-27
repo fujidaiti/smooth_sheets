@@ -1,14 +1,29 @@
 # Changelog
 
+## 1.0.0-f324.0.10.0 Sep 28, 2024
+
+**This version contains breaking changes.** See
+the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md)
+for more details.
+
+- Fix: Touch is ignored issue not fixed for top edge (#212)
+- Fix: Closing keyboard slows down snapping animation (#193)
+- Fix: Dynamically changing sheet height doesn't respect snapping constraints (#226)
+- Fix: Snapping effect doesn't work when closing keyboard on non-fullscreen sheet (#192)
+- Fix: Unwanted bouncing when opening or closing the on-screen keyboard on ScrollableSheet (#245)
+
 ## 1.0.0-f324.0.9.4 Sep 1, 2024
 
-**This version requires Flutter 3.24.0 or later.** See the [README](https://github.com/fujidaiti/smooth_sheets/edit/main/README.md#for-developers-using-flutter-324) for more details.
+**This version requires Flutter 3.24.0 or later.** See
+the [README](https://github.com/fujidaiti/smooth_sheets/edit/main/README.md#for-developers-using-flutter-324)
+for more details.
 
 - Fix: PopScope not working with modals in Flutter 3.24+ (#237)
 
 ## 0.9.4 Aug 31, 2024
 
-- Add `SwipeDismissSensitivity`, a way to customize sensitivity of swipe-to-dismiss action on modal sheet (#222)
+- Add `SwipeDismissSensitivity`, a way to customize sensitivity of swipe-to-dismiss action on modal
+  sheet (#222)
 
 ## 0.9.3 Aug 19, 2024
 
@@ -24,11 +39,14 @@
 
 ## 0.9.0 Jul 24, 2024
 
-This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.9.x.md) for more details.
+This version contains some breaking changes. See
+the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.9.x.md)
+for more details.
 
 - Dispatch a notification when drag is cancelled (#204)
 - Prefer composition style for SheetKeyboardDismissible (#197)
-- Fix: NavigationSheet throws assertion error when starting to scroll in list view during page transition (#199)
+- Fix: NavigationSheet throws assertion error when starting to scroll in list view during page
+  transition (#199)
 - Refactor notification dispatch mechanism (#202)
 - Fix: Momentum scrolling continues despite press and hold in list view (#196)
 - Refactor: Lift sheet context up (#201)
@@ -43,7 +61,9 @@ This version contains some breaking changes. See the [migration guide](https://g
 
 ## 0.8.0 Jun 22, 2024
 
-This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.8.x.md) for more details.
+This version contains some breaking changes. See
+the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.8.x.md)
+for more details.
 
 - Make stretching behavior of StretchingSheetPhysics more customizable (#171)
 - Rename "stretching" to "bouncing" (#173, #177)
@@ -55,7 +75,8 @@ This version contains some breaking changes. See the [migration guide](https://g
 
 ## 0.7.2 Jun 9, 2024
 
-- Fix: Attaching SheetController to NavigationSheet causes "Null check operator used on a null value" (#151)
+- Fix: Attaching SheetController to NavigationSheet causes "Null check operator used on a null
+  value" (#151)
 - Fix: SheetController attached to NavigationSheet always emits minPixels = 0.0 (#163)
 
 ## 0.7.1 Jun 1, 2024
@@ -64,7 +85,9 @@ This version contains some breaking changes. See the [migration guide](https://g
 
 ## 0.7.0 May 30, 2024
 
-This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.7.x.md) for more details.
+This version contains some breaking changes. See
+the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.7.x.md)
+for more details.
 
 - Fix: Unable to build with Flutter versions `< 3.22.0` (#141)
 - Increase min SDK versions (#147)
@@ -72,7 +95,9 @@ This version contains some breaking changes. See the [migration guide](https://g
 
 ## 0.6.0 May 26, 2024
 
-This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.6.x.md) for more details.
+This version contains some breaking changes. See
+the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.6.x.md)
+for more details.
 
 - SheetDismissible not working with NavigationSheet (#137)
 - Add a way to handle dismissing modal sheet events in one place (#130)
@@ -83,11 +108,13 @@ This version contains some breaking changes. See the [migration guide](https://g
 
 ## 0.5.3 May 6, 2024
 
-- Fix an assertion error when specific page transition scenarios in declarative 'NavigationSheet' (#94)
+- Fix an assertion error when specific page transition scenarios in declarative 'NavigationSheet' (
+  #94)
 
 ## 0.5.2 May 5, 2024
 
-- Fix a crash during the first build of `NavigationSheet` with a path that contains multiple routes such as `/a/b/c` (#109)
+- Fix a crash during the first build of `NavigationSheet` with a path that contains multiple routes
+  such as `/a/b/c` (#109)
 
 ## 0.5.1 May 4, 2024
 
@@ -95,7 +122,9 @@ This version contains some breaking changes. See the [migration guide](https://g
 
 ## 0.5.0 May 4, 2024
 
-This version contains some breaking changes. See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.5.x.md) for more details.
+This version contains some breaking changes. See
+the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.5.x.md)
+for more details.
 
 - Attach default controller to sheet if not explicitly specified (#102)
 - Reimplement core architecture (#106)
@@ -108,7 +137,8 @@ This version contains some breaking changes. See the [migration guide](https://g
 
 ## 0.4.1 Mar 20, 2024
 
-- Fix mistakes in the documentation of `BottomBarVisibility` and `ConditionalStickyBottomBarVisibility` which may mislead readers.
+- Fix mistakes in the documentation of `BottomBarVisibility`
+  and `ConditionalStickyBottomBarVisibility` which may mislead readers.
 
 ## 0.4.0 Mar 20, 2024
 
@@ -134,7 +164,8 @@ This version contains some breaking changes. See the [migration guide](https://g
 
 - Add iOS 15 style modal sheet transition (#21)
 - Improve the sheet motion while opening/closing the keyboard (#27)
-- Add `settings` and `fullscreenDialog` params to the constructors of modal sheet routes and pages (#28)
+- Add `settings` and `fullscreenDialog` params to the constructors of modal sheet routes and pages (
+  #28)
 - Physics improvements (#32)
 - Add conditional modal sheet popping feature (#39)
 - Remove `enablePullToDismiss` (#44)
