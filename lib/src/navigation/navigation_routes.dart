@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../draggable/draggable_sheet_extent.dart';
+import '../draggable/draggable_sheet_position.dart';
 import '../draggable/draggable_sheet_position_scope.dart';
 import '../draggable/sheet_draggable.dart';
 import '../foundation/sheet_gesture_tamperer.dart';

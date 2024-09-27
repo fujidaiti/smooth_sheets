@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_context.dart';
 import '../foundation/sheet_position.dart';
 import '../foundation/sheet_position_scope.dart';
-import 'draggable_sheet_extent.dart';
+import 'draggable_sheet_position.dart';
 
 @internal
 class DraggableSheetExtentScope extends SheetPositionScope {
