@@ -2,20 +2,27 @@
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/fujidaiti/smooth_sheets)](https://github.com/fujidaiti/smooth_sheets) [![GitHub last commit (branch)](https://img.shields.io/github/last-commit/fujidaiti/smooth_sheets/main?logo=git)](https://github.com/fujidaiti/smooth_sheets/commits/main/) [![Pub Version](https://img.shields.io/pub/v/smooth_sheets)](https://pub.dev/packages/smooth_sheets) ![Pub Likes](https://img.shields.io/pub/likes/smooth_sheets) ![Pub Points](https://img.shields.io/pub/points/smooth_sheets) ![Pub Popularity](https://img.shields.io/pub/popularity/smooth_sheets)
 
-
 **smooth_sheets** offers modal and persistent sheet widgets for Flutter apps. The key features are:
 
 - **Smooth motion**: The sheets respond to user interaction with smooth, graceful motion.
-- **Highly flexible**: Not restricted to a specific design. Both modal and persistent styles are supp/orted, as well as scrollable and non-scrollable widgets.
-- **Supports nested navigation**: A sheet is able to have multiple pages and to navigate between the pages with motion animation for transitions.
-- **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packages like go_route as well.
+- **Highly flexible**: Not restricted to a specific design. Both modal and persistent styles are
+  supp/orted, as well as scrollable and non-scrollable widgets.
+- **Supports nested navigation**: A sheet is able to have multiple pages and to navigate between the
+  pages with motion animation for transitions.
+- **Works with imperative & declarative Navigator API**: No special navigation mechanism is
+  required. The traditional ways such as `Navigator.push` is supported and it works with Navigator
+  2.0 packages like go_route as well.
 - **iOS flavor**: The modal sheets in the style of iOS 15 are supported.
 
 <br/>
 
 ## For developers using Flutter 3.24+
 
-If your project uses Flutter 3.24.0 or later, we recommend using the pre-release versions named `1.0.0-f324.x.x.x`. While you can still use the non-pre-release versions (e.g., `0.9.4`) with Flutter 3.24+, you may encounter issues related to the `PopScope` widget due to a breaking change in Flutter 3.24. There are no functional or API differences between the pre-release and non-pre-release versions, except that the pre-release versions require Flutter 3.24.0 or later.
+If your project uses Flutter 3.24.0 or later, we recommend using the pre-release versions
+named `1.0.0-f324.x.x.x`. While you can still use the non-pre-release versions (e.g., `0.9.4`) with
+Flutter 3.24+, you may encounter issues related to the `PopScope` widget due to a breaking change in
+Flutter 3.24. There are no functional or API differences between the pre-release and non-pre-release
+versions, except that the pre-release versions require Flutter 3.24.0 or later.
 
 ```yaml
 dependencies:
@@ -28,16 +35,28 @@ dependencies:
 <details>
 <summary>Background</summary>
 
-This package previously used the `Route.onPopInvoked` method to invoke `PopScope.onPopInvoked` callbacks when users performed a swipe-to-dismiss gesture. However, these methods were deprecated in Flutter 3.24.0 as part of a [breaking change](https://docs.flutter.dev/release/breaking-changes/popscope-with-result) related to the `PopScope` widget. The problem is that `ModalRoute.onPopInvoked`, which was an override of `Route.onPopInvoked` and where `PopScope.onPopInvoked` callbacks were actually invoked, was removed. As a result, the `PopScope.onPopInvoked` callback is no longer invoked in Flutter 3.24+. These changes led to issues such as [#233](https://github.com/fujidaiti/smooth_sheets/issues/233).
+This package previously used the `Route.onPopInvoked` method to invoke `PopScope.onPopInvoked`
+callbacks when users performed a swipe-to-dismiss gesture. However, these methods were deprecated in
+Flutter 3.24.0 as part of
+a [breaking change](https://docs.flutter.dev/release/breaking-changes/popscope-with-result) related
+to the `PopScope` widget. The problem is that `ModalRoute.onPopInvoked`, which was an override
+of `Route.onPopInvoked` and where `PopScope.onPopInvoked` callbacks were actually invoked, was
+removed. As a result, the `PopScope.onPopInvoked` callback is no longer invoked in Flutter 3.24+.
+These changes led to issues such as [#233](https://github.com/fujidaiti/smooth_sheets/issues/233).
 
-The only possible solution was to replace `Route.onPopInvoked` with `Route.onPopInvokedWithResult`, which was introduced in Flutter 3.24.0. However, migrating to the new API would require increasing the lower bound of the SDK constraint to 3.24.0. For those using an SDK version lower than 3.24, this change would be a significant breaking change. Ultimately, we decided to publish different versions for different SDK constraints to maintain backward compatibility.
+The only possible solution was to replace `Route.onPopInvoked` with `Route.onPopInvokedWithResult`,
+which was introduced in Flutter 3.24.0. However, migrating to the new API would require increasing
+the lower bound of the SDK constraint to 3.24.0. For those using an SDK version lower than 3.24,
+this change would be a significant breaking change. Ultimately, we decided to publish different
+versions for different SDK constraints to maintain backward compatibility.
 </details>
 
 <br/>
 
 ## Migration guide
 
-- [0.8.x to 0.9.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.9.x.md) 🆕
+- [0.8.x to 0.9.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.9.x.md)
+  🆕
 - [0.7.x to 0.8.x](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/migration-guide-0.8.x.md)
 
 See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older versions.
@@ -112,15 +131,19 @@ See [here](https://github.com/fujidaiti/smooth_sheets/blob/main/docs/) for older
 
 ## Why use this?
 
-There are few packages on pub.dev that supports nested navigation with motion animation for page transitions. One of the great choices for this usecase is [wolt_modal_sheet](https://github.com/woltapp/wolt_modal_sheet), which this package is inspired by. Although smooth_sheet has similar features with wolt_modal_sheet, it does not intended to be a replacement of that package. Here is some differences between those 2 packages:
+There are few packages on pub.dev that supports nested navigation with motion animation for page
+transitions. One of the great choices for this usecase
+is [wolt_modal_sheet](https://github.com/woltapp/wolt_modal_sheet), which this package is inspired
+by. Although smooth_sheet has similar features with wolt_modal_sheet, it does not intended to be a
+replacement of that package. Here is some differences between those 2 packages:
 
-|                        |                       wolt_modal_sheet                       |                        smooth_sheets                         |
-| :--------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-|         Design         | Based on Wolt's [design guideline](https://careers.wolt.com/en/blog/tech/an-overview-of-the-multi-page-scrollable-bottom-sheet-ui-design) |   Not restricted to a specific design, fully customizable    |
-|  Navigation mechanism  | [Manage the page index in ValueNotifier](https://github.com/woltapp/wolt_modal_sheet#usage) | Works with built-in Navigator API (both of imperative and declarative) |
-|   Scrollable content   | [Supported](https://github.com/woltapp/wolt_modal_sheet#scrollable-content) |                          Supported                           |
-|   Persistent sheets    |                        Not supported                         |                          Supported                           |
-| Screen size adaptation | [The sheet appears as a dialog on large screens](https://github.com/woltapp/wolt_modal_sheet#responsive-design) |                        Not supported                         |
+|                        |                                                             wolt_modal_sheet                                                              |                             smooth_sheets                              |
+|:----------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------:|
+|         Design         | Based on Wolt's [design guideline](https://careers.wolt.com/en/blog/tech/an-overview-of-the-multi-page-scrollable-bottom-sheet-ui-design) |        Not restricted to a specific design, fully customizable         |
+|  Navigation mechanism  |                        [Manage the page index in ValueNotifier](https://github.com/woltapp/wolt_modal_sheet#usage)                        | Works with built-in Navigator API (both of imperative and declarative) |
+|   Scrollable content   |                                [Supported](https://github.com/woltapp/wolt_modal_sheet#scrollable-content)                                |                               Supported                                |
+|   Persistent sheets    |                                                               Not supported                                                               |                               Supported                                |
+| Screen size adaptation |              [The sheet appears as a dialog on large screens](https://github.com/woltapp/wolt_modal_sheet#responsive-design)              |                             Not supported                              |
 
 <br/>
 
@@ -128,21 +151,27 @@ There are few packages on pub.dev that supports nested navigation with motion an
 
 Several resources are available for learning the functionalities of this package.
 
-- Tutorials: See [example/lib/tutorial/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/tutorial) to learn the basic usage of the core components.
-- Showcases: More practical examples are available in [example/lib/showcase/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/showcase).
+- Tutorials:
+  See [example/lib/tutorial/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/tutorial)
+  to learn the basic usage of the core components.
+- Showcases: More practical examples are available
+  in [example/lib/showcase/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/showcase).
 - Documentation: WORK IN PROGRESS! Please see the source code for a while.
 
 <br/>
 
 ## Ingredients
 
-This section provides descriptions for each core component and links to related resources for further learning.
+This section provides descriptions for each core component and links to related resources for
+further learning.
 
 <br/>
 
-### Extent
+### SheetAnchor
 
-Extent represents the visible height of the sheet. It is used in a variety of situations, for example, to specify how much area of a sheet is initially visible at first build, or to limit the range of sheet dragging.
+SheetAnchor represents the visible height of the sheet. It is used in a variety of situations, for
+example, to specify how much area of a sheet is initially visible at first build, or to limit the
+range of sheet dragging.
 
 <br/>
 
@@ -153,13 +182,15 @@ Extent represents the visible height of the sheet. It is used in a variety of si
 </div>
 
 
-A sheet that can be dragged. The height will be equal to the content. The behavior of the sheet when over-dragged or under-dragged is determined by [SheetPhysics](#sheetphysics). Note that this widget does not work with scrollable widgets. Instead, use [ScrollableSheet](#scrollablesheet) for this usecase.
-
-
+A sheet that can be dragged. The height will be equal to the content. The behavior of the sheet when
+over-dragged or under-dragged is determined by [SheetPhysics](#sheetphysics). Note that this widget
+does not work with scrollable widgets. Instead, use [ScrollableSheet](#scrollablesheet) for this
+usecase.
 
 See also:
 
-- [draggable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/draggable_sheet.dart) for basic usage.
+- [draggable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/draggable_sheet.dart)
+  for basic usage.
 
 <br/>
 
@@ -170,13 +201,14 @@ See also:
 </div>
 
 
-A sheet that is similar to [DraggableSheet](#draggablesheet), but specifically designed to be integrated with scrollable widgets. It will begin to be dragged when the content is over-scrolled or under-scrolled.
-
-
+A sheet that is similar to [DraggableSheet](#draggablesheet), but specifically designed to be
+integrated with scrollable widgets. It will begin to be dragged when the content is over-scrolled or
+under-scrolled.
 
 See also:
 
-- [scrollable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/scrollable_sheet.dart) for basic usage.
+- [scrollable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/scrollable_sheet.dart)
+  for basic usage.
 
 <br/>
 
@@ -187,14 +219,17 @@ See also:
 </div>
 
 
-A sheet that is able to have multiple pages and performs graceful motion animation when page transitions. It supports both of imperative Navigator API such as `Navigator.push`, and declarative API (Navigator 2.0). 
-
-
+A sheet that is able to have multiple pages and performs graceful motion animation when page
+transitions. It supports both of imperative Navigator API such as `Navigator.push`, and declarative
+API (Navigator 2.0).
 
 See also:
 
-- [declarative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_navigation_sheet.dart), tutorial of integration with Navigator 2.0 using [go_router](https://pub.dev/packages/go_router) package.
-- [imperative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_navigation_sheet.dart), a tutorial of integration with imperative Navigator API.
+- [declarative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_navigation_sheet.dart),
+  tutorial of integration with Navigator 2.0 using [go_router](https://pub.dev/packages/go_router)
+  package.
+- [imperative_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_navigation_sheet.dart),
+  a tutorial of integration with imperative Navigator API.
 
 <br/>
 
@@ -207,25 +242,34 @@ See also:
 
 
 
-A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. To enable the *swipe-to-dismiss* action, which allows the user to dismiss the sheet by a swiping-down gesture, set `swipeDismissible` to true.
+A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or
+ModalSheetPage for declarative navigation. To enable the *swipe-to-dismiss* action, which allows the
+user to dismiss the sheet by a swiping-down gesture, set `swipeDismissible` to true.
 
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/242a8d32-a355-4d4a-8248-4572a03c64eb"/>
 </div>
 
-Furthermore, [the modal sheets in the style of iOS 15](https://medium.com/surf-dev/bottomsheet-in-ios-15-uisheetpresentationcontroller-and-its-capabilities-5e913661c9f) are also supported. For imperative navigation, use CupertinoModalSheetRoute, and for declarative navigation, use CupertinoModalSheetPage, respectively.
-
-
-
+Furthermore, [the modal sheets in the style of iOS 15](https://medium.com/surf-dev/bottomsheet-in-ios-15-uisheetpresentationcontroller-and-its-capabilities-5e913661c9f)
+are also supported. For imperative navigation, use CupertinoModalSheetRoute, and for declarative
+navigation, use CupertinoModalSheetPage, respectively.
 
 See also:
 
-- [SwipeDismissSensitivity](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SwipeDismissSensitivity-class.html), which can be used to tweak the sensitivity of the swipe-to-dismiss action.
-- [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
-- [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
-- [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
-- [ios_style_declarative_modal_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart), an example of iOS-style modal NavigationSheet with go_router.
-- [showcase/todo_list](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/todo_list), which uses SheetDismissible to show a confirmation dialog when the user tries to discard the todo editing sheet without saving the content.
+- [SwipeDismissSensitivity](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SwipeDismissSensitivity-class.html),
+  which can be used to tweak the sensitivity of the swipe-to-dismiss action.
+- [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_modal_sheet.dart),
+  a tutorial of integration with declarative navigation
+  using [go_router](https://pub.dev/packages/go_router) package.
+- [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_sheet.dart),
+  a tutorial of integration with imperative Navigator API.
+- [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/cupertino_modal_sheet.dart),
+  a tutorial of iOS style modal sheets.
+- [ios_style_declarative_modal_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart),
+  an example of iOS-style modal NavigationSheet with go_router.
+- [showcase/todo_list](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/todo_list),
+  which uses SheetDismissible to show a confirmation dialog when the user tries to discard the todo
+  editing sheet without saving the content.
 
 <br/>
 
@@ -236,20 +280,26 @@ See also:
 </div>
 
 
-A physics determines how the sheet will behave when over-dragged or under-dragged, or when the user stops dragging. There are 3 predefined physics:
+A physics determines how the sheet will behave when over-dragged or under-dragged, or when the user
+stops dragging. There are 3 predefined physics:
 
 - ClampingSheetPhysics: Prevents the sheet from reaching beyond the content bounds.
-- BouncingSheetPhysics: Allows the sheet to go beyond the content bounds, but then bounce the sheet back to the edge of those bounds. Use [BouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingBehavior-class.html) and its subclasses to tweak the bouncing behavior.
-- SnappingSheetPhysics: Automatically snaps the sheet to a certain extent when the user stops dragging.
+- BouncingSheetPhysics: Allows the sheet to go beyond the content bounds, but then bounce the sheet
+  back to the edge of those bounds.
+  Use [BouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingBehavior-class.html)
+  and its subclasses to tweak the bouncing behavior.
+- SnappingSheetPhysics: Automatically snaps the sheet to a certain extent when the user stops
+  dragging.
 
-These physics can be combined to create more complex behavior (e.g. bouncing behavior + snapping behavior).
-
-
+These physics can be combined to create more complex behavior (e.g. bouncing behavior + snapping
+behavior).
 
 See also:
 
-- [sheet_physics.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_physics.dart) for basic usage.
-- [bouncing_behaviors.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/bouncing_behaviors.dart), which shows how to tweak the bouncing behavior of BouncingSheetPhysics.
+- [sheet_physics.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_physics.dart)
+  for basic usage.
+- [bouncing_behaviors.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/bouncing_behaviors.dart),
+  which shows how to tweak the bouncing behavior of BouncingSheetPhysics.
 
 <br/>
 
@@ -260,13 +310,13 @@ See also:
 </div>
 
 
-Like [ScrollController](https://api.flutter.dev/flutter/widgets/ScrollController-class.html) for scrollable widget, the SheetController can be used to animate or observe the extent of a sheet.
-
-
+Like [ScrollController](https://api.flutter.dev/flutter/widgets/ScrollController-class.html) for
+scrollable widget, the SheetController can be used to animate or observe the extent of a sheet.
 
 See also:
 
-- [sheet_controller.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_controller.dart) for basic usage.
+- [sheet_controller.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_controller.dart)
+  for basic usage.
 
 <br/>
 
@@ -277,16 +327,20 @@ See also:
 </div>
 
 
-A special kind of [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html) designed for use in a sheet. It has slots for an app bar and a bottom bar, similar to Scaffold. However, it differs in that its height reduces to fit the content widget.
-
-
+A special kind of [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html) designed
+for use in a sheet. It has slots for an app bar and a bottom bar, similar to Scaffold. However, it
+differs in that its height reduces to fit the content widget.
 
 See also:
 
-- [SheetContentScaffold](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetContentScaffold-class.html), the API documentation.
-- [BottomBarVisibility](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BottomBarVisibility-class.html), which can be used to control the visibility of the bottom bar based on the sheet position.
-- [tutorial/sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_content_scaffold.dart), which shows the basic usage of SheetContentScaffold.
-- [tutorial/bottom_bar_visibility.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/bottom_bar_visibility.dart), which shows the basic usage of BottomBarVisibility widgets.
+- [SheetContentScaffold](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetContentScaffold-class.html),
+  the API documentation.
+- [BottomBarVisibility](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BottomBarVisibility-class.html),
+  which can be used to control the visibility of the bottom bar based on the sheet position.
+- [tutorial/sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_content_scaffold.dart),
+  which shows the basic usage of SheetContentScaffold.
+- [tutorial/bottom_bar_visibility.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/bottom_bar_visibility.dart),
+  which shows the basic usage of BottomBarVisibility widgets.
 
 <br/>
 
@@ -296,56 +350,72 @@ See also:
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/aacc7b27-3d6f-4314-8672-d6f99fafabed"/>
 </div>
 
-SheetDraggable enables its child widget to act as a drag handle for the sheet. Typically, you will want to use this widget when placing non-scrollable widget(s) in a [ScrollableSheet](#scrollablesheet), since it only works with scrollable widgets, so you can't drag the sheet by touching a non-scrollable area. Try removing SheetDraggable and you will see that the drag handle doesn't work as it should.
-Note that SheetDraggable is not needed when using DraggableSheet since it implicitly wraps the child widget with SheetDraggable.
-
-
+SheetDraggable enables its child widget to act as a drag handle for the sheet. Typically, you will
+want to use this widget when placing non-scrollable widget(s) in
+a [ScrollableSheet](#scrollablesheet), since it only works with scrollable widgets, so you can't
+drag the sheet by touching a non-scrollable area. Try removing SheetDraggable and you will see that
+the drag handle doesn't work as it should.
+Note that SheetDraggable is not needed when using DraggableSheet since it implicitly wraps the child
+widget with SheetDraggable.
 
 See also:
 
-- [sheet_draggable.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_draggable.dart) for basic usage.
+- [sheet_draggable.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_draggable.dart)
+  for basic usage.
 
 <br/>
 
-### ExtentDrivenAnimation
+### SheetPositionDrivenAnimation
 
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/8b9ed0ef-675e-4468-8a3f-cd3f1ed3dfb0"/>
 </div>
 
-It is easy to create sheet extent driven animations by using ExtentDrivenAnimation, a special kind of [Animation](https://api.flutter.dev/flutter/animation/Animation-class.html) whose value changes from 0 to 1 as the sheet extent changes from 'startExtent' to 'endExtent'.
-
-
+It is easy to create sheet extent driven animations by using SheetPositionDrivenAnimation, a special
+kind of [Animation](https://api.flutter.dev/flutter/animation/Animation-class.html) whose value
+changes from 0 to 1 as the sheet extent changes from 'startExtent' to 'endExtent'.
 
 See also:
 
-- [extent_driven_animation](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/extent_driven_animation.dart) for basic usage.
-- [airbnb_mobile_app.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/airbnb_mobile_app.dart), which show how ExtentDrivenAnimation can be used to hide the bottom navigation bar and a FAB when the sheet is dragged down, and to show them when the sheet is dragged up again.
+- [sheet_position_driven_animation](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_position_driven_animation.dart)
+  for basic usage.
+- [airbnb_mobile_app.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/airbnb_mobile_app.dart),
+  which show how SheetPositionDrivenAnimation can be used to hide the bottom navigation bar and a
+  FAB when the sheet is dragged down, and to show them when the sheet is dragged up again.
 
 <br/>
 
 ### SheetNotification
 
-A sheet dispatches a [SheetNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetNotification-class.html) when its extent changes. This can be used to observe the extent of a descendant sheet from an ancestor widget.
+A sheet dispatches
+a [SheetNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetNotification-class.html)
+when its extent changes. This can be used to observe the extent of a descendant sheet from an
+ancestor widget.
 
 ```dart
-NotificationListener<SheetNotification>(
-  onNotification: (notification) {
-    debugPrint('${notification.metrics}');
-    return false;
-  },
-  child: DraggableSheet(...),
+NotificationListener<SheetNotification>
+(
+onNotification: (notification) {
+debugPrint('${notification.metrics}');
+return false;
+},
+child: DraggableSheet(...),
 ),
 ```
 
-
-
 See also:
 
-- [SheetDragUpdateNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetDragUpdateNotification-class.html), which is dispatched when the sheet is dragged by the user.
-- [SheetUpdateNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetUpdateNotification-class.html), which is dispatched when the sheet extent is updated by other than user interaction such as animation.
-- [SheetOverflowNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetOverflowNotification-class.html), which is dispatched when the user tries to drag the sheet beyond its draggable bounds but the sheet has not changed its extent because its [SheetPhysics](#sheetphysics) does not allow it to be.
-- [NotificationListener](https://api.flutter.dev/flutter/widgets/NotificationListener-class.html), which can be used to listen for the notifications in a subtree.
+- [SheetDragUpdateNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetDragUpdateNotification-class.html),
+  which is dispatched when the sheet is dragged by the user.
+- [SheetUpdateNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetUpdateNotification-class.html),
+  which is dispatched when the sheet extent is updated by other than user interaction such as
+  animation.
+- [SheetOverflowNotification](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetOverflowNotification-class.html),
+  which is dispatched when the user tries to drag the sheet beyond its draggable bounds but the
+  sheet has not changed its extent because its [SheetPhysics](#sheetphysics) does not allow it to
+  be.
+- [NotificationListener](https://api.flutter.dev/flutter/widgets/NotificationListener-class.html),
+  which can be used to listen for the notifications in a subtree.
 
 <br/>
 
@@ -356,33 +426,42 @@ See also:
 </div>
 <br/>
 
-[SheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetKeyboardDismissBehavior-class.html) determines when the sheet should dismiss the on-screen keyboard. This feature is similar to [ScrollViewKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/ScrollViewKeyboardDismissBehavior.html) for scrollable widgets. 
+[SheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetKeyboardDismissBehavior-class.html)
+determines when the sheet should dismiss the on-screen keyboard. This feature is similar
+to [ScrollViewKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/ScrollViewKeyboardDismissBehavior.html)
+for scrollable widgets.
 
-Although it is easy to create custom behaviors by implementing SheetKeyboardDismissBehavior interface, there are 3 types of predefined behaviors for convenience.
+Although it is easy to create custom behaviors by implementing SheetKeyboardDismissBehavior
+interface, there are 3 types of predefined behaviors for convenience.
 
-- [DragSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard when the sheet is dragged.
-- [DragDownSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragDownSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard only when the sheet is dragged down.
-- [DragUpSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragUpSheetKeyboardDismissBehavior-class.html), which always dismisses the on-screen keyboard only when the sheet is dragged up.
-
-
+- [DragSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragSheetKeyboardDismissBehavior-class.html),
+  which always dismisses the on-screen keyboard when the sheet is dragged.
+- [DragDownSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragDownSheetKeyboardDismissBehavior-class.html),
+  which always dismisses the on-screen keyboard only when the sheet is dragged down.
+- [DragUpSheetKeyboardDismissBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/DragUpSheetKeyboardDismissBehavior-class.html),
+  which always dismisses the on-screen keyboard only when the sheet is dragged up.
 
 See also:
 
-- [tutorial/keyboard_dismiss_behavior.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/keyboard_dismiss_behavior.dart) for basic usage.
+- [tutorial/keyboard_dismiss_behavior.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/keyboard_dismiss_behavior.dart)
+  for basic usage.
 
 <br/>
 
 ## Questions
 
-If you have any questions, feel free to ask them on [the discussions page](https://github.com/fujidaiti/smooth_sheets/discussions).
+If you have any questions, feel free to ask them
+on [the discussions page](https://github.com/fujidaiti/smooth_sheets/discussions).
 
 <br/>
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and
+create. Any contributions you make are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+If you have a suggestion that would make this better, please fork the repo and create a pull
+request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
 
 1. Fork the Project
