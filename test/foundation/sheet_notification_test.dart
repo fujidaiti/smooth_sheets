@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
 import 'package:smooth_sheets/src/foundation/sheet_notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 
 void main() {
@@ -24,7 +24,7 @@ void main() {
             return false;
           },
           child: DraggableSheet(
-            minExtent: const Extent.pixels(0),
+            minPosition: const SheetAnchor.pixels(0),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(
@@ -168,7 +168,7 @@ void main() {
           },
           child: DraggableSheet(
             controller: controller,
-            minExtent: const Extent.pixels(0),
+            minPosition: const SheetAnchor.pixels(0),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(
@@ -182,7 +182,7 @@ void main() {
 
       unawaited(
         controller.animateTo(
-          const Extent.pixels(0),
+          const SheetAnchor.pixels(0),
           duration: const Duration(milliseconds: 300),
           curve: Curves.linear,
         ),
@@ -244,8 +244,8 @@ void main() {
           },
           child: DraggableSheet(
             // Make sure the sheet can't be dragged
-            minExtent: const Extent.proportional(1),
-            maxExtent: const Extent.proportional(1),
+            minPosition: const SheetAnchor.proportional(1),
+            maxPosition: const SheetAnchor.proportional(1),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(
@@ -319,7 +319,7 @@ void main() {
             return false;
           },
           child: DraggableSheet(
-            minExtent: const Extent.pixels(0),
+            minPosition: const SheetAnchor.pixels(0),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(

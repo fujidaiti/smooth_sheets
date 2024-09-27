@@ -60,7 +60,7 @@ class _Home extends StatelessWidget {
     return DefaultTabController(
       length: _AppBar.tabs.length,
       // Provides a SheetController to the descendant widgets
-      // to perform some sheet extent driven animations.
+      // to perform some sheet position driven animations.
       // The sheet will look up and use this controller unless
       // another one is manually specified in the constructor.
       // The descendant widgets can also get this controller by
@@ -80,11 +80,11 @@ class _MapButton extends StatelessWidget {
     final sheetController = DefaultSheetController.of(context);
 
     void onPressed() {
-      final metrics = sheetController.value;
+      final metrics = sheetController.metrics;
       if (metrics.hasDimensions) {
         // Collapse the sheet to reveal the map behind.
         sheetController.animateTo(
-          Extent.pixels(metrics.minPixels),
+          SheetAnchor.pixels(metrics.minPixels),
           curve: Curves.fastOutSlowIn,
         );
       }
@@ -97,19 +97,19 @@ class _MapButton extends StatelessWidget {
       icon: const Icon(Icons.map),
     );
 
-    // It is easy to create sheet extent driven animations
-    // by using 'ExtentDrivenAnimation', a special kind of
+    // It is easy to create sheet position driven animations
+    // by using 'PositionDrivenAnimation', a special kind of
     // 'Animation<double>' whose value changes from 0 to 1 as
-    // the sheet extent changes from 'startExtent' to 'endExtent'.
-    final animation = ExtentDrivenAnimation(
+    // the sheet position changes from 'startPosition' to 'endPosition'.
+    final animation = SheetPositionDrivenAnimation(
       controller: DefaultSheetController.of(context),
       // The initial value of the animation is required
-      // since the sheet extent is not available at the first build.
+      // since the sheet position is not available at the first build.
       initialValue: 1,
-      // If null, the minimum extent will be used. (Default)
-      startExtent: null,
-      // If null, the maximum extent will be used. (Default)
-      endExtent: null,
+      // If null, the minimum position will be used. (Default)
+      startPosition: null,
+      // If null, the maximum position will be used. (Default)
+      endPosition: null,
     ).drive(CurveTween(curve: Curves.easeInExpo));
 
     // Hide the button when the sheet is dragged down.
@@ -155,8 +155,8 @@ class _ContentSheet extends StatelessWidget {
         final appbarHeight = MediaQuery.of(context).padding.top;
         final handleHeight = const _ContentSheetHandle().preferredSize.height;
         final sheetHeight = parentHeight - appbarHeight + handleHeight;
-        final minSheetExtent =
-            Extent.pixels(handleHeight + systemUiInsets.bottom);
+        final minSheetPosition =
+            SheetAnchor.pixels(handleHeight + systemUiInsets.bottom);
 
         const sheetShape = RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -166,10 +166,10 @@ class _ContentSheet extends StatelessWidget {
 
         final sheetPhysics = BouncingSheetPhysics(
           parent: SnappingSheetPhysics(
-            snappingBehavior: SnapToNearest(
-              snapTo: [
-                minSheetExtent,
-                const Extent.proportional(1),
+            behavior: SnapToNearest(
+              anchors: [
+                minSheetPosition,
+                const SheetAnchor.proportional(1),
               ],
             ),
           ),
@@ -177,7 +177,7 @@ class _ContentSheet extends StatelessWidget {
 
         return ScrollableSheet(
           physics: sheetPhysics,
-          minExtent: minSheetExtent,
+          minPosition: minSheetPosition,
           child: SizedBox(
             height: sheetHeight,
             child: const Card(
@@ -261,7 +261,7 @@ class _HouseList extends StatelessWidget {
 
     // Hide the list when the sheet is dragged down.
     return FadeTransition(
-      opacity: ExtentDrivenAnimation(
+      opacity: SheetPositionDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ).drive(
@@ -453,7 +453,7 @@ class _BottomNavigationBar extends StatelessWidget {
 
     // Hide the navigation bar when the sheet is dragged down.
     return SlideTransition(
-      position: ExtentDrivenAnimation(
+      position: SheetPositionDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ).drive(

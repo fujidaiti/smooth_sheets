@@ -44,19 +44,20 @@ class _ExampleSheet extends StatelessWidget {
         getIsVisible: (metrics) {
           return metrics.viewportInsets.bottom == 0 &&
               metrics.pixels >
-                  const Extent.proportional(0.5).resolve(metrics.contentSize);
+                  const SheetAnchor.proportional(0.5)
+                      .resolve(metrics.contentSize);
         },
         child: buildBottomBar(),
       ),
     );
 
-    final physics = BouncingSheetPhysics(
+    const physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
-        snappingBehavior: SnapToNearest(
-          snapTo: [
-            const Extent.proportional(0.2),
-            const Extent.proportional(0.5),
-            const Extent.proportional(1),
+        behavior: SnapToNearest(
+          anchors: [
+            SheetAnchor.proportional(0.2),
+            SheetAnchor.proportional(0.5),
+            SheetAnchor.proportional(1),
           ],
         ),
       ),
@@ -64,7 +65,7 @@ class _ExampleSheet extends StatelessWidget {
 
     return DraggableSheet(
       physics: physics,
-      minExtent: const Extent.pixels(0),
+      minPosition: const SheetAnchor.pixels(0),
       child: Card(
         clipBehavior: Clip.antiAlias,
         margin: EdgeInsets.zero,

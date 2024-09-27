@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_drag.dart';
-import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_position.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet_activity.dart';
 import 'scrollable_sheet_physics.dart';
@@ -14,29 +14,29 @@ import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
 @internal
-class ScrollableSheetExtent extends SheetExtent
+class ScrollableSheetPosition extends SheetPosition
     implements SheetContentScrollPositionOwner {
-  ScrollableSheetExtent({
+  ScrollableSheetPosition({
     required super.context,
-    required this.initialExtent,
-    required super.minExtent,
-    required super.maxExtent,
+    required this.initialPosition,
+    required super.minPosition,
+    required super.maxPosition,
     required SheetPhysics physics,
     super.gestureTamperer,
     super.debugLabel,
   }) : super(physics: ScrollableSheetPhysics.wrap(physics));
 
-  /// {@template ScrollableSheetExtent.initialExtent}
-  /// The initial extent of the sheet.
+  /// {@template ScrollableSheetPosition.initialPosition}
+  /// The initial position of the sheet.
   /// {@endtemplate}
-  final Extent initialExtent;
+  final SheetAnchor initialPosition;
 
   @override
   ScrollableSheetPhysics get physics => super.physics as ScrollableSheetPhysics;
 
   final _scrollPositions = HashSet<SheetContentScrollPosition>();
 
-  /// A [ScrollPosition] that is currently driving the sheet extent.
+  /// A [ScrollPosition] that is currently driving the sheet position.
   SheetContentScrollPosition? get _primaryScrollPosition => switch (activity) {
         final ScrollableSheetActivity activity => activity.scrollPosition,
         _ => null,
@@ -84,15 +84,15 @@ class ScrollableSheetExtent extends SheetExtent
   @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
-    if (metrics.maybePixels == null) {
-      setPixels(initialExtent.resolve(metrics.contentSize));
+    if (maybePixels == null) {
+      setPixels(initialPosition.resolve(contentSize));
     }
   }
 
   @override
-  void takeOver(SheetExtent other) {
+  void takeOver(SheetPosition other) {
     super.takeOver(other);
-    if (other is ScrollableSheetExtent) {
+    if (other is ScrollableSheetPosition) {
       assert(_scrollPositions.isEmpty);
       _scrollPositions.addAll(other._scrollPositions);
       other._scrollPositions.clear();
@@ -152,7 +152,7 @@ class ScrollableSheetExtent extends SheetExtent
       kind: details.kind,
     );
     if (gestureTamperer case final tamperer?) {
-      startDetails = tamperer.tamperWithDragStart(startDetails);
+      startDetails = tamperer.onDragStart(startDetails);
     }
     final heldPreviousVelocity = switch (activity) {
       final HoldScrollDrivenSheetActivity holdActivity =>
@@ -187,10 +187,10 @@ class ScrollableSheetExtent extends SheetExtent
     required double velocity,
     required SheetContentScrollPosition scrollPosition,
   }) {
-    assert(metrics.hasDimensions);
+    assert(hasDimensions);
     if (FloatComp.distance(context.devicePixelRatio)
         .isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
-      final simulation = physics.createBallisticSimulation(velocity, metrics);
+      final simulation = physics.createBallisticSimulation(velocity, snapshot);
       if (simulation != null) {
         scrollPosition.goIdle(calledByOwner: true);
         goBallisticWith(simulation);
@@ -199,8 +199,8 @@ class ScrollableSheetExtent extends SheetExtent
     }
 
     final scrolledDistance = scrollPosition.pixels;
-    final draggedDistance = metrics.pixels - metrics.minPixels;
-    final draggableDistance = metrics.maxPixels - metrics.minPixels;
+    final draggedDistance = pixels - minPixels;
+    final draggableDistance = maxPixels - minPixels;
     final scrollableDistance =
         scrollPosition.maxScrollExtent - scrollPosition.minScrollExtent;
     final scrollPixelsForScrollPhysics = scrolledDistance + draggedDistance;
@@ -208,18 +208,19 @@ class ScrollableSheetExtent extends SheetExtent
         draggableDistance + scrollableDistance;
     final scrollMetricsForScrollPhysics = scrollPosition.copyWith(
       minScrollExtent: 0,
-      // How many pixels the user can scroll and drag
+      // How many pixels the user can scroll and drag.
       maxScrollExtent: maxScrollExtentForScrollPhysics,
-      // How many pixels the user has scrolled and dragged
-      pixels: FloatComp.distance(context.devicePixelRatio).roundToIfApprox(
-        // Round the scrollPixelsForScrollPhysics to the maxScrollExtent if
-        // necessary to prevents issues with floating-point precision errors.
-        // For example, issue #207 was caused by infinite recursion of
+      // How many pixels the user has scrolled and dragged.
+      pixels: FloatComp.distance(context.devicePixelRatio).roundToEdgeIfApprox(
+        // Round the scrollPixelsForScrollPhysics to 0.0 or the maxScrollExtent
+        // if necessary to prevents issues with floating-point precision errors.
+        // For example, issue #207 and #212 were caused by infinite recursion of
         // SheetContentScrollPositionOwner.goBallisticWithScrollPosition calls,
         // triggered by ScrollMetrics.outOfRange always being true in
         // ScrollPhysics.createBallisticSimulation due to such a floating-point
         // precision error.
         scrollPixelsForScrollPhysics,
+        0,
         maxScrollExtentForScrollPhysics,
       ),
     );

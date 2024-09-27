@@ -1,50 +1,50 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../draggable/draggable_sheet_extent.dart';
-import '../draggable/draggable_sheet_extent_scope.dart';
+import '../draggable/draggable_sheet_position.dart';
+import '../draggable/draggable_sheet_position_scope.dart';
 import '../draggable/sheet_draggable.dart';
-import '../foundation/sheet_extent.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_position.dart';
+import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
-import '../scrollable/scrollable_sheet_extent.dart';
-import '../scrollable/scrollable_sheet_extent_scope.dart';
+import '../scrollable/scrollable_sheet_position.dart';
+import '../scrollable/scrollable_sheet_position_scope.dart';
 import 'navigation_route.dart';
 
 class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
   const _ScrollableNavigationSheetRouteContent({
     this.debugLabel,
-    required this.initialExtent,
-    required this.minExtent,
-    required this.maxExtent,
+    required this.initialPosition,
+    required this.minPosition,
+    required this.maxPosition,
     required this.physics,
     required this.child,
   });
 
   final String? debugLabel;
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
   final SheetPhysics? physics;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
-    final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
 
     return NavigationSheetRouteContent(
       scopeBuilder: (context, key, child) {
-        return ScrollableSheetExtentScope(
+        return ScrollableSheetPositionScope(
           key: key,
           context: context,
           isPrimary: false,
-          initialExtent: initialExtent,
-          minExtent: minExtent,
-          maxExtent: maxExtent,
+          initialPosition: initialPosition,
+          minPosition: minPosition,
+          maxPosition: maxPosition,
           physics: physics ?? theme?.physics ?? kDefaultSheetPhysics,
           gestureTamperer: gestureTamper,
           child: child,
@@ -58,17 +58,17 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
 class _DraggableNavigationSheetRouteContent extends StatelessWidget {
   const _DraggableNavigationSheetRouteContent({
     this.debugLabel,
-    required this.initialExtent,
-    required this.minExtent,
-    required this.maxExtent,
+    required this.initialPosition,
+    required this.minPosition,
+    required this.maxPosition,
     required this.physics,
     required this.child,
   });
 
   final String? debugLabel;
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
   final SheetPhysics? physics;
   final Widget child;
 
@@ -76,17 +76,17 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
     final physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
-    final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
 
     return NavigationSheetRouteContent(
       scopeBuilder: (context, key, child) {
-        return DraggableSheetExtentScope(
+        return DraggableSheetPositionScope(
           key: key,
           context: context,
           isPrimary: false,
-          initialExtent: initialExtent,
-          minExtent: minExtent,
-          maxExtent: maxExtent,
+          initialPosition: initialPosition,
+          minPosition: minPosition,
+          maxPosition: maxPosition,
           physics: physics,
           gestureTamperer: gestureTamper,
           debugLabel: debugLabel,
@@ -99,22 +99,22 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
 }
 
 class ScrollableNavigationSheetRoute<T>
-    extends NavigationSheetRoute<T, ScrollableSheetExtent> {
+    extends NavigationSheetRoute<T, ScrollableSheetPosition> {
   ScrollableNavigationSheetRoute({
     super.settings,
     this.maintainState = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialPosition = const SheetAnchor.proportional(1),
+    this.minPosition = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.builder,
   });
 
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
   final SheetPhysics? physics;
 
   @override
@@ -129,8 +129,8 @@ class ScrollableNavigationSheetRoute<T>
   final WidgetBuilder builder;
 
   @override
-  SheetExtentScopeKey<ScrollableSheetExtent> createScopeKey() {
-    return SheetExtentScopeKey<ScrollableSheetExtent>(
+  SheetPositionScopeKey<ScrollableSheetPosition> createScopeKey() {
+    return SheetPositionScopeKey<ScrollableSheetPosition>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }
@@ -143,9 +143,9 @@ class ScrollableNavigationSheetRoute<T>
   ) {
     return _ScrollableNavigationSheetRouteContent(
       debugLabel: '$ScrollableNavigationSheetRoute(${settings.name})',
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
+      initialPosition: initialPosition,
+      minPosition: minPosition,
+      maxPosition: maxPosition,
       physics: physics,
       child: builder(context),
     );
@@ -153,22 +153,22 @@ class ScrollableNavigationSheetRoute<T>
 }
 
 class DraggableNavigationSheetRoute<T>
-    extends NavigationSheetRoute<T, DraggableSheetExtent> {
+    extends NavigationSheetRoute<T, DraggableSheetPosition> {
   DraggableNavigationSheetRoute({
     super.settings,
     this.maintainState = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialPosition = const SheetAnchor.proportional(1),
+    this.minPosition = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.builder,
   });
 
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
   final SheetPhysics? physics;
 
   @override
@@ -183,8 +183,8 @@ class DraggableNavigationSheetRoute<T>
   final WidgetBuilder builder;
 
   @override
-  SheetExtentScopeKey<DraggableSheetExtent> createScopeKey() {
-    return SheetExtentScopeKey<DraggableSheetExtent>(
+  SheetPositionScopeKey<DraggableSheetPosition> createScopeKey() {
+    return SheetPositionScopeKey<DraggableSheetPosition>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }
@@ -197,9 +197,9 @@ class DraggableNavigationSheetRoute<T>
   ) {
     return _DraggableNavigationSheetRouteContent(
       debugLabel: '$DraggableNavigationSheetRoute(${settings.name})',
-      initialExtent: initialExtent,
-      minExtent: minExtent,
-      maxExtent: maxExtent,
+      initialPosition: initialPosition,
+      minPosition: minPosition,
+      maxPosition: maxPosition,
       physics: physics,
       child: builder(context),
     );
@@ -214,9 +214,9 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
     super.restorationId,
     this.maintainState = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialPosition = const SheetAnchor.proportional(1),
+    this.minPosition = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.child,
@@ -227,9 +227,9 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
 
   final Duration transitionDuration;
 
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
 
   final SheetPhysics? physics;
 
@@ -245,7 +245,7 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
 }
 
 class _PageBasedScrollableNavigationSheetRoute<T>
-    extends NavigationSheetRoute<T, ScrollableSheetExtent> {
+    extends NavigationSheetRoute<T, ScrollableSheetPosition> {
   _PageBasedScrollableNavigationSheetRoute({
     required ScrollableNavigationSheetPage<T> page,
   }) : super(settings: page);
@@ -263,8 +263,8 @@ class _PageBasedScrollableNavigationSheetRoute<T>
   RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
 
   @override
-  SheetExtentScopeKey<ScrollableSheetExtent> createScopeKey() {
-    return SheetExtentScopeKey<ScrollableSheetExtent>(
+  SheetPositionScopeKey<ScrollableSheetPosition> createScopeKey() {
+    return SheetPositionScopeKey<ScrollableSheetPosition>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }
@@ -277,9 +277,9 @@ class _PageBasedScrollableNavigationSheetRoute<T>
   ) {
     return _ScrollableNavigationSheetRouteContent(
       debugLabel: '$ScrollableNavigationSheetPage(${page.name})',
-      initialExtent: page.initialExtent,
-      minExtent: page.minExtent,
-      maxExtent: page.maxExtent,
+      initialPosition: page.initialPosition,
+      minPosition: page.minPosition,
+      maxPosition: page.maxPosition,
       physics: page.physics,
       child: page.child,
     );
@@ -294,9 +294,9 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
     super.restorationId,
     this.maintainState = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialPosition = const SheetAnchor.proportional(1),
+    this.minPosition = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.child,
@@ -307,9 +307,9 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
 
   final Duration transitionDuration;
 
-  final Extent initialExtent;
-  final Extent minExtent;
-  final Extent maxExtent;
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
 
   final SheetPhysics? physics;
 
@@ -325,7 +325,7 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
 }
 
 class _PageBasedDraggableNavigationSheetRoute<T>
-    extends NavigationSheetRoute<T, DraggableSheetExtent> {
+    extends NavigationSheetRoute<T, DraggableSheetPosition> {
   _PageBasedDraggableNavigationSheetRoute({
     required DraggableNavigationSheetPage<T> page,
   }) : super(settings: page);
@@ -343,8 +343,8 @@ class _PageBasedDraggableNavigationSheetRoute<T>
   RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
 
   @override
-  SheetExtentScopeKey<DraggableSheetExtent> createScopeKey() {
-    return SheetExtentScopeKey<DraggableSheetExtent>(
+  SheetPositionScopeKey<DraggableSheetPosition> createScopeKey() {
+    return SheetPositionScopeKey<DraggableSheetPosition>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }
@@ -357,9 +357,9 @@ class _PageBasedDraggableNavigationSheetRoute<T>
   ) {
     return _DraggableNavigationSheetRouteContent(
       debugLabel: '$DraggableNavigationSheetPage(${page.name})',
-      initialExtent: page.initialExtent,
-      minExtent: page.minExtent,
-      maxExtent: page.maxExtent,
+      initialPosition: page.initialPosition,
+      minPosition: page.minPosition,
+      maxPosition: page.maxPosition,
       physics: page.physics,
       child: page.child,
     );

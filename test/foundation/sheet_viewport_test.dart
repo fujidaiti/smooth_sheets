@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_context.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent_scope.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position_scope.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
 class _FakeNotificationContext extends Fake implements BuildContext {
   @override
-  void dispatchNotification(Notification notification) {/* no-op */}
+  void dispatchNotification(Notification notification) {
+    /* no-op */
+  }
 }
 
 class _FakeSheetContext extends Fake implements SheetContext {
@@ -19,36 +21,40 @@ class _FakeSheetContext extends Fake implements SheetContext {
 
   @override
   double get devicePixelRatio => 3.0;
+
+  @override
+  TickerProvider get vsync => const TestVSync();
 }
 
 class _FakeSheetActivity extends SheetActivity {
   _FakeSheetActivity({
     this.shouldIgnorePointer = false,
-    this.status = SheetStatus.stable,
   });
 
   @override
   final bool shouldIgnorePointer;
 
   @override
-  final SheetStatus status;
+  SheetStatus get status => SheetStatus.stable;
 }
 
-class _FakeSheetExtent extends SheetExtent {
-  _FakeSheetExtent({
-    super.minExtent = const Extent.proportional(0.5),
-    super.maxExtent = const Extent.proportional(1),
-    super.physics = const ClampingSheetPhysics(),
+class _FakeSheetPosition extends SheetPosition {
+  _FakeSheetPosition({
     this.createIdleActivity,
-  }) : super(context: _FakeSheetContext());
+  }) : super(
+          context: _FakeSheetContext(),
+          minPosition: const SheetAnchor.proportional(0.5),
+          maxPosition: const SheetAnchor.proportional(1),
+          physics: const ClampingSheetPhysics(),
+        );
 
   final ValueGetter<SheetActivity>? createIdleActivity;
 
   @override
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
-    if (metrics.maybePixels == null) {
-      setPixels(maxExtent.resolve(metrics.contentSize));
+    if (maybePixels == null) {
+      setPixels(maxPosition.resolve(contentSize));
     }
   }
 
@@ -64,20 +70,20 @@ class _FakeSheetExtent extends SheetExtent {
 
 class _TestWidget extends StatelessWidget {
   const _TestWidget({
-    required this.extent,
+    required this.position,
     this.background,
     this.sheetContent,
   });
 
-  final SheetExtent extent;
+  final SheetPosition position;
   final Widget? sheetContent;
   final Widget? background;
 
   @override
   Widget build(BuildContext context) {
-    final sheet = InheritedSheetExtentScope(
+    final sheet = InheritedSheetPositionScope(
       isPrimary: true,
-      extent: extent,
+      position: position,
       child: SheetViewport(
         child: SheetContentViewport(
           child: sheetContent ??
@@ -108,7 +114,7 @@ class _TestWidget extends StatelessWidget {
 void main() {
   group('Ignore pointer test:', () {
     ({
-      SheetExtent extent,
+      SheetPosition position,
       Widget testWidget,
       ValueGetter<bool> didTapForeground,
       ValueGetter<bool> didTapBackgroundTop,
@@ -120,14 +126,14 @@ void main() {
       var didTapBackgroundTop = false;
       var didTapBackgroundBottom = false;
 
-      final extent = _FakeSheetExtent(
+      final position = _FakeSheetPosition(
         createIdleActivity: () => _FakeSheetActivity(
           shouldIgnorePointer: shouldIgnorePointer,
         ),
       );
 
       final testWidget = _TestWidget(
-        extent: extent,
+        position: position,
         background: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -154,7 +160,7 @@ void main() {
       );
 
       return (
-        extent: extent,
+        position: position,
         testWidget: testWidget,
         didTapForeground: () => didTapForeground,
         didTapBackgroundTop: () => didTapBackgroundTop,

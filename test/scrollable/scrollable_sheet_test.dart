@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent_scope.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position_scope.dart';
+import 'package:smooth_sheets/src/scrollable/scrollable_sheet_position.dart';
 import 'package:smooth_sheets/src/scrollable/sheet_content_scroll_position.dart';
 
 import '../src/keyboard_inset_simulation.dart';
@@ -44,13 +44,11 @@ class _TestSheetContent extends StatelessWidget {
     this.height = 500,
     this.itemCount = 30,
     // Disable the snapping effect by default in tests.
-    this.scrollPhysics = const ClampingScrollPhysics(),
     this.onTapItem,
   });
 
   final double? height;
   final int itemCount;
-  final ScrollPhysics? scrollPhysics;
   final void Function(int index)? onTapItem;
 
   @override
@@ -60,7 +58,7 @@ class _TestSheetContent extends StatelessWidget {
       child: Material(
         color: Colors.white,
         child: ListView(
-          physics: scrollPhysics,
+          physics: const ClampingScrollPhysics(),
           children: List.generate(
             itemCount,
             (index) => ListTile(
@@ -108,23 +106,23 @@ void main() {
           child: ScrollableSheet(
             key: sheetKey,
             controller: controller,
-            minExtent: const Extent.pixels(200),
-            initialExtent: const Extent.pixels(200),
+            minPosition: const SheetAnchor.pixels(200),
+            initialPosition: const SheetAnchor.pixels(200),
             child: const _TestSheetContent(height: 500),
           ),
         ),
       ),
     );
 
-    expect(controller.value.pixels, 200,
-        reason: 'The sheet should be at the initial extent.');
-    expect(controller.value.minPixels < controller.value.maxPixels, isTrue,
+    expect(controller.metrics.pixels, 200,
+        reason: 'The sheet should be at the initial position.');
+    expect(controller.metrics.minPixels < controller.metrics.maxPixels, isTrue,
         reason: 'The sheet should be draggable.');
 
-    // Start animating the sheet to the max extent.
+    // Start animating the sheet to the max position.
     unawaited(
       controller.animateTo(
-        const Extent.proportional(1),
+        const SheetAnchor.proportional(1),
         duration: const Duration(milliseconds: 250),
       ),
     );
@@ -137,8 +135,8 @@ void main() {
     expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
         reason: 'The keyboard should be fully shown.');
     expect(
-      controller.value.pixels,
-      controller.value.maxPixels,
+      controller.metrics.pixels,
+      controller.metrics.maxPixels,
       reason: 'After the keyboard is fully shown, '
           'the entire sheet should also be visible.',
     );
@@ -339,17 +337,20 @@ void main() {
     });
   });
 
-  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/207
-  testWidgets('Infinite ballistic scroll activity test', (tester) async {
+  // Regression tests for:
+  // - https://github.com/fujidaiti/smooth_sheets/issues/207
+  // - https://github.com/fujidaiti/smooth_sheets/issues/212
+  group('Infinite ballistic scroll activity test', () {
     late ScrollController scrollController;
-    late ScrollableSheetExtent sheetExtent;
+    late ScrollableSheetPosition sheetPosition;
+    late Widget testWidget;
 
-    await tester.pumpWidget(
-      ScrollableSheet(
+    setUp(() {
+      testWidget = ScrollableSheet(
         child: Builder(
           builder: (context) {
             scrollController = PrimaryScrollController.of(context);
-            sheetExtent = SheetExtentScope.of(context);
+            sheetPosition = SheetPositionScope.of(context);
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Container(
@@ -360,25 +361,47 @@ void main() {
             );
           },
         ),
-      ),
-    );
+      );
+    });
 
-    scrollController.jumpTo(600.0);
-    await tester.pumpAndSettle();
-    expect(scrollController.position.extentAfter, 0,
-        reason: 'Ensure that the scroll view cannot be scrolled anymore');
+    testWidgets('top edge', (tester) async {
+      await tester.pumpWidget(testWidget);
+      await tester.pumpAndSettle();
+      expect(scrollController.position.pixels, 0);
 
-    // Start a ballistic animation from a position extremely close to,
-    // but not equal, to the current position.
-    scrollController.position.correctPixels(600.000000001);
-    sheetExtent.goBallisticWithScrollPosition(
-      velocity: 0,
-      scrollPosition: scrollController.position as SheetContentScrollPosition,
-    );
-    await tester.pumpAndSettle();
-    expect(scrollController.position.pixels, 600.0);
-    expect(sheetExtent.activity, isA<IdleSheetActivity>(),
-        reason: 'Should not enter an infinite recursion '
-            'of BallisticScrollDrivenSheetActivity');
+      // Start a ballistic animation from a position extremely close to,
+      // but not equal, to the initial position.
+      scrollController.position.correctPixels(-0.000000001);
+      sheetPosition.goBallisticWithScrollPosition(
+        velocity: 0,
+        scrollPosition: scrollController.position as SheetContentScrollPosition,
+      );
+      await tester.pumpAndSettle();
+      expect(scrollController.position.pixels, 0);
+      expect(sheetPosition.activity, isA<IdleSheetActivity>(),
+          reason: 'Should not enter an infinite recursion '
+              'of BallisticScrollDrivenSheetActivity');
+    });
+
+    testWidgets('bottom edge', (tester) async {
+      await tester.pumpWidget(testWidget);
+      scrollController.jumpTo(600.0);
+      await tester.pumpAndSettle();
+      expect(scrollController.position.extentAfter, 0,
+          reason: 'Ensure that the scroll view cannot be scrolled anymore');
+
+      // Start a ballistic animation from a position extremely close to,
+      // but not equal, to the current position.
+      scrollController.position.correctPixels(600.000000001);
+      sheetPosition.goBallisticWithScrollPosition(
+        velocity: 0,
+        scrollPosition: scrollController.position as SheetContentScrollPosition,
+      );
+      await tester.pumpAndSettle();
+      expect(scrollController.position.pixels, 600.0);
+      expect(sheetPosition.activity, isA<IdleSheetActivity>(),
+          reason: 'Should not enter an infinite recursion '
+              'of BallisticScrollDrivenSheetActivity');
+    });
   });
 }

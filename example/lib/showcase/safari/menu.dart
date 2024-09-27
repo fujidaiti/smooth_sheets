@@ -22,10 +22,10 @@ class MenuSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const halfWayExtent = Extent.proportional(0.5);
+    const halfWayPosition = SheetAnchor.proportional(0.5);
     return ScrollableSheet(
-      initialExtent: halfWayExtent,
-      minExtent: halfWayExtent,
+      initialPosition: halfWayPosition,
+      minPosition: halfWayPosition,
       physics: const BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),
@@ -152,7 +152,7 @@ class _MenuListItem extends StatelessWidget {
       trailing: Icon(icon, color: CupertinoColors.black),
       onTap: () {
         DefaultSheetController.maybeOf(context)
-            ?.animateTo(const Extent.proportional(1));
+            ?.animateTo(const SheetAnchor.proportional(1));
         showEditBookmarkSheet(context);
       },
     );

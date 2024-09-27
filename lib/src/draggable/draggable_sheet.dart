@@ -3,13 +3,13 @@ import 'package:flutter/widgets.dart';
 
 import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
-import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_position.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
 import '../scrollable/scrollable_sheet.dart';
-import 'draggable_sheet_extent_scope.dart';
+import 'draggable_sheet_position_scope.dart';
 import 'sheet_draggable.dart';
 
 /// A sheet that can be dragged.
@@ -32,23 +32,23 @@ class DraggableSheet extends StatefulWidget {
   const DraggableSheet({
     super.key,
     this.hitTestBehavior = HitTestBehavior.translucent,
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialPosition = const SheetAnchor.proportional(1),
+    this.minPosition = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     required this.child,
     this.controller,
   });
 
-  final Extent initialExtent;
+  final SheetAnchor initialPosition;
 
-  /// {@macro SheetExtentConfig.minExtent}
-  final Extent minExtent;
+  /// {@macro SheetPositionConfig.minPosition}
+  final SheetAnchor minPosition;
 
-  /// {@macro SheetExtentConfig.maxExtent}
-  final Extent maxExtent;
+  /// {@macro SheetPositionConfig.maxPosition}
+  final SheetAnchor maxPosition;
 
-  /// {@macro SheetExtentConfig.physics}
+  /// {@macro SheetPositionConfig.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
@@ -72,16 +72,16 @@ class _DraggableSheetState extends State<DraggableSheet>
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
     final physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
-    final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return DraggableSheetExtentScope(
+    return DraggableSheetPositionScope(
       context: this,
       controller: controller,
-      initialExtent: widget.initialExtent,
-      minExtent: widget.minExtent,
-      maxExtent: widget.maxExtent,
+      initialPosition: widget.initialPosition,
+      minPosition: widget.minPosition,
+      maxPosition: widget.maxPosition,
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'DraggableSheet' : null,

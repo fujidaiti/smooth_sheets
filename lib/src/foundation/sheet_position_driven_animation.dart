@@ -1,21 +1,21 @@
 import 'package:flutter/animation.dart';
 
 import 'sheet_controller.dart';
-import 'sheet_extent.dart';
+import 'sheet_position.dart';
 
-class ExtentDrivenAnimation extends Animation<double> {
-  ExtentDrivenAnimation({
+class SheetPositionDrivenAnimation extends Animation<double> {
+  SheetPositionDrivenAnimation({
     required SheetController controller,
     required this.initialValue,
-    this.startExtent,
-    this.endExtent,
+    this.startPosition,
+    this.endPosition,
   })  : _controller = controller,
         assert(initialValue >= 0.0 && initialValue <= 1.0);
 
   final SheetController _controller;
   final double initialValue;
-  final Extent? startExtent;
-  final Extent? endExtent;
+  final SheetAnchor? startPosition;
+  final SheetAnchor? endPosition;
 
   @override
   void addListener(VoidCallback listener) {
@@ -42,15 +42,15 @@ class ExtentDrivenAnimation extends Animation<double> {
 
   @override
   double get value {
-    final metrics = _controller.value;
+    final metrics = _controller.metrics;
     if (!metrics.hasDimensions) {
       return initialValue;
     }
 
     final startPixels =
-        startExtent?.resolve(metrics.contentSize) ?? metrics.minPixels;
+        startPosition?.resolve(metrics.contentSize) ?? metrics.minPixels;
     final endPixels =
-        endExtent?.resolve(metrics.contentSize) ?? metrics.maxPixels;
+        endPosition?.resolve(metrics.contentSize) ?? metrics.maxPixels;
     final distance = endPixels - startPixels;
 
     if (distance.isFinite && distance > 0) {

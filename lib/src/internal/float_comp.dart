@@ -8,7 +8,8 @@ import 'package:meta/meta.dart';
 /// rarely changes during the app's lifetime.
 final _instanceForEpsilon = <double, FloatComp>{};
 
-// TODO: Reimplement this class as an extension type of [double] to avoid object creation.
+// TODO: Reimplement this class as an extension type of [double]
+// to avoid object creation.
 /// A comparator for floating-point numbers in a certain precision.
 ///
 /// [FloatComp.distance] and [FloatComp.velocity] determine the [epsilon] based
@@ -68,10 +69,31 @@ class FloatComp {
   bool isOutOfBounds(double a, double min, double max) =>
       isLessThan(a, min) || isGreaterThan(a, max);
 
+  /// Returns `true` if [a] is out of bounds or approximately equal to [min]
+  /// or [max].
+  bool isOutOfBoundsOrApprox(double a, double min, double max) =>
+      isOutOfBounds(a, min, max) || isApprox(a, min) || isApprox(a, max);
+
   /// Returns `true` if [a] is in the range `[min, max]`, inclusive.
   bool isInBounds(double a, double min, double max) =>
       !isOutOfBounds(a, min, max);
 
+  /// Returns `true` if [a] is in the range `(min, max)`, exclusive.
+  bool isInBoundsExclusive(double a, double min, double max) =>
+      isGreaterThan(a, min) && isLessThan(a, max);
+
   /// Returns [b] if [a] is approximately equal to [b], otherwise [a].
   double roundToIfApprox(double a, double b) => isApprox(a, b) ? b : a;
+
+  /// Rounds the given values to the nearest edge value if
+  /// they are approximately equal.
+  ///
+  /// If `a` is approximately equal to `b`, returns `b`.
+  /// If `a` is approximately equal to `c`, returns `c`.
+  /// Otherwise, returns `a`.
+  double roundToEdgeIfApprox(double a, double b, double c) {
+    if (isApprox(a, b)) return b;
+    if (isApprox(a, c)) return c;
+    return a;
+  }
 }

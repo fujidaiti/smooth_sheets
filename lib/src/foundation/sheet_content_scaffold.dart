@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../draggable/sheet_draggable.dart';
-import 'sheet_extent.dart';
-import 'sheet_extent_scope.dart';
+import 'sheet_position.dart';
+import 'sheet_position_scope.dart';
 import 'sheet_viewport.dart';
 
 class SheetContentScaffold extends StatelessWidget {
@@ -108,8 +108,8 @@ sealed class ResizeScaffoldBehavior {
     bool maintainBottomBar,
   }) = _AvoidBottomInset;
 
-  // TODO: Implement ResizeScaffoldBehavior.doNotResize
-  // static const ResizeScaffoldBehavior doNotResize = _DoNotResize();
+// TODO: Implement ResizeScaffoldBehavior.doNotResize
+// static const ResizeScaffoldBehavior doNotResize = _DoNotResize();
 }
 
 // class _DoNotResize extends ResizeScaffoldBehavior {
@@ -222,25 +222,26 @@ abstract class BottomBarVisibility implements Widget {
 
 abstract class _RenderBottomBarVisibility extends RenderTransform {
   _RenderBottomBarVisibility({
-    required SheetExtent extent,
-  })  : _extent = extent,
+    required SheetPosition position,
+  })  : _position = position,
         super(transform: Matrix4.zero(), transformHitTests: true) {
-    _extent.addListener(invalidateVisibility);
+    _position.addListener(invalidateVisibility);
   }
 
-  SheetExtent _extent;
+  SheetPosition _position;
+
   // ignore: avoid_setters_without_getters
-  set extent(SheetExtent value) {
-    if (_extent != value) {
-      _extent.removeListener(invalidateVisibility);
-      _extent = value..addListener(invalidateVisibility);
+  set position(SheetPosition value) {
+    if (_position != value) {
+      _position.removeListener(invalidateVisibility);
+      _position = value..addListener(invalidateVisibility);
       invalidateVisibility();
     }
   }
 
   @override
   void dispose() {
-    _extent.removeListener(invalidateVisibility);
+    _position.removeListener(invalidateVisibility);
     super.dispose();
   }
 
@@ -257,11 +258,10 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 
   void invalidateVisibility() {
     final size = _bottomBarSize;
-    if (size != null && _extent.metrics.hasDimensions) {
-      final metrics = _extent.metrics;
-      final baseTransition = (metrics.pixels - metrics.viewportSize.height)
-          .clamp(size.height - metrics.viewportSize.height, 0.0);
-      final visibility = computeVisibility(metrics, size);
+    if (size != null && _position.hasDimensions) {
+      final baseTransition = (_position.pixels - _position.viewportSize.height)
+          .clamp(size.height - _position.viewportSize.height, 0.0);
+      final visibility = computeVisibility(_position, size);
       assert(0 <= visibility && visibility <= 1);
       final invisibleHeight = size.height * (1 - visibility);
       final transition = baseTransition + invisibleHeight;
@@ -300,7 +300,7 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderFixedBottomBarVisibility(
-      extent: SheetExtentScope.of(context),
+      position: SheetPositionScope.of(context),
       resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
@@ -309,18 +309,19 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderFixedBottomBarVisibility)
-      ..extent = SheetExtentScope.of(context)
+      ..position = SheetPositionScope.of(context)
       ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
   }
 }
 
 class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderFixedBottomBarVisibility({
-    required super.extent,
+    required super.position,
     required ResizeScaffoldBehavior resizeBehavior,
   }) : _resizeBehavior = resizeBehavior;
 
   ResizeScaffoldBehavior _resizeBehavior;
+
   // ignore: avoid_setters_without_getters
   set resizeBehavior(ResizeScaffoldBehavior value) {
     if (_resizeBehavior != value) {
@@ -388,7 +389,7 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderStickyBottomBarVisibility(
-      extent: SheetExtentScope.of(context),
+      position: SheetPositionScope.of(context),
       resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
@@ -397,18 +398,19 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderStickyBottomBarVisibility)
-      ..extent = SheetExtentScope.of(context)
+      ..position = SheetPositionScope.of(context)
       ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
   }
 }
 
 class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderStickyBottomBarVisibility({
-    required super.extent,
+    required super.position,
     required ResizeScaffoldBehavior resizeBehavior,
   }) : _resizeBehavior = resizeBehavior;
 
   ResizeScaffoldBehavior _resizeBehavior;
+
   // ignore: avoid_setters_without_getters
   set resizeBehavior(ResizeScaffoldBehavior value) {
     if (_resizeBehavior != value) {
@@ -451,7 +453,7 @@ class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderAnimatedBottomBarVisibility(
-      extent: SheetExtentScope.of(context),
+      position: SheetPositionScope.of(context),
       visibility: visibility,
     );
   }
@@ -460,20 +462,21 @@ class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderAnimatedBottomBarVisibility)
-      ..extent = SheetExtentScope.of(context)
+      ..position = SheetPositionScope.of(context)
       ..visibility = visibility;
   }
 }
 
 class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderAnimatedBottomBarVisibility({
-    required super.extent,
+    required super.position,
     required Animation<double> visibility,
   }) : _visibility = visibility {
     _visibility.addListener(invalidateVisibility);
   }
 
   Animation<double> _visibility;
+
   // ignore: avoid_setters_without_getters
   set visibility(Animation<double> value) {
     if (_visibility != value) {
@@ -514,7 +517,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 ///     getIsVisible: (metrics) =>
 ///         metrics.viewportInsets.bottom == 0 &&
 ///         metrics.pixels >
-///             const Extent.proportional(0.5)
+///             const SheetAnchor.proportional(0.5)
 ///                 .resolve(metrics.contentSize),
 ///     child: BottomAppBar(),
 ///   ),
@@ -559,7 +562,7 @@ class _ConditionalStickyBottomBarVisibilityState
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _curveAnimation;
-  SheetExtent? _extent;
+  SheetPosition? _position;
 
   @override
   void initState() {
@@ -575,7 +578,7 @@ class _ConditionalStickyBottomBarVisibilityState
 
   @override
   void dispose() {
-    _extent!.removeListener(_didSheetMetricsChanged);
+    _position!.removeListener(_didSheetMetricsChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -583,10 +586,10 @@ class _ConditionalStickyBottomBarVisibilityState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final extent = SheetExtentScope.of(context);
-    if (_extent != extent) {
-      _extent?.removeListener(_didSheetMetricsChanged);
-      _extent = extent..addListener(_didSheetMetricsChanged);
+    final position = SheetPositionScope.of(context);
+    if (_position != position) {
+      _position?.removeListener(_didSheetMetricsChanged);
+      _position = position..addListener(_didSheetMetricsChanged);
       _didSheetMetricsChanged();
     }
   }
@@ -606,7 +609,7 @@ class _ConditionalStickyBottomBarVisibilityState
 
   void _didSheetMetricsChanged() {
     final isVisible =
-        _extent!.metrics.hasDimensions && widget.getIsVisible(_extent!.metrics);
+        _position!.hasDimensions && widget.getIsVisible(_position!);
 
     if (isVisible) {
       if (_controller.status != AnimationStatus.forward) {

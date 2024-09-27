@@ -22,7 +22,7 @@ class _ImperativeNavigationSheetExample extends StatelessWidget {
 }
 
 // NavigationSheet requires a special NavigatorObserver in order to
-// smoothly change its extent during a route transition.
+// smoothly change its position during a route transition.
 final _transitionObserver = NavigationSheetTransitionObserver();
 
 class _ExampleSheet extends StatelessWidget {

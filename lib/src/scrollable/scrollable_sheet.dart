@@ -5,35 +5,35 @@ import 'package:meta/meta.dart';
 
 import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
-import '../foundation/sheet_extent.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
+import '../foundation/sheet_position.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
-import 'scrollable_sheet_extent_scope.dart';
+import 'scrollable_sheet_position_scope.dart';
 import 'sheet_scrollable.dart';
 
 class ScrollableSheet extends StatefulWidget {
   const ScrollableSheet({
     super.key,
-    this.initialExtent = const Extent.proportional(1),
-    this.minExtent = const Extent.proportional(1),
-    this.maxExtent = const Extent.proportional(1),
+    this.initialPosition = const SheetAnchor.proportional(1),
+    this.minPosition = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.controller,
     required this.child,
   });
 
-  /// {@macro ScrollableSheetExtent.initialExtent}
-  final Extent initialExtent;
+  /// {@macro ScrollableSheetPosition.initialPosition}
+  final SheetAnchor initialPosition;
 
-  /// {@macro SheetExtent.minExtent}
-  final Extent minExtent;
+  /// {@macro SheetPosition.minPosition}
+  final SheetAnchor minPosition;
 
-  /// {@macro SheetExtent.maxExtent}
-  final Extent maxExtent;
+  /// {@macro SheetPosition.maxPosition}
+  final SheetAnchor maxPosition;
 
-  /// {@macro SheetExtent.physics}
+  /// {@macro SheetPosition.physics}
   final SheetPhysics? physics;
 
   /// An object that can be used to control and observe the sheet height.
@@ -52,16 +52,16 @@ class _ScrollableSheetState extends State<ScrollableSheet>
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
     final physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
-    final gestureTamper = TamperSheetGesture.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return ScrollableSheetExtentScope(
+    return ScrollableSheetPositionScope(
       context: this,
       controller: controller,
-      initialExtent: widget.initialExtent,
-      minExtent: widget.minExtent,
-      maxExtent: widget.maxExtent,
+      initialPosition: widget.initialPosition,
+      minPosition: widget.minPosition,
+      maxPosition: widget.maxPosition,
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,

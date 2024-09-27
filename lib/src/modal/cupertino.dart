@@ -373,7 +373,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     switch (controller!.status) {
       case AnimationStatus.forward:
       case AnimationStatus.completed:
-        final metrics = _sheetController.value;
+        final metrics = _sheetController.metrics;
         if (metrics.hasDimensions) {
           _cupertinoTransitionControllerOf[_previousRoute]?.value = min(
             controller!.value,

@@ -6,11 +6,11 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_activity.dart';
 import '../foundation/sheet_status.dart';
 import 'navigation_route.dart';
-import 'navigation_sheet_extent.dart';
+import 'navigation_sheet_position.dart';
 
 @internal
 abstract class NavigationSheetActivity
-    extends SheetActivity<NavigationSheetExtent> {}
+    extends SheetActivity<NavigationSheetPosition> {}
 
 @internal
 class TransitionSheetActivity extends NavigationSheetActivity {
@@ -34,7 +34,7 @@ class TransitionSheetActivity extends NavigationSheetActivity {
   bool get shouldIgnorePointer => true;
 
   @override
-  void init(NavigationSheetExtent owner) {
+  void init(NavigationSheetPosition owner) {
     super.init(owner);
     _curvedAnimation = animation.drive(
       CurveTween(curve: animationCurve),
@@ -49,10 +49,8 @@ class TransitionSheetActivity extends NavigationSheetActivity {
 
   void _onAnimationTick() {
     final fraction = _curvedAnimation.value;
-    final startPixels =
-        currentRoute.scopeKey.maybeCurrentExtent?.metrics.maybePixels;
-    final endPixels =
-        nextRoute.scopeKey.maybeCurrentExtent?.metrics.maybePixels;
+    final startPixels = currentRoute.scopeKey.maybeCurrentPosition?.maybePixels;
+    final endPixels = nextRoute.scopeKey.maybeCurrentPosition?.maybePixels;
 
     if (startPixels != null && endPixels != null) {
       owner.setPixels(lerpDouble(startPixels, endPixels, fraction)!);
@@ -65,15 +63,8 @@ class TransitionSheetActivity extends NavigationSheetActivity {
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    // Appends the delta of the bottom inset (typically the keyboard height)
-    // to keep the visual sheet position unchanged.
-    final newInsets = owner.metrics.viewportInsets;
-    final oldInsets = oldViewportInsets ?? newInsets;
-    final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
-    if (deltaInsetBottom != 0) {
-      owner
-        ..setPixels(owner.metrics.pixels - deltaInsetBottom)
-        ..didUpdateMetrics();
+    if (oldViewportInsets != null) {
+      absorbBottomViewportInset(owner, oldViewportInsets);
     }
   }
 }
@@ -86,17 +77,17 @@ class ProxySheetActivity extends NavigationSheetActivity {
 
   @override
   SheetStatus get status =>
-      route.scopeKey.maybeCurrentExtent?.status ?? SheetStatus.stable;
+      route.scopeKey.maybeCurrentPosition?.status ?? SheetStatus.stable;
 
   @override
-  void init(NavigationSheetExtent owner) {
+  void init(NavigationSheetPosition owner) {
     super.init(owner);
-    route.scopeKey.addOnCreatedListener(_onLocalExtentCreated);
+    route.scopeKey.addOnCreatedListener(_onLocalPositionCreated);
   }
 
-  void _onLocalExtentCreated() {
+  void _onLocalPositionCreated() {
     if (mounted) {
-      route.scopeKey.currentExtent.addListener(_syncMetrics);
+      route.scopeKey.currentPosition.addListener(_syncMetrics);
       _syncMetrics(notify: false);
     }
   }
@@ -104,18 +95,18 @@ class ProxySheetActivity extends NavigationSheetActivity {
   @override
   void dispose() {
     route.scopeKey
-      ..maybeCurrentExtent?.removeListener(_syncMetrics)
-      ..removeOnCreatedListener(_onLocalExtentCreated);
+      ..maybeCurrentPosition?.removeListener(_syncMetrics)
+      ..removeOnCreatedListener(_onLocalPositionCreated);
     super.dispose();
   }
 
   void _syncMetrics({bool notify = true}) {
-    assert(route.scopeKey.maybeCurrentExtent != null);
-    final localExtent = route.scopeKey.currentExtent;
-    final localMetrics = localExtent.metrics;
+    assert(route.scopeKey.maybeCurrentPosition != null);
+    final localPosition = route.scopeKey.currentPosition;
+    final localMetrics = localPosition.snapshot;
     owner.applyNewBoundaryConstraints(
-      localExtent.minExtent,
-      localExtent.maxExtent,
+      localPosition.minPosition,
+      localPosition.maxPosition,
     );
     if (localMetrics.maybeContentSize case final contentSize?) {
       owner.applyNewContentSize(contentSize);
@@ -131,7 +122,7 @@ class ProxySheetActivity extends NavigationSheetActivity {
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
   ) {
-    // The proxied extent will handle the dimension changes,
+    // The proxied position will handle the dimension changes,
     // so we do nothing here to avoid data races.
   }
 }

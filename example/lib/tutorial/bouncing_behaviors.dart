@@ -27,7 +27,7 @@ class _Home extends StatelessWidget {
                   behavior: FixedBouncingBehavior(
                     // Allows the sheet position to exceed the content bounds
                     // by ±10% of the content height.
-                    Extent.proportional(0.1),
+                    SheetAnchor.proportional(0.1),
                   ),
                 ),
               ),
@@ -39,7 +39,7 @@ class _Home extends StatelessWidget {
                 const _DraggableSheet(
                   behavior: FixedBouncingBehavior(
                     // Allows the sheet position to exceed the content bounds by ±50 pixels.
-                    Extent.pixels(50),
+                    SheetAnchor.pixels(50),
                   ),
                 ),
               ),
@@ -53,8 +53,8 @@ class _Home extends StatelessWidget {
                     // Allows the sheet position to exceed the content bounds by 10 pixels
                     // when dragging the sheet upwards, and by ±30% of the content height
                     // when dragging it downwards.
-                    upward: Extent.pixels(20),
-                    downward: Extent.proportional(0.3),
+                    upward: SheetAnchor.pixels(20),
+                    downward: SheetAnchor.proportional(0.3),
                   ),
                 ),
               ),
@@ -66,8 +66,8 @@ class _Home extends StatelessWidget {
                 const _DraggableSheet(
                   behavior: DirectionAwareBouncingBehavior(
                     // Allows the sheet to bounce only when dragging it downwards.
-                    upward: Extent.pixels(0),
-                    downward: Extent.proportional(0.1),
+                    upward: SheetAnchor.pixels(0),
+                    downward: SheetAnchor.proportional(0.1),
                   ),
                 ),
               ),

@@ -133,14 +133,14 @@ class _ExampleSheet extends StatelessWidget {
       ),
     );
 
-    const minSize = Extent.proportional(0.3);
-    const halfSize = Extent.proportional(0.5);
-    const fullSize = Extent.proportional(1);
+    const minSize = SheetAnchor.proportional(0.3);
+    const halfSize = SheetAnchor.proportional(0.5);
+    const fullSize = SheetAnchor.proportional(1);
 
-    final multiStopPhysics = BouncingSheetPhysics(
+    const multiStopPhysics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
-        snappingBehavior: SnapToNearest(
-          snapTo: const [minSize, halfSize, fullSize],
+        behavior: SnapToNearest(
+          anchors: [minSize, halfSize, fullSize],
         ),
       ),
     );
@@ -148,8 +148,8 @@ class _ExampleSheet extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: DraggableSheet(
-        minExtent: minSize,
-        initialExtent: halfSize,
+        minPosition: minSize,
+        initialPosition: halfSize,
         physics: multiStopPhysics,
         child: SheetContentScaffold(
           appBar: AppBar(),
@@ -166,7 +166,7 @@ class _ExampleSheet extends StatelessWidget {
                 getIsVisible: (metrics) {
                   // The bottom bar is visible when at least 50% of the sheet is visible.
                   return metrics.pixels >=
-                      const Extent.proportional(0.5)
+                      const SheetAnchor.proportional(0.5)
                           .resolve(metrics.contentSize);
                 },
                 child: bottomBar,

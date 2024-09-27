@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_drag.dart';
-import '../foundation/sheet_extent.dart';
+import '../foundation/sheet_position.dart';
 import '../internal/transition_observer.dart';
 import 'navigation_route.dart';
 import 'navigation_sheet_activity.dart';
 
 @internal
-class NavigationSheetExtent extends SheetExtent {
-  NavigationSheetExtent({
+class NavigationSheetPosition extends SheetPosition {
+  NavigationSheetPosition({
     required super.context,
-    required super.minExtent,
-    required super.maxExtent,
+    required super.minPosition,
+    required super.maxPosition,
     required super.physics,
     super.gestureTamperer,
     super.debugLabel,
@@ -22,7 +22,7 @@ class NavigationSheetExtent extends SheetExtent {
   Transition? _lastReportedTransition;
 
   @override
-  void takeOver(SheetExtent other) {
+  void takeOver(SheetPosition other) {
     super.takeOver(other);
     assert(_debugAssertActivityTypeConsistency());
   }
@@ -90,21 +90,21 @@ class NavigationSheetExtent extends SheetExtent {
 
   @override
   Future<void> animateTo(
-    Extent newExtent, {
+    SheetAnchor newPosition, {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
     if (activity case ProxySheetActivity(:final route)) {
-      return route.scopeKey.currentExtent
-          .animateTo(newExtent, curve: curve, duration: duration);
+      return route.scopeKey.currentPosition
+          .animateTo(newPosition, curve: curve, duration: duration);
     } else {
-      return super.animateTo(newExtent, curve: curve, duration: duration);
+      return super.animateTo(newPosition, curve: curve, duration: duration);
     }
   }
 
   @override
   void didUpdateMetrics() {
-    // Do not dispatch a notifications if a local extent is active.
+    // Do not dispatch a notifications if a local position is active.
     if (activity is! NavigationSheetActivity) {
       super.didUpdateMetrics();
     }
@@ -112,7 +112,7 @@ class NavigationSheetExtent extends SheetExtent {
 
   @override
   void didDragStart(SheetDragStartDetails details) {
-    // Do not dispatch a notifications if a local extent is active.
+    // Do not dispatch a notifications if a local position is active.
     if (activity is! NavigationSheetActivity) {
       super.didDragStart(details);
     }
@@ -120,7 +120,7 @@ class NavigationSheetExtent extends SheetExtent {
 
   @override
   void didDragEnd(SheetDragEndDetails details) {
-    // Do not dispatch a notifications if a local extent is active.
+    // Do not dispatch a notifications if a local position is active.
     if (activity is! NavigationSheetActivity) {
       super.didDragEnd(details);
     }
@@ -128,7 +128,7 @@ class NavigationSheetExtent extends SheetExtent {
 
   @override
   void didDragUpdateMetrics(SheetDragUpdateDetails details) {
-    // Do not dispatch a notifications if a local extent is active.
+    // Do not dispatch a notifications if a local position is active.
     if (activity is! NavigationSheetActivity) {
       super.didDragUpdateMetrics(details);
     }
@@ -136,7 +136,7 @@ class NavigationSheetExtent extends SheetExtent {
 
   @override
   void didOverflowBy(double overflow) {
-    // Do not dispatch a notifications if a local extent is active.
+    // Do not dispatch a notifications if a local position is active.
     if (activity is! NavigationSheetActivity) {
       super.didOverflowBy(overflow);
     }
