@@ -10,7 +10,7 @@ import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_status.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet.dart';
-import 'scrollable_sheet_extent.dart';
+import 'scrollable_sheet_position.dart';
 import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
@@ -33,6 +33,7 @@ abstract class ScrollableSheetActivity
       : _scrollPosition = scrollPosition;
 
   SheetContentScrollPosition? _scrollPosition;
+
   SheetContentScrollPosition get scrollPosition {
     assert(debugAssertNotDisposed());
     return _scrollPosition!;

@@ -6,7 +6,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position_scope.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
+import 'package:smooth_sheets/src/scrollable/scrollable_sheet_position.dart';
 import 'package:smooth_sheets/src/scrollable/sheet_content_scroll_position.dart';
 
 import '../src/keyboard_inset_simulation.dart';
