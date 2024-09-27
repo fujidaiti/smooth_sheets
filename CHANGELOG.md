@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.0 Sep 28, 2024
+
+**This version contains breaking changes.
+** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md) for more details.
+
+- Fix: Touch is ignored issue not fixed for top edge (#212)
+- Fix: Closing keyboard slows down snapping animation (#193)
+- Fix: Dynamically changing sheet height doesn't respect snapping constraints (#226)
+- Fix: Snapping effect doesn't work when closing keyboard on non-fullscreen sheet (#192)
+- Fix: Unwanted bouncing when opening or closing the on-screen keyboard on ScrollableSheet (#245)
+
 ## 0.9.4 Aug 31, 2024
 
 - Add `SwipeDismissSensitivity`, a way to customize sensitivity of swipe-to-dismiss action on modal sheet (#222)
