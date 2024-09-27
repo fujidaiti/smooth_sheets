@@ -126,7 +126,7 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
   }
 }
 
-typedef PositionScopeBuilder = SheetPositionScope Function(
+typedef SheetPositionScopeBuilder = SheetPositionScope Function(
   SheetContext context,
   SheetPositionScopeKey key,
   Widget child,
@@ -139,7 +139,7 @@ class NavigationSheetRouteContent extends StatelessWidget {
     required this.child,
   });
 
-  final PositionScopeBuilder scopeBuilder;
+  final SheetPositionScopeBuilder scopeBuilder;
   final Widget child;
 
   @override

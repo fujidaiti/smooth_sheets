@@ -2,7 +2,7 @@ export 'navigation_route.dart'
     show
         NavigationSheetRoute,
         NavigationSheetRouteContent,
-        PositionScopeBuilder;
+        SheetPositionScopeBuilder;
 export 'navigation_routes.dart'
     show
         DraggableNavigationSheetPage,
