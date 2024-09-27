@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import '../draggable/draggable_sheet_extent.dart';
 import '../draggable/draggable_sheet_extent_scope.dart';
 import '../draggable/sheet_draggable.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
+import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_theme.dart';
 import '../scrollable/scrollable_sheet.dart';
 import '../scrollable/scrollable_sheet_extent.dart';
@@ -129,8 +129,8 @@ class ScrollableNavigationSheetRoute<T>
   final WidgetBuilder builder;
 
   @override
-  SheetExtentScopeKey<ScrollableSheetExtent> createScopeKey() {
-    return SheetExtentScopeKey<ScrollableSheetExtent>(
+  SheetPositionScopeKey<ScrollableSheetExtent> createScopeKey() {
+    return SheetPositionScopeKey<ScrollableSheetExtent>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }
@@ -183,8 +183,8 @@ class DraggableNavigationSheetRoute<T>
   final WidgetBuilder builder;
 
   @override
-  SheetExtentScopeKey<DraggableSheetExtent> createScopeKey() {
-    return SheetExtentScopeKey<DraggableSheetExtent>(
+  SheetPositionScopeKey<DraggableSheetExtent> createScopeKey() {
+    return SheetPositionScopeKey<DraggableSheetExtent>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }
@@ -263,8 +263,8 @@ class _PageBasedScrollableNavigationSheetRoute<T>
   RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
 
   @override
-  SheetExtentScopeKey<ScrollableSheetExtent> createScopeKey() {
-    return SheetExtentScopeKey<ScrollableSheetExtent>(
+  SheetPositionScopeKey<ScrollableSheetExtent> createScopeKey() {
+    return SheetPositionScopeKey<ScrollableSheetExtent>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }
@@ -343,8 +343,8 @@ class _PageBasedDraggableNavigationSheetRoute<T>
   RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
 
   @override
-  SheetExtentScopeKey<DraggableSheetExtent> createScopeKey() {
-    return SheetExtentScopeKey<DraggableSheetExtent>(
+  SheetPositionScopeKey<DraggableSheetExtent> createScopeKey() {
+    return SheetPositionScopeKey<DraggableSheetExtent>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }

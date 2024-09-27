@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_position.dart';
+import '../foundation/sheet_position_scope.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'draggable_sheet.dart';
 
@@ -47,7 +47,7 @@ class _SheetDraggableState extends State<SheetDraggable> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _extent = SheetExtentScope.maybeOf(context);
+    _extent = SheetPositionScope.maybeOf(context);
   }
 
   @override

@@ -4,8 +4,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_extent_scope.dart';
 import 'sheet_position.dart';
+import 'sheet_position_scope.dart';
 
 @internal
 class SheetViewport extends SingleChildRenderObjectWidget {
@@ -17,7 +17,7 @@ class SheetViewport extends SingleChildRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderSheetViewport(
-      SheetExtentScope.of(context),
+      SheetPositionScope.of(context),
       MediaQuery.viewInsetsOf(context),
     );
   }
@@ -25,7 +25,7 @@ class SheetViewport extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as RenderSheetViewport)
-      ..extent = SheetExtentScope.of(context)
+      ..extent = SheetPositionScope.of(context)
       ..insets = MediaQuery.viewInsetsOf(context);
   }
 }
@@ -42,9 +42,11 @@ class RenderSheetViewport extends RenderTransform {
   // Cache the last measured size because we can't access
   // 'size' property from outside of the layout phase.
   Size? _lastMeasuredSize;
+
   Size? get lastMeasuredSize => _lastMeasuredSize;
 
   SheetPosition _extent;
+
   // ignore: avoid_setters_without_getters
   set extent(SheetPosition value) {
     if (_extent != value) {
@@ -55,7 +57,9 @@ class RenderSheetViewport extends RenderTransform {
   }
 
   EdgeInsets _insets;
+
   EdgeInsets get insets => _insets;
+
   set insets(EdgeInsets value) {
     if (value != _insets) {
       _insets = value;
@@ -184,7 +188,7 @@ class _SheetContentViewportState extends State<SheetContentViewport> {
       state: this,
       child: _SheetContentLayoutObserver(
         isEnabled: _isEnabled,
-        extent: SheetExtentScope.maybeOf(context),
+        extent: SheetPositionScope.maybeOf(context),
         child: widget.child,
       ),
     );
@@ -244,6 +248,7 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
         super(alignment: Alignment.topCenter);
 
   SheetPosition? _extent;
+
   // ignore: avoid_setters_without_getters
   set extent(SheetPosition? value) {
     if (_extent != value) {
@@ -253,6 +258,7 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
   }
 
   ValueGetter<bool> _isEnabled;
+
   // ignore: avoid_setters_without_getters
   set isEnabled(ValueGetter<bool> value) {
     if (_isEnabled != value) {

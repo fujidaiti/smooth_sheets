@@ -1,12 +1,12 @@
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_context.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_position.dart';
+import '../foundation/sheet_position_scope.dart';
 import 'draggable_sheet_extent.dart';
 
 @internal
-class DraggableSheetExtentScope extends SheetExtentScope {
+class DraggableSheetExtentScope extends SheetPositionScope {
   const DraggableSheetExtentScope({
     super.key,
     super.controller,
@@ -28,12 +28,12 @@ class DraggableSheetExtentScope extends SheetExtentScope {
   final String? debugLabel;
 
   @override
-  SheetExtentScopeState createState() {
+  SheetPositionScopeState createState() {
     return _DraggableSheetExtentScopeState();
   }
 }
 
-class _DraggableSheetExtentScopeState extends SheetExtentScopeState<
+class _DraggableSheetExtentScopeState extends SheetPositionScopeState<
     DraggableSheetExtent, DraggableSheetExtentScope> {
   @override
   bool shouldRebuildExtent(DraggableSheetExtent oldExtent) {

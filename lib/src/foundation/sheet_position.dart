@@ -10,10 +10,10 @@ import 'sheet_activity.dart';
 import 'sheet_context.dart';
 import 'sheet_controller.dart';
 import 'sheet_drag.dart';
-import 'sheet_extent_scope.dart';
 import 'sheet_gesture_tamperer.dart';
 import 'sheet_notification.dart';
 import 'sheet_physics.dart';
+import 'sheet_position_scope.dart';
 import 'sheet_status.dart';
 
 /// An abstract representation of a sheet's position.
@@ -130,8 +130,8 @@ class FixedSheetAnchor implements SheetAnchor {
 /// See also:
 /// - [SheetController], which can be attached to a sheet to observe and control
 ///   its position.
-/// - [SheetExtentScope], which creates a [SheetPosition], manages its lifecycle
-///   and exposes it to the descendant widgets.
+/// - [SheetPositionScope], which creates a [SheetPosition], manages its
+///   lifecycle and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
 abstract class SheetPosition extends ChangeNotifier
@@ -608,10 +608,15 @@ mixin SheetMetrics {
   );
 
   double? get maybePixels;
+
   SheetAnchor? get maybeMinPosition;
+
   SheetAnchor? get maybeMaxPosition;
+
   Size? get maybeContentSize;
+
   Size? get maybeViewportSize;
+
   EdgeInsets? get maybeViewportInsets;
 
   /// The [FlutterView.devicePixelRatio] of the view that the sheet
@@ -694,16 +699,19 @@ mixin SheetMetrics {
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [pixels] and the keyboard's height. Otherwise, it is equal to [pixels].
   double get viewPixels => pixels + viewportInsets.bottom;
+
   double? get maybeViewPixels => hasDimensions ? viewPixels : null;
 
   /// The minimum visible height of the sheet measured from the bottom
   /// of the viewport.
   double get minViewPixels => minPixels + viewportInsets.bottom;
+
   double? get maybeMinViewPixels => hasDimensions ? minViewPixels : null;
 
   /// The maximum visible height of the sheet measured from the bottom
   /// of the viewport.
   double get maxViewPixels => maxPixels + viewportInsets.bottom;
+
   double? get maybeMaxViewPixels => hasDimensions ? maxViewPixels : null;
 
   /// Whether the all metrics are available.

@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_context.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent_scope.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position_scope.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
 class _FakeNotificationContext extends Fake implements BuildContext {
   @override
-  void dispatchNotification(Notification notification) {/* no-op */}
+  void dispatchNotification(Notification notification) {
+    /* no-op */
+  }
 }
 
 class _FakeSheetContext extends Fake implements SheetContext {
@@ -79,7 +81,7 @@ class _TestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sheet = InheritedSheetExtentScope(
+    final sheet = InheritedSheetPositionScope(
       isPrimary: true,
       extent: extent,
       child: SheetViewport(

@@ -11,9 +11,9 @@ import 'sheet_position.dart';
 
 @internal
 @optionalTypeArgs
-class SheetExtentScopeKey<T extends SheetPosition>
-    extends LabeledGlobalKey<SheetExtentScopeState> {
-  SheetExtentScopeKey({String? debugLabel}) : super(debugLabel);
+class SheetPositionScopeKey<T extends SheetPosition>
+    extends LabeledGlobalKey<SheetPositionScopeState> {
+  SheetPositionScopeKey({String? debugLabel}) : super(debugLabel);
 
   final List<VoidCallback> _onCreatedListeners = [];
 
@@ -50,9 +50,9 @@ class SheetExtentScopeKey<T extends SheetPosition>
 /// and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
-abstract class SheetExtentScope extends StatefulWidget {
+abstract class SheetPositionScope extends StatefulWidget {
   /// Creates a widget that hosts a [SheetPosition].
-  const SheetExtentScope({
+  const SheetPositionScope({
     super.key,
     required this.context,
     this.controller,
@@ -89,20 +89,20 @@ abstract class SheetExtentScope extends StatefulWidget {
   final Widget child;
 
   @override
-  SheetExtentScopeState createState();
+  SheetPositionScopeState createState();
 
-  /// Retrieves a [SheetPosition] from the closest [SheetExtentScope]
+  /// Retrieves a [SheetPosition] from the closest [SheetPositionScope]
   /// that encloses the given context, if any.
   // TODO: Add 'useRoot' option.
   static E? maybeOf<E extends SheetPosition>(BuildContext context) {
     final inherited = context
-        .dependOnInheritedWidgetOfExactType<InheritedSheetExtentScope>()
+        .dependOnInheritedWidgetOfExactType<InheritedSheetPositionScope>()
         ?.extent;
 
     return inherited is E ? inherited : null;
   }
 
-  /// Retrieves a [SheetPosition] from the closest [SheetExtentScope]
+  /// Retrieves a [SheetPosition] from the closest [SheetPositionScope]
   /// that encloses the given context.
   static E of<E extends SheetPosition>(BuildContext context) {
     final extent = maybeOf<E>(context);
@@ -110,8 +110,8 @@ abstract class SheetExtentScope extends StatefulWidget {
     assert(() {
       if (extent == null) {
         throw FlutterError(
-          'No $SheetExtentScope ancestor for $E could be found starting '
-          'from the context that was passed to $SheetExtentScope.of(). '
+          'No $SheetPositionScope ancestor for $E could be found starting '
+          'from the context that was passed to $SheetPositionScope.of(). '
           'The context used was:\n'
           '$context',
         );
@@ -124,14 +124,14 @@ abstract class SheetExtentScope extends StatefulWidget {
 }
 
 @internal
-abstract class SheetExtentScopeState<E extends SheetPosition,
-    W extends SheetExtentScope> extends State<W> {
+abstract class SheetPositionScopeState<E extends SheetPosition,
+    W extends SheetPositionScope> extends State<W> {
   late E _extent;
   SheetController? _controller;
 
-  SheetExtentScopeKey<E>? get _scopeKey {
+  SheetPositionScopeKey<E>? get _scopeKey {
     assert(() {
-      if (widget.key != null && widget.key is! SheetExtentScopeKey<E>) {
+      if (widget.key != null && widget.key is! SheetPositionScopeKey<E>) {
         throw FlutterError(
           'The key for a SheetExtentScope<$E> must be a '
           'SheetExtentScopeKey<$E>, but got a ${widget.key.runtimeType}.',
@@ -141,7 +141,7 @@ abstract class SheetExtentScopeState<E extends SheetPosition,
     }());
 
     return switch (widget.key) {
-      final SheetExtentScopeKey<E> key => key,
+      final SheetPositionScopeKey<E> key => key,
       _ => null,
     };
   }
@@ -224,7 +224,7 @@ abstract class SheetExtentScopeState<E extends SheetPosition,
     assert(
       () {
         final parentScope = context
-            .dependOnInheritedWidgetOfExactType<InheritedSheetExtentScope>();
+            .dependOnInheritedWidgetOfExactType<InheritedSheetPositionScope>();
         if (!widget.isPrimary ||
             parentScope == null ||
             !parentScope.isPrimary) {
@@ -232,7 +232,7 @@ abstract class SheetExtentScopeState<E extends SheetPosition,
         }
 
         throw FlutterError(
-          'Nesting $SheetExtentScope widgets that are marked as primary '
+          'Nesting $SheetPositionScope widgets that are marked as primary '
           'is not allowed. Typically, this error occurs when you try to nest '
           'sheet widgets such as DraggableSheet or ScrollableSheet.',
         );
@@ -244,7 +244,7 @@ abstract class SheetExtentScopeState<E extends SheetPosition,
 
   @override
   Widget build(BuildContext context) {
-    return InheritedSheetExtentScope(
+    return InheritedSheetPositionScope(
       extent: _extent,
       isPrimary: widget.isPrimary,
       child: widget.child,
@@ -253,8 +253,8 @@ abstract class SheetExtentScopeState<E extends SheetPosition,
 }
 
 @internal
-class InheritedSheetExtentScope extends InheritedWidget {
-  const InheritedSheetExtentScope({
+class InheritedSheetPositionScope extends InheritedWidget {
+  const InheritedSheetPositionScope({
     super.key,
     required this.extent,
     required this.isPrimary,
@@ -265,6 +265,6 @@ class InheritedSheetExtentScope extends InheritedWidget {
   final bool isPrimary;
 
   @override
-  bool updateShouldNotify(InheritedSheetExtentScope oldWidget) =>
+  bool updateShouldNotify(InheritedSheetPositionScope oldWidget) =>
       extent != oldWidget.extent || isPrimary != oldWidget.isPrimary;
 }

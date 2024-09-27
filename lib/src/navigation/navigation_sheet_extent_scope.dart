@@ -1,13 +1,13 @@
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_context.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
+import '../foundation/sheet_position_scope.dart';
 import 'navigation_sheet_extent.dart';
 
 @internal
-class NavigationSheetExtentScope extends SheetExtentScope {
+class NavigationSheetExtentScope extends SheetPositionScope {
   const NavigationSheetExtentScope({
     super.key,
     super.controller,
@@ -27,12 +27,12 @@ class NavigationSheetExtentScope extends SheetExtentScope {
   final String? debugLabel;
 
   @override
-  SheetExtentScopeState createState() {
+  SheetPositionScopeState createState() {
     return _NavigationSheetExtentScopeState();
   }
 }
 
-class _NavigationSheetExtentScopeState extends SheetExtentScopeState<
+class _NavigationSheetExtentScopeState extends SheetPositionScopeState<
     NavigationSheetExtent, NavigationSheetExtentScope> {
   @override
   bool shouldRebuildExtent(NavigationSheetExtent oldExtent) {

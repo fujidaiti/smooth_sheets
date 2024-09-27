@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
+import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_viewport.dart';
 import '../internal/transition_observer.dart';
 import 'navigation_sheet_extent.dart';
@@ -36,7 +36,7 @@ class _NavigationSheetState extends State<NavigationSheet>
         TransitionAwareStateMixin,
         TickerProviderStateMixin,
         SheetContextStateMixin {
-  final _scopeKey = SheetExtentScopeKey<NavigationSheetExtent>(
+  final _scopeKey = SheetPositionScopeKey<NavigationSheetExtent>(
     debugLabel: kDebugMode ? 'NavigationSheet' : null,
   );
 

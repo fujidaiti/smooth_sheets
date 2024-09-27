@@ -2,8 +2,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_position.dart';
+import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_viewport.dart';
 
 @internal
@@ -16,7 +16,7 @@ class NavigationSheetViewport extends SheetViewport {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderNavigationSheetViewport(
-      SheetExtentScope.of(context),
+      SheetPositionScope.of(context),
       MediaQuery.viewInsetsOf(context),
     );
   }
@@ -84,7 +84,7 @@ class NavigationSheetRouteViewport extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return _RenderNavigationSheetRouteViewport(
       globalViewport: NavigationSheetViewport._of(context),
-      localExtent: SheetExtentScope.of(context),
+      localExtent: SheetPositionScope.of(context),
     );
   }
 
@@ -92,7 +92,7 @@ class NavigationSheetRouteViewport extends SingleChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderNavigationSheetRouteViewport)
       ..globalViewport = NavigationSheetViewport._of(context)
-      ..localExtent = SheetExtentScope.of(context);
+      ..localExtent = SheetPositionScope.of(context);
   }
 }
 
@@ -106,6 +106,7 @@ class _RenderNavigationSheetRouteViewport extends RenderProxyBox {
   }
 
   _RenderNavigationSheetViewport _globalViewport;
+
   // ignore: avoid_setters_without_getters
   set globalViewport(_RenderNavigationSheetViewport value) {
     if (_globalViewport != value) {
@@ -115,6 +116,7 @@ class _RenderNavigationSheetRouteViewport extends RenderProxyBox {
   }
 
   SheetPosition _localExtent;
+
   // ignore: avoid_setters_without_getters
   set localExtent(SheetPosition value) {
     if (_localExtent != value) {

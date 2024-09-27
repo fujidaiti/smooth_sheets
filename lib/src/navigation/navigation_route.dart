@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../foundation/sheet_context.dart';
-import '../foundation/sheet_extent_scope.dart';
 import '../foundation/sheet_position.dart';
+import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_viewport.dart';
 import 'navigation_sheet.dart';
 import 'navigation_sheet_extent.dart';
@@ -13,10 +13,10 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
     extends PageRoute<T> {
   NavigationSheetRoute({super.settings});
 
-  SheetExtentScopeKey<E> get scopeKey => _scopeKey;
-  late final SheetExtentScopeKey<E> _scopeKey;
+  SheetPositionScopeKey<E> get scopeKey => _scopeKey;
+  late final SheetPositionScopeKey<E> _scopeKey;
 
-  SheetExtentScopeKey<E> createScopeKey();
+  SheetPositionScopeKey<E> createScopeKey();
 
   @override
   void install() {
@@ -40,11 +40,11 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
   bool _debugAssertDependencies() {
     assert(
       () {
-        final globalExtent =
-            SheetExtentScope.maybeOf<NavigationSheetExtent>(navigator!.context);
+        final globalExtent = SheetPositionScope.maybeOf<NavigationSheetExtent>(
+            navigator!.context);
         if (globalExtent == null) {
           throw FlutterError(
-            'A $SheetExtentScope that hosts a $NavigationSheetExtent '
+            'A $SheetPositionScope that hosts a $NavigationSheetExtent '
             'is not found in the given context. This is likely because '
             'this $NavigationSheetRoute is not a route of the navigator '
             'enclosed by a $NavigationSheet.',
@@ -125,9 +125,9 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
   }
 }
 
-typedef ExtentScopeBuilder = SheetExtentScope Function(
+typedef ExtentScopeBuilder = SheetPositionScope Function(
   SheetContext context,
-  SheetExtentScopeKey key,
+  SheetPositionScopeKey key,
   Widget child,
 );
 
@@ -145,7 +145,7 @@ class NavigationSheetRouteContent extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(_debugAssertDependencies(context));
     final parentRoute = ModalRoute.of(context)! as NavigationSheetRoute;
-    final globalExtent = SheetExtentScope.of<NavigationSheetExtent>(context);
+    final globalExtent = SheetPositionScope.of<NavigationSheetExtent>(context);
     final routeViewport = NavigationSheetRouteViewport(
       child: SheetContentViewport(child: child),
     );
@@ -159,27 +159,27 @@ class NavigationSheetRouteContent extends StatelessWidget {
   }
 
   bool _debugAssertScope(
-    SheetExtentScope scope,
+    SheetPositionScope scope,
     Key expectedKey,
     Widget expectedChild,
   ) {
     assert(() {
       if (scope.key != expectedKey) {
         throw FlutterError(
-          'The key of the $SheetExtentScope returned by `scopeBuilder` does '
+          'The key of the SheetPositionScope returned by `scopeBuilder` does '
           'not match the key passed to the builder. This is likely a mistake.',
         );
       }
       if (scope.child != expectedChild) {
         throw FlutterError(
-          'The child of the $SheetExtentScope returned by `scopeBuilder` does '
+          'The child of the SheetPositionScope returned by `scopeBuilder` does '
           'not match the child passed to the builder. '
           'This is likely a mistake.',
         );
       }
       if (scope.controller != null) {
         throw FlutterError(
-          'The $SheetExtentScope returned by the `scopeBuilder` should not '
+          'The SheetPositionScope returned by the `scopeBuilder` should not '
           'have a controller. Since the controller is managed by the global '
           ' scope, this is likely a mistake.',
         );
@@ -193,13 +193,13 @@ class NavigationSheetRouteContent extends StatelessWidget {
     assert(
       () {
         final globalExtent =
-            SheetExtentScope.maybeOf<NavigationSheetExtent>(context);
+            SheetPositionScope.maybeOf<NavigationSheetExtent>(context);
         if (globalExtent == null) {
           throw FlutterError(
-            'A $SheetExtentScope that hosts a $NavigationSheetExtent '
+            'A SheetPositionScope that hosts a $NavigationSheetExtent '
             'is not found in the given context. This is likely because '
-            'this $NavigationSheetRouteContent is not in the subtree of '
-            'the navigator enclosed by a $NavigationSheet.',
+            'this NavigationSheetRouteContent is not in the subtree of '
+            'the navigator enclosed by a NavigationSheet.',
           );
         }
 
@@ -208,8 +208,8 @@ class NavigationSheetRouteContent extends StatelessWidget {
           return true;
         }
         throw FlutterError(
-          'The $NavigationSheetRouteContent must be the content of '
-          'a $NavigationSheetRoute, but the result of ModalRoute.of(context) '
+          'The NavigationSheetRouteContent must be the content of '
+          'a NavigationSheetRoute, but the result of ModalRoute.of(context) '
           'is ${parentRoute?.runtimeType}.',
         );
       }(),

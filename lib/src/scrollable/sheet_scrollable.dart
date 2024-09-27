@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../foundation/sheet_extent_scope.dart';
+import '../foundation/sheet_position_scope.dart';
 import 'scrollable_sheet_extent.dart';
 import 'sheet_content_scroll_position.dart';
 
@@ -36,7 +36,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _extent = SheetExtentScope.maybeOf(context);
+    _extent = SheetPositionScope.maybeOf(context);
   }
 
   @override

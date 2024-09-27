@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_extent_scope.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position_scope.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_extent.dart';
 import 'package:smooth_sheets/src/scrollable/sheet_content_scroll_position.dart';
 
@@ -350,7 +350,7 @@ void main() {
         child: Builder(
           builder: (context) {
             scrollController = PrimaryScrollController.of(context);
-            sheetExtent = SheetExtentScope.of(context);
+            sheetExtent = SheetPositionScope.of(context);
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Container(
