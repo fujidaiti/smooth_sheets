@@ -89,7 +89,7 @@ class _MySheet extends StatelessWidget {
     // Note that the "position" is the visible height of the sheet.
     const snappingPhysics = SnappingSheetPhysics(
       snappingBehavior: SnapToNearest(
-        snapTo: [
+        anchors: [
           SheetAnchor.proportional(_halfwayFraction),
           SheetAnchor.proportional(1),
         ],

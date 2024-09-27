@@ -20,7 +20,7 @@ class TextFieldWithMultipleStops extends StatelessWidget {
             physics: const BouncingSheetPhysics(
               parent: SnappingSheetPhysics(
                 snappingBehavior: SnapToNearest(
-                  snapTo: [
+                  anchors: [
                     SheetAnchor.proportional(0.4),
                     SheetAnchor.proportional(0.7),
                     SheetAnchor.proportional(1),
