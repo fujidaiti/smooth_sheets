@@ -106,7 +106,7 @@ class ProxySheetActivity extends NavigationSheetActivity {
     final localMetrics = localExtent.snapshot;
     owner.applyNewBoundaryConstraints(
       localExtent.minPosition,
-      localExtent.maxExtent,
+      localExtent.maxPosition,
     );
     if (localMetrics.maybeContentSize case final contentSize?) {
       owner.applyNewContentSize(contentSize);

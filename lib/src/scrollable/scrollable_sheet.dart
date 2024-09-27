@@ -18,7 +18,7 @@ class ScrollableSheet extends StatefulWidget {
     super.key,
     this.initialExtent = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
-    this.maxExtent = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.controller,
     required this.child,
@@ -30,8 +30,8 @@ class ScrollableSheet extends StatefulWidget {
   /// {@macro SheetExtent.minPosition}
   final SheetAnchor minPosition;
 
-  /// {@macro SheetExtent.maxExtent}
-  final SheetAnchor maxExtent;
+  /// {@macro SheetExtent.maxPosition}
+  final SheetAnchor maxPosition;
 
   /// {@macro SheetPosition.physics}
   final SheetPhysics? physics;
@@ -61,7 +61,7 @@ class _ScrollableSheetState extends State<ScrollableSheet>
       controller: controller,
       initialExtent: widget.initialExtent,
       minPosition: widget.minPosition,
-      maxExtent: widget.maxExtent,
+      maxPosition: widget.maxPosition,
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,

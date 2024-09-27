@@ -13,7 +13,7 @@ class NavigationSheetExtent extends SheetPosition {
   NavigationSheetExtent({
     required super.context,
     required super.minPosition,
-    required super.maxExtent,
+    required super.maxPosition,
     required super.physics,
     super.gestureTamperer,
     super.debugLabel,

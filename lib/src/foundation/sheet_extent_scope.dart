@@ -58,7 +58,7 @@ abstract class SheetExtentScope extends StatefulWidget {
     this.controller,
     this.isPrimary = true,
     required this.minPosition,
-    required this.maxExtent,
+    required this.maxPosition,
     required this.physics,
     this.gestureTamperer,
     required this.child,
@@ -73,8 +73,8 @@ abstract class SheetExtentScope extends StatefulWidget {
   /// {@macro SheetExtent.minPosition}
   final SheetAnchor minPosition;
 
-  /// {@macro SheetExtent.maxExtent}
-  final SheetAnchor maxExtent;
+  /// {@macro SheetExtent.maxPosition}
+  final SheetAnchor maxPosition;
 
   /// {@macro SheetPosition.physics}
   final SheetPhysics physics;
@@ -179,8 +179,9 @@ abstract class SheetExtentScopeState<E extends SheetPosition,
       _rewireControllerAndExtent();
     }
     if (_extent.minPosition != widget.minPosition ||
-        _extent.maxExtent != widget.maxExtent) {
-      _extent.applyNewBoundaryConstraints(widget.minPosition, widget.maxExtent);
+        _extent.maxPosition != widget.maxPosition) {
+      _extent.applyNewBoundaryConstraints(
+          widget.minPosition, widget.maxPosition);
     }
     if (_extent.physics != widget.physics) {
       _extent.updatePhysics(widget.physics);

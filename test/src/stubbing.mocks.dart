@@ -309,15 +309,15 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
       ) as _i4.SheetAnchor);
 
   @override
-  _i4.SheetAnchor get maxExtent => (super.noSuchMethod(
-        Invocation.getter(#maxExtent),
+  _i4.SheetAnchor get maxPosition => (super.noSuchMethod(
+        Invocation.getter(#maxPosition),
         returnValue: _FakeSheetAnchor_4(
           this,
-          Invocation.getter(#maxExtent),
+          Invocation.getter(#maxPosition),
         ),
         returnValueForMissingStub: _FakeSheetAnchor_4(
           this,
-          Invocation.getter(#maxExtent),
+          Invocation.getter(#maxPosition),
         ),
       ) as _i4.SheetAnchor);
 
@@ -458,14 +458,14 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
   @override
   void applyNewBoundaryConstraints(
     _i4.SheetAnchor? minPosition,
-    _i4.SheetAnchor? maxExtent,
+    _i4.SheetAnchor? maxPosition,
   ) =>
       super.noSuchMethod(
         Invocation.method(
           #applyNewBoundaryConstraints,
           [
             minPosition,
-            maxExtent,
+            maxPosition,
           ],
         ),
         returnValueForMissingStub: null,
@@ -636,7 +636,7 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
   _i4.SheetMetrics copyWith({
     double? pixels,
     _i4.SheetAnchor? minPosition,
-    _i4.SheetAnchor? maxExtent,
+    _i4.SheetAnchor? maxPosition,
     _i6.Size? contentSize,
     _i6.Size? viewportSize,
     _i7.EdgeInsets? viewportInsets,
@@ -649,7 +649,7 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
           {
             #pixels: pixels,
             #minPosition: minPosition,
-            #maxExtent: maxExtent,
+            #maxPosition: maxPosition,
             #contentSize: contentSize,
             #viewportSize: viewportSize,
             #viewportInsets: viewportInsets,
@@ -664,7 +664,7 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
             {
               #pixels: pixels,
               #minPosition: minPosition,
-              #maxExtent: maxExtent,
+              #maxPosition: maxPosition,
               #contentSize: contentSize,
               #viewportSize: viewportSize,
               #viewportInsets: viewportInsets,
@@ -680,7 +680,7 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
             {
               #pixels: pixels,
               #minPosition: minPosition,
-              #maxExtent: maxExtent,
+              #maxPosition: maxPosition,
               #contentSize: contentSize,
               #viewportSize: viewportSize,
               #viewportInsets: viewportInsets,

@@ -34,7 +34,7 @@ class DraggableSheet extends StatefulWidget {
     this.hitTestBehavior = HitTestBehavior.translucent,
     this.initialExtent = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
-    this.maxExtent = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     required this.child,
     this.controller,
@@ -45,8 +45,8 @@ class DraggableSheet extends StatefulWidget {
   /// {@macro SheetExtentConfig.minPosition}
   final SheetAnchor minPosition;
 
-  /// {@macro SheetExtentConfig.maxExtent}
-  final SheetAnchor maxExtent;
+  /// {@macro SheetExtentConfig.maxPosition}
+  final SheetAnchor maxPosition;
 
   /// {@macro SheetExtentConfig.physics}
   final SheetPhysics? physics;
@@ -81,7 +81,7 @@ class _DraggableSheetState extends State<DraggableSheet>
       controller: controller,
       initialExtent: widget.initialExtent,
       minPosition: widget.minPosition,
-      maxExtent: widget.maxExtent,
+      maxPosition: widget.maxPosition,
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'DraggableSheet' : null,

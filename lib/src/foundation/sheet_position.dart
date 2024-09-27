@@ -141,7 +141,7 @@ abstract class SheetPosition extends ChangeNotifier
   SheetPosition({
     required this.context,
     required SheetAnchor minPosition,
-    required SheetAnchor maxExtent,
+    required SheetAnchor maxPosition,
     required SheetPhysics physics,
     this.debugLabel,
     SheetGestureProxyMixin? gestureTamperer,
@@ -149,7 +149,7 @@ abstract class SheetPosition extends ChangeNotifier
         _gestureTamperer = gestureTamperer,
         _snapshot = SheetMetrics.empty.copyWith(
           minPosition: minPosition,
-          maxExtent: maxExtent,
+          maxPosition: maxPosition,
         ) {
     goIdle();
   }
@@ -164,7 +164,7 @@ abstract class SheetPosition extends ChangeNotifier
   SheetAnchor? get maybeMinPosition => snapshot.maybeMinPosition;
 
   @override
-  SheetAnchor? get maybeMaxExtent => snapshot.maybeMaxExtent;
+  SheetAnchor? get maybeMaxPosition => snapshot.maybeMaxPosition;
 
   @override
   Size? get maybeContentSize => snapshot.maybeContentSize;
@@ -223,7 +223,7 @@ abstract class SheetPosition extends ChangeNotifier
   void _updateMetrics({
     double? pixels,
     SheetAnchor? minPosition,
-    SheetAnchor? maxExtent,
+    SheetAnchor? maxPosition,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
@@ -231,7 +231,7 @@ abstract class SheetPosition extends ChangeNotifier
     _snapshot = SheetMetricsSnapshot(
       pixels: pixels ?? maybePixels,
       minPosition: minPosition ?? maybeMinPosition,
-      maxExtent: maxExtent ?? maybeMaxExtent,
+      maxPosition: maxPosition ?? maybeMaxPosition,
       contentSize: contentSize ?? maybeContentSize,
       viewportSize: viewportSize ?? maybeViewportSize,
       viewportInsets: viewportInsets ?? maybeViewportInsets,
@@ -262,7 +262,7 @@ abstract class SheetPosition extends ChangeNotifier
     if (other.maybePixels case final pixels?) {
       correctPixels(pixels);
     }
-    applyNewBoundaryConstraints(other.minPosition, other.maxExtent);
+    applyNewBoundaryConstraints(other.minPosition, other.maxPosition);
     applyNewViewportDimensions(
       other.viewportSize,
       other.viewportInsets,
@@ -308,12 +308,12 @@ abstract class SheetPosition extends ChangeNotifier
 
   @mustCallSuper
   void applyNewBoundaryConstraints(
-      SheetAnchor minPosition, SheetAnchor maxExtent) {
-    if (minPosition != this.minPosition || maxExtent != this.maxExtent) {
+      SheetAnchor minPosition, SheetAnchor maxPosition) {
+    if (minPosition != this.minPosition || maxPosition != this.maxPosition) {
       final oldMinPosition = maybeMinPosition;
-      final oldMaxExtent = maybeMaxExtent;
-      _updateMetrics(minPosition: minPosition, maxExtent: maxExtent);
-      activity.didChangeBoundaryConstraints(oldMinPosition, oldMaxExtent);
+      final oldMaxPosition = maybeMaxPosition;
+      _updateMetrics(minPosition: minPosition, maxPosition: maxPosition);
+      activity.didChangeBoundaryConstraints(oldMinPosition, oldMaxPosition);
     }
   }
 
@@ -521,7 +521,7 @@ abstract class SheetPosition extends ChangeNotifier
   SheetMetrics copyWith({
     double? pixels,
     SheetAnchor? minPosition,
-    SheetAnchor? maxExtent,
+    SheetAnchor? maxPosition,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
@@ -530,7 +530,7 @@ abstract class SheetPosition extends ChangeNotifier
     return snapshot.copyWith(
       pixels: pixels,
       minPosition: minPosition,
-      maxExtent: maxExtent,
+      maxPosition: maxPosition,
       contentSize: contentSize,
       viewportSize: viewportSize,
       viewportInsets: viewportInsets,
@@ -601,7 +601,7 @@ mixin SheetMetrics {
   static const SheetMetrics empty = SheetMetricsSnapshot(
     pixels: null,
     minPosition: null,
-    maxExtent: null,
+    maxPosition: null,
     contentSize: null,
     viewportSize: null,
     viewportInsets: null,
@@ -609,7 +609,7 @@ mixin SheetMetrics {
 
   double? get maybePixels;
   SheetAnchor? get maybeMinPosition;
-  SheetAnchor? get maybeMaxExtent;
+  SheetAnchor? get maybeMaxPosition;
   Size? get maybeContentSize;
   Size? get maybeViewportSize;
   EdgeInsets? get maybeViewportInsets;
@@ -623,7 +623,7 @@ mixin SheetMetrics {
   SheetMetrics copyWith({
     double? pixels,
     SheetAnchor? minPosition,
-    SheetAnchor? maxExtent,
+    SheetAnchor? maxPosition,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
@@ -636,9 +636,9 @@ mixin SheetMetrics {
         _ => null,
       };
 
-  double? get maybeMaxPixels => switch ((maybeMaxExtent, maybeContentSize)) {
-        (final maxExtent?, final contentSize?) =>
-          maxExtent.resolve(contentSize),
+  double? get maybeMaxPixels => switch ((maybeMaxPosition, maybeContentSize)) {
+        (final maxPosition?, final contentSize?) =>
+          maxPosition.resolve(contentSize),
         _ => null,
       };
 
@@ -667,9 +667,9 @@ mixin SheetMetrics {
   }
 
   /// The maximum position of the sheet.
-  SheetAnchor get maxExtent {
-    assert(_debugAssertHasProperty('maxExtent', maybeMaxExtent));
-    return maybeMaxExtent!;
+  SheetAnchor get maxPosition {
+    assert(_debugAssertHasProperty('maxPosition', maybeMaxPosition));
+    return maybeMaxPosition!;
   }
 
   /// The size of the sheet's content.
@@ -714,7 +714,7 @@ mixin SheetMetrics {
   bool get hasDimensions =>
       maybePixels != null &&
       maybeMinPosition != null &&
-      maybeMaxExtent != null &&
+      maybeMaxPosition != null &&
       maybeContentSize != null &&
       maybeViewportSize != null &&
       maybeViewportInsets != null;
@@ -752,14 +752,14 @@ class SheetMetricsSnapshot with SheetMetrics {
   const SheetMetricsSnapshot({
     required double? pixels,
     required SheetAnchor? minPosition,
-    required SheetAnchor? maxExtent,
+    required SheetAnchor? maxPosition,
     required Size? contentSize,
     required Size? viewportSize,
     required EdgeInsets? viewportInsets,
     this.devicePixelRatio = 1.0,
   })  : maybePixels = pixels,
         maybeMinPosition = minPosition,
-        maybeMaxExtent = maxExtent,
+        maybeMaxPosition = maxPosition,
         maybeContentSize = contentSize,
         maybeViewportSize = viewportSize,
         maybeViewportInsets = viewportInsets;
@@ -771,7 +771,7 @@ class SheetMetricsSnapshot with SheetMetrics {
   final SheetAnchor? maybeMinPosition;
 
   @override
-  final SheetAnchor? maybeMaxExtent;
+  final SheetAnchor? maybeMaxPosition;
 
   @override
   final Size? maybeContentSize;
@@ -789,7 +789,7 @@ class SheetMetricsSnapshot with SheetMetrics {
   SheetMetricsSnapshot copyWith({
     double? pixels,
     SheetAnchor? minPosition,
-    SheetAnchor? maxExtent,
+    SheetAnchor? maxPosition,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
@@ -798,7 +798,7 @@ class SheetMetricsSnapshot with SheetMetrics {
     return SheetMetricsSnapshot(
       pixels: pixels ?? maybePixels,
       minPosition: minPosition ?? maybeMinPosition,
-      maxExtent: maxExtent ?? maybeMaxExtent,
+      maxPosition: maxPosition ?? maybeMaxPosition,
       contentSize: contentSize ?? maybeContentSize,
       viewportSize: viewportSize ?? maybeViewportSize,
       viewportInsets: viewportInsets ?? maybeViewportInsets,
@@ -813,7 +813,7 @@ class SheetMetricsSnapshot with SheetMetrics {
           runtimeType == other.runtimeType &&
           maybePixels == other.maybePixels &&
           maybeMinPosition == other.maybeMinPosition &&
-          maybeMaxExtent == other.maybeMaxExtent &&
+          maybeMaxPosition == other.maybeMaxPosition &&
           maybeContentSize == other.maybeContentSize &&
           maybeViewportSize == other.maybeViewportSize &&
           maybeViewportInsets == other.maybeViewportInsets &&
@@ -824,7 +824,7 @@ class SheetMetricsSnapshot with SheetMetrics {
         runtimeType,
         maybePixels,
         maybeMinPosition,
-        maybeMaxExtent,
+        maybeMaxPosition,
         maybeContentSize,
         maybeViewportSize,
         maybeViewportInsets,
@@ -841,7 +841,7 @@ class SheetMetricsSnapshot with SheetMetrics {
         minViewPixels: maybeMinViewPixels,
         maxViewPixels: maybeMaxViewPixels,
         minPosition: maybeMinPosition,
-        maxExtent: maybeMaxExtent,
+        maxPosition: maybeMaxPosition,
         contentSize: maybeContentSize,
         viewportSize: maybeViewportSize,
         viewportInsets: maybeViewportInsets,

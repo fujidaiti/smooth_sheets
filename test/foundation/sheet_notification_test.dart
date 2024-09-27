@@ -245,7 +245,7 @@ void main() {
           child: DraggableSheet(
             // Make sure the sheet can't be dragged
             minPosition: const SheetAnchor.proportional(1),
-            maxExtent: const SheetAnchor.proportional(1),
+            maxPosition: const SheetAnchor.proportional(1),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(

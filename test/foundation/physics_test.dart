@@ -16,7 +16,7 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
 
 const _referenceSheetMetrics = SheetMetricsSnapshot(
   minPosition: SheetAnchor.pixels(0),
-  maxExtent: SheetAnchor.proportional(1),
+  maxPosition: SheetAnchor.proportional(1),
   pixels: 600,
   contentSize: Size(360, 600),
   viewportSize: Size(360, 700),
@@ -178,13 +178,13 @@ void main() {
       );
       expect(
         physicsUnderTest.findSettledExtent(0, overDraggedPosition),
-        _referenceSheetMetrics.maxExtent,
+        _referenceSheetMetrics.maxPosition,
         reason: 'Should return the max extent if the position '
             'is out of the upper bound',
       );
       expect(
         physicsUnderTest.findSettledExtent(1000, overDraggedPosition),
-        _referenceSheetMetrics.maxExtent,
+        _referenceSheetMetrics.maxPosition,
         reason: 'The velocity should not affect the result',
       );
 
@@ -206,7 +206,7 @@ void main() {
       // Boundary conditions
       expect(
         physicsUnderTest.findSettledExtent(1000, _positionAtTopEdge),
-        _referenceSheetMetrics.maxExtent,
+        _referenceSheetMetrics.maxPosition,
         reason:
             'Should return the max extent if the position is at the upper bound',
       );
@@ -236,7 +236,7 @@ void main() {
 
       expect(
         behaviorUnderTest.findSettledExtent(0, positionAtNearTopEdge),
-        _referenceSheetMetrics.maxExtent,
+        _referenceSheetMetrics.maxPosition,
       );
       expect(
         behaviorUnderTest.findSettledExtent(0, positionAtNearBottomEdge),
@@ -247,7 +247,7 @@ void main() {
     test('is aware of fling gesture direction', () {
       expect(
         behaviorUnderTest.findSettledExtent(50, _positionAtBottomEdge),
-        _referenceSheetMetrics.maxExtent,
+        _referenceSheetMetrics.maxPosition,
       );
       expect(
         behaviorUnderTest.findSettledExtent(-50, _positionAtTopEdge),
@@ -284,7 +284,7 @@ void main() {
       );
       expect(
         behaviorUnderTest.findSettledExtent(50, _positionAtBottomEdge),
-        _referenceSheetMetrics.maxExtent,
+        _referenceSheetMetrics.maxPosition,
       );
     });
   });

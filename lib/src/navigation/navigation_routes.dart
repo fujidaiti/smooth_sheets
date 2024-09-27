@@ -19,7 +19,7 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
     this.debugLabel,
     required this.initialExtent,
     required this.minPosition,
-    required this.maxExtent,
+    required this.maxPosition,
     required this.physics,
     required this.child,
   });
@@ -27,7 +27,7 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
   final String? debugLabel;
   final SheetAnchor initialExtent;
   final SheetAnchor minPosition;
-  final SheetAnchor maxExtent;
+  final SheetAnchor maxPosition;
   final SheetPhysics? physics;
   final Widget child;
 
@@ -44,7 +44,7 @@ class _ScrollableNavigationSheetRouteContent extends StatelessWidget {
           isPrimary: false,
           initialExtent: initialExtent,
           minPosition: minPosition,
-          maxExtent: maxExtent,
+          maxPosition: maxPosition,
           physics: physics ?? theme?.physics ?? kDefaultSheetPhysics,
           gestureTamperer: gestureTamper,
           child: child,
@@ -60,7 +60,7 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
     this.debugLabel,
     required this.initialExtent,
     required this.minPosition,
-    required this.maxExtent,
+    required this.maxPosition,
     required this.physics,
     required this.child,
   });
@@ -68,7 +68,7 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
   final String? debugLabel;
   final SheetAnchor initialExtent;
   final SheetAnchor minPosition;
-  final SheetAnchor maxExtent;
+  final SheetAnchor maxPosition;
   final SheetPhysics? physics;
   final Widget child;
 
@@ -86,7 +86,7 @@ class _DraggableNavigationSheetRouteContent extends StatelessWidget {
           isPrimary: false,
           initialExtent: initialExtent,
           minPosition: minPosition,
-          maxExtent: maxExtent,
+          maxPosition: maxPosition,
           physics: physics,
           gestureTamperer: gestureTamper,
           debugLabel: debugLabel,
@@ -106,7 +106,7 @@ class ScrollableNavigationSheetRoute<T>
     this.transitionDuration = const Duration(milliseconds: 300),
     this.initialExtent = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
-    this.maxExtent = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.builder,
@@ -114,7 +114,7 @@ class ScrollableNavigationSheetRoute<T>
 
   final SheetAnchor initialExtent;
   final SheetAnchor minPosition;
-  final SheetAnchor maxExtent;
+  final SheetAnchor maxPosition;
   final SheetPhysics? physics;
 
   @override
@@ -145,7 +145,7 @@ class ScrollableNavigationSheetRoute<T>
       debugLabel: '$ScrollableNavigationSheetRoute(${settings.name})',
       initialExtent: initialExtent,
       minPosition: minPosition,
-      maxExtent: maxExtent,
+      maxPosition: maxPosition,
       physics: physics,
       child: builder(context),
     );
@@ -160,7 +160,7 @@ class DraggableNavigationSheetRoute<T>
     this.transitionDuration = const Duration(milliseconds: 300),
     this.initialExtent = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
-    this.maxExtent = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.builder,
@@ -168,7 +168,7 @@ class DraggableNavigationSheetRoute<T>
 
   final SheetAnchor initialExtent;
   final SheetAnchor minPosition;
-  final SheetAnchor maxExtent;
+  final SheetAnchor maxPosition;
   final SheetPhysics? physics;
 
   @override
@@ -199,7 +199,7 @@ class DraggableNavigationSheetRoute<T>
       debugLabel: '$DraggableNavigationSheetRoute(${settings.name})',
       initialExtent: initialExtent,
       minPosition: minPosition,
-      maxExtent: maxExtent,
+      maxPosition: maxPosition,
       physics: physics,
       child: builder(context),
     );
@@ -216,7 +216,7 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
     this.transitionDuration = const Duration(milliseconds: 300),
     this.initialExtent = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
-    this.maxExtent = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.child,
@@ -229,7 +229,7 @@ class ScrollableNavigationSheetPage<T> extends Page<T> {
 
   final SheetAnchor initialExtent;
   final SheetAnchor minPosition;
-  final SheetAnchor maxExtent;
+  final SheetAnchor maxPosition;
 
   final SheetPhysics? physics;
 
@@ -279,7 +279,7 @@ class _PageBasedScrollableNavigationSheetRoute<T>
       debugLabel: '$ScrollableNavigationSheetPage(${page.name})',
       initialExtent: page.initialExtent,
       minPosition: page.minPosition,
-      maxExtent: page.maxExtent,
+      maxPosition: page.maxPosition,
       physics: page.physics,
       child: page.child,
     );
@@ -296,7 +296,7 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
     this.transitionDuration = const Duration(milliseconds: 300),
     this.initialExtent = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
-    this.maxExtent = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.transitionsBuilder,
     required this.child,
@@ -309,7 +309,7 @@ class DraggableNavigationSheetPage<T> extends Page<T> {
 
   final SheetAnchor initialExtent;
   final SheetAnchor minPosition;
-  final SheetAnchor maxExtent;
+  final SheetAnchor maxPosition;
 
   final SheetPhysics? physics;
 
@@ -359,7 +359,7 @@ class _PageBasedDraggableNavigationSheetRoute<T>
       debugLabel: '$DraggableNavigationSheetPage(${page.name})',
       initialExtent: page.initialExtent,
       minPosition: page.minPosition,
-      maxExtent: page.maxExtent,
+      maxPosition: page.maxPosition,
       physics: page.physics,
       child: page.child,
     );

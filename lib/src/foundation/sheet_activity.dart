@@ -68,7 +68,7 @@ abstract class SheetActivity<T extends SheetPosition> {
 
   void didChangeBoundaryConstraints(
     SheetAnchor? oldMinPosition,
-    SheetAnchor? oldMaxExtent,
+    SheetAnchor? oldMaxPosition,
   ) {}
 
   /// Called when all relevant metrics of the sheet are finalized

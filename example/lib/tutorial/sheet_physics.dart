@@ -95,7 +95,7 @@ class _MySheet extends StatelessWidget {
         ],
       ),
       // Tips: The above configuration can be replaced with a 'SnapToNearestEdge',
-      // which will snap to either the 'minPosition' or 'maxExtent' of the sheet:
+      // which will snap to either the 'minPosition' or 'maxPosition' of the sheet:
       // snappingBehavior: const SnapToNearestEdge(),
     );
 
@@ -113,14 +113,14 @@ class _MySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableSheet(
-      // The 'minPosition' and 'maxExtent' properties determine
+      // The 'minPosition' and 'maxPosition' properties determine
       // how far the sheet can be dragged.  Note that "extent"
       // refers to the visible height of the sheet. For example,
       // the configuration below ensures that the sheet is fully visible
       // at first and can then be dragged down to (_halfwayFraction * 100)%
       // of the sheet height at minimum.
       minPosition: const SheetAnchor.proportional(_halfwayFraction),
-      maxExtent: const SheetAnchor.proportional(1), // Default
+      maxPosition: const SheetAnchor.proportional(1), // Default
       initialExtent: const SheetAnchor.proportional(1), // Default
       // 'physics' determines how the sheet will behave when the user reaches
       // the maximum or minimum extent, or when the user stops dragging.

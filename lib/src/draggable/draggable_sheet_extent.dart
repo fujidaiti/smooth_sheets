@@ -9,7 +9,7 @@ class DraggableSheetExtent extends SheetPosition {
   DraggableSheetExtent({
     required super.context,
     required super.minPosition,
-    required super.maxExtent,
+    required super.maxPosition,
     required this.initialExtent,
     required super.physics,
     super.gestureTamperer,

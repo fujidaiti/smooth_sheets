@@ -22,7 +22,7 @@ class MutableSheetMetrics with SheetMetrics {
   MutableSheetMetrics({
     required this.maybePixels,
     required this.maybeMinPosition,
-    required this.maybeMaxExtent,
+    required this.maybeMaxPosition,
     required this.maybeContentSize,
     required this.maybeViewportSize,
     required this.maybeViewportInsets,
@@ -33,7 +33,7 @@ class MutableSheetMetrics with SheetMetrics {
   double devicePixelRatio;
 
   @override
-  SheetAnchor? maybeMaxExtent;
+  SheetAnchor? maybeMaxPosition;
 
   @override
   SheetAnchor? maybeMinPosition;
@@ -54,7 +54,7 @@ class MutableSheetMetrics with SheetMetrics {
   SheetMetrics copyWith({
     double? pixels,
     SheetAnchor? minPosition,
-    SheetAnchor? maxExtent,
+    SheetAnchor? maxPosition,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
@@ -63,7 +63,7 @@ class MutableSheetMetrics with SheetMetrics {
     return SheetMetricsSnapshot(
       pixels: pixels ?? maybePixels,
       minPosition: minPosition ?? maybeMinPosition,
-      maxExtent: maxExtent ?? maybeMaxExtent,
+      maxPosition: maxPosition ?? maybeMaxPosition,
       contentSize: contentSize ?? maybeContentSize,
       viewportSize: viewportSize ?? maybeViewportSize,
       viewportInsets: viewportInsets ?? maybeViewportInsets,
@@ -75,7 +75,7 @@ class MutableSheetMetrics with SheetMetrics {
 (MutableSheetMetrics, MockSheetPosition) createMockSheetExtent({
   required double pixels,
   required SheetAnchor minPosition,
-  required SheetAnchor maxExtent,
+  required SheetAnchor maxPosition,
   required Size contentSize,
   required Size viewportSize,
   required EdgeInsets viewportInsets,
@@ -85,7 +85,7 @@ class MutableSheetMetrics with SheetMetrics {
   final metricsRegistry = MutableSheetMetrics(
     maybePixels: pixels,
     maybeMinPosition: minPosition,
-    maybeMaxExtent: maxExtent,
+    maybeMaxPosition: maxPosition,
     maybeContentSize: contentSize,
     maybeViewportSize: viewportSize,
     maybeViewportInsets: viewportInsets,
@@ -98,8 +98,9 @@ class MutableSheetMetrics with SheetMetrics {
   when(extent.minPosition).thenAnswer((_) => metricsRegistry.minPosition);
   when(extent.maybeMinPosition)
       .thenAnswer((_) => metricsRegistry.maybeMinPosition);
-  when(extent.maxExtent).thenAnswer((_) => metricsRegistry.maxExtent);
-  when(extent.maybeMaxExtent).thenAnswer((_) => metricsRegistry.maybeMaxExtent);
+  when(extent.maxPosition).thenAnswer((_) => metricsRegistry.maxPosition);
+  when(extent.maybeMaxPosition)
+      .thenAnswer((_) => metricsRegistry.maybeMaxPosition);
   when(extent.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
   when(extent.maybeContentSize)
       .thenAnswer((_) => metricsRegistry.maybeContentSize);
@@ -129,12 +130,12 @@ class MutableSheetMetrics with SheetMetrics {
   when(extent.applyNewBoundaryConstraints(any, any)).thenAnswer((invocation) {
     metricsRegistry
       ..maybeMinPosition = invocation.positionalArguments.first as SheetAnchor
-      ..maybeMaxExtent = invocation.positionalArguments.last as SheetAnchor;
+      ..maybeMaxPosition = invocation.positionalArguments.last as SheetAnchor;
   });
   when(extent.copyWith(
     pixels: anyNamed('pixels'),
     minPosition: anyNamed('minPosition'),
-    maxExtent: anyNamed('maxExtent'),
+    maxPosition: anyNamed('maxPosition'),
     contentSize: anyNamed('contentSize'),
     viewportSize: anyNamed('viewportSize'),
     viewportInsets: anyNamed('viewportInsets'),
@@ -143,7 +144,7 @@ class MutableSheetMetrics with SheetMetrics {
     return metricsRegistry.copyWith(
       pixels: invocation.namedArguments[#pixels] as double?,
       minPosition: invocation.namedArguments[#minPosition] as SheetAnchor?,
-      maxExtent: invocation.namedArguments[#maxExtent] as SheetAnchor?,
+      maxPosition: invocation.namedArguments[#maxPosition] as SheetAnchor?,
       contentSize: invocation.namedArguments[#contentSize] as Size?,
       viewportSize: invocation.namedArguments[#viewportSize] as Size?,
       viewportInsets: invocation.namedArguments[#viewportInsets] as EdgeInsets?,

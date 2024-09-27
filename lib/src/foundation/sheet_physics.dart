@@ -140,7 +140,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
   }
 
   /// Returns the closer of [SheetMetrics.minPosition] or
-  /// [SheetMetrics.maxExtent] to the current sheet position
+  /// [SheetMetrics.maxPosition] to the current sheet position
   /// if it is out of bounds, regardless of the [velocity].
   /// Otherwise, it returns the current position.
   @override
@@ -159,7 +159,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
     } else if ((pixels - minPixels).abs() < (pixels - maxPixels).abs()) {
       return metrics.minPosition;
     } else {
-      return metrics.maxExtent;
+      return metrics.maxPosition;
     }
   }
 }
@@ -185,7 +185,7 @@ abstract interface class SnappingSheetBehavior {
 ///
 /// Using this behavior is functionally identical to using [SnapToNearest]
 /// with the snap positions of [SheetPosition.minPosition] and
-/// [SheetPosition.maxExtent], but more simplified and efficient.
+/// [SheetPosition.maxPosition], but more simplified and efficient.
 class SnapToNearestEdge implements SnappingSheetBehavior {
   /// Creates a [SnappingSheetBehavior] that snaps to either
   /// [SheetMetrics.minPixels] or [SheetMetrics.maxPixels].
@@ -211,7 +211,7 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
       return null;
     }
     if (velocity >= minFlingSpeed) {
-      return metrics.maxExtent;
+      return metrics.maxPosition;
     }
     if (velocity <= -minFlingSpeed) {
       return metrics.minPosition;
@@ -221,7 +221,7 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
     }
     return (pixels - minPixels).abs() < (pixels - maxPixels).abs()
         ? metrics.minPosition
-        : metrics.maxExtent;
+        : metrics.maxPosition;
   }
 }
 

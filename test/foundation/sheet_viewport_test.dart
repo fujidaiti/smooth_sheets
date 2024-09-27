@@ -42,7 +42,7 @@ class _FakeSheetExtent extends SheetPosition {
   }) : super(
           context: _FakeSheetContext(),
           minPosition: const SheetAnchor.proportional(0.5),
-          maxExtent: const SheetAnchor.proportional(1),
+          maxPosition: const SheetAnchor.proportional(1),
           physics: const ClampingSheetPhysics(),
         );
 
@@ -52,7 +52,7 @@ class _FakeSheetExtent extends SheetPosition {
   void applyNewContentSize(Size contentSize) {
     super.applyNewContentSize(contentSize);
     if (maybePixels == null) {
-      setPixels(maxExtent.resolve(contentSize));
+      setPixels(maxPosition.resolve(contentSize));
     }
   }
 
