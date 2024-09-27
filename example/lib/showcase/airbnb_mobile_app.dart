@@ -166,7 +166,7 @@ class _ContentSheet extends StatelessWidget {
 
         final sheetPhysics = BouncingSheetPhysics(
           parent: SnappingSheetPhysics(
-            snappingBehavior: SnapToNearest(
+            behavior: SnapToNearest(
               anchors: [
                 minSheetPosition,
                 const SheetAnchor.proportional(1),

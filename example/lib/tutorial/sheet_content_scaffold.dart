@@ -53,7 +53,7 @@ class _ExampleSheet extends StatelessWidget {
 
     const physics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
-        snappingBehavior: SnapToNearest(
+        behavior: SnapToNearest(
           anchors: [
             SheetAnchor.proportional(0.2),
             SheetAnchor.proportional(0.5),

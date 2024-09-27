@@ -139,7 +139,7 @@ class _ExampleSheet extends StatelessWidget {
 
     const multiStopPhysics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
-        snappingBehavior: SnapToNearest(
+        behavior: SnapToNearest(
           anchors: [minSize, halfSize, fullSize],
         ),
       ),

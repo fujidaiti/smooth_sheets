@@ -395,10 +395,10 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const SnappingSheetPhysics({
     super.parent,
     this.spring = kDefaultSheetSpring,
-    this.snappingBehavior = const SnapToNearestEdge(),
+    this.behavior = const SnapToNearestEdge(),
   });
 
-  final SnappingSheetBehavior snappingBehavior;
+  final SnappingSheetBehavior behavior;
 
   @override
   final SpringDescription spring;
@@ -412,13 +412,13 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
     return SnappingSheetPhysics(
       parent: parent ?? this.parent,
       spring: spring ?? this.spring,
-      snappingBehavior: snappingBehavior ?? this.snappingBehavior,
+      behavior: snappingBehavior ?? this.behavior,
     );
   }
 
   @override
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
-    final detent = snappingBehavior
+    final detent = behavior
         .findSettledPosition(velocity, metrics)
         ?.resolve(metrics.contentSize);
     if (detent != null &&
@@ -437,7 +437,7 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   SheetAnchor findSettledPosition(double velocity, SheetMetrics metrics) {
-    return snappingBehavior.findSettledPosition(velocity, metrics) ??
+    return behavior.findSettledPosition(velocity, metrics) ??
         super.findSettledPosition(velocity, metrics);
   }
 }
