@@ -101,7 +101,7 @@ class _MapButton extends StatelessWidget {
     // by using 'ExtentDrivenAnimation', a special kind of
     // 'Animation<double>' whose value changes from 0 to 1 as
     // the sheet extent changes from 'startExtent' to 'endExtent'.
-    final animation = ExtentDrivenAnimation(
+    final animation = SheetPositionDrivenAnimation(
       controller: DefaultSheetController.of(context),
       // The initial value of the animation is required
       // since the sheet extent is not available at the first build.
@@ -261,7 +261,7 @@ class _HouseList extends StatelessWidget {
 
     // Hide the list when the sheet is dragged down.
     return FadeTransition(
-      opacity: ExtentDrivenAnimation(
+      opacity: SheetPositionDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ).drive(
@@ -453,7 +453,7 @@ class _BottomNavigationBar extends StatelessWidget {
 
     // Hide the navigation bar when the sheet is dragged down.
     return SlideTransition(
-      position: ExtentDrivenAnimation(
+      position: SheetPositionDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ).drive(

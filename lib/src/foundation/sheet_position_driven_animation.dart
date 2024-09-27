@@ -3,8 +3,8 @@ import 'package:flutter/animation.dart';
 import 'sheet_controller.dart';
 import 'sheet_position.dart';
 
-class ExtentDrivenAnimation extends Animation<double> {
-  ExtentDrivenAnimation({
+class SheetPositionDrivenAnimation extends Animation<double> {
+  SheetPositionDrivenAnimation({
     required SheetController controller,
     required this.initialValue,
     this.startExtent,
