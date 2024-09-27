@@ -2,8 +2,7 @@
 
 ## 0.10.0 Sep 28, 2024
 
-**This version contains breaking changes.
-** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md) for more details.
+**This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md) for more details.
 
 - Fix: Touch is ignored issue not fixed for top edge (#212)
 - Fix: Closing keyboard slows down snapping animation (#193)
