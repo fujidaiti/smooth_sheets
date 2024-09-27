@@ -294,7 +294,7 @@ void main() {
     setUp(() {
       behaviorUnderTest = SnapToNearest(
         minFlingSpeed: 50,
-        snapTo: [
+        anchors: [
           SheetAnchor.pixels(_positionAtBottomEdge.pixels),
           SheetAnchor.pixels(_positionAtMiddle.pixels),
           SheetAnchor.pixels(_positionAtTopEdge.pixels),

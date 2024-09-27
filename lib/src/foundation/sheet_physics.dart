@@ -227,12 +227,11 @@ class SnapToNearestEdge implements SnappingSheetBehavior {
 
 class SnapToNearest implements SnappingSheetBehavior {
   const SnapToNearest({
-    required this.snapTo,
+    required this.anchors,
     this.minFlingSpeed = kMinFlingVelocity,
   }) : assert(minFlingSpeed >= 0);
 
-  // TODO: Rename to `detents`.
-  final List<SheetAnchor> snapTo;
+  final List<SheetAnchor> anchors;
 
   /// The lowest speed (in logical pixels per second)
   /// at which a gesture is considered to be a fling.
@@ -240,12 +239,12 @@ class SnapToNearest implements SnappingSheetBehavior {
 
   @override
   SheetAnchor? findSettledPosition(double velocity, SheetMetrics metrics) {
-    if (snapTo.length <= 1) {
-      return snapTo.firstOrNull;
+    if (anchors.length <= 1) {
+      return anchors.firstOrNull;
     }
 
     final (sortedDetents, nearestIndex) = sortPositionsAndFindNearest(
-        snapTo, metrics.pixels, metrics.contentSize);
+        anchors, metrics.pixels, metrics.contentSize);
     final cmp = FloatComp.distance(metrics.devicePixelRatio);
     final pixels = metrics.pixels;
 
@@ -396,10 +395,10 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const SnappingSheetPhysics({
     super.parent,
     this.spring = kDefaultSheetSpring,
-    this.snappingBehavior = const SnapToNearestEdge(),
+    this.behavior = const SnapToNearestEdge(),
   });
 
-  final SnappingSheetBehavior snappingBehavior;
+  final SnappingSheetBehavior behavior;
 
   @override
   final SpringDescription spring;
@@ -413,13 +412,13 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
     return SnappingSheetPhysics(
       parent: parent ?? this.parent,
       spring: spring ?? this.spring,
-      snappingBehavior: snappingBehavior ?? this.snappingBehavior,
+      behavior: snappingBehavior ?? this.behavior,
     );
   }
 
   @override
   Simulation? createBallisticSimulation(double velocity, SheetMetrics metrics) {
-    final detent = snappingBehavior
+    final detent = behavior
         .findSettledPosition(velocity, metrics)
         ?.resolve(metrics.contentSize);
     if (detent != null &&
@@ -438,7 +437,7 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   SheetAnchor findSettledPosition(double velocity, SheetMetrics metrics) {
-    return snappingBehavior.findSettledPosition(velocity, metrics) ??
+    return behavior.findSettledPosition(velocity, metrics) ??
         super.findSettledPosition(velocity, metrics);
   }
 }

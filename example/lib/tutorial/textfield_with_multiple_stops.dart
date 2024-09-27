@@ -19,8 +19,8 @@ class TextFieldWithMultipleStops extends StatelessWidget {
             minPosition: const SheetAnchor.proportional(0.4),
             physics: const BouncingSheetPhysics(
               parent: SnappingSheetPhysics(
-                snappingBehavior: SnapToNearest(
-                  snapTo: [
+                behavior: SnapToNearest(
+                  anchors: [
                     SheetAnchor.proportional(0.4),
                     SheetAnchor.proportional(0.7),
                     SheetAnchor.proportional(1),
