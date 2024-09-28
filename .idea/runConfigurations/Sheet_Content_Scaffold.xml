@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Sheet Content Scaffold" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="example/lib/tutorial/sheet_content_scaffold.dart" />
+    <method v="2" />
+  </configuration>
+</component>

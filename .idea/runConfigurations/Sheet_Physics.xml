@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Sheet Physics" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="example/lib/tutorial/sheet_physics.dart" />
+    <method v="2" />
+  </configuration>
+</component>
