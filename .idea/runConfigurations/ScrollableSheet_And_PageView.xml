@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ScrollableSheet and PageView" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="example/lib/tutorial/scrollable_pageview_sheet.dart" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Imperative Navigation Sheet" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="example/lib/tutorial/imperative_navigation_sheet.dart" />
+    <method v="2" />
+  </configuration>
+</component>

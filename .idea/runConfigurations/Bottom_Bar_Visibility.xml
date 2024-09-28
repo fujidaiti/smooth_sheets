@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Bottom Bar Visibility" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="example/lib/tutorial/bottom_bar_visibility.dart" />
+    <method v="2" />
+  </configuration>
+</component>
