@@ -8,7 +8,9 @@ import 'sheet_position.dart';
 import 'sheet_position_scope.dart';
 import 'sheet_viewport.dart';
 
+@Deprecated('Use SheetContent instead.')
 class SheetContentScaffold extends StatelessWidget {
+  @Deprecated('Use SheetContent instead.')
   const SheetContentScaffold({
     super.key,
     this.primary = false,
