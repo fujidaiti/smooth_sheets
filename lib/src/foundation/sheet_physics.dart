@@ -407,12 +407,12 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   SheetPhysics copyWith({
     SheetPhysics? parent,
     SpringDescription? spring,
-    SnappingSheetBehavior? snappingBehavior,
+    SnappingSheetBehavior? behavior,
   }) {
     return SnappingSheetPhysics(
       parent: parent ?? this.parent,
       spring: spring ?? this.spring,
-      behavior: snappingBehavior ?? this.behavior,
+      behavior: behavior ?? this.behavior,
     );
   }
 
