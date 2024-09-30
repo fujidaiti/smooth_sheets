@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Sheet Position Driven Animation" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="filePath" value="example/lib/tutorial/extent_driven_animation.dart" />
+    <option name="filePath" value="$PROJECT_DIR$/example/lib/tutorial/extent_driven_animation.dart" />
     <method v="2" />
   </configuration>
 </component>

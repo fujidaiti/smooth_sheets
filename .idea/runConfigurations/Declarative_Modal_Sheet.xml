@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Declarative Modal Sheet" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="filePath" value="example/lib/tutorial/declarative_modal_sheet.dart" />
+    <option name="filePath" value="$PROJECT_DIR$/example/lib/tutorial/declarative_modal_sheet.dart" />
     <method v="2" />
   </configuration>
 </component>
