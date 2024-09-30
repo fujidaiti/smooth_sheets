@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Scrollable Sheet" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="filePath" value="example/lib/tutorial/scrollable_sheet.dart" />
+    <option name="filePath" value="$PROJECT_DIR$/example/lib/tutorial/scrollable_sheet.dart" />
     <method v="2" />
   </configuration>
 </component>

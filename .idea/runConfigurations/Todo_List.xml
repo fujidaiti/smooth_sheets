@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Todo List" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="filePath" value="example/lib/showcase/todo_list/main.dart" />
+    <option name="filePath" value="$PROJECT_DIR$/example/lib/showcase/todo_list/main.dart" />
     <method v="2" />
   </configuration>
 </component>
