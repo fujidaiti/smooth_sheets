@@ -3,6 +3,30 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+// Widget? _overridePadding({
+//   required Widget? child,
+//   required MediaQueryData inheritedMediaQuery,
+//   EdgeInsets? viewInsets,
+//   EdgeInsets? padding,
+//   EdgeInsets? viewPadding,
+// }) {
+//   if (child == null) {
+//     return null;
+//   }
+//   if (viewInsets == null && padding == null && viewPadding == null) {
+//     return child;
+//   }
+//   return MediaQuery(
+//     data: inheritedMediaQuery.copyWith(
+//       // viewInsets: viewInsets ?? inheritedMediaQuery.viewInsets,
+//       padding: padding ?? inheritedMediaQuery.padding,
+//       viewInsets: EdgeInsets.zero,
+//       viewPadding: viewPadding ?? inheritedMediaQuery.viewPadding,
+//     ),
+//     child: child,
+//   );
+// }
+
 class SheetContent extends StatelessWidget {
   const SheetContent({
     super.key,
@@ -25,19 +49,114 @@ class SheetContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
+    final mediaQuery = MediaQuery.of(context);
+    final bottomMargin =
+        resizeToAvoidBottomInset ? mediaQuery.viewInsets.bottom : 0.0;
+    final backgroundColor =
+        this.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor;
+
+    final body = extendBodyBehindHeader || extendBodyBehindFooter
+        ? _BodyContainer(
+            body: this.body,
+            extendBodyBehindHeader: extendBodyBehindHeader,
+            extendBodyBehindFooter: extendBodyBehindFooter,
+          )
+        : this.body;
+
+    Widget result = Material(
+      color: backgroundColor,
       child: _SheetContentLayout(
         header: header,
         body: body,
         footer: footer,
-        bottomMargin: resizeToAvoidBottomInset
-            ? MediaQuery.of(context).viewInsets.bottom
-            : 0,
+        bottomMargin: bottomMargin,
         extendBodyBehindHeader: extendBodyBehindHeader,
         extendBodyBehindFooter: extendBodyBehindFooter,
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       ),
+    );
+
+    // if (mediaQuery.viewInsets.bottom > 0 && resizeToAvoidBottomInset) {
+    //   result = MediaQuery(
+    //     data: MediaQuery.of(context).copyWith(
+    //       viewInsets: mediaQuery.viewInsets.copyWith(bottom: 0),
+    //     ),
+    //     child: result,
+    //   );
+    // }
+
+    return result;
+  }
+}
+
+class _BodyBoxConstraints extends BoxConstraints {
+  const _BodyBoxConstraints({
+    required double width,
+    required super.maxHeight,
+    required this.footerHeight,
+    required this.headerHeight,
+  })  : assert(footerHeight >= 0),
+        assert(headerHeight >= 0),
+        super(minWidth: width, maxWidth: width);
+
+  final double footerHeight;
+  final double headerHeight;
+
+  // RenderObject.layout() will only short-circuit its call to its performLayout
+  // method if the new layout constraints are not == to the current constraints.
+  // If the height of the bottom widgets has changed, even though the constraints'
+  // min and max values have not, we still want performLayout to happen.
+  @override
+  bool operator ==(Object other) {
+    return super == other &&
+        other is _BodyBoxConstraints &&
+        other.footerHeight == footerHeight &&
+        other.headerHeight == headerHeight;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        super.hashCode,
+        footerHeight,
+        headerHeight,
+      );
+}
+
+class _BodyContainer extends StatelessWidget {
+  const _BodyContainer({
+    required this.body,
+    required this.extendBodyBehindHeader,
+    required this.extendBodyBehindFooter,
+  }) : assert(extendBodyBehindFooter || extendBodyBehindHeader);
+
+  final Widget body;
+  final bool extendBodyBehindHeader;
+  final bool extendBodyBehindFooter;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bodyConstraints = constraints as _BodyBoxConstraints;
+        final metrics = MediaQuery.of(context);
+
+        final bottom = extendBodyBehindFooter
+            ? max(metrics.padding.bottom, bodyConstraints.footerHeight)
+            : metrics.padding.bottom;
+
+        final top = extendBodyBehindHeader
+            ? max(metrics.padding.top, bodyConstraints.headerHeight)
+            : metrics.padding.top;
+
+        return MediaQuery(
+          data: metrics.copyWith(
+            padding: metrics.padding.copyWith(
+              top: top,
+              bottom: bottom,
+            ),
+          ),
+          child: body,
+        );
+      },
     );
   }
 }
@@ -53,7 +172,6 @@ class _SheetContentLayout
     required this.bottomMargin,
     required this.extendBodyBehindHeader,
     required this.extendBodyBehindFooter,
-    required this.resizeToAvoidBottomInset,
   });
 
   final Widget? header;
@@ -62,7 +180,6 @@ class _SheetContentLayout
   final double bottomMargin;
   final bool extendBodyBehindHeader;
   final bool extendBodyBehindFooter;
-  final bool resizeToAvoidBottomInset;
 
   @override
   Iterable<_SheetContentSlot> get slots => _SheetContentSlot.values;
@@ -158,32 +275,40 @@ class _RenderSheetContentLayout extends RenderBox
   @override
   void performLayout() {
     assert(constraints.hasBoundedWidth && constraints.hasBoundedHeight);
+    final fullWidthConstraints =
+        constraints.tighten(width: constraints.maxWidth);
 
     final header = childForSlot(_SheetContentSlot.header);
     final footer = childForSlot(_SheetContentSlot.footer);
     final body = childForSlot(_SheetContentSlot.body)!;
 
-    header?.layout(constraints, parentUsesSize: true);
-    footer?.layout(constraints, parentUsesSize: true);
+    header?.layout(fullWidthConstraints, parentUsesSize: true);
+    footer?.layout(fullWidthConstraints, parentUsesSize: true);
 
     final headerHeight = header?.size.height ?? 0;
     final footerHeight = footer?.size.height ?? 0;
     final bodyTopPadding = extendBodyBehindHeader ? 0 : headerHeight;
     final bodyBottomPadding = extendBodyBehindFooter ? 0 : footerHeight;
-    final maxBodyHeight = constraints.maxHeight -
+    final maxBodyHeight = fullWidthConstraints.maxHeight -
         bodyTopPadding -
         bodyBottomPadding -
         bottomMargin;
 
     body.layout(
-      constraints.copyWith(maxHeight: max(0.0, maxBodyHeight)),
+      _BodyBoxConstraints(
+        width: fullWidthConstraints.maxWidth,
+        maxHeight: max(0.0, maxBodyHeight),
+        footerHeight: footerHeight,
+        headerHeight: headerHeight,
+      ),
       parentUsesSize: true,
     );
 
     final bodyHeight = body.size.height + bodyTopPadding + bodyBottomPadding;
     final intrinsicHeight = max(bodyHeight, max(headerHeight, footerHeight));
-    _lastMeasuredIntrinsicSize = Size(constraints.maxWidth, intrinsicHeight);
-    size = constraints.constrain(_lastMeasuredIntrinsicSize);
+    _lastMeasuredIntrinsicSize =
+        Size(fullWidthConstraints.maxWidth, intrinsicHeight);
+    size = fullWidthConstraints.constrain(_lastMeasuredIntrinsicSize);
 
     if (header != null) {
       (header.parentData! as BoxParentData).offset = Offset.zero;
