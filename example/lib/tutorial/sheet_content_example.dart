@@ -38,6 +38,8 @@ class _MySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableSheet(
       child: SheetContent(
+        // extendBodyBehindHeader: true,
+        // extendBodyBehindFooter: true,
         header: GestureDetector(
           onTap: () => debugPrint('Tap on header'),
           child: Container(
@@ -47,44 +49,69 @@ class _MySheet extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: const Row(
               children: [
-                _ViewportGeometryInfo(),
+                _DebugViewportGeometry(),
                 Spacer(),
                 _CloseKeyboardButton(),
               ],
             ),
           ),
         ),
-        body: GestureDetector(
-          onTap: () => debugPrint('Tap on body'),
-          child: ColoredBox(
-            color: Colors.red,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 200),
-              child: const SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _ViewportGeometryInfo(),
-                    TextField(
-                      scribbleEnabled: true,
-                      maxLines: null,
+        body: Builder(
+          builder: (context) {
+            return Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.paddingOf(context).top,
+                bottom: MediaQuery.paddingOf(context).bottom,
+              ),
+              child: GestureDetector(
+                onTap: () => debugPrint('Tap on body'),
+                child: ColoredBox(
+                  color: Colors.red,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 200),
+                    child: const SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _DebugViewportGeometry(),
+                          TextField(
+                            scribbleEnabled: true,
+                            maxLines: null,
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
-        footer: GestureDetector(
-          onTap: () => debugPrint('Tap on footer'),
-          child: Container(
-            color: Colors.green.withOpacity(0.7),
+        footer: const _SheetFooter(),
+      ),
+    );
+  }
+}
+
+class _SheetFooter extends StatelessWidget {
+  const _SheetFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => debugPrint('Tap on footer'),
+      child: ColoredBox(
+        color: Colors.green,
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.paddingOf(context).bottom,
+          ),
+          child: const SizedBox(
             width: double.infinity,
             height: 80,
-            alignment: Alignment.topCenter,
-            child: const Row(
+            child: Row(
               children: [
-                _ViewportGeometryInfo(),
+                _DebugViewportGeometry(),
                 Spacer(),
                 _CloseKeyboardButton(),
               ],
@@ -96,8 +123,8 @@ class _MySheet extends StatelessWidget {
   }
 }
 
-class _ViewportGeometryInfo extends StatelessWidget {
-  const _ViewportGeometryInfo();
+class _DebugViewportGeometry extends StatelessWidget {
+  const _DebugViewportGeometry();
 
   @override
   Widget build(BuildContext context) {
