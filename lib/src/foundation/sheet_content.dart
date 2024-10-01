@@ -3,35 +3,50 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-// Widget? _overridePadding({
-//   required Widget? child,
-//   required MediaQueryData inheritedMediaQuery,
-//   EdgeInsets? viewInsets,
-//   EdgeInsets? padding,
-//   EdgeInsets? viewPadding,
-// }) {
-//   if (child == null) {
-//     return null;
-//   }
-//   if (viewInsets == null && padding == null && viewPadding == null) {
-//     return child;
-//   }
-//   return MediaQuery(
-//     data: inheritedMediaQuery.copyWith(
-//       // viewInsets: viewInsets ?? inheritedMediaQuery.viewInsets,
-//       padding: padding ?? inheritedMediaQuery.padding,
-//       viewInsets: EdgeInsets.zero,
-//       viewPadding: viewPadding ?? inheritedMediaQuery.viewPadding,
-//     ),
-//     child: child,
-//   );
-// }
+Widget? _removePadding({
+  required Widget? child,
+  required BuildContext context,
+  bool removeBottomViewInset = false,
+  bool removeTopPadding = false,
+  bool removeBottomPadding = false,
+  bool removeTopViewPadding = false,
+  bool removeBottomViewPadding = false,
+}) {
+  if (child == null) {
+    return null;
+  }
+  if (!removeBottomViewInset &&
+      !removeTopPadding &&
+      !removeBottomPadding &&
+      !removeTopViewPadding &&
+      !removeBottomViewPadding) {
+    return child;
+  }
+
+  final mediaQuery = MediaQuery.of(context);
+  return MediaQuery(
+    data: mediaQuery.copyWith(
+      viewInsets: removeBottomViewInset
+          ? mediaQuery.viewInsets.copyWith(bottom: 0)
+          : mediaQuery.viewInsets,
+      padding: mediaQuery.padding.copyWith(
+        top: removeTopPadding ? 0 : mediaQuery.padding.top,
+        bottom: removeBottomPadding ? 0 : mediaQuery.padding.bottom,
+      ),
+      viewPadding: mediaQuery.viewPadding.copyWith(
+        top: removeTopViewPadding ? 0 : mediaQuery.viewPadding.top,
+        bottom: removeBottomViewPadding ? 0 : mediaQuery.viewPadding.bottom,
+      ),
+    ),
+    child: child,
+  );
+}
 
 class SheetContent extends StatelessWidget {
   const SheetContent({
     super.key,
-    this.header,
     required this.body,
+    this.header,
     this.footer,
     this.extendBodyBehindHeader = false,
     this.extendBodyBehindFooter = false,
@@ -39,8 +54,8 @@ class SheetContent extends StatelessWidget {
     this.backgroundColor,
   });
 
-  final Widget? header;
   final Widget body;
+  final Widget? header;
   final Widget? footer;
   final bool extendBodyBehindHeader;
   final bool extendBodyBehindFooter;
@@ -49,21 +64,58 @@ class SheetContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final header = _removePadding(
+      context: context,
+      // Always remove the bottom view inset regardless of
+      // `resizeToAvoidBottomInset` flag as the SheetViewport will
+      // push the sheet up when the keyboard is shown.
+      removeBottomViewInset: true,
+      removeBottomViewPadding: true,
+      removeBottomPadding: true,
+      child: this.header,
+    );
+
+    final footer = _removePadding(
+      context: context,
+      removeBottomViewInset: true,
+      removeTopViewPadding: true,
+      removeTopPadding: true,
+      child: this.footer,
+    );
+
+    final Widget body;
+    if ((header != null && extendBodyBehindHeader) ||
+        (footer != null && extendBodyBehindFooter)) {
+      body = _removePadding(
+        context: context,
+        removeBottomViewInset: true,
+        // We don't remove the vertical paddings for the `body` here
+        // as the _BodyContainer will take care of it.
+        child: _BodyContainer(
+          body: this.body,
+          extendBodyBehindHeader: extendBodyBehindHeader,
+          extendBodyBehindFooter: extendBodyBehindFooter,
+        ),
+      )!;
+    } else {
+      body = _removePadding(
+        context: context,
+        removeBottomViewInset: true,
+        removeTopPadding: header != null,
+        removeTopViewPadding: header != null,
+        removeBottomPadding: footer != null,
+        removeBottomViewPadding: footer != null,
+        child: this.body,
+      )!;
+    }
+
     final mediaQuery = MediaQuery.of(context);
     final bottomMargin =
         resizeToAvoidBottomInset ? mediaQuery.viewInsets.bottom : 0.0;
     final backgroundColor =
         this.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor;
 
-    final body = extendBodyBehindHeader || extendBodyBehindFooter
-        ? _BodyContainer(
-            body: this.body,
-            extendBodyBehindHeader: extendBodyBehindHeader,
-            extendBodyBehindFooter: extendBodyBehindFooter,
-          )
-        : this.body;
-
-    Widget result = Material(
+    return Material(
       color: backgroundColor,
       child: _SheetContentLayout(
         header: header,
@@ -74,17 +126,6 @@ class SheetContent extends StatelessWidget {
         extendBodyBehindFooter: extendBodyBehindFooter,
       ),
     );
-
-    // if (mediaQuery.viewInsets.bottom > 0 && resizeToAvoidBottomInset) {
-    //   result = MediaQuery(
-    //     data: MediaQuery.of(context).copyWith(
-    //       viewInsets: mediaQuery.viewInsets.copyWith(bottom: 0),
-    //     ),
-    //     child: result,
-    //   );
-    // }
-
-    return result;
   }
 }
 
@@ -92,32 +133,28 @@ class _BodyBoxConstraints extends BoxConstraints {
   const _BodyBoxConstraints({
     required double width,
     required super.maxHeight,
-    required this.footerHeight,
     required this.headerHeight,
+    required this.footerHeight,
   })  : assert(footerHeight >= 0),
         assert(headerHeight >= 0),
         super(minWidth: width, maxWidth: width);
 
-  final double footerHeight;
   final double headerHeight;
+  final double footerHeight;
 
-  // RenderObject.layout() will only short-circuit its call to its performLayout
-  // method if the new layout constraints are not == to the current constraints.
-  // If the height of the bottom widgets has changed, even though the constraints'
-  // min and max values have not, we still want performLayout to happen.
   @override
   bool operator ==(Object other) {
     return super == other &&
         other is _BodyBoxConstraints &&
-        other.footerHeight == footerHeight &&
-        other.headerHeight == headerHeight;
+        other.headerHeight == headerHeight &&
+        other.footerHeight == footerHeight;
   }
 
   @override
   int get hashCode => Object.hash(
         super.hashCode,
-        footerHeight,
         headerHeight,
+        footerHeight,
       );
 }
 
@@ -149,10 +186,8 @@ class _BodyContainer extends StatelessWidget {
 
         return MediaQuery(
           data: metrics.copyWith(
-            padding: metrics.padding.copyWith(
-              top: top,
-              bottom: bottom,
-            ),
+            padding: metrics.padding.copyWith(top: top, bottom: bottom),
+            viewPadding: metrics.viewPadding.copyWith(top: top, bottom: bottom),
           ),
           child: body,
         );
@@ -257,19 +292,22 @@ class _RenderSheetContentLayout extends RenderBox
     }
   }
 
+  /// Returns the children in hit test order.
   @override
   List<RenderBox> get children {
     final header = childForSlot(_SheetContentSlot.header);
     final body = childForSlot(_SheetContentSlot.body);
     final footer = childForSlot(_SheetContentSlot.footer);
     return [
-      // Sorted in hit-test order
       if (header != null) header,
       if (footer != null) footer,
       if (body != null) body,
     ];
   }
 
+  /// Preferred size of this render box measured during the last layout.
+  ///
+  /// Used to paint the overflow indicator in debug mode.
   late Size _lastMeasuredIntrinsicSize;
 
   @override
