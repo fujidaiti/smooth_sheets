@@ -443,6 +443,56 @@ class _RenderSheetLayout extends RenderBox
   }
 
   @override
+  double computeMinIntrinsicWidth(double height) {
+    assert(() {
+      if (!RenderObject.debugCheckingIntrinsics) {
+        throw FlutterError(
+          'SheetLayout does not support returning '
+          'intrinsic width dimensions.',
+        );
+      }
+      return true;
+    }());
+
+    return 0.0;
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    assert(() {
+      if (!RenderObject.debugCheckingIntrinsics) {
+        throw FlutterError(
+          'SheetLayout does not support returning '
+          'intrinsic width dimensions.',
+        );
+      }
+      return true;
+    }());
+
+    return 0.0;
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    final (_, intrinsicSize) = _computeLayout(
+      constraints: BoxConstraints.tightForFinite(width: width),
+      computeChildLayout: (child, constraints) =>
+          Size(width, child.getMinIntrinsicHeight(constraints.maxWidth)),
+    );
+    return intrinsicSize.height;
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    final (_, intrinsicSize) = _computeLayout(
+      constraints: BoxConstraints.tightForFinite(width: width),
+      computeChildLayout: (child, constraints) =>
+          Size(width, child.getMaxIntrinsicHeight(constraints.maxWidth)),
+    );
+    return intrinsicSize.height;
+  }
+
+  @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     for (final child in children) {
       final childParentData = child.parentData! as BoxParentData;
