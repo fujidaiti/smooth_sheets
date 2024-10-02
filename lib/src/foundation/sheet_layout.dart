@@ -51,7 +51,15 @@ class SheetLayout extends StatelessWidget {
     this.extendBodyBehindHeader = false,
     this.extendBodyBehindFooter = false,
     this.resizeToAvoidBottomInset = true,
-    this.backgroundColor,
+    this.type = MaterialType.canvas,
+    this.elevation = 0.0,
+    this.color,
+    this.shadowColor,
+    this.surfaceTintColor,
+    this.borderRadius,
+    this.shape,
+    this.borderOnForeground = true,
+    this.clipBehavior = Clip.none,
   });
 
   final Widget body;
@@ -60,7 +68,38 @@ class SheetLayout extends StatelessWidget {
   final bool extendBodyBehindHeader;
   final bool extendBodyBehindFooter;
   final bool resizeToAvoidBottomInset;
-  final Color? backgroundColor;
+
+  /// Forwarded to the [Material.type] property of the internal [Material].
+  final MaterialType type;
+
+  /// Forwarded to the [Material.elevation] property of the internal [Material].
+  final double elevation;
+
+  /// Forwarded to the [Material.color] property of the internal [Material].
+  final Color? color;
+
+  /// Forwarded to the [Material.shadowColor] property
+  /// of the internal [Material].
+  final Color? shadowColor;
+
+  /// Forwarded to the [Material.surfaceTintColor] property
+  /// of the internal [Material].
+  final Color? surfaceTintColor;
+
+  /// Forwarded to the [Material.borderRadius] property
+  /// of the internal [Material].
+  final BorderRadiusGeometry? borderRadius;
+
+  /// Forwarded to the [Material.shape] property of the internal [Material].
+  final ShapeBorder? shape;
+
+  /// Forwarded to the [Material.borderOnForeground] property
+  /// of the internal [Material].
+  final bool borderOnForeground;
+
+  /// Forwarded to the [Material.clipBehavior] property
+  /// of the internal [Material].
+  final Clip clipBehavior;
 
   @override
   Widget build(BuildContext context) {
@@ -112,11 +151,17 @@ class SheetLayout extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     final bottomMargin =
         resizeToAvoidBottomInset ? mediaQuery.viewInsets.bottom : 0.0;
-    final backgroundColor =
-        this.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor;
 
     return Material(
-      color: backgroundColor,
+      type: type,
+      elevation: elevation,
+      color: color,
+      shadowColor: shadowColor,
+      surfaceTintColor: surfaceTintColor,
+      borderRadius: borderRadius,
+      shape: shape,
+      borderOnForeground: borderOnForeground,
+      clipBehavior: clipBehavior,
       child: _RenderSheetLayoutWidget(
         header: header,
         body: body,
