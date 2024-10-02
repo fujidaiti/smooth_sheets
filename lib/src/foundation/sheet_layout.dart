@@ -312,79 +312,89 @@ class _RenderSheetLayout extends RenderBox
 
   @override
   void performLayout() {
-    assert(constraints.hasBoundedWidth && constraints.hasBoundedHeight);
-    final fullWidthConstraints =
-        constraints.tighten(width: constraints.maxWidth);
+    final (constrainedSize, intrinsicSize) = _computeLayout(
+      constraints: constraints,
+      computeChildLayout: (child, constraints) {
+        child.layout(constraints, parentUsesSize: true);
+        return child.size;
+      },
+    );
+    size = constrainedSize;
+    _lastMeasuredIntrinsicSize = intrinsicSize;
 
     final header = childForSlot(_SheetLayoutSlot.header);
     final footer = childForSlot(_SheetLayoutSlot.footer);
     final body = childForSlot(_SheetLayoutSlot.body)!;
-
-    header?.layout(fullWidthConstraints, parentUsesSize: true);
-    footer?.layout(fullWidthConstraints, parentUsesSize: true);
-
-    final headerHeight = header?.size.height ?? 0;
-    final footerHeight = footer?.size.height ?? 0;
-    final bodyTopPadding = extendBodyBehindHeader ? 0 : headerHeight;
-    final bodyBottomPadding = extendBodyBehindFooter ? 0 : footerHeight;
-    final maxBodyHeight = fullWidthConstraints.maxHeight -
-        bodyTopPadding -
-        bodyBottomPadding -
-        bottomMargin;
-
-    body.layout(
-      _BodyBoxConstraints(
-        width: fullWidthConstraints.maxWidth,
-        maxHeight: max(0.0, maxBodyHeight),
-        footerHeight: footerHeight,
-        headerHeight: headerHeight,
-      ),
-      parentUsesSize: true,
-    );
-
-    final bodyHeight = body.size.height + bodyTopPadding + bodyBottomPadding;
-    final intrinsicHeight = max(bodyHeight, max(headerHeight, footerHeight));
-    _lastMeasuredIntrinsicSize =
-        Size(fullWidthConstraints.maxWidth, intrinsicHeight);
-    size = fullWidthConstraints.constrain(_lastMeasuredIntrinsicSize);
-
     if (header != null) {
       (header.parentData! as BoxParentData).offset = Offset.zero;
+      (body.parentData! as BoxParentData).offset =
+          extendBodyBehindHeader ? Offset.zero : Offset(0, header.size.height);
     }
     if (footer != null) {
       (footer.parentData! as BoxParentData).offset =
-          Offset(0, size.height - footerHeight);
+          Offset(0, constrainedSize.height - footer.size.height);
     }
-    (body.parentData! as BoxParentData).offset =
-        extendBodyBehindHeader ? Offset.zero : Offset(0, headerHeight);
   }
 
   @override
   Size computeDryLayout(covariant BoxConstraints constraints) {
-    // TODO: DRY layout logic.
-    final header = childForSlot(_SheetLayoutSlot.header);
-    final footer = childForSlot(_SheetLayoutSlot.footer);
-    final body = childForSlot(_SheetLayoutSlot.body)!;
-
-    final headerHeight = header?.getDryLayout(constraints).height ?? 0;
-    final footerHeight = footer?.getDryLayout(constraints).height ?? 0;
-
-    final maxBodyHeight = constraints.maxHeight -
-        (extendBodyBehindHeader ? 0 : headerHeight) -
-        (extendBodyBehindFooter ? 0 : footerHeight) -
-        bottomMargin;
-    final bodyConstraints =
-        constraints.copyWith(maxHeight: max(0, maxBodyHeight));
-    final bodyHeight = body.getDryLayout(bodyConstraints).height;
-
-    return constraints.constrain(
-      Size(
-        constraints.maxWidth,
-        bodyHeight +
-            (extendBodyBehindHeader ? 0 : headerHeight) +
-            (extendBodyBehindFooter ? 0 : footerHeight),
-      ),
+    final (size, _) = _computeLayout(
+      constraints: constraints,
+      computeChildLayout: (child, constraints) =>
+          child.getDryLayout(constraints),
     );
+    return size;
+  }
+
+  (Size, Size) _computeLayout({
+    required BoxConstraints constraints,
+    required Size Function(
+      RenderBox child,
+      BoxConstraints constraints,
+    ) computeChildLayout,
+  }) {
+    assert(constraints.hasBoundedWidth && constraints.hasBoundedHeight);
+
+    final fullWidthConstraints =
+        constraints.tighten(width: constraints.maxWidth);
+
+    final header = childForSlot(_SheetLayoutSlot.header);
+    final headerSize = header != null
+        ? computeChildLayout(header, fullWidthConstraints)
+        : Size.zero;
+
+    final footer = childForSlot(_SheetLayoutSlot.footer);
+    final footerSize = footer != null
+        ? computeChildLayout(footer, fullWidthConstraints)
+        : Size.zero;
+
+    final body = childForSlot(_SheetLayoutSlot.body)!;
+    final bodyTopPadding = extendBodyBehindHeader ? 0.0 : headerSize.height;
+    final bodyBottomPadding = extendBodyBehindFooter ? 0.0 : footerSize.height;
+    final maxBodyHeight = fullWidthConstraints.maxHeight -
+        bodyTopPadding -
+        bodyBottomPadding -
+        bottomMargin;
+    // We use a special BoxConstraints subclass to pass the header and footer
+    // heights to the descendant LayoutBuilder (see _BodyContainer).
+    final bodyConstraints = _BodyBoxConstraints(
+      width: fullWidthConstraints.maxWidth,
+      maxHeight: max(0.0, maxBodyHeight),
+      footerHeight: footerSize.height,
+      headerHeight: headerSize.height,
+    );
+    final bodySize = computeChildLayout(body, bodyConstraints);
+
+    var height = bodySize.height;
+    if (header != null && !extendBodyBehindHeader) {
+      height += headerSize.height;
+    }
+    if (footer != null && !extendBodyBehindFooter) {
+      height += footerSize.height;
+    }
+
+    final intrinsicSize = Size(fullWidthConstraints.maxWidth, height);
+    return (fullWidthConstraints.constrain(intrinsicSize), intrinsicSize);
   }
 
   @override
