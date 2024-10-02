@@ -42,8 +42,8 @@ Widget? _removePadding({
   );
 }
 
-class SheetContent extends StatelessWidget {
-  const SheetContent({
+class SheetLayout extends StatelessWidget {
+  const SheetLayout({
     super.key,
     required this.body,
     this.header,
@@ -117,7 +117,7 @@ class SheetContent extends StatelessWidget {
 
     return Material(
       color: backgroundColor,
-      child: _SheetContentLayout(
+      child: _RenderSheetLayoutWidget(
         header: header,
         body: body,
         footer: footer,
@@ -196,11 +196,11 @@ class _BodyContainer extends StatelessWidget {
   }
 }
 
-enum _SheetContentSlot { header, body, footer }
+enum _SheetLayoutSlot { header, body, footer }
 
-class _SheetContentLayout
-    extends SlottedMultiChildRenderObjectWidget<_SheetContentSlot, RenderBox> {
-  const _SheetContentLayout({
+class _RenderSheetLayoutWidget
+    extends SlottedMultiChildRenderObjectWidget<_SheetLayoutSlot, RenderBox> {
+  const _RenderSheetLayoutWidget({
     required this.header,
     required this.body,
     required this.footer,
@@ -217,21 +217,21 @@ class _SheetContentLayout
   final bool extendBodyBehindFooter;
 
   @override
-  Iterable<_SheetContentSlot> get slots => _SheetContentSlot.values;
+  Iterable<_SheetLayoutSlot> get slots => _SheetLayoutSlot.values;
 
   @override
-  Widget? childForSlot(_SheetContentSlot slot) {
+  Widget? childForSlot(_SheetLayoutSlot slot) {
     return switch (slot) {
-      _SheetContentSlot.header => header,
-      _SheetContentSlot.body => body,
-      _SheetContentSlot.footer => footer,
+      _SheetLayoutSlot.header => header,
+      _SheetLayoutSlot.body => body,
+      _SheetLayoutSlot.footer => footer,
     };
   }
 
   @override
-  SlottedContainerRenderObjectMixin<_SheetContentSlot, RenderBox>
+  SlottedContainerRenderObjectMixin<_SheetLayoutSlot, RenderBox>
       createRenderObject(BuildContext context) {
-    return _RenderSheetContentLayout(
+    return _RenderSheetLayout(
       extendBodyBehindHeader: extendBodyBehindHeader,
       extendBodyBehindFooter: extendBodyBehindFooter,
       bottomMargin: bottomMargin,
@@ -241,7 +241,7 @@ class _SheetContentLayout
   @override
   void updateRenderObject(
     BuildContext context,
-    _RenderSheetContentLayout renderObject,
+    _RenderSheetLayout renderObject,
   ) {
     renderObject
       ..extendBodyBehindHeader = extendBodyBehindHeader
@@ -250,11 +250,11 @@ class _SheetContentLayout
   }
 }
 
-class _RenderSheetContentLayout extends RenderBox
+class _RenderSheetLayout extends RenderBox
     with
-        SlottedContainerRenderObjectMixin<_SheetContentSlot, RenderBox>,
+        SlottedContainerRenderObjectMixin<_SheetLayoutSlot, RenderBox>,
         DebugOverflowIndicatorMixin {
-  _RenderSheetContentLayout({
+  _RenderSheetLayout({
     required bool extendBodyBehindHeader,
     required bool extendBodyBehindFooter,
     required double bottomMargin,
@@ -295,9 +295,9 @@ class _RenderSheetContentLayout extends RenderBox
   /// Returns the children in hit test order.
   @override
   List<RenderBox> get children {
-    final header = childForSlot(_SheetContentSlot.header);
-    final body = childForSlot(_SheetContentSlot.body);
-    final footer = childForSlot(_SheetContentSlot.footer);
+    final header = childForSlot(_SheetLayoutSlot.header);
+    final body = childForSlot(_SheetLayoutSlot.body);
+    final footer = childForSlot(_SheetLayoutSlot.footer);
     return [
       if (header != null) header,
       if (footer != null) footer,
@@ -316,9 +316,9 @@ class _RenderSheetContentLayout extends RenderBox
     final fullWidthConstraints =
         constraints.tighten(width: constraints.maxWidth);
 
-    final header = childForSlot(_SheetContentSlot.header);
-    final footer = childForSlot(_SheetContentSlot.footer);
-    final body = childForSlot(_SheetContentSlot.body)!;
+    final header = childForSlot(_SheetLayoutSlot.header);
+    final footer = childForSlot(_SheetLayoutSlot.footer);
+    final body = childForSlot(_SheetLayoutSlot.body)!;
 
     header?.layout(fullWidthConstraints, parentUsesSize: true);
     footer?.layout(fullWidthConstraints, parentUsesSize: true);
@@ -362,9 +362,9 @@ class _RenderSheetContentLayout extends RenderBox
   @override
   Size computeDryLayout(covariant BoxConstraints constraints) {
     // TODO: DRY layout logic.
-    final header = childForSlot(_SheetContentSlot.header);
-    final footer = childForSlot(_SheetContentSlot.footer);
-    final body = childForSlot(_SheetContentSlot.body)!;
+    final header = childForSlot(_SheetLayoutSlot.header);
+    final footer = childForSlot(_SheetLayoutSlot.footer);
+    final body = childForSlot(_SheetLayoutSlot.body)!;
 
     final headerHeight = header?.getDryLayout(constraints).height ?? 0;
     final footerHeight = footer?.getDryLayout(constraints).height ?? 0;

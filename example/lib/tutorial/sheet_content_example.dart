@@ -37,9 +37,9 @@ class _MySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DraggableSheet(
-      child: SheetContent(
-        // extendBodyBehindHeader: true,
-        // extendBodyBehindFooter: true,
+      child: SheetLayout(
+        extendBodyBehindHeader: true,
+        extendBodyBehindFooter: true,
         header: GestureDetector(
           onTap: () => debugPrint('Tap on header'),
           child: Container(
@@ -87,7 +87,7 @@ class _MySheet extends StatelessWidget {
             );
           },
         ),
-        footer: const _SheetFooter(),
+        // footer: const _SheetFooter(),
       ),
     );
   }

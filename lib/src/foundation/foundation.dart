@@ -5,7 +5,6 @@ export 'keyboard_dismissible.dart'
         DragUpSheetKeyboardDismissBehavior,
         SheetKeyboardDismissBehavior,
         SheetKeyboardDismissible;
-export 'sheet_content.dart' show SheetContent;
 export 'sheet_content_scaffold.dart'
     show
         AnimatedBottomBarVisibility,
@@ -24,6 +23,7 @@ export 'sheet_drag.dart'
         SheetDragEndDetails,
         SheetDragStartDetails,
         SheetDragUpdateDetails;
+export 'sheet_layout.dart' show SheetLayout;
 export 'sheet_notification.dart'
     show
         SheetDragCancelNotification,
