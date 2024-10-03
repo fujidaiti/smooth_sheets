@@ -398,8 +398,7 @@ class _RenderSheetLayout extends RenderBox
       BoxConstraints constraints,
     ) computeChildLayout,
   }) {
-    assert(constraints.hasBoundedWidth && constraints.hasBoundedHeight);
-
+    assert(constraints.hasBoundedWidth);
     final fullWidthConstraints =
         constraints.tighten(width: constraints.maxWidth);
 
@@ -416,10 +415,12 @@ class _RenderSheetLayout extends RenderBox
     final body = childForSlot(_SheetLayoutSlot.body)!;
     final bodyTopPadding = extendBodyBehindHeader ? 0.0 : headerSize.height;
     final bodyBottomPadding = extendBodyBehindFooter ? 0.0 : footerSize.height;
-    final maxBodyHeight = fullWidthConstraints.maxHeight -
-        bodyTopPadding -
-        bodyBottomPadding -
-        bottomMargin;
+    final maxBodyHeight = fullWidthConstraints.hasInfiniteHeight
+        ? double.infinity
+        : fullWidthConstraints.maxHeight -
+            bodyTopPadding -
+            bodyBottomPadding -
+            bottomMargin;
     // We use a special BoxConstraints subclass to pass the header and footer
     // heights to the descendant LayoutBuilder (see _BodyContainer).
     final bodyConstraints = _BodyBoxConstraints(
