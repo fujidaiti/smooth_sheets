@@ -222,4 +222,92 @@ void main() {
       },
     );
   });
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/250
+  testWidgets(
+    'userGestureInProgress and transition curve consistency test',
+    (tester) async {
+      var popInvoked = false;
+      final route = ModalSheetRoute<dynamic>(
+        swipeDismissible: true,
+        transitionCurve: Curves.easeInOut,
+        builder: (context) {
+          return DraggableSheet(
+            child: PopScope(
+              canPop: false,
+              onPopInvoked: (didPop) async {
+                if (!didPop) {
+                  popInvoked = true;
+                  Navigator.pop(context);
+                }
+              },
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                width: double.infinity,
+                height: 400,
+              ),
+            ),
+          );
+        },
+      );
+
+      final navigatorKey = GlobalKey<NavigatorState>();
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: navigatorKey,
+          home: Builder(
+            builder: (context) {
+              return Scaffold(
+                body: Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context, route);
+                    },
+                    child: const Text('Open modal'),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open modal'));
+      await tester.pumpAndSettle();
+      expect(navigatorKey.currentState!.userGestureInProgress, isFalse);
+      expect(route.effectiveCurve, Curves.easeInOut);
+
+      // Start dragging
+      final gesture = await tester.press(find.byKey(const Key('sheet')));
+      await gesture.moveBy(const Offset(0, 50));
+      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(route.effectiveCurve, Curves.linear);
+
+      await gesture.moveBy(const Offset(0, 50));
+      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(route.effectiveCurve, Curves.linear);
+
+      // End dragging and then a pop animation starts
+      await gesture.moveBy(const Offset(0, 100));
+      await gesture.up();
+      expect(popInvoked, isTrue);
+      expect(route.animation!.status, AnimationStatus.reverse);
+      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(route.effectiveCurve, Curves.linear);
+
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(route.effectiveCurve, Curves.linear);
+
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(route.effectiveCurve, Curves.linear);
+
+      // Ensure that the pop animation is completed
+      await tester.pumpAndSettle();
+      expect(navigatorKey.currentState!.userGestureInProgress, isFalse);
+      expect(route.effectiveCurve, Curves.easeInOut);
+    },
+  );
 }
