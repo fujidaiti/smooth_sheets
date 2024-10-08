@@ -222,12 +222,16 @@ void main() {
     );
   });
 
-  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/250
-  testWidgets(
-    'userGestureInProgress and transition curve consistency test',
-    (tester) async {
+  // Regression tests for https://github.com/fujidaiti/smooth_sheets/issues/250
+  group('userGestureInProgress and transition curve consistency test', () {
+    ({
+      Widget testWidget,
+      ModalSheetRoute<dynamic> modalRoute,
+      GlobalKey<NavigatorState> navigatorKey,
+      ValueGetter<bool> popInvoked,
+    }) boilerplate() {
       var popInvoked = false;
-      final route = ModalSheetRoute<dynamic>(
+      final modalRoute = ModalSheetRoute<dynamic>(
         swipeDismissible: true,
         transitionCurve: Curves.easeInOut,
         builder: (context) {
@@ -252,48 +256,99 @@ void main() {
       );
 
       final navigatorKey = GlobalKey<NavigatorState>();
-      await tester.pumpWidget(
-        _Boilerplate(
-          modalRoute: route,
-          navigatorKey: navigatorKey,
-        ),
+      final testWidget = _Boilerplate(
+        modalRoute: modalRoute,
+        navigatorKey: navigatorKey,
       );
+
+      return (
+        testWidget: testWidget,
+        modalRoute: modalRoute,
+        navigatorKey: navigatorKey,
+        popInvoked: () => popInvoked,
+      );
+    }
+
+    testWidgets('Swipe-to-dismissed', (tester) async {
+      final env = boilerplate();
+      await tester.pumpWidget(env.testWidget);
 
       await tester.tap(find.text('Open modal'));
       await tester.pumpAndSettle();
-      expect(navigatorKey.currentState!.userGestureInProgress, isFalse);
-      expect(route.effectiveCurve, Curves.easeInOut);
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isFalse);
+      expect(env.modalRoute.effectiveCurve, Curves.easeInOut);
 
-      // Start dragging
+      // Start dragging.
       final gesture = await tester.press(find.byKey(const Key('sheet')));
       await gesture.moveBy(const Offset(0, 50));
-      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
-      expect(route.effectiveCurve, Curves.linear);
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
 
       await gesture.moveBy(const Offset(0, 50));
-      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
-      expect(route.effectiveCurve, Curves.linear);
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
 
-      // End dragging and then a pop animation starts
+      // End dragging and then a pop animation starts.
       await gesture.moveBy(const Offset(0, 100));
       await gesture.up();
-      expect(popInvoked, isTrue);
-      expect(route.animation!.status, AnimationStatus.reverse);
-      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
-      expect(route.effectiveCurve, Curves.linear);
+      expect(env.popInvoked(), isTrue);
+      expect(env.modalRoute.animation!.status, AnimationStatus.reverse);
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
 
       await tester.pump(const Duration(milliseconds: 50));
-      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
-      expect(route.effectiveCurve, Curves.linear);
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
 
       await tester.pump(const Duration(milliseconds: 50));
-      expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
-      expect(route.effectiveCurve, Curves.linear);
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
 
-      // Ensure that the pop animation is completed
+      // Ensure that the pop animation is completed.
       await tester.pumpAndSettle();
-      expect(navigatorKey.currentState!.userGestureInProgress, isFalse);
-      expect(route.effectiveCurve, Curves.easeInOut);
-    },
-  );
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isFalse);
+      expect(env.modalRoute.effectiveCurve, Curves.easeInOut);
+    });
+
+    testWidgets('Swipe-to-dismiss canceled', (tester) async {
+      final env = boilerplate();
+      await tester.pumpWidget(env.testWidget);
+
+      await tester.tap(find.text('Open modal'));
+      await tester.pumpAndSettle();
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isFalse);
+      expect(env.modalRoute.effectiveCurve, Curves.easeInOut);
+
+      // Start dragging.
+      final gesture = await tester.press(find.byKey(const Key('sheet')));
+      await gesture.moveBy(const Offset(0, 50));
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
+
+      await gesture.moveBy(const Offset(0, 50));
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
+
+      // Release the drag, triggering the modal
+      // to settle back to its original position.
+      await gesture.up();
+      expect(env.popInvoked(), isFalse);
+      expect(env.modalRoute.animation!.status, AnimationStatus.forward);
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
+
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
+
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+      expect(env.modalRoute.effectiveCurve, Curves.linear);
+
+      // Ensure that the pop animation is completed.
+      await tester.pumpAndSettle();
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isFalse);
+      expect(env.modalRoute.effectiveCurve, Curves.easeInOut);
+    });
+  });
 }
