@@ -2,36 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
+class _Boilerplate extends StatelessWidget {
+  const _Boilerplate({
+    required this.modalRoute,
+    this.navigatorKey,
+  });
+
+  final ModalSheetRoute<dynamic> modalRoute;
+  final GlobalKey<NavigatorState>? navigatorKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      home: Builder(
+        builder: (context) {
+          return Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, modalRoute);
+                },
+                child: const Text('Open modal'),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 void main() {
   group('Swipe-to-dismiss action test', () {
     Widget boilerplate(SwipeDismissSensitivity sensitivity) {
-      return MaterialApp(
-        home: Builder(
+      return _Boilerplate(
+        modalRoute: ModalSheetRoute<dynamic>(
+          swipeDismissible: true,
+          swipeDismissSensitivity: sensitivity,
           builder: (context) {
-            return Scaffold(
-              body: Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      ModalSheetRoute<dynamic>(
-                        swipeDismissible: true,
-                        swipeDismissSensitivity: sensitivity,
-                        builder: (context) {
-                          return DraggableSheet(
-                            child: Container(
-                              key: const Key('sheet'),
-                              color: Colors.white,
-                              width: double.infinity,
-                              height: 600,
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  child: const Text('Open modal'),
-                ),
+            return DraggableSheet(
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                width: double.infinity,
+                height: 600,
               ),
             );
           },
@@ -155,37 +170,21 @@ void main() {
 
     setUp(() {
       isOnPopInvokedCalled = false;
-      testWidget = MaterialApp(
-        home: Builder(
+      testWidget = _Boilerplate(
+        modalRoute: ModalSheetRoute(
+          swipeDismissible: true,
           builder: (context) {
-            return Scaffold(
-              body: Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      ModalSheetRoute<dynamic>(
-                        swipeDismissible: true,
-                        builder: (context) {
-                          return DraggableSheet(
-                            child: PopScope(
-                              canPop: false,
-                              onPopInvoked: (didPop) {
-                                isOnPopInvokedCalled = true;
-                              },
-                              child: Container(
-                                key: const Key('sheet'),
-                                color: Colors.white,
-                                width: double.infinity,
-                                height: 200,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  child: const Text('Open modal'),
+            return DraggableSheet(
+              child: PopScope(
+                canPop: false,
+                onPopInvoked: (didPop) {
+                  isOnPopInvokedCalled = true;
+                },
+                child: Container(
+                  key: const Key('sheet'),
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: 200,
                 ),
               ),
             );
@@ -254,22 +253,9 @@ void main() {
 
       final navigatorKey = GlobalKey<NavigatorState>();
       await tester.pumpWidget(
-        MaterialApp(
+        _Boilerplate(
+          modalRoute: route,
           navigatorKey: navigatorKey,
-          home: Builder(
-            builder: (context) {
-              return Scaffold(
-                body: Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context, route);
-                    },
-                    child: const Text('Open modal'),
-                  ),
-                ),
-              );
-            },
-          ),
         ),
       );
 
