@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.1 Oct 9, 2024
+
+- Fix: Modal sheet jerks when swipe to dismiss (#258)
+
 ## 0.10.0 Sep 28, 2024
 
 **This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md) for more details.
