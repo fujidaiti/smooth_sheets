@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../foundation/sheet_drag.dart';
@@ -150,11 +151,23 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
 
 mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   bool get swipeDismissible;
+
   Curve get transitionCurve;
+
   SwipeDismissSensitivity get swipeDismissSensitivity;
 
   @override
   bool get opaque => false;
+
+  /// The curve used for the transition animation.
+  ///
+  /// In the middle of a dismiss gesture drag,
+  /// this returns [Curves.linear] to match the finger motion.
+  @nonVirtual
+  @visibleForTesting
+  Curve get effectiveCurve => (navigator?.userGestureInProgress ?? false)
+      ? Curves.linear
+      : transitionCurve;
 
   /// Lazily initialized in case `swipeDismissible` is set to false.
   late final _swipeDismissibleController = _SwipeDismissibleController(
@@ -188,13 +201,9 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Widget child,
   ) {
     final transitionTween = Tween(begin: const Offset(0, 1), end: Offset.zero);
-    // In the middle of a dismiss gesture drag,
-    // let the transition be linear to match finger motions.
-    final curve =
-        navigator!.userGestureInProgress ? Curves.linear : this.transitionCurve;
     return SlideTransition(
       position: animation.drive(
-        transitionTween.chain(CurveTween(curve: curve)),
+        transitionTween.chain(CurveTween(curve: effectiveCurve)),
       ),
       child: child,
     );
@@ -390,19 +399,43 @@ class _SwipeDismissibleController with SheetGestureProxyMixin {
       ));
     }
 
-    if (transitionController.isAnimating) {
-      // Keep the userGestureInProgress in true state so we don't change the
-      // curve of the page transition mid-flight since the route's transition
-      // depends on userGestureInProgress.
+    // Reset the transition animation curve back to the default from linear
+    // indirectly, by resetting the userGestureInProgress flag.
+    // It is "indirect" because ModalSheetRouteMixin.effectiveCurve returns
+    // the linear curve when the userGestureInProgress flag is set to true.
+    //
+    // If the transition animation has not settled at either the start or end,
+    // delay resetting the userGestureInProgress until the animation completes
+    // to ensure the effectiveCurve remains linear during the animation,
+    // matching the user's swipe motion. This is important to prevent the sheet
+    // from jerking when the user swipes it down.
+    // See https://github.com/fujidaiti/smooth_sheets/issues/250.
+    //
+    // Note: We cannot use AnimationController.isAnimating here to determine if
+    // the transition animation is running, because, in Navigator 2.0,
+    // the pop animation may not have started at this point even if
+    // Navigator.pop() is called to pop the modal route.
+    //
+    // The following sequence of events illustrates why:
+    // 1. Calling Navigator.pop() updates the internal page stack, triggering
+    //    a rebuild of the Navigator. Note that the transition animation
+    //    does not start here, so AnimationController.isAnimating returns false.
+    // 2. The Navigator rebuilds with the new page stack.
+    // 3. The modal route is removed from the Navigator's subtree.
+    // 4. Route.didPop() is called, initiating the pop transition animation
+    //    by calling AnimationController.reverse().
+    if (transitionController.isCompleted || transitionController.isDismissed) {
+      _isUserGestureInProgress = false;
+    } else {
       late final AnimationStatusListener animationStatusCallback;
-      animationStatusCallback = (_) {
-        _isUserGestureInProgress = false;
-        transitionController.removeStatusListener(animationStatusCallback);
+      animationStatusCallback = (status) {
+        if (status == AnimationStatus.completed ||
+            status == AnimationStatus.dismissed) {
+          _isUserGestureInProgress = false;
+          transitionController.removeStatusListener(animationStatusCallback);
+        }
       };
       transitionController.addStatusListener(animationStatusCallback);
-    } else {
-      // Otherwise, reset the userGestureInProgress state immediately.
-      _isUserGestureInProgress = false;
     }
 
     if (invokePop) {

@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="iOS-Style Modal Navigation Sheet (with go_router)" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="$PROJECT_DIR$/example/lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart" />
+    <method v="2" />
+  </configuration>
+</component>
