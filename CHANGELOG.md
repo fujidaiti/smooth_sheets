@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0-f324.0.10.1 Oct 9, 2024
+
+- Fix: Modal sheet jerks when swipe to dismiss (#258)
+
 ## 1.0.0-f324.0.10.0 Sep 28, 2024
 
 **This version contains breaking changes.** See
