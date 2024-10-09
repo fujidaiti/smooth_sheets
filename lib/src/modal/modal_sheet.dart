@@ -399,10 +399,34 @@ class _SwipeDismissibleController with SheetGestureProxyMixin {
       ));
     }
 
-    if (transitionController.isAnimating) {
-      // Delay resetting the userGestureInProgress flag until the transition
-      // animation completes to ensure that ModalSheetRouteMixin.effectiveCurve
-      // returns Curves.linear during the animation, matching the finger motion.
+    // Reset the transition animation curve back to the default from linear
+    // indirectly, by resetting the userGestureInProgress flag.
+    // It is "indirect" because ModalSheetRouteMixin.effectiveCurve returns
+    // the linear curve when the userGestureInProgress flag is set to true.
+    //
+    // If the transition animation has not settled at either the start or end,
+    // delay resetting the userGestureInProgress until the animation completes
+    // to ensure the effectiveCurve remains linear during the animation,
+    // matching the user's swipe motion. This is important to prevent the sheet
+    // from jerking when the user swipes it down.
+    // See https://github.com/fujidaiti/smooth_sheets/issues/250.
+    //
+    // Note: We cannot use AnimationController.isAnimating here to determine if
+    // the transition animation is running, because, in Navigator 2.0,
+    // the pop animation may not have started at this point even if
+    // Navigator.pop() is called to pop the modal route.
+    //
+    // The following sequence of events illustrates why:
+    // 1. Calling Navigator.pop() updates the internal page stack, triggering
+    //    a rebuild of the Navigator. Note that the transition animation
+    //    does not start here, so AnimationController.isAnimating returns false.
+    // 2. The Navigator rebuilds with the new page stack.
+    // 3. The modal route is removed from the Navigator's subtree.
+    // 4. Route.didPop() is called, initiating the pop transition animation
+    //    by calling AnimationController.reverse().
+    if (transitionController.isCompleted || transitionController.isDismissed) {
+      _isUserGestureInProgress = false;
+    } else {
       late final AnimationStatusListener animationStatusCallback;
       animationStatusCallback = (status) {
         if (status == AnimationStatus.completed ||
@@ -412,9 +436,6 @@ class _SwipeDismissibleController with SheetGestureProxyMixin {
         }
       };
       transitionController.addStatusListener(animationStatusCallback);
-    } else {
-      // Otherwise, reset the userGestureInProgress flag immediately.
-      _isUserGestureInProgress = false;
     }
 
     if (invokePop) {
