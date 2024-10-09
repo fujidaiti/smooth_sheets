@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 class _Boilerplate extends StatelessWidget {
@@ -25,6 +28,48 @@ class _Boilerplate extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _BoilerplateWithGoRouter extends StatelessWidget {
+  const _BoilerplateWithGoRouter({
+    required this.modalPage,
+    this.onExitModal,
+  });
+
+  final ModalSheetPage<dynamic> modalPage;
+  final FutureOr<bool> Function()? onExitModal;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      routerConfig: GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) {
+              return Scaffold(
+                body: Center(
+                  child: ElevatedButton(
+                    onPressed: () => context.go('/modal'),
+                    child: const Text('Open modal'),
+                  ),
+                ),
+              );
+            },
+            routes: [
+              GoRoute(
+                path: 'modal',
+                pageBuilder: (context, state) => modalPage,
+                onExit: onExitModal != null
+                    ? (context, state) => onExitModal!()
+                    : null,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -350,4 +395,142 @@ void main() {
       expect(env.modalRoute.effectiveCurve, Curves.easeInOut);
     });
   });
+
+  // Regression tests for https://github.com/fujidaiti/smooth_sheets/issues/250
+  group(
+    'Transition animation status and animation curve consistency test '
+    'with Navigator 2.0',
+    () {
+      ({
+        Widget testWidget,
+        ValueGetter<ModalSheetRouteMixin<dynamic>?> modalRoute,
+        ValueGetter<bool> popInvoked,
+      }) boilerplate() {
+        var popInvoked = false;
+        ModalSheetRouteMixin<dynamic>? modalRoute;
+        final testWidget = _BoilerplateWithGoRouter(
+          onExitModal: () {
+            popInvoked = true;
+            return true;
+          },
+          modalPage: ModalSheetPage(
+            swipeDismissible: true,
+            transitionCurve: Curves.easeInOut,
+            child: Builder(
+              builder: (context) {
+                modalRoute =
+                    ModalRoute.of(context)! as ModalSheetRouteMixin<dynamic>;
+
+                return DraggableSheet(
+                  child: Container(
+                    key: const Key('sheet'),
+                    color: Colors.white,
+                    width: double.infinity,
+                    height: 400,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        return (
+          testWidget: testWidget,
+          modalRoute: () => modalRoute,
+          popInvoked: () => popInvoked,
+        );
+      }
+
+      testWidgets('Swipe-to-dismissed', (tester) async {
+        final env = boilerplate();
+        await tester.pumpWidget(env.testWidget);
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(env.modalRoute()!.animation!.isCompleted, isTrue);
+        expect(env.modalRoute()!.effectiveCurve, Curves.easeInOut);
+
+        // Start dragging.
+        final gesture = await tester.press(find.byKey(const Key('sheet')));
+        await gesture.moveBy(const Offset(0, 50));
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        await gesture.moveBy(const Offset(0, 50));
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        // End dragging and then a pop animation starts.
+        await gesture.moveBy(const Offset(0, 100));
+        await gesture.up();
+        expect(env.popInvoked(), isTrue);
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        // Ensure that the pop animation is completed.
+        await tester.pumpAndSettle();
+        expect(env.modalRoute()!.animation!.isDismissed, isTrue);
+        expect(env.modalRoute()!.effectiveCurve, Curves.easeInOut);
+      });
+
+      testWidgets('Swipe-to-dismiss canceled', (tester) async {
+        final env = boilerplate();
+        await tester.pumpWidget(env.testWidget);
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(env.modalRoute()!.animation!.isCompleted, isTrue);
+        expect(env.modalRoute()!.effectiveCurve, Curves.easeInOut);
+
+        // Start dragging.
+        final gesture = await tester.press(find.byKey(const Key('sheet')));
+        await gesture.moveBy(const Offset(0, 50));
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        await gesture.moveBy(const Offset(0, 50));
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        // Release the drag, triggering the modal
+        // to settle back to its original position.
+        await gesture.up();
+        expect(env.popInvoked(), isFalse);
+        expect(env.modalRoute()!.animation!.status, AnimationStatus.forward);
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(env.modalRoute()!.animation!.isCompleted, isFalse);
+        expect(env.modalRoute()!.animation!.isDismissed, isFalse);
+        expect(env.modalRoute()!.effectiveCurve, Curves.linear);
+
+        // Ensure that the pop animation is completed.
+        await tester.pumpAndSettle();
+        expect(env.modalRoute()!.animation!.isCompleted, isTrue);
+        expect(env.modalRoute()!.effectiveCurve, Curves.easeInOut);
+      });
+    },
+  );
 }
