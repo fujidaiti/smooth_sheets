@@ -195,7 +195,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.10.0"
+    version: "1.0.0-f324.0.10.1"
   source_span:
     dependency: transitive
     description:

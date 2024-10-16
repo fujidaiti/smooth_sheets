@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +9,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 
 void main() {
   // Make the system navigation bar transparent on Android.
-  if (Platform.isAndroid) {
+  if (defaultTargetPlatform == TargetPlatform.android) {
     WidgetsFlutterBinding.ensureInitialized();
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
