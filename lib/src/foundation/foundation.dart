@@ -12,6 +12,7 @@ export 'sheet_content_scaffold.dart'
         ConditionalStickyBottomBarVisibility,
         FixedBottomBarVisibility,
         ResizeScaffoldBehavior,
+        // ignore: deprecated_member_use_from_same_package
         SheetContentScaffold,
         StickyBottomBarVisibility;
 export 'sheet_controller.dart' show DefaultSheetController, SheetController;
@@ -22,6 +23,7 @@ export 'sheet_drag.dart'
         SheetDragEndDetails,
         SheetDragStartDetails,
         SheetDragUpdateDetails;
+export 'sheet_layout.dart' show SheetLayout;
 export 'sheet_notification.dart'
     show
         SheetDragCancelNotification,
