@@ -439,7 +439,7 @@ class _SwipeDismissibleController with SheetGestureProxyMixin {
     }
 
     if (invokePop) {
-      route.onPopInvoked(didPop);
+      route.onPopInvokedWithResult(didPop, null);
     }
 
     return true;
