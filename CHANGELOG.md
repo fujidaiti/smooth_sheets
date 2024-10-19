@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.2 Oct 19, 2024
+
+- Replace Platform (dart:io) with TargetPlatform to support web platform (#269)
+
 ## 0.10.1 Oct 9, 2024
 
 - Fix: Modal sheet jerks when swipe to dismiss (#258)
