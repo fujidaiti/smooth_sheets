@@ -1,4 +1,6 @@
 // ignore_for_file: lines_longer_than_80_chars
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -69,6 +71,22 @@ void main() {
 
     setUp(() {
       physicsUnderTest = const _SheetPhysicsWithDefaultConfiguration();
+    });
+
+    test('dragStartDistanceMotionThreshold for different platforms', () {
+      for (final testTargetPlatform in TargetPlatform.values) {
+        debugDefaultTargetPlatformOverride = testTargetPlatform;
+        switch (testTargetPlatform) {
+          case TargetPlatform.iOS:
+            expect(
+              physicsUnderTest.dragStartDistanceMotionThreshold,
+              const BouncingScrollPhysics().dragStartDistanceMotionThreshold,
+            );
+          case _:
+            expect(physicsUnderTest.dragStartDistanceMotionThreshold, null);
+        }
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
 
     test('does not allow over/under dragging', () {
