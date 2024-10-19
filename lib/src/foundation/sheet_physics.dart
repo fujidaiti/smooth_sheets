@@ -1,7 +1,8 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
@@ -36,11 +37,12 @@ abstract class SheetPhysics {
   /// the first time or after each time the drag motion stopped.
   ///
   /// If null, no minimum threshold is enforced.
-  double? get dragStartDistanceMotionThreshold {
-    return Platform.isIOS
-        ? const BouncingScrollPhysics().dragStartDistanceMotionThreshold
-        : null;
-  }
+  double? get dragStartDistanceMotionThreshold =>
+      switch (defaultTargetPlatform) {
+        TargetPlatform.iOS =>
+          const BouncingScrollPhysics().dragStartDistanceMotionThreshold,
+        _ => null,
+      };
 
   /// Create a copy of this object appending the [ancestor] to
   /// the physics chain, much like [ScrollPhysics.applyTo].
