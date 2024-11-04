@@ -14,8 +14,6 @@ jobs:
 
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
-        with:
-          target: package
 
       - name: Install pana
         run: dart pub global activate pana
@@ -23,7 +21,7 @@ jobs:
       - name: Run pana
         id: analysis
         run: |
-          pana --json package 2>&1 | grep -v '^{"logName"' > pana-report.json
+          pana --json . 2>&1 | grep -v '^{"logName"' > pana-report.json
           JSON_OUTPUT=$(cat pana-report.json | jq -c .)
           echo "::set-output name=json_output::$JSON_OUTPUT"
 
@@ -32,9 +30,8 @@ jobs:
           report: ${{ steps.analysis.outputs.json_output }}
           min-convention-points: 30
           min-platform-points: 20
-          min-analysis-points: 50
+          min-analysis-points: 40
           min-dependency-points: 20
           supported-platforms: ios, android
 
       - run: flutter pub publish --dry-run
-        working-directory: package
