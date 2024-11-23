@@ -7,7 +7,8 @@ import '../foundation/sheet_position_scope.dart';
 import 'navigation_sheet_position.dart';
 
 @internal
-class NavigationSheetPositionScope extends SheetPositionScope {
+class NavigationSheetPositionScope
+    extends SheetPositionScope<NavigationSheetPosition> {
   const NavigationSheetPositionScope({
     super.key,
     super.controller,
@@ -27,7 +28,8 @@ class NavigationSheetPositionScope extends SheetPositionScope {
   final String? debugLabel;
 
   @override
-  SheetPositionScopeState createState() {
+  SheetPositionScopeState<NavigationSheetPosition,
+      SheetPositionScope<NavigationSheetPosition>> createState() {
     return _NavigationSheetPositionScopeState();
   }
 }

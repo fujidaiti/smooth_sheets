@@ -27,6 +27,7 @@ import 'sheet_status.dart';
 ///   proportionally to the sheet's content height.
 /// - [FixedSheetAnchor], which defines the position
 ///   using a fixed value in pixels.
+// TODO: Rename to SheetPosition.
 abstract interface class SheetAnchor {
   /// {@macro FixedSheetAnchor}
   const factory SheetAnchor.pixels(double pixels) = FixedSheetAnchor;
@@ -134,6 +135,9 @@ class FixedSheetAnchor implements SheetAnchor {
 ///   lifecycle and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
+// TODO: Rename to SheetGeometryController.
+// ignore: lines_longer_than_80_chars
+// TODO: Implement ValueListenable<SheetGeometry> instead of ValueListenable<double?>.
 abstract class SheetPosition extends ChangeNotifier
     with SheetMetrics
     implements ValueListenable<double?> {
@@ -263,10 +267,8 @@ abstract class SheetPosition extends ChangeNotifier
       correctPixels(pixels);
     }
     applyNewBoundaryConstraints(other.minPosition, other.maxPosition);
-    applyNewViewportDimensions(
-      other.viewportSize,
-      other.viewportInsets,
-    );
+    applyNewViewportSize(other.viewportSize);
+    applyNewViewportInsets(other.viewportInsets);
     applyNewContentSize(other.contentSize);
   }
 
@@ -294,21 +296,28 @@ abstract class SheetPosition extends ChangeNotifier
   }
 
   @mustCallSuper
-  void applyNewViewportDimensions(Size size, EdgeInsets insets) {
-    if (maybeViewportSize != size || maybeViewportInsets != insets) {
+  void applyNewViewportSize(Size size) {
+    if (maybeViewportSize != size) {
       _oldViewportSize = maybeViewportSize;
+      _updateMetrics(viewportSize: size);
+      activity.didChangeViewportDimensions(_oldViewportSize);
+    }
+  }
+
+  @mustCallSuper
+  void applyNewViewportInsets(EdgeInsets insets) {
+    if (maybeViewportInsets != insets) {
       _oldViewportInsets = maybeViewportInsets;
-      _updateMetrics(viewportSize: size, viewportInsets: insets);
-      activity.didChangeViewportDimensions(
-        _oldViewportSize,
-        _oldViewportInsets,
-      );
+      _updateMetrics(viewportInsets: insets);
+      activity.didChangeViewportInsets(_oldViewportInsets);
     }
   }
 
   @mustCallSuper
   void applyNewBoundaryConstraints(
-      SheetAnchor minPosition, SheetAnchor maxPosition) {
+    SheetAnchor minPosition,
+    SheetAnchor maxPosition,
+  ) {
     if (minPosition != this.minPosition || maxPosition != this.maxPosition) {
       final oldMinPosition = maybeMinPosition;
       final oldMaxPosition = maybeMaxPosition;
@@ -320,74 +329,18 @@ abstract class SheetPosition extends ChangeNotifier
   Size? _oldContentSize;
   Size? _oldViewportSize;
   EdgeInsets? _oldViewportInsets;
-  int _markAsDimensionsWillChangeCallCount = 0;
 
   @mustCallSuper
-  void markAsDimensionsWillChange() {
-    assert(() {
-      if (_markAsDimensionsWillChangeCallCount == 0) {
-        // Ensure that the number of calls to markAsDimensionsWillChange()
-        // matches the number of calls to markAsDimensionsChanged().
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          assert(
-            _markAsDimensionsWillChangeCallCount == 0,
-            _markAsDimensionsWillChangeCallCount > 0
-                ? _debugMessage(
-                    'markAsDimensionsWillChange() was called more times '
-                    'than markAsDimensionsChanged() in a frame.',
-                  )
-                : _debugMessage(
-                    'markAsDimensionsChanged() was called more times '
-                    'than markAsDimensionsWillChange() in a frame.',
-                  ),
-          );
-        });
-      }
-      return true;
-    }());
-
-    if (_markAsDimensionsWillChangeCallCount == 0) {
-      _oldContentSize = null;
-      _oldViewportSize = null;
-      _oldViewportInsets = null;
-    }
-
-    _markAsDimensionsWillChangeCallCount++;
-  }
-
-  @mustCallSuper
-  void markAsDimensionsChanged() {
-    assert(
-      _markAsDimensionsWillChangeCallCount > 0,
-      _debugMessage(
-        'markAsDimensionsChanged() called without '
-        'a matching call to markAsDimensionsWillChange().',
-      ),
-    );
-
-    _markAsDimensionsWillChangeCallCount--;
-    if (_markAsDimensionsWillChangeCallCount == 0) {
-      onDimensionsFinalized();
-    }
-  }
-
-  @mustCallSuper
-  void onDimensionsFinalized() {
-    assert(
-      _markAsDimensionsWillChangeCallCount == 0,
-      _debugMessage(
-        'Do not call this method until all dimensions changes are finalized.',
-      ),
-    );
+  void finalizePosition() {
     assert(
       hasDimensions,
       _debugMessage(
         'All the dimension values must be finalized '
-        'at the time onDimensionsFinalized() is called.',
+        'at the time finalizePosition() is called.',
       ),
     );
 
-    _activity!.didFinalizeDimensions(
+    _activity!.finalizePosition(
       _oldContentSize,
       _oldViewportSize,
       _oldViewportInsets,
@@ -596,6 +549,8 @@ abstract class SheetPosition extends ChangeNotifier
 }
 
 /// The metrics of a sheet.
+// TODO: Rename to SheetGeometry.
+// TODO: Add `baseline` property of type double.
 mixin SheetMetrics {
   /// An empty metrics object with all values set to null.
   static const SheetMetrics empty = SheetMetricsSnapshot(
@@ -648,6 +603,7 @@ mixin SheetMetrics {
       };
 
   /// The current position of the sheet in pixels.
+  // TODO: Rename to `offset`.
   double get pixels {
     assert(_debugAssertHasProperty('pixels', maybePixels));
     return maybePixels!;

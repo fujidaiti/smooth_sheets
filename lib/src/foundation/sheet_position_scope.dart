@@ -13,17 +13,28 @@ import 'sheet_position.dart';
 @optionalTypeArgs
 class SheetPositionScopeKey<T extends SheetPosition>
     extends LabeledGlobalKey<SheetPositionScopeState> {
-  SheetPositionScopeKey({String? debugLabel}) : super(debugLabel);
+  SheetPositionScopeKey({this.debugLabel}) : super(debugLabel);
+
+  final String? debugLabel;
 
   final List<VoidCallback> _onCreatedListeners = [];
 
-  T? get maybeCurrentPosition => switch (currentState?._position) {
-        final T position => position,
-        _ => null
-      };
+  T? get maybeCurrentPosition {
+    final position = currentState?._position;
+    assert(
+      position is T?,
+      'SheetPositionScopeKey<$T>${debugLabel != null ? "#$debugLabel" : ""} '
+      'cannot be attached to a SheetPositionScope that creates a SheetPosition '
+      'of type ${position.runtimeType}, because it is not a type of or '
+      'a subtype of $T.',
+    );
+    return position as T?;
+  }
 
   T get currentPosition => maybeCurrentPosition!;
 
+  // ignore: lines_longer_than_80_chars
+  // TODO: Change the listener's signature to `void Function(SheetPosition? prev, SheetPosition new)`.
   void addOnCreatedListener(VoidCallback listener) {
     _onCreatedListeners.add(listener);
     // Immediately notify the listener if the position is already created.
@@ -51,8 +62,9 @@ class SheetPositionScopeKey<T extends SheetPosition>
 /// A widget that creates a [SheetPosition], manages its lifecycle,
 /// and exposes it to the descendant widgets.
 @internal
-@optionalTypeArgs
-abstract class SheetPositionScope extends StatefulWidget {
+// TODO: Rename to SheetPositionOwner
+abstract class SheetPositionScope<E extends SheetPosition>
+    extends StatefulWidget {
   /// Creates a widget that hosts a [SheetPosition].
   const SheetPositionScope({
     super.key,
@@ -91,7 +103,7 @@ abstract class SheetPositionScope extends StatefulWidget {
   final Widget child;
 
   @override
-  SheetPositionScopeState createState();
+  SheetPositionScopeState<E, SheetPositionScope<E>> createState();
 
   /// Retrieves a [SheetPosition] from the closest [SheetPositionScope]
   /// that encloses the given context, if any.
@@ -131,19 +143,9 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
   late E _position;
   SheetController? _controller;
 
-  SheetPositionScopeKey<E>? get _scopeKey {
-    assert(() {
-      if (widget.key != null && widget.key is! SheetPositionScopeKey<E>) {
-        throw FlutterError(
-          'The key for a SheetPositionScope<$E> must be a '
-          'SheetPositionScopeKey<$E>, but got a ${widget.key.runtimeType}.',
-        );
-      }
-      return true;
-    }());
-
+  SheetPositionScopeKey? get _scopeKey {
     return switch (widget.key) {
-      final SheetPositionScopeKey<E> key => key,
+      final SheetPositionScopeKey key => key,
       _ => null,
     };
   }
@@ -255,7 +257,8 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
   }
 }
 
-@internal
+// TODO: Rename to SheetPositionScope
+@visibleForTesting
 class InheritedSheetPositionScope extends InheritedWidget {
   const InheritedSheetPositionScope({
     super.key,

@@ -6,7 +6,6 @@ import '../foundation/sheet_position_scope.dart';
 import '../foundation/sheet_viewport.dart';
 import 'navigation_sheet.dart';
 import 'navigation_sheet_position.dart';
-import 'navigation_sheet_viewport.dart';
 
 @optionalTypeArgs
 abstract class NavigationSheetRoute<T, E extends SheetPosition>
@@ -148,9 +147,7 @@ class NavigationSheetRouteContent extends StatelessWidget {
     final parentRoute = ModalRoute.of(context)! as NavigationSheetRoute;
     final globalPosition =
         SheetPositionScope.of<NavigationSheetPosition>(context);
-    final routeViewport = NavigationSheetRouteViewport(
-      child: SheetContentViewport(child: child),
-    );
+    final routeViewport = SheetContentViewport(child: child);
     final localScope = scopeBuilder(
       globalPosition.context,
       parentRoute.scopeKey,

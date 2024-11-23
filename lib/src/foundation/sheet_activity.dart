@@ -67,15 +67,16 @@ abstract class SheetActivity<T extends SheetPosition> {
 
   void didChangeContentSize(Size? oldSize) {}
 
-  void didChangeViewportDimensions(Size? oldSize, EdgeInsets? oldInsets) {}
+  void didChangeViewportDimensions(Size? oldSize) {}
+
+  void didChangeViewportInsets(EdgeInsets? oldInsets) {}
 
   void didChangeBoundaryConstraints(
     SheetAnchor? oldMinPosition,
     SheetAnchor? oldMaxPosition,
   ) {}
 
-  /// Called when all relevant metrics of the sheet are finalized
-  /// for the current frame.
+  /// Finalizes the sheet position for the current frame.
   ///
   /// The [oldContentSize], [oldViewportSize], and [oldViewportInsets] will be
   /// `null` if the [SheetMetrics.contentSize], [SheetMetrics.viewportSize], and
@@ -88,7 +89,7 @@ abstract class SheetActivity<T extends SheetPosition> {
   /// By default, this method updates [SheetMetrics.pixels] to maintain the
   /// visual position of the sheet when the viewport insets change, typically
   /// due to the appearance or disappearance of the on-screen keyboard.
-  void didFinalizeDimensions(
+  void finalizePosition(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
@@ -193,7 +194,7 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void didFinalizeDimensions(
+  void finalizePosition(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
@@ -244,7 +245,7 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void didFinalizeDimensions(
+  void finalizePosition(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
@@ -379,7 +380,7 @@ class SettlingSheetActivity extends SheetActivity {
   }
 
   @override
-  void didFinalizeDimensions(
+  void finalizePosition(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
@@ -427,7 +428,7 @@ class IdleSheetActivity extends SheetActivity {
   /// is determined by [SheetPhysics.findSettledPosition] using the metrics of
   /// the previous frame.
   @override
-  void didFinalizeDimensions(
+  void finalizePosition(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
@@ -588,7 +589,7 @@ mixin UserControlledSheetActivityMixin<T extends SheetPosition>
   SheetStatus get status => SheetStatus.dragging;
 
   @override
-  void didFinalizeDimensions(
+  void finalizePosition(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
