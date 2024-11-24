@@ -131,7 +131,11 @@ class _ExampleHome extends StatelessWidget {
     return Stack(
       children: [
         const Scaffold(),
-        _ExampleSheet(nestedNavigator: nestedNavigator),
+        SheetViewport(
+          child: _ExampleSheet(
+            nestedNavigator: nestedNavigator,
+          ),
+        ),
       ],
     );
   }

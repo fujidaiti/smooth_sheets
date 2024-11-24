@@ -100,8 +100,12 @@ class _ExampleHomeState extends State<_ExampleHome> {
     Navigator.push(
       context,
       ModalSheetRoute(
-        builder: (context) => _ExampleSheet(
-          visibilityType: selectedVisibilityType,
+        builder: (context) => SheetViewport(
+          child: SheetViewport(
+            child: _ExampleSheet(
+              visibilityType: selectedVisibilityType,
+            ),
+          ),
         ),
       ),
     );

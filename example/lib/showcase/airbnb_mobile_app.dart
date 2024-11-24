@@ -175,20 +175,22 @@ class _ContentSheet extends StatelessWidget {
           ),
         );
 
-        return ScrollableSheet(
-          physics: sheetPhysics,
-          minPosition: minSheetPosition,
-          child: SizedBox(
-            height: sheetHeight,
-            child: const Card(
-              margin: EdgeInsets.zero,
-              clipBehavior: Clip.antiAlias,
-              shape: sheetShape,
-              child: Column(
-                children: [
-                  _ContentSheetHandle(),
-                  Expanded(child: _HouseList()),
-                ],
+        return SheetViewport(
+          child: ScrollableSheet(
+            physics: sheetPhysics,
+            minPosition: minSheetPosition,
+            child: SizedBox(
+              height: sheetHeight,
+              child: const Card(
+                margin: EdgeInsets.zero,
+                clipBehavior: Clip.antiAlias,
+                shape: sheetShape,
+                child: Column(
+                  children: [
+                    _ContentSheetHandle(),
+                    Expanded(child: _HouseList()),
+                  ],
+                ),
               ),
             ),
           ),

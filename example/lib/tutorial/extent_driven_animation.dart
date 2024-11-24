@@ -33,7 +33,9 @@ class _ExampleScaffold extends StatelessWidget {
         body: Stack(
           children: [
             _RotatedFlutterLogo(),
-            _ExampleSheet(),
+            SheetViewport(
+              child: _ExampleSheet(),
+            ),
           ],
         ),
         bottomNavigationBar: _BottomAppBar(),

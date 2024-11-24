@@ -133,9 +133,14 @@ class _ExampleHomeState extends State<_ExampleHome> {
       context,
       ModalSheetRoute(
         swipeDismissible: true, // Enable the swipe-to-dismiss behavior.
-        builder: (context) => _ExampleSheet(
-          isFullScreen: isFullScreen,
-          keyboardDismissBehavior: keyboardDismissBehavior,
+        builder: (context) => SafeArea(
+          bottom: false,
+          child: SheetViewport(
+            child: _ExampleSheet(
+              isFullScreen: isFullScreen,
+              keyboardDismissBehavior: keyboardDismissBehavior,
+            ),
+          ),
         ),
       ),
     );
@@ -166,29 +171,26 @@ class _ExampleSheet extends StatelessWidget {
       body = SizedBox.expand(child: body);
     }
 
-    return SafeArea(
-      bottom: false,
-      child: SheetKeyboardDismissible(
-        dismissBehavior: keyboardDismissBehavior,
-        child: ScrollableSheet(
-          child: SheetContentScaffold(
-            appBar: AppBar(),
-            body: body,
-            bottomBar: StickyBottomBarVisibility(
-              child: BottomAppBar(
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.menu),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_vert),
-                    ),
-                  ],
-                ),
+    return SheetKeyboardDismissible(
+      dismissBehavior: keyboardDismissBehavior,
+      child: ScrollableSheet(
+        child: SheetContentScaffold(
+          appBar: AppBar(),
+          body: body,
+          bottomBar: StickyBottomBarVisibility(
+            child: BottomAppBar(
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.menu),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.more_vert),
+                  ),
+                ],
               ),
             ),
           ),

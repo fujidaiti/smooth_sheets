@@ -8,7 +8,9 @@ Future<Todo?> showTodoEditor(BuildContext context) {
     context,
     ModalSheetRoute(
       swipeDismissible: true,
-      builder: (context) => const TodoEditor(),
+      builder: (context) => const SheetViewport(
+        child: TodoEditor(),
+      ),
     ),
   );
 }

@@ -188,14 +188,16 @@ class _SheetShell extends StatelessWidget {
             }
           }
         },
-        child: NavigationSheet(
-          transitionObserver: sheetTransitionObserver,
-          child: Material(
-            // Add circular corners to the sheet.
-            borderRadius: BorderRadius.circular(16),
-            clipBehavior: Clip.antiAlias,
-            color: Theme.of(context).colorScheme.surface,
-            child: navigator,
+        child: SheetViewport(
+          child: NavigationSheet(
+            transitionObserver: sheetTransitionObserver,
+            child: Material(
+              // Add circular corners to the sheet.
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              color: Theme.of(context).colorScheme.surface,
+              child: navigator,
+            ),
           ),
         ),
       ),

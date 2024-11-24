@@ -14,35 +14,37 @@ class TextFieldWithMultipleStops extends StatelessWidget {
       home: Stack(
         children: [
           const Scaffold(),
-          ScrollableSheet(
-            initialPosition: const SheetAnchor.proportional(0.7),
-            minPosition: const SheetAnchor.proportional(0.4),
-            physics: const BouncingSheetPhysics(
-              parent: SnappingSheetPhysics(
-                behavior: SnapToNearest(
-                  anchors: [
-                    SheetAnchor.proportional(0.4),
-                    SheetAnchor.proportional(0.7),
-                    SheetAnchor.proportional(1),
-                  ],
+          SheetViewport(
+            child: ScrollableSheet(
+              initialPosition: const SheetAnchor.proportional(0.7),
+              minPosition: const SheetAnchor.proportional(0.4),
+              physics: const BouncingSheetPhysics(
+                parent: SnappingSheetPhysics(
+                  behavior: SnapToNearest(
+                    anchors: [
+                      SheetAnchor.proportional(0.4),
+                      SheetAnchor.proportional(0.7),
+                      SheetAnchor.proportional(1),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            child: SheetContentScaffold(
-              primary: true,
-              backgroundColor: Colors.grey,
-              appBar: AppBar(
+              child: SheetContentScaffold(
+                primary: true,
                 backgroundColor: Colors.grey,
-                title: const Text('Sheet with a TextField'),
-                leading: IconButton(
-                  onPressed: () => primaryFocus?.unfocus(),
-                  icon: const Icon(Icons.keyboard_hide),
+                appBar: AppBar(
+                  backgroundColor: Colors.grey,
+                  title: const Text('Sheet with a TextField'),
+                  leading: IconButton(
+                    onPressed: () => primaryFocus?.unfocus(),
+                    icon: const Icon(Icons.keyboard_hide),
+                  ),
                 ),
-              ),
-              body: ConstrainedBox(
-                constraints: const BoxConstraints(minHeight: 200),
-                child: const SingleChildScrollView(
-                  child: TextField(maxLines: null),
+                body: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 200),
+                  child: const SingleChildScrollView(
+                    child: TextField(maxLines: null),
+                  ),
                 ),
               ),
             ),

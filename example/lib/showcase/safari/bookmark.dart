@@ -7,9 +7,11 @@ void showEditBookmarkSheet(BuildContext context) {
   Navigator.push(
     context,
     CupertinoModalSheetRoute(
-      builder: (context) => const EditBookmarkSheet(
-        pageUrl: 'https://www.apple.com',
-        faviconUrl: 'https://www.apple.com/favicon.ico',
+      builder: (context) => const SheetViewport(
+        child: EditBookmarkSheet(
+          pageUrl: 'https://www.apple.com',
+          faviconUrl: 'https://www.apple.com/favicon.ico',
+        ),
       ),
     ),
   );

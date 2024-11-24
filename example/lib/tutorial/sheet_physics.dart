@@ -43,7 +43,11 @@ class _ExampleHomeState extends State<_ExampleHome> {
       body: Stack(
         children: [
           buildOptions(),
-          _MySheet(physicsKind: selectedPhysics),
+          SheetViewport(
+            child: _MySheet(
+              physicsKind: selectedPhysics,
+            ),
+          ),
         ],
       ),
     );

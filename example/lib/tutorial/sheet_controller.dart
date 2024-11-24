@@ -59,8 +59,10 @@ class _ExampleHomeState extends State<_ExampleHome> {
               ),
             ),
           ),
-          _ExampleSheet(
-            controller: controller,
+          SheetViewport(
+            child: _ExampleSheet(
+              controller: controller,
+            ),
           ),
         ],
       ),

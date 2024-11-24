@@ -18,9 +18,11 @@ final _router = GoRouter(
           observers: [_transitionObserver],
           pageBuilder: (context, state, child) {
             return ModalSheetPage(
-              child: _MySheet(
-                transitionObserver: _transitionObserver,
-                navigator: child,
+              child: SheetViewport(
+                child: _MySheet(
+                  transitionObserver: _transitionObserver,
+                  navigator: child,
+                ),
               ),
             );
           },
