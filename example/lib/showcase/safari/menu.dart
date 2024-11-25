@@ -11,7 +11,9 @@ void showMenuSheet(BuildContext context) {
     CupertinoModalSheetRoute(
       swipeDismissible: true,
       builder: (context) {
-        return const MenuSheet();
+        return const SheetViewport(
+          child: MenuSheet(),
+        );
       },
     ),
   );

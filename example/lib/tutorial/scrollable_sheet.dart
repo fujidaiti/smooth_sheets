@@ -16,7 +16,12 @@ class _BasicScrollableSheetExample extends StatelessWidget {
       home: Stack(
         children: [
           Scaffold(),
-          _MySheet(),
+          SafeArea(
+            bottom: false,
+            child: SheetViewport(
+              child: _MySheet(),
+            ),
+          ),
         ],
       ),
     );
@@ -59,7 +64,7 @@ class _MySheet extends StatelessWidget {
       // ),
     );
 
-    return SafeArea(bottom: false, child: sheet);
+    return sheet;
   }
 
   Widget buildSheetBackground(BuildContext context, Widget content) {

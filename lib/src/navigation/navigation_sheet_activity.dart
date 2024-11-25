@@ -58,7 +58,7 @@ class TransitionSheetActivity extends NavigationSheetActivity {
   }
 
   @override
-  void didFinalizeDimensions(
+  void finalizePosition(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,
@@ -104,6 +104,12 @@ class ProxySheetActivity extends NavigationSheetActivity {
     assert(route.scopeKey.maybeCurrentPosition != null);
     final localPosition = route.scopeKey.currentPosition;
     final localMetrics = localPosition.snapshot;
+    if (owner.maybeViewportSize case final viewportSize?) {
+      localPosition.applyNewViewportSize(viewportSize);
+    }
+    if (owner.maybeViewportInsets case final viewportInsets?) {
+      localPosition.applyNewViewportInsets(viewportInsets);
+    }
     owner.applyNewBoundaryConstraints(
       localPosition.minPosition,
       localPosition.maxPosition,
@@ -117,7 +123,7 @@ class ProxySheetActivity extends NavigationSheetActivity {
   }
 
   @override
-  void didFinalizeDimensions(
+  void finalizePosition(
     Size? oldContentSize,
     Size? oldViewportSize,
     EdgeInsets? oldViewportInsets,

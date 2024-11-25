@@ -79,8 +79,10 @@ void main() {
       SheetControllerScope(
         controller: controller,
         child: const _TestApp(
-          child: ScrollableSheet(
-            child: _TestSheetContent(),
+          child: SheetViewport(
+            child: ScrollableSheet(
+              child: _TestSheetContent(),
+            ),
           ),
         ),
       ),
@@ -103,12 +105,14 @@ void main() {
         child: KeyboardInsetSimulation(
           key: keyboardSimulationKey,
           keyboardHeight: 200,
-          child: ScrollableSheet(
-            key: sheetKey,
-            controller: controller,
-            minPosition: const SheetAnchor.pixels(200),
-            initialPosition: const SheetAnchor.pixels(200),
-            child: const _TestSheetContent(height: 500),
+          child: SheetViewport(
+            child: ScrollableSheet(
+              key: sheetKey,
+              controller: controller,
+              minPosition: const SheetAnchor.pixels(200),
+              initialPosition: const SheetAnchor.pixels(200),
+              child: const _TestSheetContent(height: 500),
+            ),
           ),
         ),
       ),
@@ -153,20 +157,22 @@ void main() {
 
         await tester.pumpWidget(
           _TestApp(
-            child: ScrollableSheet(
-              controller: controller,
-              child: Builder(
-                builder: (context) {
-                  // TODO(fujita): Refactor this line after #116 is resolved.
-                  scrollController = PrimaryScrollController.of(context);
-                  return _TestSheetContent(
-                    key: targetKey,
-                    itemCount: 1000,
-                    height: null,
-                    // The items need to be clickable to cause the issue.
-                    onTapItem: (index) {},
-                  );
-                },
+            child: SheetViewport(
+              child: ScrollableSheet(
+                controller: controller,
+                child: Builder(
+                  builder: (context) {
+                    // TODO(fujita): Refactor this line after #116 is resolved.
+                    scrollController = PrimaryScrollController.of(context);
+                    return _TestSheetContent(
+                      key: targetKey,
+                      itemCount: 1000,
+                      height: null,
+                      // The items need to be clickable to cause the issue.
+                      onTapItem: (index) {},
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -209,30 +215,32 @@ void main() {
 
       await tester.pumpWidget(
         _TestApp(
-          child: ScrollableSheet(
-            child: Builder(
-              builder: (context) {
-                // TODO(fujita): Refactor this line after #116 is resolved.
-                scrollController = PrimaryScrollController.of(context);
-                return Material(
-                  child: PageView(
-                    controller: PageController(),
-                    children: [
-                      for (var i = 0; i < 2; i++)
-                        ListView.builder(
-                          key: Key('ListView #$i'),
-                          itemCount: 100,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              onTap: () {},
-                              title: Text('Item $index'),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
-                );
-              },
+          child: SheetViewport(
+            child: ScrollableSheet(
+              child: Builder(
+                builder: (context) {
+                  // TODO(fujita): Refactor this line after #116 is resolved.
+                  scrollController = PrimaryScrollController.of(context);
+                  return Material(
+                    child: PageView(
+                      controller: PageController(),
+                      children: [
+                        for (var i = 0; i < 2; i++)
+                          ListView.builder(
+                            key: Key('ListView #$i'),
+                            itemCount: 100,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                onTap: () {},
+                                title: Text('Item $index'),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -282,22 +290,24 @@ void main() {
           dismissBehavior: const SheetKeyboardDismissBehavior.onDrag(
             isContentScrollAware: true,
           ),
-          child: ScrollableSheet(
-            child: Material(
-              child: Column(
-                children: [
-                  TextField(focusNode: focusNode),
-                  Expanded(
-                    child: ListView(
-                      children: List.generate(
-                        30,
-                        (index) => ListTile(
-                          title: Text('Item $index'),
+          child: SheetViewport(
+            child: ScrollableSheet(
+              child: Material(
+                child: Column(
+                  children: [
+                    TextField(focusNode: focusNode),
+                    Expanded(
+                      child: ListView(
+                        children: List.generate(
+                          30,
+                          (index) => ListTile(
+                            title: Text('Item $index'),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -346,20 +356,22 @@ void main() {
     late Widget testWidget;
 
     setUp(() {
-      testWidget = ScrollableSheet(
-        child: Builder(
-          builder: (context) {
-            scrollController = PrimaryScrollController.of(context);
-            sheetPosition = SheetPositionScope.of(context);
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Container(
-                color: Colors.white,
-                width: double.infinity,
-                height: 1200,
-              ),
-            );
-          },
+      testWidget = SheetViewport(
+        child: ScrollableSheet(
+          child: Builder(
+            builder: (context) {
+              scrollController = PrimaryScrollController.of(context);
+              sheetPosition = SheetPositionScope.of(context);
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: 1200,
+                ),
+              );
+            },
+          ),
         ),
       );
     });

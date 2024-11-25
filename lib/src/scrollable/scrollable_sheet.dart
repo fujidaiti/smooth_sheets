@@ -55,9 +55,11 @@ class _ScrollableSheetState extends State<ScrollableSheet>
     final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
+    final viewport = SheetViewport.of(context);
 
     return ScrollableSheetPositionScope(
       context: this,
+      key: viewport.positionOwnerKey,
       controller: controller,
       initialPosition: widget.initialPosition,
       minPosition: widget.minPosition,
@@ -65,10 +67,8 @@ class _ScrollableSheetState extends State<ScrollableSheet>
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,
-      child: SheetViewport(
-        child: SheetContentViewport(
-          child: ScrollableSheetContent(child: widget.child),
-        ),
+      child: SheetContentViewport(
+        child: ScrollableSheetContent(child: widget.child),
       ),
     );
   }

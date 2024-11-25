@@ -14,7 +14,9 @@ class _SheetContentScaffoldExample extends StatelessWidget {
       home: Stack(
         children: [
           Scaffold(),
-          _ExampleSheet(),
+          SheetViewport(
+            child: _ExampleSheet(),
+          ),
         ],
       ),
     );

@@ -58,8 +58,10 @@ void main() {
       SheetControllerScope(
         controller: controller,
         child: const _TestApp(
-          child: DraggableSheet(
-            child: _TestSheetContent(),
+          child: SheetViewport(
+            child: DraggableSheet(
+              child: _TestSheetContent(),
+            ),
           ),
         ),
       ),
@@ -82,14 +84,16 @@ void main() {
         child: KeyboardInsetSimulation(
           key: keyboardSimulationKey,
           keyboardHeight: 200,
-          child: DraggableSheet(
-            key: sheetKey,
-            controller: controller,
-            minPosition: const SheetAnchor.pixels(200),
-            initialPosition: const SheetAnchor.pixels(200),
-            child: const Material(
-              child: _TestSheetContent(
-                height: 500,
+          child: SheetViewport(
+            child: DraggableSheet(
+              key: sheetKey,
+              controller: controller,
+              minPosition: const SheetAnchor.pixels(200),
+              initialPosition: const SheetAnchor.pixels(200),
+              child: const Material(
+                child: _TestSheetContent(
+                  height: 500,
+                ),
               ),
             ),
           ),
@@ -139,12 +143,14 @@ void main() {
           dismissBehavior: const SheetKeyboardDismissBehavior.onDrag(
             isContentScrollAware: true,
           ),
-          child: DraggableSheet(
-            child: Material(
-              child: TextField(
-                focusNode: focusNode,
-                scrollController: scrollController,
-                maxLines: 2,
+          child: SheetViewport(
+            child: DraggableSheet(
+              child: Material(
+                child: TextField(
+                  focusNode: focusNode,
+                  scrollController: scrollController,
+                  maxLines: 2,
+                ),
               ),
             ),
           ),

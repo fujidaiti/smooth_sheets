@@ -20,7 +20,11 @@ class _ScrollablePageViewSheetExample extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    ModalSheetRoute(builder: (_) => const _MySheet()),
+                    ModalSheetRoute(
+                      builder: (_) => const SheetViewport(
+                        child: _MySheet(),
+                      ),
+                    ),
                   );
                 },
                 child: const Text('Show Sheet'),

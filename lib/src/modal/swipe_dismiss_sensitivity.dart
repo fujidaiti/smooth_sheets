@@ -36,5 +36,7 @@ class SwipeDismissSensitivity {
   ///
   /// If the drag gesture ends with a non-zero velocity, it's treated as
   /// a fling gesture, and this value is not used.
+  // ignore: lines_longer_than_80_chars
+  // TODO: Use the sheet position as the threshold instead of the absolute dragging distance.
   final double minDragDistance;
 }

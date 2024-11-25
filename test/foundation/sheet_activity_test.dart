@@ -120,9 +120,10 @@ void main() {
         ..maybeViewportInsets = const EdgeInsets.only(bottom: 50)
         ..maybeContentSize = const Size(400, 850);
 
-      activity.didChangeViewportDimensions(null, oldViewportInsets);
+      activity.didChangeViewportDimensions(null);
       activity.didChangeContentSize(oldContentSize);
-      activity.didFinalizeDimensions(oldContentSize, null, oldViewportInsets);
+      activity.didChangeViewportInsets(oldViewportInsets);
+      activity.finalizePosition(oldContentSize, null, oldViewportInsets);
       expect(ownerMetrics.pixels, 400);
       expect(ownerMetrics.viewPixels, 450,
           reason: 'Visual position should not change when viewport changes.');
@@ -257,9 +258,10 @@ void main() {
       final oldContentSize = ownerMetrics.contentSize;
       // Show the on-screen keyboard.
       ownerMetrics.maybeViewportInsets = const EdgeInsets.only(bottom: 30);
-      activity.didChangeViewportDimensions(null, oldViewportInsets);
+      activity.didChangeViewportDimensions(null);
+      activity.didChangeViewportInsets(oldViewportInsets);
       activity.didChangeContentSize(oldContentSize);
-      activity.didFinalizeDimensions(oldContentSize, null, oldViewportInsets);
+      activity.finalizePosition(oldContentSize, null, oldViewportInsets);
       expect(ownerMetrics.pixels, 320,
           reason: 'Visual position should not change when viewport changes.');
       expect(activity.velocity, 1120, // 280 pixels / 0.25s = 1120 pixels/s
@@ -288,8 +290,9 @@ void main() {
       const oldViewportInsets = EdgeInsets.zero;
       activity
         ..didChangeContentSize(oldContentSize)
-        ..didChangeViewportDimensions(oldContentSize, oldViewportInsets)
-        ..didFinalizeDimensions(oldContentSize, null, oldViewportInsets);
+        ..didChangeViewportDimensions(oldContentSize)
+        ..didChangeViewportInsets(oldViewportInsets)
+        ..finalizePosition(oldContentSize, null, oldViewportInsets);
       expect(ownerMetrics.pixels, 425);
     });
 
@@ -312,7 +315,7 @@ void main() {
         const oldContentSize = Size(400, 600);
         activity
           ..didChangeContentSize(oldContentSize)
-          ..didFinalizeDimensions(oldContentSize, null, null);
+          ..finalizePosition(oldContentSize, null, null);
         expect(ownerMetrics.pixels, 290);
         // Still in the idle activity.
         verifyNever(owner.beginActivity(any));
@@ -338,7 +341,7 @@ void main() {
         const oldContentSize = Size(400, 600);
         activity
           ..didChangeContentSize(oldContentSize)
-          ..didFinalizeDimensions(oldContentSize, null, null);
+          ..finalizePosition(oldContentSize, null, null);
         expect(ownerMetrics.pixels, 300);
         verify(
           owner.animateTo(

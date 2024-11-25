@@ -79,13 +79,15 @@ class _Modal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationSheet(
-      transitionObserver: transitionObserver,
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        clipBehavior: Clip.antiAlias,
-        child: nestedNavigator,
+    return SheetViewport(
+      child: NavigationSheet(
+        transitionObserver: transitionObserver,
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          clipBehavior: Clip.antiAlias,
+          child: nestedNavigator,
+        ),
       ),
     );
   }

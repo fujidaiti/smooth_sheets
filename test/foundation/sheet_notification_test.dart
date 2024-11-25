@@ -9,6 +9,7 @@ import 'package:smooth_sheets/src/foundation/sheet_notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
+import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
 void main() {
   testWidgets(
@@ -23,15 +24,17 @@ void main() {
             reportedNotifications.add(notification);
             return false;
           },
-          child: DraggableSheet(
-            minPosition: const SheetAnchor.pixels(0),
-            // Disable the snapping effect
-            physics: const ClampingSheetPhysics(),
-            child: Container(
-              key: targetKey,
-              color: Colors.white,
-              width: double.infinity,
-              height: 500,
+          child: SheetViewport(
+            child: DraggableSheet(
+              minPosition: const SheetAnchor.pixels(0),
+              // Disable the snapping effect
+              physics: const ClampingSheetPhysics(),
+              child: Container(
+                key: targetKey,
+                color: Colors.white,
+                width: double.infinity,
+                height: 500,
+              ),
             ),
           ),
         ),
@@ -166,15 +169,17 @@ void main() {
             reportedNotifications.add(notification);
             return false;
           },
-          child: DraggableSheet(
-            controller: controller,
-            minPosition: const SheetAnchor.pixels(0),
-            // Disable the snapping effect
-            physics: const ClampingSheetPhysics(),
-            child: Container(
-              color: Colors.white,
-              width: double.infinity,
-              height: 600,
+          child: SheetViewport(
+            child: DraggableSheet(
+              controller: controller,
+              minPosition: const SheetAnchor.pixels(0),
+              // Disable the snapping effect
+              physics: const ClampingSheetPhysics(),
+              child: Container(
+                color: Colors.white,
+                width: double.infinity,
+                height: 600,
+              ),
             ),
           ),
         ),
@@ -242,17 +247,19 @@ void main() {
             reportedNotifications.add(notification);
             return false;
           },
-          child: DraggableSheet(
-            // Make sure the sheet can't be dragged
-            minPosition: const SheetAnchor.proportional(1),
-            maxPosition: const SheetAnchor.proportional(1),
-            // Disable the snapping effect
-            physics: const ClampingSheetPhysics(),
-            child: Container(
-              key: targetKey,
-              color: Colors.white,
-              width: double.infinity,
-              height: 500,
+          child: SheetViewport(
+            child: DraggableSheet(
+              // Make sure the sheet can't be dragged
+              minPosition: const SheetAnchor.proportional(1),
+              maxPosition: const SheetAnchor.proportional(1),
+              // Disable the snapping effect
+              physics: const ClampingSheetPhysics(),
+              child: Container(
+                key: targetKey,
+                color: Colors.white,
+                width: double.infinity,
+                height: 500,
+              ),
             ),
           ),
         ),

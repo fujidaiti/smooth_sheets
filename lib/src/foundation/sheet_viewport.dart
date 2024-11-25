@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -7,52 +8,145 @@ import 'package:meta/meta.dart';
 import 'sheet_position.dart';
 import 'sheet_position_scope.dart';
 
-@internal
-class SheetViewport extends SingleChildRenderObjectWidget {
+class SheetViewport extends StatefulWidget {
   const SheetViewport({
     super.key,
-    required super.child,
+    required this.child,
   });
 
+  final Widget child;
+
   @override
-  RenderObject createRenderObject(BuildContext context) {
-    return RenderSheetViewport(
-      SheetPositionScope.of(context),
-      MediaQuery.viewInsetsOf(context),
+  State<SheetViewport> createState() => SheetViewportState();
+
+  static SheetViewportState of(BuildContext context) {
+    final viewport = context
+        .dependOnInheritedWidgetOfExactType<_SheetViewportScope>()
+        ?.state;
+
+    assert(
+      viewport != null,
+      "A SheetViewport was not found. It's likely that the sheet widget "
+      'does not have a SheetViewport as an ancestor.',
+    );
+
+    return viewport!;
+  }
+}
+
+@internal
+class SheetViewportState extends State<SheetViewport> {
+  late final SheetPositionScopeKey positionOwnerKey;
+
+  @override
+  void initState() {
+    super.initState();
+    positionOwnerKey = SheetPositionScopeKey(
+      debugLabel: kDebugMode ? 'SheetViewport' : null,
     );
   }
 
   @override
-  void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as RenderSheetViewport)
-      ..position = SheetPositionScope.of(context)
-      ..insets = MediaQuery.viewInsetsOf(context);
+  void dispose() {
+    positionOwnerKey.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SheetViewportScope(
+      state: this,
+      child: RenderSheetViewportWidget(
+        positionOwnerKey: positionOwnerKey,
+        insets: MediaQuery.of(context).viewInsets,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class _SheetViewportScope extends InheritedWidget {
+  const _SheetViewportScope({
+    required this.state,
+    required super.child,
+  });
+
+  final SheetViewportState state;
+
+  @override
+  bool updateShouldNotify(_SheetViewportScope oldWidget) => true;
+}
+
+@internal
+class RenderSheetViewportWidget extends SingleChildRenderObjectWidget {
+  const RenderSheetViewportWidget({
+    super.key,
+    required this.positionOwnerKey,
+    required this.insets,
+    required super.child,
+  });
+
+  final SheetPositionScopeKey positionOwnerKey;
+  final EdgeInsets insets;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return RenderSheetViewport(
+      positionOwnerKey: positionOwnerKey,
+      insets: insets,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    RenderSheetViewport renderObject,
+  ) {
+    assert(
+      positionOwnerKey == renderObject.positionOwnerKey,
+      'The positionOwnerKey must not change during the widget life cycle.',
+    );
+    renderObject.insets = insets;
   }
 }
 
 @internal
 class RenderSheetViewport extends RenderTransform {
-  RenderSheetViewport(SheetPosition position, EdgeInsets insets)
-      : _position = position,
-        _insets = insets,
-        super(transform: Matrix4.zero(), transformHitTests: true) {
-    _position.addListener(_invalidateTranslationValue);
+  RenderSheetViewport({
+    required this.positionOwnerKey,
+    required EdgeInsets insets,
+  })  : _insets = insets,
+        super(
+          transform: Matrix4.zero()..setIdentity(),
+          transformHitTests: true,
+        ) {
+    positionOwnerKey.addOnCreatedListener(
+      () => position = positionOwnerKey.maybeCurrentPosition,
+    );
   }
 
-  // Cache the last measured size because we can't access
-  // 'size' property from outside of the layout phase.
-  Size? _lastMeasuredSize;
+  final SheetPositionScopeKey positionOwnerKey;
 
-  Size? get lastMeasuredSize => _lastMeasuredSize;
-
-  SheetPosition _position;
+  SheetPosition? _position;
 
   // ignore: avoid_setters_without_getters
-  set position(SheetPosition value) {
-    if (_position != value) {
-      _position.removeListener(_invalidateTranslationValue);
-      _position = value..addListener(_invalidateTranslationValue);
-      markNeedsLayout();
+  set position(SheetPosition? value) {
+    switch ((_position, value)) {
+      case (null, final initialPosition?):
+        _position = initialPosition
+          ..addListener(markNeedsPaint)
+          ..applyNewViewportInsets(insets);
+        markNeedsPaint();
+
+      case (final oldPosition?, null):
+        oldPosition.removeListener(markNeedsPaint);
+        _position = null;
+
+      case (final oldPosition?, final newPosition?)
+          when oldPosition != newPosition:
+        oldPosition.removeListener(markNeedsPaint);
+        _position = newPosition..addListener(markNeedsPaint);
+        markNeedsPaint();
     }
   }
 
@@ -63,50 +157,34 @@ class RenderSheetViewport extends RenderTransform {
   set insets(EdgeInsets value) {
     if (value != _insets) {
       _insets = value;
-      markNeedsLayout();
+      _position?.applyNewViewportInsets(value);
+      // ignore: lines_longer_than_80_chars
+      // TODO: Remove this line when the `baseline` property is added to SheetPosition.
+      markNeedsPaint();
     }
   }
 
   @override
   void performLayout() {
     // We can assume that the viewport will always be as big as possible.
-    _lastMeasuredSize = constraints.biggest;
-    _position.markAsDimensionsWillChange();
+    final biggestSize = constraints.biggest;
     // Notify the SheetPosition about the viewport size changes
     // before performing the layout so that the descendant widgets
     // can use the viewport size during the layout phase.
-    _position.applyNewViewportDimensions(
-      Size(_lastMeasuredSize!.width, _lastMeasuredSize!.height),
-      _insets,
-    );
+    _position?.applyNewViewportSize(Size.copy(biggestSize));
 
     super.performLayout();
 
     assert(
-      size == constraints.biggest,
+      size == biggestSize,
       'The sheet viewport should have the biggest possible size '
       'in the given constraints.',
     );
-
-    assert(
-      _position.hasDimensions,
-      'The sheet position and the dimensions values '
-      'must be finalized during the layout phase.',
-    );
-
-    _position.markAsDimensionsChanged();
-    _invalidateTranslationValue();
   }
 
-  @override
-  void markNeedsPaint() {
-    super.markNeedsPaint();
-    _invalidateTranslationValue();
-  }
-
-  void _invalidateTranslationValue() {
-    final currentPosition = _position.maybePixels;
-    final viewportSize = _lastMeasuredSize;
+  void _invalidateTransformMatrix() {
+    final currentPosition = _position?.maybePixels;
+    final viewportSize = _position?.maybeViewportSize;
     if (currentPosition != null && viewportSize != null) {
       final dy = viewportSize.height - _insets.bottom - currentPosition;
       // Update the translation value and mark this render object
@@ -127,7 +205,7 @@ class RenderSheetViewport extends RenderTransform {
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    if (_position.activity.shouldIgnorePointer) {
+    if (_position?.activity.shouldIgnorePointer == true) {
       final invTransform = Matrix4.tryInvert(
         PointerEvent.removePerspectiveTransform(_transform),
       );
@@ -138,9 +216,38 @@ class RenderSheetViewport extends RenderTransform {
     return super.hitTest(result, position: position);
   }
 
+  /// Indicates whether this render object is currently in the painting phase.
+  ///
+  /// This flag prevents [markNeedsPaint] from being called during the
+  /// subroutine of [SheetPosition.finalizePosition], which is invoked in the
+  /// [paint] method. Calling [markNeedsPaint] during the painting phase is not
+  /// allowed by the framework.
+  bool _isPainting = false;
+
+  @override
+  void markNeedsPaint() {
+    if (!_isPainting) {
+      super.markNeedsPaint();
+    }
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    _isPainting = true;
+    // Ensures that the transform matrix is up-to-date.
+    // Ideally, we should call the next two lines
+    // after the layout phase and before the painting phase.
+    // However, there is no such hook in the framework,
+    // so they are invoked here as a workaround.
+    _position?.finalizePosition();
+    _invalidateTransformMatrix();
+    super.paint(context, offset);
+    _isPainting = false;
+  }
+
   @override
   void dispose() {
-    _position.removeListener(_invalidateTranslationValue);
+    _position?.removeListener(markNeedsPaint);
     super.dispose();
   }
 }
@@ -269,7 +376,6 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
 
   @override
   void performLayout() {
-    _position?.markAsDimensionsWillChange();
     super.performLayout();
     final childSize = child?.size;
     // The evaluation of _isEnabled() is intentionally delayed
@@ -280,6 +386,5 @@ class _RenderSheetContentLayoutObserver extends RenderPositionedBox {
     if (_isEnabled() && childSize != null) {
       _position?.applyNewContentSize(childSize);
     }
-    _position?.markAsDimensionsChanged();
   }
 }

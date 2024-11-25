@@ -6,7 +6,8 @@ import '../foundation/sheet_position_scope.dart';
 import 'scrollable_sheet_position.dart';
 
 @internal
-class ScrollableSheetPositionScope extends SheetPositionScope {
+class ScrollableSheetPositionScope
+    extends SheetPositionScope<ScrollableSheetPosition> {
   const ScrollableSheetPositionScope({
     super.key,
     super.controller,
@@ -28,7 +29,8 @@ class ScrollableSheetPositionScope extends SheetPositionScope {
   final String? debugLabel;
 
   @override
-  SheetPositionScopeState createState() {
+  SheetPositionScopeState<ScrollableSheetPosition,
+      SheetPositionScope<ScrollableSheetPosition>> createState() {
     return _ScrollableSheetPositionScopeState();
   }
 }

@@ -6,7 +6,8 @@ import '../foundation/sheet_position_scope.dart';
 import 'draggable_sheet_position.dart';
 
 @internal
-class DraggableSheetPositionScope extends SheetPositionScope {
+class DraggableSheetPositionScope
+    extends SheetPositionScope<DraggableSheetPosition> {
   const DraggableSheetPositionScope({
     super.key,
     super.controller,
@@ -28,7 +29,8 @@ class DraggableSheetPositionScope extends SheetPositionScope {
   final String? debugLabel;
 
   @override
-  SheetPositionScopeState createState() {
+  SheetPositionScopeState<DraggableSheetPosition,
+      SheetPositionScope<DraggableSheetPosition>> createState() {
     return _DraggableSheetPositionScopeState();
   }
 }

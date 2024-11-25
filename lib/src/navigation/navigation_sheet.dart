@@ -9,7 +9,6 @@ import '../foundation/sheet_viewport.dart';
 import '../internal/transition_observer.dart';
 import 'navigation_sheet_position.dart';
 import 'navigation_sheet_position_scope.dart';
-import 'navigation_sheet_viewport.dart';
 
 typedef NavigationSheetTransitionObserver = TransitionObserver;
 
@@ -36,13 +35,18 @@ class _NavigationSheetState extends State<NavigationSheet>
         TransitionAwareStateMixin,
         TickerProviderStateMixin,
         SheetContextStateMixin {
-  final _scopeKey = SheetPositionScopeKey<NavigationSheetPosition>(
-    debugLabel: kDebugMode ? 'NavigationSheet' : null,
-  );
+  late SheetPositionScopeKey _scopeKey;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scopeKey = SheetViewport.of(context).positionOwnerKey;
+  }
 
   @override
   void didChangeTransitionState(Transition? transition) {
-    _scopeKey.maybeCurrentPosition?.handleRouteTransition(transition);
+    (_scopeKey.maybeCurrentPosition as NavigationSheetPosition?)
+        ?.handleRouteTransition(transition);
   }
 
   @override
@@ -52,14 +56,12 @@ class _NavigationSheetState extends State<NavigationSheet>
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
     return NavigationSheetPositionScope(
-      key: _scopeKey,
+      key: SheetViewport.of(context).positionOwnerKey,
       context: this,
       controller: controller,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'NavigationSheet' : null,
-      child: NavigationSheetViewport(
-        child: SheetContentViewport(child: widget.child),
-      ),
+      child: SheetContentViewport(child: widget.child),
     );
   }
 }

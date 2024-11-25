@@ -75,9 +75,11 @@ class _DraggableSheetState extends State<DraggableSheet>
     final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
+    final viewport = SheetViewport.of(context);
 
     return DraggableSheetPositionScope(
       context: this,
+      key: viewport.positionOwnerKey,
       controller: controller,
       initialPosition: widget.initialPosition,
       minPosition: widget.minPosition,
@@ -85,12 +87,10 @@ class _DraggableSheetState extends State<DraggableSheet>
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'DraggableSheet' : null,
-      child: SheetViewport(
-        child: SheetContentViewport(
-          child: SheetDraggable(
-            behavior: widget.hitTestBehavior,
-            child: widget.child,
-          ),
+      child: SheetContentViewport(
+        child: SheetDraggable(
+          behavior: widget.hitTestBehavior,
+          child: widget.child,
         ),
       ),
     );

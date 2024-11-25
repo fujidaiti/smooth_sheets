@@ -15,7 +15,9 @@ class _SheetDraggableExample extends StatelessWidget {
         body: Stack(
           children: [
             Placeholder(),
-            _ExampleSheet(),
+            SheetViewport(
+              child: _ExampleSheet(),
+            ),
           ],
         ),
       ),

@@ -8,7 +8,9 @@ void showEditActionsSheet(BuildContext context) {
     CupertinoModalSheetRoute(
       swipeDismissible: true,
       builder: (context) {
-        return const EditActionsSheet();
+        return const SheetViewport(
+          child: EditActionsSheet(),
+        );
       },
     ),
   );

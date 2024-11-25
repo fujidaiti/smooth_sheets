@@ -123,10 +123,13 @@ class MutableSheetMetrics with SheetMetrics {
     metricsRegistry.maybeContentSize =
         invocation.positionalArguments.first as Size;
   });
-  when(position.applyNewViewportDimensions(any, any)).thenAnswer((invocation) {
-    metricsRegistry
-      ..maybeViewportSize = invocation.positionalArguments.first as Size
-      ..maybeViewportInsets = invocation.positionalArguments.last as EdgeInsets;
+  when(position.applyNewViewportSize(any)).thenAnswer((invocation) {
+    metricsRegistry.maybeViewportSize =
+        invocation.positionalArguments.first as Size;
+  });
+  when(position.applyNewViewportInsets(any)).thenAnswer((invocation) {
+    metricsRegistry.maybeViewportInsets =
+        invocation.positionalArguments.first as EdgeInsets;
   });
   when(position.applyNewBoundaryConstraints(any, any)).thenAnswer((invocation) {
     metricsRegistry

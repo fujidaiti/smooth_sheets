@@ -26,6 +26,15 @@ class _FakeSheetContext extends Fake implements SheetContext {
   TickerProvider get vsync => const TestVSync();
 }
 
+class _TestSheetPositionScopeKey extends SheetPositionScopeKey {
+  _TestSheetPositionScopeKey(this._position);
+
+  final SheetPosition _position;
+
+  @override
+  SheetPosition? get maybeCurrentPosition => _position;
+}
+
 class _FakeSheetActivity extends SheetActivity {
   _FakeSheetActivity({
     this.shouldIgnorePointer = false,
@@ -70,21 +79,23 @@ class _FakeSheetPosition extends SheetPosition {
 
 class _TestWidget extends StatelessWidget {
   const _TestWidget({
-    required this.position,
+    required this.scopeKey,
     this.background,
     this.sheetContent,
   });
 
-  final SheetPosition position;
+  final _TestSheetPositionScopeKey scopeKey;
   final Widget? sheetContent;
   final Widget? background;
 
   @override
   Widget build(BuildContext context) {
-    final sheet = InheritedSheetPositionScope(
-      isPrimary: true,
-      position: position,
-      child: SheetViewport(
+    final sheet = RenderSheetViewportWidget(
+      positionOwnerKey: scopeKey,
+      insets: EdgeInsets.zero,
+      child: InheritedSheetPositionScope(
+        position: scopeKey.currentPosition,
+        isPrimary: true,
         child: SheetContentViewport(
           child: sheetContent ??
               Container(
@@ -133,7 +144,7 @@ void main() {
       );
 
       final testWidget = _TestWidget(
-        position: position,
+        scopeKey: _TestSheetPositionScopeKey(position),
         background: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

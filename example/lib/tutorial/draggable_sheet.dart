@@ -16,7 +16,9 @@ class _BasicDraggableSheetExample extends StatelessWidget {
       home: Stack(
         children: [
           Scaffold(),
-          _MySheet(),
+          SheetViewport(
+            child: _MySheet(),
+          ),
         ],
       ),
     );
@@ -61,6 +63,7 @@ class _MySheet extends StatelessWidget {
   }
 }
 
+/* cSpell: disable */
 const _loremIpsum = '''
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis auctor id turpis vel pulvinar. 
 Etiam rhoncus mollis mollis. Nam fringilla justo quis nulla scelerisque, sed consectetur libero
@@ -72,3 +75,4 @@ Cras sit amet cursus urna. Nullam tincidunt ullamcorper elementum. Ut hendrerit 
 in iaculis felis blandit. Cras malesuada lorem augue, et porttitor sem aliquet et. Aliquam 
 nec diam nisl. 
 ''';
+/* cSpell: enable */
