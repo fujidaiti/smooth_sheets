@@ -9,30 +9,52 @@ env:
   PATTERN_CHECKER: ${{github.workspace}}/scripts/pattern_checker.sh
 
 jobs:
-  # Change detection
-  changes:
+  setup:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
     outputs:
-      dart-files: ${{ steps.filter.outputs.dart-files }}
+      flutter-file-changed: ${{ steps.filter.outputs.flutter-file-changed }}
+      flutter-lower-bound: ${{ steps.flutter-version-constraint.outputs.lower-bound }}
+      flutter-upper-bound: ${{ steps.flutter-version-constraint.outputs.upper-bound }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+
+      - name: Filter changed files
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
-            dart-files:
+            flutter-file-changed:
               - '**.dart'
+              - 'pubspec.yaml'
+              - 'pubspec.lock'
 
-  # Static code analysis
+      - name: Get Flutter SDK version constraint
+        id: flutter-version-constraint
+        # Extract the lower bound from pubspec.yaml and the upper bound from .fvmrc
+        run: |
+          sdk_constraint=$(cat pubspec.yaml | yq .environment.flutter)
+          lower_bound=$(echo "$sdk_constraint" | grep -oP '(?<=\>=)[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          upper_bound=$(cat .fvmrc | jq -r .flutter)
+          echo "lower-bound=$lower_bound" >> "$GITHUB_OUTPUT"
+          echo "upper-bound=$upper_bound" >> "$GITHUB_OUTPUT"
+
+      - name: Print output values
+        run: |
+          echo "flutter-file-changed=${{ steps.filter.outputs.flutter-file-changed }}"
+          echo "flutter-lower-bound=${{ steps.flutter-version-constraint.outputs.lower-bound }}"
+          echo "flutter-upper-bound=${{ steps.flutter-version-constraint.outputs.upper-bound }}"
+
   analysis:
-    needs: changes
-    if: ${{ needs.changes.outputs.dart-files == 'true' }}
+    needs: setup
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [package, cookbook]
+        flutter-version:
+          - ${{ needs.setup.outputs.flutter-lower-bound }}
+          - ${{ needs.setup.outputs.flutter-upper-bound }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,29 +62,30 @@ jobs:
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
         with:
-          target: ${{ matrix.target }}
+          version: ${{ matrix.flutter-version }}
 
       - name: Format
         run: dart format . -o none --set-exit-if-changed
-        working-directory: ${{ matrix.target }}
 
       - name: Analyze
         run: dart analyze
-        working-directory: ${{ matrix.target }}
 
       - name: Disallowed patterns check
         run: bash ${{ env.PATTERN_CHECKER }} "*.dart" "--" "debugPrint"
-        working-directory: ${{ matrix.target }}
 
-  # Unit testing
   testing:
-    needs: changes
-    if: ${{ needs.changes.outputs.dart-files == 'true' }}
+    needs: setup
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       actions: read
       checks: write
+    strategy:
+      matrix:
+        flutter-version:
+          - ${{ needs.setup.outputs.flutter-lower-bound }}
+          - ${{ needs.setup.outputs.flutter-upper-bound }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,17 +93,17 @@ jobs:
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
         with:
-          target: package
+          version: ${{ matrix.flutter-version }}
 
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
-        working-directory: package
 
       - name: Write test report
         uses: dorny/test-reporter@v1
-        if: success() || failure()
+        # PRs from forks have no write permissions.
+        if: github.event.pull_request.head.repo.fork == false && (success() || failure())
         with:
-          name: Test Report
+          name: Test Report (with Flutter ${{ matrix.flutter-version }})
           path: ${{ env.FLUTTER_TEST_REPORT }}
           reporter: flutter-json
 

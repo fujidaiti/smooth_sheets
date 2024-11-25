@@ -1,0 +1,6 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Navigation Sheet and Keyboard" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="filePath" value="$PROJECT_DIR$/example/lib/tutorial/navigation_sheet_and_keyboard.dart" />
+    <method v="2" />
+  </configuration>
+</component>
