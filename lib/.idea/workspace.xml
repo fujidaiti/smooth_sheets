@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0a8dac20-8253-4600-b49b-514a139598c8" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../.fvmrc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.github/pull_request_template.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/appInsightsSettings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/codeStyles/Project.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/AI_Playlist_Generator.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/AirBnb.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Bottom_Bar_Visibility.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Cupertino_Modal_Sheet.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Declarative_Modal_Sheet.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Declarative_Navigation_Sheet.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Draggable_Sheet.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Imperative_Modal_Sheet.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Imperative_Navigation_Sheet.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Keyboard_Dismiss_Behavior.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Navigation_Sheet_And_Keyboard.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Safari.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/ScrollableSheet_And_PageView.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Scrollable_Sheet.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Sheet_Content_Scaffold.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Sheet_Controller.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Sheet_Draggable.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Sheet_Physics.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Sheet_Position_Driven_Animation.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/TextField_With_Multiple_Stops.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/Todo_List.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/runConfigurations/iOS_Style_Modal_Navigation_Sheet.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/smooth_sheets.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.vscode/settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../build.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../example/lib/tutorial/bouncing_behaviors.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../example/lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../example/lib/tutorial/navigation_sheet_and_keyboard.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../example/lib/tutorial/scrollable_pageview_sheet.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../example/lib/tutorial/textfield_with_multiple_stops.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../example/pubspec.lock" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/draggable/draggable_sheet.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/draggable/draggable_sheet_position.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/draggable/draggable_sheet_position_scope.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/foundation/sheet_activity.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/foundation/sheet_context.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/foundation/sheet_gesture_tamperer.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/foundation/sheet_physics.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/foundation/sheet_position.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/foundation/sheet_position_scope.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/internal/double_utils.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/internal/float_comp.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/modal/swipe_dismiss_sensitivity.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/navigation_route.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/navigation_sheet.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/navigation_sheet_position.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/navigation/navigation_sheet_position_scope.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scrollable/scrollable_sheet.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scrollable/scrollable_sheet_position_scope.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../migrations/migration-guide-0.10.x.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../migrations/migration-guide-0.8.x.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../migrations/migration-guide-0.9.x.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/draggable/draggable_sheet_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/flutter_test_config.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/foundation/physics_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/foundation/sheet_activity_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/foundation/sheet_notification_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/foundation/sheet_viewport_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/modal/modal_sheet_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/navigation/navigation_sheet_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/scrollable/scrollable_sheet_test.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/src/keyboard_inset_simulation.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/src/matchers.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/src/stubbing.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../test/src/stubbing.mocks.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.github/actions/setup_flutter/action.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../.github/actions/setup_flutter/action.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.github/workflows/code_check.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../.github/workflows/code_check.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.github/workflows/dry_publish.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../.github/workflows/dry_publish.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.github/workflows/publish.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../.github/workflows/publish.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.vscode/launch.json" beforeDir="false" afterPath="$PROJECT_DIR$/../.vscode/launch.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/../LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Makefile.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../example/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/.metadata" beforeDir="false" afterPath="$PROJECT_DIR$/../example/.metadata" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../example/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/analysis_options.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/analysis_options.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/debug/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/debug/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/kotlin/com/example/cookbook/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/kotlin/com/example/cookbook/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/drawable-v21/launch_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/drawable-v21/launch_background.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/drawable/launch_background.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/drawable/launch_background.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/values-night/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/values-night/styles.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/main/res/values/styles.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/app/src/profile/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/app/src/profile/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/android/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../example/android/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/assets/apple_website.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/assets/apple_website.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/assets/fake_map.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/assets/fake_map.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Flutter/AppFrameworkInfo.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Flutter/AppFrameworkInfo.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Flutter/Debug.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Flutter/Debug.xcconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Flutter/Release.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Flutter/Release.xcconfig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner.xcworkspace/contents.xcworkspacedata" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner.xcworkspace/contents.xcworkspacedata" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/AppDelegate.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/AppDelegate.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@1x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@2x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-20x20@3x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@1x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@2x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-29x29@3x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@1x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@2x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-40x40@3x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@2x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-60x60@3x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@1x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-76x76@2x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-83.5x83.5@2x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Base.lproj/LaunchScreen.storyboard" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Base.lproj/LaunchScreen.storyboard" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Base.lproj/Main.storyboard" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Base.lproj/Main.storyboard" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Info.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/Runner/Runner-Bridging-Header.h" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/Runner/Runner-Bridging-Header.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/ios/RunnerTests/RunnerTests.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../example/ios/RunnerTests/RunnerTests.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/issue/issue131.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/issue/issue137.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/issue/issue80.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/ai_playlist_generator.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/ai_playlist_generator.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/airbnb_mobile_app.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/airbnb_mobile_app.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/safari/actions.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/safari/actions.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/safari/bookmark.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/safari/bookmark.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/safari/common.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/safari/common.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/safari/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/safari/home.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/safari/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/safari/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/safari/menu.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/safari/menu.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/todo_list/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/todo_list/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/todo_list/models.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/todo_list/models.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/showcase/todo_list/todo_editor.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/showcase/todo_list/todo_editor.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/bottom_bar_visibility.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/bottom_bar_visibility.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/cupertino_modal_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/cupertino_modal_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/declarative_modal_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/declarative_modal_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/declarative_navigation_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/declarative_navigation_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/draggable_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/draggable_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/extent_driven_animation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/extent_driven_animation.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/imperative_modal_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/imperative_modal_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/imperative_navigation_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/imperative_navigation_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/keyboard_dismiss_behavior.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/keyboard_dismiss_behavior.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/scrollable_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/scrollable_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/sheet_content_scaffold.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/sheet_content_scaffold.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/sheet_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/sheet_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/sheet_draggable.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/sheet_draggable.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/lib/tutorial/sheet_physics.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../example/lib/tutorial/sheet_physics.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../cookbook/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../example/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/migration-guide-0.3.x.md" beforeDir="false" afterPath="$PROJECT_DIR$/../migrations/migration-guide-0.3.x.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/migration-guide-0.4.x.md" beforeDir="false" afterPath="$PROJECT_DIR$/../migrations/migration-guide-0.4.x.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/migration-guide-0.5.x.md" beforeDir="false" afterPath="$PROJECT_DIR$/../migrations/migration-guide-0.5.x.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/migration-guide-0.6.x.md" beforeDir="false" afterPath="$PROJECT_DIR$/../migrations/migration-guide-0.6.x.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docs/migration-guide-0.7.x.md" beforeDir="false" afterPath="$PROJECT_DIR$/../migrations/migration-guide-0.7.x.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modal/cupertino.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/modal/cupertino.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/modal/modal_sheet.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/modal/modal_sheet.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/.metadata" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/../CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/analysis_options.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../analysis_options.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/example/.metadata" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/example/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/smooth_sheets.dart" beforeDir="false" afterPath="$PROJECT_DIR$/smooth_sheets.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/draggable/draggable.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/draggable/draggable.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/draggable/draggable_sheet.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/draggable/draggable_sheet_extent.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/draggable/sheet_draggable.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/draggable/sheet_draggable.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/extent_driven_animation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/sheet_position_driven_animation.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/foundation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/foundation.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/keyboard_dismissible.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/keyboard_dismissible.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_activity.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_content_scaffold.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/sheet_content_scaffold.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_controller.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/sheet_controller.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_drag.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/sheet_drag.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_extent.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_gesture_tamperer.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_notification.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/sheet_notification.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_physics.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_status.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/sheet_status.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_theme.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/sheet_theme.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/foundation/sheet_viewport.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/foundation/sheet_viewport.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/internal/double_utils.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/internal/monodrag.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/internal/monodrag.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/internal/transition_observer.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/internal/transition_observer.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/modal/cupertino.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/modal/modal.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/modal/modal.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/modal/modal_sheet.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/navigation/navigation.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/navigation/navigation.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/navigation/navigation_route.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/navigation/navigation_routes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/navigation/navigation_routes.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/navigation/navigation_sheet.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/navigation/navigation_sheet_activity.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/navigation/navigation_sheet_activity.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/navigation/navigation_sheet_extent.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/navigation/navigation_sheet_viewport.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/navigation/navigation_sheet_viewport.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/scrollable/scrollable.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/scrollable/scrollable.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/scrollable/scrollable_sheet.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/scrollable/scrollable_sheet_activity.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/scrollable/scrollable_sheet_activity.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/scrollable/scrollable_sheet_extent.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/scrollable/scrollable_sheet_position.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/scrollable/scrollable_sheet_physics.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/scrollable/scrollable_sheet_physics.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/scrollable/sheet_content_scroll_activity.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/scrollable/sheet_content_scroll_activity.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/scrollable/sheet_content_scroll_position.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/scrollable/sheet_content_scroll_position.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/lib/src/scrollable/sheet_scrollable.dart" beforeDir="false" afterPath="$PROJECT_DIR$/src/scrollable/sheet_scrollable.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/resources/smooth-sheets-thumbnail.png" beforeDir="false" afterPath="$PROJECT_DIR$/../art/smooth-sheets-thumbnail.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../package/test/foundation/physics_test.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-ai-playlist-generator.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-ai-playlist-generator.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-ai-playlist-generator.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-airbnb-mobile-app.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-airbnb-mobile-app.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-airbnb.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-cupertino-modal-sheet.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-cupertino-modal-sheet.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-declarative-modal-sheet.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-declarative-navigation-sheet.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-declarative-navigation-sheet.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-declarative-navigation-sheet.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-declerative-modal-sheet.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-declerative-modal-sheet.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-draggable-sheet.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-draggable-sheet.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-draggable-sheet.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-extent-driven-animation.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-extent-driven-animation.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-imerative-modal-sheet.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-imerative-modal-sheet.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-imperative-modal-sheet.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-imperative-modal-sheet.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-imperative-modal-sheet.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-imperative-navigation-sheet.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-imperative-navigation-sheet.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-imperative-navigation-sheet.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-keyboard-dismiss-behavior.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-keyboard-dismiss-behavior.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-safari.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-safari.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-scrollable-sheet.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-scrollable-sheet.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-scrollable-sheet.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-sheet-content-scaffold.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-sheet-content-scaffold.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-sheet-content-scaffold.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-sheet-controller.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-sheet-controller.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-sheet-controller.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-sheet-draggable.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-sheet-draggable.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-sheet-draggable.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-sheet-physics.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-sheet-physics.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-sheet-physics.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/cookbook-todo-list.gif" beforeDir="false" afterPath="$PROJECT_DIR$/../art/cookbook-todo-list.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../resources/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/../art/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../scripts/copilot/pattern_checker_session.json" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "AlinaStepanova"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/AlinaStepanova/smooth_sheets.git",
+    "accountId": "dfe3fd51-3f19-47f7-b8a2-c1e98993971b"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="2oOVJujHAJK6ZyBOpT50Ix8fMx5" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "Merging dev-merged",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/alinastepanova/AndroidStudioProjects/smooth_sheets_forked/lib",
+    "show.migrate.to.gradle.popup": "false"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0a8dac20-8253-4600-b49b-514a139598c8" name="Changes" comment="" />
+      <created>1730740540265</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1730740540265</updated>
+    </task>
+    <servers />
+  </component>
+</project>
