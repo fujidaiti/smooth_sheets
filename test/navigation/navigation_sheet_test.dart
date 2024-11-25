@@ -30,16 +30,18 @@ class _TestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget navigationSheet = NavigationSheet(
-      key: sheetKey,
-      controller: sheetController,
-      transitionObserver: sheetTransitionObserver,
-      child: ColoredBox(
-        color: Colors.white,
-        child: Navigator(
-          observers: [sheetTransitionObserver],
-          initialRoute: initialRoute,
-          onGenerateRoute: (settings) => routes[settings.name]!(),
+    Widget navigationSheet = SheetViewport(
+      child: NavigationSheet(
+        key: sheetKey,
+        controller: sheetController,
+        transitionObserver: sheetTransitionObserver,
+        child: ColoredBox(
+          color: Colors.white,
+          child: Navigator(
+            observers: [sheetTransitionObserver],
+            initialRoute: initialRoute,
+            onGenerateRoute: (settings) => routes[settings.name]!(),
+          ),
         ),
       ),
     );

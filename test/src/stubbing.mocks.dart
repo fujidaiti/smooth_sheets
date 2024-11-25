@@ -440,17 +440,19 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
       );
 
   @override
-  void applyNewViewportDimensions(
-    _i6.Size? size,
-    _i7.EdgeInsets? insets,
-  ) =>
-      super.noSuchMethod(
+  void applyNewViewportSize(_i6.Size? size) => super.noSuchMethod(
         Invocation.method(
-          #applyNewViewportDimensions,
-          [
-            size,
-            insets,
-          ],
+          #applyNewViewportSize,
+          [size],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void applyNewViewportInsets(_i7.EdgeInsets? insets) => super.noSuchMethod(
+        Invocation.method(
+          #applyNewViewportInsets,
+          [insets],
         ),
         returnValueForMissingStub: null,
       );
@@ -472,27 +474,9 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
       );
 
   @override
-  void markAsDimensionsWillChange() => super.noSuchMethod(
+  void finalizePosition() => super.noSuchMethod(
         Invocation.method(
-          #markAsDimensionsWillChange,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void markAsDimensionsChanged() => super.noSuchMethod(
-        Invocation.method(
-          #markAsDimensionsChanged,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void onDimensionsFinalized() => super.noSuchMethod(
-        Invocation.method(
-          #onDimensionsFinalized,
+          #finalizePosition,
           [],
         ),
         returnValueForMissingStub: null,

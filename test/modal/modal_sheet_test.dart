@@ -83,12 +83,14 @@ void main() {
           swipeDismissible: true,
           swipeDismissSensitivity: sensitivity,
           builder: (context) {
-            return DraggableSheet(
-              child: Container(
-                key: const Key('sheet'),
-                color: Colors.white,
-                width: double.infinity,
-                height: 600,
+            return SheetViewport(
+              child: DraggableSheet(
+                child: Container(
+                  key: const Key('sheet'),
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: 600,
+                ),
               ),
             );
           },
@@ -216,17 +218,19 @@ void main() {
         modalRoute: ModalSheetRoute(
           swipeDismissible: true,
           builder: (context) {
-            return DraggableSheet(
-              child: PopScope(
-                canPop: false,
-                onPopInvoked: (didPop) {
-                  isOnPopInvokedCalled = true;
-                },
-                child: Container(
-                  key: const Key('sheet'),
-                  color: Colors.white,
-                  width: double.infinity,
-                  height: 200,
+            return SheetViewport(
+              child: DraggableSheet(
+                child: PopScope(
+                  canPop: false,
+                  onPopInvoked: (didPop) {
+                    isOnPopInvokedCalled = true;
+                  },
+                  child: Container(
+                    key: const Key('sheet'),
+                    color: Colors.white,
+                    width: double.infinity,
+                    height: 200,
+                  ),
                 ),
               ),
             );
@@ -277,20 +281,22 @@ void main() {
         swipeDismissible: true,
         transitionCurve: Curves.easeInOut,
         builder: (context) {
-          return DraggableSheet(
-            child: PopScope(
-              canPop: false,
-              onPopInvoked: (didPop) async {
-                if (!didPop) {
-                  popInvoked = true;
-                  Navigator.pop(context);
-                }
-              },
-              child: Container(
-                key: const Key('sheet'),
-                color: Colors.white,
-                width: double.infinity,
-                height: 400,
+          return SheetViewport(
+            child: DraggableSheet(
+              child: PopScope(
+                canPop: false,
+                onPopInvoked: (didPop) async {
+                  if (!didPop) {
+                    popInvoked = true;
+                    Navigator.pop(context);
+                  }
+                },
+                child: Container(
+                  key: const Key('sheet'),
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: 400,
+                ),
               ),
             ),
           );
@@ -421,12 +427,14 @@ void main() {
                 modalRoute =
                     ModalRoute.of(context)! as ModalSheetRouteMixin<dynamic>;
 
-                return DraggableSheet(
-                  child: Container(
-                    key: const Key('sheet'),
-                    color: Colors.white,
-                    width: double.infinity,
-                    height: 400,
+                return SheetViewport(
+                  child: DraggableSheet(
+                    child: Container(
+                      key: const Key('sheet'),
+                      color: Colors.white,
+                      width: double.infinity,
+                      height: 400,
+                    ),
                   ),
                 );
               },
