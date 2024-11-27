@@ -213,6 +213,7 @@ abstract class SheetPosition extends ChangeNotifier
   ///
   /// Intentionally exposed so that a subclass can override
   /// the default implementation of [drag].
+  // TODO: Move this to the activity classes.
   @protected
   SheetDragController? currentDrag;
 

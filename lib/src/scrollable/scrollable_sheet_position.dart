@@ -13,6 +13,7 @@ import 'scrollable_sheet_physics.dart';
 import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
+// TODO: Rename to ScrollableSheetGeometry.
 @internal
 class ScrollableSheetPosition extends SheetPosition
     implements SheetContentScrollPositionOwner {
@@ -21,6 +22,7 @@ class ScrollableSheetPosition extends SheetPosition
     required this.initialPosition,
     required super.minPosition,
     required super.maxPosition,
+    // TODO: Change the type to `ScrollAwareSheetPhysics`.
     required SheetPhysics physics,
     super.gestureTamperer,
     super.debugLabel,
@@ -34,6 +36,7 @@ class ScrollableSheetPosition extends SheetPosition
   @override
   ScrollableSheetPhysics get physics => super.physics as ScrollableSheetPhysics;
 
+  // TODO: Stop scroll animations when a non-scrollable activity starts.
   final _scrollPositions = HashSet<SheetContentScrollPosition>();
 
   /// A [ScrollPosition] that is currently driving the sheet position.

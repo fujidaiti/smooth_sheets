@@ -12,7 +12,9 @@ import 'scrollable_sheet.dart';
 /// The associated scroll positions delegate their behavior of
 /// `goIdle`, `hold`, `drag`, and `goBallistic` to this owner.
 @internal
+// TODO: Rename to SheetScrollPositionDelegate
 abstract class SheetContentScrollPositionOwner {
+  // TODO: Remove the following 3 methods.
   bool get hasPrimaryScrollPosition;
   void addScrollPosition(SheetContentScrollPosition position);
   void removeScrollPosition(SheetContentScrollPosition position);
@@ -22,6 +24,7 @@ abstract class SheetContentScrollPositionOwner {
     required SheetContentScrollPosition newPosition,
   });
 
+  // TODO: Change the signature to `(SheetScrollPosition) -> void`.
   void goIdleWithScrollPosition();
 
   ScrollHoldController holdWithScrollPosition({
@@ -44,6 +47,7 @@ abstract class SheetContentScrollPositionOwner {
 
 /// A [ScrollPosition] for a scrollable content in a [ScrollableSheet].
 @internal
+// TODO: Rename to SheetScrollPosition.
 class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
   SheetContentScrollPosition({
     required ScrollPhysics physics,
@@ -147,6 +151,7 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 }
 
 @internal
+// TODO: Rename to SheetScrollController.
 class SheetContentScrollController extends ScrollController {
   SheetContentScrollController({
     required this.getOwner,

@@ -8,6 +8,7 @@ import '../internal/transition_observer.dart';
 import 'navigation_route.dart';
 import 'navigation_sheet_activity.dart';
 
+// TODO: Change the superclass to `ScrollableSheetGeometry`.
 @internal
 class NavigationSheetPosition extends SheetPosition {
   NavigationSheetPosition({

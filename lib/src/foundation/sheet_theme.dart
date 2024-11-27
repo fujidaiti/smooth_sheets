@@ -8,6 +8,7 @@ import 'sheet_physics.dart';
 /// The [SheetTheme] is used to configure the default appearance and behavior of
 /// descendant sheets. The current theme's [SheetThemeData] object can be
 /// obtained by calling [SheetTheme.maybeOf] or [SheetTheme.of].
+// TODO: Remove this API
 class SheetTheme extends InheritedWidget {
   /// Creates a heme for descendant sheets.
   const SheetTheme({

@@ -31,6 +31,7 @@ class ScrollableSheet extends StatefulWidget {
   final SheetAnchor minPosition;
 
   /// {@macro SheetPosition.maxPosition}
+  // TODO: Remove this property.
   final SheetAnchor maxPosition;
 
   /// {@macro SheetPosition.physics}

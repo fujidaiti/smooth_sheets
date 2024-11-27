@@ -28,6 +28,7 @@ const kDefaultSheetPhysics =
     BouncingSheetPhysics(parent: SnappingSheetPhysics());
 
 // TODO: Implement `equals` and `hashCode` for SheetPhysics classes.
+// TODO: Split this class into SheetBoundaryConditions and SheetSnapBehavior.
 abstract class SheetPhysics {
   const SheetPhysics({this.parent});
 
