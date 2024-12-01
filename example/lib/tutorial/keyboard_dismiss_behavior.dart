@@ -173,7 +173,8 @@ class _ExampleSheet extends StatelessWidget {
 
     return SheetKeyboardDismissible(
       dismissBehavior: keyboardDismissBehavior,
-      child: ScrollableSheet(
+      child: Sheet(
+        scrollConfiguration: const SheetScrollConfiguration(),
         child: SheetContentScaffold(
           appBar: AppBar(),
           body: body,

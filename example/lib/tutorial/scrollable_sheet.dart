@@ -46,7 +46,8 @@ class _MySheet extends StatelessWidget {
     );
 
     // Just wrap the content in a ScrollableSheet!
-    final sheet = ScrollableSheet(
+    final sheet = Sheet(
+      scrollConfiguration: const SheetScrollConfiguration(),
       child: buildSheetBackground(context, content),
       // Optional: Comment out the following lines to add multiple stop positions.
       //

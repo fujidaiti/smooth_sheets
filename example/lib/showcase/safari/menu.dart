@@ -25,7 +25,8 @@ class MenuSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const halfWayPosition = SheetAnchor.proportional(0.5);
-    return ScrollableSheet(
+    return Sheet(
+      scrollConfiguration: const SheetScrollConfiguration(),
       initialPosition: halfWayPosition,
       minPosition: halfWayPosition,
       physics: const BouncingSheetPhysics(
@@ -190,27 +191,25 @@ class _TopBar extends StatelessWidget {
           ?.copyWith(color: CupertinoColors.secondaryLabel),
     );
 
-    return SheetDraggable(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SiteIcon(url: faviconUrl),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [pageTitle, displayUrl],
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 16,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SiteIcon(url: faviconUrl),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [pageTitle, displayUrl],
             ),
-            const SizedBox(width: 16),
-            const _CloseButton(),
-          ],
-        ),
+          ),
+          const SizedBox(width: 16),
+          const _CloseButton(),
+        ],
       ),
     );
   }

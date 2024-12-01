@@ -4,22 +4,13 @@ import 'package:flutter/widgets.dart';
 
 import '../foundation/sheet_position.dart';
 import '../foundation/sheet_position_scope.dart';
-import '../scrollable/scrollable_sheet.dart';
-import 'draggable_sheet.dart';
+import 'scrollable_sheet.dart';
 
 /// A widget that makes its child as a drag-handle for a sheet.
 ///
 /// Typically, this widget is used when placing non-scrollable widget(s)
-/// in a [ScrollableSheet], since it only works with scrollable widgets,
+/// in a [Sheet], since it only works with scrollable widgets,
 /// so you can't drag the sheet by touching a non-scrollable area.
-///
-/// Note that [SheetDraggable] is not needed when using [DraggableSheet]
-/// since it implicitly wraps the child widget with [SheetDraggable].
-///
-/// See also:
-/// - [A tutorial](https://github.com/fujidaiti/smooth_sheets/blob/main/cookbook/lib/tutorial/sheet_draggable.dart),
-///   in which a [SheetDraggable] is used to create a drag-handle for
-///   a [ScrollableSheet].
 class SheetDraggable extends StatefulWidget {
   /// Creates a drag-handle for a sheet.
   ///

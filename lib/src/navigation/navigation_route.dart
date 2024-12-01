@@ -1,16 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../foundation/sheet_context.dart';
+import '../foundation/sheet_gesture_tamperer.dart';
+import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
 import '../foundation/sheet_position_scope.dart';
+import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
+import '../scrollable/scrollable_sheet.dart';
+import '../scrollable/scrollable_sheet_physics.dart';
+import '../scrollable/scrollable_sheet_position.dart';
+import '../scrollable/scrollable_sheet_position_scope.dart';
 import 'navigation_sheet.dart';
 import 'navigation_sheet_position.dart';
 
 @optionalTypeArgs
-abstract class NavigationSheetRoute<T, E extends SheetPosition>
+abstract class BasicNavigationSheetRoute<T, E extends SheetPosition>
     extends PageRoute<T> {
-  NavigationSheetRoute({super.settings});
+  BasicNavigationSheetRoute({super.settings});
 
   SheetPositionScopeKey<E> get scopeKey => _scopeKey;
   late final SheetPositionScopeKey<E> _scopeKey;
@@ -46,7 +54,7 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
           throw FlutterError(
             'A $SheetPositionScope that hosts a $NavigationSheetPosition '
             'is not found in the given context. This is likely because '
-            'this $NavigationSheetRoute is not a route of the navigator '
+            'this $BasicNavigationSheetRoute is not a route of the navigator '
             'enclosed by a $NavigationSheet.',
           );
         }
@@ -66,12 +74,12 @@ abstract class NavigationSheetRoute<T, E extends SheetPosition>
 
   @override
   bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
-    return previousRoute is NavigationSheetRoute;
+    return previousRoute is BasicNavigationSheetRoute;
   }
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
-    return nextRoute is NavigationSheetRoute;
+    return nextRoute is BasicNavigationSheetRoute;
   }
 
   @override
@@ -144,7 +152,7 @@ class NavigationSheetRouteContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     assert(_debugAssertDependencies(context));
-    final parentRoute = ModalRoute.of(context)! as NavigationSheetRoute;
+    final parentRoute = ModalRoute.of(context)! as BasicNavigationSheetRoute;
     final globalPosition =
         SheetPositionScope.of<NavigationSheetPosition>(context);
     final routeViewport = SheetContentViewport(child: child);
@@ -203,7 +211,7 @@ class NavigationSheetRouteContent extends StatelessWidget {
         }
 
         final parentRoute = ModalRoute.of(context);
-        if (parentRoute is NavigationSheetRoute) {
+        if (parentRoute is BasicNavigationSheetRoute) {
           return true;
         }
         throw FlutterError(
@@ -214,5 +222,210 @@ class NavigationSheetRouteContent extends StatelessWidget {
       }(),
     );
     return true;
+  }
+}
+
+class _DraggableScrollableNavigationSheetRouteContent extends StatelessWidget {
+  const _DraggableScrollableNavigationSheetRouteContent({
+    this.debugLabel,
+    required this.initialPosition,
+    required this.minPosition,
+    required this.maxPosition,
+    required this.physics,
+    required this.scrollConfiguration,
+    required this.dragConfiguration,
+    required this.child,
+  });
+
+  final String? debugLabel;
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
+  final SheetPhysics? physics;
+  final SheetScrollConfiguration? scrollConfiguration;
+  final SheetDragConfiguration? dragConfiguration;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = SheetTheme.maybeOf(context);
+    final gestureTamper = SheetGestureProxy.maybeOf(context);
+
+    var physics = this.physics ?? theme?.physics ?? kDefaultSheetPhysics;
+    if (scrollConfiguration case final config?) {
+      physics = ScrollableSheetPhysics(
+        parent: physics,
+        maxScrollSpeedToInterrupt:
+            config.thresholdVelocityToInterruptBallisticScroll,
+      );
+    }
+
+    return NavigationSheetRouteContent(
+      scopeBuilder: (context, key, child) {
+        return ScrollableSheetPositionScope(
+          key: key,
+          context: context,
+          isPrimary: false,
+          initialPosition: initialPosition,
+          minPosition: minPosition,
+          maxPosition: maxPosition,
+          physics: physics,
+          gestureTamperer: gestureTamper,
+          child: child,
+        );
+      },
+      child: DraggableScrollableSheetContent(
+        scrollConfiguration: scrollConfiguration,
+        dragConfiguration: dragConfiguration,
+        child: child,
+      ),
+    );
+  }
+}
+
+class NavigationSheetRoute<T>
+    extends BasicNavigationSheetRoute<T, ScrollableSheetPosition> {
+  NavigationSheetRoute({
+    super.settings,
+    this.maintainState = true,
+    this.scrollConfiguration,
+    this.dragConfiguration = const SheetDragConfiguration(),
+    this.transitionDuration = const Duration(milliseconds: 300),
+    this.initialPosition = const SheetAnchor.proportional(1),
+    this.minPosition = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
+    this.physics,
+    this.transitionsBuilder,
+    required this.builder,
+  });
+
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
+  final SheetPhysics? physics;
+
+  @override
+  final bool maintainState;
+
+  @override
+  final Duration transitionDuration;
+
+  @override
+  final RouteTransitionsBuilder? transitionsBuilder;
+
+  final WidgetBuilder builder;
+
+  final SheetDragConfiguration? dragConfiguration;
+  final SheetScrollConfiguration? scrollConfiguration;
+
+  @override
+  SheetPositionScopeKey<ScrollableSheetPosition> createScopeKey() {
+    return SheetPositionScopeKey<ScrollableSheetPosition>(
+      debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
+    );
+  }
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    return _DraggableScrollableNavigationSheetRouteContent(
+      debugLabel: '$NavigationSheetRoute(${settings.name})',
+      dragConfiguration: dragConfiguration,
+      scrollConfiguration: scrollConfiguration,
+      initialPosition: initialPosition,
+      minPosition: minPosition,
+      maxPosition: maxPosition,
+      physics: physics,
+      child: builder(context),
+    );
+  }
+}
+
+class NavigationSheetPage<T> extends Page<T> {
+  const NavigationSheetPage({
+    super.key,
+    super.name,
+    super.arguments,
+    super.restorationId,
+    this.maintainState = true,
+    this.transitionDuration = const Duration(milliseconds: 300),
+    this.initialPosition = const SheetAnchor.proportional(1),
+    this.minPosition = const SheetAnchor.proportional(1),
+    this.maxPosition = const SheetAnchor.proportional(1),
+    this.dragConfiguration = const SheetDragConfiguration(),
+    this.scrollConfiguration,
+    this.physics,
+    this.transitionsBuilder,
+    required this.child,
+  });
+
+  /// {@macro flutter.widgets.ModalRoute.maintainState}
+  final bool maintainState;
+
+  final Duration transitionDuration;
+
+  final SheetAnchor initialPosition;
+  final SheetAnchor minPosition;
+  final SheetAnchor maxPosition;
+
+  final SheetPhysics? physics;
+
+  final RouteTransitionsBuilder? transitionsBuilder;
+
+  final SheetDragConfiguration? dragConfiguration;
+  final SheetScrollConfiguration? scrollConfiguration;
+
+  /// The content to be shown in the [Route] created by this page.
+  final Widget child;
+
+  @override
+  Route<T> createRoute(BuildContext context) {
+    return _PageBasedNavigationSheetRoute(page: this);
+  }
+}
+
+class _PageBasedNavigationSheetRoute<T>
+    extends BasicNavigationSheetRoute<T, ScrollableSheetPosition> {
+  _PageBasedNavigationSheetRoute({
+    required NavigationSheetPage<T> page,
+  }) : super(settings: page);
+
+  NavigationSheetPage<T> get page => settings as NavigationSheetPage<T>;
+
+  @override
+  bool get maintainState => page.maintainState;
+
+  @override
+  Duration get transitionDuration => page.transitionDuration;
+
+  @override
+  RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
+
+  @override
+  SheetPositionScopeKey<ScrollableSheetPosition> createScopeKey() {
+    return SheetPositionScopeKey<ScrollableSheetPosition>(
+      debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
+    );
+  }
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    return _DraggableScrollableNavigationSheetRouteContent(
+      debugLabel: '$NavigationSheetPage(${page.name})',
+      scrollConfiguration: page.scrollConfiguration,
+      dragConfiguration: page.dragConfiguration,
+      initialPosition: page.initialPosition,
+      minPosition: page.minPosition,
+      maxPosition: page.maxPosition,
+      physics: page.physics,
+      child: page.child,
+    );
   }
 }

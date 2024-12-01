@@ -30,7 +30,7 @@ final _router = GoRouter(
             GoRoute(
               path: 'a',
               pageBuilder: (context, state) {
-                return DraggableNavigationSheetPage(
+                return NavigationSheetPage(
                   key: state.pageKey,
                   child: const _EditablePageContent(
                     height: 600,
@@ -43,7 +43,7 @@ final _router = GoRouter(
                 GoRoute(
                   path: 'b',
                   pageBuilder: (context, state) {
-                    return DraggableNavigationSheetPage(
+                    return NavigationSheetPage(
                       key: state.pageKey,
                       child: const _EditablePageContent(
                         height: 300,
@@ -56,7 +56,7 @@ final _router = GoRouter(
                     GoRoute(
                       path: 'c',
                       pageBuilder: (context, state) {
-                        return DraggableNavigationSheetPage(
+                        return NavigationSheetPage(
                           key: state.pageKey,
                           child: const _EditablePageContent(
                             nextLocation: '/',

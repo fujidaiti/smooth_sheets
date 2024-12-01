@@ -130,7 +130,7 @@ class _TestDraggablePageWidget extends StatelessWidget {
     Duration transitionDuration = const Duration(milliseconds: 300),
     SheetPhysics? physics,
   }) {
-    return DraggableNavigationSheetRoute(
+    return NavigationSheetRoute(
       physics: physics,
       initialPosition: initialPosition,
       minPosition: minPosition,
@@ -210,7 +210,7 @@ class _TestScrollablePageWidget extends StatelessWidget {
     SheetPhysics? physics,
     void Function(int index)? onTapItem,
   }) {
-    return ScrollableNavigationSheetRoute(
+    return NavigationSheetRoute(
       physics: physics,
       initialPosition: initialPosition,
       minPosition: minPosition,
@@ -379,7 +379,7 @@ void main() {
     'Works with DropdownButton without crashing',
     (tester) async {
       String? selectedOption = 'Option 1';
-      final routeWithDropdownButton = DraggableNavigationSheetRoute<dynamic>(
+      final routeWithDropdownButton = NavigationSheetRoute<dynamic>(
         builder: (context) {
           return Scaffold(
             body: Center(
@@ -557,7 +557,7 @@ void main() {
     setUp(() {
       focusNode = FocusNode();
       scrollController = ScrollController();
-      final routeWithTextField = DraggableNavigationSheetRoute<dynamic>(
+      final routeWithTextField = NavigationSheetRoute<dynamic>(
         builder: (context) {
           return Material(
             child: TextField(

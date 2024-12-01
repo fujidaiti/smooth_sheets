@@ -10,6 +10,7 @@ import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_status.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet.dart';
+import 'scrollable_sheet_physics.dart';
 import 'scrollable_sheet_position.dart';
 import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
@@ -136,7 +137,7 @@ abstract class ScrollableSheetActivity
 }
 
 /// A [SheetActivity] that either scrolls a scrollable content of
-/// a [ScrollableSheet] or drags the sheet itself as the user drags
+/// a [Sheet] or drags the sheet itself as the user drags
 /// their finger across the screen.
 ///
 /// The [scrollPosition], which is associated with the scrollable content,
@@ -152,7 +153,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
               scrollPosition.axisDirection != AxisDirection.up) {
             throw FlutterError(
               'The axis direction of the scroll position associated with a '
-              '$ScrollableSheet must be either $AxisDirection.down '
+              '$Sheet must be either $AxisDirection.down '
               'or $AxisDirection.up, but the provided scroll position has an '
               'axis direction of ${scrollPosition.axisDirection}.',
             );
@@ -229,7 +230,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
 }
 
 /// A [SheetActivity] that animates either a scrollable content of
-/// a [ScrollableSheet] or the sheet itself based on a physics simulation.
+/// a [Sheet] or the sheet itself based on a physics simulation.
 ///
 /// The [scrollPosition], which is associated with the scrollable content,
 /// must have a [SheetContentBallisticScrollActivity] as its activity throughout
@@ -273,16 +274,18 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
       return;
     }
 
-    final scrollExtentBefore = scrollPosition.extentBefore;
-    final scrollExtentAfter = scrollPosition.extentAfter;
-    final shouldInterruptBallisticScroll =
-        ((cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
-                (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0)) &&
-            owner.physics
-                .shouldInterruptBallisticScroll(velocity, owner.snapshot);
-
-    if (shouldInterruptBallisticScroll) {
-      _end();
+    // TODO: Refactor this!
+    if (owner.physics case final ScrollableSheetPhysics scrollAwarePhysics) {
+      final scrollExtentBefore = scrollPosition.extentBefore;
+      final scrollExtentAfter = scrollPosition.extentAfter;
+      final shouldInterruptBallisticScroll =
+          ((cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
+                  (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0)) &&
+              scrollAwarePhysics.shouldInterruptBallisticScroll(
+                  velocity, owner.snapshot);
+      if (shouldInterruptBallisticScroll) {
+        _end();
+      }
     }
   }
 

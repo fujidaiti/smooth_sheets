@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smooth_sheets/src/draggable/draggable_sheet.dart';
 import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
+import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
 
 void main() {
   testWidgets(
@@ -25,7 +25,7 @@ void main() {
             return false;
           },
           child: SheetViewport(
-            child: DraggableSheet(
+            child: Sheet(
               minPosition: const SheetAnchor.pixels(0),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
@@ -170,7 +170,7 @@ void main() {
             return false;
           },
           child: SheetViewport(
-            child: DraggableSheet(
+            child: Sheet(
               controller: controller,
               minPosition: const SheetAnchor.pixels(0),
               // Disable the snapping effect
@@ -248,7 +248,7 @@ void main() {
             return false;
           },
           child: SheetViewport(
-            child: DraggableSheet(
+            child: Sheet(
               // Make sure the sheet can't be dragged
               minPosition: const SheetAnchor.proportional(1),
               maxPosition: const SheetAnchor.proportional(1),
@@ -325,7 +325,7 @@ void main() {
             reportedNotifications.add(notification);
             return false;
           },
-          child: DraggableSheet(
+          child: Sheet(
             minPosition: const SheetAnchor.pixels(0),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),

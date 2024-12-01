@@ -45,7 +45,7 @@ abstract class SheetContentScrollPositionOwner {
   });
 }
 
-/// A [ScrollPosition] for a scrollable content in a [ScrollableSheet].
+/// A [ScrollPosition] for a scrollable content in a [Sheet].
 @internal
 // TODO: Rename to SheetScrollPosition.
 class SheetContentScrollPosition extends ScrollPositionWithSingleContext {

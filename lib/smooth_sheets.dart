@@ -3,7 +3,6 @@
 /// the iOS flavor), and more.
 library;
 
-export 'src/draggable/draggable.dart';
 export 'src/foundation/foundation.dart';
 export 'src/modal/modal.dart';
 export 'src/navigation/navigation.dart';

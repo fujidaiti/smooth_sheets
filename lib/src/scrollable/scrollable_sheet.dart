@@ -10,17 +10,40 @@ import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/sheet_viewport.dart';
+import 'scrollable_sheet_physics.dart';
 import 'scrollable_sheet_position_scope.dart';
+import 'sheet_draggable.dart';
 import 'sheet_scrollable.dart';
 
-class ScrollableSheet extends StatefulWidget {
-  const ScrollableSheet({
+@immutable
+class SheetScrollConfiguration {
+  const SheetScrollConfiguration({
+    this.thresholdVelocityToInterruptBallisticScroll = double.infinity,
+  });
+
+  // TODO: Come up with a better name.
+  final double thresholdVelocityToInterruptBallisticScroll;
+}
+
+@immutable
+class SheetDragConfiguration {
+  const SheetDragConfiguration({
+    this.hitTestBehavior = HitTestBehavior.translucent,
+  });
+
+  final HitTestBehavior hitTestBehavior;
+}
+
+class Sheet extends StatefulWidget {
+  const Sheet({
     super.key,
     this.initialPosition = const SheetAnchor.proportional(1),
     this.minPosition = const SheetAnchor.proportional(1),
     this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
     this.controller,
+    this.scrollConfiguration,
+    this.dragConfiguration = const SheetDragConfiguration(),
     required this.child,
   });
 
@@ -40,23 +63,35 @@ class ScrollableSheet extends StatefulWidget {
   /// An object that can be used to control and observe the sheet height.
   final SheetController? controller;
 
+  final SheetScrollConfiguration? scrollConfiguration;
+
+  final SheetDragConfiguration? dragConfiguration;
+
   /// The content of the sheet.
   final Widget child;
 
   @override
-  State<ScrollableSheet> createState() => _ScrollableSheetState();
+  State<Sheet> createState() => _SheetState();
 }
 
-class _ScrollableSheetState extends State<ScrollableSheet>
+class _SheetState extends State<Sheet>
     with TickerProviderStateMixin, SheetContextStateMixin {
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
-    final physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
+    var physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
     final viewport = SheetViewport.of(context);
+
+    if (widget.scrollConfiguration case final config?) {
+      physics = ScrollableSheetPhysics(
+        parent: physics,
+        maxScrollSpeedToInterrupt:
+            config.thresholdVelocityToInterruptBallisticScroll,
+      );
+    }
 
     return ScrollableSheetPositionScope(
       context: this,
@@ -69,39 +104,52 @@ class _ScrollableSheetState extends State<ScrollableSheet>
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,
       child: SheetContentViewport(
-        child: ScrollableSheetContent(child: widget.child),
+        child: DraggableScrollableSheetContent(
+          scrollConfiguration: widget.scrollConfiguration,
+          dragConfiguration: widget.dragConfiguration,
+          child: widget.child,
+        ),
       ),
     );
   }
 }
 
 @internal
-class ScrollableSheetContent extends StatelessWidget {
-  const ScrollableSheetContent({
+class DraggableScrollableSheetContent extends StatelessWidget {
+  const DraggableScrollableSheetContent({
     super.key,
-    this.debugLabel,
-    this.keepScrollOffset = true,
-    this.initialScrollOffset = 0,
+    required this.scrollConfiguration,
+    required this.dragConfiguration,
     required this.child,
   });
 
-  final String? debugLabel;
-  final bool keepScrollOffset;
-  final double initialScrollOffset;
+  final SheetScrollConfiguration? scrollConfiguration;
+
+  final SheetDragConfiguration? dragConfiguration;
+
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return SheetScrollable(
-      debugLabel: debugLabel,
-      keepScrollOffset: keepScrollOffset,
-      initialScrollOffset: initialScrollOffset,
-      builder: (context, controller) {
-        return PrimaryScrollController(
-          controller: controller,
-          child: child,
-        );
-      },
-    );
+    var result = child;
+    if (dragConfiguration case final config?) {
+      result = SheetDraggable(
+        behavior: config.hitTestBehavior,
+        child: result,
+      );
+    }
+    if (scrollConfiguration != null) {
+      final child = result;
+      result = SheetScrollable(
+        builder: (context, controller) {
+          return PrimaryScrollController(
+            controller: controller,
+            child: child,
+          );
+        },
+      );
+    }
+
+    return result;
   }
 }

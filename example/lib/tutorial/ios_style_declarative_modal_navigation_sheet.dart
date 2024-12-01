@@ -30,7 +30,7 @@ final router = GoRouter(
               GoRoute(
                 path: 'modal',
                 pageBuilder: (context, state) {
-                  return DraggableNavigationSheetPage(
+                  return NavigationSheetPage(
                     key: state.pageKey,
                     child: Container(color: Colors.white),
                   );

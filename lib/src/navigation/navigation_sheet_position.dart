@@ -32,12 +32,12 @@ class NavigationSheetPosition extends SheetPosition {
     _lastReportedTransition = transition;
     // TODO: Provide a way to customize animation curves.
     switch (transition) {
-      case NoTransition(:final NavigationSheetRoute currentRoute):
+      case NoTransition(:final BasicNavigationSheetRoute currentRoute):
         beginActivity(ProxySheetActivity(route: currentRoute));
 
       case ForwardTransition(
-          :final NavigationSheetRoute originRoute,
-          :final NavigationSheetRoute destinationRoute,
+          :final BasicNavigationSheetRoute originRoute,
+          :final BasicNavigationSheetRoute destinationRoute,
           :final animation,
         ):
         beginActivity(TransitionSheetActivity(
@@ -48,8 +48,8 @@ class NavigationSheetPosition extends SheetPosition {
         ));
 
       case BackwardTransition(
-          :final NavigationSheetRoute originRoute,
-          :final NavigationSheetRoute destinationRoute,
+          :final BasicNavigationSheetRoute originRoute,
+          :final BasicNavigationSheetRoute destinationRoute,
           :final animation,
         ):
         beginActivity(TransitionSheetActivity(
@@ -60,8 +60,8 @@ class NavigationSheetPosition extends SheetPosition {
         ));
 
       case UserGestureTransition(
-          :final NavigationSheetRoute currentRoute,
-          :final NavigationSheetRoute previousRoute,
+          :final BasicNavigationSheetRoute currentRoute,
+          :final BasicNavigationSheetRoute previousRoute,
           :final animation,
         ):
         beginActivity(TransitionSheetActivity(
@@ -82,7 +82,7 @@ class NavigationSheetPosition extends SheetPosition {
   @override
   void goIdle() {
     switch (_lastReportedTransition) {
-      case NoTransition(:final NavigationSheetRoute currentRoute):
+      case NoTransition(:final BasicNavigationSheetRoute currentRoute):
         beginActivity(ProxySheetActivity(route: currentRoute));
       case _:
         super.goIdle();
@@ -149,7 +149,7 @@ class NavigationSheetPosition extends SheetPosition {
         final lastTransition = _lastReportedTransition;
         if (lastTransition is NoTransition &&
             lastTransition.currentRoute.isFirst &&
-            lastTransition.currentRoute is! NavigationSheetRoute) {
+            lastTransition.currentRoute is! BasicNavigationSheetRoute) {
           throw FlutterError(
             'The first route in the navigator enclosed by a NavigationSheet '
             'must be a NavigationSheetRoute, but actually it is a '
@@ -168,27 +168,27 @@ class NavigationSheetPosition extends SheetPosition {
         switch ((_lastReportedTransition, activity)) {
           // Allowed patterns.
           case (
-              NoTransition(currentRoute: NavigationSheetRoute()),
+              NoTransition(currentRoute: BasicNavigationSheetRoute()),
               ProxySheetActivity(),
             ):
           case (
               ForwardTransition(
-                originRoute: NavigationSheetRoute(),
-                destinationRoute: NavigationSheetRoute(),
+                originRoute: BasicNavigationSheetRoute(),
+                destinationRoute: BasicNavigationSheetRoute(),
               ),
               TransitionSheetActivity(),
             ):
           case (
               BackwardTransition(
-                originRoute: NavigationSheetRoute(),
-                destinationRoute: NavigationSheetRoute(),
+                originRoute: BasicNavigationSheetRoute(),
+                destinationRoute: BasicNavigationSheetRoute(),
               ),
               TransitionSheetActivity(),
             ):
           case (
               UserGestureTransition(
-                currentRoute: NavigationSheetRoute(),
-                previousRoute: NavigationSheetRoute(),
+                currentRoute: BasicNavigationSheetRoute(),
+                previousRoute: BasicNavigationSheetRoute(),
               ),
               TransitionSheetActivity(),
             ):

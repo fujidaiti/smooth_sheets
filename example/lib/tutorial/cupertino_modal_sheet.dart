@@ -73,7 +73,7 @@ class _HalfScreenSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     // `CupertinoStackedTransition` won't start the transition animation until
     // the visible height of a modal sheet (the position) exceeds 50% of the screen height.
-    return const DraggableSheet(
+    return const Sheet(
       initialPosition: SheetAnchor.proportional(0.5),
       minPosition: SheetAnchor.proportional(0.5),
       physics: BouncingSheetPhysics(
@@ -91,7 +91,7 @@ class _FullScreenSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     // Wrap the sheet with `SheetDismissible` to
     // enable the pull-to-dismiss action.
-    return const DraggableSheet(
+    return const Sheet(
       child: _SheetContent(),
     );
   }

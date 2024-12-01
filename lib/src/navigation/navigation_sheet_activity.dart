@@ -21,8 +21,8 @@ class TransitionSheetActivity extends NavigationSheetActivity {
     required this.animationCurve,
   });
 
-  final NavigationSheetRoute currentRoute;
-  final NavigationSheetRoute nextRoute;
+  final BasicNavigationSheetRoute currentRoute;
+  final BasicNavigationSheetRoute nextRoute;
   final Animation<double> animation;
   final Curve animationCurve;
   late final Animation<double> _curvedAnimation;
@@ -73,7 +73,7 @@ class TransitionSheetActivity extends NavigationSheetActivity {
 class ProxySheetActivity extends NavigationSheetActivity {
   ProxySheetActivity({required this.route});
 
-  final NavigationSheetRoute route;
+  final BasicNavigationSheetRoute route;
 
   @override
   SheetStatus get status =>

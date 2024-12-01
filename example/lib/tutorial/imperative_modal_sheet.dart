@@ -66,7 +66,7 @@ class _ExampleSheet extends StatelessWidget {
           }
         }
       },
-      child: DraggableSheet(
+      child: Sheet(
         minPosition: const SheetAnchor.proportional(0.5),
         child: Card(
           color: Theme.of(context).colorScheme.secondaryContainer,

@@ -80,7 +80,8 @@ void main() {
         controller: controller,
         child: const _TestApp(
           child: SheetViewport(
-            child: ScrollableSheet(
+            child: Sheet(
+              scrollConfiguration: SheetScrollConfiguration(),
               child: _TestSheetContent(),
             ),
           ),
@@ -106,9 +107,10 @@ void main() {
           key: keyboardSimulationKey,
           keyboardHeight: 200,
           child: SheetViewport(
-            child: ScrollableSheet(
+            child: Sheet(
               key: sheetKey,
               controller: controller,
+              scrollConfiguration: const SheetScrollConfiguration(),
               minPosition: const SheetAnchor.pixels(200),
               initialPosition: const SheetAnchor.pixels(200),
               child: const _TestSheetContent(height: 500),
@@ -158,7 +160,8 @@ void main() {
         await tester.pumpWidget(
           _TestApp(
             child: SheetViewport(
-              child: ScrollableSheet(
+              child: Sheet(
+                scrollConfiguration: const SheetScrollConfiguration(),
                 controller: controller,
                 child: Builder(
                   builder: (context) {
@@ -216,7 +219,8 @@ void main() {
       await tester.pumpWidget(
         _TestApp(
           child: SheetViewport(
-            child: ScrollableSheet(
+            child: Sheet(
+              scrollConfiguration: const SheetScrollConfiguration(),
               child: Builder(
                 builder: (context) {
                   // TODO(fujita): Refactor this line after #116 is resolved.
@@ -291,7 +295,8 @@ void main() {
             isContentScrollAware: true,
           ),
           child: SheetViewport(
-            child: ScrollableSheet(
+            child: Sheet(
+              scrollConfiguration: const SheetScrollConfiguration(),
               child: Material(
                 child: Column(
                   children: [
@@ -357,7 +362,8 @@ void main() {
 
     setUp(() {
       testWidget = SheetViewport(
-        child: ScrollableSheet(
+        child: Sheet(
+          scrollConfiguration: const SheetScrollConfiguration(),
           child: Builder(
             builder: (context) {
               scrollController = PrimaryScrollController.of(context);

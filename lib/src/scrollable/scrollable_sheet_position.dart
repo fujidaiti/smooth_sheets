@@ -22,19 +22,15 @@ class ScrollableSheetPosition extends SheetPosition
     required this.initialPosition,
     required super.minPosition,
     required super.maxPosition,
-    // TODO: Change the type to `ScrollAwareSheetPhysics`.
-    required SheetPhysics physics,
+    required super.physics,
     super.gestureTamperer,
     super.debugLabel,
-  }) : super(physics: ScrollableSheetPhysics.wrap(physics));
+  });
 
   /// {@template ScrollableSheetPosition.initialPosition}
   /// The initial position of the sheet.
   /// {@endtemplate}
   final SheetAnchor initialPosition;
-
-  @override
-  ScrollableSheetPhysics get physics => super.physics as ScrollableSheetPhysics;
 
   // TODO: Stop scroll animations when a non-scrollable activity starts.
   final _scrollPositions = HashSet<SheetContentScrollPosition>();

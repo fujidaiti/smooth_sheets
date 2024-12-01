@@ -34,10 +34,10 @@ final router = GoRouter(
         GoRoute(
           path: '/a',
           pageBuilder: (context, state) {
-            // Use DraggableNavigationSheetPage for a draggable page.
+            // Use ScrollableNavigationSheetPage for a draggable page.
             // If the page contains scrollable widget(s), consider using
             // ScrollableNavigationSheetPage instead.
-            return DraggableNavigationSheetPage(
+            return NavigationSheetPage(
               key: state.pageKey,
               child: const _ExampleSheetContent(
                 title: '/a',
@@ -50,7 +50,7 @@ final router = GoRouter(
             GoRoute(
               path: 'details',
               pageBuilder: (context, state) {
-                return DraggableNavigationSheetPage(
+                return NavigationSheetPage(
                   key: state.pageKey,
                   child: const _ExampleSheetContent(
                     title: '/a/details',
@@ -63,7 +63,7 @@ final router = GoRouter(
                 GoRoute(
                   path: 'info',
                   pageBuilder: (context, state) {
-                    return DraggableNavigationSheetPage(
+                    return NavigationSheetPage(
                       key: state.pageKey,
                       child: const _ExampleSheetContent(
                         title: '/a/details/info',
@@ -80,7 +80,7 @@ final router = GoRouter(
         GoRoute(
           path: '/b',
           pageBuilder: (context, state) {
-            return DraggableNavigationSheetPage(
+            return NavigationSheetPage(
               key: state.pageKey,
               child: const _ExampleSheetContent(
                 title: 'B',
@@ -93,7 +93,7 @@ final router = GoRouter(
             GoRoute(
               path: 'details',
               pageBuilder: (context, state) {
-                return DraggableNavigationSheetPage(
+                return NavigationSheetPage(
                   key: state.pageKey,
                   child: const _ExampleSheetContent(
                     title: 'B Details',

@@ -150,7 +150,8 @@ class _TodoEditorState extends State<TodoEditor> {
           dismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(
             isContentScrollAware: true,
           ),
-          child: ScrollableSheet(
+          child: Sheet(
+            scrollConfiguration: const SheetScrollConfiguration(),
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: sheetShape,

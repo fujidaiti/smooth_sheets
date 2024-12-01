@@ -239,7 +239,7 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
         throw FlutterError(
           'Nesting $SheetPositionScope widgets that are marked as primary '
           'is not allowed. Typically, this error occurs when you try to nest '
-          'sheet widgets such as DraggableSheet or ScrollableSheet.',
+          'sheet widgets such as Sheet.',
         );
       }(),
     );

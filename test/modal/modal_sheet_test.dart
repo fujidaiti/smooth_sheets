@@ -84,7 +84,7 @@ void main() {
           swipeDismissSensitivity: sensitivity,
           builder: (context) {
             return SheetViewport(
-              child: DraggableSheet(
+              child: Sheet(
                 child: Container(
                   key: const Key('sheet'),
                   color: Colors.white,
@@ -219,7 +219,7 @@ void main() {
           swipeDismissible: true,
           builder: (context) {
             return SheetViewport(
-              child: DraggableSheet(
+              child: Sheet(
                 child: PopScope(
                   canPop: false,
                   onPopInvoked: (didPop) {
@@ -282,7 +282,7 @@ void main() {
         transitionCurve: Curves.easeInOut,
         builder: (context) {
           return SheetViewport(
-            child: DraggableSheet(
+            child: Sheet(
               child: PopScope(
                 canPop: false,
                 onPopInvoked: (didPop) async {
@@ -428,7 +428,7 @@ void main() {
                     ModalRoute.of(context)! as ModalSheetRouteMixin<dynamic>;
 
                 return SheetViewport(
-                  child: DraggableSheet(
+                  child: Sheet(
                     child: Container(
                       key: const Key('sheet'),
                       color: Colors.white,

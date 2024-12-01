@@ -82,7 +82,7 @@ class _ExampleSheet extends StatelessWidget {
           }
         }
       },
-      child: DraggableSheet(
+      child: Sheet(
         child: Card(
           color: Theme.of(context).colorScheme.secondaryContainer,
           margin: EdgeInsets.zero,

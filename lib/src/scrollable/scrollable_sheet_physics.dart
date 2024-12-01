@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
 
+// TODO: Rename to ScrollAwareSheetPhysics.
 @internal
 class ScrollableSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const ScrollableSheetPhysics({

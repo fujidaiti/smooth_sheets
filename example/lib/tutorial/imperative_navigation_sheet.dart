@@ -38,8 +38,8 @@ class _ExampleSheet extends StatelessWidget {
       observers: [_transitionObserver],
       onGenerateInitialRoutes: (navigator, initialRoute) {
         return [
-          // Use DraggableNavigationSheetRoute for a draggable page.
-          DraggableNavigationSheetRoute(
+          // Use ScrollableNavigationSheetRoute for a draggable page.
+          NavigationSheetRoute(
             builder: (context) {
               return const _DraggablePage();
             },
@@ -69,7 +69,7 @@ class _DraggablePage extends StatelessWidget {
 
   void navigateToScrollablePage(BuildContext context) {
     // Use ScrollableNavigationSheetRoute for a scrollable page.
-    final route = ScrollableNavigationSheetRoute(
+    final route = NavigationSheetRoute(
       builder: (context) {
         return const _ScrollablePage();
       },

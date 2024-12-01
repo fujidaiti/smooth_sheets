@@ -72,7 +72,7 @@ final _sheetShellRoute = ShellRoute(
 final _introRoute = GoRoute(
   path: 'intro',
   pageBuilder: (context, state) {
-    return const DraggableNavigationSheetPage(child: _IntroPage());
+    return const NavigationSheetPage(child: _IntroPage());
   },
   routes: [_genreRoute],
 );
@@ -80,7 +80,7 @@ final _introRoute = GoRoute(
 final _genreRoute = GoRoute(
   path: 'genre',
   pageBuilder: (context, state) {
-    return const DraggableNavigationSheetPage(child: _SelectGenrePage());
+    return const NavigationSheetPage(child: _SelectGenrePage());
   },
   routes: [_moodRoute],
 );
@@ -88,7 +88,7 @@ final _genreRoute = GoRoute(
 final _moodRoute = GoRoute(
   path: 'mood',
   pageBuilder: (context, state) {
-    return const DraggableNavigationSheetPage(child: _SelectMoodPage());
+    return const NavigationSheetPage(child: _SelectMoodPage());
   },
   routes: [_seedTrackRoute],
 );
@@ -96,7 +96,10 @@ final _moodRoute = GoRoute(
 final _seedTrackRoute = GoRoute(
   path: 'seed-track',
   pageBuilder: (context, state) {
-    return const ScrollableNavigationSheetPage(child: _SelectSeedTrackPage());
+    return const NavigationSheetPage(
+      scrollConfiguration: SheetScrollConfiguration(),
+      child: _SelectSeedTrackPage(),
+    );
   },
   routes: [_confirmRoute],
 );
@@ -104,7 +107,8 @@ final _seedTrackRoute = GoRoute(
 final _confirmRoute = GoRoute(
   path: 'confirm',
   pageBuilder: (context, state) {
-    return const ScrollableNavigationSheetPage(
+    return const NavigationSheetPage(
+      scrollConfiguration: SheetScrollConfiguration(),
       initialPosition: SheetAnchor.proportional(0.7),
       minPosition: SheetAnchor.proportional(0.7),
       physics: BouncingSheetPhysics(
@@ -119,7 +123,7 @@ final _confirmRoute = GoRoute(
 final _generateRoute = GoRoute(
   path: 'generate',
   pageBuilder: (context, state) {
-    return const DraggableNavigationSheetPage(child: _GeneratingPage());
+    return const NavigationSheetPage(child: _GeneratingPage());
   },
 );
 
@@ -718,6 +722,7 @@ const _moods = [
   (label: 'Uplifting and Positive', emoji: '💪'),
 ];
 
+/* cSpell: disable */
 const _seedTracks = [
   "Groove Odyssey",
   "Funky Fusion Fiesta",
@@ -740,3 +745,4 @@ const _seedTracks = [
   "Brass Bliss Bouquet",
   "Funky Cosmic Carnival",
 ];
+/* cSpell: enable */
