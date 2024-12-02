@@ -284,7 +284,7 @@ class _DraggableScrollableNavigationSheetRouteContent extends StatelessWidget {
 }
 
 class NavigationSheetRoute<T>
-    extends BasicNavigationSheetRoute<T, ScrollableSheetPosition> {
+    extends BasicNavigationSheetRoute<T, DraggableScrollableSheetPosition> {
   NavigationSheetRoute({
     super.settings,
     this.maintainState = true,
@@ -319,8 +319,8 @@ class NavigationSheetRoute<T>
   final SheetScrollConfiguration? scrollConfiguration;
 
   @override
-  SheetPositionScopeKey<ScrollableSheetPosition> createScopeKey() {
-    return SheetPositionScopeKey<ScrollableSheetPosition>(
+  SheetPositionScopeKey<DraggableScrollableSheetPosition> createScopeKey() {
+    return SheetPositionScopeKey<DraggableScrollableSheetPosition>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }
@@ -388,7 +388,7 @@ class NavigationSheetPage<T> extends Page<T> {
 }
 
 class _PageBasedNavigationSheetRoute<T>
-    extends BasicNavigationSheetRoute<T, ScrollableSheetPosition> {
+    extends BasicNavigationSheetRoute<T, DraggableScrollableSheetPosition> {
   _PageBasedNavigationSheetRoute({
     required NavigationSheetPage<T> page,
   }) : super(settings: page);
@@ -405,8 +405,8 @@ class _PageBasedNavigationSheetRoute<T>
   RouteTransitionsBuilder? get transitionsBuilder => page.transitionsBuilder;
 
   @override
-  SheetPositionScopeKey<ScrollableSheetPosition> createScopeKey() {
-    return SheetPositionScopeKey<ScrollableSheetPosition>(
+  SheetPositionScopeKey<DraggableScrollableSheetPosition> createScopeKey() {
+    return SheetPositionScopeKey<DraggableScrollableSheetPosition>(
       debugLabel: kDebugMode ? '$debugLabel:${describeIdentity(this)}' : null,
     );
   }

@@ -15,9 +15,9 @@ import 'sheet_content_scroll_position.dart';
 
 // TODO: Rename to ScrollableSheetGeometry.
 @internal
-class ScrollableSheetPosition extends SheetPosition
+class DraggableScrollableSheetPosition extends SheetPosition
     implements SheetContentScrollPositionOwner {
-  ScrollableSheetPosition({
+  DraggableScrollableSheetPosition({
     required super.context,
     required this.initialPosition,
     required super.minPosition,
@@ -91,7 +91,7 @@ class ScrollableSheetPosition extends SheetPosition
   @override
   void takeOver(SheetPosition other) {
     super.takeOver(other);
-    if (other is ScrollableSheetPosition) {
+    if (other is DraggableScrollableSheetPosition) {
       assert(_scrollPositions.isEmpty);
       _scrollPositions.addAll(other._scrollPositions);
       other._scrollPositions.clear();

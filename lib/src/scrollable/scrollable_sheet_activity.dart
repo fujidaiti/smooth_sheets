@@ -29,7 +29,7 @@ import 'sheet_content_scroll_position.dart';
 /// items in the scroll view.
 @internal
 abstract class ScrollableSheetActivity
-    extends SheetActivity<ScrollableSheetPosition> {
+    extends SheetActivity<DraggableScrollableSheetPosition> {
   ScrollableSheetActivity(SheetContentScrollPosition scrollPosition)
       : _scrollPosition = scrollPosition;
 

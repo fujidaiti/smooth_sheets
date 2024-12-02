@@ -357,7 +357,7 @@ void main() {
   // - https://github.com/fujidaiti/smooth_sheets/issues/212
   group('Infinite ballistic scroll activity test', () {
     late ScrollController scrollController;
-    late ScrollableSheetPosition sheetPosition;
+    late DraggableScrollableSheetPosition sheetPosition;
     late Widget testWidget;
 
     setUp(() {
