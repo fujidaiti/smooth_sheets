@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
-class TransitionObserver extends NavigatorObserver {
-  final Set<TransitionAwareStateMixin> _listeners = {};
+final class RouteTransitionObserver extends NavigatorObserver {
+  final Set<RouteTransitionAwareStateMixin> _listeners = {};
 
-  void mount(TransitionAwareStateMixin transitionAware) {
+  void _mount(RouteTransitionAwareStateMixin transitionAware) {
     assert(!_listeners.contains(transitionAware));
     _listeners.add(transitionAware);
   }
 
-  void unmount(TransitionAwareStateMixin transitionAware) {
+  void _unmount(RouteTransitionAwareStateMixin transitionAware) {
     assert(_listeners.contains(transitionAware));
     _listeners.remove(transitionAware);
   }
@@ -18,7 +19,7 @@ class TransitionObserver extends NavigatorObserver {
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     if (route is ModalRoute && previousRoute is ModalRoute?) {
       for (final transitionAware in _listeners) {
-        transitionAware.didPop(route, previousRoute);
+        transitionAware._didPop(route, previousRoute);
       }
     }
   }
@@ -27,7 +28,7 @@ class TransitionObserver extends NavigatorObserver {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     if (route is ModalRoute && previousRoute is ModalRoute?) {
       for (final transitionAware in _listeners) {
-        transitionAware.didPush(route, previousRoute);
+        transitionAware._didPush(route, previousRoute);
       }
     }
   }
@@ -39,7 +40,7 @@ class TransitionObserver extends NavigatorObserver {
   ) {
     if (route is ModalRoute && previousRoute is ModalRoute?) {
       for (final transitionAware in _listeners) {
-        transitionAware.didStartUserGesture(route, previousRoute);
+        transitionAware._didStartUserGesture(route, previousRoute);
       }
     }
   }
@@ -47,40 +48,42 @@ class TransitionObserver extends NavigatorObserver {
   @override
   void didStopUserGesture() {
     for (final transitionAware in _listeners) {
-      transitionAware.didStopUserGesture();
+      transitionAware._didStopUserGesture();
     }
   }
 }
 
-mixin TransitionAwareWidgetMixin on StatefulWidget {
-  TransitionObserver get transitionObserver;
+@internal
+mixin RouteTransitionAwareWidgetMixin on StatefulWidget {
+  RouteTransitionObserver get transitionObserver;
 }
 
-mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
+@internal
+mixin RouteTransitionAwareStateMixin<T extends RouteTransitionAwareWidgetMixin>
     on State<T> {
-  Transition? _lastReportedTransition;
-  Transition? get currentTransition => _lastReportedTransition;
+  RouteTransition? _lastReportedTransition;
+  RouteTransition? get currentTransition => _lastReportedTransition;
 
-  void _notify(Transition? transition) {
+  void _notify(RouteTransition? transition) {
     if (_lastReportedTransition != transition) {
       _lastReportedTransition = transition;
       didChangeTransitionState(transition);
     }
   }
 
-  void didChangeTransitionState(Transition? transition);
+  void didChangeTransitionState(RouteTransition? transition);
 
-  void didPush(ModalRoute<dynamic> route, ModalRoute<dynamic>? previousRoute) {
+  void _didPush(ModalRoute<dynamic> route, ModalRoute<dynamic>? previousRoute) {
     final currentState = currentTransition;
 
     if (previousRoute == null || route.animation!.isCompleted) {
       // There is only one roue in the history stack, or multiple routes
       // are pushed at the same time without transition animation.
-      _notify(NoTransition(currentRoute: route));
-    } else if (route.isCurrent && currentState is NoTransition) {
+      _notify(NoRouteTransition(currentRoute: route));
+    } else if (route.isCurrent && currentState is NoRouteTransition) {
       // A new route is pushed on top of the stack with transition animation.
       // Then, notify the listener of the beginning of the transition.
-      _notify(ForwardTransition(
+      _notify(ForwardRouteTransition(
         originRoute: currentState.currentRoute,
         destinationRoute: route,
         animation: route.animation!,
@@ -90,8 +93,8 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
       void transitionStatusListener(AnimationStatus status) {
         if (status == AnimationStatus.completed && !route.offstage) {
           route.animation!.removeStatusListener(transitionStatusListener);
-          if (currentTransition is ForwardTransition) {
-            _notify(NoTransition(currentRoute: route));
+          if (currentTransition is ForwardRouteTransition) {
+            _notify(NoRouteTransition(currentRoute: route));
           }
         }
       }
@@ -100,37 +103,37 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
     }
   }
 
-  void didPop(ModalRoute<dynamic> route, ModalRoute<dynamic>? previousRoute) {
+  void _didPop(ModalRoute<dynamic> route, ModalRoute<dynamic>? previousRoute) {
     if (previousRoute == null) {
       _notify(null);
     } else {
-      _notify(BackwardTransition(
+      _notify(BackwardRouteTransition(
         originRoute: route,
         destinationRoute: previousRoute,
         animation: route.animation!.drive(Tween(begin: 1, end: 0)),
       ));
       route.completed.whenComplete(() {
-        if (currentTransition is BackwardTransition) {
-          _notify(NoTransition(currentRoute: previousRoute));
+        if (currentTransition is BackwardRouteTransition) {
+          _notify(NoRouteTransition(currentRoute: previousRoute));
         }
       });
     }
   }
 
-  void didStartUserGesture(
+  void _didStartUserGesture(
     ModalRoute<dynamic> route,
     ModalRoute<dynamic>? previousRoute,
   ) {
-    _notify(UserGestureTransition(
+    _notify(UserGestureRouteTransition(
       currentRoute: route,
       previousRoute: previousRoute!,
       animation: route.animation!.drive(Tween(begin: 1, end: 0)),
     ));
   }
 
-  void didStopUserGesture() {
-    if (currentTransition case final UserGestureTransition state) {
-      _notify(NoTransition(
+  void _didStopUserGesture() {
+    if (currentTransition case final UserGestureRouteTransition state) {
+      _notify(NoRouteTransition(
         currentRoute: state.currentRoute,
       ));
     }
@@ -139,41 +142,51 @@ mixin TransitionAwareStateMixin<T extends TransitionAwareWidgetMixin>
   @override
   void initState() {
     super.initState();
-    widget.transitionObserver.mount(this);
+    widget.transitionObserver._mount(this);
   }
 
   @override
   void didUpdateWidget(T oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.transitionObserver != oldWidget.transitionObserver) {
-      oldWidget.transitionObserver.unmount(this);
-      widget.transitionObserver.mount(this);
+      oldWidget.transitionObserver._unmount(this);
+      widget.transitionObserver._mount(this);
       _notify(null);
     }
   }
 
   @override
   void dispose() {
-    widget.transitionObserver.unmount(this);
+    widget.transitionObserver._unmount(this);
     _notify(null);
     super.dispose();
   }
 }
 
-sealed class Transition {}
+@internal
+sealed class RouteTransition {}
 
-class NoTransition extends Transition {
-  NoTransition({required this.currentRoute});
+/// Event when the navigation settles to a route.
+///
+/// This event is dispatched when:
+/// - The initial route is added to the page stack, or
+/// - A transition animation is completed. This includes the case
+///   when the transition is controlled by a user gesture, typically
+///   the swipe-from-right-to-left-to-go-back gesture on iOS.
+@internal
+class NoRouteTransition extends RouteTransition {
+  NoRouteTransition({required this.currentRoute});
 
   final ModalRoute<dynamic> currentRoute;
 
   @override
   String toString() =>
-      '$NoTransition${(currentRoute: describeIdentity(currentRoute))}';
+      '$NoRouteTransition${(currentRoute: describeIdentity(currentRoute))}';
 }
 
-class ForwardTransition extends Transition {
-  ForwardTransition({
+@internal
+class ForwardRouteTransition extends RouteTransition {
+  ForwardRouteTransition({
     required this.originRoute,
     required this.destinationRoute,
     required this.animation,
@@ -184,14 +197,15 @@ class ForwardTransition extends Transition {
   final Animation<double> animation;
 
   @override
-  String toString() => '$ForwardTransition${(
+  String toString() => '$ForwardRouteTransition${(
         originRoute: describeIdentity(originRoute),
         destinationRoute: describeIdentity(destinationRoute),
       )}';
 }
 
-class BackwardTransition extends Transition {
-  BackwardTransition({
+@internal
+class BackwardRouteTransition extends RouteTransition {
+  BackwardRouteTransition({
     required this.originRoute,
     required this.destinationRoute,
     required this.animation,
@@ -202,14 +216,15 @@ class BackwardTransition extends Transition {
   final Animation<double> animation;
 
   @override
-  String toString() => '$BackwardTransition${(
+  String toString() => '$BackwardRouteTransition${(
         originRoute: describeIdentity(originRoute),
         destinationRoute: describeIdentity(destinationRoute),
       )}';
 }
 
-class UserGestureTransition extends Transition {
-  UserGestureTransition({
+@internal
+class UserGestureRouteTransition extends RouteTransition {
+  UserGestureRouteTransition({
     required this.currentRoute,
     required this.previousRoute,
     required this.animation,
@@ -220,7 +235,7 @@ class UserGestureTransition extends Transition {
   final Animation<double> animation;
 
   @override
-  String toString() => '$UserGestureTransition${(
+  String toString() => '$UserGestureRouteTransition${(
         currentRoute: describeIdentity(currentRoute),
         previousRoute: describeIdentity(previousRoute),
       )}';

@@ -24,14 +24,14 @@ class _TestWidget extends StatelessWidget {
   final Widget Function(BuildContext, Widget)? contentBuilder;
   final Widget Function(BuildContext, Widget)? sheetBuilder;
   final SheetController? sheetController;
-  final NavigationSheetTransitionObserver sheetTransitionObserver;
+  final RouteTransitionObserver sheetTransitionObserver;
   final Key? sheetKey;
   final bool useMaterialApp;
 
   @override
   Widget build(BuildContext context) {
     Widget navigationSheet = SheetViewport(
-      child: NavigationSheet(
+      child: PagedSheet(
         key: sheetKey,
         controller: sheetController,
         transitionObserver: sheetTransitionObserver,
@@ -128,12 +128,12 @@ class _TestDraggablePageWidget extends StatelessWidget {
     SheetAnchor initialPosition = const SheetAnchor.proportional(1),
     SheetAnchor minPosition = const SheetAnchor.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
-    SheetPhysics? physics,
+    SheetPhysics physics = kDefaultSheetPhysics,
   }) {
-    return NavigationSheetRoute(
+    return PagedSheetRoute(
       physics: physics,
-      initialPosition: initialPosition,
-      minPosition: minPosition,
+      initialOffset: initialPosition,
+      minOffset: minPosition,
       transitionDuration: transitionDuration,
       builder: (context) => _TestDraggablePageWidget(
         key: key,
@@ -207,13 +207,14 @@ class _TestScrollablePageWidget extends StatelessWidget {
     SheetAnchor initialPosition = const SheetAnchor.proportional(1),
     SheetAnchor minPosition = const SheetAnchor.proportional(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
-    SheetPhysics? physics,
+    SheetPhysics physics = kDefaultSheetPhysics,
     void Function(int index)? onTapItem,
   }) {
-    return NavigationSheetRoute(
+    return PagedSheetRoute(
       physics: physics,
-      initialPosition: initialPosition,
-      minPosition: minPosition,
+      initialOffset: initialPosition,
+      minOffset: minPosition,
+      scrollConfiguration: const SheetScrollConfiguration(),
       transitionDuration: transitionDuration,
       builder: (context) => _TestScrollablePageWidget(
         key: ValueKey(label),
@@ -231,10 +232,10 @@ class _TestScrollablePageWidget extends StatelessWidget {
 }
 
 void main() {
-  late NavigationSheetTransitionObserver transitionObserver;
+  late RouteTransitionObserver transitionObserver;
 
   setUp(() {
-    transitionObserver = NavigationSheetTransitionObserver();
+    transitionObserver = RouteTransitionObserver();
   });
 
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/151
@@ -379,7 +380,7 @@ void main() {
     'Works with DropdownButton without crashing',
     (tester) async {
       String? selectedOption = 'Option 1';
-      final routeWithDropdownButton = NavigationSheetRoute<dynamic>(
+      final routeWithDropdownButton = PagedSheetRoute<dynamic>(
         builder: (context) {
           return Scaffold(
             body: Center(
@@ -444,7 +445,7 @@ void main() {
 
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/14
   testWidgets(
-    'Opening keyboard does not interrupts sheet animation',
+    'Opening keyboard does not interrupt sheet animation',
     (tester) async {
       final controller = SheetController();
       final sheetKey = GlobalKey();
@@ -557,7 +558,7 @@ void main() {
     setUp(() {
       focusNode = FocusNode();
       scrollController = ScrollController();
-      final routeWithTextField = NavigationSheetRoute<dynamic>(
+      final routeWithTextField = PagedSheetRoute<dynamic>(
         builder: (context) {
           return Material(
             child: TextField(

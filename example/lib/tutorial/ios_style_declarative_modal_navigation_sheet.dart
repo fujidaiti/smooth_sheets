@@ -7,7 +7,7 @@ void main() {
   runApp(const _App());
 }
 
-final transitionObserver = NavigationSheetTransitionObserver();
+final transitionObserver = RouteTransitionObserver();
 
 final router = GoRouter(
   initialLocation: '/',
@@ -30,7 +30,7 @@ final router = GoRouter(
               GoRoute(
                 path: 'modal',
                 pageBuilder: (context, state) {
-                  return NavigationSheetPage(
+                  return PagedSheetPage(
                     key: state.pageKey,
                     child: Container(color: Colors.white),
                   );
@@ -80,7 +80,7 @@ class _Modal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SheetViewport(
-      child: NavigationSheet(
+      child: PagedSheet(
         transitionObserver: transitionObserver,
         child: Material(
           color: Colors.white,

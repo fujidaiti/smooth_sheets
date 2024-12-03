@@ -67,7 +67,7 @@ abstract class SheetPositionScope<E extends SheetPosition>
     extends StatefulWidget {
   /// Creates a widget that hosts a [SheetPosition].
   const SheetPositionScope({
-    super.key,
+    super.key ,
     required this.context,
     this.controller,
     this.isPrimary = true,
@@ -78,6 +78,7 @@ abstract class SheetPositionScope<E extends SheetPosition>
     required this.child,
   });
 
+  // TODO: Change the followings to getters.
   /// The context the position object belongs to.
   final SheetContext context;
 
@@ -140,7 +141,10 @@ abstract class SheetPositionScope<E extends SheetPosition>
 @internal
 abstract class SheetPositionScopeState<E extends SheetPosition,
     W extends SheetPositionScope> extends State<W> {
+  @protected
+  E get position => _position;
   late E _position;
+
   SheetController? _controller;
 
   SheetPositionScopeKey? get _scopeKey {

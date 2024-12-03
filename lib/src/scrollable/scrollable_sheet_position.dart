@@ -81,8 +81,11 @@ class DraggableScrollableSheetPosition extends SheetPosition
   }
 
   @override
-  void applyNewContentSize(Size contentSize) {
-    super.applyNewContentSize(contentSize);
+  void onFinalizePosition(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {
     if (maybePixels == null) {
       setPixels(initialPosition.resolve(contentSize));
     }

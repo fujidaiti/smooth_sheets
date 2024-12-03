@@ -23,7 +23,15 @@ mixin SheetContextStateMixin<T extends StatefulWidget>
   @override
   BuildContext? get notificationContext => mounted ? context : null;
 
+  // Returns the cached value instead of directly accessing MediaQuery
+  // so that the getter can be used in the dispose() method.
   @override
-  double get devicePixelRatio =>
-      MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
+  double get devicePixelRatio => _devicePixelRatio;
+  late double _devicePixelRatio;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
+  }
 }

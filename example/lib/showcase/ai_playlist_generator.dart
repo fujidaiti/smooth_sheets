@@ -41,7 +41,7 @@ class _AiPlaylistGeneratorExample extends StatelessWidget {
 // Routes
 // ----------------------------------------------------------
 
-final sheetTransitionObserver = NavigationSheetTransitionObserver();
+final sheetTransitionObserver = RouteTransitionObserver();
 
 final router = GoRouter(
   routes: [
@@ -72,7 +72,7 @@ final _sheetShellRoute = ShellRoute(
 final _introRoute = GoRoute(
   path: 'intro',
   pageBuilder: (context, state) {
-    return const NavigationSheetPage(child: _IntroPage());
+    return const PagedSheetPage(child: _IntroPage());
   },
   routes: [_genreRoute],
 );
@@ -80,7 +80,7 @@ final _introRoute = GoRoute(
 final _genreRoute = GoRoute(
   path: 'genre',
   pageBuilder: (context, state) {
-    return const NavigationSheetPage(child: _SelectGenrePage());
+    return const PagedSheetPage(child: _SelectGenrePage());
   },
   routes: [_moodRoute],
 );
@@ -88,7 +88,7 @@ final _genreRoute = GoRoute(
 final _moodRoute = GoRoute(
   path: 'mood',
   pageBuilder: (context, state) {
-    return const NavigationSheetPage(child: _SelectMoodPage());
+    return const PagedSheetPage(child: _SelectMoodPage());
   },
   routes: [_seedTrackRoute],
 );
@@ -96,7 +96,7 @@ final _moodRoute = GoRoute(
 final _seedTrackRoute = GoRoute(
   path: 'seed-track',
   pageBuilder: (context, state) {
-    return const NavigationSheetPage(
+    return const PagedSheetPage(
       scrollConfiguration: SheetScrollConfiguration(),
       child: _SelectSeedTrackPage(),
     );
@@ -107,10 +107,10 @@ final _seedTrackRoute = GoRoute(
 final _confirmRoute = GoRoute(
   path: 'confirm',
   pageBuilder: (context, state) {
-    return const NavigationSheetPage(
+    return const PagedSheetPage(
       scrollConfiguration: SheetScrollConfiguration(),
-      initialPosition: SheetAnchor.proportional(0.7),
-      minPosition: SheetAnchor.proportional(0.7),
+      initialOffset: SheetAnchor.proportional(0.7),
+      minOffset: SheetAnchor.proportional(0.7),
       physics: BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),
@@ -123,7 +123,7 @@ final _confirmRoute = GoRoute(
 final _generateRoute = GoRoute(
   path: 'generate',
   pageBuilder: (context, state) {
-    return const NavigationSheetPage(child: _GeneratingPage());
+    return const PagedSheetPage(child: _GeneratingPage());
   },
 );
 
@@ -152,7 +152,7 @@ class _SheetShell extends StatelessWidget {
     required this.navigator,
   });
 
-  final NavigationSheetTransitionObserver transitionObserver;
+  final RouteTransitionObserver transitionObserver;
   final Widget navigator;
 
   @override
@@ -193,7 +193,7 @@ class _SheetShell extends StatelessWidget {
           }
         },
         child: SheetViewport(
-          child: NavigationSheet(
+          child: PagedSheet(
             transitionObserver: sheetTransitionObserver,
             child: Material(
               // Add circular corners to the sheet.
@@ -214,7 +214,9 @@ class _IntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: _SharedAppBarHero(
         appbar: AppBar(
           leading: IconButton(
@@ -264,36 +266,44 @@ class _SelectGenrePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: _SharedAppBarHero(appbar: AppBar()),
       // Wrap the body in a SingleChildScrollView to prevent
       // the content from overflowing on small screens.
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          vertical: 8,
-          horizontal: 32,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'What genre do you like? (1/3)',
-              style: Theme.of(context).textTheme.headlineMediumBold,
+      body: Builder(
+        builder: (context) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(
+              top: MediaQuery.paddingOf(context).top + 8,
+              bottom: MediaQuery.paddingOf(context).bottom + 8,
+              left: 32,
+              right: 32,
             ),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 10,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                for (final genre in _genres)
-                  _SelectableChip(
-                    label: Text(genre),
-                  ),
+                Text(
+                  'What genre do you like? (1/3)',
+                  style: Theme.of(context).textTheme.headlineMediumBold,
+                ),
+                const SizedBox(height: 24),
+                Wrap(
+                  spacing: 10,
+                  children: [
+                    for (final genre in _genres)
+                      _SelectableChip(
+                        label: Text(genre),
+                      ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          );
+        },
       ),
-      bottomBar: _BottomActionBar(
+      bottomNavigationBar: _BottomActionBar(
         label: 'Next',
         onPressed: () => context.go('/intro/genre/mood'),
       ),
@@ -306,7 +316,9 @@ class _SelectMoodPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: _SharedAppBarHero(appbar: AppBar()),
       body: SingleChildScrollView(
         child: Padding(
@@ -330,7 +342,7 @@ class _SelectMoodPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomBar: _BottomActionBar(
+      bottomNavigationBar: _BottomActionBar(
         label: 'Next',
         onPressed: () => context.go('/intro/genre/mood/seed-track'),
       ),
@@ -343,7 +355,9 @@ class _SelectSeedTrackPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: _SharedAppBarHero(appbar: AppBar()),
       body: ListView.builder(
         itemCount: _seedTracks.length + 1,
@@ -364,7 +378,7 @@ class _SelectSeedTrackPage extends StatelessWidget {
           };
         },
       ),
-      bottomBar: _BottomActionBar(
+      bottomNavigationBar: _BottomActionBar(
         label: 'Next',
         showDivider: true,
         onPressed: () => context.go('/intro/genre/mood/seed-track/confirm'),
@@ -378,7 +392,9 @@ class _ConfirmPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: _SharedAppBarHero(appbar: AppBar()),
       body: Padding(
         padding: const EdgeInsets.only(left: 32),
@@ -461,7 +477,7 @@ class _ConfirmPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomBar: _BottomActionBar(
+      bottomNavigationBar: _BottomActionBar(
         label: "OK, let's go!",
         showDivider: true,
         onPressed: () async {
@@ -481,7 +497,9 @@ class _GeneratingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
+    return Scaffold(
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       appBar: _SharedAppBarHero(appbar: AppBar()),
       body: SafeArea(
         child: SizedBox(
