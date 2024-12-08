@@ -5,7 +5,7 @@ void main() {
   runApp(const _ScrollablePageViewSheetExample());
 }
 
-/// An example of [ScrollableSheet] + [PageView].
+/// An example of [Sheet] + [PageView].
 class _ScrollablePageViewSheetExample extends StatelessWidget {
   const _ScrollablePageViewSheetExample();
 
@@ -42,7 +42,8 @@ class _MySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollableSheet(
+    return Sheet(
+      scrollConfiguration: const SheetScrollConfiguration(),
       child: Material(
         child: SizedBox(
           height: 600,

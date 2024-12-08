@@ -7,7 +7,7 @@ import 'scrollable_sheet_position.dart';
 
 @internal
 class ScrollableSheetPositionScope
-    extends SheetPositionScope<ScrollableSheetPosition> {
+    extends SheetPositionScope<DraggableScrollableSheetPosition> {
   const ScrollableSheetPositionScope({
     super.key,
     super.controller,
@@ -29,24 +29,24 @@ class ScrollableSheetPositionScope
   final String? debugLabel;
 
   @override
-  SheetPositionScopeState<ScrollableSheetPosition,
-      SheetPositionScope<ScrollableSheetPosition>> createState() {
+  SheetPositionScopeState<DraggableScrollableSheetPosition,
+      SheetPositionScope<DraggableScrollableSheetPosition>> createState() {
     return _ScrollableSheetPositionScopeState();
   }
 }
 
 class _ScrollableSheetPositionScopeState extends SheetPositionScopeState<
-    ScrollableSheetPosition, ScrollableSheetPositionScope> {
+    DraggableScrollableSheetPosition, ScrollableSheetPositionScope> {
   @override
-  bool shouldRebuildPosition(ScrollableSheetPosition oldPosition) {
+  bool shouldRebuildPosition(DraggableScrollableSheetPosition oldPosition) {
     return widget.initialPosition != oldPosition.initialPosition ||
         widget.debugLabel != oldPosition.debugLabel ||
         super.shouldRebuildPosition(oldPosition);
   }
 
   @override
-  ScrollableSheetPosition buildPosition(SheetContext context) {
-    return ScrollableSheetPosition(
+  DraggableScrollableSheetPosition buildPosition(SheetContext context) {
+    return DraggableScrollableSheetPosition(
       context: context,
       initialPosition: widget.initialPosition,
       minPosition: widget.minPosition,

@@ -27,12 +27,14 @@ import 'sheet_status.dart';
 ///   proportionally to the sheet's content height.
 /// - [FixedSheetAnchor], which defines the position
 ///   using a fixed value in pixels.
-// TODO: Rename to SheetPosition.
+// TODO: Rename to SheetOffset.
 abstract interface class SheetAnchor {
   /// {@macro FixedSheetAnchor}
+  // TODO: Rename to `absolute`.
   const factory SheetAnchor.pixels(double pixels) = FixedSheetAnchor;
 
   /// {@macro ProportionalSheetAnchor}
+  // TODO: Rename to `relative`.
   const factory SheetAnchor.proportional(double size) = ProportionalSheetAnchor;
 
   /// Resolves the position to an actual value in pixels.
@@ -213,6 +215,7 @@ abstract class SheetPosition extends ChangeNotifier
   ///
   /// Intentionally exposed so that a subclass can override
   /// the default implementation of [drag].
+  // TODO: Move this to the activity classes.
   @protected
   SheetDragController? currentDrag;
 
@@ -333,11 +336,22 @@ abstract class SheetPosition extends ChangeNotifier
   @mustCallSuper
   void finalizePosition() {
     assert(
-      hasDimensions,
-      _debugMessage(
-        'All the dimension values must be finalized '
-        'at the time finalizePosition() is called.',
-      ),
+      maybeContentSize != null,
+      'The content size must be set before calling finalizePosition().',
+    );
+    assert(
+      maybeViewportSize != null,
+      'The viewport size must be set before calling finalizePosition().',
+    );
+    assert(
+      maybeViewportInsets != null,
+      'The viewport insets must be set before calling finalizePosition().',
+    );
+
+    onFinalizePosition(
+      _oldContentSize,
+      _oldViewportSize,
+      _oldViewportInsets,
     );
 
     _activity!.finalizePosition(
@@ -346,10 +360,25 @@ abstract class SheetPosition extends ChangeNotifier
       _oldViewportInsets,
     );
 
+    assert(
+      hasDimensions,
+      _debugMessage(
+        'All the dimension values must be finalized '
+        'during finalizePosition().',
+      ),
+    );
+
     _oldContentSize = null;
     _oldViewportSize = null;
     _oldViewportInsets = null;
   }
+
+  @protected
+  void onFinalizePosition(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {}
 
   @mustCallSuper
   void beginActivity(SheetActivity activity) {
@@ -391,6 +420,7 @@ abstract class SheetPosition extends ChangeNotifier
     );
   }
 
+  // TODO: Move this to DraggableScrollableSheetPosition.
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
     assert(currentDrag == null);
     final dragActivity = DragSheetActivity();
@@ -431,6 +461,7 @@ abstract class SheetPosition extends ChangeNotifier
     super.dispose();
   }
 
+  // TODO: Rename to `setOffset`.
   void setPixels(double pixels) {
     final oldPixels = maybePixels;
     correctPixels(pixels);
@@ -439,6 +470,7 @@ abstract class SheetPosition extends ChangeNotifier
     }
   }
 
+  // TODO: Rename to `correctOffset`.
   void correctPixels(double pixels) {
     if (maybePixels != pixels) {
       _updateMetrics(pixels: pixels);

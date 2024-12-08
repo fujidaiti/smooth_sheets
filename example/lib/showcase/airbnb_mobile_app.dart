@@ -176,7 +176,8 @@ class _ContentSheet extends StatelessWidget {
         );
 
         return SheetViewport(
-          child: ScrollableSheet(
+          child: Sheet(
+            scrollConfiguration: const SheetScrollConfiguration(),
             physics: sheetPhysics,
             minPosition: minSheetPosition,
             child: SizedBox(
@@ -209,26 +210,24 @@ class _ContentSheetHandle extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return SheetDraggable(
-      child: SizedBox(
-        height: preferredSize.height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              buildIndicator(),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    '646 national park homes',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
+    return SizedBox(
+      height: preferredSize.height,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            buildIndicator(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Center(
+                child: Text(
+                  '646 national park homes',
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

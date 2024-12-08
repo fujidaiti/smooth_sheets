@@ -13,27 +13,26 @@ import 'scrollable_sheet_physics.dart';
 import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
+// TODO: Rename to ScrollableSheetGeometry.
 @internal
-class ScrollableSheetPosition extends SheetPosition
+class DraggableScrollableSheetPosition extends SheetPosition
     implements SheetContentScrollPositionOwner {
-  ScrollableSheetPosition({
+  DraggableScrollableSheetPosition({
     required super.context,
     required this.initialPosition,
     required super.minPosition,
     required super.maxPosition,
-    required SheetPhysics physics,
+    required super.physics,
     super.gestureTamperer,
     super.debugLabel,
-  }) : super(physics: ScrollableSheetPhysics.wrap(physics));
+  });
 
   /// {@template ScrollableSheetPosition.initialPosition}
   /// The initial position of the sheet.
   /// {@endtemplate}
   final SheetAnchor initialPosition;
 
-  @override
-  ScrollableSheetPhysics get physics => super.physics as ScrollableSheetPhysics;
-
+  // TODO: Stop scroll animations when a non-scrollable activity starts.
   final _scrollPositions = HashSet<SheetContentScrollPosition>();
 
   /// A [ScrollPosition] that is currently driving the sheet position.
@@ -82,8 +81,11 @@ class ScrollableSheetPosition extends SheetPosition
   }
 
   @override
-  void applyNewContentSize(Size contentSize) {
-    super.applyNewContentSize(contentSize);
+  void onFinalizePosition(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {
     if (maybePixels == null) {
       setPixels(initialPosition.resolve(contentSize));
     }
@@ -92,7 +94,7 @@ class ScrollableSheetPosition extends SheetPosition
   @override
   void takeOver(SheetPosition other) {
     super.takeOver(other);
-    if (other is ScrollableSheetPosition) {
+    if (other is DraggableScrollableSheetPosition) {
       assert(_scrollPositions.isEmpty);
       _scrollPositions.addAll(other._scrollPositions);
       other._scrollPositions.clear();

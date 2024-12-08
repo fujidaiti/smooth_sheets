@@ -12,7 +12,7 @@ import 'sheet_theme.dart';
 /// ```dart
 /// return SheetKeyboardDismissible(
 ///   dismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(),
-///   child: DraggableSheet(
+///   child: Sheet(
 ///     child: Container(
 ///       color: Colors.white,
 ///       width: double.infinity,

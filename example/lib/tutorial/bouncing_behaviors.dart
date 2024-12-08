@@ -34,9 +34,9 @@ class _Home extends StatelessWidget {
             ),
             ListTile(
               title: const Text('FixedBouncingBehavior'),
-              subtitle: const Text('with DraggableSheet'),
+              subtitle: const Text('with Sheet'),
               onTap: () => showModalSheet(
-                const _DraggableSheet(
+                const _Sheet(
                   behavior: FixedBouncingBehavior(
                     // Allows the sheet position to exceed the content bounds by ±50 pixels.
                     SheetAnchor.pixels(50),
@@ -61,9 +61,9 @@ class _Home extends StatelessWidget {
             ),
             ListTile(
               title: const Text('DirectionAwareBouncingBehavior'),
-              subtitle: const Text('with DraggableSheet'),
+              subtitle: const Text('with Sheet'),
               onTap: () => showModalSheet(
-                const _DraggableSheet(
+                const _Sheet(
                   behavior: DirectionAwareBouncingBehavior(
                     // Allows the sheet to bounce only when dragging it downwards.
                     upward: SheetAnchor.pixels(0),
@@ -86,7 +86,8 @@ class _ScrollableSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollableSheet(
+    return Sheet(
+      scrollConfiguration: const SheetScrollConfiguration(),
       physics: BouncingSheetPhysics(behavior: behavior),
       child: Material(
         color: Colors.white,
@@ -104,14 +105,14 @@ class _ScrollableSheet extends StatelessWidget {
   }
 }
 
-class _DraggableSheet extends StatelessWidget {
-  const _DraggableSheet({required this.behavior});
+class _Sheet extends StatelessWidget {
+  const _Sheet({required this.behavior});
 
   final BouncingBehavior behavior;
 
   @override
   Widget build(BuildContext context) {
-    return DraggableSheet(
+    return Sheet(
       physics: BouncingSheetPhysics(behavior: behavior),
       child: Container(
         height: 500,

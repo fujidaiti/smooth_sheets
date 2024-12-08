@@ -14,7 +14,7 @@ void main() {
 
 // NavigationSheet requires a special NavigatorObserver in order to
 // smoothly change its position during a route transition.
-final transitionObserver = NavigationSheetTransitionObserver();
+final transitionObserver = PagedSheetNavigatorObserver();
 
 // To use declarative navigation, we utilize the 'go_router' package.
 // However, any other package that works with Navigator 2.0
@@ -34,11 +34,22 @@ final router = GoRouter(
         GoRoute(
           path: '/a',
           pageBuilder: (context, state) {
-            // Use DraggableNavigationSheetPage for a draggable page.
+            // Use ScrollableNavigationSheetPage for a draggable page.
             // If the page contains scrollable widget(s), consider using
             // ScrollableNavigationSheetPage instead.
-            return DraggableNavigationSheetPage(
+            return PagedSheetPage(
               key: state.pageKey,
+              minOffset: const SheetAnchor.proportional(0.8),
+              physics: const BouncingSheetPhysics(
+                parent: SnappingSheetPhysics(
+                  behavior: SnapToNearest(
+                    anchors: [
+                      SheetAnchor.proportional(1),
+                      SheetAnchor.proportional(0.8),
+                    ],
+                  ),
+                ),
+              ),
               child: const _ExampleSheetContent(
                 title: '/a',
                 size: 0.5,
@@ -50,7 +61,7 @@ final router = GoRouter(
             GoRoute(
               path: 'details',
               pageBuilder: (context, state) {
-                return DraggableNavigationSheetPage(
+                return PagedSheetPage(
                   key: state.pageKey,
                   child: const _ExampleSheetContent(
                     title: '/a/details',
@@ -63,8 +74,21 @@ final router = GoRouter(
                 GoRoute(
                   path: 'info',
                   pageBuilder: (context, state) {
-                    return DraggableNavigationSheetPage(
+                    return PagedSheetPage(
                       key: state.pageKey,
+                      initialOffset: const SheetAnchor.proportional(0.5),
+                      minOffset: const SheetAnchor.proportional(0.2),
+                      physics: const BouncingSheetPhysics(
+                        parent: SnappingSheetPhysics(
+                          behavior: SnapToNearest(
+                            anchors: [
+                              SheetAnchor.proportional(1),
+                              SheetAnchor.proportional(0.5),
+                              SheetAnchor.proportional(0.2),
+                            ],
+                          ),
+                        ),
+                      ),
                       child: const _ExampleSheetContent(
                         title: '/a/details/info',
                         size: 1.0,
@@ -80,7 +104,7 @@ final router = GoRouter(
         GoRoute(
           path: '/b',
           pageBuilder: (context, state) {
-            return DraggableNavigationSheetPage(
+            return PagedSheetPage(
               key: state.pageKey,
               child: const _ExampleSheetContent(
                 title: 'B',
@@ -93,7 +117,7 @@ final router = GoRouter(
             GoRoute(
               path: 'details',
               pageBuilder: (context, state) {
-                return DraggableNavigationSheetPage(
+                return PagedSheetPage(
                   key: state.pageKey,
                   child: const _ExampleSheetContent(
                     title: 'B Details',
@@ -150,7 +174,7 @@ class _ExampleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationSheet(
+    return PagedSheet(
       transitionObserver: transitionObserver,
       child: Material(
         color: Theme.of(context).colorScheme.primary,

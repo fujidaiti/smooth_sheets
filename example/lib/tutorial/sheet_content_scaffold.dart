@@ -65,7 +65,7 @@ class _ExampleSheet extends StatelessWidget {
       ),
     );
 
-    return DraggableSheet(
+    return Sheet(
       physics: physics,
       minPosition: const SheetAnchor.pixels(0),
       child: Card(

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 void main() {
-  runApp(const _BasicDraggableSheetExample());
+  runApp(const _BasicSheetExample());
 }
 
-class _BasicDraggableSheetExample extends StatelessWidget {
-  const _BasicDraggableSheetExample();
+class _BasicSheetExample extends StatelessWidget {
+  const _BasicSheetExample();
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +42,11 @@ class _MySheet extends StatelessWidget {
       ),
     );
 
-    // Then, wrap the content in DraggableSheet.
-    // Note that DraggableSheet does not work with scrollable widgets.
+    // Then, wrap the content in Sheet.
+    // Note that Sheet does not work with scrollable widgets.
     // If you want to use a scrollable widget as its content,
     // use ScrollableSheet instead.
-    return DraggableSheet(
+    return Sheet(
       child: buildSheetBackground(context, content),
     );
   }

@@ -8,8 +8,8 @@ import 'package:meta/meta.dart';
 /// rarely changes during the app's lifetime.
 final _instanceForEpsilon = <double, FloatComp>{};
 
-// TODO: Reimplement this class as an extension type of [double]
-// to avoid object creation.
+// ignore: lines_longer_than_80_chars
+// TODO: Reimplement this class as an extension type of [double] to avoid object creation.
 /// A comparator for floating-point numbers in a certain precision.
 ///
 /// [FloatComp.distance] and [FloatComp.velocity] determine the [epsilon] based
