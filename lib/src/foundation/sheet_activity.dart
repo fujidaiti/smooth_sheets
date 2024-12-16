@@ -603,7 +603,7 @@ mixin UserControlledSheetActivityMixin<T extends SheetPosition>
   }
 }
 
-/// Appends the delta of the bottom viewport inset, which is typically
+/// Appends the negative delta of the bottom viewport inset, which is typically
 /// equal to the height of the on-screen keyboard, to the [activityOwner]'s
 /// `pixels` to maintain the visual sheet position.
 @internal

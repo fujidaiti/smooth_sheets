@@ -21,6 +21,9 @@ const kDefaultPagedSheetMinOffset = SheetAnchor.proportional(1);
 @internal
 const kDefaultPagedSheetMaxOffset = SheetAnchor.proportional(1);
 
+@internal
+const kDefaultPagedSheetTransitionCurve = Curves.easeInOutCubic;
+
 class _RouteGeometry {
   Size? oldContentSize;
   Size? contentSize;
@@ -157,7 +160,7 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     assert(_routeGeometries.containsKey(originRoute));
     assert(_routeGeometries.containsKey(destinationRoute));
     _setCurrentRoute(null);
-    beginActivity(_PageTransitionSheetActivity(
+    beginActivity(RouteTransitionSheetActivity(
       originRouteOffset: () => _routeGeometries[originRoute]?.offset,
       destinationRouteOffset: () => _routeGeometries[destinationRoute]?.offset,
       animation: animation,
@@ -179,7 +182,7 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
           originRoute: originRoute,
           destinationRoute: destinationRoute,
           animation: animation,
-          animationCurve: Curves.easeInOutCubic,
+          animationCurve: kDefaultPagedSheetTransitionCurve,
         );
 
       case BackwardRouteTransition(
@@ -191,7 +194,7 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
           originRoute: originRoute,
           destinationRoute: destinationRoute,
           animation: animation,
-          animationCurve: Curves.easeInOutCubic,
+          animationCurve: kDefaultPagedSheetTransitionCurve,
         );
 
       case UserGestureRouteTransition(
@@ -213,8 +216,9 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
   }
 }
 
-class _PageTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
-  _PageTransitionSheetActivity({
+@visibleForTesting
+class RouteTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
+  RouteTransitionSheetActivity({
     required this.originRouteOffset,
     required this.destinationRouteOffset,
     required this.animation,

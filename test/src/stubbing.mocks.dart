@@ -21,6 +21,7 @@ import 'package:smooth_sheets/src/foundation/sheet_gesture_tamperer.dart'
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart' as _i3;
 import 'package:smooth_sheets/src/foundation/sheet_position.dart' as _i4;
 import 'package:smooth_sheets/src/foundation/sheet_status.dart' as _i13;
+import 'package:smooth_sheets/src/paged/paged_sheet_route.dart' as _i17;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -186,6 +187,72 @@ class _FakeTicker_13 extends _i1.SmartFake implements _i11.Ticker {
 
   @override
   String toString({bool? debugIncludeStack = false}) => super.toString();
+}
+
+class _FakeCurve_14 extends _i1.SmartFake implements _i7.Curve {
+  _FakeCurve_14(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeDuration_15 extends _i1.SmartFake implements Duration {
+  _FakeDuration_15(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeRouteSettings_16 extends _i1.SmartFake implements _i7.RouteSettings {
+  _FakeRouteSettings_16(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeValueListenable_17<T1> extends _i1.SmartFake
+    implements _i10.ValueListenable<T1> {
+  _FakeValueListenable_17(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeWidget_18 extends _i1.SmartFake implements _i7.Widget {
+  _FakeWidget_18(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+
+  @override
+  String toString({_i7.DiagnosticLevel? minLevel = _i7.DiagnosticLevel.info}) =>
+      super.toString();
+}
+
+class _FakeAnimationController_19 extends _i1.SmartFake
+    implements _i7.AnimationController {
+  _FakeAnimationController_19(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
 }
 
 /// A class which mocks [SheetPosition].
@@ -478,6 +545,24 @@ class MockSheetPosition extends _i1.Mock implements _i4.SheetPosition {
         Invocation.method(
           #finalizePosition,
           [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void onFinalizePosition(
+    _i6.Size? oldContentSize,
+    _i6.Size? oldViewportSize,
+    _i7.EdgeInsets? oldViewportInsets,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #onFinalizePosition,
+          [
+            oldContentSize,
+            oldViewportSize,
+            oldViewportInsets,
+          ],
         ),
         returnValueForMissingStub: null,
       );
@@ -1594,4 +1679,788 @@ class MockTickerProvider extends _i1.Mock implements _i7.TickerProvider {
           ),
         ),
       ) as _i11.Ticker);
+}
+
+/// A class which mocks [BasePagedSheetRoute].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockBasePagedSheetRoute<T> extends _i1.Mock
+    implements _i17.BasePagedSheetRoute<T> {
+  @override
+  _i4.SheetAnchor get initialOffset => (super.noSuchMethod(
+        Invocation.getter(#initialOffset),
+        returnValue: _FakeSheetAnchor_4(
+          this,
+          Invocation.getter(#initialOffset),
+        ),
+        returnValueForMissingStub: _FakeSheetAnchor_4(
+          this,
+          Invocation.getter(#initialOffset),
+        ),
+      ) as _i4.SheetAnchor);
+
+  @override
+  _i4.SheetAnchor get minOffset => (super.noSuchMethod(
+        Invocation.getter(#minOffset),
+        returnValue: _FakeSheetAnchor_4(
+          this,
+          Invocation.getter(#minOffset),
+        ),
+        returnValueForMissingStub: _FakeSheetAnchor_4(
+          this,
+          Invocation.getter(#minOffset),
+        ),
+      ) as _i4.SheetAnchor);
+
+  @override
+  _i4.SheetAnchor get maxOffset => (super.noSuchMethod(
+        Invocation.getter(#maxOffset),
+        returnValue: _FakeSheetAnchor_4(
+          this,
+          Invocation.getter(#maxOffset),
+        ),
+        returnValueForMissingStub: _FakeSheetAnchor_4(
+          this,
+          Invocation.getter(#maxOffset),
+        ),
+      ) as _i4.SheetAnchor);
+
+  @override
+  _i3.SheetPhysics get physics => (super.noSuchMethod(
+        Invocation.getter(#physics),
+        returnValue: _FakeSheetPhysics_1(
+          this,
+          Invocation.getter(#physics),
+        ),
+        returnValueForMissingStub: _FakeSheetPhysics_1(
+          this,
+          Invocation.getter(#physics),
+        ),
+      ) as _i3.SheetPhysics);
+
+  @override
+  bool get fullscreenDialog => (super.noSuchMethod(
+        Invocation.getter(#fullscreenDialog),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get allowSnapshotting => (super.noSuchMethod(
+        Invocation.getter(#allowSnapshotting),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get opaque => (super.noSuchMethod(
+        Invocation.getter(#opaque),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get barrierDismissible => (super.noSuchMethod(
+        Invocation.getter(#barrierDismissible),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get popGestureEnabled => (super.noSuchMethod(
+        Invocation.getter(#popGestureEnabled),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get semanticsDismissible => (super.noSuchMethod(
+        Invocation.getter(#semanticsDismissible),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  _i7.Curve get barrierCurve => (super.noSuchMethod(
+        Invocation.getter(#barrierCurve),
+        returnValue: _FakeCurve_14(
+          this,
+          Invocation.getter(#barrierCurve),
+        ),
+        returnValueForMissingStub: _FakeCurve_14(
+          this,
+          Invocation.getter(#barrierCurve),
+        ),
+      ) as _i7.Curve);
+
+  @override
+  bool get maintainState => (super.noSuchMethod(
+        Invocation.getter(#maintainState),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get popGestureInProgress => (super.noSuchMethod(
+        Invocation.getter(#popGestureInProgress),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get offstage => (super.noSuchMethod(
+        Invocation.getter(#offstage),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  set offstage(bool? value) => super.noSuchMethod(
+        Invocation.setter(
+          #offstage,
+          value,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i7.RoutePopDisposition get popDisposition => (super.noSuchMethod(
+        Invocation.getter(#popDisposition),
+        returnValue: _i7.RoutePopDisposition.pop,
+        returnValueForMissingStub: _i7.RoutePopDisposition.pop,
+      ) as _i7.RoutePopDisposition);
+
+  @override
+  bool get hasScopedWillPopCallback => (super.noSuchMethod(
+        Invocation.getter(#hasScopedWillPopCallback),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get canPop => (super.noSuchMethod(
+        Invocation.getter(#canPop),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get impliesAppBarDismissal => (super.noSuchMethod(
+        Invocation.getter(#impliesAppBarDismissal),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get willDisposeAnimationController => (super.noSuchMethod(
+        Invocation.getter(#willDisposeAnimationController),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  set willDisposeAnimationController(bool? _willDisposeAnimationController) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #willDisposeAnimationController,
+          _willDisposeAnimationController,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i9.Future<T?> get completed => (super.noSuchMethod(
+        Invocation.getter(#completed),
+        returnValue: _i9.Future<T?>.value(),
+        returnValueForMissingStub: _i9.Future<T?>.value(),
+      ) as _i9.Future<T?>);
+
+  @override
+  Duration get transitionDuration => (super.noSuchMethod(
+        Invocation.getter(#transitionDuration),
+        returnValue: _FakeDuration_15(
+          this,
+          Invocation.getter(#transitionDuration),
+        ),
+        returnValueForMissingStub: _FakeDuration_15(
+          this,
+          Invocation.getter(#transitionDuration),
+        ),
+      ) as Duration);
+
+  @override
+  Duration get reverseTransitionDuration => (super.noSuchMethod(
+        Invocation.getter(#reverseTransitionDuration),
+        returnValue: _FakeDuration_15(
+          this,
+          Invocation.getter(#reverseTransitionDuration),
+        ),
+        returnValueForMissingStub: _FakeDuration_15(
+          this,
+          Invocation.getter(#reverseTransitionDuration),
+        ),
+      ) as Duration);
+
+  @override
+  bool get finishedWhenPopped => (super.noSuchMethod(
+        Invocation.getter(#finishedWhenPopped),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  String get debugLabel => (super.noSuchMethod(
+        Invocation.getter(#debugLabel),
+        returnValue: _i16.dummyValue<String>(
+          this,
+          Invocation.getter(#debugLabel),
+        ),
+        returnValueForMissingStub: _i16.dummyValue<String>(
+          this,
+          Invocation.getter(#debugLabel),
+        ),
+      ) as String);
+
+  @override
+  List<_i7.OverlayEntry> get overlayEntries => (super.noSuchMethod(
+        Invocation.getter(#overlayEntries),
+        returnValue: <_i7.OverlayEntry>[],
+        returnValueForMissingStub: <_i7.OverlayEntry>[],
+      ) as List<_i7.OverlayEntry>);
+
+  @override
+  _i7.RouteSettings get settings => (super.noSuchMethod(
+        Invocation.getter(#settings),
+        returnValue: _FakeRouteSettings_16(
+          this,
+          Invocation.getter(#settings),
+        ),
+        returnValueForMissingStub: _FakeRouteSettings_16(
+          this,
+          Invocation.getter(#settings),
+        ),
+      ) as _i7.RouteSettings);
+
+  @override
+  _i10.ValueListenable<String?> get restorationScopeId => (super.noSuchMethod(
+        Invocation.getter(#restorationScopeId),
+        returnValue: _FakeValueListenable_17<String?>(
+          this,
+          Invocation.getter(#restorationScopeId),
+        ),
+        returnValueForMissingStub: _FakeValueListenable_17<String?>(
+          this,
+          Invocation.getter(#restorationScopeId),
+        ),
+      ) as _i10.ValueListenable<String?>);
+
+  @override
+  bool get willHandlePopInternally => (super.noSuchMethod(
+        Invocation.getter(#willHandlePopInternally),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  _i9.Future<T?> get popped => (super.noSuchMethod(
+        Invocation.getter(#popped),
+        returnValue: _i9.Future<T?>.value(),
+        returnValueForMissingStub: _i9.Future<T?>.value(),
+      ) as _i9.Future<T?>);
+
+  @override
+  bool get isCurrent => (super.noSuchMethod(
+        Invocation.getter(#isCurrent),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get isFirst => (super.noSuchMethod(
+        Invocation.getter(#isFirst),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get hasActiveRouteBelow => (super.noSuchMethod(
+        Invocation.getter(#hasActiveRouteBelow),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get isActive => (super.noSuchMethod(
+        Invocation.getter(#isActive),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  void install() => super.noSuchMethod(
+        Invocation.method(
+          #install,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void dispose() => super.noSuchMethod(
+        Invocation.method(
+          #dispose,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  bool canTransitionFrom(_i7.TransitionRoute<dynamic>? previousRoute) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #canTransitionFrom,
+          [previousRoute],
+        ),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool canTransitionTo(_i7.TransitionRoute<dynamic>? nextRoute) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #canTransitionTo,
+          [nextRoute],
+        ),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  _i7.Widget buildContent(
+    _i7.BuildContext? context,
+    _i7.Animation<double>? animation,
+    _i7.Animation<double>? secondaryAnimation,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #buildContent,
+          [
+            context,
+            animation,
+            secondaryAnimation,
+          ],
+        ),
+        returnValue: _FakeWidget_18(
+          this,
+          Invocation.method(
+            #buildContent,
+            [
+              context,
+              animation,
+              secondaryAnimation,
+            ],
+          ),
+        ),
+        returnValueForMissingStub: _FakeWidget_18(
+          this,
+          Invocation.method(
+            #buildContent,
+            [
+              context,
+              animation,
+              secondaryAnimation,
+            ],
+          ),
+        ),
+      ) as _i7.Widget);
+
+  @override
+  _i7.Widget buildPage(
+    _i7.BuildContext? context,
+    _i7.Animation<double>? animation,
+    _i7.Animation<double>? secondaryAnimation,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #buildPage,
+          [
+            context,
+            animation,
+            secondaryAnimation,
+          ],
+        ),
+        returnValue: _FakeWidget_18(
+          this,
+          Invocation.method(
+            #buildPage,
+            [
+              context,
+              animation,
+              secondaryAnimation,
+            ],
+          ),
+        ),
+        returnValueForMissingStub: _FakeWidget_18(
+          this,
+          Invocation.method(
+            #buildPage,
+            [
+              context,
+              animation,
+              secondaryAnimation,
+            ],
+          ),
+        ),
+      ) as _i7.Widget);
+
+  @override
+  _i7.Widget buildTransitions(
+    _i7.BuildContext? context,
+    _i7.Animation<double>? animation,
+    _i7.Animation<double>? secondaryAnimation,
+    _i7.Widget? child,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #buildTransitions,
+          [
+            context,
+            animation,
+            secondaryAnimation,
+            child,
+          ],
+        ),
+        returnValue: _FakeWidget_18(
+          this,
+          Invocation.method(
+            #buildTransitions,
+            [
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ],
+          ),
+        ),
+        returnValueForMissingStub: _FakeWidget_18(
+          this,
+          Invocation.method(
+            #buildTransitions,
+            [
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ],
+          ),
+        ),
+      ) as _i7.Widget);
+
+  @override
+  void setState(_i6.VoidCallback? fn) => super.noSuchMethod(
+        Invocation.method(
+          #setState,
+          [fn],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i7.TickerFuture didPush() => (super.noSuchMethod(
+        Invocation.method(
+          #didPush,
+          [],
+        ),
+        returnValue: _FakeTickerFuture_10(
+          this,
+          Invocation.method(
+            #didPush,
+            [],
+          ),
+        ),
+        returnValueForMissingStub: _FakeTickerFuture_10(
+          this,
+          Invocation.method(
+            #didPush,
+            [],
+          ),
+        ),
+      ) as _i7.TickerFuture);
+
+  @override
+  void didAdd() => super.noSuchMethod(
+        Invocation.method(
+          #didAdd,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i9.Future<_i7.RoutePopDisposition> willPop() => (super.noSuchMethod(
+        Invocation.method(
+          #willPop,
+          [],
+        ),
+        returnValue: _i9.Future<_i7.RoutePopDisposition>.value(
+            _i7.RoutePopDisposition.pop),
+        returnValueForMissingStub: _i9.Future<_i7.RoutePopDisposition>.value(
+            _i7.RoutePopDisposition.pop),
+      ) as _i9.Future<_i7.RoutePopDisposition>);
+
+  @override
+  void onPopInvoked(bool? didPop) => super.noSuchMethod(
+        Invocation.method(
+          #onPopInvoked,
+          [didPop],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addScopedWillPopCallback(_i7.WillPopCallback? callback) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #addScopedWillPopCallback,
+          [callback],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeScopedWillPopCallback(_i7.WillPopCallback? callback) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #removeScopedWillPopCallback,
+          [callback],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void registerPopEntry(_i7.PopEntry? popEntry) => super.noSuchMethod(
+        Invocation.method(
+          #registerPopEntry,
+          [popEntry],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void unregisterPopEntry(_i7.PopEntry? popEntry) => super.noSuchMethod(
+        Invocation.method(
+          #unregisterPopEntry,
+          [popEntry],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void didChangePrevious(_i7.Route<dynamic>? previousRoute) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #didChangePrevious,
+          [previousRoute],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void didChangeNext(_i7.Route<dynamic>? nextRoute) => super.noSuchMethod(
+        Invocation.method(
+          #didChangeNext,
+          [nextRoute],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void didPopNext(_i7.Route<dynamic>? nextRoute) => super.noSuchMethod(
+        Invocation.method(
+          #didPopNext,
+          [nextRoute],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void changedInternalState() => super.noSuchMethod(
+        Invocation.method(
+          #changedInternalState,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void changedExternalState() => super.noSuchMethod(
+        Invocation.method(
+          #changedExternalState,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i7.Widget buildModalBarrier() => (super.noSuchMethod(
+        Invocation.method(
+          #buildModalBarrier,
+          [],
+        ),
+        returnValue: _FakeWidget_18(
+          this,
+          Invocation.method(
+            #buildModalBarrier,
+            [],
+          ),
+        ),
+        returnValueForMissingStub: _FakeWidget_18(
+          this,
+          Invocation.method(
+            #buildModalBarrier,
+            [],
+          ),
+        ),
+      ) as _i7.Widget);
+
+  @override
+  Iterable<_i7.OverlayEntry> createOverlayEntries() => (super.noSuchMethod(
+        Invocation.method(
+          #createOverlayEntries,
+          [],
+        ),
+        returnValue: <_i7.OverlayEntry>[],
+        returnValueForMissingStub: <_i7.OverlayEntry>[],
+      ) as Iterable<_i7.OverlayEntry>);
+
+  @override
+  _i7.AnimationController createAnimationController() => (super.noSuchMethod(
+        Invocation.method(
+          #createAnimationController,
+          [],
+        ),
+        returnValue: _FakeAnimationController_19(
+          this,
+          Invocation.method(
+            #createAnimationController,
+            [],
+          ),
+        ),
+        returnValueForMissingStub: _FakeAnimationController_19(
+          this,
+          Invocation.method(
+            #createAnimationController,
+            [],
+          ),
+        ),
+      ) as _i7.AnimationController);
+
+  @override
+  _i7.Animation<double> createAnimation() => (super.noSuchMethod(
+        Invocation.method(
+          #createAnimation,
+          [],
+        ),
+        returnValue: _FakeAnimation_9<double>(
+          this,
+          Invocation.method(
+            #createAnimation,
+            [],
+          ),
+        ),
+        returnValueForMissingStub: _FakeAnimation_9<double>(
+          this,
+          Invocation.method(
+            #createAnimation,
+            [],
+          ),
+        ),
+      ) as _i7.Animation<double>);
+
+  @override
+  void didReplace(_i7.Route<dynamic>? oldRoute) => super.noSuchMethod(
+        Invocation.method(
+          #didReplace,
+          [oldRoute],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  bool didPop(T? result) => (super.noSuchMethod(
+        Invocation.method(
+          #didPop,
+          [result],
+        ),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  void handleStartBackGesture({double? progress = 0.0}) => super.noSuchMethod(
+        Invocation.method(
+          #handleStartBackGesture,
+          [],
+          {#progress: progress},
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void handleUpdateBackGestureProgress({required double? progress}) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #handleUpdateBackGestureProgress,
+          [],
+          {#progress: progress},
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void handleCancelBackGesture() => super.noSuchMethod(
+        Invocation.method(
+          #handleCancelBackGesture,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void handleCommitBackGesture() => super.noSuchMethod(
+        Invocation.method(
+          #handleCommitBackGesture,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void didComplete(T? result) => super.noSuchMethod(
+        Invocation.method(
+          #didComplete,
+          [result],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addLocalHistoryEntry(_i7.LocalHistoryEntry? entry) => super.noSuchMethod(
+        Invocation.method(
+          #addLocalHistoryEntry,
+          [entry],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeLocalHistoryEntry(_i7.LocalHistoryEntry? entry) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #removeLocalHistoryEntry,
+          [entry],
+        ),
+        returnValueForMissingStub: null,
+      );
 }

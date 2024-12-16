@@ -5,6 +5,7 @@ import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/foundation/foundation.dart';
 import 'package:smooth_sheets/src/foundation/sheet_context.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
+import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';
 
 @GenerateNiceMocks([
   MockSpec<SheetPosition>(),
@@ -12,7 +13,8 @@ import 'package:smooth_sheets/src/foundation/sheet_position.dart';
   MockSpec<AnimationController>(),
   MockSpec<TickerFuture>(),
   MockSpec<Ticker>(),
-  MockSpec<TickerProvider>()
+  MockSpec<TickerProvider>(),
+  MockSpec<BasePagedSheetRoute>(),
 ])
 import 'stubbing.mocks.dart';
 
