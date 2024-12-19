@@ -88,7 +88,7 @@ class _ExampleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableSheet(
+    return Sheet(
       controller: controller,
       minPosition: const SheetAnchor.proportional(0.5),
       physics: const BouncingSheetPhysics(

@@ -28,6 +28,7 @@ const kDefaultSheetPhysics =
     BouncingSheetPhysics(parent: SnappingSheetPhysics());
 
 // TODO: Implement `equals` and `hashCode` for SheetPhysics classes.
+// TODO: Split this class into SheetBoundaryConditions and SheetSnapBehavior.
 abstract class SheetPhysics {
   const SheetPhysics({this.parent});
 
@@ -409,13 +410,12 @@ class SnappingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   SheetPhysics copyWith({
     SheetPhysics? parent,
     SpringDescription? spring,
-    // TODO: Rename to 'behavior'
-    SnappingSheetBehavior? snappingBehavior,
+    SnappingSheetBehavior? behavior,
   }) {
     return SnappingSheetPhysics(
       parent: parent ?? this.parent,
       spring: spring ?? this.spring,
-      behavior: snappingBehavior ?? this.behavior,
+      behavior: behavior ?? this.behavior,
     );
   }
 

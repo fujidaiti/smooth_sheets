@@ -116,7 +116,7 @@ class _MySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableSheet(
+    return Sheet(
       // The 'minPosition' and 'maxPosition' properties determine
       // how far the sheet can be dragged.  Note that "position"
       // refers to the visible height of the sheet. For example,

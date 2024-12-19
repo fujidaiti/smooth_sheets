@@ -3,8 +3,8 @@
 /// the iOS flavor), and more.
 library;
 
-export 'src/draggable/draggable.dart';
 export 'src/foundation/foundation.dart';
 export 'src/modal/modal.dart';
-export 'src/navigation/navigation.dart';
+export 'src/paged/paged.dart';
+export 'src/paged/paged_sheet.dart';
 export 'src/scrollable/scrollable.dart';

@@ -21,7 +21,8 @@ class EditActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollableSheet(
+    return Sheet(
+      scrollConfiguration: const SheetScrollConfiguration(),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: SheetContentScaffold(

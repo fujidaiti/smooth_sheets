@@ -25,7 +25,7 @@ class SheetScrollable extends StatefulWidget {
 
 class _SheetScrollableState extends State<SheetScrollable> {
   late ScrollController _scrollController;
-  ScrollableSheetPosition? _position;
+  DraggableScrollableSheetPosition? _position;
 
   @override
   void initState() {
