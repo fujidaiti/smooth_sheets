@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
+import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_geometry.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';
 import 'package:smooth_sheets/src/paged/route_transition_observer.dart';
@@ -65,45 +66,30 @@ void main() {
         initialMaxOffset: const SheetAnchor.proportional(1),
       );
 
-      final (newRoute, newRouteTransitionController) = _createRoute(
+      final (newRoute, newRouteTransitionController) = _pushRoute(
+        geometry: geometryUnderTest,
+        currentRoute: initialRoute,
+        routeContentSize: const Size(400, 600),
         initialOffset: const SheetAnchor.proportional(1),
         minOffset: const SheetAnchor.proportional(1),
         maxOffset: const SheetAnchor.proportional(1),
         transitionDuration: const Duration(milliseconds: 200),
       );
-
-      final pushTransition = _startForwardTransition(
-        geometry: geometryUnderTest,
-        currentRoute: initialRoute,
-        newRoute: newRoute,
-        newRouteContentSize: const Size(400, 600),
-        newRouteTransitionController: newRouteTransitionController,
-      );
-      expect(geometryUnderTest.maybePixels, 200);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
-      expect(geometryUnderTest.activity, isA<RouteTransitionSheetActivity>());
-
-      pushTransition
-        ..tickAndSettle()
-        ..end();
       expect(geometryUnderTest.maybePixels, 600);
+      expect(geometryUnderTest.maybeMinPixels, 600);
+      expect(geometryUnderTest.maybeMaxPixels, 600);
       expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
 
-      final popTransition = _startBackwardTransition(
+      _popRoute(
         geometry: geometryUnderTest,
         currentRoute: newRoute,
         destinationRoute: initialRoute,
         currentRouteTransitionController: newRouteTransitionController,
       );
-      expect(geometryUnderTest.maybePixels, 600);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
-      expect(geometryUnderTest.activity, isA<RouteTransitionSheetActivity>());
-
-      popTransition
-        ..tickAndSettle()
-        ..end();
       expect(geometryUnderTest.maybePixels, 200);
+      expect(geometryUnderTest.maybeMinPixels, 200);
+      expect(geometryUnderTest.maybeMaxPixels, 400);
       expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
     });
@@ -223,7 +209,40 @@ void main() {
       expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
     });
 
-    test('Maintain offsets of each route throughout the transitions', () {});
+    test('Maintain offsets of each route throughout the transitions', () {
+      final initialRoute = _firstBuild(
+        geometry: geometryUnderTest,
+        initialRouteContentSize: const Size(400, 400),
+        viewportSize: const Size(400, 800),
+        initialOffset: const SheetAnchor.proportional(0.5),
+        initialMinOffset: const SheetAnchor.proportional(0.5),
+        initialMaxOffset: const SheetAnchor.proportional(1),
+      );
+
+      final testActivity = _TestSheetActivity();
+      geometryUnderTest.beginActivity(testActivity);
+      testActivity.setOffset(400);
+      expect(geometryUnderTest.maybePixels, 400);
+
+      final (newRoute, newRouteTransitionController) = _pushRoute(
+        geometry: geometryUnderTest,
+        currentRoute: initialRoute,
+        initialOffset: const SheetAnchor.proportional(1),
+        minOffset: const SheetAnchor.proportional(1),
+        maxOffset: const SheetAnchor.proportional(1),
+        routeContentSize: const Size(400, 600),
+        transitionDuration: const Duration(milliseconds: 200),
+      );
+      expect(geometryUnderTest.maybePixels, 600);
+
+      _popRoute(
+        geometry: geometryUnderTest,
+        currentRoute: newRoute,
+        destinationRoute: initialRoute,
+        currentRouteTransitionController: newRouteTransitionController,
+      );
+      expect(geometryUnderTest.maybePixels, 450);
+    });
 
     test('Sync offset with progress of the swipe-back gesture', () {
       final initialRoute = _firstBuild(
@@ -498,4 +517,11 @@ void _popRoute({
   )
     ..tickAndSettle()
     ..end();
+}
+
+class _TestSheetActivity extends SheetActivity {
+  void setOffset(double offset) => owner.setPixels(offset);
+
+  @override
+  SheetStatus get status => SheetStatus.animating;
 }
