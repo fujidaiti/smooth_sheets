@@ -976,6 +976,13 @@ class MockAnimationController extends _i1.Mock
       ) as bool);
 
   @override
+  bool get isForwardOrCompleted => (super.noSuchMethod(
+        Invocation.getter(#isForwardOrCompleted),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
   void resync(_i7.TickerProvider? vsync) => super.noSuchMethod(
         Invocation.method(
           #resync,
@@ -1037,6 +1044,31 @@ class MockAnimationController extends _i1.Mock
           this,
           Invocation.method(
             #reverse,
+            [],
+            {#from: from},
+          ),
+        ),
+      ) as _i7.TickerFuture);
+
+  @override
+  _i7.TickerFuture toggle({double? from}) => (super.noSuchMethod(
+        Invocation.method(
+          #toggle,
+          [],
+          {#from: from},
+        ),
+        returnValue: _FakeTickerFuture_10(
+          this,
+          Invocation.method(
+            #toggle,
+            [],
+            {#from: from},
+          ),
+        ),
+        returnValueForMissingStub: _FakeTickerFuture_10(
+          this,
+          Invocation.method(
+            #toggle,
             [],
             {#from: from},
           ),
@@ -1127,6 +1159,7 @@ class MockAnimationController extends _i1.Mock
     double? max,
     bool? reverse = false,
     Duration? period,
+    int? count,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1137,6 +1170,7 @@ class MockAnimationController extends _i1.Mock
             #max: max,
             #reverse: reverse,
             #period: period,
+            #count: count,
           },
         ),
         returnValue: _FakeTickerFuture_10(
@@ -1149,6 +1183,7 @@ class MockAnimationController extends _i1.Mock
               #max: max,
               #reverse: reverse,
               #period: period,
+              #count: count,
             },
           ),
         ),
@@ -1162,6 +1197,7 @@ class MockAnimationController extends _i1.Mock
               #max: max,
               #reverse: reverse,
               #period: period,
+              #count: count,
             },
           ),
         ),
@@ -1774,6 +1810,16 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
       ) as bool);
 
   @override
+  set receivedTransition(_i7.DelegatedTransitionBuilder? _receivedTransition) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #receivedTransition,
+          _receivedTransition,
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   bool get semanticsDismissible => (super.noSuchMethod(
         Invocation.getter(#semanticsDismissible),
         returnValue: false,
@@ -1927,6 +1973,13 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
         returnValue: <_i7.OverlayEntry>[],
         returnValueForMissingStub: <_i7.OverlayEntry>[],
       ) as List<_i7.OverlayEntry>);
+
+  @override
+  bool get requestFocus => (super.noSuchMethod(
+        Invocation.getter(#requestFocus),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
 
   @override
   _i7.RouteSettings get settings => (super.noSuchMethod(
@@ -2210,10 +2263,17 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
       ) as _i9.Future<_i7.RoutePopDisposition>);
 
   @override
-  void onPopInvoked(bool? didPop) => super.noSuchMethod(
+  void onPopInvokedWithResult(
+    bool? didPop,
+    T? result,
+  ) =>
+      super.noSuchMethod(
         Invocation.method(
-          #onPopInvoked,
-          [didPop],
+          #onPopInvokedWithResult,
+          [
+            didPop,
+            result,
+          ],
         ),
         returnValueForMissingStub: null,
       );
@@ -2239,7 +2299,7 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
       );
 
   @override
-  void registerPopEntry(_i7.PopEntry? popEntry) => super.noSuchMethod(
+  void registerPopEntry(_i7.PopEntry<Object?>? popEntry) => super.noSuchMethod(
         Invocation.method(
           #registerPopEntry,
           [popEntry],
@@ -2248,7 +2308,8 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
       );
 
   @override
-  void unregisterPopEntry(_i7.PopEntry? popEntry) => super.noSuchMethod(
+  void unregisterPopEntry(_i7.PopEntry<Object?>? popEntry) =>
+      super.noSuchMethod(
         Invocation.method(
           #unregisterPopEntry,
           [popEntry],
@@ -2432,6 +2493,15 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
         Invocation.method(
           #handleCommitBackGesture,
           [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void onPopInvoked(bool? didPop) => super.noSuchMethod(
+        Invocation.method(
+          #onPopInvoked,
+          [didPop],
         ),
         returnValueForMissingStub: null,
       );

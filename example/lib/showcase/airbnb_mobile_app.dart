@@ -1,4 +1,4 @@
-import 'package:faker/faker.dart';
+import 'package:faker/faker.dart' hide Image, Color;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
