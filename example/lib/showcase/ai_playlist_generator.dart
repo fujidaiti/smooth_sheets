@@ -184,7 +184,7 @@ class _SheetShell extends StatelessWidget {
       bottom: false,
       child: PopScope(
         canPop: false,
-        onPopInvoked: (didPop) async {
+        onPopInvokedWithResult: (didPop, _) async {
           if (!didPop) {
             final shouldPop = await showCancelDialog() ?? false;
             if (shouldPop && context.mounted) {
