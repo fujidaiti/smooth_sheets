@@ -7,8 +7,6 @@ void main() {
   runApp(const _App());
 }
 
-final transitionObserver = RouteTransitionObserver();
-
 final router = GoRouter(
   initialLocation: '/',
   routes: [
@@ -19,7 +17,6 @@ final router = GoRouter(
         },
         routes: [
           ShellRoute(
-            observers: [transitionObserver],
             pageBuilder: (context, state, child) {
               return CupertinoModalSheetPage(
                 key: state.pageKey,
@@ -81,7 +78,6 @@ class _Modal extends StatelessWidget {
   Widget build(BuildContext context) {
     return SheetViewport(
       child: PagedSheet(
-        transitionObserver: transitionObserver,
         child: Material(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),

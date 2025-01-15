@@ -12,10 +12,6 @@ void main() {
   runApp(const _DeclarativeNavigationSheetExample());
 }
 
-// NavigationSheet requires a special NavigatorObserver in order to
-// smoothly change its position during a route transition.
-final transitionObserver = PagedSheetNavigatorObserver();
-
 // To use declarative navigation, we utilize the 'go_router' package.
 // However, any other package that works with Navigator 2.0
 // or even your own implementation can also be used.
@@ -25,8 +21,6 @@ final router = GoRouter(
     // We use ShellRoute to create a Navigator
     // that will be used for nested navigation in the sheet.
     ShellRoute(
-      // Do not forget this line!
-      observers: [transitionObserver],
       builder: (context, state, child) {
         return _ExampleHome(nestedNavigator: child);
       },
@@ -175,7 +169,6 @@ class _ExampleSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PagedSheet(
-      transitionObserver: transitionObserver,
       child: Material(
         color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(16),

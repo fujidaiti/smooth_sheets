@@ -6,8 +6,6 @@ void main() {
   runApp(MaterialApp.router(routerConfig: _router));
 }
 
-final _transitionObserver = RouteTransitionObserver();
-
 final _router = GoRouter(
   routes: [
     GoRoute(
@@ -15,12 +13,10 @@ final _router = GoRouter(
       builder: (context, state) => const _Home(),
       routes: [
         ShellRoute(
-          observers: [_transitionObserver],
           pageBuilder: (context, state, child) {
             return ModalSheetPage(
               child: SheetViewport(
                 child: _MySheet(
-                  transitionObserver: _transitionObserver,
                   navigator: child,
                 ),
               ),
@@ -100,17 +96,14 @@ class _Home extends StatelessWidget {
 
 class _MySheet extends StatelessWidget {
   const _MySheet({
-    required this.transitionObserver,
     required this.navigator,
   });
 
-  final RouteTransitionObserver transitionObserver;
   final Widget navigator;
 
   @override
   Widget build(BuildContext context) {
     return PagedSheet(
-      transitionObserver: transitionObserver,
       child: ColoredBox(
         color: Colors.white,
         child: navigator,

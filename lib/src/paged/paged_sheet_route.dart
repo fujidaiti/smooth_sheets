@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
+import 'package:navigator_resizable/navigator_resizable.dart';
 
 import '../foundation/foundation.dart';
 import '../foundation/sheet_position_scope.dart';
@@ -35,12 +36,11 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
   }
 }
 
-class _RenderRouteContentLayoutObserver extends RenderPositionedBox {
+class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   _RenderRouteContentLayoutObserver({
     required this.parentRoute,
     required PagedSheetGeometry controller,
-  })  : _controller = controller,
-        super(alignment: Alignment.topCenter);
+  }) : _controller = controller;
 
   final BasePagedSheetRoute parentRoute;
 
@@ -64,7 +64,8 @@ class _RenderRouteContentLayoutObserver extends RenderPositionedBox {
 
 @internal
 @optionalTypeArgs
-abstract class BasePagedSheetRoute<T> extends PageRoute<T> {
+abstract class BasePagedSheetRoute<T> extends PageRoute<T>
+    with ObservableRouteMixin<T> {
   BasePagedSheetRoute({super.settings});
 
   SheetAnchor get initialOffset;
@@ -83,22 +84,6 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T> {
 
   @override
   String? get barrierLabel => null;
-
-  late final PagedSheetGeometry _sheetGeometry;
-
-  @override
-  void install() {
-    super.install();
-    _sheetGeometry =
-        SheetPositionScope.of<PagedSheetGeometry>(navigator!.context)
-          ..addRoute(this);
-  }
-
-  @override
-  void dispose() {
-    _sheetGeometry.removeRoute(this);
-    super.dispose();
-  }
 
   @override
   bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
@@ -123,15 +108,17 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    return _RouteContentLayoutObserver(
-      parentRoute: this,
-      child: DraggableScrollableSheetContent(
-        scrollConfiguration: scrollConfiguration,
-        dragConfiguration: dragConfiguration,
-        child: buildContent(
-          context,
-          animation,
-          secondaryAnimation,
+    return ResizableNavigatorRouteContentBoundary(
+      child: _RouteContentLayoutObserver(
+        parentRoute: this,
+        child: DraggableScrollableSheetContent(
+          scrollConfiguration: scrollConfiguration,
+          dragConfiguration: dragConfiguration,
+          child: buildContent(
+            context,
+            animation,
+            secondaryAnimation,
+          ),
         ),
       ),
     );

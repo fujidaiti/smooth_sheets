@@ -41,8 +41,6 @@ class _AiPlaylistGeneratorExample extends StatelessWidget {
 // Routes
 // ----------------------------------------------------------
 
-final sheetTransitionObserver = RouteTransitionObserver();
-
 final router = GoRouter(
   routes: [
     GoRoute(
@@ -55,14 +53,12 @@ final router = GoRouter(
 
 // A ShellRoute is used to create a new Navigator for nested navigation in the sheet.
 final _sheetShellRoute = ShellRoute(
-  observers: [sheetTransitionObserver],
   pageBuilder: (context, state, navigator) {
     // Use ModalSheetPage to show a modal sheet.
     return ModalSheetPage(
       swipeDismissible: true,
       child: _SheetShell(
         navigator: navigator,
-        transitionObserver: sheetTransitionObserver,
       ),
     );
   },
@@ -148,11 +144,9 @@ class _Root extends StatelessWidget {
 
 class _SheetShell extends StatelessWidget {
   const _SheetShell({
-    required this.transitionObserver,
     required this.navigator,
   });
 
-  final RouteTransitionObserver transitionObserver;
   final Widget navigator;
 
   @override
@@ -194,7 +188,6 @@ class _SheetShell extends StatelessWidget {
         },
         child: SheetViewport(
           child: PagedSheet(
-            transitionObserver: sheetTransitionObserver,
             child: Material(
               // Add circular corners to the sheet.
               borderRadius: BorderRadius.circular(16),

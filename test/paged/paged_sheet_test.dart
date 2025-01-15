@@ -8,8 +8,7 @@ import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import '../src/keyboard_inset_simulation.dart';
 
 class _TestWidget extends StatelessWidget {
-  const _TestWidget(
-    this.sheetTransitionObserver, {
+  const _TestWidget({
     required this.initialRoute,
     required this.routes,
     this.sheetKey,
@@ -24,7 +23,6 @@ class _TestWidget extends StatelessWidget {
   final Widget Function(BuildContext, Widget)? contentBuilder;
   final Widget Function(BuildContext, Widget)? sheetBuilder;
   final SheetController? sheetController;
-  final RouteTransitionObserver sheetTransitionObserver;
   final Key? sheetKey;
   final bool useMaterialApp;
 
@@ -34,11 +32,9 @@ class _TestWidget extends StatelessWidget {
       child: PagedSheet(
         key: sheetKey,
         controller: sheetController,
-        transitionObserver: sheetTransitionObserver,
         child: ColoredBox(
           color: Colors.white,
           child: Navigator(
-            observers: [sheetTransitionObserver],
             initialRoute: initialRoute,
             onGenerateRoute: (settings) => routes[settings.name]!(),
           ),
@@ -232,12 +228,6 @@ class _TestScrollablePageWidget extends StatelessWidget {
 }
 
 void main() {
-  late RouteTransitionObserver transitionObserver;
-
-  setUp(() {
-    transitionObserver = RouteTransitionObserver();
-  });
-
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/151
   testWidgets(
     'Attached controller emits correct pixel values when dragging',
@@ -250,7 +240,6 @@ void main() {
 
       await tester.pumpWidget(
         _TestWidget(
-          transitionObserver,
           sheetController: controller,
           initialRoute: 'first',
           routes: {
@@ -296,7 +285,6 @@ void main() {
 
       await tester.pumpWidget(
         _TestWidget(
-          transitionObserver,
           sheetController: controller,
           initialRoute: 'first',
           routes: {
@@ -356,7 +344,6 @@ void main() {
       SheetControllerScope(
         controller: controller,
         child: _TestWidget(
-          transitionObserver,
           initialRoute: 'first',
           routes: {
             'first': () => _TestDraggablePageWidget.createRoute(
@@ -414,7 +401,6 @@ void main() {
 
       await tester.pumpWidget(
         _TestWidget(
-          transitionObserver,
           initialRoute: 'first',
           useMaterialApp: true,
           routes: {'first': () => routeWithDropdownButton},
@@ -453,7 +439,6 @@ void main() {
 
       await tester.pumpWidget(
         _TestWidget(
-          transitionObserver,
           sheetController: controller,
           sheetKey: sheetKey,
           initialRoute: 'first',
@@ -513,7 +498,6 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         _TestWidget(
-          transitionObserver,
           initialRoute: 'first',
           routes: {
             'first': () => _TestDraggablePageWidget.createRoute(
@@ -571,7 +555,6 @@ void main() {
       );
 
       testWidget = _TestWidget(
-        transitionObserver,
         initialRoute: 'first',
         useMaterialApp: true,
         routes: {'first': () => routeWithTextField},

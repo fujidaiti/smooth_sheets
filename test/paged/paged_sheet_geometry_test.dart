@@ -6,7 +6,6 @@ import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_geometry.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';
-import 'package:smooth_sheets/src/paged/route_transition_observer.dart';
 
 import '../src/stubbing.dart';
 import '../src/stubbing.mocks.dart';
@@ -335,7 +334,7 @@ MockBasePagedSheetRoute<dynamic> _firstBuild({
     ..applyNewViewportInsets(EdgeInsets.zero)
     ..applyNewViewportSize(viewportSize)
     ..addRoute(initialRoute)
-    ..onTransition(NoRouteTransition(currentRoute: initialRoute))
+    ..didEndTransition(initialRoute)
     ..applyNewRouteContentSize(initialRoute, initialRouteContentSize)
     ..finalizePosition();
 
@@ -358,12 +357,11 @@ _TransitionHandle _startForwardTransition({
   newRouteTransitionController.forward();
   geometry
     ..addRoute(newRoute)
-    ..onTransition(
-      ForwardRouteTransition(
-        originRoute: currentRoute,
-        destinationRoute: newRoute,
-        animation: newRouteTransitionController,
-      ),
+    ..didStartTransition(
+      currentRoute,
+      newRoute,
+      newRouteTransitionController,
+      isUserGestureInProgress: false,
     )
     ..applyNewRouteContentSize(newRoute, newRouteContentSize)
     ..finalizePosition();
@@ -379,7 +377,7 @@ _TransitionHandle _startForwardTransition({
     },
     end: () {
       geometry
-        ..onTransition(NoRouteTransition(currentRoute: newRoute))
+        ..didEndTransition(newRoute)
         ..finalizePosition();
     },
   );
@@ -393,14 +391,10 @@ _TransitionHandle _startBackwardTransition({
 }) {
   currentRouteTransitionController.reverse();
   geometry
-    ..onTransition(
-      ForwardRouteTransition(
-        originRoute: currentRoute,
-        destinationRoute: destinationRoute,
-        animation: currentRouteTransitionController.drive(
-          Tween(begin: 1, end: 0),
-        ),
-      ),
+    ..didStartTransition(
+      currentRoute,
+      destinationRoute,
+      currentRouteTransitionController,
     )
     ..finalizePosition();
 
@@ -415,7 +409,7 @@ _TransitionHandle _startBackwardTransition({
     },
     end: () {
       geometry
-        ..onTransition(NoRouteTransition(currentRoute: destinationRoute))
+        ..didEndTransition(destinationRoute)
         ..removeRoute(currentRoute)
         ..finalizePosition();
     },
@@ -436,14 +430,11 @@ _UserGestureTransitionHandle _startUserGestureTransition({
 }) {
   currentRouteTransitionController.value = 1;
   geometry
-    ..onTransition(
-      UserGestureRouteTransition(
-        currentRoute: currentRoute,
-        previousRoute: previousRoute,
-        animation: currentRouteTransitionController.drive(
-          Tween(begin: 1, end: 0),
-        ),
-      ),
+    ..didStartTransition(
+      currentRoute,
+      previousRoute,
+      currentRouteTransitionController,
+      isUserGestureInProgress: true,
     )
     ..finalizePosition();
 
@@ -463,12 +454,10 @@ _UserGestureTransitionHandle _startUserGestureTransition({
     },
     end: () {
       geometry
-        ..onTransition(
-          NoRouteTransition(
-            currentRoute: currentRouteTransitionController.isDismissed
-                ? previousRoute
-                : currentRoute,
-          ),
+        ..didEndTransition(
+          currentRouteTransitionController.isDismissed
+              ? previousRoute
+              : currentRoute,
         )
         ..finalizePosition();
     },

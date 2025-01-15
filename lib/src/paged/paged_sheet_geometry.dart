@@ -7,7 +7,6 @@ import '../../smooth_sheets.dart';
 import '../foundation/sheet_activity.dart';
 import '../scrollable/scrollable_sheet_position.dart';
 import 'paged_sheet_route.dart';
-import 'route_transition_observer.dart';
 
 @internal
 const kDefaultPagedSheetPhysics = ClampingSheetPhysics();
@@ -168,51 +167,35 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     ));
   }
 
-  void onTransition(RouteTransition? transition) {
-    switch (transition) {
-      case NoRouteTransition(:final BasePagedSheetRoute currentRoute):
-        _goIdleWithRoute(currentRoute);
-
-      case ForwardRouteTransition(
-          :final BasePagedSheetRoute originRoute,
-          :final BasePagedSheetRoute destinationRoute,
-          :final animation,
-        ):
-        _goTransition(
-          originRoute: originRoute,
-          destinationRoute: destinationRoute,
-          animation: animation,
-          animationCurve: kDefaultPagedSheetTransitionCurve,
-        );
-
-      case BackwardRouteTransition(
-          :final BasePagedSheetRoute originRoute,
-          :final BasePagedSheetRoute destinationRoute,
-          :final animation,
-        ):
-        _goTransition(
-          originRoute: originRoute,
-          destinationRoute: destinationRoute,
-          animation: animation,
-          animationCurve: kDefaultPagedSheetTransitionCurve,
-        );
-
-      case UserGestureRouteTransition(
-          :final BasePagedSheetRoute currentRoute,
-          :final BasePagedSheetRoute previousRoute,
-          :final animation,
-        ):
-        _goTransition(
-          originRoute: currentRoute,
-          destinationRoute: previousRoute,
-          animation: animation,
-          animationCurve: Curves.linear,
-        );
-
-      case _:
-        _setCurrentRoute(null);
-        goIdle();
+  void didStartTransition(
+    BasePagedSheetRoute currentRoute,
+    BasePagedSheetRoute nextRoute,
+    Animation<double> animation, {
+    bool isUserGestureInProgress = false,
+  }) {
+    final Curve effectiveCurve;
+    final Animation<double> effectiveAnimation;
+    if (isUserGestureInProgress) {
+      effectiveCurve = Curves.linear;
+      effectiveAnimation = animation.drive(Tween(begin: 1.0, end: 0.0));
+    } else if (animation.status == AnimationStatus.reverse) {
+      effectiveCurve = kDefaultPagedSheetTransitionCurve;
+      effectiveAnimation = animation.drive(Tween(begin: 1.0, end: 0.0));
+    } else {
+      effectiveCurve = kDefaultPagedSheetTransitionCurve;
+      effectiveAnimation = animation;
     }
+
+    _goTransition(
+      originRoute: currentRoute,
+      destinationRoute: nextRoute,
+      animation: effectiveAnimation,
+      animationCurve: effectiveCurve,
+    );
+  }
+
+  void didEndTransition(BasePagedSheetRoute route) {
+    _goIdleWithRoute(route);
   }
 }
 

@@ -23,10 +23,6 @@ class _ImperativeNavigationSheetExample extends StatelessWidget {
   }
 }
 
-// NavigationSheet requires a special NavigatorObserver in order to
-// smoothly change its position during a route transition.
-final _transitionObserver = PagedSheetNavigatorObserver();
-
 class _ExampleSheet extends StatelessWidget {
   const _ExampleSheet();
 
@@ -34,8 +30,6 @@ class _ExampleSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     // Create a navigator somehow that will be used for nested navigation in the sheet.
     final nestedNavigator = Navigator(
-      // Do not forget to attach the observer!
-      observers: [_transitionObserver],
       onGenerateInitialRoutes: (navigator, initialRoute) {
         return [
           // Use ScrollableNavigationSheetRoute for a draggable page.
@@ -50,7 +44,6 @@ class _ExampleSheet extends StatelessWidget {
 
     // Wrap the nested navigator in a NavigationSheet.
     return PagedSheet(
-      transitionObserver: _transitionObserver,
       child: Card(
         clipBehavior: Clip.antiAlias,
         color: Theme.of(context).colorScheme.primary,

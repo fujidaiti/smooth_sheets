@@ -19,6 +19,7 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.9.1
+  navigator_resizable: ^1.0.2
 
 dev_dependencies:
   build_runner: ^2.4.9
