@@ -419,10 +419,21 @@ class SettlingSheetActivity extends SheetActivity {
   }
 }
 
+// TODO: Rename to `StableSheetActivity` or similar.
 @internal
 class IdleSheetActivity extends SheetActivity {
   @override
   SheetStatus get status => SheetStatus.stable;
+  
+  late final SheetAnchor targetOffset;
+
+  @override
+  void init(SheetPosition owner) {
+    super.init(owner);
+    targetOffset = owner.hasDimensions
+        ? owner.physics.findSettledPosition(owner.pixels, owner)
+        : owner.initialPosition;
+  }
 
   /// Updates [SheetMetrics.pixels] to maintain the current [SheetAnchor], which
   /// is determined by [SheetPhysics.findSettledPosition] using the metrics of
@@ -439,14 +450,7 @@ class IdleSheetActivity extends SheetActivity {
       return;
     }
 
-    final oldMetrics = owner.copyWith(
-      contentSize: oldContentSize,
-      viewportSize: oldViewportSize,
-      viewportInsets: oldViewportInsets,
-    );
-    final prevDetent = owner.physics.findSettledPosition(0, oldMetrics);
-    final newPixels = prevDetent.resolve(owner.contentSize);
-
+    final newPixels = targetOffset.resolve(owner.contentSize);
     if (newPixels == owner.pixels) {
       return;
     } else if (oldViewportInsets != null &&
@@ -470,7 +474,7 @@ class IdleSheetActivity extends SheetActivity {
     );
     if (estimatedDuration >= minAnimationDuration) {
       owner.animateTo(
-        prevDetent,
+        targetOffset,
         duration: estimatedDuration,
         curve: Curves.easeInOut,
       );
