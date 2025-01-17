@@ -19,18 +19,13 @@ class DraggableScrollableSheetPosition extends SheetPosition
     implements SheetContentScrollPositionOwner {
   DraggableScrollableSheetPosition({
     required super.context,
-    required this.initialPosition,
+    required super.initialPosition,
     required super.minPosition,
     required super.maxPosition,
     required super.physics,
     super.gestureTamperer,
     super.debugLabel,
   });
-
-  /// {@template ScrollableSheetPosition.initialPosition}
-  /// The initial position of the sheet.
-  /// {@endtemplate}
-  final SheetAnchor initialPosition;
 
   // TODO: Stop scroll animations when a non-scrollable activity starts.
   final _scrollPositions = HashSet<SheetContentScrollPosition>();

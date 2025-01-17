@@ -43,6 +43,7 @@ void main() {
     test('should animate to the destination', () {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
+        initialPosition: const SheetAnchor.pixels(300),
         minPosition: const SheetAnchor.pixels(300),
         maxPosition: const SheetAnchor.pixels(700),
         contentSize: const Size(400, 700),
@@ -82,6 +83,7 @@ void main() {
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
+        initialPosition: const SheetAnchor.pixels(300),
         minPosition: const SheetAnchor.pixels(300),
         maxPosition: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 900),
@@ -143,6 +145,7 @@ void main() {
     setUp(() {
       (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
+        initialPosition: const SheetAnchor.proportional(0.5),
         minPosition: const SheetAnchor.proportional(0.5),
         maxPosition: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 600),
@@ -276,6 +279,7 @@ void main() {
     test('should maintain previous position when keyboard appears', () {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 450,
+        initialPosition: const SheetAnchor.proportional(0.5),
         minPosition: const SheetAnchor.proportional(0.5),
         maxPosition: const SheetAnchor.proportional(1),
         contentSize: const Size(400, 850),
@@ -302,6 +306,7 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetPosition(
           pixels: 300,
+          initialPosition: const SheetAnchor.proportional(0.5),
           minPosition: const SheetAnchor.proportional(0.5),
           maxPosition: const SheetAnchor.proportional(1),
           contentSize: const Size(400, 580),
@@ -328,6 +333,7 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetPosition(
           pixels: 300,
+          initialPosition: const SheetAnchor.proportional(0.5),
           minPosition: const SheetAnchor.proportional(0.5),
           maxPosition: const SheetAnchor.proportional(1),
           contentSize: const Size(400, 500),

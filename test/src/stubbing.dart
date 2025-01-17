@@ -76,6 +76,7 @@ class MutableSheetMetrics with SheetMetrics {
 
 (MutableSheetMetrics, MockSheetPosition) createMockSheetPosition({
   required double pixels,
+  required SheetAnchor initialPosition,
   required SheetAnchor minPosition,
   required SheetAnchor maxPosition,
   required Size contentSize,
@@ -97,6 +98,7 @@ class MutableSheetMetrics with SheetMetrics {
   final position = MockSheetPosition();
   when(position.pixels).thenAnswer((_) => metricsRegistry.pixels);
   when(position.maybePixels).thenAnswer((_) => metricsRegistry.maybePixels);
+  when(position.initialPosition).thenAnswer((_) => initialPosition);
   when(position.minPosition).thenAnswer((_) => metricsRegistry.minPosition);
   when(position.maybeMinPosition)
       .thenAnswer((_) => metricsRegistry.maybeMinPosition);

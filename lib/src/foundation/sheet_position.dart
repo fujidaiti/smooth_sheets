@@ -146,6 +146,7 @@ abstract class SheetPosition extends ChangeNotifier
   /// Creates an object that manages the position of a sheet.
   SheetPosition({
     required this.context,
+    required this.initialPosition,
     required SheetAnchor minPosition,
     required SheetAnchor maxPosition,
     required SheetPhysics physics,
@@ -185,6 +186,8 @@ abstract class SheetPosition extends ChangeNotifier
   double get devicePixelRatio => context.devicePixelRatio;
 
   SheetStatus get status => activity.status;
+
+  final SheetAnchor initialPosition;
 
   /// A handle to the owner of this object.
   final SheetContext context;

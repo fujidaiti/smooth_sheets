@@ -52,6 +52,7 @@ class _FakeSheetPosition extends SheetPosition {
     this.createIdleActivity,
   }) : super(
           context: _FakeSheetContext(),
+          initialPosition: const SheetAnchor.proportional(1),
           minPosition: const SheetAnchor.proportional(0.5),
           maxPosition: const SheetAnchor.proportional(1),
           physics: const ClampingSheetPhysics(),
