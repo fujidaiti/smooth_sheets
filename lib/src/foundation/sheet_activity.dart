@@ -421,10 +421,8 @@ class SettlingSheetActivity extends SheetActivity {
 
 // TODO: Rename to `StableSheetActivity` or similar.
 @internal
-class IdleSheetActivity extends SheetActivity {
+class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
   @override
-  SheetStatus get status => SheetStatus.stable;
-  
   late final SheetAnchor targetOffset;
 
   @override
@@ -433,58 +431,6 @@ class IdleSheetActivity extends SheetActivity {
     targetOffset = owner.hasDimensions
         ? owner.physics.findSettledPosition(owner.pixels, owner)
         : owner.initialPosition;
-  }
-
-  /// Updates [SheetMetrics.pixels] to maintain the current [SheetAnchor], which
-  /// is determined by [SheetPhysics.findSettledPosition] using the metrics of
-  /// the previous frame.
-  @override
-  void finalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
-    if (oldContentSize == null &&
-        oldViewportSize == null &&
-        oldViewportInsets == null) {
-      return;
-    }
-
-    final newPixels = targetOffset.resolve(owner.contentSize);
-    if (newPixels == owner.pixels) {
-      return;
-    } else if (oldViewportInsets != null &&
-        oldViewportInsets.bottom != owner.viewportInsets.bottom) {
-      // TODO: Is it possible to remove this assumption?
-      // We currently assume that when the bottom viewport inset changes,
-      // it is due to the appearance or disappearance of the keyboard,
-      // and that this change will gradually occur over several frames,
-      // likely due to animation.
-      owner
-        ..setPixels(newPixels)
-        ..didUpdateMetrics();
-      return;
-    }
-
-    const minAnimationDuration = Duration(milliseconds: 150);
-    const meanAnimationVelocity = 300 / 1000; // pixels per millisecond
-    final distance = (newPixels - owner.pixels).abs();
-    final estimatedDuration = Duration(
-      milliseconds: (distance / meanAnimationVelocity).round(),
-    );
-    if (estimatedDuration >= minAnimationDuration) {
-      owner.animateTo(
-        targetOffset,
-        duration: estimatedDuration,
-        curve: Curves.easeInOut,
-      );
-    } else {
-      // The destination is close enough to the current position,
-      // so we immediately snap to it without animation.
-      owner
-        ..setPixels(newPixels)
-        ..didUpdateMetrics();
-    }
   }
 }
 
@@ -541,6 +487,66 @@ class DragSheetActivity extends SheetActivity
     owner
       ..didDragCancel()
       ..goBallistic(0);
+  }
+}
+
+@internal
+mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
+  SheetAnchor get targetOffset;
+
+  @override
+  SheetStatus get status => SheetStatus.stable;
+
+  /// Updates [SheetMetrics.pixels] to maintain the current [SheetAnchor], which
+  /// is determined by [SheetPhysics.findSettledPosition] using the metrics of
+  /// the previous frame.
+  @override
+  void finalizePosition(
+    Size? oldContentSize,
+    Size? oldViewportSize,
+    EdgeInsets? oldViewportInsets,
+  ) {
+    if (oldContentSize == null &&
+        oldViewportSize == null &&
+        oldViewportInsets == null) {
+      return;
+    }
+
+    final newPixels = targetOffset.resolve(owner.contentSize);
+    if (newPixels == owner.pixels) {
+      return;
+    } else if (oldViewportInsets != null &&
+        oldViewportInsets.bottom != owner.viewportInsets.bottom) {
+      // TODO: Is it possible to remove this assumption?
+      // We currently assume that when the bottom viewport inset changes,
+      // it is due to the appearance or disappearance of the keyboard,
+      // and that this change will gradually occur over several frames,
+      // likely due to animation.
+      owner
+        ..setPixels(newPixels)
+        ..didUpdateMetrics();
+      return;
+    }
+
+    const minAnimationDuration = Duration(milliseconds: 150);
+    const meanAnimationVelocity = 300 / 1000; // pixels per millisecond
+    final distance = (newPixels - owner.pixels).abs();
+    final estimatedDuration = Duration(
+      milliseconds: (distance / meanAnimationVelocity).round(),
+    );
+    if (estimatedDuration >= minAnimationDuration) {
+      owner.animateTo(
+        targetOffset,
+        duration: estimatedDuration,
+        curve: Curves.easeInOut,
+      );
+    } else {
+      // The destination is close enough to the current position,
+      // so we immediately snap to it without animation.
+      owner
+        ..setPixels(newPixels)
+        ..didUpdateMetrics();
+    }
   }
 }
 
