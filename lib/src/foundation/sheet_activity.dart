@@ -65,36 +65,17 @@ abstract class SheetActivity<T extends SheetPosition> {
 
   bool isCompatibleWith(SheetPosition newOwner) => newOwner is T;
 
-  void didChangeContentSize(Size? oldSize) {}
-
-  void didChangeViewportDimensions(Size? oldSize) {}
-
-  void didChangeViewportInsets(EdgeInsets? oldInsets) {}
-
   void didChangeBoundaryConstraints(
     SheetAnchor? oldMinPosition,
     SheetAnchor? oldMaxPosition,
   ) {}
 
-  /// Finalizes the sheet position for the current frame.
-  ///
-  /// The [oldContentSize], [oldViewportSize], and [oldViewportInsets] will be
-  /// `null` if the [SheetMetrics.contentSize], [SheetMetrics.viewportSize], and
-  /// [SheetMetrics.viewportInsets] have not changed since the previous frame.
-  ///
-  /// Since this is called after the layout phase and before the painting phase
-  /// of the sheet, it is safe to update [SheetMetrics.pixels] to reflect the
-  /// latest metrics.
-  ///
-  /// By default, this method updates [SheetMetrics.pixels] to maintain the
-  /// visual position of the sheet when the viewport insets change, typically
-  /// due to the appearance or disappearance of the on-screen keyboard.
-  void finalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
-    if (oldViewportInsets != null) {
+  void didChangeDimensions({
+    required Size oldContentSize,
+    required Size oldViewportSize,
+    required EdgeInsets oldViewportInsets,
+  }) {
+    if (owner.maybeViewportInsets != oldViewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
   }
@@ -194,12 +175,12 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void finalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
-    if (oldViewportInsets != null) {
+  void didChangeDimensions({
+    required Size oldContentSize,
+    required Size oldViewportSize,
+    required EdgeInsets oldViewportInsets,
+  }) {
+    if (owner.maybeViewportInsets != oldViewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
     final newEndPixels = destination.resolve(owner.contentSize);
@@ -245,17 +226,11 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void finalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
-    if (oldContentSize == null &&
-        oldViewportSize == null &&
-        oldViewportInsets == null) {
-      return;
-    }
-
+  void didChangeDimensions({
+    required Size oldContentSize,
+    required Size oldViewportSize,
+    required EdgeInsets oldViewportInsets,
+  }) {
     final oldMetrics = owner.copyWith(
       contentSize: oldContentSize,
       viewportSize: oldViewportSize,
@@ -263,7 +238,7 @@ class BallisticSheetActivity extends SheetActivity
     );
     final destination = owner.physics.findSettledPosition(velocity, oldMetrics);
 
-    if (oldViewportInsets != null) {
+    if (oldViewportInsets != owner.viewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
 
@@ -380,12 +355,12 @@ class SettlingSheetActivity extends SheetActivity {
   }
 
   @override
-  void finalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
-    if (oldViewportInsets != null) {
+  void didChangeDimensions({
+    required Size oldContentSize,
+    required Size oldViewportSize,
+    required EdgeInsets oldViewportInsets,
+  }) {
+    if (oldViewportInsets != owner.viewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
 
@@ -501,22 +476,15 @@ mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
   /// is determined by [SheetPhysics.findSettledPosition] using the metrics of
   /// the previous frame.
   @override
-  void finalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
-    if (oldContentSize == null &&
-        oldViewportSize == null &&
-        oldViewportInsets == null) {
-      return;
-    }
-
+  void didChangeDimensions({
+    required Size oldContentSize,
+    required Size oldViewportSize,
+    required EdgeInsets oldViewportInsets,
+  }) {
     final newPixels = targetOffset.resolve(owner.contentSize);
     if (newPixels == owner.pixels) {
       return;
-    } else if (oldViewportInsets != null &&
-        oldViewportInsets.bottom != owner.viewportInsets.bottom) {
+    } else if (oldViewportInsets.bottom != owner.viewportInsets.bottom) {
       // TODO: Is it possible to remove this assumption?
       // We currently assume that when the bottom viewport inset changes,
       // it is due to the appearance or disappearance of the keyboard,
@@ -599,13 +567,13 @@ mixin UserControlledSheetActivityMixin<T extends SheetPosition>
   SheetStatus get status => SheetStatus.dragging;
 
   @override
-  void finalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
+  void didChangeDimensions({
+    required Size oldContentSize,
+    required Size oldViewportSize,
+    required EdgeInsets oldViewportInsets,
+  }) {
     assert(owner.hasDimensions);
-    if (oldViewportInsets != null) {
+    if (oldViewportInsets != owner.viewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
     // We don't call `goSettling` here because the user is still

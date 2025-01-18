@@ -33,20 +33,17 @@ class _PagedSheetState extends State<PagedSheet>
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return Align(
-      alignment: Alignment.topCenter,
+    return _PagedSheetPositionScope(
+      key: SheetViewport.of(context).positionOwnerKey,
+      context: this,
+      physics: kDefaultPagedSheetPhysics,
+      minPosition: kDefaultPagedSheetMinOffset,
+      maxPosition: kDefaultPagedSheetMaxOffset,
+      controller: controller,
+      gestureTamperer: gestureProxy,
+      debugLabel: kDebugMode ? 'NavigationSheet' : null,
       child: NavigatorResizable(
-        child: _PagedSheetPositionScope(
-          key: SheetViewport.of(context).positionOwnerKey,
-          context: this,
-          physics: kDefaultPagedSheetPhysics,
-          minPosition: kDefaultPagedSheetMinOffset,
-          maxPosition: kDefaultPagedSheetMaxOffset,
-          controller: controller,
-          gestureTamperer: gestureProxy,
-          debugLabel: kDebugMode ? 'NavigationSheet' : null,
-          child: widget.child,
-        ),
+        child: widget.child,
       ),
     );
   }

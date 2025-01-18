@@ -24,9 +24,15 @@ const kDefaultPagedSheetMaxOffset = SheetAnchor.proportional(1);
 const kDefaultPagedSheetTransitionCurve = Curves.easeInOutCubic;
 
 class _RouteGeometry {
-  Size? oldContentSize;
+  _RouteGeometry({
+    required this.targetOffset,
+  });
+
   Size? contentSize;
-  double? offset;
+  SheetAnchor targetOffset;
+
+  double? get resolvedTargetOffset =>
+      contentSize != null ? targetOffset.resolve(contentSize!) : null;
 }
 
 @internal
@@ -52,13 +58,6 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
       _currentRoute = route;
       updatePhysics(route.physics);
       applyNewBoundaryConstraints(route.minOffset, route.maxOffset);
-      final routeGeometry = _routeGeometries[route];
-      if (routeGeometry?.contentSize case final contentSize?) {
-        applyNewContentSize(contentSize);
-      }
-      if (routeGeometry?.offset case final offset?) {
-        setPixels(offset);
-      }
     } else {
       _currentRoute = null;
       updatePhysics(kDefaultPagedSheetPhysics);
@@ -71,7 +70,9 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
 
   void addRoute(BasePagedSheetRoute route) {
     assert(!_routeGeometries.containsKey(route));
-    _routeGeometries[route] = _RouteGeometry();
+    _routeGeometries[route] = _RouteGeometry(
+      targetOffset: route.initialOffset,
+    );
   }
 
   void removeRoute(BasePagedSheetRoute route) {
@@ -86,51 +87,17 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
   void applyNewRouteContentSize(BasePagedSheetRoute route, Size contentSize) {
     assert(_routeGeometries.containsKey(route));
     _routeGeometries[route]?.contentSize = contentSize;
-    if (route == _currentRoute) {
-      applyNewContentSize(contentSize);
-    }
   }
 
   @override
-  void onFinalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
+  void applyNewDimensions(
+    Size contentSize,
+    Size viewportSize,
+    EdgeInsets viewportInsets,
   ) {
-    for (final entry in _routeGeometries.entries) {
-      final route = entry.key;
-      final routeGeometry = entry.value;
-
-      assert(
-        routeGeometry.contentSize != null,
-        'Route content size must be set before finalizing the offset.',
-      );
-      final currentContentSize = routeGeometry.contentSize!;
-      final oldContentSize = routeGeometry.oldContentSize;
-
-      final currentOffset = routeGeometry.offset ??=
-          route.initialOffset.resolve(currentContentSize);
-
-      if (oldContentSize != null && oldContentSize != currentContentSize) {
-        _routeGeometries[route]?.offset = physics
-            .findSettledPosition(
-              0,
-              SheetMetricsSnapshot(
-                pixels: currentOffset,
-                minPosition: route.minOffset,
-                maxPosition: route.maxOffset,
-                contentSize: oldContentSize,
-                viewportSize: oldViewportSize,
-                viewportInsets: oldViewportInsets,
-              ),
-            )
-            .resolve(currentContentSize);
-      }
-
-      _routeGeometries[route]?.oldContentSize = null;
-    }
-
-    if (maybePixels == null) {
+    final isOffsetUnset = maybePixels == null;
+    super.applyNewDimensions(contentSize, viewportSize, viewportInsets);
+    if (isOffsetUnset) {
       setPixels(
         _currentRoute?.initialOffset.resolve(contentSize) ??
             initialPosition.resolve(contentSize),
@@ -139,32 +106,17 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
   }
 
   @override
-  void setPixels(double pixels) {
-    super.setPixels(pixels);
-    _routeGeometries[_currentRoute]?.offset = pixels;
-  }
-
-  void _goIdleWithRoute(BasePagedSheetRoute route) {
-    assert(_routeGeometries.containsKey(route));
-    _setCurrentRoute(route);
-    goIdle();
-  }
-
-  void _goTransition({
-    required BasePagedSheetRoute originRoute,
-    required BasePagedSheetRoute destinationRoute,
-    required Animation<double> animation,
-    required Curve animationCurve,
-  }) {
-    assert(_routeGeometries.containsKey(originRoute));
-    assert(_routeGeometries.containsKey(destinationRoute));
-    _setCurrentRoute(null);
-    beginActivity(RouteTransitionSheetActivity(
-      originRouteOffset: () => _routeGeometries[originRoute]?.offset,
-      destinationRouteOffset: () => _routeGeometries[destinationRoute]?.offset,
-      animation: animation,
-      animationCurve: animationCurve,
-    ));
+  void goIdle() {
+    if (_currentRoute case final route?) {
+      beginActivity(
+        _IdleSheetActivity(
+          targetOffset:
+              _routeGeometries[route]?.targetOffset ?? route.initialOffset,
+        ),
+      );
+    } else {
+      super.goIdle();
+    }
   }
 
   void didStartTransition(
@@ -186,16 +138,23 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
       effectiveAnimation = animation;
     }
 
-    _goTransition(
-      originRoute: currentRoute,
-      destinationRoute: nextRoute,
+    assert(_routeGeometries.containsKey(currentRoute));
+    assert(_routeGeometries.containsKey(nextRoute));
+    _setCurrentRoute(null);
+    beginActivity(RouteTransitionSheetActivity(
+      originRouteOffset: () =>
+          _routeGeometries[currentRoute]?.resolvedTargetOffset,
+      destinationRouteOffset: () =>
+          _routeGeometries[nextRoute]?.resolvedTargetOffset,
       animation: effectiveAnimation,
       animationCurve: effectiveCurve,
-    );
+    ));
   }
 
   void didEndTransition(BasePagedSheetRoute route) {
-    _goIdleWithRoute(route);
+    assert(_routeGeometries.containsKey(route));
+    _setCurrentRoute(route);
+    goIdle();
   }
 }
 
@@ -245,13 +204,23 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
   }
 
   @override
-  void finalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
-    if (oldViewportInsets != null) {
+  void didChangeDimensions({
+    required Size oldContentSize,
+    required Size oldViewportSize,
+    required EdgeInsets oldViewportInsets,
+  }) {
+    if (owner.viewportInsets != oldViewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
   }
+}
+
+class _IdleSheetActivity extends SheetActivity<PagedSheetGeometry>
+    with IdleSheetActivityMixin<PagedSheetGeometry> {
+  _IdleSheetActivity({
+    required this.targetOffset,
+  });
+
+  @override
+  late final SheetAnchor targetOffset;
 }

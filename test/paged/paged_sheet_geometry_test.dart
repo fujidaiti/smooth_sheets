@@ -331,12 +331,14 @@ MockBasePagedSheetRoute<dynamic> _firstBuild({
     transitionDuration: Duration.zero,
   );
   geometry
-    ..applyNewViewportInsets(EdgeInsets.zero)
-    ..applyNewViewportSize(viewportSize)
     ..addRoute(initialRoute)
     ..didEndTransition(initialRoute)
     ..applyNewRouteContentSize(initialRoute, initialRouteContentSize)
-    ..finalizePosition();
+    ..applyNewDimensions(
+      initialRouteContentSize,
+      viewportSize,
+      EdgeInsets.zero,
+    );
 
   return initialRoute;
 }
@@ -363,22 +365,17 @@ _TransitionHandle _startForwardTransition({
       newRouteTransitionController,
       isUserGestureInProgress: false,
     )
-    ..applyNewRouteContentSize(newRoute, newRouteContentSize)
-    ..finalizePosition();
+    ..applyNewRouteContentSize(newRoute, newRouteContentSize);
 
   return (
     tick: (duration) {
       newRouteTransitionController.tick(duration);
-      geometry.finalizePosition();
     },
     tickAndSettle: () {
       newRouteTransitionController.tickAndSettle();
-      geometry.finalizePosition();
     },
     end: () {
-      geometry
-        ..didEndTransition(newRoute)
-        ..finalizePosition();
+      geometry.didEndTransition(newRoute);
     },
   );
 }
@@ -390,28 +387,23 @@ _TransitionHandle _startBackwardTransition({
   required TestAnimationController currentRouteTransitionController,
 }) {
   currentRouteTransitionController.reverse();
-  geometry
-    ..didStartTransition(
-      currentRoute,
-      destinationRoute,
-      currentRouteTransitionController,
-    )
-    ..finalizePosition();
+  geometry.didStartTransition(
+    currentRoute,
+    destinationRoute,
+    currentRouteTransitionController,
+  );
 
   return (
     tick: (duration) {
       currentRouteTransitionController.tick(duration);
-      geometry.finalizePosition();
     },
     tickAndSettle: () {
       currentRouteTransitionController.tickAndSettle();
-      geometry.finalizePosition();
     },
     end: () {
       geometry
         ..didEndTransition(destinationRoute)
-        ..removeRoute(currentRoute)
-        ..finalizePosition();
+        ..removeRoute(currentRoute);
     },
   );
 }
@@ -429,19 +421,16 @@ _UserGestureTransitionHandle _startUserGestureTransition({
   required TestAnimationController currentRouteTransitionController,
 }) {
   currentRouteTransitionController.value = 1;
-  geometry
-    ..didStartTransition(
-      currentRoute,
-      previousRoute,
-      currentRouteTransitionController,
-      isUserGestureInProgress: true,
-    )
-    ..finalizePosition();
+  geometry.didStartTransition(
+    currentRoute,
+    previousRoute,
+    currentRouteTransitionController,
+    isUserGestureInProgress: true,
+  );
 
   return (
     dragTo: (progress) {
       currentRouteTransitionController.value = progress;
-      geometry.finalizePosition();
     },
     releasePointer: () {
       if (currentRouteTransitionController.value < 0.5) {
@@ -450,16 +439,13 @@ _UserGestureTransitionHandle _startUserGestureTransition({
         currentRouteTransitionController.forward();
       }
       currentRouteTransitionController.tickAndSettle();
-      geometry.finalizePosition();
     },
     end: () {
-      geometry
-        ..didEndTransition(
-          currentRouteTransitionController.isDismissed
-              ? previousRoute
-              : currentRoute,
-        )
-        ..finalizePosition();
+      geometry.didEndTransition(
+        currentRouteTransitionController.isDismissed
+            ? previousRoute
+            : currentRoute,
+      );
     },
   );
 }

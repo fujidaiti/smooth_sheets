@@ -61,8 +61,12 @@ class _FakeSheetPosition extends SheetPosition {
   final ValueGetter<SheetActivity>? createIdleActivity;
 
   @override
-  void applyNewContentSize(Size contentSize) {
-    super.applyNewContentSize(contentSize);
+  void applyNewDimensions(
+    Size contentSize,
+    Size viewportSize,
+    EdgeInsets viewportInsets,
+  ) {
+    super.applyNewDimensions(contentSize, viewportSize, viewportInsets);
     if (maybePixels == null) {
       setPixels(maxPosition.resolve(contentSize));
     }
@@ -91,20 +95,18 @@ class _TestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sheet = RenderSheetViewportWidget(
+    final sheet = SheetTranslate(
       positionOwnerKey: scopeKey,
       insets: EdgeInsets.zero,
       child: InheritedSheetPositionScope(
         position: scopeKey.currentPosition,
         isPrimary: true,
-        child: SheetContentViewport(
-          child: sheetContent ??
-              Container(
-                color: Colors.white,
-                width: double.infinity,
-                height: 500,
-              ),
-        ),
+        child: sheetContent ??
+            Container(
+              color: Colors.white,
+              width: double.infinity,
+              height: 500,
+            ),
       ),
     );
 

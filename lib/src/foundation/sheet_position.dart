@@ -273,9 +273,11 @@ abstract class SheetPosition extends ChangeNotifier
       correctPixels(pixels);
     }
     applyNewBoundaryConstraints(other.minPosition, other.maxPosition);
-    applyNewViewportSize(other.viewportSize);
-    applyNewViewportInsets(other.viewportInsets);
-    applyNewContentSize(other.contentSize);
+    applyNewDimensions(
+      other.contentSize,
+      other.viewportSize,
+      other.viewportInsets,
+    );
   }
 
   @mustCallSuper
@@ -292,30 +294,32 @@ abstract class SheetPosition extends ChangeNotifier
     _physics = physics;
   }
 
-  @mustCallSuper
-  void applyNewContentSize(Size contentSize) {
-    if (maybeContentSize != contentSize) {
-      _oldContentSize = maybeContentSize;
-      _updateMetrics(contentSize: contentSize);
-      activity.didChangeContentSize(_oldContentSize);
-    }
-  }
+  void applyNewDimensions(
+    Size contentSize,
+    Size viewportSize,
+    EdgeInsets viewportInsets,
+  ) {
+    final oldContentSize = maybeContentSize;
+    final oldViewportSize = maybeViewportSize;
+    final oldViewportInsets = maybeViewportInsets;
 
-  @mustCallSuper
-  void applyNewViewportSize(Size size) {
-    if (maybeViewportSize != size) {
-      _oldViewportSize = maybeViewportSize;
-      _updateMetrics(viewportSize: size);
-      activity.didChangeViewportDimensions(_oldViewportSize);
-    }
-  }
-
-  @mustCallSuper
-  void applyNewViewportInsets(EdgeInsets insets) {
-    if (maybeViewportInsets != insets) {
-      _oldViewportInsets = maybeViewportInsets;
-      _updateMetrics(viewportInsets: insets);
-      activity.didChangeViewportInsets(_oldViewportInsets);
+    _updateMetrics(
+      contentSize: contentSize,
+      viewportSize: viewportSize,
+      viewportInsets: viewportInsets,
+      pixels: maybePixels ?? initialPosition.resolve(contentSize),
+    );
+    if (oldContentSize != null) {
+      assert(oldViewportSize != null);
+      assert(oldViewportInsets != null);
+      activity.didChangeDimensions(
+        oldContentSize: oldContentSize,
+        oldViewportSize: oldViewportSize!,
+        oldViewportInsets: oldViewportInsets!,
+      );
+    } else {
+      assert(oldViewportSize == null);
+      assert(oldViewportInsets == null);
     }
   }
 
@@ -331,57 +335,6 @@ abstract class SheetPosition extends ChangeNotifier
       activity.didChangeBoundaryConstraints(oldMinPosition, oldMaxPosition);
     }
   }
-
-  Size? _oldContentSize;
-  Size? _oldViewportSize;
-  EdgeInsets? _oldViewportInsets;
-
-  @mustCallSuper
-  void finalizePosition() {
-    assert(
-      maybeContentSize != null,
-      'The content size must be set before calling finalizePosition().',
-    );
-    assert(
-      maybeViewportSize != null,
-      'The viewport size must be set before calling finalizePosition().',
-    );
-    assert(
-      maybeViewportInsets != null,
-      'The viewport insets must be set before calling finalizePosition().',
-    );
-
-    onFinalizePosition(
-      _oldContentSize,
-      _oldViewportSize,
-      _oldViewportInsets,
-    );
-
-    _activity!.finalizePosition(
-      _oldContentSize,
-      _oldViewportSize,
-      _oldViewportInsets,
-    );
-
-    assert(
-      hasDimensions,
-      _debugMessage(
-        'All the dimension values must be finalized '
-        'during finalizePosition().',
-      ),
-    );
-
-    _oldContentSize = null;
-    _oldViewportSize = null;
-    _oldViewportInsets = null;
-  }
-
-  @protected
-  void onFinalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {}
 
   @mustCallSuper
   void beginActivity(SheetActivity activity) {
@@ -574,13 +527,6 @@ abstract class SheetPosition extends ChangeNotifier
       overflow: overflow,
     ).dispatch(context.notificationContext);
   }
-
-  String _debugMessage(String message) {
-    return switch (debugLabel) {
-      null => message,
-      final debugLabel => '$debugLabel: $message',
-    };
-  }
 }
 
 /// The metrics of a sheet.
@@ -597,6 +543,7 @@ mixin SheetMetrics {
     viewportInsets: null,
   );
 
+  // TODO: Rename to `offsetOrNull`.
   double? get maybePixels;
 
   SheetAnchor? get maybeMinPosition;

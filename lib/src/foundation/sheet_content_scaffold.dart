@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import '../scrollable/sheet_draggable.dart';
 import 'sheet_position.dart';
 import 'sheet_position_scope.dart';
-import 'sheet_viewport.dart';
 
 class SheetContentScaffold extends StatelessWidget {
   const SheetContentScaffold({
@@ -172,21 +171,19 @@ class _ScaffoldBodyContainer extends StatelessWidget {
       padding: EdgeInsets.only(
         bottom: mediaQuery.viewInsets.bottom,
       ),
-      child: SheetContentViewport(
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: insetTop ? 0.0 : topPadding,
-            bottom: insetBottom ? 0.0 : bottomPadding,
-          ),
-          child: MediaQuery(
-            data: mediaQuery.copyWith(
-              padding: mediaQuery.padding.copyWith(
-                top: insetTop ? topPadding : 0.0,
-                bottom: insetBottom ? bottomPadding : 0.0,
-              ),
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: insetTop ? 0.0 : topPadding,
+          bottom: insetBottom ? 0.0 : bottomPadding,
+        ),
+        child: MediaQuery(
+          data: mediaQuery.copyWith(
+            padding: mediaQuery.padding.copyWith(
+              top: insetTop ? topPadding : 0.0,
+              bottom: insetBottom ? bottomPadding : 0.0,
             ),
-            child: child,
           ),
+          child: child,
         ),
       ),
     );

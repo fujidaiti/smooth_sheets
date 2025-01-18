@@ -431,20 +431,16 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
   );
 
   @override
-  void applyNewContentSize(_i6.Size? contentSize) => super.noSuchMethod(
-    Invocation.method(#applyNewContentSize, [contentSize]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void applyNewViewportSize(_i6.Size? size) => super.noSuchMethod(
-    Invocation.method(#applyNewViewportSize, [size]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void applyNewViewportInsets(_i7.EdgeInsets? insets) => super.noSuchMethod(
-    Invocation.method(#applyNewViewportInsets, [insets]),
+  void applyNewDimensions(
+    _i6.Size? contentSize,
+    _i6.Size? viewportSize,
+    _i7.EdgeInsets? viewportInsets,
+  ) => super.noSuchMethod(
+    Invocation.method(#applyNewDimensions, [
+      contentSize,
+      viewportSize,
+      viewportInsets,
+    ]),
     returnValueForMissingStub: null,
   );
 
@@ -454,26 +450,6 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
     _i2.SheetAnchor? maxPosition,
   ) => super.noSuchMethod(
     Invocation.method(#applyNewBoundaryConstraints, [minPosition, maxPosition]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void finalizePosition() => super.noSuchMethod(
-    Invocation.method(#finalizePosition, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void onFinalizePosition(
-    _i6.Size? oldContentSize,
-    _i6.Size? oldViewportSize,
-    _i7.EdgeInsets? oldViewportInsets,
-  ) => super.noSuchMethod(
-    Invocation.method(#onFinalizePosition, [
-      oldContentSize,
-      oldViewportSize,
-      oldViewportInsets,
-    ]),
     returnValueForMissingStub: null,
   );
 

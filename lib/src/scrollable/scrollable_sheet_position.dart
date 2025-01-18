@@ -76,17 +76,6 @@ class DraggableScrollableSheetPosition extends SheetPosition
   }
 
   @override
-  void onFinalizePosition(
-    Size? oldContentSize,
-    Size? oldViewportSize,
-    EdgeInsets? oldViewportInsets,
-  ) {
-    if (maybePixels == null) {
-      setPixels(initialPosition.resolve(contentSize));
-    }
-  }
-
-  @override
   void takeOver(SheetPosition other) {
     super.takeOver(other);
     if (other is DraggableScrollableSheetPosition) {

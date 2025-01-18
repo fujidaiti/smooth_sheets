@@ -11,6 +11,9 @@ import 'sheet_position.dart';
 
 @internal
 @optionalTypeArgs
+// TODO: Rename to SheetGeometryKey
+// TODO: Implements SheetMetrics
+// TODO: Implements ValueListenable<SheetMetrics>
 class SheetPositionScopeKey<T extends SheetPosition>
     extends LabeledGlobalKey<SheetPositionScopeState> {
   SheetPositionScopeKey({this.debugLabel}) : super(debugLabel);

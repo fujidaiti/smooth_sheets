@@ -103,12 +103,10 @@ class _SheetState extends State<Sheet>
       physics: physics,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,
-      child: SheetContentViewport(
-        child: DraggableScrollableSheetContent(
-          scrollConfiguration: widget.scrollConfiguration,
-          dragConfiguration: widget.dragConfiguration,
-          child: widget.child,
-        ),
+      child: DraggableScrollableSheetContent(
+        scrollConfiguration: widget.scrollConfiguration,
+        dragConfiguration: widget.dragConfiguration,
+        child: widget.child,
       ),
     );
   }
