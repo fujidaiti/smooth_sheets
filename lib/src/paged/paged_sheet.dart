@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
-import '../foundation/foundation.dart';
 import '../foundation/sheet_context.dart';
 import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
@@ -34,7 +33,6 @@ class _PagedSheetState extends State<PagedSheet>
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
     return _PagedSheetPositionScope(
-      key: SheetViewport.of(context).positionOwnerKey,
       context: this,
       physics: kDefaultPagedSheetPhysics,
       minPosition: kDefaultPagedSheetMinOffset,

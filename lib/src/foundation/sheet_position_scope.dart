@@ -8,59 +8,7 @@ import 'sheet_controller.dart';
 import 'sheet_gesture_tamperer.dart';
 import 'sheet_physics.dart';
 import 'sheet_position.dart';
-
-@internal
-@optionalTypeArgs
-// TODO: Rename to SheetGeometryKey
-// TODO: Implements SheetMetrics
-// TODO: Implements ValueListenable<SheetMetrics>
-class SheetPositionScopeKey<T extends SheetPosition>
-    extends LabeledGlobalKey<SheetPositionScopeState> {
-  SheetPositionScopeKey({this.debugLabel}) : super(debugLabel);
-
-  final String? debugLabel;
-
-  final List<VoidCallback> _onCreatedListeners = [];
-
-  T? get maybeCurrentPosition {
-    final position = currentState?._position;
-    assert(
-      position is T?,
-      'SheetPositionScopeKey<$T>${debugLabel != null ? "#$debugLabel" : ""} '
-      'cannot be attached to a SheetPositionScope that creates a SheetPosition '
-      'of type ${position.runtimeType}, because it is not a type of or '
-      'a subtype of $T.',
-    );
-    return position as T?;
-  }
-
-  T get currentPosition => maybeCurrentPosition!;
-
-  // ignore: lines_longer_than_80_chars
-  // TODO: Change the listener's signature to `void Function(SheetPosition? prev, SheetPosition new)`.
-  void addOnCreatedListener(VoidCallback listener) {
-    _onCreatedListeners.add(listener);
-    // Immediately notify the listener if the position is already created.
-    if (maybeCurrentPosition != null) {
-      listener();
-    }
-  }
-
-  void removeOnCreatedListener(VoidCallback listener) {
-    _onCreatedListeners.remove(listener);
-  }
-
-  void _notifySheetPositionCreation() {
-    for (final listener in _onCreatedListeners) {
-      listener();
-    }
-  }
-
-  @mustCallSuper
-  void dispose() {
-    _onCreatedListeners.clear();
-  }
-}
+import 'sheet_viewport.dart';
 
 /// A widget that creates a [SheetPosition], manages its lifecycle,
 /// and exposes it to the descendant widgets.
@@ -70,7 +18,7 @@ abstract class SheetPositionScope<E extends SheetPosition>
     extends StatefulWidget {
   /// Creates a widget that hosts a [SheetPosition].
   const SheetPositionScope({
-    super.key ,
+    super.key,
     required this.context,
     this.controller,
     this.isPrimary = true,
@@ -149,25 +97,20 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
   late E _position;
 
   SheetController? _controller;
-
-  SheetPositionScopeKey? get _scopeKey {
-    return switch (widget.key) {
-      final SheetPositionScopeKey key => key,
-      _ => null,
-    };
-  }
+  SheetViewportState? _viewport;
 
   @override
   void initState() {
     super.initState();
     _position = buildPosition(widget.context);
-    _scopeKey?._notifySheetPositionCreation();
   }
 
   @override
   void dispose() {
+    _viewport?.setPosition(null);
     _disposePosition(_position);
     _controller = null;
+    _viewport = null;
     super.dispose();
   }
 
@@ -176,6 +119,12 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
     super.didChangeDependencies();
     _rewireControllerAndScope();
     _rewireControllerAndPosition();
+
+    final viewport = SheetViewportState.of(context);
+    if (viewport != _viewport) {
+      _viewport?.setPosition(null);
+      _viewport = viewport?..setPosition(position);
+    }
   }
 
   @override
@@ -185,7 +134,7 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
     if (shouldRebuildPosition(_position)) {
       final oldPosition = _position;
       _position = buildPosition(widget.context)..takeOver(oldPosition);
-      _scopeKey?._notifySheetPositionCreation();
+      _viewport?.setPosition(position);
       _disposePosition(oldPosition);
       _rewireControllerAndPosition();
     }

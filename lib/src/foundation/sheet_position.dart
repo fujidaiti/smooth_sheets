@@ -16,6 +16,12 @@ import 'sheet_physics.dart';
 import 'sheet_position_scope.dart';
 import 'sheet_status.dart';
 
+abstract interface class SheetMetricsNotifier {
+  void addListener(ValueChanged<SheetMetrics> listener);
+
+  void removeListener(ValueChanged<SheetMetrics> listener);
+}
+
 /// An abstract representation of a sheet's position.
 ///
 /// It is used in various contexts by sheets, for example,
@@ -140,6 +146,7 @@ class FixedSheetAnchor implements SheetAnchor {
 // TODO: Rename to SheetGeometryController.
 // ignore: lines_longer_than_80_chars
 // TODO: Implement ValueListenable<SheetGeometry> instead of ValueListenable<double?>.
+// TODO: Implement SheetMetricsNotifier.
 abstract class SheetPosition extends ChangeNotifier
     with SheetMetrics
     implements ValueListenable<double?> {
@@ -302,6 +309,7 @@ abstract class SheetPosition extends ChangeNotifier
     final oldContentSize = maybeContentSize;
     final oldViewportSize = maybeViewportSize;
     final oldViewportInsets = maybeViewportInsets;
+    final oldPixels = maybePixels;
 
     _updateMetrics(
       contentSize: contentSize,
@@ -320,6 +328,10 @@ abstract class SheetPosition extends ChangeNotifier
     } else {
       assert(oldViewportSize == null);
       assert(oldViewportInsets == null);
+    }
+
+    if (oldPixels != maybePixels) {
+      notifyListeners();
     }
   }
 

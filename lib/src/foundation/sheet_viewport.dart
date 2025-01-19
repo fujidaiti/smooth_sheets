@@ -6,7 +6,12 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'sheet_position.dart';
-import 'sheet_position_scope.dart';
+
+typedef OnSheetDimensionsChange = void Function(
+  Size contentSize,
+  Size viewportSize,
+  EdgeInsets viewportInsets,
+);
 
 class SheetViewport extends StatefulWidget {
   const SheetViewport({
@@ -18,37 +23,67 @@ class SheetViewport extends StatefulWidget {
 
   @override
   State<SheetViewport> createState() => SheetViewportState();
-
-  static SheetViewportState of(BuildContext context) {
-    final viewport = context
-        .dependOnInheritedWidgetOfExactType<_InheritedSheetViewport>()
-        ?.state;
-
-    assert(
-      viewport != null,
-      "A SheetViewport was not found. It's likely that the sheet widget "
-      'does not have a SheetViewport as an ancestor.',
-    );
-
-    return viewport!;
-  }
 }
 
 @internal
-class SheetViewportState extends State<SheetViewport> {
-  late final SheetPositionScopeKey positionOwnerKey;
+class SheetViewportState extends State<SheetViewport>
+    implements ValueListenable<SheetMetrics> {
+  late final List<VoidCallback> _listeners;
+  SheetPosition? _position;
+
+  void setPosition(SheetPosition? value) {
+    if (value != _position) {
+      _position?.removeListener(_notifyListeners);
+      _position = value?..addListener(_notifyListeners);
+    }
+  }
+
+  void _notifyListeners() {
+    for (final listener in _listeners) {
+      listener();
+    }
+  }
+
+  /// Intended to be used only by [_RenderSheetTranslate]
+  /// and [_RenderSheetFrame].
+  @override
+  SheetMetrics get value => _position!.snapshot;
+
+  /// Intended to be used only by [_RenderSheetTranslate]
+  /// and [_RenderSheetFrame].
+  @override
+  void addListener(VoidCallback listener) {
+    _listeners.add(listener);
+  }
+
+  /// Intended to be used only by [_RenderSheetTranslate]
+  /// and [_RenderSheetFrame].
+  @override
+  void removeListener(VoidCallback listener) {
+    _listeners.remove(listener);
+  }
+
+  void _onSheetDimensionsChange(
+    Size contentSize,
+    Size viewportSize,
+    EdgeInsets viewportInsets,
+  ) {
+    _position?.applyNewDimensions(contentSize, viewportSize, viewportInsets);
+  }
+
+  bool _shouldIgnorePointer() {
+    return _position?.activity.shouldIgnorePointer ?? false;
+  }
 
   @override
   void initState() {
     super.initState();
-    positionOwnerKey = SheetPositionScopeKey(
-      debugLabel: kDebugMode ? 'SheetViewport' : null,
-    );
+    _listeners = [];
   }
 
   @override
   void dispose() {
-    positionOwnerKey.dispose();
+    _listeners.clear();
     super.dispose();
   }
 
@@ -57,14 +92,22 @@ class SheetViewportState extends State<SheetViewport> {
     return _InheritedSheetViewport(
       state: this,
       child: SheetTranslate(
-        positionOwnerKey: positionOwnerKey,
+        metricsNotifier: this,
+        shouldIgnorePointerGetter: _shouldIgnorePointer,
         insets: MediaQuery.of(context).viewInsets,
         child: SheetFrame(
-          geometry: positionOwnerKey,
+          metricsNotifier: this,
+          onSheetDimensionsChange: _onSheetDimensionsChange,
           child: widget.child,
         ),
       ),
     );
+  }
+
+  static SheetViewportState? of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_InheritedSheetViewport>()
+        ?.state;
   }
 }
 
@@ -85,78 +128,66 @@ class _InheritedSheetViewport extends InheritedWidget {
 class SheetTranslate extends SingleChildRenderObjectWidget {
   const SheetTranslate({
     super.key,
-    required this.positionOwnerKey,
+    required this.metricsNotifier,
+    required this.shouldIgnorePointerGetter,
     required this.insets,
     required super.child,
   });
 
-  final SheetPositionScopeKey positionOwnerKey;
+  final ValueListenable<SheetMetrics> metricsNotifier;
+  final ValueGetter<bool> shouldIgnorePointerGetter;
   final EdgeInsets insets;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderSheetTranslate(
-      positionOwnerKey: positionOwnerKey,
+    return _RenderSheetTranslate(
+      metricsNotifier: metricsNotifier,
+      shouldIgnorePointerGetter: shouldIgnorePointerGetter,
       insets: insets,
     );
   }
 
   @override
-  void updateRenderObject(
-    BuildContext context,
-    RenderSheetTranslate renderObject,
-  ) {
-    assert(
-      positionOwnerKey == renderObject.positionOwnerKey,
-      'The positionOwnerKey must not change during the widget life cycle.',
-    );
-    renderObject.insets = insets;
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderSheetTranslate)
+      ..setMetricsNotifier(metricsNotifier)
+      ..setShouldIgnorePointerGetter(shouldIgnorePointerGetter)
+      ..setInsets(insets);
   }
 }
 
-@internal
-class RenderSheetTranslate extends RenderTransform {
-  RenderSheetTranslate({
-    required this.positionOwnerKey,
+class _RenderSheetTranslate extends RenderTransform {
+  _RenderSheetTranslate({
+    required ValueListenable<SheetMetrics> metricsNotifier,
+    required ValueGetter<bool> shouldIgnorePointerGetter,
     required EdgeInsets insets,
-  })  : _insets = insets,
+  })  : _metricsNotifier = metricsNotifier,
+        _shouldIgnorePointerGetter = shouldIgnorePointerGetter,
+        _insets = insets,
         super(
           transform: Matrix4.zero()..setIdentity(),
           transformHitTests: true,
         ) {
-    positionOwnerKey.addOnCreatedListener(
-      () => position = positionOwnerKey.maybeCurrentPosition,
-    );
+    _metricsNotifier.addListener(_invalidateTransformMatrix);
   }
 
-  final SheetPositionScopeKey positionOwnerKey;
+  ValueListenable<SheetMetrics> _metricsNotifier;
+  ValueGetter<bool> _shouldIgnorePointerGetter;
+  EdgeInsets _insets;
 
-  SheetPosition? _position;
-
-  // ignore: avoid_setters_without_getters
-  set position(SheetPosition? value) {
-    switch ((_position, value)) {
-      case (null, final initialPosition?):
-        _position = initialPosition..addListener(_invalidateTransformMatrix);
-        markNeedsPaint();
-
-      case (final oldPosition?, null):
-        oldPosition.removeListener(_invalidateTransformMatrix);
-        _position = null;
-
-      case (final oldPosition?, final newPosition?)
-          when oldPosition != newPosition:
-        oldPosition.removeListener(_invalidateTransformMatrix);
-        _position = newPosition..addListener(_invalidateTransformMatrix);
-        markNeedsPaint();
+  void setMetricsNotifier(ValueListenable<SheetMetrics> value) {
+    if (value != _metricsNotifier) {
+      _metricsNotifier.removeListener(_invalidateTransformMatrix);
+      _metricsNotifier = value..addListener(_invalidateTransformMatrix);
+      markNeedsPaint();
     }
   }
 
-  EdgeInsets _insets;
+  void setShouldIgnorePointerGetter(ValueGetter<bool> value) {
+    _shouldIgnorePointerGetter = value;
+  }
 
-  EdgeInsets get insets => _insets;
-
-  set insets(EdgeInsets value) {
+  void setInsets(EdgeInsets value) {
     if (value != _insets) {
       _insets = value;
       // ignore: lines_longer_than_80_chars
@@ -173,8 +204,8 @@ class RenderSheetTranslate extends RenderTransform {
   }
 
   void _invalidateTransformMatrix() {
-    final currentPosition = _position?.maybePixels;
-    final viewportSize = _position?.maybeViewportSize;
+    final currentPosition = _metricsNotifier.value.maybePixels;
+    final viewportSize = _metricsNotifier.value.maybeViewportSize;
     if (currentPosition != null && viewportSize != null) {
       final dy = viewportSize.height - _insets.bottom - currentPosition;
       // Update the translation value and mark this render object
@@ -195,7 +226,7 @@ class RenderSheetTranslate extends RenderTransform {
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    if (_position?.activity.shouldIgnorePointer == true) {
+    if (_shouldIgnorePointerGetter()) {
       final invTransform = Matrix4.tryInvert(
         PointerEvent.removePerspectiveTransform(_transform),
       );
@@ -208,7 +239,7 @@ class RenderSheetTranslate extends RenderTransform {
 
   @override
   void dispose() {
-    _position?.removeListener(_invalidateTransformMatrix);
+    _metricsNotifier.removeListener(_invalidateTransformMatrix);
     super.dispose();
   }
 }
@@ -218,16 +249,19 @@ class RenderSheetTranslate extends RenderTransform {
 class SheetFrame extends SingleChildRenderObjectWidget {
   const SheetFrame({
     super.key,
-    required this.geometry,
+    required this.metricsNotifier,
+    required this.onSheetDimensionsChange,
     required super.child,
   });
 
-  final SheetPositionScopeKey geometry;
+  final ValueListenable<SheetMetrics> metricsNotifier;
+  final OnSheetDimensionsChange onSheetDimensionsChange;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetFrame(
-      geometry: geometry,
+      metricsNotifier: metricsNotifier,
+      onSheetDimensionsChange: onSheetDimensionsChange,
       viewportInsets: MediaQuery.viewInsetsOf(context),
     );
   }
@@ -235,37 +269,75 @@ class SheetFrame extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetFrame)
-      ..geometry = geometry
-      ..viewportInsets = MediaQuery.viewInsetsOf(context);
+      ..setMetricsNotifier(metricsNotifier)
+      ..setOnSheetDimensionsChange(onSheetDimensionsChange)
+      ..setViewportInsets(MediaQuery.viewInsetsOf(context));
   }
 }
 
 class _RenderSheetFrame extends RenderProxyBox {
   _RenderSheetFrame({
-    required SheetPositionScopeKey geometry,
+    required OnSheetDimensionsChange onSheetDimensionsChange,
+    required ValueListenable<SheetMetrics> metricsNotifier,
     required EdgeInsets viewportInsets,
-  })  : _geometry = geometry,
-        _viewportInsets = viewportInsets;
-
-  SheetPositionScopeKey get geometry => _geometry;
-  SheetPositionScopeKey _geometry;
-
-  set geometry(SheetPositionScopeKey value) {
-    if (value != _geometry) {
-      _geometry = value;
-      markNeedsLayout();
-    }
+  })  : _onSheetDimensionsChange = onSheetDimensionsChange,
+        _metricsNotifier = metricsNotifier,
+        _viewportInsets = viewportInsets {
+    _metricsNotifier.addListener(_onMetricsChange);
   }
 
-  EdgeInsets get viewportInsets => _viewportInsets;
   EdgeInsets _viewportInsets;
+  OnSheetDimensionsChange _onSheetDimensionsChange;
+  ValueListenable<SheetMetrics> _metricsNotifier;
+  Size? _lastMeasuredSize;
 
-  set viewportInsets(EdgeInsets value) {
-    parent;
+  @override
+  set size(Size value) {
+    _lastMeasuredSize = value;
+    super.size = value;
+  }
+
+  void setViewportInsets(EdgeInsets value) {
     if (value != _viewportInsets) {
       _viewportInsets = value;
       markNeedsLayout();
     }
+  }
+
+  void setOnSheetDimensionsChange(OnSheetDimensionsChange value) {
+    if (value != _onSheetDimensionsChange) {
+      _onSheetDimensionsChange = value;
+      markNeedsLayout();
+    }
+  }
+
+  void setMetricsNotifier(ValueListenable<SheetMetrics> value) {
+    if (value != _metricsNotifier) {
+      _metricsNotifier.removeListener(_onMetricsChange);
+      _metricsNotifier = value..addListener(_onMetricsChange);
+    }
+  }
+
+  @override
+  void dispose() {
+    _metricsNotifier.removeListener(_onMetricsChange);
+    super.dispose();
+  }
+
+  void _onMetricsChange() {
+    // ignore: lines_longer_than_80_chars
+    // TODO: Mark this render object as needing layout when the preferred sheet size changes.
+    /*
+    final metrics = _metricsNotifier.value;
+    if (metrics.contentSize != _lastMeasuredSize &&
+        // Calling SheetPosition.applyNewDimensions() in the performLayout()
+        // eventually triggers this callback. In that case, we must not
+        // call markNeedsLayout() as it is already in the layout phase.
+        SchedulerBinding.instance.schedulerPhase !=
+            SchedulerPhase.persistentCallbacks) {
+      markNeedsLayout();
+    }
+    */
   }
 
   @override
@@ -285,19 +357,9 @@ class _RenderSheetFrame extends RenderProxyBox {
     final childConstraints = constraints.tighten(width: constraints.maxWidth);
     child.layout(childConstraints, parentUsesSize: true);
     final viewportSize = constraints.biggest;
-    _geometry.currentPosition
-        .applyNewDimensions(child.size, viewportSize, viewportInsets);
-    assert(_geometry.currentPosition.hasDimensions);
+    _onSheetDimensionsChange(child.size, viewportSize, _viewportInsets);
     // ignore: lines_longer_than_80_chars
     // TODO: The size of this widget should be determined by the geometry controller.
     size = child.size;
-
-    if (parent case final RenderSheetTranslate it?) {
-      // SheetPosition.applyNewDimensions() doesn't notify its listeners even
-      // when the offset changes, so we need to manually notify the ancestor
-      // RenderSheetTranslate, which is a listener of the SheetPosition,
-      // to ensure that the transform matrix is up-to-date.
-      it._invalidateTransformMatrix();
-    }
   }
 }

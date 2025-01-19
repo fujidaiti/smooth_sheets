@@ -83,7 +83,7 @@ class _SheetState extends State<Sheet>
     final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
-    final viewport = SheetViewport.of(context);
+    final viewport = SheetViewportState.of(context);
 
     if (widget.scrollConfiguration case final config?) {
       physics = ScrollableSheetPhysics(
@@ -95,7 +95,6 @@ class _SheetState extends State<Sheet>
 
     return ScrollableSheetPositionScope(
       context: this,
-      key: viewport.positionOwnerKey,
       controller: controller,
       initialPosition: widget.initialPosition,
       minPosition: widget.minPosition,
