@@ -16,12 +16,6 @@ import 'sheet_physics.dart';
 import 'sheet_position_scope.dart';
 import 'sheet_status.dart';
 
-abstract interface class SheetMetricsNotifier {
-  void addListener(ValueChanged<SheetMetrics> listener);
-
-  void removeListener(ValueChanged<SheetMetrics> listener);
-}
-
 /// An abstract representation of a sheet's position.
 ///
 /// It is used in various contexts by sheets, for example,
