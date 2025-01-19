@@ -1,224 +1,150 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_context.dart';
-import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
-import 'package:smooth_sheets/src/foundation/sheet_position_scope.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
-class _FakeNotificationContext extends Fake implements BuildContext {
-  @override
-  void dispatchNotification(Notification notification) {
-    /* no-op */
-  }
-}
+import '../flutter_test_config.dart';
+@GenerateNiceMocks([
+  MockSpec<ValueListenable<SheetMetrics>>(
+    as: #MockSheetMetricsNotifier,
+  ),
+  MockSpec<OnSheetDimensionsChangeCallback>(
+    as: #MockOnSheetDimensionsChange,
+  ),
+])
+import 'sheet_viewport_test.mocks.dart';
 
-class _FakeSheetContext extends Fake implements SheetContext {
-  @override
-  final notificationContext = _FakeNotificationContext();
-
-  @override
-  double get devicePixelRatio => 3.0;
-
-  @override
-  TickerProvider get vsync => const TestVSync();
-}
-
-class _TestSheetPositionScopeKey extends SheetPositionScopeKey {
-  _TestSheetPositionScopeKey(this._position);
-
-  final SheetPosition _position;
-
-  @override
-  SheetPosition? get maybeCurrentPosition => _position;
-}
-
-class _FakeSheetActivity extends SheetActivity {
-  _FakeSheetActivity({
-    this.shouldIgnorePointer = false,
-  });
-
-  @override
-  final bool shouldIgnorePointer;
-
-  @override
-  SheetStatus get status => SheetStatus.stable;
-}
-
-class _FakeSheetPosition extends SheetPosition {
-  _FakeSheetPosition({
-    this.createIdleActivity,
-  }) : super(
-          context: _FakeSheetContext(),
-          initialPosition: const SheetAnchor.proportional(1),
-          minPosition: const SheetAnchor.proportional(0.5),
-          maxPosition: const SheetAnchor.proportional(1),
-          physics: const ClampingSheetPhysics(),
-        );
-
-  final ValueGetter<SheetActivity>? createIdleActivity;
-
-  @override
-  void applyNewDimensions(
-    Size contentSize,
-    Size viewportSize,
-    EdgeInsets viewportInsets,
-  ) {
-    super.applyNewDimensions(contentSize, viewportSize, viewportInsets);
-    if (maybePixels == null) {
-      setPixels(maxPosition.resolve(contentSize));
-    }
-  }
-
-  @override
-  void goIdle() {
-    if (createIdleActivity case final builder?) {
-      beginActivity(builder());
-    } else {
-      super.goIdle();
-    }
-  }
-}
-
-class _TestWidget extends StatelessWidget {
-  const _TestWidget({
-    required this.scopeKey,
-    this.background,
-    this.sheetContent,
-  });
-
-  final _TestSheetPositionScopeKey scopeKey;
-  final Widget? sheetContent;
-  final Widget? background;
-
-  @override
-  Widget build(BuildContext context) {
-    final sheet = SheetTranslate(
-      positionOwnerKey: scopeKey,
-      insets: EdgeInsets.zero,
-      child: InheritedSheetPositionScope(
-        position: scopeKey.currentPosition,
-        isPrimary: true,
-        child: sheetContent ??
-            Container(
-              color: Colors.white,
-              width: double.infinity,
-              height: 500,
-            ),
-      ),
-    );
-
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: MediaQuery(
-        data: const MediaQueryData(),
-        child: switch (background) {
-          null => sheet,
-          final background => Stack(
-              children: [background, sheet],
-            )
-        },
-      ),
-    );
-  }
+/// A class version of [OnSheetDimensionsChange] callback to allow mocking.
+// ignore: unreachable_from_main
+class OnSheetDimensionsChangeCallback {
+  // ignore: unreachable_from_main
+  void call(Size contentSize, Size viewportSize, EdgeInsets viewportInsets) {}
 }
 
 void main() {
-  group('Ignore pointer test:', () {
+  group('SheetFrame', () {
     ({
-      SheetPosition position,
+      MockSheetMetricsNotifier metricsNotifier,
+      MockOnSheetDimensionsChange onSheetDimensionsChange,
       Widget testWidget,
-      ValueGetter<bool> didTapForeground,
-      ValueGetter<bool> didTapBackgroundTop,
-      ValueGetter<bool> didTapBackgroundBottom,
+      ValueSetter<Size> setContainerSize,
     }) boilerplate({
-      required bool shouldIgnorePointer,
+      EdgeInsets viewportInsets = EdgeInsets.zero,
+      Size initialContainerSize = Size.infinite,
     }) {
-      var didTapForeground = false;
-      var didTapBackgroundTop = false;
-      var didTapBackgroundBottom = false;
+      final metricsNotifier = MockSheetMetricsNotifier();
+      final onSheetDimensionsChange = MockOnSheetDimensionsChange();
 
-      final position = _FakeSheetPosition(
-        createIdleActivity: () => _FakeSheetActivity(
-          shouldIgnorePointer: shouldIgnorePointer,
-        ),
-      );
+      late StateSetter setStateFn;
+      var containerSize = initialContainerSize;
+      void setContainerSize(Size size) {
+        setStateFn(() => containerSize = size);
+      }
 
-      final testWidget = _TestWidget(
-        scopeKey: _TestSheetPositionScopeKey(position),
-        background: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextButton(
-              onPressed: () => didTapBackgroundTop = true,
-              child: const Text('Background top'),
-            ),
-            TextButton(
-              onPressed: () => didTapBackgroundBottom = true,
-              child: const Text('Background bottom'),
-            ),
-          ],
+      final testWidget = MediaQuery(
+        data: MediaQueryData(
+          viewInsets: viewportInsets,
         ),
-        sheetContent: Container(
-          alignment: Alignment.center,
-          color: Colors.white,
-          width: double.infinity,
-          height: 500,
-          child: TextButton(
-            onPressed: () => didTapForeground = true,
-            child: const Text('Foreground'),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: SheetFrame(
+            metricsNotifier: metricsNotifier,
+            onSheetDimensionsChange: onSheetDimensionsChange.call,
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                setStateFn = setState;
+                return Container(
+                  color: Colors.white,
+                  height: containerSize.height,
+                  width: containerSize.width,
+                );
+              },
+            ),
           ),
         ),
       );
 
       return (
-        position: position,
         testWidget: testWidget,
-        didTapForeground: () => didTapForeground,
-        didTapBackgroundTop: () => didTapBackgroundTop,
-        didTapBackgroundBottom: () => didTapBackgroundBottom,
+        metricsNotifier: metricsNotifier,
+        onSheetDimensionsChange: onSheetDimensionsChange,
+        setContainerSize: setContainerSize,
       );
     }
 
     testWidgets(
-      'pointer events on a sheet should be ignored if activity says to do so',
+      "should constraint the child's height by the parent's constraints, "
+      "and enforce the child's width to be the same as the parent's width",
       (tester) async {
-        final env = boilerplate(shouldIgnorePointer: true);
+        final env = boilerplate(
+          initialContainerSize: const Size(300, double.infinity),
+        );
         await tester.pumpWidget(env.testWidget);
-        await tester.tap(find.text('Foreground'), warnIfMissed: false);
-        expect(env.didTapForeground(), isFalse);
+        expect(
+          tester.getSize(find.byType(Container)),
+          equals(testScreenSize),
+        );
       },
     );
 
     testWidgets(
-      'content in a sheet should receive pointer events if activity allows',
-      (tester) async {
-        final env = boilerplate(shouldIgnorePointer: false);
+      'should size itself to fit the child',
+      (WidgetTester tester) async {
+        final env = boilerplate(
+          initialContainerSize: const Size.fromHeight(300),
+        );
         await tester.pumpWidget(env.testWidget);
-        await tester.tap(find.text('Foreground'), warnIfMissed: false);
-        expect(env.didTapForeground(), isTrue);
+        expect(
+          tester.getSize(find.byType(SheetFrame)),
+          equals(Size(testScreenSize.width, 300)),
+        );
       },
     );
 
     testWidgets(
-      'content obscured by a sheet should never receive pointer events',
-      (tester) async {
-        final env = boilerplate(shouldIgnorePointer: true);
+      'should trigger the callback on the first build',
+      (WidgetTester tester) async {
+        final env = boilerplate(
+          viewportInsets: EdgeInsets.zero,
+          initialContainerSize: const Size.fromHeight(300),
+        );
         await tester.pumpWidget(env.testWidget);
-        await tester.tap(find.text('Background bottom'), warnIfMissed: false);
-        expect(env.didTapBackgroundBottom(), isFalse);
+
+        verify(env.onSheetDimensionsChange.call(
+          Size(testScreenSize.width, 300),
+          testScreenSize,
+          EdgeInsets.zero,
+        ));
       },
     );
 
     testWidgets(
-      'content not obscured by a sheet should always receive pointer events',
+      "should trigger the callback when the child's size changes",
       (tester) async {
-        final env = boilerplate(shouldIgnorePointer: true);
+        final env = boilerplate(
+          initialContainerSize: const Size.fromHeight(300),
+        );
         await tester.pumpWidget(env.testWidget);
-        await tester.tap(find.text('Background top'), warnIfMissed: false);
-        expect(env.didTapBackgroundTop(), isTrue);
+
+        reset(env.onSheetDimensionsChange);
+        env.setContainerSize(const Size.fromHeight(400));
+        await tester.pumpAndSettle();
+
+        verify(env.onSheetDimensionsChange.call(
+          Size(testScreenSize.width, 400),
+          testScreenSize,
+          EdgeInsets.zero,
+        ));
+      },
+    );
+
+    test(
+      'should trigger the callback when a new preferred size is dispatched',
+      () {
+        // TODO: Write test
       },
     );
   });
