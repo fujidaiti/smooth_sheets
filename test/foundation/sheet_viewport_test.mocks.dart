@@ -3,14 +3,12 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:ui' as _i4;
+import 'dart:ui' as _i3;
 
-import 'package:flutter/cupertino.dart' as _i6;
-import 'package:flutter/foundation.dart' as _i3;
+import 'package:flutter/material.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:smooth_sheets/src/foundation/sheet_position.dart' as _i2;
 
-import 'sheet_viewport_test.dart' as _i5;
+import 'sheet_viewport_test.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -26,51 +24,16 @@ import 'sheet_viewport_test.dart' as _i5;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeSheetMetrics_0 extends _i1.SmartFake implements _i2.SheetMetrics {
-  _FakeSheetMetrics_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-/// A class which mocks [ValueListenable].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockSheetMetricsNotifier extends _i1.Mock
-    implements _i3.ValueListenable<_i2.SheetMetrics> {
-  @override
-  _i2.SheetMetrics get value =>
-      (super.noSuchMethod(
-            Invocation.getter(#value),
-            returnValue: _FakeSheetMetrics_0(this, Invocation.getter(#value)),
-            returnValueForMissingStub: _FakeSheetMetrics_0(
-              this,
-              Invocation.getter(#value),
-            ),
-          )
-          as _i2.SheetMetrics);
-
-  @override
-  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
-    Invocation.method(#addListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
-    Invocation.method(#removeListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-}
-
 /// A class which mocks [OnSheetDimensionsChangeCallback].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockOnSheetDimensionsChange extends _i1.Mock
-    implements _i5.OnSheetDimensionsChangeCallback {
+    implements _i2.OnSheetDimensionsChangeCallback {
   @override
   void call(
-    _i4.Size? contentSize,
-    _i4.Size? viewportSize,
-    _i6.EdgeInsets? viewportInsets,
+    _i3.Size? contentSize,
+    _i3.Size? viewportSize,
+    _i4.EdgeInsets? viewportInsets,
   ) => super.noSuchMethod(
     Invocation.method(#call, [contentSize, viewportSize, viewportInsets]),
     returnValueForMissingStub: null,

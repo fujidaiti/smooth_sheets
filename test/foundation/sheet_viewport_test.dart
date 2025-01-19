@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -7,10 +8,8 @@ import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
 import '../flutter_test_config.dart';
+import '../src/widget_tester_x.dart';
 @GenerateNiceMocks([
-  MockSpec<ValueListenable<SheetMetrics>>(
-    as: #MockSheetMetricsNotifier,
-  ),
   MockSpec<OnSheetDimensionsChangeCallback>(
     as: #MockOnSheetDimensionsChange,
   ),
@@ -27,7 +26,6 @@ class OnSheetDimensionsChangeCallback {
 void main() {
   group('SheetFrame', () {
     ({
-      MockSheetMetricsNotifier metricsNotifier,
       MockOnSheetDimensionsChange onSheetDimensionsChange,
       Widget testWidget,
       ValueSetter<Size> setContainerSize,
@@ -35,7 +33,7 @@ void main() {
       EdgeInsets viewportInsets = EdgeInsets.zero,
       Size initialContainerSize = Size.infinite,
     }) {
-      final metricsNotifier = MockSheetMetricsNotifier();
+      final metricsNotifier = ValueNotifier(SheetMetrics.empty);
       final onSheetDimensionsChange = MockOnSheetDimensionsChange();
 
       late StateSetter setStateFn;
@@ -69,7 +67,6 @@ void main() {
 
       return (
         testWidget: testWidget,
-        metricsNotifier: metricsNotifier,
         onSheetDimensionsChange: onSheetDimensionsChange,
         setContainerSize: setContainerSize,
       );
@@ -80,7 +77,7 @@ void main() {
       "and enforce the child's width to be the same as the parent's width",
       (tester) async {
         final env = boilerplate(
-          initialContainerSize: const Size(300, double.infinity),
+          initialContainerSize: Size(300, double.infinity),
         );
         await tester.pumpWidget(env.testWidget);
         expect(
@@ -94,7 +91,7 @@ void main() {
       'should size itself to fit the child',
       (WidgetTester tester) async {
         final env = boilerplate(
-          initialContainerSize: const Size.fromHeight(300),
+          initialContainerSize: Size.fromHeight(300),
         );
         await tester.pumpWidget(env.testWidget);
         expect(
@@ -109,7 +106,7 @@ void main() {
       (WidgetTester tester) async {
         final env = boilerplate(
           viewportInsets: EdgeInsets.zero,
-          initialContainerSize: const Size.fromHeight(300),
+          initialContainerSize: Size.fromHeight(300),
         );
         await tester.pumpWidget(env.testWidget);
 
@@ -125,12 +122,12 @@ void main() {
       "should trigger the callback when the child's size changes",
       (tester) async {
         final env = boilerplate(
-          initialContainerSize: const Size.fromHeight(300),
+          initialContainerSize: Size.fromHeight(300),
         );
         await tester.pumpWidget(env.testWidget);
 
         reset(env.onSheetDimensionsChange);
-        env.setContainerSize(const Size.fromHeight(400));
+        env.setContainerSize(Size.fromHeight(400));
         await tester.pumpAndSettle();
 
         verify(env.onSheetDimensionsChange.call(
@@ -148,4 +145,137 @@ void main() {
       },
     );
   });
+
+  group('SheetTranslate', () {
+    ({
+      ValueNotifier<SheetMetrics> metricsNotifier,
+      Widget testWidget,
+    }) boilerplate({
+      EdgeInsets viewportInsets = EdgeInsets.zero,
+      Size containerSize = Size.infinite,
+      SheetMetrics initialMetrics = SheetMetrics.empty,
+      ValueGetter<bool>? shouldIgnorePointerGetter,
+    }) {
+      final metricsNotifier = ValueNotifier(initialMetrics);
+      final testWidget = MediaQuery(
+        data: MediaQueryData(
+          viewInsets: viewportInsets,
+        ),
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: SheetTranslate(
+            insets: viewportInsets,
+            metricsNotifier: metricsNotifier,
+            shouldIgnorePointerGetter: () =>
+                shouldIgnorePointerGetter?.call() ?? false,
+            child: Container(
+              color: Colors.white,
+              height: containerSize.height,
+              width: containerSize.width,
+            ),
+          ),
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        metricsNotifier: metricsNotifier,
+      );
+    }
+
+    testWidgets(
+      "should constrain the child's size by the parent's constraints "
+      '(minimum size test)',
+      (tester) async {
+        final env = boilerplate(containerSize: Size.zero);
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byType(Container)), Size.zero);
+      },
+    );
+
+    testWidgets(
+      "should constrain the child's size by the parent's constraints "
+      '(maximum size test)',
+      (tester) async {
+        final env = boilerplate(containerSize: Size.infinite);
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byType(Container)), testScreenSize);
+      },
+    );
+
+    testWidgets(
+      'should size itself to match the biggest size that the constraints allow',
+      (tester) async {
+        final env = boilerplate(containerSize: Size.fromHeight(300));
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byType(SheetTranslate)), testScreenSize);
+      },
+    );
+
+    testWidgets(
+      "should translate the child's visual position "
+      'according to the current sheet metrics',
+      (tester) async {
+        final env = boilerplate(
+          containerSize: Size.fromHeight(300),
+          initialMetrics: SheetMetricsSnapshot(
+            pixels: 150,
+            minPosition: SheetAnchor.pixels(0),
+            maxPosition: SheetAnchor.proportional(1),
+            viewportSize: testScreenSize,
+            contentSize: Size(testScreenSize.width, 300),
+            viewportInsets: EdgeInsets.zero,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(
+          tester.getRect(find.byType(Container)).topLeft,
+          Offset(0, testScreenSize.height - 150),
+        );
+
+        env.metricsNotifier.value =
+            env.metricsNotifier.value.copyWith(pixels: 200);
+        await tester.pump();
+
+        expect(
+          tester.getRect(find.byType(Container)).topLeft,
+          Offset(0, testScreenSize.height - 200),
+        );
+      },
+    );
+
+    testWidgets(
+      'should ignore/accept touch events when shouldIgnorePointerGetter returns true/false',
+      (tester) async {
+        late bool shouldIgnorePointer;
+        final env = boilerplate(
+          containerSize: Size.fromHeight(300),
+          shouldIgnorePointerGetter: () => shouldIgnorePointer,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        shouldIgnorePointer = false;
+        await tester.strictTap(find.byType(Container));
+        expect(tester.takeException(), isNull);
+
+        shouldIgnorePointer = true;
+        await tester.strictTap(find.byType(Container));
+        expect(tester.takeException(), isA<FlutterError>());
+      },
+    );
+
+    testWidgets(
+      'should clip and translate its hit-test area '
+      "to match the child's visual rect",
+      (tester) async {},
+    );
+  });
+
+  /// SheetViewport
+  /// - should update the ignore-pointer state according to the current sheet activity.
+  /// - should size itself to match the biggest size that the constraints allow.
+  /// - should update the child's visual position according to the current sheet metrics.
+  /// - should update the child's size according to the current sheet metrics.
+  group('SheetViewport', () {});
 }

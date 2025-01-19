@@ -169,6 +169,7 @@ class _RenderSheetTranslate extends RenderTransform {
           transformHitTests: true,
         ) {
     _metricsNotifier.addListener(_invalidateTransformMatrix);
+    _invalidateTransformMatrix();
   }
 
   ValueListenable<SheetMetrics> _metricsNotifier;
@@ -179,7 +180,7 @@ class _RenderSheetTranslate extends RenderTransform {
     if (value != _metricsNotifier) {
       _metricsNotifier.removeListener(_invalidateTransformMatrix);
       _metricsNotifier = value..addListener(_invalidateTransformMatrix);
-      markNeedsPaint();
+      _invalidateTransformMatrix();
     }
   }
 
