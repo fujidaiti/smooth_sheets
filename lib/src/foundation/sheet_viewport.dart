@@ -365,3 +365,28 @@ class _RenderSheetFrame extends RenderProxyBox {
     size = child.size;
   }
 }
+
+// TODO: Refactor SheetViewportState to use this class.
+class _LazyValueListenable<T> extends ChangeNotifier
+    implements ValueListenable<T> {
+  @override
+  T get value => delegate!.value;
+
+  ValueListenable<T>? _delegate;
+
+  ValueListenable<T>? get delegate => _delegate;
+
+  set delegate(ValueListenable<T>? newDelegate) {
+    if (newDelegate != _delegate) {
+      _delegate?.removeListener(notifyListeners);
+      _delegate = newDelegate?..addListener(notifyListeners);
+    }
+  }
+
+  @override
+  void dispose() {
+    _delegate?.removeListener(notifyListeners);
+    _delegate = null;
+    super.dispose();
+  }
+}
