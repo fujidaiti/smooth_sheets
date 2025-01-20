@@ -1,17 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'sheet_position.dart';
-
-typedef OnSheetDimensionsChange = void Function(
-  Size contentSize,
-  Size viewportSize,
-  EdgeInsets viewportInsets,
-);
 
 class SheetViewport extends StatefulWidget {
   const SheetViewport({
@@ -26,64 +19,24 @@ class SheetViewport extends StatefulWidget {
 }
 
 @internal
-class SheetViewportState extends State<SheetViewport>
-    implements ValueListenable<SheetMetrics> {
-  late final List<VoidCallback> _listeners;
-  SheetPosition? _position;
+class SheetViewportState extends State<SheetViewport> {
+  late final _LazySheetModelView _modelView;
 
-  void setPosition(SheetPosition? value) {
-    if (value != _position) {
-      _position?.removeListener(_notifyListeners);
-      _position = value?..addListener(_notifyListeners);
-    }
-  }
+  SheetModelView get model => _modelView;
 
-  void _notifyListeners() {
-    for (final listener in _listeners) {
-      listener();
-    }
-  }
-
-  /// Intended to be used only by [_RenderSheetTranslate]
-  /// and [_RenderSheetFrame].
-  @override
-  SheetMetrics get value => _position!.snapshot;
-
-  /// Intended to be used only by [_RenderSheetTranslate]
-  /// and [_RenderSheetFrame].
-  @override
-  void addListener(VoidCallback listener) {
-    _listeners.add(listener);
-  }
-
-  /// Intended to be used only by [_RenderSheetTranslate]
-  /// and [_RenderSheetFrame].
-  @override
-  void removeListener(VoidCallback listener) {
-    _listeners.remove(listener);
-  }
-
-  void _onSheetDimensionsChange(
-    Size contentSize,
-    Size viewportSize,
-    EdgeInsets viewportInsets,
-  ) {
-    _position?.applyNewDimensions(contentSize, viewportSize, viewportInsets);
-  }
-
-  bool _shouldIgnorePointer() {
-    return _position?.activity.shouldIgnorePointer ?? false;
+  void setModel(SheetPosition? model) {
+    _modelView.setModel(model);
   }
 
   @override
   void initState() {
     super.initState();
-    _listeners = [];
+    _modelView = _LazySheetModelView();
   }
 
   @override
   void dispose() {
-    _listeners.clear();
+    _modelView.dispose();
     super.dispose();
   }
 
@@ -91,15 +44,10 @@ class SheetViewportState extends State<SheetViewport>
   Widget build(BuildContext context) {
     return _InheritedSheetViewport(
       state: this,
-      child: SheetTranslate(
-        metricsNotifier: this,
-        shouldIgnorePointerGetter: _shouldIgnorePointer,
+      child: _SheetTranslate(
+        model: model,
         insets: MediaQuery.of(context).viewInsets,
-        child: SheetFrame(
-          metricsNotifier: this,
-          onSheetDimensionsChange: _onSheetDimensionsChange,
-          child: widget.child,
-        ),
+        child: widget.child,
       ),
     );
   }
@@ -123,69 +71,53 @@ class _InheritedSheetViewport extends InheritedWidget {
   bool updateShouldNotify(_InheritedSheetViewport oldWidget) => true;
 }
 
-@visibleForTesting
-@internal
-class SheetTranslate extends SingleChildRenderObjectWidget {
-  const SheetTranslate({
-    super.key,
-    required this.metricsNotifier,
-    required this.shouldIgnorePointerGetter,
+class _SheetTranslate extends SingleChildRenderObjectWidget {
+  const _SheetTranslate({
+    required this.model,
     required this.insets,
     required super.child,
   });
 
-  final ValueListenable<SheetMetrics> metricsNotifier;
-  final ValueGetter<bool> shouldIgnorePointerGetter;
+  final SheetModelView model;
   final EdgeInsets insets;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderSheetTranslate(
-      metricsNotifier: metricsNotifier,
-      shouldIgnorePointerGetter: shouldIgnorePointerGetter,
-      insets: insets,
-    );
+    return _RenderSheetTranslate(model: model, insets: insets);
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetTranslate)
-      ..setMetricsNotifier(metricsNotifier)
-      ..setShouldIgnorePointerGetter(shouldIgnorePointerGetter)
+      ..setModel(model)
       ..setInsets(insets);
   }
 }
 
 class _RenderSheetTranslate extends RenderTransform {
   _RenderSheetTranslate({
-    required ValueListenable<SheetMetrics> metricsNotifier,
-    required ValueGetter<bool> shouldIgnorePointerGetter,
+    required SheetModelView model,
     required EdgeInsets insets,
-  })  : _metricsNotifier = metricsNotifier,
-        _shouldIgnorePointerGetter = shouldIgnorePointerGetter,
+  })  : _model = model,
         _insets = insets,
         super(
           transform: Matrix4.zero()..setIdentity(),
           transformHitTests: true,
         ) {
-    _metricsNotifier.addListener(_invalidateTransformMatrix);
+    model.addListener(_invalidateTransformMatrix);
     _invalidateTransformMatrix();
   }
 
-  ValueListenable<SheetMetrics> _metricsNotifier;
-  ValueGetter<bool> _shouldIgnorePointerGetter;
+  SheetModelView _model;
   EdgeInsets _insets;
+  Size? _lastMeasuredSize;
 
-  void setMetricsNotifier(ValueListenable<SheetMetrics> value) {
-    if (value != _metricsNotifier) {
-      _metricsNotifier.removeListener(_invalidateTransformMatrix);
-      _metricsNotifier = value..addListener(_invalidateTransformMatrix);
+  void setModel(SheetModelView value) {
+    if (value != _model) {
+      _model.removeListener(_invalidateTransformMatrix);
+      _model = value..addListener(_invalidateTransformMatrix);
       _invalidateTransformMatrix();
     }
-  }
-
-  void setShouldIgnorePointerGetter(ValueGetter<bool> value) {
-    _shouldIgnorePointerGetter = value;
   }
 
   void setInsets(EdgeInsets value) {
@@ -198,6 +130,12 @@ class _RenderSheetTranslate extends RenderTransform {
   }
 
   @override
+  set size(Size value) {
+    _lastMeasuredSize = value;
+    super.size = value;
+  }
+
+  @override
   void performLayout() {
     assert(constraints.biggest.isFinite);
     size = constraints.biggest;
@@ -205,10 +143,10 @@ class _RenderSheetTranslate extends RenderTransform {
   }
 
   void _invalidateTransformMatrix() {
-    final currentPosition = _metricsNotifier.value.maybePixels;
-    final viewportSize = _metricsNotifier.value.maybeViewportSize;
-    if (currentPosition != null && viewportSize != null) {
-      final dy = viewportSize.height - _insets.bottom - currentPosition;
+    final offset = _model.value;
+    final viewportSize = _lastMeasuredSize;
+    if (offset != null && viewportSize != null) {
+      final dy = viewportSize.height - _insets.bottom - offset;
       // Update the translation value and mark this render object
       // as needing to be repainted.
       transform = Matrix4.translationValues(0, dy, 0);
@@ -227,7 +165,7 @@ class _RenderSheetTranslate extends RenderTransform {
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    if (_shouldIgnorePointerGetter()) {
+    if (_model.shouldIgnorePointer) {
       final invTransform = Matrix4.tryInvert(
         PointerEvent.removePerspectiveTransform(_transform),
       );
@@ -240,153 +178,31 @@ class _RenderSheetTranslate extends RenderTransform {
 
   @override
   void dispose() {
-    _metricsNotifier.removeListener(_invalidateTransformMatrix);
+    _model.removeListener(_invalidateTransformMatrix);
     super.dispose();
   }
 }
 
-@internal
-@visibleForTesting
-class SheetFrame extends SingleChildRenderObjectWidget {
-  const SheetFrame({
-    super.key,
-    required this.metricsNotifier,
-    required this.onSheetDimensionsChange,
-    required super.child,
-  });
+class _LazySheetModelView extends ChangeNotifier implements SheetModelView {
+  SheetPosition? _model;
 
-  final ValueListenable<SheetMetrics> metricsNotifier;
-  final OnSheetDimensionsChange onSheetDimensionsChange;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) {
-    return _RenderSheetFrame(
-      metricsNotifier: metricsNotifier,
-      onSheetDimensionsChange: onSheetDimensionsChange,
-      viewportInsets: MediaQuery.viewInsetsOf(context),
-    );
-  }
-
-  @override
-  void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderSheetFrame)
-      ..setMetricsNotifier(metricsNotifier)
-      ..setOnSheetDimensionsChange(onSheetDimensionsChange)
-      ..setViewportInsets(MediaQuery.viewInsetsOf(context));
-  }
-}
-
-class _RenderSheetFrame extends RenderProxyBox {
-  _RenderSheetFrame({
-    required OnSheetDimensionsChange onSheetDimensionsChange,
-    required ValueListenable<SheetMetrics> metricsNotifier,
-    required EdgeInsets viewportInsets,
-  })  : _onSheetDimensionsChange = onSheetDimensionsChange,
-        _metricsNotifier = metricsNotifier,
-        _viewportInsets = viewportInsets {
-    _metricsNotifier.addListener(_onMetricsChange);
-  }
-
-  EdgeInsets _viewportInsets;
-  OnSheetDimensionsChange _onSheetDimensionsChange;
-  ValueListenable<SheetMetrics> _metricsNotifier;
-  Size? _lastMeasuredSize;
-
-  @override
-  set size(Size value) {
-    _lastMeasuredSize = value;
-    super.size = value;
-  }
-
-  void setViewportInsets(EdgeInsets value) {
-    if (value != _viewportInsets) {
-      _viewportInsets = value;
-      markNeedsLayout();
-    }
-  }
-
-  void setOnSheetDimensionsChange(OnSheetDimensionsChange value) {
-    if (value != _onSheetDimensionsChange) {
-      _onSheetDimensionsChange = value;
-      markNeedsLayout();
-    }
-  }
-
-  void setMetricsNotifier(ValueListenable<SheetMetrics> value) {
-    if (value != _metricsNotifier) {
-      _metricsNotifier.removeListener(_onMetricsChange);
-      _metricsNotifier = value..addListener(_onMetricsChange);
+  void setModel(SheetPosition? value) {
+    if (value != _model) {
+      _model?.removeListener(notifyListeners);
+      _model = value?..addListener(notifyListeners);
     }
   }
 
   @override
   void dispose() {
-    _metricsNotifier.removeListener(_onMetricsChange);
+    _model?.removeListener(notifyListeners);
+    _model = null;
     super.dispose();
   }
 
-  void _onMetricsChange() {
-    // ignore: lines_longer_than_80_chars
-    // TODO: Mark this render object as needing layout when the preferred sheet size changes.
-    /*
-    final metrics = _metricsNotifier.value;
-    if (metrics.contentSize != _lastMeasuredSize &&
-        // Calling SheetPosition.applyNewDimensions() in the performLayout()
-        // eventually triggers this callback. In that case, we must not
-        // call markNeedsLayout() as it is already in the layout phase.
-        SchedulerBinding.instance.schedulerPhase !=
-            SchedulerPhase.persistentCallbacks) {
-      markNeedsLayout();
-    }
-    */
-  }
+  @override
+  double? get value => _model?.maybePixels;
 
   @override
-  void performLayout() {
-    final child = this.child;
-    if (child == null) {
-      super.performLayout();
-      return;
-    }
-
-    assert(
-      constraints.biggest.isFinite,
-      'SheetSkeleton must be in a box that has a bounded width and height.\n'
-      'Given constraints: $constraints',
-    );
-
-    final childConstraints = constraints.tighten(width: constraints.maxWidth);
-    child.layout(childConstraints, parentUsesSize: true);
-    final viewportSize = constraints.biggest;
-    final childSize = Size.copy(child.size);
-    _onSheetDimensionsChange(childSize, viewportSize, _viewportInsets);
-    // ignore: lines_longer_than_80_chars
-    // TODO: The size of this widget should be determined by the geometry controller.
-    size = child.size;
-  }
-}
-
-// TODO: Refactor SheetViewportState to use this class.
-class _LazyValueListenable<T> extends ChangeNotifier
-    implements ValueListenable<T> {
-  @override
-  T get value => delegate!.value;
-
-  ValueListenable<T>? _delegate;
-
-  ValueListenable<T>? get delegate => _delegate;
-
-  set delegate(ValueListenable<T>? newDelegate) {
-    if (newDelegate != _delegate) {
-      _delegate?.removeListener(notifyListeners);
-      _delegate = newDelegate?..addListener(notifyListeners);
-    }
-  }
-
-  @override
-  void dispose() {
-    _delegate?.removeListener(notifyListeners);
-    _delegate = null;
-    super.dispose();
-  }
+  bool get shouldIgnorePointer => _model?.activity.shouldIgnorePointer ?? false;
 }

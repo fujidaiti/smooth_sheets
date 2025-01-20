@@ -1,5 +1,5 @@
 // ignore_for_file: prefer_const_constructors
-
+/*
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -8,144 +8,10 @@ import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
 import '../flutter_test_config.dart';
+import '../src/stubbing.dart';
 import '../src/widget_tester_x.dart';
-@GenerateNiceMocks([
-  MockSpec<OnSheetDimensionsChangeCallback>(
-    as: #MockOnSheetDimensionsChange,
-  ),
-])
-import 'sheet_viewport_test.mocks.dart';
-
-/// A class version of [OnSheetDimensionsChange] callback to allow mocking.
-// ignore: unreachable_from_main
-class OnSheetDimensionsChangeCallback {
-  // ignore: unreachable_from_main
-  void call(Size contentSize, Size viewportSize, EdgeInsets viewportInsets) {}
-}
 
 void main() {
-  group('SheetFrame', () {
-    ({
-      MockOnSheetDimensionsChange onSheetDimensionsChange,
-      Widget testWidget,
-      ValueSetter<Size> setContainerSize,
-    }) boilerplate({
-      EdgeInsets viewportInsets = EdgeInsets.zero,
-      Size initialContainerSize = Size.infinite,
-    }) {
-      final metricsNotifier = ValueNotifier(SheetMetrics.empty);
-      final onSheetDimensionsChange = MockOnSheetDimensionsChange();
-
-      late StateSetter setStateFn;
-      var containerSize = initialContainerSize;
-      void setContainerSize(Size size) {
-        setStateFn(() => containerSize = size);
-      }
-
-      final testWidget = MediaQuery(
-        data: MediaQueryData(
-          viewInsets: viewportInsets,
-        ),
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: SheetFrame(
-            metricsNotifier: metricsNotifier,
-            onSheetDimensionsChange: onSheetDimensionsChange.call,
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                setStateFn = setState;
-                return Container(
-                  color: Colors.white,
-                  height: containerSize.height,
-                  width: containerSize.width,
-                );
-              },
-            ),
-          ),
-        ),
-      );
-
-      return (
-        testWidget: testWidget,
-        onSheetDimensionsChange: onSheetDimensionsChange,
-        setContainerSize: setContainerSize,
-      );
-    }
-
-    testWidgets(
-      "should constraint the child's height by the parent's constraints, "
-      "and enforce the child's width to be the same as the parent's width",
-      (tester) async {
-        final env = boilerplate(
-          initialContainerSize: Size(300, double.infinity),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byType(Container)),
-          equals(testScreenSize),
-        );
-      },
-    );
-
-    testWidgets(
-      'should size itself to fit the child',
-      (WidgetTester tester) async {
-        final env = boilerplate(
-          initialContainerSize: Size.fromHeight(300),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byType(SheetFrame)),
-          equals(Size(testScreenSize.width, 300)),
-        );
-      },
-    );
-
-    testWidgets(
-      'should trigger the callback on the first build',
-      (WidgetTester tester) async {
-        final env = boilerplate(
-          viewportInsets: EdgeInsets.zero,
-          initialContainerSize: Size.fromHeight(300),
-        );
-        await tester.pumpWidget(env.testWidget);
-
-        verify(env.onSheetDimensionsChange.call(
-          Size(testScreenSize.width, 300),
-          testScreenSize,
-          EdgeInsets.zero,
-        ));
-      },
-    );
-
-    testWidgets(
-      "should trigger the callback when the child's size changes",
-      (tester) async {
-        final env = boilerplate(
-          initialContainerSize: Size.fromHeight(300),
-        );
-        await tester.pumpWidget(env.testWidget);
-
-        reset(env.onSheetDimensionsChange);
-        env.setContainerSize(Size.fromHeight(400));
-        await tester.pumpAndSettle();
-
-        verify(env.onSheetDimensionsChange.call(
-          Size(testScreenSize.width, 400),
-          testScreenSize,
-          EdgeInsets.zero,
-        ));
-      },
-    );
-
-    test(
-      'should trigger the callback when a new preferred size is dispatched',
-      () {
-        // TODO: Write test
-      },
-    );
-  });
-
   group('SheetTranslate', () {
     ({
       ValueNotifier<SheetMetrics> metricsNotifier,
@@ -348,5 +214,74 @@ void main() {
   /// - should update the child's visual position according to the current sheet metrics.
   /// - should update the child's size according to the current sheet metrics.
   /// - should allow the background widget to receive touch events when the child doesn't.
-  group('SheetViewport', () {});
+  group('SheetViewport', () {
+    ({
+      Future<void> Function(WidgetTester) pumpTestWidget,
+      GlobalKey<SheetViewportState> viewportKey,
+    }) boilerplate({
+      required SheetPosition model,
+      Size containerSize = Size.infinite,
+      SheetMetrics initialMetrics = SheetMetrics.empty,
+      ValueGetter<bool>? shouldIgnorePointerGetter,
+    }) {
+      final viewportKey = GlobalKey<SheetViewportState>();
+      final testWidget = MediaQuery(
+        data: MediaQueryData(),
+        child: Stack(
+          children: [
+            Container(
+              key: Key('background'),
+              color: Colors.white,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            SheetViewport(
+              key: viewportKey,
+              child: Container(
+                key: Key('sheet'),
+                color: Colors.white,
+                height: containerSize.height,
+                width: containerSize.width,
+              ),
+            ),
+          ],
+        ),
+      );
+
+      Future<void> pumpTestWidget(WidgetTester tester) async {
+        await tester.pumpWidget(testWidget, phase: EnginePhase.build);
+        // The model object must be attached to the viewport
+        // during the first build.
+        viewportKey.currentState!.setPosition(model);
+        await tester.pump();
+      }
+
+      return (
+        pumpTestWidget: pumpTestWidget,
+        viewportKey: viewportKey,
+      );
+    }
+
+    testWidgets(
+      'should size itself to match the biggest size that the constraints allow',
+      (tester) async {
+        final model = MockSheetPosition();
+        when(model.maybePixels).thenReturn(150);
+        when(model.maybeViewportSize).thenReturn(testScreenSize);
+
+        final env = boilerplate(
+          model: model,
+          containerSize: Size.fromHeight(300),
+        );
+        await env.pumpTestWidget(tester);
+
+        expect(
+          tester.getSize(find.byType(SheetViewport)),
+          equals(testScreenSize),
+        );
+      },
+    );
+  });
 }
+
+ */

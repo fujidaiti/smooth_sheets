@@ -107,7 +107,7 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
 
   @override
   void dispose() {
-    _viewport?.setPosition(null);
+    _viewport?.setModel(null);
     _disposePosition(_position);
     _controller = null;
     _viewport = null;
@@ -122,8 +122,8 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
 
     final viewport = SheetViewportState.of(context);
     if (viewport != _viewport) {
-      _viewport?.setPosition(null);
-      _viewport = viewport?..setPosition(position);
+      _viewport?.setModel(null);
+      _viewport = viewport?..setModel(position);
     }
   }
 
@@ -134,7 +134,7 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
     if (shouldRebuildPosition(_position)) {
       final oldPosition = _position;
       _position = buildPosition(widget.context)..takeOver(oldPosition);
-      _viewport?.setPosition(position);
+      _viewport?.setModel(position);
       _disposePosition(oldPosition);
       _rewireControllerAndPosition();
     }

@@ -110,6 +110,11 @@ class FixedSheetAnchor implements SheetAnchor {
   String toString() => '$FixedSheetAnchor(pixels: $pixels)';
 }
 
+/// Read-only view of a [SheetPosition].
+abstract interface class SheetModelView implements ValueListenable<double?> {
+  bool get shouldIgnorePointer;
+}
+
 /// Manages the position of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
@@ -140,7 +145,7 @@ class FixedSheetAnchor implements SheetAnchor {
 // TODO: Rename to SheetGeometryController.
 // ignore: lines_longer_than_80_chars
 // TODO: Implement ValueListenable<SheetGeometry> instead of ValueListenable<double?>.
-// TODO: Implement SheetMetricsNotifier.
+// TODO: Implement SheetModelView.
 abstract class SheetPosition extends ChangeNotifier
     with SheetMetrics
     implements ValueListenable<double?> {
