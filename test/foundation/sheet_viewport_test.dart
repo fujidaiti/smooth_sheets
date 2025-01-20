@@ -268,7 +268,77 @@ void main() {
     testWidgets(
       'should clip and translate its hit-test area '
       "to match the child's visual rect",
-      (tester) async {},
+      (tester) async {
+        final env = boilerplate(
+          containerSize: Size.fromHeight(300),
+          initialMetrics: SheetMetricsSnapshot(
+            pixels: 150,
+            minPosition: SheetAnchor.pixels(0),
+            maxPosition: SheetAnchor.proportional(1),
+            viewportSize: testScreenSize,
+            contentSize: Size(testScreenSize.width, 300),
+            viewportInsets: EdgeInsets.zero,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        final leftTop = Offset(0, testScreenSize.height - 150);
+        tester.hitTest(find.byType(Container), location: leftTop);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byType(SheetTranslate), location: leftTop);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final rightTop =
+            Offset(testScreenSize.width - 1, testScreenSize.height - 150);
+        tester.hitTest(find.byType(Container), location: rightTop);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byType(SheetTranslate), location: rightTop);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final leftBottom = Offset(0, testScreenSize.height - 1);
+        tester.hitTest(find.byType(Container), location: leftBottom);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byType(SheetTranslate), location: leftBottom);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final rightBottom =
+            Offset(testScreenSize.width - 1, testScreenSize.height - 1);
+        tester.hitTest(find.byType(Container), location: rightBottom);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byType(SheetTranslate), location: rightBottom);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final center =
+            Offset(testScreenSize.width / 2, testScreenSize.height - 75);
+        tester.hitTest(find.byType(Container), location: center);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byType(SheetTranslate), location: center);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final aboveLeftTop = leftTop + Offset(0, -1);
+        tester.hitTest(find.byType(Container), location: aboveLeftTop);
+        expect(tester.takeException(), isA<FlutterError>());
+        tester.hitTest(find.byType(SheetTranslate), location: aboveLeftTop);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final aboveRightTop = rightTop + Offset(0, -1);
+        tester.hitTest(find.byType(Container), location: aboveRightTop);
+        expect(tester.takeException(), isA<FlutterError>());
+        tester.hitTest(find.byType(SheetTranslate), location: aboveRightTop);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final belowLeftBottom = leftBottom + Offset(0, 1);
+        tester.hitTest(find.byType(Container), location: belowLeftBottom);
+        expect(tester.takeException(), isA<FlutterError>());
+        tester.hitTest(find.byType(SheetTranslate), location: belowLeftBottom);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final belowRightBottom = rightBottom + Offset(0, 1);
+        tester.hitTest(find.byType(Container), location: belowRightBottom);
+        expect(tester.takeException(), isA<FlutterError>());
+        tester.hitTest(find.byType(SheetTranslate), location: belowRightBottom);
+        expect(tester.takeException(), isA<FlutterError>());
+      },
     );
   });
 
@@ -277,5 +347,6 @@ void main() {
   /// - should size itself to match the biggest size that the constraints allow.
   /// - should update the child's visual position according to the current sheet metrics.
   /// - should update the child's size according to the current sheet metrics.
+  /// - should allow the background widget to receive touch events when the child doesn't.
   group('SheetViewport', () {});
 }
