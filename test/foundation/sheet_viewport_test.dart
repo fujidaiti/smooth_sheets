@@ -1,59 +1,71 @@
 // ignore_for_file: prefer_const_constructors
-/*
+
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
 import '../flutter_test_config.dart';
+import '../src/flutter_test_x.dart';
 import '../src/stubbing.dart';
-import '../src/widget_tester_x.dart';
+import '../src/test_stateful_widget.dart';
 
 void main() {
-  group('SheetTranslate', () {
+  group('SheetViewport', () {
     ({
-      ValueNotifier<SheetMetrics> metricsNotifier,
       Widget testWidget,
     }) boilerplate({
-      EdgeInsets viewportInsets = EdgeInsets.zero,
+      required SheetPosition model,
       Size containerSize = Size.infinite,
-      SheetMetrics initialMetrics = SheetMetrics.empty,
-      ValueGetter<bool>? shouldIgnorePointerGetter,
     }) {
-      final metricsNotifier = ValueNotifier(initialMetrics);
+      final viewportKey = GlobalKey<SheetViewportState>();
       final testWidget = MediaQuery(
         data: MediaQueryData(
-          viewInsets: viewportInsets,
+          viewInsets: EdgeInsets.zero,
         ),
         child: Align(
           alignment: Alignment.topLeft,
-          child: SheetTranslate(
-            insets: viewportInsets,
-            metricsNotifier: metricsNotifier,
-            shouldIgnorePointerGetter: () =>
-                shouldIgnorePointerGetter?.call() ?? false,
-            child: Container(
-              color: Colors.white,
-              height: containerSize.height,
-              width: containerSize.width,
+          child: SheetViewport(
+            key: viewportKey,
+            child: TestStatefulWidget(
+              initialState: containerSize,
+              didChangeDependencies: () {
+                viewportKey.currentState!.setModel(model);
+              },
+              builder: (_, size) {
+                return Container(
+                  color: Colors.white,
+                  height: size.height,
+                  width: size.width,
+                );
+              },
             ),
           ),
         ),
       );
 
-      return (
-        testWidget: testWidget,
-        metricsNotifier: metricsNotifier,
-      );
+      return (testWidget: testWidget,);
     }
+
+    testWidgets(
+      'should size itself to match the biggest size that the constraints allow',
+      (tester) async {
+        final env = boilerplate(
+          model: MockSheetPosition(),
+          containerSize: Size.zero,
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byType(SheetViewport)), testScreenSize);
+      },
+    );
 
     testWidgets(
       "should constrain the child's size by the parent's constraints "
       '(minimum size test)',
       (tester) async {
-        final env = boilerplate(containerSize: Size.zero);
+        final env = boilerplate(
+          model: MockSheetPosition(),
+          containerSize: Size.zero,
+        );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byType(Container)), Size.zero);
       },
@@ -63,21 +75,16 @@ void main() {
       "should constrain the child's size by the parent's constraints "
       '(maximum size test)',
       (tester) async {
-        final env = boilerplate(containerSize: Size.infinite);
+        final env = boilerplate(
+          model: MockSheetPosition(),
+          containerSize: Size.infinite,
+        );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byType(Container)), testScreenSize);
       },
     );
 
-    testWidgets(
-      'should size itself to match the biggest size that the constraints allow',
-      (tester) async {
-        final env = boilerplate(containerSize: Size.fromHeight(300));
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byType(SheetTranslate)), testScreenSize);
-      },
-    );
-
+    /*
     testWidgets(
       "should translate the child's visual position "
       'according to the current sheet metrics',
@@ -281,7 +288,36 @@ void main() {
         );
       },
     );
+
+     */
+  });
+
+  group('SheetViewport error test', () {
+    testWidgets(
+      'Throws an error when no model object is attached '
+      'before the first layout phase',
+      (tester) async {
+        final errors = await tester.pumpWidgetAndCaptureErrors(
+          MediaQuery(
+            data: MediaQueryData(
+              viewInsets: EdgeInsets.zero,
+            ),
+            child: SheetViewport(
+              child: Container(),
+            ),
+          ),
+        );
+
+        expect(
+          errors.first.exception,
+          isAssertionError.having(
+            (e) => e.message,
+            'message',
+            'The model object must be attached to the SheetViewport '
+                'before the first layout phase.',
+          ),
+        );
+      },
+    );
   });
 }
-
- */

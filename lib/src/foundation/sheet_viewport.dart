@@ -136,6 +136,16 @@ class _RenderSheetTranslate extends RenderTransform {
   }
 
   @override
+  void layout(Constraints constraints, {bool parentUsesSize = false}) {
+    assert(
+      (_model as _LazySheetModelView)._model != null,
+      'The model object must be attached to the SheetViewport '
+      'before the first layout phase.',
+    );
+    super.layout(constraints, parentUsesSize: parentUsesSize);
+  }
+
+  @override
   void performLayout() {
     assert(constraints.biggest.isFinite);
     size = constraints.biggest;

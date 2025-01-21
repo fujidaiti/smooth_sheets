@@ -1,16 +1,28 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart' as t;
+import 'package:meta/meta.dart';
 
-extension WidgetTesterX on WidgetTester {
+export 'package:flutter_test/flutter_test.dart';
+
+/// [WidgetTesterX] version of [t.testWidgets].
+@isTest
+void testWidgets(
+  String description,
+  Future<void> Function(WidgetTesterX) callback,
+) {
+  t.testWidgets(description, (t) => callback(WidgetTesterX(t)));
+}
+
+extension WidgetTesterExtensions on t.WidgetTester {
   /// A strict version of [tap] that throws an error when a tap is missed.
   ///
   /// The error thrown can be obtained from [takeException] for further
   /// verification. See [this issue](https://github.com/flutter/flutter/issues/151965#issuecomment-2239515523)
   /// for more information.
   @pragma('vm:notify-debugger-on-exception')
-  Future<void> strictTap(Finder finder) async {
+  Future<void> strictTap(t.Finder finder) async {
     try {
       await tap(finder, warnIfMissed: true);
       // ignore: avoid_catching_errors
@@ -41,8 +53,8 @@ extension WidgetTesterX on WidgetTester {
   /// expect(tester.takeException(), isA<FlutterError>());
   /// ```
   @pragma('vm:notify-debugger-on-exception')
-  void hitTest(FinderBase<Element> finder, {required Offset location}) {
-    TestAsyncUtils.guardSync();
+  void hitTest(t.FinderBase<Element> finder, {required Offset location}) {
+    t.TestAsyncUtils.guardSync();
     RenderBox? box;
     try {
       box = renderObject(finder) as RenderBox;
@@ -60,7 +72,8 @@ extension WidgetTesterX on WidgetTester {
       return;
     }
 
-    final viewFinder = find.ancestor(of: finder, matching: find.byType(View));
+    final viewFinder =
+        t.find.ancestor(of: finder, matching: t.find.byType(View));
     final view = firstWidget<View>(viewFinder).view;
     final result = HitTestResult();
     binding.hitTestInView(result, location, view.viewId);
@@ -107,5 +120,27 @@ extension WidgetTesterX on WidgetTester {
         stack: StackTrace.current,
       ),
     );
+  }
+}
+
+extension type WidgetTesterX(t.WidgetTester _) implements t.WidgetTester {
+  /// Captures all errors thrown during the execution of [pumpWidget].
+  ///
+  /// This method covers the cases that [takeException] does not work,
+  /// such as when multiple errors are thrown during [pumpWidget].
+  Future<List<FlutterErrorDetails>> pumpWidgetAndCaptureErrors(
+    Widget widget,
+  ) async {
+    final errors = <FlutterErrorDetails>[];
+    final oldHandler = FlutterError.onError;
+    FlutterError.onError = errors.add;
+
+    try {
+      await pumpWidget(widget);
+    } finally {
+      FlutterError.onError = oldHandler;
+    }
+
+    return errors;
   }
 }
