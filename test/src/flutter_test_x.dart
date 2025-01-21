@@ -15,16 +15,39 @@ void testWidgets(
   t.testWidgets(description, (t) => callback(WidgetTesterX(t)));
 }
 
-extension WidgetTesterExtensions on t.WidgetTester {
-  /// A strict version of [tap] that throws an error when a tap is missed.
+extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
+  /// Captures all errors thrown during the execution of [pumpWidget].
+  ///
+  /// This method covers the cases that [takeException] does not work,
+  /// such as when multiple errors are thrown during [pumpWidget].
+  Future<List<FlutterErrorDetails>> pumpWidgetAndCaptureErrors(
+    Widget widget,
+  ) async {
+    final errors = <FlutterErrorDetails>[];
+    final oldHandler = FlutterError.onError;
+    FlutterError.onError = errors.add;
+
+    try {
+      await pumpWidget(widget);
+    } finally {
+      FlutterError.onError = oldHandler;
+    }
+
+    return errors;
+  }
+
+  /// A strict version of WidgetTester.tap that throws an error
+  /// when a tap is missed.
   ///
   /// The error thrown can be obtained from [takeException] for further
   /// verification. See [this issue](https://github.com/flutter/flutter/issues/151965#issuecomment-2239515523)
   /// for more information.
   @pragma('vm:notify-debugger-on-exception')
-  Future<void> strictTap(t.Finder finder) async {
+  @isTest
+  @redeclare
+  Future<void> tap(t.Finder finder) async {
     try {
-      await tap(finder, warnIfMissed: true);
+      await self.tap(finder, warnIfMissed: true);
       // ignore: avoid_catching_errors
     } on Error catch (error, stackTrace) {
       // Forward the error to Flutter.onError
@@ -120,27 +143,5 @@ extension WidgetTesterExtensions on t.WidgetTester {
         stack: StackTrace.current,
       ),
     );
-  }
-}
-
-extension type WidgetTesterX(t.WidgetTester _) implements t.WidgetTester {
-  /// Captures all errors thrown during the execution of [pumpWidget].
-  ///
-  /// This method covers the cases that [takeException] does not work,
-  /// such as when multiple errors are thrown during [pumpWidget].
-  Future<List<FlutterErrorDetails>> pumpWidgetAndCaptureErrors(
-    Widget widget,
-  ) async {
-    final errors = <FlutterErrorDetails>[];
-    final oldHandler = FlutterError.onError;
-    FlutterError.onError = errors.add;
-
-    try {
-      await pumpWidget(widget);
-    } finally {
-      FlutterError.onError = oldHandler;
-    }
-
-    return errors;
   }
 }

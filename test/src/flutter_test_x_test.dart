@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'flutter_test_x.dart';
 
 void main() {
-  group('strictTap', () {
+  group('WidgetTesterX.tap', () {
     late Widget testWidget;
 
     setUp(() {
@@ -23,7 +23,7 @@ void main() {
       'should successfully tap on the widget',
       (tester) async {
         await tester.pumpWidget(testWidget);
-        await tester.strictTap(find.text('Tap me'));
+        await tester.tap(find.text('Tap me'));
         expect(tester.takeException(), isNull);
       },
     );
@@ -32,13 +32,13 @@ void main() {
       'should throw an error when the widget is not found',
       (tester) async {
         await tester.pumpWidget(testWidget);
-        await tester.strictTap(find.text('Not found'));
+        await tester.tap(find.text('Not found'));
         expect(tester.takeException(), isA<FlutterError>());
       },
     );
   });
 
-  group('hitTest', () {
+  group('WidgetTesterX.hitTest', () {
     late Widget testWidget;
 
     setUp(() {
