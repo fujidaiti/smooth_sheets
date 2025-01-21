@@ -135,13 +135,6 @@ void main() {
         );
       },
     );
-
-    // SheetViewport
-    // - should update the ignore-pointer state according to the current sheet activity.
-    // - should size itself to match the biggest size that the constraints allow.
-    // - should update the child's visual position according to the current sheet metrics.
-    // - should update the child's size according to the current sheet metrics.
-    // - should allow the background widget to receive touch events when the child doesn't.
   });
 
   group('SheetViewport: hit-testing', () {

@@ -69,6 +69,8 @@ void main() {
       },
     );
 
+    // ignore: lines_longer_than_80_chars
+    // TODO: Remove this test and add "should size itself to according to the current metrics" test instead.
     testWidgets(
       'should size itself to fit the child',
       (WidgetTester tester) async {
@@ -122,13 +124,6 @@ void main() {
           testScreenSize,
           EdgeInsets.zero,
         ));
-      },
-    );
-
-    test(
-      'should trigger the callback when a new preferred size is dispatched',
-      () {
-        // TODO: Write test
       },
     );
   });
