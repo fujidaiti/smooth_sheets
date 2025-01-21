@@ -211,6 +211,15 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
           as _i13.SheetStatus);
 
   @override
+  bool get shouldIgnorePointer =>
+      (super.noSuchMethod(
+            Invocation.getter(#shouldIgnorePointer),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
   _i4.SheetPhysics get physics =>
       (super.noSuchMethod(
             Invocation.getter(#physics),

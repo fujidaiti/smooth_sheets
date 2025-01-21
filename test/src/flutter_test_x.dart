@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 
 export 'package:flutter_test/flutter_test.dart';
 
-/// [WidgetTesterX] version of [t.testWidgets].
+/// [WidgetTesterX] version of `testWidgets` from package:flutter_test.
 @isTest
 void testWidgets(
   String description,

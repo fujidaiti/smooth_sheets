@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
@@ -15,6 +16,7 @@ void main() {
       Widget testWidget,
     }) boilerplate({
       required SheetPosition model,
+      BoxConstraints parentConstraints = const BoxConstraints.expand(),
       Size containerSize = Size.infinite,
     }) {
       final viewportKey = GlobalKey<SheetViewportState>();
@@ -22,22 +24,24 @@ void main() {
         data: MediaQueryData(
           viewInsets: EdgeInsets.zero,
         ),
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: SheetViewport(
-            key: viewportKey,
-            child: TestStatefulWidget(
-              initialState: containerSize,
-              didChangeDependencies: () {
-                viewportKey.currentState!.setModel(model);
-              },
-              builder: (_, size) {
-                return Container(
-                  color: Colors.white,
-                  height: size.height,
-                  width: size.width,
-                );
-              },
+        child: Center(
+          child: ConstrainedBox(
+            constraints: parentConstraints,
+            child: SheetViewport(
+              key: viewportKey,
+              child: TestStatefulWidget(
+                initialState: containerSize,
+                didChangeDependencies: () {
+                  viewportKey.currentState!.setModel(model);
+                },
+                builder: (_, size) {
+                  return Container(
+                    color: Colors.white,
+                    height: size.height,
+                    width: size.width,
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -51,20 +55,20 @@ void main() {
       (tester) async {
         final env = boilerplate(
           model: MockSheetPosition(),
-          containerSize: Size.zero,
+          parentConstraints: BoxConstraints(maxWidth: 400, maxHeight: 400),
         );
         await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byType(SheetViewport)), testScreenSize);
+        expect(tester.getSize(find.byType(SheetViewport)), Size.square(400));
       },
     );
 
     testWidgets(
-      "should constrain the child's size by the parent's constraints "
-      '(minimum size test)',
+      "should not constraint the child's minimum size",
       (tester) async {
         final env = boilerplate(
           model: MockSheetPosition(),
           containerSize: Size.zero,
+          parentConstraints: BoxConstraints(minWidth: 100, minHeight: 100),
         );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byType(Container)), Size.zero);
@@ -72,33 +76,47 @@ void main() {
     );
 
     testWidgets(
-      "should constrain the child's size by the parent's constraints "
-      '(maximum size test)',
+      "should constrain the child's maximum size by the parent's constraint",
       (tester) async {
         final env = boilerplate(
           model: MockSheetPosition(),
           containerSize: Size.infinite,
+          parentConstraints: BoxConstraints(maxWidth: 400, maxHeight: 400),
         );
         await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byType(Container)), testScreenSize);
+        expect(tester.getSize(find.byType(Container)), Size.square(400));
       },
     );
 
-    /*
+    testWidgets(
+      'should constrain the child by a loose constraint '
+      'even if the given constraint is tight',
+      (tester) async {
+        final env = boilerplate(
+          model: MockSheetPosition(),
+          containerSize: Size.square(200),
+          parentConstraints: BoxConstraints.tight(Size.square(400)),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byType(Container)), Size.square(200));
+      },
+    );
+
     testWidgets(
       "should translate the child's visual position "
       'according to the current sheet metrics',
       (tester) async {
+        final model = MockSheetPosition();
+        late VoidCallback notifyListeners;
+        when(model.maybePixels).thenReturn(150);
+        when(model.addListener(any)).thenAnswer((invocation) {
+          notifyListeners =
+              invocation.positionalArguments.first as VoidCallback;
+        });
+
         final env = boilerplate(
+          model: model,
           containerSize: Size.fromHeight(300),
-          initialMetrics: SheetMetricsSnapshot(
-            pixels: 150,
-            minPosition: SheetAnchor.pixels(0),
-            maxPosition: SheetAnchor.proportional(1),
-            viewportSize: testScreenSize,
-            contentSize: Size(testScreenSize.width, 300),
-            viewportInsets: EdgeInsets.zero,
-          ),
         );
         await tester.pumpWidget(env.testWidget);
 
@@ -107,8 +125,8 @@ void main() {
           Offset(0, testScreenSize.height - 150),
         );
 
-        env.metricsNotifier.value =
-            env.metricsNotifier.value.copyWith(pixels: 200);
+        when(model.maybePixels).thenReturn(200);
+        notifyListeners();
         await tester.pump();
 
         expect(
@@ -118,22 +136,79 @@ void main() {
       },
     );
 
+    // SheetViewport
+    // - should update the ignore-pointer state according to the current sheet activity.
+    // - should size itself to match the biggest size that the constraints allow.
+    // - should update the child's visual position according to the current sheet metrics.
+    // - should update the child's size according to the current sheet metrics.
+    // - should allow the background widget to receive touch events when the child doesn't.
+  });
+
+  group('SheetViewport: hit-testing', () {
+    ({
+      Widget testWidget,
+    }) boilerplate({
+      required SheetPosition model,
+      required Size containerSize,
+    }) {
+      final viewportKey = GlobalKey<SheetViewportState>();
+      final testWidget = MediaQuery(
+        data: MediaQueryData(),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Container(
+                key: Key('background'),
+                color: Colors.white,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: SheetViewport(
+                  key: viewportKey,
+                  child: TestStatefulWidget(
+                    initialState: containerSize,
+                    didChangeDependencies: () {
+                      viewportKey.currentState!.setModel(model);
+                    },
+                    builder: (_, size) {
+                      return Container(
+                        key: Key('child'),
+                        color: Colors.white,
+                        height: size.height,
+                        width: size.width,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      return (testWidget: testWidget,);
+    }
+
     testWidgets(
       'should ignore/accept touch events when shouldIgnorePointerGetter returns true/false',
       (tester) async {
-        late bool shouldIgnorePointer;
+        final model = MockSheetPosition();
         final env = boilerplate(
+          model: model,
           containerSize: Size.fromHeight(300),
-          shouldIgnorePointerGetter: () => shouldIgnorePointer,
         );
         await tester.pumpWidget(env.testWidget);
 
-        shouldIgnorePointer = false;
-        await tester.strictTap(find.byType(Container));
+        when(model.shouldIgnorePointer).thenReturn(false);
+        await tester.tap(find.byKey(Key('child')));
         expect(tester.takeException(), isNull);
 
-        shouldIgnorePointer = true;
-        await tester.strictTap(find.byType(Container));
+        when(model.shouldIgnorePointer).thenReturn(true);
+        await tester.tap(find.byKey(Key('child')));
         expect(tester.takeException(), isA<FlutterError>());
       },
     );
@@ -142,166 +217,86 @@ void main() {
       'should clip and translate its hit-test area '
       "to match the child's visual rect",
       (tester) async {
-        final env = boilerplate(
-          containerSize: Size.fromHeight(300),
-          initialMetrics: SheetMetricsSnapshot(
-            pixels: 150,
-            minPosition: SheetAnchor.pixels(0),
-            maxPosition: SheetAnchor.proportional(1),
-            viewportSize: testScreenSize,
-            contentSize: Size(testScreenSize.width, 300),
-            viewportInsets: EdgeInsets.zero,
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-
-        final leftTop = Offset(0, testScreenSize.height - 150);
-        tester.hitTest(find.byType(Container), location: leftTop);
-        expect(tester.takeException(), isNull);
-        tester.hitTest(find.byType(SheetTranslate), location: leftTop);
-        expect(tester.takeException(), isA<FlutterError>());
-
-        final rightTop =
-            Offset(testScreenSize.width - 1, testScreenSize.height - 150);
-        tester.hitTest(find.byType(Container), location: rightTop);
-        expect(tester.takeException(), isNull);
-        tester.hitTest(find.byType(SheetTranslate), location: rightTop);
-        expect(tester.takeException(), isA<FlutterError>());
-
-        final leftBottom = Offset(0, testScreenSize.height - 1);
-        tester.hitTest(find.byType(Container), location: leftBottom);
-        expect(tester.takeException(), isNull);
-        tester.hitTest(find.byType(SheetTranslate), location: leftBottom);
-        expect(tester.takeException(), isA<FlutterError>());
-
-        final rightBottom =
-            Offset(testScreenSize.width - 1, testScreenSize.height - 1);
-        tester.hitTest(find.byType(Container), location: rightBottom);
-        expect(tester.takeException(), isNull);
-        tester.hitTest(find.byType(SheetTranslate), location: rightBottom);
-        expect(tester.takeException(), isA<FlutterError>());
-
-        final center =
-            Offset(testScreenSize.width / 2, testScreenSize.height - 75);
-        tester.hitTest(find.byType(Container), location: center);
-        expect(tester.takeException(), isNull);
-        tester.hitTest(find.byType(SheetTranslate), location: center);
-        expect(tester.takeException(), isA<FlutterError>());
-
-        final aboveLeftTop = leftTop + Offset(0, -1);
-        tester.hitTest(find.byType(Container), location: aboveLeftTop);
-        expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTest(find.byType(SheetTranslate), location: aboveLeftTop);
-        expect(tester.takeException(), isA<FlutterError>());
-
-        final aboveRightTop = rightTop + Offset(0, -1);
-        tester.hitTest(find.byType(Container), location: aboveRightTop);
-        expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTest(find.byType(SheetTranslate), location: aboveRightTop);
-        expect(tester.takeException(), isA<FlutterError>());
-
-        final belowLeftBottom = leftBottom + Offset(0, 1);
-        tester.hitTest(find.byType(Container), location: belowLeftBottom);
-        expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTest(find.byType(SheetTranslate), location: belowLeftBottom);
-        expect(tester.takeException(), isA<FlutterError>());
-
-        final belowRightBottom = rightBottom + Offset(0, 1);
-        tester.hitTest(find.byType(Container), location: belowRightBottom);
-        expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTest(find.byType(SheetTranslate), location: belowRightBottom);
-        expect(tester.takeException(), isA<FlutterError>());
-      },
-    );
-  });
-
-  /// SheetViewport
-  /// - should update the ignore-pointer state according to the current sheet activity.
-  /// - should size itself to match the biggest size that the constraints allow.
-  /// - should update the child's visual position according to the current sheet metrics.
-  /// - should update the child's size according to the current sheet metrics.
-  /// - should allow the background widget to receive touch events when the child doesn't.
-  group('SheetViewport', () {
-    ({
-      Future<void> Function(WidgetTester) pumpTestWidget,
-      GlobalKey<SheetViewportState> viewportKey,
-    }) boilerplate({
-      required SheetPosition model,
-      Size containerSize = Size.infinite,
-      SheetMetrics initialMetrics = SheetMetrics.empty,
-      ValueGetter<bool>? shouldIgnorePointerGetter,
-    }) {
-      final viewportKey = GlobalKey<SheetViewportState>();
-      final testWidget = MediaQuery(
-        data: MediaQueryData(),
-        child: Stack(
-          children: [
-            Container(
-              key: Key('background'),
-              color: Colors.white,
-              width: double.infinity,
-              height: double.infinity,
-            ),
-            SheetViewport(
-              key: viewportKey,
-              child: Container(
-                key: Key('sheet'),
-                color: Colors.white,
-                height: containerSize.height,
-                width: containerSize.width,
-              ),
-            ),
-          ],
-        ),
-      );
-
-      Future<void> pumpTestWidget(WidgetTester tester) async {
-        await tester.pumpWidget(testWidget, phase: EnginePhase.build);
-        // The model object must be attached to the viewport
-        // during the first build.
-        viewportKey.currentState!.setPosition(model);
-        await tester.pump();
-      }
-
-      return (
-        pumpTestWidget: pumpTestWidget,
-        viewportKey: viewportKey,
-      );
-    }
-
-    testWidgets(
-      'should size itself to match the biggest size that the constraints allow',
-      (tester) async {
         final model = MockSheetPosition();
-        when(model.maybePixels).thenReturn(150);
-        when(model.maybeViewportSize).thenReturn(testScreenSize);
-
+        when(model.maybePixels).thenReturn(300);
         final env = boilerplate(
           model: model,
           containerSize: Size.fromHeight(300),
         );
-        await env.pumpTestWidget(tester);
+        await tester.pumpWidget(env.testWidget);
 
-        expect(
-          tester.getSize(find.byType(SheetViewport)),
-          equals(testScreenSize),
-        );
+        const child = Key('child');
+        const background = Key('background');
+
+        final expectedChildRect =
+            Rect.fromLTWH(10, testScreenSize.height - 310, 780, 300);
+        expect(tester.getRect(find.byKey(child)), expectedChildRect);
+
+        final topLeft = expectedChildRect.topLeft;
+        tester.hitTest(find.byKey(child), location: topLeft);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byKey(background), location: topLeft);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final topRight = expectedChildRect.topRight + Offset(-1, 0);
+        tester.hitTest(find.byKey(child), location: topRight);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byKey(background), location: topRight);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final bottomLeft = expectedChildRect.bottomLeft + Offset(0, -1);
+        tester.hitTest(find.byKey(child), location: bottomLeft);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byKey(background), location: bottomLeft);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final bottomRight = expectedChildRect.bottomRight + Offset(-1, -1);
+        tester.hitTest(find.byKey(child), location: bottomRight);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byKey(background), location: bottomRight);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final center = expectedChildRect.center;
+        tester.hitTest(find.byKey(child), location: center);
+        expect(tester.takeException(), isNull);
+        tester.hitTest(find.byKey(background), location: center);
+        expect(tester.takeException(), isA<FlutterError>());
+
+        final outOfTopLeft = expectedChildRect.topLeft + Offset(-1, -1);
+        tester.hitTest(find.byKey(child), location: outOfTopLeft);
+        expect(tester.takeException(), isA<FlutterError>());
+        tester.hitTest(find.byKey(background), location: outOfTopLeft);
+        expect(tester.takeException(), isNull);
+
+        final outOfTopRight = expectedChildRect.topRight + Offset(1, -1);
+        tester.hitTest(find.byKey(child), location: outOfTopRight);
+        expect(tester.takeException(), isA<FlutterError>());
+        tester.hitTest(find.byKey(background), location: outOfTopRight);
+        expect(tester.takeException(), isNull);
+
+        final outOfBottomLeft = expectedChildRect.bottomLeft + Offset(-1, 1);
+        tester.hitTest(find.byKey(child), location: outOfBottomLeft);
+        expect(tester.takeException(), isA<FlutterError>());
+        tester.hitTest(find.byKey(background), location: outOfBottomLeft);
+        expect(tester.takeException(), isNull);
+
+        final outOfBottomRight = expectedChildRect.bottomRight + Offset(1, 1);
+        tester.hitTest(find.byKey(child), location: outOfBottomRight);
+        expect(tester.takeException(), isA<FlutterError>());
+        tester.hitTest(find.byKey(background), location: outOfBottomRight);
+        expect(tester.takeException(), isNull);
       },
     );
-
-     */
   });
 
-  group('SheetViewport error test', () {
+  group('SheetViewport: usage error test', () {
     testWidgets(
       'Throws an error when no model object is attached '
       'before the first layout phase',
       (tester) async {
         final errors = await tester.pumpWidgetAndCaptureErrors(
           MediaQuery(
-            data: MediaQueryData(
-              viewInsets: EdgeInsets.zero,
-            ),
+            data: MediaQueryData(),
             child: SheetViewport(
               child: Container(),
             ),
@@ -315,6 +310,43 @@ void main() {
             'message',
             'The model object must be attached to the SheetViewport '
                 'before the first layout phase.',
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      'Throws an error when the viewport is not constrained '
+      'by a finite constraint',
+      (tester) async {
+        final model = MockSheetPosition();
+        final viewportKey = GlobalKey<SheetViewportState>();
+        final errors = await tester.pumpWidgetAndCaptureErrors(
+          MediaQuery(
+            data: MediaQueryData(),
+            child: Column(
+              children: [
+                SheetViewport(
+                  key: viewportKey,
+                  child: TestStatefulWidget(
+                    initialState: null,
+                    didChangeDependencies: () {
+                      viewportKey.currentState!.setModel(model);
+                    },
+                    builder: (_, __) => Container(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        expect(
+          errors.first.exception,
+          isAssertionError.having(
+            (e) => e.message,
+            'message',
+            'The SheetViewport must be given a finite constraint.',
           ),
         );
       },

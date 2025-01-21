@@ -136,20 +136,22 @@ class _RenderSheetTranslate extends RenderTransform {
   }
 
   @override
-  void layout(Constraints constraints, {bool parentUsesSize = false}) {
+  void performLayout() {
     assert(
       (_model as _LazySheetModelView)._model != null,
       'The model object must be attached to the SheetViewport '
       'before the first layout phase.',
     );
-    super.layout(constraints, parentUsesSize: parentUsesSize);
-  }
 
-  @override
-  void performLayout() {
-    assert(constraints.biggest.isFinite);
+    assert(
+      constraints.biggest.isFinite,
+      'The SheetViewport must be given a finite constraint.',
+    );
+
     size = constraints.biggest;
-    child!.layout(constraints);
+    child!.layout(constraints.loosen());
+    // Ensure that the transform matrix is up-to-date.
+    _invalidateTransformMatrix();
   }
 
   void _invalidateTransformMatrix() {
@@ -196,10 +198,15 @@ class _RenderSheetTranslate extends RenderTransform {
 class _LazySheetModelView extends ChangeNotifier implements SheetModelView {
   SheetPosition? _model;
 
-  void setModel(SheetPosition? value) {
-    if (value != _model) {
+  void setModel(SheetPosition? newModel) {
+    if (newModel != _model) {
+      final oldValue = value;
       _model?.removeListener(notifyListeners);
-      _model = value?..addListener(notifyListeners);
+      _model = newModel?..addListener(notifyListeners);
+      final newValue = value;
+      if (oldValue != newValue) {
+        notifyListeners();
+      }
     }
   }
 
@@ -214,5 +221,5 @@ class _LazySheetModelView extends ChangeNotifier implements SheetModelView {
   double? get value => _model?.maybePixels;
 
   @override
-  bool get shouldIgnorePointer => _model?.activity.shouldIgnorePointer ?? false;
+  bool get shouldIgnorePointer => _model?.shouldIgnorePointer ?? false;
 }

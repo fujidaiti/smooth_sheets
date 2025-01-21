@@ -115,7 +115,7 @@ abstract interface class SheetModelView implements ValueListenable<double?> {
   bool get shouldIgnorePointer;
 }
 
-/// Manages the position of a sheet.
+// Manages the position of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
 /// The [SheetPosition.pixels] value determines the visible height of a sheet.
@@ -148,7 +148,7 @@ abstract interface class SheetModelView implements ValueListenable<double?> {
 // TODO: Implement SheetModelView.
 abstract class SheetPosition extends ChangeNotifier
     with SheetMetrics
-    implements ValueListenable<double?> {
+    implements SheetModelView {
   /// Creates an object that manages the position of a sheet.
   SheetPosition({
     required this.context,
@@ -192,6 +192,12 @@ abstract class SheetPosition extends ChangeNotifier
   double get devicePixelRatio => context.devicePixelRatio;
 
   SheetStatus get status => activity.status;
+
+  @override
+  bool get shouldIgnorePointer {
+    debugPrint('SheetPosition.shouldIgnorePointer');
+    return activity.shouldIgnorePointer;
+  }
 
   final SheetAnchor initialPosition;
 
