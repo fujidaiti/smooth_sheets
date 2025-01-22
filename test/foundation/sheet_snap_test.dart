@@ -1,0 +1,583 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'dart:ui';
+
+import 'package:mockito/mockito.dart';
+import 'package:smooth_sheets/src/foundation/foundation.dart';
+import 'package:smooth_sheets/src/foundation/sheet_snap.dart';
+
+import '../src/flutter_test_x.dart';
+import '../src/stubbing.dart';
+
+void main() {
+  SheetMetrics metrics({
+    double offset = 0,
+    Size contentSize = Size.zero,
+  }) {
+    final mock = MockSheetMetrics();
+    when(mock.contentSize).thenReturn(contentSize);
+    when(mock.pixels).thenReturn(offset);
+    return mock;
+  }
+
+  group('SingleSheetSnap', () {
+    test('getSnapOffset: the offset does not affect the result', () {
+      var result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getSnapOffset: the velocity does not affect the result', () {
+      var result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getBoundaries: min and max offsets are always the same', () {
+      var result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getBoundaries(metrics(contentSize: Size(300, 400)));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+
+      result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getBoundaries(metrics(contentSize: Size(300, 600)));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+
+      result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
+          .getBoundaries(metrics(contentSize: Size(300, 500)));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+    });
+  });
+
+  group('MultiSheetSnap with single snap offset', () {
+    test('getSnapOffset', () {
+      var result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getBoundaries', () {
+      var result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getBoundaries(metrics(contentSize: Size(300, 400)));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+
+      result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getBoundaries(metrics(contentSize: Size(300, 600)));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+
+      result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
+          .getBoundaries(metrics(contentSize: Size(300, 500)));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+    });
+  });
+
+  group('MultiSheetSnap with two snap offsets', () {
+    const snaps = [SheetAnchor.pixels(0), SheetAnchor.pixels(500)];
+
+    test('getSnapOffset: |velocity| < kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getSnapOffset: velocity > kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getSnapOffset: velocity < -kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getSnapOffset: the order of "snaps" list does not matter', () {
+      final result = const MultiSheetSnap(
+        snaps: [
+          SheetAnchor.pixels(500),
+          SheetAnchor.pixels(0),
+        ],
+      ).getSnapOffset(
+        velocity: 0,
+        metrics: metrics(offset: 100),
+      );
+      expect(result, SheetAnchor.pixels(0));
+    });
+
+    test('getBoundaries', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 400)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 600)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 500)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+    });
+
+    test('getBoundaries: the order of "snaps" list does not matter', () {
+      final result = const MultiSheetSnap(
+        snaps: [
+          SheetAnchor.pixels(500),
+          SheetAnchor.pixels(0),
+        ],
+      ).getBoundaries(
+        metrics(contentSize: Size(300, 400)),
+      );
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+    });
+  });
+
+  group('MultiSheetSnap with three snap offsets', () {
+    const snaps = [
+      SheetAnchor.pixels(0),
+      SheetAnchor.pixels(250),
+      SheetAnchor.pixels(500),
+    ];
+
+    test('getSnapOffset: |velocity| < kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 200));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 250));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 300));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getSnapOffset: velocity > kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 200));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 250));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 300));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getSnapOffset: velocity < -kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 200));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 250));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 300));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+    });
+
+    test('getSnapOffset: the order of "snaps" list does not matter', () {
+      final result = const MultiSheetSnap(
+        snaps: [
+          SheetAnchor.pixels(250),
+          SheetAnchor.pixels(500),
+          SheetAnchor.pixels(0),
+        ],
+      ).getSnapOffset(
+        velocity: 0,
+        metrics: metrics(offset: 200),
+      );
+      expect(result, SheetAnchor.pixels(250));
+    });
+
+    test('getBoundaries', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 400)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 600)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 500)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+    });
+
+    test('getBoundaries: the order of "snaps" list does not matter', () {
+      final result = const MultiSheetSnap(
+        snaps: [
+          SheetAnchor.pixels(250),
+          SheetAnchor.pixels(500),
+          SheetAnchor.pixels(0),
+        ],
+      ).getBoundaries(
+        metrics(contentSize: Size(300, 400)),
+      );
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+    });
+  });
+
+  group('MultiSheetSnap with four snap offsets', () {
+    const snaps = [
+      SheetAnchor.pixels(0),
+      SheetAnchor.pixels(250),
+      SheetAnchor.pixels(500),
+      SheetAnchor.pixels(750),
+    ];
+
+    test('getSnapOffset: |velocity| < kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 200));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 250));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 300));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 700));
+      expect(result, SheetAnchor.pixels(750));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 750));
+      expect(result, SheetAnchor.pixels(750));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 0, metrics: metrics(offset: 800));
+      expect(result, SheetAnchor.pixels(750));
+    });
+
+    test('getSnapOffset: velocity > kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 200));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 250));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 300));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(750));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(750));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(750));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 700));
+      expect(result, SheetAnchor.pixels(750));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 750));
+      expect(result, SheetAnchor.pixels(750));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: 100, metrics: metrics(offset: 800));
+      expect(result, SheetAnchor.pixels(750));
+    });
+
+    test('getSnapOffset: velocity < -kMinFlingVelocity', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: -100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 0));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 100));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 200));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 250));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 300));
+      expect(result, SheetAnchor.pixels(0));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 400));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 600));
+      expect(result, SheetAnchor.pixels(250));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 700));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 750));
+      expect(result, SheetAnchor.pixels(500));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getSnapOffset(velocity: -100, metrics: metrics(offset: 800));
+      expect(result, SheetAnchor.pixels(750));
+    });
+
+    test('getBoundaries', () {
+      var result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 400)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 600)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
+
+      result = const MultiSheetSnap(snaps: snaps)
+          .getBoundaries(metrics(contentSize: Size(300, 500)));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
+    });
+
+    test('getBoundaries: the order of "snaps" list does not matter', () {
+      final result = const MultiSheetSnap(
+        snaps: [
+          SheetAnchor.pixels(750),
+          SheetAnchor.pixels(500),
+          SheetAnchor.pixels(250),
+          SheetAnchor.pixels(0),
+        ],
+      ).getBoundaries(
+        metrics(contentSize: Size(300, 400)),
+      );
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
+    });
+  });
+}

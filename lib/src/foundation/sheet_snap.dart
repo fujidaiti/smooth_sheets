@@ -1,182 +1,212 @@
 import 'dart:math';
 
-import '../internal/float_comp.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
+
 import 'sheet_position.dart';
 
 abstract interface class SheetSnap {
   const factory SheetSnap({
-    required double minFlingSpeed,
-    required SheetAnchor min,
-    required SheetAnchor middle,
-    required SheetAnchor max,
-  }) = _MultiSheetSnap3;
+    required List<SheetAnchor> snaps,
+    double minFlingSpeed,
+  }) = MultiSheetSnap;
 
   const factory SheetSnap.single({
     required SheetAnchor snap,
-  }) = _SingleSheetSnap;
-
-  const factory SheetSnap.edges({
-    required double minFlingSpeed,
-    required SheetAnchor min,
-    required SheetAnchor max,
-  }) = _MultiSheetSnap2;
-
-  factory SheetSnap.many({
-    required double minFlingSpeed,
-    required SheetAnchor min,
-    required SheetAnchor max,
-    required List<SheetAnchor> intermediates,
-  }) = _MultiSheetSnapN;
-
-  SheetAnchor get maxOffset;
-
-  SheetAnchor get minOffset;
+  }) = SingleSheetSnap;
 
   /// Returns an position to which a sheet should eventually settle
   /// based on the current [metrics] and the [velocity] of a sheet.
-  SheetAnchor findSettledPosition(double velocity, SheetMetrics metrics);
+  SheetAnchor getSnapOffset({
+    required SheetMetrics metrics,
+    required double velocity,
+  });
+
+  /// Returns the minimum and maximum offsets.
+  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics);
 }
 
-abstract class MultiSheetSnap implements SheetSnap {
-  const MultiSheetSnap();
-
-  List<SheetAnchor> get snaps;
-
-  /// The lowest speed (in logical pixels per second)
-  /// at which a gesture is considered to be a fling.
-  double get minFlingSpeed;
-
-  @override
-  SheetAnchor findSettledPosition(double velocity, SheetMetrics metrics) {
-    assert(snaps.isNotEmpty);
-    final offset = metrics.pixels;
-    final contentSize = metrics.contentSize;
-
-    if (offset < minOffset.resolve(contentSize)) {
-      return minOffset;
-    } else if (offset > maxOffset.resolve(contentSize)) {
-      return maxOffset;
-    }
-
-    var nearestIndex = 0;
-    var nearest = snaps.first;
-    var resolvedNearest = nearest.resolve(contentSize);
-    var nearestDistance = (resolvedNearest - offset).abs();
-    for (var index = 1; index < snaps.length; index++) {
-      final snap = snaps[index];
-      final resolvedSnap = snap.resolve(contentSize);
-      final distance = (resolvedSnap - offset).abs();
-      if (distance < nearestDistance) {
-        nearestIndex = index;
-        nearest = snap;
-        resolvedNearest = resolvedSnap;
-        nearestDistance = distance;
-      }
-    }
-
-    if (velocity.abs() < minFlingSpeed) {
-      return nearest;
-    }
-
-    final int floorIndex;
-    final int ceilIndex;
-    final cmp = FloatComp.distance(metrics.devicePixelRatio);
-    if (cmp.isApprox(offset, resolvedNearest)) {
-      floorIndex = max(nearestIndex - 1, 0);
-      ceilIndex = min(nearestIndex + 1, snaps.length - 1);
-    } else if (offset < resolvedNearest) {
-      floorIndex = max(nearestIndex - 1, 0);
-      ceilIndex = nearestIndex;
-    } else {
-      assert(offset > resolvedNearest);
-      floorIndex = nearestIndex;
-      ceilIndex = min(nearestIndex + 1, snaps.length - 1);
-    }
-
-    assert(velocity.abs() >= minFlingSpeed);
-    return velocity < 0 ? snaps[floorIndex] : snaps[ceilIndex];
-  }
-}
-
-class _SingleSheetSnap implements SheetSnap {
-  const _SingleSheetSnap({required this.snap});
+class SingleSheetSnap implements SheetSnap {
+  const SingleSheetSnap({
+    required this.snap,
+  });
 
   final SheetAnchor snap;
 
   @override
-  SheetAnchor get minOffset => snap;
-
-  @override
-  SheetAnchor get maxOffset => snap;
-
-  @override
-  SheetAnchor findSettledPosition(double velocity, SheetMetrics metrics) {
+  SheetAnchor getSnapOffset({
+    required SheetMetrics metrics,
+    required double velocity,
+  }) {
     return snap;
+  }
+
+  @override
+  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
+    return (snap, snap);
   }
 }
 
-class _MultiSheetSnap2 extends MultiSheetSnap {
-  const _MultiSheetSnap2({
-    required this.minFlingSpeed,
-    required SheetAnchor min,
-    required SheetAnchor max,
-  })  : minOffset = min,
-        maxOffset = max;
+class MultiSheetSnap implements SheetSnap {
+  const MultiSheetSnap({
+    required this.snaps,
+    this.minFlingSpeed = kMinFlingVelocity,
+  });
 
-  @override
-  final double minFlingSpeed;
-
-  @override
-  final SheetAnchor maxOffset;
-
-  @override
-  final SheetAnchor minOffset;
-
-  @override
-  List<SheetAnchor> get snaps => [minOffset, maxOffset];
-}
-
-class _MultiSheetSnap3 extends MultiSheetSnap {
-  const _MultiSheetSnap3({
-    required this.minFlingSpeed,
-    required SheetAnchor min,
-    required this.middle,
-    required SheetAnchor max,
-  })  : minOffset = min,
-        maxOffset = max;
-
-  final SheetAnchor middle;
-
-  @override
-  final double minFlingSpeed;
-
-  @override
-  final SheetAnchor maxOffset;
-
-  @override
-  final SheetAnchor minOffset;
-
-  @override
-  List<SheetAnchor> get snaps => [minOffset, middle, maxOffset];
-}
-
-class _MultiSheetSnapN extends MultiSheetSnap {
-  _MultiSheetSnapN({
-    required this.minFlingSpeed,
-    required SheetAnchor max,
-    required SheetAnchor min,
-    required List<SheetAnchor> intermediates,
-  }) : snaps = [min, ...intermediates, max];
-
-  @override
-  final double minFlingSpeed;
-
-  @override
   final List<SheetAnchor> snaps;
 
-  @override
-  SheetAnchor get minOffset => snaps.first;
+  /// The lowest speed (in logical pixels per second)
+  /// at which a gesture is considered to be a fling.
+  final double minFlingSpeed;
 
   @override
-  SheetAnchor get maxOffset => snaps.last;
+  SheetAnchor getSnapOffset({
+    required SheetMetrics metrics,
+    required double velocity,
+  }) {
+    final result = _scanSnapOffsets(metrics);
+    if (metrics.pixels < result.min.resolve(metrics.contentSize)) {
+      return result.min;
+    } else if (metrics.pixels > result.max.resolve(metrics.contentSize)) {
+      return result.max;
+    } else if (velocity.abs() < minFlingSpeed) {
+      return result.nearest;
+    } else if (velocity < 0) {
+      return result.leftmost;
+    } else {
+      return result.rightmost;
+    }
+  }
+
+  @override
+  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
+    final result = _scanSnapOffsets(metrics);
+    return (result.min, result.max);
+  }
+
+  /// Given a [metrics], finds the minimum, maximum, nearest, leftmost,
+  /// and rightmost offsets in the [snaps] list.
+  ///
+  /// Where:
+  /// - `min` is the smallest offset.
+  /// - `max` is the largest offset.
+  /// - `nearest` is the offset that is closest to the `metrics.pixels`.
+  /// - `leftmost` is the offset that is the maximum offset that is less than
+  ///   or equal to the `nearest`.
+  /// - `rightmost` is the offset that is the minimum offset that is greater
+  ///   than or equal to the `nearest`.
+  ({
+    SheetAnchor min,
+    SheetAnchor max,
+    SheetAnchor nearest,
+    SheetAnchor leftmost,
+    SheetAnchor rightmost,
+  }) _scanSnapOffsets(SheetMetrics metrics) {
+    assert(snaps.isNotEmpty);
+
+    if (snaps.length == 1) {
+      return (
+        min: snaps.first,
+        max: snaps.first,
+        nearest: snaps.first,
+        leftmost: snaps.first,
+        rightmost: snaps.first,
+      );
+    }
+
+    if (snaps.length == 2) {
+      final first = snaps.first.resolve(metrics.contentSize);
+      final second = snaps.last.resolve(metrics.contentSize);
+
+      final (minimum, maximum) = first < second
+          ? (snaps.first, snaps.last)
+          : (snaps.last, snaps.first);
+
+      final firstDistance = (first - metrics.pixels).abs();
+      final secondDistance = (second - metrics.pixels).abs();
+      final nearest = firstDistance < secondDistance ? snaps.first : snaps.last;
+
+      return (
+        min: minimum,
+        max: maximum,
+        nearest: nearest,
+        leftmost: minimum,
+        rightmost: maximum,
+      );
+    }
+
+    if (snaps.length == 3) {
+      final first = snaps[0];
+      final second = snaps[1];
+      final third = snaps[2];
+      final rFirst = first.resolve(metrics.contentSize);
+      final rSecond = second.resolve(metrics.contentSize);
+      final rThird = third.resolve(metrics.contentSize);
+
+      final minimum = rFirst < rSecond
+          ? (rFirst < rThird ? first : third)
+          : (rSecond < rThird ? second : third);
+      final maximum = rFirst > rSecond
+          ? (rFirst > rThird ? first : third)
+          : (rSecond > rThird ? second : third);
+
+      final firstDistance = (rFirst - metrics.pixels).abs();
+      final secondDistance = (rSecond - metrics.pixels).abs();
+      final thirdDistance = (rThird - metrics.pixels).abs();
+      final nearest = firstDistance < secondDistance
+          ? (firstDistance < thirdDistance ? first : third)
+          : (secondDistance < thirdDistance ? second : third);
+
+      final SheetAnchor leftmost;
+      final SheetAnchor rightmost;
+      if (nearest == first) {
+        leftmost = first;
+        rightmost = second;
+      } else if (nearest == second) {
+        leftmost = first;
+        rightmost = third;
+      } else {
+        assert(nearest == third);
+        leftmost = second;
+        rightmost = third;
+      }
+
+      return (
+        min: minimum,
+        max: maximum,
+        nearest: nearest,
+        leftmost: leftmost,
+        rightmost: rightmost,
+      );
+    }
+
+    assert(snaps.length > 3);
+    final sortedSnaps = snaps.sorted(
+      (a, b) => a
+          .resolve(metrics.contentSize)
+          .compareTo(b.resolve(metrics.contentSize)),
+    );
+
+    late int nearestIndex;
+    late SheetAnchor nearest;
+    var nearestDistance = double.infinity;
+    for (var index = 0; index < sortedSnaps.length; index++) {
+      final snap = snaps[index];
+      final distance =
+          (snap.resolve(metrics.contentSize) - metrics.pixels).abs();
+      if (distance < nearestDistance) {
+        nearestIndex = index;
+        nearest = snap;
+        nearestDistance = distance;
+      }
+    }
+
+    return (
+      min: sortedSnaps.first,
+      max: sortedSnaps.last,
+      nearest: nearest,
+      leftmost: sortedSnaps[max(nearestIndex - 1, 0)],
+      rightmost: sortedSnaps[min(nearestIndex + 1, sortedSnaps.length - 1)],
+    );
+  }
 }

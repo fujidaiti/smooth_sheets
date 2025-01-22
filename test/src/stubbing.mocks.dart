@@ -676,6 +676,217 @@ class MockSheetContext extends _i1.Mock implements _i3.SheetContext {
           as double);
 }
 
+/// A class which mocks [SheetMetrics].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
+  @override
+  double get devicePixelRatio =>
+      (super.noSuchMethod(
+            Invocation.getter(#devicePixelRatio),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  double get pixels =>
+      (super.noSuchMethod(
+            Invocation.getter(#pixels),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  double get minPixels =>
+      (super.noSuchMethod(
+            Invocation.getter(#minPixels),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  double get maxPixels =>
+      (super.noSuchMethod(
+            Invocation.getter(#maxPixels),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  _i2.SheetAnchor get minPosition =>
+      (super.noSuchMethod(
+            Invocation.getter(#minPosition),
+            returnValue: _FakeSheetAnchor_0(
+              this,
+              Invocation.getter(#minPosition),
+            ),
+            returnValueForMissingStub: _FakeSheetAnchor_0(
+              this,
+              Invocation.getter(#minPosition),
+            ),
+          )
+          as _i2.SheetAnchor);
+
+  @override
+  _i2.SheetAnchor get maxPosition =>
+      (super.noSuchMethod(
+            Invocation.getter(#maxPosition),
+            returnValue: _FakeSheetAnchor_0(
+              this,
+              Invocation.getter(#maxPosition),
+            ),
+            returnValueForMissingStub: _FakeSheetAnchor_0(
+              this,
+              Invocation.getter(#maxPosition),
+            ),
+          )
+          as _i2.SheetAnchor);
+
+  @override
+  _i6.Size get contentSize =>
+      (super.noSuchMethod(
+            Invocation.getter(#contentSize),
+            returnValue: _FakeSize_5(this, Invocation.getter(#contentSize)),
+            returnValueForMissingStub: _FakeSize_5(
+              this,
+              Invocation.getter(#contentSize),
+            ),
+          )
+          as _i6.Size);
+
+  @override
+  _i6.Size get viewportSize =>
+      (super.noSuchMethod(
+            Invocation.getter(#viewportSize),
+            returnValue: _FakeSize_5(this, Invocation.getter(#viewportSize)),
+            returnValueForMissingStub: _FakeSize_5(
+              this,
+              Invocation.getter(#viewportSize),
+            ),
+          )
+          as _i6.Size);
+
+  @override
+  _i7.EdgeInsets get viewportInsets =>
+      (super.noSuchMethod(
+            Invocation.getter(#viewportInsets),
+            returnValue: _FakeEdgeInsets_6(
+              this,
+              Invocation.getter(#viewportInsets),
+            ),
+            returnValueForMissingStub: _FakeEdgeInsets_6(
+              this,
+              Invocation.getter(#viewportInsets),
+            ),
+          )
+          as _i7.EdgeInsets);
+
+  @override
+  double get viewPixels =>
+      (super.noSuchMethod(
+            Invocation.getter(#viewPixels),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  double get minViewPixels =>
+      (super.noSuchMethod(
+            Invocation.getter(#minViewPixels),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  double get maxViewPixels =>
+      (super.noSuchMethod(
+            Invocation.getter(#maxViewPixels),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  bool get hasDimensions =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasDimensions),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get isPixelsInBounds =>
+      (super.noSuchMethod(
+            Invocation.getter(#isPixelsInBounds),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get isPixelsOutOfBounds =>
+      (super.noSuchMethod(
+            Invocation.getter(#isPixelsOutOfBounds),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  _i2.SheetMetrics copyWith({
+    double? pixels,
+    _i2.SheetAnchor? minPosition,
+    _i2.SheetAnchor? maxPosition,
+    _i6.Size? contentSize,
+    _i6.Size? viewportSize,
+    _i7.EdgeInsets? viewportInsets,
+    double? devicePixelRatio,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#copyWith, [], {
+              #pixels: pixels,
+              #minPosition: minPosition,
+              #maxPosition: maxPosition,
+              #contentSize: contentSize,
+              #viewportSize: viewportSize,
+              #viewportInsets: viewportInsets,
+              #devicePixelRatio: devicePixelRatio,
+            }),
+            returnValue: _FakeSheetMetrics_4(
+              this,
+              Invocation.method(#copyWith, [], {
+                #pixels: pixels,
+                #minPosition: minPosition,
+                #maxPosition: maxPosition,
+                #contentSize: contentSize,
+                #viewportSize: viewportSize,
+                #viewportInsets: viewportInsets,
+                #devicePixelRatio: devicePixelRatio,
+              }),
+            ),
+            returnValueForMissingStub: _FakeSheetMetrics_4(
+              this,
+              Invocation.method(#copyWith, [], {
+                #pixels: pixels,
+                #minPosition: minPosition,
+                #maxPosition: maxPosition,
+                #contentSize: contentSize,
+                #viewportSize: viewportSize,
+                #viewportInsets: viewportInsets,
+                #devicePixelRatio: devicePixelRatio,
+              }),
+            ),
+          )
+          as _i2.SheetMetrics);
+}
+
 /// A class which mocks [AnimationController].
 ///
 /// See the documentation for Mockito's code generation for more information.

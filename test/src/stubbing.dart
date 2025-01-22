@@ -10,6 +10,7 @@ import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';
 @GenerateNiceMocks([
   MockSpec<SheetPosition>(),
   MockSpec<SheetContext>(),
+  MockSpec<SheetMetrics>(),
   MockSpec<AnimationController>(),
   MockSpec<TickerFuture>(),
   MockSpec<Ticker>(),
