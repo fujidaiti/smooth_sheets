@@ -23,7 +23,7 @@ abstract interface class SheetSnap {
   });
 
   /// Returns the minimum and maximum offsets.
-  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics);
+  (double, double) getBoundaryConditions(SheetMetrics metrics);
 }
 
 class SingleSheetSnap implements SheetSnap {
@@ -42,8 +42,9 @@ class SingleSheetSnap implements SheetSnap {
   }
 
   @override
-  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
-    return (snap, snap);
+  (double, double) getBoundaryConditions(SheetMetrics metrics) {
+    final resolved = snap.resolve(metrics.contentSize);
+    return (resolved, resolved);
   }
 }
 
@@ -79,9 +80,12 @@ class MultiSheetSnap implements SheetSnap {
   }
 
   @override
-  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
+  (double, double) getBoundaryConditions(SheetMetrics metrics) {
     final result = _scanSnapOffsets(metrics);
-    return (result.min, result.max);
+    return (
+      result.min.resolve(metrics.contentSize),
+      result.max.resolve(metrics.contentSize),
+    );
   }
 
   /// Given a [metrics], finds the minimum, maximum, nearest, leftmost,

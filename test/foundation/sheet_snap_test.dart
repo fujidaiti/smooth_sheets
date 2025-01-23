@@ -49,18 +49,18 @@ void main() {
       expect(result, SheetAnchor.pixels(500));
     });
 
-    test('getBoundaries: min and max offsets are always the same', () {
+    test('getBoundaryConditions: min and max offsets are always the same', () {
       var result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 400)));
+      expect(result, (500, 500));
 
       result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 600)));
+      expect(result, (500, 500));
 
       result = const SingleSheetSnap(snap: SheetAnchor.pixels(500))
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 500)));
+      expect(result, (500, 500));
     });
   });
 
@@ -95,18 +95,18 @@ void main() {
       expect(result, SheetAnchor.pixels(500));
     });
 
-    test('getBoundaries', () {
+    test('getBoundaryConditions', () {
       var result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 400)));
+      expect(result, (500, 500));
 
       result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 600)));
+      expect(result, (500, 500));
 
       result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 500)));
+      expect(result, (500, 500));
     });
   });
 
@@ -204,30 +204,31 @@ void main() {
       expect(result, SheetAnchor.pixels(0));
     });
 
-    test('getBoundaries', () {
+    test('getBoundaryConditions', () {
       var result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 400)));
+      expect(result, (0, 500));
 
       result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 600)));
+      expect(result, (0, 500));
 
       result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 500)));
+      expect(result, (0, 500));
     });
 
-    test('getBoundaries: the order of "snaps" list does not matter', () {
+    test('getBoundaryConditions: the order of "snaps" list does not matter',
+        () {
       final result = const MultiSheetSnap(
         snaps: [
           SheetAnchor.pixels(500),
           SheetAnchor.pixels(0),
         ],
-      ).getBoundaries(
+      ).getBoundaryConditions(
         metrics(contentSize: Size(300, 400)),
       );
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+      expect(result, (0, 500));
     });
   });
 
@@ -366,31 +367,32 @@ void main() {
       expect(result, SheetAnchor.pixels(250));
     });
 
-    test('getBoundaries', () {
+    test('getBoundaryConditions', () {
       var result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 400)));
+      expect(result, (0, 500));
 
       result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 600)));
+      expect(result, (0, 500));
 
       result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 500)));
+      expect(result, (0, 500));
     });
 
-    test('getBoundaries: the order of "snaps" list does not matter', () {
+    test('getBoundaryConditions: the order of "snaps" list does not matter',
+        () {
       final result = const MultiSheetSnap(
         snaps: [
           SheetAnchor.pixels(250),
           SheetAnchor.pixels(500),
           SheetAnchor.pixels(0),
         ],
-      ).getBoundaries(
+      ).getBoundaryConditions(
         metrics(contentSize: Size(300, 400)),
       );
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
+      expect(result, (0, 500));
     });
   });
 
@@ -552,32 +554,35 @@ void main() {
       expect(result, SheetAnchor.pixels(750));
     });
 
-    test('getBoundaries', () {
+    test('getBoundaryConditions', () {
       var result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 400)));
+      expect(result, (0, 750));
 
       result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 600)));
+      expect(result, (0, 750));
 
       result = const MultiSheetSnap(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
+          .getBoundaryConditions(metrics(contentSize: Size(300, 500)));
+      expect(result, (0, 750));
     });
 
-    test('getBoundaries: the order of "snaps" list does not matter', () {
-      final result = const MultiSheetSnap(
-        snaps: [
-          SheetAnchor.pixels(750),
-          SheetAnchor.pixels(500),
-          SheetAnchor.pixels(250),
-          SheetAnchor.pixels(0),
-        ],
-      ).getBoundaries(
-        metrics(contentSize: Size(300, 400)),
-      );
-      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
-    });
+    test(
+      'getBoundaryConditions: the order of "snaps" list does not matter',
+      () {
+        final result = const MultiSheetSnap(
+          snaps: [
+            SheetAnchor.pixels(750),
+            SheetAnchor.pixels(500),
+            SheetAnchor.pixels(250),
+            SheetAnchor.pixels(0),
+          ],
+        ).getBoundaryConditions(
+          metrics(contentSize: Size(300, 400)),
+        );
+        expect(result, (0, 750));
+      },
+    );
   });
 }
