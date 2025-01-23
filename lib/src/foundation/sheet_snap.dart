@@ -48,6 +48,40 @@ class SingleSheetSnap implements SheetSnap {
   }
 }
 
+class SteplessSheetSnap implements SheetSnap {
+  const SteplessSheetSnap({
+    required this.minOffset,
+    required this.maxOffset,
+  });
+
+  final SheetAnchor minOffset;
+  final SheetAnchor maxOffset;
+
+  @override
+  (double, double) getBoundaryConditions(SheetMetrics metrics) {
+    return (
+      minOffset.resolve(metrics.contentSize),
+      maxOffset.resolve(metrics.contentSize),
+    );
+  }
+
+  @override
+  SheetAnchor getSnapOffset({
+    required SheetMetrics metrics,
+    required double velocity,
+  }) {
+    final minimum = minOffset.resolve(metrics.contentSize);
+    final maximum = maxOffset.resolve(metrics.contentSize);
+    if (metrics.pixels < minimum) {
+      return minOffset;
+    } else if (metrics.pixels > maximum) {
+      return maxOffset;
+    } else {
+      return SheetAnchor.pixels(metrics.pixels);
+    }
+  }
+}
+
 class MultiSheetSnap implements SheetSnap {
   const MultiSheetSnap({
     required this.snaps,

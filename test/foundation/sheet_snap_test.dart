@@ -64,6 +64,66 @@ void main() {
     });
   });
 
+  group('SteplessSheetSnap', () {
+    const minOffset = SheetAnchor.pixels(0);
+    const maxOffset = SheetAnchor.pixels(500);
+    const snap = SteplessSheetSnap(
+      minOffset: minOffset,
+      maxOffset: maxOffset,
+    );
+
+    test(
+      'getSnapOffset: returns minOffset when '
+      'the current offset is less than minOffset',
+      () {
+        final result = snap.getSnapOffset(
+          velocity: 0,
+          metrics: metrics(offset: -100),
+        );
+        expect(result, minOffset);
+      },
+    );
+
+    test(
+      'getSnapOffset: returns maxOffset '
+      'when metrics.pixels is greater than maxOffset',
+      () {
+        final result = snap.getSnapOffset(
+          velocity: 0,
+          metrics: metrics(offset: 600),
+        );
+        expect(result, maxOffset);
+      },
+    );
+
+    test(
+        'getSnapOffset: returns current offset '
+        'when the current offset is within bounds', () {
+      final result = snap.getSnapOffset(
+        velocity: 0,
+        metrics: metrics(offset: 250),
+      );
+      expect(result, SheetAnchor.pixels(250));
+    });
+
+    test('getBoundaryConditions: always returns min and max offsets', () {
+      var result = snap.getBoundaryConditions(metrics(offset: -100));
+      expect(result, (0, 500));
+
+      result = snap.getBoundaryConditions(metrics(offset: 0));
+      expect(result, (0, 500));
+
+      result = snap.getBoundaryConditions(metrics(offset: 250));
+      expect(result, (0, 500));
+
+      result = snap.getBoundaryConditions(metrics(offset: 500));
+      expect(result, (0, 500));
+
+      result = snap.getBoundaryConditions(metrics(offset: 600));
+      expect(result, (0, 500));
+    });
+  });
+
   group('MultiSheetSnap with single snap offset', () {
     test('getSnapOffset', () {
       var result = const MultiSheetSnap(snaps: [SheetAnchor.pixels(500)])
