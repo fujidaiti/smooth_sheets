@@ -5,15 +5,15 @@ import 'package:flutter/gestures.dart';
 
 import 'sheet_position.dart';
 
-abstract interface class SheetSnap {
-  const factory SheetSnap({
+abstract interface class SnapGrid {
+  const factory SnapGrid({
     required List<SheetAnchor> snaps,
     double minFlingSpeed,
-  }) = MultiSheetSnap;
+  }) = MultiSnapGrid;
 
-  const factory SheetSnap.single({
+  const factory SnapGrid.single({
     required SheetAnchor snap,
-  }) = SingleSheetSnap;
+  }) = SingleSnapGrid;
 
   /// Returns an position to which a sheet should eventually settle
   /// based on the current [metrics] and the [velocity] of a sheet.
@@ -23,11 +23,11 @@ abstract interface class SheetSnap {
   });
 
   /// Returns the minimum and maximum offsets.
-  (double, double) getBoundaryConditions(SheetMetrics metrics);
+  (double, double) getBoundaries(SheetMetrics metrics);
 }
 
-class SingleSheetSnap implements SheetSnap {
-  const SingleSheetSnap({
+class SingleSnapGrid implements SnapGrid {
+  const SingleSnapGrid({
     required this.snap,
   });
 
@@ -42,14 +42,14 @@ class SingleSheetSnap implements SheetSnap {
   }
 
   @override
-  (double, double) getBoundaryConditions(SheetMetrics metrics) {
+  (double, double) getBoundaries(SheetMetrics metrics) {
     final resolved = snap.resolve(metrics.contentSize);
     return (resolved, resolved);
   }
 }
 
-class SteplessSheetSnap implements SheetSnap {
-  const SteplessSheetSnap({
+class SteplessSnapGrid implements SnapGrid {
+  const SteplessSnapGrid({
     required this.minOffset,
     required this.maxOffset,
   });
@@ -58,7 +58,7 @@ class SteplessSheetSnap implements SheetSnap {
   final SheetAnchor maxOffset;
 
   @override
-  (double, double) getBoundaryConditions(SheetMetrics metrics) {
+  (double, double) getBoundaries(SheetMetrics metrics) {
     return (
       minOffset.resolve(metrics.contentSize),
       maxOffset.resolve(metrics.contentSize),
@@ -82,8 +82,8 @@ class SteplessSheetSnap implements SheetSnap {
   }
 }
 
-class MultiSheetSnap implements SheetSnap {
-  const MultiSheetSnap({
+class MultiSnapGrid implements SnapGrid {
+  const MultiSnapGrid({
     required this.snaps,
     this.minFlingSpeed = kMinFlingVelocity,
   });
@@ -114,7 +114,7 @@ class MultiSheetSnap implements SheetSnap {
   }
 
   @override
-  (double, double) getBoundaryConditions(SheetMetrics metrics) {
+  (double, double) getBoundaries(SheetMetrics metrics) {
     final result = _scanSnapOffsets(metrics);
     return (
       result.min.resolve(metrics.contentSize),
