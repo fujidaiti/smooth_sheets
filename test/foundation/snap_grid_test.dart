@@ -52,15 +52,15 @@ void main() {
     test('getBoundaries: min and max offsets are always the same', () {
       var result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
           .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (500, 500));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
 
       result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
           .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (500, 500));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
 
       result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
           .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (500, 500));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
     });
   });
 
@@ -108,19 +108,19 @@ void main() {
 
     test('getBoundaries: always returns min and max offsets', () {
       var result = snap.getBoundaries(metrics(offset: -100));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
 
       result = snap.getBoundaries(metrics(offset: 0));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
 
       result = snap.getBoundaries(metrics(offset: 250));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
 
       result = snap.getBoundaries(metrics(offset: 500));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
 
       result = snap.getBoundaries(metrics(offset: 600));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
     });
   });
 
@@ -158,15 +158,15 @@ void main() {
     test('getBoundaries', () {
       var result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
           .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (500, 500));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
 
       result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
           .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (500, 500));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
 
       result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
           .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (500, 500));
+      expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
     });
   });
 
@@ -267,15 +267,15 @@ void main() {
     test('getBoundaries', () {
       var result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
 
       result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
 
       result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
     });
 
     test('getBoundaries: the order of "snaps" list does not matter', () {
@@ -287,7 +287,7 @@ void main() {
       ).getBoundaries(
         metrics(contentSize: Size(300, 400)),
       );
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
     });
   });
 
@@ -429,15 +429,15 @@ void main() {
     test('getBoundaries', () {
       var result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
 
       result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
 
       result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
     });
 
     test('getBoundaries: the order of "snaps" list does not matter', () {
@@ -450,7 +450,7 @@ void main() {
       ).getBoundaries(
         metrics(contentSize: Size(300, 400)),
       );
-      expect(result, (0, 500));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
     });
   });
 
@@ -615,15 +615,15 @@ void main() {
     test('getBoundaries', () {
       var result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 400)));
-      expect(result, (0, 750));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
 
       result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 600)));
-      expect(result, (0, 750));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
 
       result = const MultiSnapGrid(snaps: snaps)
           .getBoundaries(metrics(contentSize: Size(300, 500)));
-      expect(result, (0, 750));
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
     });
 
     test(
@@ -639,7 +639,7 @@ void main() {
         ).getBoundaries(
           metrics(contentSize: Size(300, 400)),
         );
-        expect(result, (0, 750));
+        expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
       },
     );
   });

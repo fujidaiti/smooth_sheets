@@ -23,7 +23,7 @@ abstract interface class SnapGrid {
   });
 
   /// Returns the minimum and maximum offsets.
-  (double, double) getBoundaries(SheetMetrics metrics);
+  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics);
 }
 
 class SingleSnapGrid implements SnapGrid {
@@ -42,9 +42,8 @@ class SingleSnapGrid implements SnapGrid {
   }
 
   @override
-  (double, double) getBoundaries(SheetMetrics metrics) {
-    final resolved = snap.resolve(metrics.contentSize);
-    return (resolved, resolved);
+  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
+    return (snap, snap);
   }
 }
 
@@ -58,11 +57,8 @@ class SteplessSnapGrid implements SnapGrid {
   final SheetAnchor maxOffset;
 
   @override
-  (double, double) getBoundaries(SheetMetrics metrics) {
-    return (
-      minOffset.resolve(metrics.contentSize),
-      maxOffset.resolve(metrics.contentSize),
-    );
+  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
+    return (minOffset, maxOffset);
   }
 
   @override
@@ -114,12 +110,9 @@ class MultiSnapGrid implements SnapGrid {
   }
 
   @override
-  (double, double) getBoundaries(SheetMetrics metrics) {
+  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
     final result = _scanSnapOffsets(metrics);
-    return (
-      result.min.resolve(metrics.contentSize),
-      result.max.resolve(metrics.contentSize),
-    );
+    return (result.min, result.max);
   }
 
   /// Given a [metrics], finds the minimum, maximum, nearest, leftmost,
