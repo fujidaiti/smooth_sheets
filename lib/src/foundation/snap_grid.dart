@@ -15,6 +15,11 @@ abstract interface class SnapGrid {
     required SheetAnchor snap,
   }) = SingleSnapGrid;
 
+  const factory SnapGrid.stepless({
+    required SheetAnchor minOffset,
+    required SheetAnchor maxOffset,
+  }) = SteplessSnapGrid;
+
   /// Returns an position to which a sheet should eventually settle
   /// based on the current [metrics] and the [velocity] of a sheet.
   SheetAnchor getSnapOffset({
