@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_drag.dart';
-import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet_activity.dart';
-import 'scrollable_sheet_physics.dart';
 import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
+
+// TODO: Expose this from the ScrollableSheet's constructor
+const _kMaxScrollSpeedToInterrupt = double.infinity;
 
 // TODO: Rename to ScrollableSheetGeometry.
 @internal
@@ -69,11 +70,6 @@ class DraggableScrollableSheetPosition extends SheetPosition
         when activity.scrollPosition == oldPosition) {
       activity.updateScrollPosition(newPosition);
     }
-  }
-
-  @override
-  void updatePhysics(SheetPhysics physics) {
-    super.updatePhysics(ScrollableSheetPhysics.wrap(physics));
   }
 
   @override
@@ -221,6 +217,9 @@ class DraggableScrollableSheetPosition extends SheetPosition
           scrollPosition,
           simulation: scrollSimulation,
           initialPixels: scrollPixelsForScrollPhysics,
+          // TODO: Make this configurable.
+          shouldInterrupt: (velocity) =>
+              velocity.abs() < _kMaxScrollSpeedToInterrupt,
         ),
       );
       scrollPosition.beginActivity(

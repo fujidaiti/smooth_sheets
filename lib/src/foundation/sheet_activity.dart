@@ -10,6 +10,7 @@ import 'sheet_drag.dart';
 import 'sheet_physics.dart';
 import 'sheet_position.dart';
 import 'sheet_status.dart';
+import 'snap_grid.dart';
 
 @internal
 @optionalTypeArgs
@@ -468,7 +469,7 @@ mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
   SheetStatus get status => SheetStatus.stable;
 
   /// Updates [SheetMetrics.pixels] to maintain the current [SheetAnchor], which
-  /// is determined by [SheetPhysics.findSettledPosition] using the metrics of
+  /// is determined by [SnapGrid.getSnapOffset] using the metrics of
   /// the previous frame.
   @override
   void didChangeDimensions({

@@ -10,7 +10,6 @@ import '../foundation/sheet_drag.dart';
 import '../foundation/sheet_status.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet.dart';
-import 'scrollable_sheet_physics.dart';
 import 'scrollable_sheet_position.dart';
 import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
@@ -241,10 +240,12 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
   BallisticScrollDrivenSheetActivity(
     super.scrollPosition, {
     required this.simulation,
+    required this.shouldInterrupt,
     required double initialPixels,
   }) : _oldPixels = initialPixels;
 
   final Simulation simulation;
+  final bool Function(double velocity) shouldInterrupt;
 
   double _oldPixels;
 
@@ -274,18 +275,14 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
       return;
     }
 
-    // TODO: Refactor this!
-    if (owner.physics case final ScrollableSheetPhysics scrollAwarePhysics) {
-      final scrollExtentBefore = scrollPosition.extentBefore;
-      final scrollExtentAfter = scrollPosition.extentAfter;
-      final shouldInterruptBallisticScroll =
-          ((cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
-                  (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0)) &&
-              scrollAwarePhysics.shouldInterruptBallisticScroll(
-                  velocity, owner.snapshot);
-      if (shouldInterruptBallisticScroll) {
-        _end();
-      }
+    final scrollExtentBefore = scrollPosition.extentBefore;
+    final scrollExtentAfter = scrollPosition.extentAfter;
+    final shouldInterruptBallisticScroll =
+        ((cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
+                (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0)) &&
+            shouldInterrupt(velocity);
+    if (shouldInterruptBallisticScroll) {
+      _end();
     }
   }
 

@@ -10,7 +10,6 @@ import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
 import '../foundation/sheet_theme.dart';
 import '../foundation/snap_grid.dart';
-import 'scrollable_sheet_physics.dart';
 import 'scrollable_sheet_position_scope.dart';
 import 'sheet_draggable.dart';
 import 'sheet_scrollable.dart';
@@ -88,13 +87,6 @@ class _SheetState extends State<Sheet>
     final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
-    if (widget.scrollConfiguration case final config?) {
-      physics = ScrollableSheetPhysics(
-        parent: physics,
-        maxScrollSpeedToInterrupt:
-            config.thresholdVelocityToInterruptBallisticScroll,
-      );
-    }
 
     return ScrollableSheetPositionScope(
       context: this,
