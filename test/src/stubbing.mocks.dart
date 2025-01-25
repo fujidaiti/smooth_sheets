@@ -399,6 +399,21 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
           as _i8.SheetActivity<_i2.SheetPosition>);
 
   @override
+  _i2.SheetMetrics get snapshot =>
+      (super.noSuchMethod(
+            Invocation.getter(#snapshot),
+            returnValue: _FakeSheetMetrics_9(
+              this,
+              Invocation.getter(#snapshot),
+            ),
+            returnValueForMissingStub: _FakeSheetMetrics_9(
+              this,
+              Invocation.getter(#snapshot),
+            ),
+          )
+          as _i2.SheetMetrics);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(
             Invocation.getter(#hasListeners),
@@ -433,21 +448,6 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
             returnValueForMissingStub: 0.0,
           )
           as double);
-
-  @override
-  _i2.SheetMetrics takeSnapshot() =>
-      (super.noSuchMethod(
-            Invocation.method(#takeSnapshot, []),
-            returnValue: _FakeSheetMetrics_9(
-              this,
-              Invocation.method(#takeSnapshot, []),
-            ),
-            returnValueForMissingStub: _FakeSheetMetrics_9(
-              this,
-              Invocation.method(#takeSnapshot, []),
-            ),
-          )
-          as _i2.SheetMetrics);
 
   @override
   void takeOver(_i2.SheetPosition? other) => super.noSuchMethod(

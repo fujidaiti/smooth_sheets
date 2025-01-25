@@ -111,7 +111,7 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
   when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);
-  when(position.takeSnapshot()).thenAnswer((_) => metricsRegistry);
+  when(position.snapshot).thenAnswer((_) => metricsRegistry);
 
   when(position.setPixels(any)).thenAnswer((invocation) {
     metricsRegistry.offset = invocation.positionalArguments.first as double;

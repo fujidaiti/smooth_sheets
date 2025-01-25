@@ -28,9 +28,12 @@ class SheetController extends ChangeNotifier
 
   /// The current metrics of the sheet.
   ///
-  /// Returns the result of [SheetPosition.takeSnapshot]
+  /// Returns the result of [SheetPosition.snapshot]
   /// on the attached [SheetPosition].
-  SheetMetrics? get metrics => _client?.takeSnapshot();
+  SheetMetrics? get metrics => switch (_client) {
+        final it? when it.hasGeometry => it.snapshot,
+        _ => null,
+      };
 
   /// Whether a [SheetPosition] is attached to this controller.
   bool get hasClient => _client != null;

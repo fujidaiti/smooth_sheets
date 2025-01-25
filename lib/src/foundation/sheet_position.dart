@@ -284,17 +284,15 @@ abstract class SheetPosition extends ChangeNotifier
   @protected
   SheetDragController? currentDrag;
 
-  SheetMetrics takeSnapshot() {
-    return SheetMetricsSnapshot(
-      offset: offset,
-      minOffset: minOffset,
-      maxOffset: maxOffset,
-      contentSize: contentSize,
-      viewportSize: viewportSize,
-      viewportInsets: viewportInsets,
-      devicePixelRatio: devicePixelRatio,
-    );
-  }
+  SheetMetrics get snapshot => SheetMetricsSnapshot(
+        offset: offset,
+        minOffset: minOffset,
+        maxOffset: maxOffset,
+        contentSize: contentSize,
+        viewportSize: viewportSize,
+        viewportInsets: viewportInsets,
+        devicePixelRatio: devicePixelRatio,
+      );
 
   @mustCallSuper
   void takeOver(SheetPosition other) {
@@ -471,41 +469,41 @@ abstract class SheetPosition extends ChangeNotifier
 
   void didUpdateMetrics() {
     SheetUpdateNotification(
-      metrics: takeSnapshot(),
+      metrics: snapshot,
       status: status,
     ).dispatch(context.notificationContext);
   }
 
   void didDragStart(SheetDragStartDetails details) {
     SheetDragStartNotification(
-      metrics: takeSnapshot(),
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragEnd(SheetDragEndDetails details) {
     SheetDragEndNotification(
-      metrics: takeSnapshot(),
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragUpdateMetrics(SheetDragUpdateDetails details) {
     SheetDragUpdateNotification(
-      metrics: takeSnapshot(),
+      metrics: snapshot,
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragCancel() {
     SheetDragCancelNotification(
-      metrics: takeSnapshot(),
+      metrics: snapshot,
     ).dispatch(context.notificationContext);
   }
 
   void didOverflowBy(double overflow) {
     SheetOverflowNotification(
-      metrics: takeSnapshot(),
+      metrics: snapshot,
       status: status,
       overflow: overflow,
     ).dispatch(context.notificationContext);
