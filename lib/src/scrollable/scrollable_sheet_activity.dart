@@ -51,7 +51,7 @@ abstract class ScrollableSheetActivity
   }
 
   double _applyPhysicsToOffset(double offset) {
-    return owner.physics.applyPhysicsToOffset(offset, owner.snapshot);
+    return owner.physics.applyPhysicsToOffset(offset, owner);
   }
 
   double _applyScrollOffset(double offset) {
@@ -125,7 +125,7 @@ abstract class ScrollableSheetActivity
 
     owner.setPixels(newPixels);
 
-    final overflow = owner.physics.computeOverflow(delta, owner.snapshot);
+    final overflow = owner.physics.computeOverflow(delta, owner);
     if (overflow.abs() > 0) {
       scrollPosition.didOverscrollBy(overflow);
       return overflow;
@@ -172,18 +172,16 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
 
   @override
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
-    final metrics = owner.snapshot;
-
     switch (delta.dy) {
       case < 0:
         final draggablePixels = scrollPosition.extentAfter +
-            max(0.0, metrics.maxOffset - metrics.offset);
+            max(0.0, owner.maxOffset - owner.offset);
         assert(draggablePixels >= 0);
         return Offset(delta.dx, max(-1 * draggablePixels, delta.dy));
 
       case > 0:
         final draggablePixels = scrollPosition.extentBefore +
-            max(0.0, metrics.offset - metrics.minOffset);
+            max(0.0, owner.offset - owner.minOffset);
         assert(draggablePixels >= 0);
         return Offset(delta.dx, min(draggablePixels, delta.dy));
 

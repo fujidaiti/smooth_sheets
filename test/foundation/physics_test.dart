@@ -12,22 +12,23 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
 }
 
 const _referenceSheetMetrics = SheetMetricsSnapshot(
-  minPosition: SheetAnchor.pixels(0),
-  maxPosition: SheetAnchor.proportional(1),
-  pixels: 600,
+  offset: 600,
+  minOffset: 0,
+  maxOffset: 600,
   contentSize: Size(360, 600),
   viewportSize: Size(360, 700),
   viewportInsets: EdgeInsets.zero,
+  devicePixelRatio: 1,
 );
 
 final _positionAtTopEdge =
-    _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.maxOffset);
+    _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.maxOffset);
 
 final _positionAtBottomEdge =
-    _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.minOffset);
+    _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.minOffset);
 
 final _positionAtMiddle = _referenceSheetMetrics.copyWith(
-  pixels: (_positionAtTopEdge.offset + _positionAtBottomEdge.offset) / 2,
+  offset: (_positionAtTopEdge.offset + _positionAtBottomEdge.offset) / 2,
 );
 
 void main() {
@@ -67,9 +68,9 @@ void main() {
 
     test('does not apply any resistance if position is in bounds', () {
       final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
-          pixels: _referenceSheetMetrics.maxOffset - 10);
+          offset: _referenceSheetMetrics.maxOffset - 10);
       final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
-          pixels: _referenceSheetMetrics.minOffset + 10);
+          offset: _referenceSheetMetrics.minOffset + 10);
 
       expect(
         physicsUnderTest.applyPhysicsToOffset(10, _positionAtMiddle),
@@ -125,10 +126,10 @@ void main() {
 
     test('creates ballistic simulation which ends at the nearest edge', () {
       final overDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxOffset + 10,
+        offset: _referenceSheetMetrics.maxOffset + 10,
       );
       final underDragPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.minOffset - 10,
+        offset: _referenceSheetMetrics.minOffset - 10,
       );
       final overDragSimulation = physicsUnderTest.createBallisticSimulation(
         0,
@@ -193,10 +194,10 @@ void main() {
       );
 
       final overDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxOffset + 10,
+        offset: _referenceSheetMetrics.maxOffset + 10,
       );
       final moreOverDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxOffset + 20,
+        offset: _referenceSheetMetrics.maxOffset + 20,
       );
 
       expect(physics.applyPhysicsToOffset(10, overDraggedPosition), 6);
@@ -210,10 +211,10 @@ void main() {
       );
 
       final overDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxOffset + 20,
+        offset: _referenceSheetMetrics.maxOffset + 20,
       );
       final underDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.minOffset - 20,
+        offset: _referenceSheetMetrics.minOffset - 20,
       );
 
       expect(

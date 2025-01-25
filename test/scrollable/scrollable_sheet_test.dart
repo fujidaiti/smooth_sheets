@@ -120,10 +120,13 @@ void main() {
       ),
     );
 
-    expect(controller.metrics.offset, 200,
+    expect(controller.metrics!.offset, 200,
         reason: 'The sheet should be at the initial position.');
-    expect(controller.metrics.minOffset < controller.metrics.maxOffset, isTrue,
-        reason: 'The sheet should be draggable.');
+    expect(
+      controller.metrics!.minOffset < controller.metrics!.maxOffset,
+      isTrue,
+      reason: 'The sheet should be draggable.',
+    );
 
     // Start animating the sheet to the max position.
     unawaited(
@@ -141,8 +144,8 @@ void main() {
     expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
         reason: 'The keyboard should be fully shown.');
     expect(
-      controller.metrics.offset,
-      controller.metrics.maxOffset,
+      controller.metrics!.offset,
+      controller.metrics!.maxOffset,
       reason: 'After the keyboard is fully shown, '
           'the entire sheet should also be visible.',
     );

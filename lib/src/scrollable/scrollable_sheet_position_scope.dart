@@ -50,8 +50,6 @@ class _ScrollableSheetPositionScopeState extends SheetPositionScopeState<
     return DraggableScrollableSheetPosition(
       context: context,
       initialPosition: widget.initialPosition,
-      minPosition: widget.minPosition,
-      maxPosition: widget.maxPosition,
       physics: widget.physics,
       snapGrid: widget.snapGrid,
       gestureTamperer: widget.gestureTamperer,

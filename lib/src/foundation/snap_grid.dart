@@ -26,6 +26,7 @@ abstract interface class SnapGrid {
   SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity);
 
   /// Returns the minimum and maximum offsets.
+  /// // TODO: Change "SheetMetrics metrics" to "SheetMeasurements measurements".
   (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics);
 }
 

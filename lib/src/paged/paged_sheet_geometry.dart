@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../../smooth_sheets.dart';
 import '../foundation/sheet_activity.dart';
+import '../foundation/sheet_position.dart';
 import '../foundation/snap_grid.dart';
 import '../scrollable/scrollable_sheet_position.dart';
 import 'paged_sheet_route.dart';
@@ -49,8 +50,6 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     super.debugLabel,
   }) : super(
           initialPosition: kDefaultPagedSheetInitialOffset,
-          minPosition: kDefaultPagedSheetMinOffset,
-          maxPosition: kDefaultPagedSheetMaxOffset,
           physics: kDefaultPagedSheetPhysics,
           snapGrid: _kDefaultSnapGrid,
         );
@@ -92,14 +91,10 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
   }
 
   @override
-  void applyNewDimensions(
-    Size contentSize,
-    Size viewportSize,
-    EdgeInsets viewportInsets,
-  ) {
-    final isOffsetUnset = maybePixels == null;
-    super.applyNewDimensions(contentSize, viewportSize, viewportInsets);
-    if (isOffsetUnset) {
+  set measurements(SheetMeasurements value) {
+    final needInitialisation = !hasGeometry;
+    super.measurements = value;
+    if (needInitialisation) {
       setPixels(
         _currentRoute?.initialOffset.resolve(contentSize) ??
             initialPosition.resolve(contentSize),

@@ -47,7 +47,7 @@ void main() {
       expect(
         reportedNotifications[0],
         isA<SheetDragStartNotification>()
-            .having((e) => e.metrics.maybePixels, 'pixels', 500)
+            .having((e) => e.metrics.offset, 'pixels', 500)
             .having((e) => e.status, 'status', SheetStatus.dragging)
             .having((e) => e.dragDetails.kind, 'kind', PointerDeviceKind.touch)
             .having(
@@ -64,7 +64,7 @@ void main() {
       expect(
         reportedNotifications[1],
         isA<SheetDragUpdateNotification>()
-            .having((e) => e.metrics.maybePixels, 'pixels', 480)
+            .having((e) => e.metrics.offset, 'pixels', 480)
             .having((e) => e.status, 'status', SheetStatus.dragging)
             .having(
               (e) => e.dragDetails.axisDirection,
@@ -89,7 +89,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetDragUpdateNotification>()
-            .having((e) => e.metrics.maybePixels, 'pixels', 460)
+            .having((e) => e.metrics.offset, 'pixels', 460)
             .having((e) => e.status, 'status', SheetStatus.dragging)
             .having(
               (e) => e.dragDetails.axisDirection,
@@ -114,7 +114,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetDragUpdateNotification>()
-            .having((e) => e.metrics.maybePixels, 'pixels', 480)
+            .having((e) => e.metrics.offset, 'pixels', 480)
             .having((e) => e.status, 'status', SheetStatus.dragging)
             .having(
               (e) => e.dragDetails.axisDirection,
@@ -139,7 +139,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetDragEndNotification>()
-            .having((e) => e.metrics.maybePixels, 'pixels', 480)
+            .having((e) => e.metrics.offset, 'pixels', 480)
             .having((e) => e.status, 'status', SheetStatus.dragging)
             .having((e) => e.dragDetails.velocity, 'velocity', Velocity.zero)
             .having(

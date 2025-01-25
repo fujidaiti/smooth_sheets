@@ -154,42 +154,80 @@ abstract class SheetPosition extends ChangeNotifier
   SheetPosition({
     required this.context,
     required this.initialPosition,
-    required SheetAnchor minPosition,
-    required SheetAnchor maxPosition,
     required SheetPhysics physics,
     required SnapGrid snapGrid,
     this.debugLabel,
     SheetGestureProxyMixin? gestureTamperer,
   })  : _physics = physics,
         _snapGrid = snapGrid,
-        _gestureTamperer = gestureTamperer,
-        _snapshot = SheetMetrics.empty.copyWith(
-          minPosition: minPosition,
-          maxPosition: maxPosition,
-        ) {
+        _gestureTamperer = gestureTamperer {
     goIdle();
   }
 
-  @override
-  double? get value => snapshot.maybePixels;
+  bool get hasGeometry => _geometry != null;
+
+  SheetGeometry get geometry => _geometry!;
+  SheetGeometry? _geometry;
+
+  @protected
+  set geometry(SheetGeometry value) {
+    if (_geometry != value) {
+      _geometry = value;
+      notifyListeners();
+    }
+  }
+
+  SheetMeasurements get measurements => _measurements!;
+  SheetMeasurements? _measurements;
+
+  set measurements(SheetMeasurements value) {
+    if (_measurements != value) {
+      final oldMeasurements = _measurements;
+      _measurements = value;
+      if (oldMeasurements != null) {
+        activity.didChangeDimensions(
+          oldContentSize: oldMeasurements.contentSize,
+          oldViewportSize: oldMeasurements.viewportSize,
+          oldViewportInsets: oldMeasurements.viewportInsets,
+        );
+      }
+
+      final (minOffset, maxOffset) = snapGrid.getBoundaries(
+        copyWith(
+          contentSize: value.contentSize,
+          viewportSize: value.viewportSize,
+          viewportInsets: value.viewportInsets,
+        ),
+      );
+
+      geometry = SheetGeometry(
+        offset: _geometry?.offset ?? initialPosition.resolve(value.contentSize),
+        minOffset: minOffset.resolve(value.contentSize),
+        maxOffset: maxOffset.resolve(value.contentSize),
+      );
+    }
+  }
 
   @override
-  double? get maybePixels => snapshot.maybePixels;
+  double? get value => _geometry?.offset;
 
   @override
-  SheetAnchor? get maybeMinPosition => snapshot.maybeMinPosition;
+  double get offset => geometry.offset;
 
   @override
-  SheetAnchor? get maybeMaxPosition => snapshot.maybeMaxPosition;
+  double get maxOffset => geometry.maxOffset;
 
   @override
-  Size? get maybeContentSize => snapshot.maybeContentSize;
+  double get minOffset => geometry.minOffset;
 
   @override
-  Size? get maybeViewportSize => snapshot.maybeViewportSize;
+  Size get contentSize => measurements.contentSize;
 
   @override
-  EdgeInsets? get maybeViewportInsets => snapshot.maybeViewportInsets;
+  Size get viewportSize => measurements.viewportSize;
+
+  @override
+  EdgeInsets get viewportInsets => measurements.viewportInsets;
 
   @override
   double get devicePixelRatio => context.devicePixelRatio;
@@ -197,10 +235,7 @@ abstract class SheetPosition extends ChangeNotifier
   SheetStatus get status => activity.status;
 
   @override
-  bool get shouldIgnorePointer {
-    debugPrint('SheetPosition.shouldIgnorePointer');
-    return activity.shouldIgnorePointer;
-  }
+  bool get shouldIgnorePointer => activity.shouldIgnorePointer;
 
   final SheetAnchor initialPosition;
 
@@ -221,10 +256,11 @@ abstract class SheetPosition extends ChangeNotifier
 
   set snapGrid(SnapGrid snapGrid) {
     _snapGrid = snapGrid;
-    if (hasDimensions) {
-      final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
-      _updateMetrics(minPosition: minOffset, maxPosition: maxOffset);
-    }
+    final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
+    geometry = geometry.copyWith(
+      minOffset: minOffset.resolve(contentSize),
+      maxOffset: maxOffset.resolve(contentSize),
+    );
   }
 
   /// {@template SheetPosition.gestureTamperer}
@@ -248,31 +284,15 @@ abstract class SheetPosition extends ChangeNotifier
   @protected
   SheetDragController? currentDrag;
 
-  /// Snapshot of the current sheet's state.
-  SheetMetrics get snapshot => _snapshot;
-  SheetMetrics _snapshot;
-
-  /// Updates the metrics with the given values.
-  ///
-  /// Use this method instead of directly updating the metrics
-  /// to ensure that the [SheetMetrics.devicePixelRatio] is always up-to-date.
-  void _updateMetrics({
-    double? pixels,
-    SheetAnchor? minPosition,
-    SheetAnchor? maxPosition,
-    Size? contentSize,
-    Size? viewportSize,
-    EdgeInsets? viewportInsets,
-  }) {
-    _snapshot = SheetMetricsSnapshot(
-      pixels: pixels ?? maybePixels,
-      minPosition: minPosition ?? maybeMinPosition,
-      maxPosition: maxPosition ?? maybeMaxPosition,
-      contentSize: contentSize ?? maybeContentSize,
-      viewportSize: viewportSize ?? maybeViewportSize,
-      viewportInsets: viewportInsets ?? maybeViewportInsets,
-      // Ensure that the devicePixelRatio is always up-to-date.
-      devicePixelRatio: context.devicePixelRatio,
+  SheetMetrics takeSnapshot() {
+    return SheetMetricsSnapshot(
+      offset: offset,
+      minOffset: minOffset,
+      maxOffset: maxOffset,
+      contentSize: contentSize,
+      viewportSize: viewportSize,
+      viewportInsets: viewportInsets,
+      devicePixelRatio: devicePixelRatio,
     );
   }
 
@@ -295,14 +315,12 @@ abstract class SheetPosition extends ChangeNotifier
     } else {
       goIdle();
     }
-    if (other.maybePixels case final pixels?) {
-      correctPixels(pixels);
+    if (other._geometry case final geometry?) {
+      _geometry = geometry;
     }
-    applyNewDimensions(
-      other.contentSize,
-      other.viewportSize,
-      other.viewportInsets,
-    );
+    if (other._measurements case final measurements?) {
+      _measurements = measurements;
+    }
   }
 
   @mustCallSuper
@@ -315,52 +333,9 @@ abstract class SheetPosition extends ChangeNotifier
   }
 
   @mustCallSuper
+  // TODO: Convert to a setter.
   void updatePhysics(SheetPhysics physics) {
     _physics = physics;
-  }
-
-  void applyNewDimensions(
-    Size contentSize,
-    Size viewportSize,
-    EdgeInsets viewportInsets,
-  ) {
-    final oldContentSize = maybeContentSize;
-    final oldViewportSize = maybeViewportSize;
-    final oldViewportInsets = maybeViewportInsets;
-    final oldPixels = maybePixels;
-
-    final (minOffset, maxOffset) = snapGrid.getBoundaries(
-      copyWith(
-        contentSize: contentSize,
-        viewportSize: viewportSize,
-        viewportInsets: viewportInsets,
-      ),
-    );
-
-    _updateMetrics(
-      contentSize: contentSize,
-      viewportSize: viewportSize,
-      viewportInsets: viewportInsets,
-      minPosition: minOffset,
-      maxPosition: maxOffset,
-      pixels: maybePixels ?? initialPosition.resolve(contentSize),
-    );
-    if (oldContentSize != null) {
-      assert(oldViewportSize != null);
-      assert(oldViewportInsets != null);
-      activity.didChangeDimensions(
-        oldContentSize: oldContentSize,
-        oldViewportSize: oldViewportSize!,
-        oldViewportInsets: oldViewportInsets!,
-      );
-    } else {
-      assert(oldViewportSize == null);
-      assert(oldViewportInsets == null);
-    }
-
-    if (oldPixels != maybePixels) {
-      notifyListeners();
-    }
   }
 
   @mustCallSuper
@@ -381,7 +356,6 @@ abstract class SheetPosition extends ChangeNotifier
   }
 
   void goBallistic(double velocity) {
-    assert(hasDimensions);
     final simulation =
         physics.createBallisticSimulation(velocity, this, snapGrid);
     if (simulation != null) {
@@ -395,11 +369,11 @@ abstract class SheetPosition extends ChangeNotifier
     beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
-  void settleTo(SheetAnchor detent, Duration duration) {
+  void settleTo(SheetAnchor offset, Duration duration) {
     beginActivity(
       SettlingSheetActivity.withDuration(
         duration,
-        destination: detent,
+        destination: offset,
       ),
     );
   }
@@ -447,18 +421,7 @@ abstract class SheetPosition extends ChangeNotifier
 
   // TODO: Rename to `setOffset`.
   void setPixels(double pixels) {
-    final oldPixels = maybePixels;
-    correctPixels(pixels);
-    if (oldPixels != pixels) {
-      notifyListeners();
-    }
-  }
-
-  // TODO: Rename to `correctOffset`.
-  void correctPixels(double pixels) {
-    if (maybePixels != pixels) {
-      _updateMetrics(pixels: pixels);
-    }
+    geometry = geometry.copyWith(offset: pixels);
   }
 
   /// Animates the sheet position to the given value.
@@ -471,7 +434,6 @@ abstract class SheetPosition extends ChangeNotifier
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    assert(hasDimensions);
     if (offset == newPosition.resolve(contentSize)) {
       return Future.value();
     } else {
@@ -488,69 +450,62 @@ abstract class SheetPosition extends ChangeNotifier
 
   @override
   SheetMetrics copyWith({
-    double? pixels,
-    SheetAnchor? minPosition,
-    SheetAnchor? maxPosition,
+    double? offset,
+    double? minOffset,
+    double? maxOffset,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
     double? devicePixelRatio,
   }) {
-    return snapshot.copyWith(
-      pixels: pixels,
-      minPosition: minPosition,
-      maxPosition: maxPosition,
-      contentSize: contentSize,
-      viewportSize: viewportSize,
-      viewportInsets: viewportInsets,
-      devicePixelRatio: devicePixelRatio,
+    return SheetMetricsSnapshot(
+      offset: offset ?? this.offset,
+      minOffset: minOffset ?? this.minOffset,
+      maxOffset: maxOffset ?? this.maxOffset,
+      contentSize: contentSize ?? this.contentSize,
+      viewportSize: viewportSize ?? this.viewportSize,
+      viewportInsets: viewportInsets ?? this.viewportInsets,
+      devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
 
   void didUpdateMetrics() {
-    if (hasDimensions) {
-      SheetUpdateNotification(
-        metrics: snapshot,
-        status: status,
-      ).dispatch(context.notificationContext);
-    }
+    SheetUpdateNotification(
+      metrics: takeSnapshot(),
+      status: status,
+    ).dispatch(context.notificationContext);
   }
 
   void didDragStart(SheetDragStartDetails details) {
-    assert(hasDimensions);
     SheetDragStartNotification(
-      metrics: snapshot,
+      metrics: takeSnapshot(),
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragEnd(SheetDragEndDetails details) {
-    assert(hasDimensions);
     SheetDragEndNotification(
-      metrics: snapshot,
+      metrics: takeSnapshot(),
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragUpdateMetrics(SheetDragUpdateDetails details) {
-    assert(hasDimensions);
     SheetDragUpdateNotification(
-      metrics: snapshot,
+      metrics: takeSnapshot(),
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragCancel() {
-    assert(hasDimensions);
     SheetDragCancelNotification(
-      metrics: snapshot,
+      metrics: takeSnapshot(),
     ).dispatch(context.notificationContext);
   }
 
   void didOverflowBy(double overflow) {
-    assert(hasDimensions);
     SheetOverflowNotification(
-      metrics: snapshot,
+      metrics: takeSnapshot(),
       status: status,
       overflow: overflow,
     ).dispatch(context.notificationContext);
@@ -558,32 +513,8 @@ abstract class SheetPosition extends ChangeNotifier
 }
 
 /// The metrics of a sheet.
-// TODO: Rename to SheetGeometry.
 // TODO: Add `baseline` property of type double.
 mixin SheetMetrics {
-  /// An empty metrics object with all values set to null.
-  static const SheetMetrics empty = SheetMetricsSnapshot(
-    pixels: null,
-    minPosition: null,
-    maxPosition: null,
-    contentSize: null,
-    viewportSize: null,
-    viewportInsets: null,
-  );
-
-  // TODO: Rename to `offsetOrNull`.
-  double? get maybePixels;
-
-  SheetAnchor? get maybeMinPosition;
-
-  SheetAnchor? get maybeMaxPosition;
-
-  Size? get maybeContentSize;
-
-  Size? get maybeViewportSize;
-
-  EdgeInsets? get maybeViewportInsets;
-
   /// The [FlutterView.devicePixelRatio] of the view that the sheet
   /// associated with this metrics is drawn into.
   // TODO: Move this to SheetContext.
@@ -591,191 +522,99 @@ mixin SheetMetrics {
 
   /// Creates a copy of the metrics with the given fields replaced.
   SheetMetrics copyWith({
-    double? pixels,
-    SheetAnchor? minPosition,
-    SheetAnchor? maxPosition,
+    double? offset,
+    double? minOffset,
+    double? maxOffset,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
     double? devicePixelRatio,
   });
 
-  double? get maybeMinPixels => switch ((maybeMinPosition, maybeContentSize)) {
-        (final minPosition?, final contentSize?) =>
-          minPosition.resolve(contentSize),
-        _ => null,
-      };
-
-  double? get maybeMaxPixels => switch ((maybeMaxPosition, maybeContentSize)) {
-        (final maxPosition?, final contentSize?) =>
-          maxPosition.resolve(contentSize),
-        _ => null,
-      };
-
   /// The current position of the sheet in pixels.
-  // TODO: Rename to `offset`.
-  double get offset {
-    assert(_debugAssertHasProperty('pixels', maybePixels));
-    return maybePixels!;
-  }
+  double get offset;
 
   /// The minimum position of the sheet in pixels.
-  double get minOffset {
-    assert(_debugAssertHasProperty('minPixels', maybeMinPixels));
-    return maybeMinPixels!;
-  }
+  double get minOffset;
 
   /// The maximum position of the sheet in pixels.
-  double get maxOffset {
-    assert(_debugAssertHasProperty('maxPixels', maybeMaxPixels));
-    return maybeMaxPixels!;
-  }
-
-  /// The minimum position of the sheet.
-  SheetAnchor get minPosition {
-    assert(_debugAssertHasProperty('minPosition', maybeMinPosition));
-    return maybeMinPosition!;
-  }
-
-  /// The maximum position of the sheet.
-  SheetAnchor get maxPosition {
-    assert(_debugAssertHasProperty('maxPosition', maybeMaxPosition));
-    return maybeMaxPosition!;
-  }
+  double get maxOffset;
 
   /// The size of the sheet's content.
-  Size get contentSize {
-    assert(_debugAssertHasProperty('contentSize', maybeContentSize));
-    return maybeContentSize!;
-  }
+  Size get contentSize;
 
   /// The size of the viewport that hosts the sheet.
-  Size get viewportSize {
-    assert(_debugAssertHasProperty('viewportSize', maybeViewportSize));
-    return maybeViewportSize!;
-  }
+  Size get viewportSize;
 
-  EdgeInsets get viewportInsets {
-    assert(_debugAssertHasProperty('viewportInsets', maybeViewportInsets));
-    return maybeViewportInsets!;
-  }
+  EdgeInsets get viewportInsets;
+
+  /// Whether the sheet is within the range of [minOffset] and [maxOffset]
+  /// (inclusive of both bounds).
+  bool get isPixelsInBounds => FloatComp.distance(devicePixelRatio)
+      .isInBounds(offset, minOffset, maxOffset);
+
+  /// Whether the sheet is outside the range of [minOffset] and [maxOffset].
+  bool get isPixelsOutOfBounds => !isPixelsInBounds;
 
   /// The visible height of the sheet measured from the bottom of the viewport.
   ///
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [offset] and the keyboard's height. Otherwise, it is equal to [offset].
-  double get viewPixels => offset + viewportInsets.bottom;
-
-  double? get maybeViewPixels => hasDimensions ? viewPixels : null;
-
-  /// The minimum visible height of the sheet measured from the bottom
-  /// of the viewport.
-  double get minViewPixels => minOffset + viewportInsets.bottom;
-
-  double? get maybeMinViewPixels => hasDimensions ? minViewPixels : null;
-
-  /// The maximum visible height of the sheet measured from the bottom
-  /// of the viewport.
-  double get maxViewPixels => maxOffset + viewportInsets.bottom;
-
-  double? get maybeMaxViewPixels => hasDimensions ? maxViewPixels : null;
-
-  /// Whether the all metrics are available.
-  ///
-  /// Returns true if all of [maybePixels], [maybeMinPixels], [maybeMaxPixels],
-  /// [maybeContentSize], [maybeViewportSize], and [maybeViewportInsets] are not
-  /// null.
-  bool get hasDimensions =>
-      maybePixels != null &&
-      maybeMinPosition != null &&
-      maybeMaxPosition != null &&
-      maybeContentSize != null &&
-      maybeViewportSize != null &&
-      maybeViewportInsets != null;
-
-  /// Whether the sheet is within the range of [minOffset] and [maxOffset]
-  /// (inclusive of both bounds).
-  bool get isPixelsInBounds =>
-      hasDimensions &&
-      FloatComp.distance(devicePixelRatio)
-          .isInBounds(offset, minOffset, maxOffset);
-
-  /// Whether the sheet is outside the range of [minOffset] and [maxOffset].
-  bool get isPixelsOutOfBounds => !isPixelsInBounds;
-
-  bool _debugAssertHasProperty(String name, Object? value) {
-    assert(() {
-      if (value == null) {
-        throw FlutterError(
-          '$runtimeType.$name cannot be accessed before the value is set. '
-          'Consider using the corresponding $runtimeType.maybe* getter '
-          'to handle the case when the value is null. $runtimeType.hasPixels '
-          'is also useful to check if all the metrics values are set '
-          'before accessing them.',
-        );
-      }
-      return true;
-    }());
-    return true;
-  }
+  double get viewOffset => offset + viewportInsets.bottom;
 }
 
 /// An immutable snapshot of the state of a sheet.
+// TODO: Make this private.
+@immutable
 class SheetMetricsSnapshot with SheetMetrics {
-  /// Creates an immutable snapshot of the state of a sheet.
   const SheetMetricsSnapshot({
-    required double? pixels,
-    required SheetAnchor? minPosition,
-    required SheetAnchor? maxPosition,
-    required Size? contentSize,
-    required Size? viewportSize,
-    required EdgeInsets? viewportInsets,
-    this.devicePixelRatio = 1.0,
-  })  : maybePixels = pixels,
-        maybeMinPosition = minPosition,
-        maybeMaxPosition = maxPosition,
-        maybeContentSize = contentSize,
-        maybeViewportSize = viewportSize,
-        maybeViewportInsets = viewportInsets;
+    required this.offset,
+    required this.minOffset,
+    required this.maxOffset,
+    required this.contentSize,
+    required this.viewportSize,
+    required this.viewportInsets,
+    required this.devicePixelRatio,
+  });
 
   @override
-  final double? maybePixels;
+  final double offset;
 
   @override
-  final SheetAnchor? maybeMinPosition;
+  final double minOffset;
 
   @override
-  final SheetAnchor? maybeMaxPosition;
+  final double maxOffset;
 
   @override
-  final Size? maybeContentSize;
+  final Size contentSize;
 
   @override
-  final Size? maybeViewportSize;
+  final Size viewportSize;
 
   @override
-  final EdgeInsets? maybeViewportInsets;
+  final EdgeInsets viewportInsets;
 
   @override
   final double devicePixelRatio;
 
   @override
-  SheetMetricsSnapshot copyWith({
-    double? pixels,
-    SheetAnchor? minPosition,
-    SheetAnchor? maxPosition,
+  SheetMetrics copyWith({
+    double? offset,
+    double? minOffset,
+    double? maxOffset,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
-      pixels: pixels ?? maybePixels,
-      minPosition: minPosition ?? maybeMinPosition,
-      maxPosition: maxPosition ?? maybeMaxPosition,
-      contentSize: contentSize ?? maybeContentSize,
-      viewportSize: viewportSize ?? maybeViewportSize,
-      viewportInsets: viewportInsets ?? maybeViewportInsets,
+      offset: offset ?? this.offset,
+      minOffset: minOffset ?? this.minOffset,
+      maxOffset: maxOffset ?? this.maxOffset,
+      contentSize: contentSize ?? this.contentSize,
+      viewportSize: viewportSize ?? this.viewportSize,
+      viewportInsets: viewportInsets ?? this.viewportInsets,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
@@ -785,40 +624,105 @@ class SheetMetricsSnapshot with SheetMetrics {
       identical(this, other) ||
       (other is SheetMetrics &&
           runtimeType == other.runtimeType &&
-          maybePixels == other.maybePixels &&
-          maybeMinPosition == other.maybeMinPosition &&
-          maybeMaxPosition == other.maybeMaxPosition &&
-          maybeContentSize == other.maybeContentSize &&
-          maybeViewportSize == other.maybeViewportSize &&
-          maybeViewportInsets == other.maybeViewportInsets &&
+          offset == other.offset &&
+          minOffset == other.minOffset &&
+          maxOffset == other.maxOffset &&
+          contentSize == other.contentSize &&
+          viewportSize == other.viewportSize &&
+          viewportInsets == other.viewportInsets &&
           devicePixelRatio == other.devicePixelRatio);
 
   @override
   int get hashCode => Object.hash(
         runtimeType,
-        maybePixels,
-        maybeMinPosition,
-        maybeMaxPosition,
-        maybeContentSize,
-        maybeViewportSize,
-        maybeViewportInsets,
+        offset,
+        minOffset,
+        maxOffset,
+        contentSize,
+        viewportSize,
+        viewportInsets,
         devicePixelRatio,
       );
+}
+
+@immutable
+class SheetGeometry {
+  const SheetGeometry({
+    required this.offset,
+    required this.minOffset,
+    required this.maxOffset,
+  });
+
+  final double offset;
+  final double minOffset;
+  final double maxOffset;
 
   @override
-  String toString() => (
-        hasPixels: hasDimensions,
-        offset: maybePixels,
-        minOffset: maybeMinPixels,
-        maxOffset: maybeMaxPixels,
-        viewPixels: maybeViewPixels,
-        minViewPixels: maybeMinViewPixels,
-        maxViewPixels: maybeMaxViewPixels,
-        minPosition: maybeMinPosition,
-        maxPosition: maybeMaxPosition,
-        contentSize: maybeContentSize,
-        viewportSize: maybeViewportSize,
-        viewportInsets: maybeViewportInsets,
-        devicePixelRatio: devicePixelRatio,
-      ).toString();
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is SheetGeometry &&
+        other.offset == offset &&
+        other.minOffset == minOffset &&
+        other.maxOffset == maxOffset;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        offset,
+        minOffset,
+        maxOffset,
+      );
+
+  SheetGeometry copyWith({
+    double? offset,
+    double? minOffset,
+    double? maxOffset,
+  }) {
+    return SheetGeometry(
+      offset: offset ?? this.offset,
+      minOffset: minOffset ?? this.minOffset,
+      maxOffset: maxOffset ?? this.maxOffset,
+    );
+  }
+}
+
+@immutable
+class SheetMeasurements {
+  const SheetMeasurements({
+    required this.contentSize,
+    required this.viewportSize,
+    required this.viewportInsets,
+  });
+
+  final Size contentSize;
+  final Size viewportSize;
+  final EdgeInsets viewportInsets;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is SheetMeasurements &&
+        other.contentSize == contentSize &&
+        other.viewportSize == viewportSize &&
+        other.viewportInsets == viewportInsets;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        contentSize,
+        viewportSize,
+        viewportInsets,
+      );
+
+  SheetMeasurements copyWith({
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
+  }) {
+    return SheetMeasurements(
+      contentSize: contentSize ?? this.contentSize,
+      viewportSize: viewportSize ?? this.viewportSize,
+      viewportInsets: viewportInsets ?? this.viewportInsets,
+    );
+  }
 }

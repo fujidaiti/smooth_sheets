@@ -97,11 +97,13 @@ void main() {
         );
         await tester.pumpWidget(env.testWidget, phase: EnginePhase.layout);
 
-        verify(mockModel.applyNewDimensions(
-          Size(testScreenSize.width, 300),
-          testScreenSize,
-          EdgeInsets.zero,
-        ));
+        verify(
+          mockModel.measurements = SheetMeasurements(
+            contentSize: Size(testScreenSize.width, 300),
+            viewportSize: testScreenSize,
+            viewportInsets: EdgeInsets.zero,
+          ),
+        );
       },
     );
 
@@ -119,11 +121,13 @@ void main() {
         env.setContainerSize(Size.fromHeight(400));
         await tester.pump(null, EnginePhase.layout);
 
-        verify(mockModel.applyNewDimensions(
-          Size(testScreenSize.width, 400),
-          testScreenSize,
-          EdgeInsets.zero,
-        ));
+        verify(
+          mockModel.measurements = SheetMeasurements(
+            contentSize: Size(testScreenSize.width, 400),
+            viewportSize: testScreenSize,
+            viewportInsets: EdgeInsets.zero,
+          ),
+        );
       },
     );
   });

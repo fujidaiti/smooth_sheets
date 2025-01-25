@@ -29,10 +29,10 @@ void main() {
 
   group('Lifecycle test', () {
     test('Before first build', () {
-      expect(geometryUnderTest.maybePixels, isNull);
-      expect(geometryUnderTest.maybeContentSize, isNull);
-      expect(geometryUnderTest.maybeViewportSize, isNull);
-      expect(geometryUnderTest.maybeViewportInsets, isNull);
+      expect(geometryUnderTest.offset, isNull);
+      expect(geometryUnderTest.contentSize, isNull);
+      expect(geometryUnderTest.viewportSize, isNull);
+      expect(geometryUnderTest.viewportSize, isNull);
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
     });
 
@@ -46,12 +46,12 @@ void main() {
         initialMaxOffset: const SheetAnchor.proportional(1),
       );
 
-      expect(geometryUnderTest.maybePixels, 200);
-      expect(geometryUnderTest.maybeMinPixels, 200);
-      expect(geometryUnderTest.maybeMaxPixels, 400);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
-      expect(geometryUnderTest.maybeViewportSize, const Size(400, 800));
-      expect(geometryUnderTest.maybeViewportInsets, EdgeInsets.zero);
+      expect(geometryUnderTest.offset, 200);
+      expect(geometryUnderTest.minOffset, 200);
+      expect(geometryUnderTest.maxOffset, 400);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(geometryUnderTest.viewportSize, const Size(400, 800));
+      expect(geometryUnderTest.viewportSize, EdgeInsets.zero);
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
     });
 
@@ -74,10 +74,10 @@ void main() {
         maxOffset: const SheetAnchor.proportional(1),
         transitionDuration: const Duration(milliseconds: 200),
       );
-      expect(geometryUnderTest.maybePixels, 600);
-      expect(geometryUnderTest.maybeMinPixels, 600);
-      expect(geometryUnderTest.maybeMaxPixels, 600);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 600);
+      expect(geometryUnderTest.minOffset, 600);
+      expect(geometryUnderTest.maxOffset, 600);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
 
       _popRoute(
@@ -86,10 +86,10 @@ void main() {
         destinationRoute: initialRoute,
         currentRouteTransitionController: newRouteTransitionController,
       );
-      expect(geometryUnderTest.maybePixels, 200);
-      expect(geometryUnderTest.maybeMinPixels, 200);
-      expect(geometryUnderTest.maybeMaxPixels, 400);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
+      expect(geometryUnderTest.offset, 200);
+      expect(geometryUnderTest.minOffset, 200);
+      expect(geometryUnderTest.maxOffset, 400);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
     });
   });
@@ -121,29 +121,29 @@ void main() {
       );
 
       pushTransition.tick(Duration.zero);
-      expect(geometryUnderTest.maybePixels, 200);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
+      expect(geometryUnderTest.offset, 200);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
 
       const curve = kDefaultPagedSheetTransitionCurve;
       pushTransition.tick(const Duration(milliseconds: 50));
-      expect(geometryUnderTest.maybePixels, 400 * curve.transform(0.25) + 200);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
+      expect(geometryUnderTest.offset, 400 * curve.transform(0.25) + 200);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
 
       pushTransition.tick(const Duration(milliseconds: 50));
-      expect(geometryUnderTest.maybePixels, 400 * curve.transform(0.5) + 200);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
+      expect(geometryUnderTest.offset, 400 * curve.transform(0.5) + 200);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
 
       pushTransition.tick(const Duration(milliseconds: 50));
-      expect(geometryUnderTest.maybePixels, 400 * curve.transform(0.75) + 200);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
+      expect(geometryUnderTest.offset, 400 * curve.transform(0.75) + 200);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
 
       pushTransition.tickAndSettle();
-      expect(geometryUnderTest.maybePixels, 600);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
+      expect(geometryUnderTest.offset, 600);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
 
       pushTransition.end();
-      expect(geometryUnderTest.maybePixels, 600);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 600);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
     });
 
     test('Animate offset when popping the current route', () {
@@ -174,38 +174,38 @@ void main() {
       );
 
       popTransition.tick(Duration.zero);
-      expect(geometryUnderTest.maybePixels, 600);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 600);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       const curve = kDefaultPagedSheetTransitionCurve;
       popTransition.tick(const Duration(milliseconds: 50));
       expect(
-        geometryUnderTest.maybePixels,
+        geometryUnderTest.offset,
         moreOrLessEquals(600 - 400 * curve.transform(0.25)),
       );
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       popTransition.tick(const Duration(milliseconds: 50));
       expect(
-        geometryUnderTest.maybePixels,
+        geometryUnderTest.offset,
         moreOrLessEquals(600 - 400 * curve.transform(0.5)),
       );
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       popTransition.tick(const Duration(milliseconds: 50));
       expect(
-        geometryUnderTest.maybePixels,
+        geometryUnderTest.offset,
         moreOrLessEquals(600 - 400 * curve.transform(0.75)),
       );
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       popTransition.tickAndSettle();
-      expect(geometryUnderTest.maybePixels, 200);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 200);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       popTransition.end();
-      expect(geometryUnderTest.maybePixels, 200);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
+      expect(geometryUnderTest.offset, 200);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
     });
 
     test('Maintain offsets of each route throughout the transitions', () {
@@ -221,7 +221,7 @@ void main() {
       final testActivity = _TestSheetActivity();
       geometryUnderTest.beginActivity(testActivity);
       testActivity.setOffset(400);
-      expect(geometryUnderTest.maybePixels, 400);
+      expect(geometryUnderTest.offset, 400);
 
       final (newRoute, newRouteTransitionController) = _pushRoute(
         geometry: geometryUnderTest,
@@ -232,7 +232,7 @@ void main() {
         routeContentSize: const Size(400, 600),
         transitionDuration: const Duration(milliseconds: 200),
       );
-      expect(geometryUnderTest.maybePixels, 600);
+      expect(geometryUnderTest.offset, 600);
 
       _popRoute(
         geometry: geometryUnderTest,
@@ -240,7 +240,7 @@ void main() {
         destinationRoute: initialRoute,
         currentRouteTransitionController: newRouteTransitionController,
       );
-      expect(geometryUnderTest.maybePixels, 450);
+      expect(geometryUnderTest.offset, 450);
     });
 
     test('Sync offset with progress of the swipe-back gesture', () {
@@ -269,28 +269,28 @@ void main() {
         previousRoute: initialRoute,
         currentRouteTransitionController: newRouteTransitionController,
       );
-      expect(geometryUnderTest.maybePixels, 600);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 600);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       swipeBackGesture.dragTo(0.75);
-      expect(geometryUnderTest.maybePixels, 550);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 550);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       swipeBackGesture.dragTo(0.5);
-      expect(geometryUnderTest.maybePixels, 500);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 500);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       swipeBackGesture.dragTo(0.25);
-      expect(geometryUnderTest.maybePixels, 450);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 450);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       swipeBackGesture.releasePointer();
-      expect(geometryUnderTest.maybePixels, 400);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 600));
+      expect(geometryUnderTest.offset, 400);
+      expect(geometryUnderTest.contentSize, const Size(400, 600));
 
       swipeBackGesture.end();
-      expect(geometryUnderTest.maybePixels, 400);
-      expect(geometryUnderTest.maybeContentSize, const Size(400, 400));
+      expect(geometryUnderTest.offset, 400);
+      expect(geometryUnderTest.contentSize, const Size(400, 400));
     });
   });
 }
@@ -334,10 +334,10 @@ MockBasePagedSheetRoute<dynamic> _firstBuild({
     ..addRoute(initialRoute)
     ..didEndTransition(initialRoute)
     ..applyNewRouteContentSize(initialRoute, initialRouteContentSize)
-    ..applyNewDimensions(
-      initialRouteContentSize,
-      viewportSize,
-      EdgeInsets.zero,
+    ..measurements = SheetMeasurements(
+      contentSize: initialRouteContentSize,
+      viewportSize: viewportSize,
+      viewportInsets: EdgeInsets.zero,
     );
 
   return initialRoute;

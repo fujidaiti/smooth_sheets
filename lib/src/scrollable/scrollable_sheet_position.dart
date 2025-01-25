@@ -21,8 +21,6 @@ class DraggableScrollableSheetPosition extends SheetPosition
   DraggableScrollableSheetPosition({
     required super.context,
     required super.initialPosition,
-    required super.minPosition,
-    required super.maxPosition,
     required super.physics,
     required super.snapGrid,
     super.gestureTamperer,
@@ -170,11 +168,10 @@ class DraggableScrollableSheetPosition extends SheetPosition
     required double velocity,
     required SheetContentScrollPosition scrollPosition,
   }) {
-    assert(hasDimensions);
     if (FloatComp.distance(context.devicePixelRatio)
         .isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
       final simulation =
-          physics.createBallisticSimulation(velocity, snapshot, snapGrid);
+          physics.createBallisticSimulation(velocity, this, snapGrid);
       if (simulation != null) {
         scrollPosition.goIdle(calledByOwner: true);
         goBallisticWith(simulation);

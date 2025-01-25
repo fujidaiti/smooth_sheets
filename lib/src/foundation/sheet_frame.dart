@@ -99,8 +99,11 @@ class _RenderSheetFrame extends RenderProxyBox {
     final childConstraints = constraints.tighten(width: constraints.maxWidth);
     child.layout(childConstraints, parentUsesSize: true);
     final viewportSize = constraints.biggest;
-    final childSize = Size.copy(child.size);
-    _model.applyNewDimensions(childSize, viewportSize, _viewportInsets);
+    _model.measurements = SheetMeasurements(
+      contentSize: Size.copy(child.size),
+      viewportSize: viewportSize,
+      viewportInsets: _viewportInsets,
+    );
     // ignore: lines_longer_than_80_chars
     // TODO: The size of this widget should be determined by the geometry controller.
     size = child.size;

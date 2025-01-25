@@ -108,7 +108,7 @@ void main() {
       (tester) async {
         final model = MockSheetPosition();
         late VoidCallback notifyListeners;
-        when(model.maybePixels).thenReturn(150);
+        when(model.offset).thenReturn(150);
         when(model.addListener(any)).thenAnswer((invocation) {
           notifyListeners =
               invocation.positionalArguments.first as VoidCallback;
@@ -125,7 +125,7 @@ void main() {
           Offset(0, testScreenSize.height - 150),
         );
 
-        when(model.maybePixels).thenReturn(200);
+        when(model.offset).thenReturn(200);
         notifyListeners();
         await tester.pump();
 
@@ -139,11 +139,12 @@ void main() {
 
   group('SheetViewport: hit-testing', () {
     ({
+      MockSheetPosition model,
       Widget testWidget,
-    }) boilerplate({
-      required SheetPosition model,
-      required Size containerSize,
-    }) {
+    }) boilerplate() {
+      final model = MockSheetPosition();
+      when(model.offset).thenReturn(300);
+
       final viewportKey = GlobalKey<SheetViewportState>();
       final testWidget = MediaQuery(
         data: MediaQueryData(),
@@ -163,16 +164,16 @@ void main() {
                 child: SheetViewport(
                   key: viewportKey,
                   child: TestStatefulWidget(
-                    initialState: containerSize,
+                    initialState: null,
                     didChangeDependencies: () {
                       viewportKey.currentState!.setModel(model);
                     },
-                    builder: (_, size) {
+                    builder: (_, __) {
                       return Container(
                         key: Key('child'),
                         color: Colors.white,
-                        height: size.height,
-                        width: size.width,
+                        height: 300,
+                        width: double.infinity,
                       );
                     },
                   ),
@@ -183,24 +184,23 @@ void main() {
         ),
       );
 
-      return (testWidget: testWidget,);
+      return (
+        model: model,
+        testWidget: testWidget,
+      );
     }
 
     testWidgets(
       'should ignore/accept touch events when shouldIgnorePointerGetter returns true/false',
       (tester) async {
-        final model = MockSheetPosition();
-        final env = boilerplate(
-          model: model,
-          containerSize: Size.fromHeight(300),
-        );
+        final env = boilerplate();
         await tester.pumpWidget(env.testWidget);
 
-        when(model.shouldIgnorePointer).thenReturn(false);
+        when(env.model.shouldIgnorePointer).thenReturn(false);
         await tester.tap(find.byKey(Key('child')));
         expect(tester.takeException(), isNull);
 
-        when(model.shouldIgnorePointer).thenReturn(true);
+        when(env.model.shouldIgnorePointer).thenReturn(true);
         await tester.tap(find.byKey(Key('child')));
         expect(tester.takeException(), isA<FlutterError>());
       },
@@ -210,12 +210,7 @@ void main() {
       'should clip and translate its hit-test area '
       "to match the child's visual rect",
       (tester) async {
-        final model = MockSheetPosition();
-        when(model.maybePixels).thenReturn(300);
-        final env = boilerplate(
-          model: model,
-          containerSize: Size.fromHeight(300),
-        );
+        final env = boilerplate();
         await tester.pumpWidget(env.testWidget);
 
         const child = Key('child');

@@ -71,7 +71,7 @@ abstract class SheetActivity<T extends SheetPosition> {
     required Size oldViewportSize,
     required EdgeInsets oldViewportInsets,
   }) {
-    if (owner.maybeViewportInsets != oldViewportInsets) {
+    if (owner.viewportInsets != oldViewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
   }
@@ -176,7 +176,7 @@ class AnimatedSheetActivity extends SheetActivity
     required Size oldViewportSize,
     required EdgeInsets oldViewportInsets,
   }) {
-    if (owner.maybeViewportInsets != oldViewportInsets) {
+    if (owner.viewportInsets != oldViewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }
     final newEndPixels = destination.resolve(owner.contentSize);
@@ -399,7 +399,7 @@ class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
   @override
   void init(SheetPosition owner) {
     super.init(owner);
-    targetOffset = owner.hasDimensions
+    targetOffset = owner.hasGeometry
         ? owner.snapGrid.getSnapOffset(owner, 0)
         : owner.initialPosition;
   }
@@ -568,7 +568,6 @@ mixin UserControlledSheetActivityMixin<T extends SheetPosition>
     required Size oldViewportSize,
     required EdgeInsets oldViewportInsets,
   }) {
-    assert(owner.hasDimensions);
     if (oldViewportInsets != owner.viewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
     }

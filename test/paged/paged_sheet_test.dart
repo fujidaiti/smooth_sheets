@@ -235,7 +235,7 @@ void main() {
       final pixelTracking = <double?>[];
       final controller = SheetController();
       controller.addListener(() {
-        pixelTracking.add(controller.metrics.maybePixels);
+        pixelTracking.add(controller.metrics?.offset);
       });
 
       await tester.pumpWidget(
@@ -278,8 +278,8 @@ void main() {
       (double?, double?)? lastBoundaryValues; // (minPixels, maxPixels)
       controller.addListener(() {
         lastBoundaryValues = (
-          controller.metrics.maybeMinPixels,
-          controller.metrics.maybeMaxPixels,
+          controller.metrics?.minOffset,
+          controller.metrics?.maxOffset,
         );
       });
 
@@ -460,10 +460,10 @@ void main() {
         ),
       );
 
-      expect(controller.metrics.offset, 200,
+      expect(controller.metrics!.offset, 200,
           reason: 'The sheet should be at the initial position.');
       expect(
-        controller.metrics.minOffset < controller.metrics.maxOffset,
+        controller.metrics!.minOffset < controller.metrics!.maxOffset,
         isTrue,
         reason: 'The sheet should be draggable.',
       );
@@ -484,8 +484,8 @@ void main() {
       expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
           reason: 'The keyboard should be fully shown.');
       expect(
-        controller.metrics.offset,
-        controller.metrics.maxOffset,
+        controller.metrics!.offset,
+        controller.metrics!.maxOffset,
         reason: 'After the keyboard is fully shown, '
             'the entire sheet should also be visible.',
       );

@@ -23,12 +23,12 @@ export 'stubbing.mocks.dart';
 
 class MutableSheetMetrics with SheetMetrics {
   MutableSheetMetrics({
-    required this.maybePixels,
-    required this.maybeMinPosition,
-    required this.maybeMaxPosition,
-    required this.maybeContentSize,
-    required this.maybeViewportSize,
-    required this.maybeViewportInsets,
+    required this.offset,
+    required this.minOffset,
+    required this.maxOffset,
+    required this.contentSize,
+    required this.viewportSize,
+    required this.viewportInsets,
     required this.devicePixelRatio,
   });
 
@@ -36,40 +36,40 @@ class MutableSheetMetrics with SheetMetrics {
   double devicePixelRatio;
 
   @override
-  SheetAnchor? maybeMaxPosition;
+  double offset;
 
   @override
-  SheetAnchor? maybeMinPosition;
+  double minOffset;
 
   @override
-  double? maybePixels;
+  double maxOffset;
 
   @override
-  Size? maybeContentSize;
+  Size contentSize;
 
   @override
-  Size? maybeViewportSize;
+  Size viewportSize;
 
   @override
-  EdgeInsets? maybeViewportInsets;
+  EdgeInsets viewportInsets;
 
   @override
   SheetMetrics copyWith({
-    double? pixels,
-    SheetAnchor? minPosition,
-    SheetAnchor? maxPosition,
+    double? offset,
+    double? minOffset,
+    double? maxOffset,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
-      pixels: pixels ?? maybePixels,
-      minPosition: minPosition ?? maybeMinPosition,
-      maxPosition: maxPosition ?? maybeMaxPosition,
-      contentSize: contentSize ?? maybeContentSize,
-      viewportSize: viewportSize ?? maybeViewportSize,
-      viewportInsets: viewportInsets ?? maybeViewportInsets,
+      offset: offset ?? this.offset,
+      minOffset: minOffset ?? this.minOffset,
+      maxOffset: maxOffset ?? this.maxOffset,
+      contentSize: contentSize ?? this.contentSize,
+      viewportSize: viewportSize ?? this.viewportSize,
+      viewportInsets: viewportInsets ?? this.viewportInsets,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
@@ -78,8 +78,8 @@ class MutableSheetMetrics with SheetMetrics {
 (MutableSheetMetrics, MockSheetPosition) createMockSheetPosition({
   required double pixels,
   required SheetAnchor initialPosition,
-  required SheetAnchor minPosition,
-  required SheetAnchor maxPosition,
+  required double minOffset,
+  required double maxOffset,
   required Size contentSize,
   required Size viewportSize,
   required EdgeInsets viewportInsets,
@@ -87,62 +87,54 @@ class MutableSheetMetrics with SheetMetrics {
   SheetPhysics? physics,
 }) {
   final metricsRegistry = MutableSheetMetrics(
-    maybePixels: pixels,
-    maybeMinPosition: minPosition,
-    maybeMaxPosition: maxPosition,
-    maybeContentSize: contentSize,
-    maybeViewportSize: viewportSize,
-    maybeViewportInsets: viewportInsets,
+    offset: pixels,
+    minOffset: minOffset,
+    maxOffset: maxOffset,
+    contentSize: contentSize,
+    viewportSize: viewportSize,
+    viewportInsets: viewportInsets,
     devicePixelRatio: devicePixelRatio,
   );
 
   final position = MockSheetPosition();
+  when(position.value).thenAnswer((_) => metricsRegistry.offset);
   when(position.offset).thenAnswer((_) => metricsRegistry.offset);
-  when(position.maybePixels).thenAnswer((_) => metricsRegistry.maybePixels);
   when(position.initialPosition).thenAnswer((_) => initialPosition);
-  when(position.minPosition).thenAnswer((_) => metricsRegistry.minPosition);
-  when(position.maybeMinPosition)
-      .thenAnswer((_) => metricsRegistry.maybeMinPosition);
-  when(position.maxPosition).thenAnswer((_) => metricsRegistry.maxPosition);
-  when(position.maybeMaxPosition)
-      .thenAnswer((_) => metricsRegistry.maybeMaxPosition);
+  when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
+  when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
   when(position.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
-  when(position.maybeContentSize)
-      .thenAnswer((_) => metricsRegistry.maybeContentSize);
+  when(position.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
   when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
-  when(position.maybeViewportSize)
-      .thenAnswer((_) => metricsRegistry.maybeViewportSize);
+  when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
   when(position.viewportInsets)
       .thenAnswer((_) => metricsRegistry.viewportInsets);
-  when(position.maybeViewportInsets)
-      .thenAnswer((_) => metricsRegistry.maybeViewportInsets);
+  when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
   when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);
-  when(position.snapshot).thenAnswer((_) => metricsRegistry);
+  when(position.takeSnapshot()).thenAnswer((_) => metricsRegistry);
 
   when(position.setPixels(any)).thenAnswer((invocation) {
-    metricsRegistry.maybePixels =
-        invocation.positionalArguments.first as double;
+    metricsRegistry.offset = invocation.positionalArguments.first as double;
   });
-  when(position.applyNewDimensions(any, any, any)).thenAnswer((invocation) {
+  when(position.measurements = any).thenAnswer((invocation) {
     metricsRegistry
-      ..maybeContentSize = invocation.positionalArguments[0] as Size
-      ..maybeViewportSize = invocation.positionalArguments[1] as Size
-      ..maybeViewportInsets = invocation.positionalArguments[2] as EdgeInsets;
+      ..contentSize = invocation.positionalArguments[0] as Size
+      ..viewportSize = invocation.positionalArguments[1] as Size
+      ..viewportInsets = invocation.positionalArguments[2] as EdgeInsets;
   });
   when(position.copyWith(
-    pixels: anyNamed('pixels'),
-    minPosition: anyNamed('minPosition'),
-    maxPosition: anyNamed('maxPosition'),
+    offset: anyNamed('offset'),
+    minOffset: anyNamed('minOffset'),
+    maxOffset: anyNamed('maxOffset'),
     contentSize: anyNamed('contentSize'),
     viewportSize: anyNamed('viewportSize'),
     viewportInsets: anyNamed('viewportInsets'),
     devicePixelRatio: anyNamed('devicePixelRatio'),
   )).thenAnswer((invocation) {
     return metricsRegistry.copyWith(
-      pixels: invocation.namedArguments[#pixels] as double?,
-      minPosition: invocation.namedArguments[#minPosition] as SheetAnchor?,
-      maxPosition: invocation.namedArguments[#maxPosition] as SheetAnchor?,
+      offset: invocation.namedArguments[#pixels] as double?,
+      minOffset: invocation.namedArguments[#minOffset] as double?,
+      maxOffset: invocation.namedArguments[#maxOffset] as double?,
       contentSize: invocation.namedArguments[#contentSize] as Size?,
       viewportSize: invocation.namedArguments[#viewportSize] as Size?,
       viewportInsets: invocation.namedArguments[#viewportInsets] as EdgeInsets?,

@@ -218,7 +218,7 @@ class _LazySheetModelView extends ChangeNotifier implements SheetModelView {
   }
 
   @override
-  double? get value => _model?.maybePixels;
+  double? get value => _model?.offset;
 
   @override
   bool get shouldIgnorePointer => _model?.shouldIgnorePointer ?? false;

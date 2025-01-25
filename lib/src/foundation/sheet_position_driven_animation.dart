@@ -43,7 +43,7 @@ class SheetPositionDrivenAnimation extends Animation<double> {
   @override
   double get value {
     final metrics = _controller.metrics;
-    if (!metrics.hasDimensions) {
+    if (metrics == null) {
       return initialValue;
     }
 

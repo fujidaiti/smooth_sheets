@@ -44,8 +44,8 @@ void main() {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
         initialPosition: const SheetAnchor.pixels(300),
-        minPosition: const SheetAnchor.pixels(300),
-        maxPosition: const SheetAnchor.pixels(700),
+        minOffset: 300,
+        maxOffset: 700,
         contentSize: const Size(400, 700),
         viewportSize: const Size(400, 900),
         viewportInsets: EdgeInsets.zero,
@@ -84,8 +84,8 @@ void main() {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
         initialPosition: const SheetAnchor.pixels(300),
-        minPosition: const SheetAnchor.pixels(300),
-        maxPosition: const SheetAnchor.proportional(1),
+        minOffset: 300,
+        maxOffset: 900,
         contentSize: const Size(400, 900),
         viewportSize: const Size(400, 900),
         viewportInsets: EdgeInsets.zero,
@@ -119,8 +119,8 @@ void main() {
       final oldViewportInsets = ownerMetrics.viewportInsets;
       final oldContentSize = ownerMetrics.contentSize;
       ownerMetrics
-        ..maybeViewportInsets = const EdgeInsets.only(bottom: 50)
-        ..maybeContentSize = const Size(400, 850);
+        ..viewportInsets = const EdgeInsets.only(bottom: 50)
+        ..contentSize = const Size(400, 850);
 
       activity.didChangeDimensions(
         oldContentSize: oldContentSize,
@@ -128,7 +128,7 @@ void main() {
         oldViewportInsets: oldViewportInsets,
       );
       expect(ownerMetrics.offset, 400);
-      expect(ownerMetrics.viewPixels, 450,
+      expect(ownerMetrics.viewOffset, 450,
           reason: 'Visual position should not change when viewport changes.');
       verify(owner.settleTo(
         const SheetAnchor.proportional(1),
@@ -147,8 +147,8 @@ void main() {
       (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
         initialPosition: const SheetAnchor.proportional(0.5),
-        minPosition: const SheetAnchor.proportional(0.5),
-        maxPosition: const SheetAnchor.proportional(1),
+        minOffset: 300,
+        maxOffset: 600,
         contentSize: const Size(400, 600),
         viewportSize: const Size(400, 900),
         viewportInsets: EdgeInsets.zero,
@@ -241,7 +241,7 @@ void main() {
           velocity: 300,
         )..init(owner);
 
-        ownerMetrics.maybePixels = 540;
+        ownerMetrics.offset = 540;
         internalOnTickCallback!(const Duration(milliseconds: 1000));
         verify(owner.goIdle());
       },
@@ -261,7 +261,7 @@ void main() {
       final oldViewportInsets = ownerMetrics.viewportInsets;
       final oldContentSize = ownerMetrics.contentSize;
       // Show the on-screen keyboard.
-      ownerMetrics.maybeViewportInsets = const EdgeInsets.only(bottom: 30);
+      ownerMetrics.viewportInsets = const EdgeInsets.only(bottom: 30);
       activity.didChangeDimensions(
         oldContentSize: oldContentSize,
         oldViewportSize: const Size(400, 900),
@@ -282,8 +282,8 @@ void main() {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 450,
         initialPosition: const SheetAnchor.proportional(0.5),
-        minPosition: const SheetAnchor.proportional(0.5),
-        maxPosition: const SheetAnchor.proportional(1),
+        minOffset: 425,
+        maxOffset: 850,
         contentSize: const Size(400, 850),
         viewportSize: const Size(400, 900),
         viewportInsets: const EdgeInsets.only(bottom: 50),
@@ -307,8 +307,8 @@ void main() {
         final (ownerMetrics, owner) = createMockSheetPosition(
           pixels: 300,
           initialPosition: const SheetAnchor.proportional(0.5),
-          minPosition: const SheetAnchor.proportional(0.5),
-          maxPosition: const SheetAnchor.proportional(1),
+          minOffset: 290,
+          maxOffset: 580,
           contentSize: const Size(400, 580),
           viewportSize: const Size(400, 900),
           viewportInsets: EdgeInsets.zero,
@@ -335,8 +335,8 @@ void main() {
         final (ownerMetrics, owner) = createMockSheetPosition(
           pixels: 300,
           initialPosition: const SheetAnchor.proportional(0.5),
-          minPosition: const SheetAnchor.proportional(0.5),
-          maxPosition: const SheetAnchor.proportional(1),
+          minOffset: 250,
+          maxOffset: 500,
           contentSize: const Size(400, 500),
           viewportSize: const Size(400, 900),
           viewportInsets: EdgeInsets.zero,

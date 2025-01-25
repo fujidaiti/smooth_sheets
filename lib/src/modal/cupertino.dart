@@ -77,6 +77,7 @@ class _RenderCornerRadiusTransition extends RenderClipRRect {
   }
 
   Animation<double> _animation;
+
   // ignore: avoid_setters_without_getters
   set animation(Animation<double> value) {
     if (_animation != value) {
@@ -87,6 +88,7 @@ class _RenderCornerRadiusTransition extends RenderClipRRect {
   }
 
   Tween<double> _cornerRadius;
+
   // ignore: avoid_setters_without_getters
   set cornerRadius(Tween<double> value) {
     if (_cornerRadius != value) {
@@ -159,6 +161,7 @@ class _RenderTransformTransition extends RenderTransform {
   }
 
   Animation<double> _animation;
+
   // ignore: avoid_setters_without_getters
   set animation(Animation<double> value) {
     if (_animation != value) {
@@ -169,6 +172,7 @@ class _RenderTransformTransition extends RenderTransform {
   }
 
   Tween<double> _scaleFactor;
+
   // ignore: avoid_setters_without_getters
   set scaleFactor(Tween<double> value) {
     if (_scaleFactor != value) {
@@ -178,6 +182,7 @@ class _RenderTransformTransition extends RenderTransform {
   }
 
   Tween<double> _offset;
+
   // ignore: avoid_setters_without_getters
   set offset(Tween<double> value) {
     if (_offset != value) {
@@ -374,10 +379,10 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
       case AnimationStatus.forward:
       case AnimationStatus.completed:
         final metrics = _sheetController.metrics;
-        if (metrics.hasDimensions) {
+        if (metrics != null) {
           _cupertinoTransitionControllerOf[_previousRoute]?.value = min(
             controller!.value,
-            metrics.viewPixels.inverseLerp(
+            metrics.viewOffset.inverseLerp(
               // TODO: Make this configurable.
               metrics.viewportSize.height / 2,
               metrics.viewportSize.height,
