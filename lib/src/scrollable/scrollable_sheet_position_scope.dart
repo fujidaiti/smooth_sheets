@@ -17,6 +17,7 @@ class ScrollableSheetPositionScope
     required super.minPosition,
     required super.maxPosition,
     required super.physics,
+    required super.snapGrid,
     super.gestureTamperer,
     this.debugLabel,
     required super.child,
@@ -52,6 +53,7 @@ class _ScrollableSheetPositionScopeState extends SheetPositionScopeState<
       minPosition: widget.minPosition,
       maxPosition: widget.maxPosition,
       physics: widget.physics,
+      snapGrid: widget.snapGrid,
       gestureTamperer: widget.gestureTamperer,
       debugLabel: widget.debugLabel,
     );

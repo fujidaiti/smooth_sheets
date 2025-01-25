@@ -130,11 +130,6 @@ class MutableSheetMetrics with SheetMetrics {
       ..maybeViewportSize = invocation.positionalArguments[1] as Size
       ..maybeViewportInsets = invocation.positionalArguments[2] as EdgeInsets;
   });
-  when(position.applyNewBoundaryConstraints(any, any)).thenAnswer((invocation) {
-    metricsRegistry
-      ..maybeMinPosition = invocation.positionalArguments.first as SheetAnchor
-      ..maybeMaxPosition = invocation.positionalArguments.last as SheetAnchor;
-  });
   when(position.copyWith(
     pixels: anyNamed('pixels'),
     minPosition: anyNamed('minPosition'),

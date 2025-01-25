@@ -65,11 +65,6 @@ abstract class SheetActivity<T extends SheetPosition> {
 
   bool isCompatibleWith(SheetPosition newOwner) => newOwner is T;
 
-  void didChangeBoundaryConstraints(
-    SheetAnchor? oldMinPosition,
-    SheetAnchor? oldMaxPosition,
-  ) {}
-
   void didChangeDimensions({
     required Size oldContentSize,
     required Size oldViewportSize,

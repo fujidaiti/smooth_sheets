@@ -23,6 +23,7 @@ class DraggableScrollableSheetPosition extends SheetPosition
     required super.minPosition,
     required super.maxPosition,
     required super.physics,
+    required super.snapGrid,
     super.gestureTamperer,
     super.debugLabel,
   });

@@ -9,7 +9,7 @@ import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_physics.dart';
 import '../foundation/sheet_position.dart';
 import '../foundation/sheet_theme.dart';
-import '../foundation/sheet_viewport.dart';
+import '../foundation/snap_grid.dart';
 import 'scrollable_sheet_physics.dart';
 import 'scrollable_sheet_position_scope.dart';
 import 'sheet_draggable.dart';
@@ -41,6 +41,9 @@ class Sheet extends StatefulWidget {
     this.minPosition = const SheetAnchor.proportional(1),
     this.maxPosition = const SheetAnchor.proportional(1),
     this.physics,
+    this.snapGrid = const SnapGrid.single(
+      snap: SheetAnchor.proportional(1),
+    ),
     this.controller,
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
@@ -59,6 +62,8 @@ class Sheet extends StatefulWidget {
 
   /// {@macro SheetPosition.physics}
   final SheetPhysics? physics;
+
+  final SnapGrid snapGrid;
 
   /// An object that can be used to control and observe the sheet height.
   final SheetController? controller;
@@ -83,8 +88,6 @@ class _SheetState extends State<Sheet>
     final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
-    final viewport = SheetViewportState.of(context);
-
     if (widget.scrollConfiguration case final config?) {
       physics = ScrollableSheetPhysics(
         parent: physics,
@@ -100,6 +103,7 @@ class _SheetState extends State<Sheet>
       minPosition: widget.minPosition,
       maxPosition: widget.maxPosition,
       physics: physics,
+      snapGrid: widget.snapGrid,
       gestureTamperer: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,
       child: DraggableScrollableSheetContent(

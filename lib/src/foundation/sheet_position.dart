@@ -15,6 +15,7 @@ import 'sheet_notification.dart';
 import 'sheet_physics.dart';
 import 'sheet_position_scope.dart';
 import 'sheet_status.dart';
+import 'snap_grid.dart';
 
 /// An abstract representation of a sheet's position.
 ///
@@ -156,9 +157,11 @@ abstract class SheetPosition extends ChangeNotifier
     required SheetAnchor minPosition,
     required SheetAnchor maxPosition,
     required SheetPhysics physics,
+    required SnapGrid snapGrid,
     this.debugLabel,
     SheetGestureProxyMixin? gestureTamperer,
   })  : _physics = physics,
+        _snapGrid = snapGrid,
         _gestureTamperer = gestureTamperer,
         _snapshot = SheetMetrics.empty.copyWith(
           minPosition: minPosition,
@@ -212,6 +215,17 @@ abstract class SheetPosition extends ChangeNotifier
   /// {@endtemplate}
   SheetPhysics get physics => _physics;
   SheetPhysics _physics;
+
+  SnapGrid get snapGrid => _snapGrid;
+  SnapGrid _snapGrid;
+
+  set snapGrid(SnapGrid snapGrid) {
+    _snapGrid = snapGrid;
+    if (hasDimensions) {
+      final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
+      _updateMetrics(minPosition: minOffset, maxPosition: maxOffset);
+    }
+  }
 
   /// {@template SheetPosition.gestureTamperer}
   /// An object that can modify the gesture details of the sheet.
@@ -284,7 +298,6 @@ abstract class SheetPosition extends ChangeNotifier
     if (other.maybePixels case final pixels?) {
       correctPixels(pixels);
     }
-    applyNewBoundaryConstraints(other.minPosition, other.maxPosition);
     applyNewDimensions(
       other.contentSize,
       other.viewportSize,
@@ -316,10 +329,20 @@ abstract class SheetPosition extends ChangeNotifier
     final oldViewportInsets = maybeViewportInsets;
     final oldPixels = maybePixels;
 
+    final (minOffset, maxOffset) = snapGrid.getBoundaries(
+      copyWith(
+        contentSize: contentSize,
+        viewportSize: viewportSize,
+        viewportInsets: viewportInsets,
+      ),
+    );
+
     _updateMetrics(
       contentSize: contentSize,
       viewportSize: viewportSize,
       viewportInsets: viewportInsets,
+      minPosition: minOffset,
+      maxPosition: maxOffset,
       pixels: maybePixels ?? initialPosition.resolve(contentSize),
     );
     if (oldContentSize != null) {
@@ -337,19 +360,6 @@ abstract class SheetPosition extends ChangeNotifier
 
     if (oldPixels != maybePixels) {
       notifyListeners();
-    }
-  }
-
-  @mustCallSuper
-  void applyNewBoundaryConstraints(
-    SheetAnchor minPosition,
-    SheetAnchor maxPosition,
-  ) {
-    if (minPosition != this.minPosition || maxPosition != this.maxPosition) {
-      final oldMinPosition = maybeMinPosition;
-      final oldMaxPosition = maybeMaxPosition;
-      _updateMetrics(minPosition: minPosition, maxPosition: maxPosition);
-      activity.didChangeBoundaryConstraints(oldMinPosition, oldMaxPosition);
     }
   }
 

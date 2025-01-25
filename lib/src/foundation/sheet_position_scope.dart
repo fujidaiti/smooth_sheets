@@ -9,6 +9,7 @@ import 'sheet_gesture_tamperer.dart';
 import 'sheet_physics.dart';
 import 'sheet_position.dart';
 import 'sheet_viewport.dart';
+import 'snap_grid.dart';
 
 /// A widget that creates a [SheetPosition], manages its lifecycle,
 /// and exposes it to the descendant widgets.
@@ -25,6 +26,7 @@ abstract class SheetPositionScope<E extends SheetPosition>
     required this.minPosition,
     required this.maxPosition,
     required this.physics,
+    required this.snapGrid,
     this.gestureTamperer,
     required this.child,
   });
@@ -44,6 +46,8 @@ abstract class SheetPositionScope<E extends SheetPosition>
 
   /// {@macro SheetPosition.physics}
   final SheetPhysics physics;
+  
+  final SnapGrid snapGrid;
 
   /// {@macro SheetPosition.gestureTamperer}
   final SheetGestureProxyMixin? gestureTamperer;
@@ -137,11 +141,6 @@ abstract class SheetPositionScopeState<E extends SheetPosition,
       _viewport?.setModel(position);
       _disposePosition(oldPosition);
       _rewireControllerAndPosition();
-    }
-    if (_position.minPosition != widget.minPosition ||
-        _position.maxPosition != widget.maxPosition) {
-      _position.applyNewBoundaryConstraints(
-          widget.minPosition, widget.maxPosition);
     }
     if (_position.physics != widget.physics) {
       _position.updatePhysics(widget.physics);

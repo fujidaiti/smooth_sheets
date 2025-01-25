@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../../smooth_sheets.dart';
 import '../foundation/sheet_activity.dart';
+import '../foundation/snap_grid.dart';
 import '../scrollable/scrollable_sheet_position.dart';
 import 'paged_sheet_route.dart';
 
@@ -19,6 +20,11 @@ const kDefaultPagedSheetMinOffset = SheetAnchor.proportional(1);
 
 @internal
 const kDefaultPagedSheetMaxOffset = SheetAnchor.proportional(1);
+
+const _kDefaultSnapGrid = SteplessSnapGrid(
+  minOffset: SheetAnchor.pixels(0),
+  maxOffset: SheetAnchor.proportional(1),
+);
 
 @internal
 const kDefaultPagedSheetTransitionCurve = Curves.easeInOutCubic;
@@ -46,6 +52,7 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
           minPosition: kDefaultPagedSheetMinOffset,
           maxPosition: kDefaultPagedSheetMaxOffset,
           physics: kDefaultPagedSheetPhysics,
+          snapGrid: _kDefaultSnapGrid,
         );
 
   final Map<BasePagedSheetRoute, _RouteGeometry> _routeGeometries = {};
@@ -57,14 +64,9 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     if (route != null) {
       _currentRoute = route;
       updatePhysics(route.physics);
-      applyNewBoundaryConstraints(route.minOffset, route.maxOffset);
     } else {
       _currentRoute = null;
       updatePhysics(kDefaultPagedSheetPhysics);
-      applyNewBoundaryConstraints(
-        kDefaultPagedSheetMinOffset,
-        kDefaultPagedSheetMaxOffset,
-      );
     }
   }
 
