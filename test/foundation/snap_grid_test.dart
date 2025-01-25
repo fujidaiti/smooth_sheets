@@ -23,29 +23,29 @@ void main() {
   group('SingleSnapGrid', () {
     test('getSnapOffset: the offset does not affect the result', () {
       var result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 0);
       expect(result, SheetAnchor.pixels(500));
     });
 
     test('getSnapOffset: the velocity does not affect the result', () {
       var result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const SingleSnapGrid(snap: SheetAnchor.pixels(500))
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), -100);
       expect(result, SheetAnchor.pixels(500));
     });
 
@@ -63,7 +63,6 @@ void main() {
       expect(result, (SheetAnchor.pixels(500), SheetAnchor.pixels(500)));
     });
   });
-
   group('SteplessSnapGrid', () {
     const minOffset = SheetAnchor.pixels(0);
     const maxOffset = SheetAnchor.pixels(500);
@@ -76,10 +75,7 @@ void main() {
       'getSnapOffset: returns minOffset when '
       'the current offset is less than minOffset',
       () {
-        final result = snap.getSnapOffset(
-          velocity: 0,
-          metrics: metrics(offset: -100),
-        );
+        final result = snap.getSnapOffset(metrics(offset: -100), 0);
         expect(result, minOffset);
       },
     );
@@ -88,10 +84,7 @@ void main() {
       'getSnapOffset: returns maxOffset '
       'when metrics.pixels is greater than maxOffset',
       () {
-        final result = snap.getSnapOffset(
-          velocity: 0,
-          metrics: metrics(offset: 600),
-        );
+        final result = snap.getSnapOffset(metrics(offset: 600), 0);
         expect(result, maxOffset);
       },
     );
@@ -99,10 +92,7 @@ void main() {
     test(
         'getSnapOffset: returns current offset '
         'when the current offset is within bounds', () {
-      final result = snap.getSnapOffset(
-        velocity: 0,
-        metrics: metrics(offset: 250),
-      );
+      final result = snap.getSnapOffset(metrics(offset: 250), 0);
       expect(result, SheetAnchor.pixels(250));
     });
 
@@ -123,35 +113,34 @@ void main() {
       expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
     });
   });
-
   group('MultiSnapGrid with single snap offset', () {
     test('getSnapOffset', () {
       var result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), -100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: [SheetAnchor.pixels(500)])
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), -100);
       expect(result, SheetAnchor.pixels(500));
     });
 
@@ -175,79 +164,79 @@ void main() {
 
     test('getSnapOffset: |velocity| < kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 0);
       expect(result, SheetAnchor.pixels(500));
     });
 
     test('getSnapOffset: velocity > kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), 100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 100);
       expect(result, SheetAnchor.pixels(500));
     });
 
     test('getSnapOffset: velocity < -kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), -100);
       expect(result, SheetAnchor.pixels(500));
     });
 
@@ -257,10 +246,7 @@ void main() {
           SheetAnchor.pixels(500),
           SheetAnchor.pixels(0),
         ],
-      ).getSnapOffset(
-        velocity: 0,
-        metrics: metrics(offset: 100),
-      );
+      ).getSnapOffset(metrics(offset: 100), 0);
       expect(result, SheetAnchor.pixels(0));
     });
 
@@ -290,7 +276,6 @@ void main() {
       expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(500)));
     });
   });
-
   group('MultiSnapGrid with three snap offsets', () {
     const snaps = [
       SheetAnchor.pixels(0),
@@ -300,115 +285,115 @@ void main() {
 
     test('getSnapOffset: |velocity| < kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 200));
+          .getSnapOffset(metrics(offset: 200), 0);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 250));
+          .getSnapOffset(metrics(offset: 250), 0);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 300));
+          .getSnapOffset(metrics(offset: 300), 0);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 0);
       expect(result, SheetAnchor.pixels(500));
     });
 
     test('getSnapOffset: velocity > kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), 100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), 100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), 100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 200));
+          .getSnapOffset(metrics(offset: 200), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 250));
+          .getSnapOffset(metrics(offset: 250), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 300));
+          .getSnapOffset(metrics(offset: 300), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 100);
       expect(result, SheetAnchor.pixels(500));
     });
 
     test('getSnapOffset: velocity < -kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 200));
+          .getSnapOffset(metrics(offset: 200), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 250));
+          .getSnapOffset(metrics(offset: 250), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 300));
+          .getSnapOffset(metrics(offset: 300), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), -100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), -100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), -100);
       expect(result, SheetAnchor.pixels(500));
     });
 
@@ -419,10 +404,7 @@ void main() {
           SheetAnchor.pixels(500),
           SheetAnchor.pixels(0),
         ],
-      ).getSnapOffset(
-        velocity: 0,
-        metrics: metrics(offset: 200),
-      );
+      ).getSnapOffset(metrics(offset: 200), 0);
       expect(result, SheetAnchor.pixels(250));
     });
 
@@ -464,151 +446,151 @@ void main() {
 
     test('getSnapOffset: |velocity| < kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), 0);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 200));
+          .getSnapOffset(metrics(offset: 200), 0);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 250));
+          .getSnapOffset(metrics(offset: 250), 0);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 300));
+          .getSnapOffset(metrics(offset: 300), 0);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 0);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 700));
+          .getSnapOffset(metrics(offset: 700), 0);
       expect(result, SheetAnchor.pixels(750));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 750));
+          .getSnapOffset(metrics(offset: 750), 0);
       expect(result, SheetAnchor.pixels(750));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 0, metrics: metrics(offset: 800));
+          .getSnapOffset(metrics(offset: 800), 0);
       expect(result, SheetAnchor.pixels(750));
     });
 
     test('getSnapOffset: velocity > kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), 100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), 100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), 100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 200));
+          .getSnapOffset(metrics(offset: 200), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 250));
+          .getSnapOffset(metrics(offset: 250), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 300));
+          .getSnapOffset(metrics(offset: 300), 100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), 100);
       expect(result, SheetAnchor.pixels(750));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), 100);
       expect(result, SheetAnchor.pixels(750));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), 100);
       expect(result, SheetAnchor.pixels(750));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 700));
+          .getSnapOffset(metrics(offset: 700), 100);
       expect(result, SheetAnchor.pixels(750));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 750));
+          .getSnapOffset(metrics(offset: 750), 100);
       expect(result, SheetAnchor.pixels(750));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: 100, metrics: metrics(offset: 800));
+          .getSnapOffset(metrics(offset: 800), 100);
       expect(result, SheetAnchor.pixels(750));
     });
 
     test('getSnapOffset: velocity < -kMinFlingVelocity', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: -100));
+          .getSnapOffset(metrics(offset: -100), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 0));
+          .getSnapOffset(metrics(offset: 0), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 100));
+          .getSnapOffset(metrics(offset: 100), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 200));
+          .getSnapOffset(metrics(offset: 200), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 250));
+          .getSnapOffset(metrics(offset: 250), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 300));
+          .getSnapOffset(metrics(offset: 300), -100);
       expect(result, SheetAnchor.pixels(0));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 400));
+          .getSnapOffset(metrics(offset: 400), -100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 500));
+          .getSnapOffset(metrics(offset: 500), -100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 600));
+          .getSnapOffset(metrics(offset: 600), -100);
       expect(result, SheetAnchor.pixels(250));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 700));
+          .getSnapOffset(metrics(offset: 700), -100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 750));
+          .getSnapOffset(metrics(offset: 750), -100);
       expect(result, SheetAnchor.pixels(500));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getSnapOffset(velocity: -100, metrics: metrics(offset: 800));
+          .getSnapOffset(metrics(offset: 800), -100);
       expect(result, SheetAnchor.pixels(750));
     });
 
@@ -626,21 +608,18 @@ void main() {
       expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
     });
 
-    test(
-      'getBoundaries: the order of "snaps" list does not matter',
-      () {
-        final result = const MultiSnapGrid(
-          snaps: [
-            SheetAnchor.pixels(750),
-            SheetAnchor.pixels(500),
-            SheetAnchor.pixels(250),
-            SheetAnchor.pixels(0),
-          ],
-        ).getBoundaries(
-          metrics(contentSize: Size(300, 400)),
-        );
-        expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
-      },
-    );
+    test('getBoundaries: the order of "snaps" list does not matter', () {
+      final result = const MultiSnapGrid(
+        snaps: [
+          SheetAnchor.pixels(750),
+          SheetAnchor.pixels(500),
+          SheetAnchor.pixels(250),
+          SheetAnchor.pixels(0),
+        ],
+      ).getBoundaries(
+        metrics(contentSize: Size(300, 400)),
+      );
+      expect(result, (SheetAnchor.pixels(0), SheetAnchor.pixels(750)));
+    });
   });
 }

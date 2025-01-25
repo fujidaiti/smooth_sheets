@@ -382,7 +382,8 @@ abstract class SheetPosition extends ChangeNotifier
 
   void goBallistic(double velocity) {
     assert(hasDimensions);
-    final simulation = physics.createBallisticSimulation(velocity, snapshot);
+    final simulation =
+        physics.createBallisticSimulation(velocity, this, snapGrid);
     if (simulation != null) {
       goBallisticWith(simulation);
     } else {

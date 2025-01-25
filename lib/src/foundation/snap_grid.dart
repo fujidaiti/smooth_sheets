@@ -22,10 +22,8 @@ abstract interface class SnapGrid {
 
   /// Returns an position to which a sheet should eventually settle
   /// based on the current [metrics] and the [velocity] of a sheet.
-  SheetAnchor getSnapOffset({
-    required SheetMetrics metrics,
-    required double velocity,
-  });
+  // TODO: Use positional arguments.
+  SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity);
 
   /// Returns the minimum and maximum offsets.
   (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics);
@@ -39,10 +37,7 @@ class SingleSnapGrid implements SnapGrid {
   final SheetAnchor snap;
 
   @override
-  SheetAnchor getSnapOffset({
-    required SheetMetrics metrics,
-    required double velocity,
-  }) {
+  SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
     return snap;
   }
 
@@ -67,10 +62,7 @@ class SteplessSnapGrid implements SnapGrid {
   }
 
   @override
-  SheetAnchor getSnapOffset({
-    required SheetMetrics metrics,
-    required double velocity,
-  }) {
+  SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
     final minimum = minOffset.resolve(metrics.contentSize);
     final maximum = maxOffset.resolve(metrics.contentSize);
     if (metrics.pixels < minimum) {
@@ -96,10 +88,7 @@ class MultiSnapGrid implements SnapGrid {
   final double minFlingSpeed;
 
   @override
-  SheetAnchor getSnapOffset({
-    required SheetMetrics metrics,
-    required double velocity,
-  }) {
+  SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
     final result = _scanSnapOffsets(metrics);
     if (metrics.pixels < result.min.resolve(metrics.contentSize)) {
       return result.min;
@@ -243,6 +232,22 @@ class MultiSnapGrid implements SnapGrid {
       nearest: nearest,
       leftmost: sortedSnaps[max(nearestIndex - 1, 0)],
       rightmost: sortedSnaps[min(nearestIndex + 1, sortedSnaps.length - 1)],
+    );
+  }
+}
+
+extension type ResolvedSnapGrid(({SnapGrid grid, SheetMetrics metrics}) self) {
+  double getSnapOffset(double velocity) {
+    return self.grid
+        .getSnapOffset(self.metrics, velocity)
+        .resolve(self.metrics.contentSize);
+  }
+
+  (double, double) getBoundaries() {
+    final (min, max) = self.grid.getBoundaries(self.metrics);
+    return (
+      min.resolve(self.metrics.contentSize),
+      max.resolve(self.metrics.contentSize),
     );
   }
 }

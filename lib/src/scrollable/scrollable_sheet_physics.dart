@@ -8,16 +8,17 @@ import '../foundation/sheet_position.dart';
 @internal
 class ScrollableSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const ScrollableSheetPhysics({
-    super.parent,
     this.spring = kDefaultSheetSpring,
     this.maxScrollSpeedToInterrupt = double.infinity,
   }) : assert(maxScrollSpeedToInterrupt >= 0);
 
   factory ScrollableSheetPhysics.wrap(SheetPhysics physics) {
-    return switch (physics) {
-      final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
-      final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
-    };
+    // return switch (physics) {
+    // final ScrollableSheetPhysics scrollablePhysics => scrollablePhysics,
+    // final otherPhysics => ScrollableSheetPhysics(parent: otherPhysics),
+
+    // };
+    return ScrollableSheetPhysics();
   }
 
   // TODO: Expose this from the ScrollableSheet's constructor
@@ -26,20 +27,7 @@ class ScrollableSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   @override
   final SpringDescription spring;
 
-  @override
-  SheetPhysics copyWith({
-    SheetPhysics? parent,
-    SpringDescription? spring,
-    double? maxScrollSpeedToInterrupt,
-  }) {
-    return ScrollableSheetPhysics(
-      parent: parent ?? this.parent,
-      spring: spring ?? this.spring,
-      maxScrollSpeedToInterrupt:
-          maxScrollSpeedToInterrupt ?? this.maxScrollSpeedToInterrupt,
-    );
-  }
-
+  // TODO: Can we move this to SheetPosition class.
   bool shouldInterruptBallisticScroll(double velocity, SheetMetrics metrics) {
     return velocity.abs() < maxScrollSpeedToInterrupt;
   }

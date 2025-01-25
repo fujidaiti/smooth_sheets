@@ -177,7 +177,8 @@ class DraggableScrollableSheetPosition extends SheetPosition
     assert(hasDimensions);
     if (FloatComp.distance(context.devicePixelRatio)
         .isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
-      final simulation = physics.createBallisticSimulation(velocity, snapshot);
+      final simulation =
+          physics.createBallisticSimulation(velocity, snapshot, snapGrid);
       if (simulation != null) {
         scrollPosition.goIdle(calledByOwner: true);
         goBallisticWith(simulation);

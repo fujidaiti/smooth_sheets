@@ -40,10 +40,6 @@ export 'sheet_physics.dart'
         FixedBouncingBehavior,
         SheetPhysics,
         SheetPhysicsMixin,
-        SnapToNearest,
-        SnapToNearestEdge,
-        SnappingSheetBehavior,
-        SnappingSheetPhysics,
         kDefaultSheetPhysics,
         kDefaultSheetSpring;
 export 'sheet_position.dart'

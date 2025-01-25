@@ -231,7 +231,7 @@ class BallisticSheetActivity extends SheetActivity
       viewportSize: oldViewportSize,
       viewportInsets: oldViewportInsets,
     );
-    final destination = owner.physics.findSettledPosition(velocity, oldMetrics);
+    final destination = owner.snapGrid.getSnapOffset(oldMetrics, velocity);
 
     if (oldViewportInsets != owner.viewportInsets) {
       absorbBottomViewportInset(owner, oldViewportInsets);
@@ -399,7 +399,7 @@ class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
   void init(SheetPosition owner) {
     super.init(owner);
     targetOffset = owner.hasDimensions
-        ? owner.physics.findSettledPosition(owner.pixels, owner)
+        ? owner.snapGrid.getSnapOffset(owner, 0)
         : owner.initialPosition;
   }
 }
