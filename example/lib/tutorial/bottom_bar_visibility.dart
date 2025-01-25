@@ -169,7 +169,7 @@ class _ExampleSheet extends StatelessWidget {
                 // and returning true keeps the bottom bar visible.
                 getIsVisible: (metrics) {
                   // The bottom bar is visible when at least 50% of the sheet is visible.
-                  return metrics.pixels >=
+                  return metrics.offset >=
                       const SheetAnchor.proportional(0.5)
                           .resolve(metrics.contentSize);
                 },

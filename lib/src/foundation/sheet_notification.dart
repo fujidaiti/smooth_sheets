@@ -42,7 +42,7 @@ sealed class SheetNotification extends Notification {
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
     description
-      ..add('pixels: ${metrics.pixels}')
+      ..add('pixels: ${metrics.offset}')
       ..add('minPosition: ${metrics.minPixels}')
       ..add('maxPosition: ${metrics.maxPixels}')
       ..add('viewportSize: ${metrics.viewportSize}')

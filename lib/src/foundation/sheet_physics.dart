@@ -60,7 +60,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
 
   @override
   double computeOverflow(double delta, SheetMetrics metrics) {
-    final newPixels = metrics.pixels + delta;
+    final newPixels = metrics.offset + delta;
     if (newPixels > metrics.maxPixels) {
       return min(newPixels - metrics.maxPixels, delta);
     } else if (newPixels < metrics.minPixels) {
@@ -73,12 +73,12 @@ mixin SheetPhysicsMixin on SheetPhysics {
   @override
   double applyPhysicsToOffset(double delta, SheetMetrics metrics) {
     // TODO: Use computeOverflow() to calculate the overflowed pixels.
-    if (delta > 0 && metrics.pixels < metrics.maxPixels) {
+    if (delta > 0 && metrics.offset < metrics.maxPixels) {
       // Prevent the pixels from going beyond the maximum value.
-      return min(metrics.maxPixels, metrics.pixels + delta) - metrics.pixels;
-    } else if (delta < 0 && metrics.pixels > metrics.minPixels) {
+      return min(metrics.maxPixels, metrics.offset + delta) - metrics.offset;
+    } else if (delta < 0 && metrics.offset > metrics.minPixels) {
       // Prevent the pixels from going beyond the minimum value.
-      return max(metrics.minPixels, metrics.pixels + delta) - metrics.pixels;
+      return max(metrics.minPixels, metrics.offset + delta) - metrics.offset;
     } else {
       return 0;
     }
@@ -95,11 +95,11 @@ mixin SheetPhysicsMixin on SheetPhysics {
     final snap =
         snapGrid.getSnapOffset(metrics, velocity).resolve(metrics.contentSize);
     if (FloatComp.distance(metrics.devicePixelRatio)
-        .isNotApprox(snap, metrics.pixels)) {
-      final direction = (snap - metrics.pixels).sign;
+        .isNotApprox(snap, metrics.offset)) {
+      final direction = (snap - metrics.offset).sign;
       return ScrollSpringSimulation(
         spring,
-        metrics.pixels,
+        metrics.offset,
         snap,
         // The simulation velocity is intentionally set to 0 if the velocity is
         // is in the opposite direction of the destination, as flinging up an
@@ -244,7 +244,7 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       return const ClampingSheetPhysics().applyPhysicsToOffset(delta, metrics);
     }
 
-    final currentPixels = metrics.pixels;
+    final currentPixels = metrics.offset;
     final minPixels = metrics.minPixels;
     final maxPixels = metrics.maxPixels;
 

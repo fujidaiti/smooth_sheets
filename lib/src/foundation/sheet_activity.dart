@@ -139,7 +139,7 @@ class AnimatedSheetActivity extends SheetActivity
   @override
   void init(SheetPosition delegate) {
     super.init(delegate);
-    _startPixels = owner.pixels;
+    _startPixels = owner.offset;
     _endPixels = destination.resolve(owner.contentSize);
   }
 
@@ -239,12 +239,12 @@ class BallisticSheetActivity extends SheetActivity
     }
 
     final endPixels = destination.resolve(owner.contentSize);
-    if (endPixels == owner.pixels) {
+    if (endPixels == owner.offset) {
       return;
     }
 
     const maxSettlingDuration = 150; // milliseconds
-    final distance = (endPixels - owner.pixels).abs();
+    final distance = (endPixels - owner.offset).abs();
     final velocityNorm = velocity.abs();
     final estimatedSettlingDuration = velocityNorm > 0
         ? distance / velocityNorm * Duration.millisecondsPerSecond
@@ -335,7 +335,7 @@ class SettlingSheetActivity extends SheetActivity {
         (elapsedDuration - _elapsedDuration).inMicroseconds /
             Duration.microsecondsPerSecond;
     final destination = this.destination.resolve(owner.contentSize);
-    final pixels = owner.pixels;
+    final pixels = owner.offset;
     final newPixels = destination > pixels
         ? min(destination, pixels + velocity * elapsedFrameTime)
         : max(destination, pixels - velocity * elapsedFrameTime);
@@ -382,7 +382,7 @@ class SettlingSheetActivity extends SheetActivity {
       final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
           Duration.microsecondsPerSecond;
       final destination = this.destination.resolve(owner.contentSize);
-      final pixels = owner.pixels;
+      final pixels = owner.offset;
       _velocity = remainingSeconds > 0
           ? (destination - pixels).abs() / remainingSeconds
           : (destination - pixels).abs();
@@ -418,11 +418,11 @@ class DragSheetActivity extends SheetActivity
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
     switch (delta.dy) {
       case > 0:
-        final draggableDistance = max(0.0, owner.maxPixels - owner.pixels);
+        final draggableDistance = max(0.0, owner.maxPixels - owner.offset);
         return Offset(delta.dx, min(draggableDistance, delta.dy));
 
       case < 0:
-        final draggableDistance = max(0.0, owner.pixels - owner.minPixels);
+        final draggableDistance = max(0.0, owner.offset - owner.minPixels);
         return Offset(delta.dx, max(-1 * draggableDistance, delta.dy));
 
       case _:
@@ -436,7 +436,7 @@ class DragSheetActivity extends SheetActivity
         owner.physics.applyPhysicsToOffset(details.deltaY, owner);
     if (physicsAppliedDelta != 0) {
       owner
-        ..setPixels(owner.pixels + physicsAppliedDelta)
+        ..setPixels(owner.offset + physicsAppliedDelta)
         ..didDragUpdateMetrics(details);
     }
 
@@ -468,7 +468,7 @@ mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
   @override
   SheetStatus get status => SheetStatus.stable;
 
-  /// Updates [SheetMetrics.pixels] to maintain the current [SheetAnchor], which
+  /// Updates [SheetMetrics.offset] to maintain the current [SheetAnchor], which
   /// is determined by [SnapGrid.getSnapOffset] using the metrics of
   /// the previous frame.
   @override
@@ -478,7 +478,7 @@ mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
     required EdgeInsets oldViewportInsets,
   }) {
     final newPixels = targetOffset.resolve(owner.contentSize);
-    if (newPixels == owner.pixels) {
+    if (newPixels == owner.offset) {
       return;
     } else if (oldViewportInsets.bottom != owner.viewportInsets.bottom) {
       // TODO: Is it possible to remove this assumption?
@@ -494,7 +494,7 @@ mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
 
     const minAnimationDuration = Duration(milliseconds: 150);
     const meanAnimationVelocity = 300 / 1000; // pixels per millisecond
-    final distance = (newPixels - owner.pixels).abs();
+    final distance = (newPixels - owner.offset).abs();
     final estimatedDuration = Duration(
       milliseconds: (distance / meanAnimationVelocity).round(),
     );
@@ -588,8 +588,8 @@ void absorbBottomViewportInset(
   final newInsets = activityOwner.viewportInsets;
   final oldInsets = oldViewportInsets;
   final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
-  final newPixels = activityOwner.pixels - deltaInsetBottom;
-  if (newPixels != activityOwner.pixels) {
+  final newPixels = activityOwner.offset - deltaInsetBottom;
+  if (newPixels != activityOwner.offset) {
     activityOwner
       ..setPixels(newPixels)
       ..didUpdateMetrics();

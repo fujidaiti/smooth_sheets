@@ -45,7 +45,7 @@ class _ExampleSheet extends StatelessWidget {
         // This callback is called whenever the sheet's metrics changes.
         getIsVisible: (metrics) {
           return metrics.viewportInsets.bottom == 0 &&
-              metrics.pixels >
+              metrics.offset >
                   const SheetAnchor.proportional(0.5)
                       .resolve(metrics.contentSize);
         },

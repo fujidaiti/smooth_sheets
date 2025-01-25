@@ -65,12 +65,12 @@ class SteplessSnapGrid implements SnapGrid {
   SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
     final minimum = minOffset.resolve(metrics.contentSize);
     final maximum = maxOffset.resolve(metrics.contentSize);
-    if (metrics.pixels < minimum) {
+    if (metrics.offset < minimum) {
       return minOffset;
-    } else if (metrics.pixels > maximum) {
+    } else if (metrics.offset > maximum) {
       return maxOffset;
     } else {
-      return SheetAnchor.pixels(metrics.pixels);
+      return SheetAnchor.pixels(metrics.offset);
     }
   }
 }
@@ -90,9 +90,9 @@ class MultiSnapGrid implements SnapGrid {
   @override
   SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
     final result = _scanSnapOffsets(metrics);
-    if (metrics.pixels < result.min.resolve(metrics.contentSize)) {
+    if (metrics.offset < result.min.resolve(metrics.contentSize)) {
       return result.min;
-    } else if (metrics.pixels > result.max.resolve(metrics.contentSize)) {
+    } else if (metrics.offset > result.max.resolve(metrics.contentSize)) {
       return result.max;
     } else if (velocity.abs() < minFlingSpeed) {
       return result.nearest;
@@ -147,8 +147,8 @@ class MultiSnapGrid implements SnapGrid {
           ? (snaps.first, snaps.last)
           : (snaps.last, snaps.first);
 
-      final firstDistance = (first - metrics.pixels).abs();
-      final secondDistance = (second - metrics.pixels).abs();
+      final firstDistance = (first - metrics.offset).abs();
+      final secondDistance = (second - metrics.offset).abs();
       final nearest = firstDistance < secondDistance ? snaps.first : snaps.last;
 
       return (
@@ -175,9 +175,9 @@ class MultiSnapGrid implements SnapGrid {
           ? (rFirst > rThird ? first : third)
           : (rSecond > rThird ? second : third);
 
-      final firstDistance = (rFirst - metrics.pixels).abs();
-      final secondDistance = (rSecond - metrics.pixels).abs();
-      final thirdDistance = (rThird - metrics.pixels).abs();
+      final firstDistance = (rFirst - metrics.offset).abs();
+      final secondDistance = (rSecond - metrics.offset).abs();
+      final thirdDistance = (rThird - metrics.offset).abs();
       final nearest = firstDistance < secondDistance
           ? (firstDistance < thirdDistance ? first : third)
           : (secondDistance < thirdDistance ? second : third);
@@ -218,7 +218,7 @@ class MultiSnapGrid implements SnapGrid {
     for (var index = 0; index < sortedSnaps.length; index++) {
       final snap = snaps[index];
       final distance =
-          (snap.resolve(metrics.contentSize) - metrics.pixels).abs();
+          (snap.resolve(metrics.contentSize) - metrics.offset).abs();
       if (distance < nearestDistance) {
         nearestIndex = index;
         nearest = snap;

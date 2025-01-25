@@ -183,7 +183,7 @@ class DraggableScrollableSheetPosition extends SheetPosition
     }
 
     final scrolledDistance = scrollPosition.pixels;
-    final draggedDistance = pixels - minPixels;
+    final draggedDistance = offset - minPixels;
     final draggableDistance = maxPixels - minPixels;
     final scrollableDistance =
         scrollPosition.maxScrollExtent - scrollPosition.minScrollExtent;

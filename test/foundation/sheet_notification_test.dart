@@ -196,7 +196,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.pixels, 'pixels', moreOrLessEquals(600))
+            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(600))
             .having((e) => e.status, 'status', SheetStatus.animating),
       );
 
@@ -205,7 +205,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.pixels, 'pixels', moreOrLessEquals(400))
+            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(400))
             .having((e) => e.status, 'status', SheetStatus.animating),
       );
 
@@ -214,7 +214,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.pixels, 'pixels', moreOrLessEquals(200))
+            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(200))
             .having((e) => e.status, 'status', SheetStatus.animating),
       );
 
@@ -223,7 +223,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.pixels, 'pixels', moreOrLessEquals(0))
+            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(0))
             .having((e) => e.status, 'status', SheetStatus.animating),
       );
 
@@ -282,7 +282,7 @@ void main() {
       expect(
         reportedNotifications[1],
         isA<SheetOverflowNotification>()
-            .having((e) => e.metrics.pixels, 'pixels', 500)
+            .having((e) => e.metrics.offset, 'pixels', 500)
             .having((e) => e.status, 'status', SheetStatus.dragging)
             .having((e) => e.overflow, 'overflow', -20),
       );
@@ -293,7 +293,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetOverflowNotification>()
-            .having((e) => e.metrics.pixels, 'pixels', 500)
+            .having((e) => e.metrics.offset, 'pixels', 500)
             .having((e) => e.status, 'status', SheetStatus.dragging)
             .having((e) => e.overflow, 'overflow', -20),
       );

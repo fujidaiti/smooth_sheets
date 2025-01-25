@@ -54,7 +54,7 @@ class SheetPositionDrivenAnimation extends Animation<double> {
     final distance = endPixels - startPixels;
 
     if (distance.isFinite && distance > 0) {
-      return ((metrics.pixels - startPixels) / distance).clamp(0, 1);
+      return ((metrics.offset - startPixels) / distance).clamp(0, 1);
     }
 
     return 1;

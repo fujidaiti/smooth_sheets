@@ -119,7 +119,7 @@ abstract interface class SheetModelView implements ValueListenable<double?> {
 // Manages the position of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
-/// The [SheetPosition.pixels] value determines the visible height of a sheet.
+/// The [SheetPosition.offset] value determines the visible height of a sheet.
 /// As this value changes, the sheet translates its position, which changes the
 /// visible area of the content. The [SheetPosition.minPixels] and
 /// [SheetPosition.maxPixels] values limit the range of the *pixels*, but it can
@@ -472,7 +472,7 @@ abstract class SheetPosition extends ChangeNotifier
     Duration duration = const Duration(milliseconds: 300),
   }) {
     assert(hasDimensions);
-    if (pixels == newPosition.resolve(contentSize)) {
+    if (offset == newPosition.resolve(contentSize)) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
@@ -614,7 +614,7 @@ mixin SheetMetrics {
 
   /// The current position of the sheet in pixels.
   // TODO: Rename to `offset`.
-  double get pixels {
+  double get offset {
     assert(_debugAssertHasProperty('pixels', maybePixels));
     return maybePixels!;
   }
@@ -663,8 +663,8 @@ mixin SheetMetrics {
   /// The visible height of the sheet measured from the bottom of the viewport.
   ///
   /// If the on-screen keyboard is visible, this value is the sum of
-  /// [pixels] and the keyboard's height. Otherwise, it is equal to [pixels].
-  double get viewPixels => pixels + viewportInsets.bottom;
+  /// [offset] and the keyboard's height. Otherwise, it is equal to [offset].
+  double get viewPixels => offset + viewportInsets.bottom;
 
   double? get maybeViewPixels => hasDimensions ? viewPixels : null;
 
@@ -698,7 +698,7 @@ mixin SheetMetrics {
   bool get isPixelsInBounds =>
       hasDimensions &&
       FloatComp.distance(devicePixelRatio)
-          .isInBounds(pixels, minPixels, maxPixels);
+          .isInBounds(offset, minPixels, maxPixels);
 
   /// Whether the sheet is outside the range of [minPixels] and [maxPixels].
   bool get isPixelsOutOfBounds => !isPixelsInBounds;
@@ -808,7 +808,7 @@ class SheetMetricsSnapshot with SheetMetrics {
   @override
   String toString() => (
         hasPixels: hasDimensions,
-        pixels: maybePixels,
+        offset: maybePixels,
         minPixels: maybeMinPixels,
         maxPixels: maybeMaxPixels,
         viewPixels: maybeViewPixels,

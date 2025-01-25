@@ -16,7 +16,7 @@ void main() {
   }) {
     final mock = MockSheetMetrics();
     when(mock.contentSize).thenReturn(contentSize);
-    when(mock.pixels).thenReturn(offset);
+    when(mock.offset).thenReturn(offset);
     return mock;
   }
 

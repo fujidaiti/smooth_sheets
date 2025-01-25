@@ -59,7 +59,7 @@ abstract class ScrollableSheetActivity
     if (cmp.isApprox(offset, 0)) return 0;
 
     final maxPixels = owner.maxPixels;
-    final oldPixels = owner.pixels;
+    final oldPixels = owner.offset;
     final oldScrollPixels = scrollPosition.pixels;
     final minScrollPixels = scrollPosition.minScrollExtent;
     final maxScrollPixels = scrollPosition.maxScrollExtent;
@@ -177,13 +177,13 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
     switch (delta.dy) {
       case < 0:
         final draggablePixels = scrollPosition.extentAfter +
-            max(0.0, metrics.maxPixels - metrics.pixels);
+            max(0.0, metrics.maxPixels - metrics.offset);
         assert(draggablePixels >= 0);
         return Offset(delta.dx, max(-1 * draggablePixels, delta.dy));
 
       case > 0:
         final draggablePixels = scrollPosition.extentBefore +
-            max(0.0, metrics.pixels - metrics.minPixels);
+            max(0.0, metrics.offset - metrics.minPixels);
         assert(draggablePixels >= 0);
         return Offset(delta.dx, min(draggablePixels, delta.dy));
 
@@ -197,9 +197,9 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
     scrollPosition.userScrollDirection = details.deltaY > 0.0
         ? ScrollDirection.forward
         : ScrollDirection.reverse;
-    final oldPixels = owner.pixels;
+    final oldPixels = owner.offset;
     final overflow = _applyScrollOffset(-1 * details.deltaY);
-    if (owner.pixels != oldPixels) {
+    if (owner.offset != oldPixels) {
       owner.didDragUpdateMetrics(details);
     }
     if (overflow > 0) {
@@ -265,7 +265,7 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
     final delta = controller.value - _oldPixels;
     _oldPixels = controller.value;
     final overflow = _applyScrollOffset(delta);
-    if (owner.pixels != _oldPixels) {
+    if (owner.offset != _oldPixels) {
       owner.didUpdateMetrics();
     }
     if (cmp.isNotApprox(overflow, 0)) {

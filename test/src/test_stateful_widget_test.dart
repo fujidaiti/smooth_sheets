@@ -8,12 +8,15 @@ void main() {
     testWidgets('should be rebuilt with new state', (tester) async {
       final key = GlobalKey<TestStatefulWidgetState<int>>();
       await tester.pumpWidget(
-        TestStatefulWidget(
-          key: key,
-          initialState: 0,
-          builder: (_, state) {
-            return Text('Count:$state');
-          },
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: TestStatefulWidget(
+            key: key,
+            initialState: 0,
+            builder: (_, state) {
+              return Text('Count:$state');
+            },
+          ),
         ),
       );
       expect(find.text('Count:0'), findsOneWidget);

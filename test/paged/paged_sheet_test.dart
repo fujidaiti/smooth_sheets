@@ -460,7 +460,7 @@ void main() {
         ),
       );
 
-      expect(controller.metrics.pixels, 200,
+      expect(controller.metrics.offset, 200,
           reason: 'The sheet should be at the initial position.');
       expect(
         controller.metrics.minPixels < controller.metrics.maxPixels,
@@ -484,7 +484,7 @@ void main() {
       expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
           reason: 'The keyboard should be fully shown.');
       expect(
-        controller.metrics.pixels,
+        controller.metrics.offset,
         controller.metrics.maxPixels,
         reason: 'After the keyboard is fully shown, '
             'the entire sheet should also be visible.',

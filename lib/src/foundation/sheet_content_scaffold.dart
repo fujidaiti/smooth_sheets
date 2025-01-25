@@ -256,7 +256,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
   void invalidateVisibility() {
     final size = _bottomBarSize;
     if (size != null && _position.hasDimensions) {
-      final baseTransition = (_position.pixels - _position.viewportSize.height)
+      final baseTransition = (_position.offset - _position.viewportSize.height)
           .clamp(size.height - _position.viewportSize.height, 0.0);
       final visibility = computeVisibility(_position, size);
       assert(0 <= visibility && visibility <= 1);
@@ -330,7 +330,7 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
   @override
   double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize) {
     final invisibleSheetHeight =
-        (sheetMetrics.contentSize.height - sheetMetrics.pixels)
+        (sheetMetrics.contentSize.height - sheetMetrics.offset)
             .clamp(0.0, sheetMetrics.contentSize.height);
 
     final visibleBarHeight =

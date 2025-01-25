@@ -27,7 +27,7 @@ final _positionAtBottomEdge =
     _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.minPixels);
 
 final _positionAtMiddle = _referenceSheetMetrics.copyWith(
-  pixels: (_positionAtTopEdge.pixels + _positionAtBottomEdge.pixels) / 2,
+  pixels: (_positionAtTopEdge.offset + _positionAtBottomEdge.offset) / 2,
 );
 
 void main() {

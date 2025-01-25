@@ -69,15 +69,15 @@ void main() {
 
       when(controller.value).thenReturn(0.0);
       activity.onAnimationTick();
-      expect(ownerMetrics.pixels, 300);
+      expect(ownerMetrics.offset, 300);
 
       when(controller.value).thenReturn(0.5);
       activity.onAnimationTick();
-      expect(ownerMetrics.pixels, 500);
+      expect(ownerMetrics.offset, 500);
 
       when(controller.value).thenReturn(1.0);
       activity.onAnimationTick();
-      expect(ownerMetrics.pixels, 700);
+      expect(ownerMetrics.offset, 700);
     });
 
     test('should absorb viewport changes', () {
@@ -101,13 +101,13 @@ void main() {
 
       when(controller.value).thenReturn(0.0);
       activity.onAnimationTick();
-      expect(ownerMetrics.pixels, 300);
+      expect(ownerMetrics.offset, 300);
 
       when(controller.value).thenReturn(0.25);
       when(controller.lastElapsedDuration)
           .thenReturn(const Duration(milliseconds: 75));
       activity.onAnimationTick();
-      expect(ownerMetrics.pixels, 450);
+      expect(ownerMetrics.offset, 450);
 
       // The following lines simulate a viewport change, in which:
       // 1. The viewport's bottom inset increases, simulating the
@@ -127,7 +127,7 @@ void main() {
         oldViewportSize: const Size(400, 900),
         oldViewportInsets: oldViewportInsets,
       );
-      expect(ownerMetrics.pixels, 400);
+      expect(ownerMetrics.offset, 400);
       expect(ownerMetrics.viewPixels, 450,
           reason: 'Visual position should not change when viewport changes.');
       verify(owner.settleTo(
@@ -218,19 +218,19 @@ void main() {
       verify(internalTicker.start());
 
       internalOnTickCallback!(const Duration(milliseconds: 200));
-      expect(ownerMetrics.pixels, 360); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.offset, 360); // 300 * 0.2 = 60 pixels in 200ms
 
       internalOnTickCallback!(const Duration(milliseconds: 400));
-      expect(ownerMetrics.pixels, 420); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.offset, 420); // 300 * 0.2 = 60 pixels in 200ms
 
       internalOnTickCallback!(const Duration(milliseconds: 500));
-      expect(ownerMetrics.pixels, 450); // 300 * 0.1 = 30 pixels in 100ms
+      expect(ownerMetrics.offset, 450); // 300 * 0.1 = 30 pixels in 100ms
 
       internalOnTickCallback!(const Duration(milliseconds: 800));
-      expect(ownerMetrics.pixels, 540); // 300 * 0.3 = 90 pixels in 300ms
+      expect(ownerMetrics.offset, 540); // 300 * 0.3 = 90 pixels in 300ms
 
       internalOnTickCallback!(const Duration(milliseconds: 1000));
-      expect(ownerMetrics.pixels, 600); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.offset, 600); // 300 * 0.2 = 60 pixels in 200ms
     });
 
     test(
@@ -256,7 +256,7 @@ void main() {
       expect(activity.velocity, 1000); // (300 pixels / 0.3s) = 1000 pixels/s
 
       internalOnTickCallback!(const Duration(milliseconds: 50));
-      expect(ownerMetrics.pixels, 350); // 1000 * 0.05 = 50 pixels in 50ms
+      expect(ownerMetrics.offset, 350); // 1000 * 0.05 = 50 pixels in 50ms
 
       final oldViewportInsets = ownerMetrics.viewportInsets;
       final oldContentSize = ownerMetrics.contentSize;
@@ -267,13 +267,13 @@ void main() {
         oldViewportSize: const Size(400, 900),
         oldViewportInsets: oldViewportInsets,
       );
-      expect(ownerMetrics.pixels, 320,
+      expect(ownerMetrics.offset, 320,
           reason: 'Visual position should not change when viewport changes.');
       expect(activity.velocity, 1120, // 280 pixels / 0.25s = 1120 pixels/s
           reason: 'Velocity should be updated when viewport changes.');
 
       internalOnTickCallback!(const Duration(milliseconds: 100));
-      expect(ownerMetrics.pixels, 376); // 1120 * 0.05 = 56 pixels in 50ms
+      expect(ownerMetrics.offset, 376); // 1120 * 0.05 = 56 pixels in 50ms
     });
   });
 
@@ -297,7 +297,7 @@ void main() {
         oldViewportSize: const Size(400, 900),
         oldViewportInsets: EdgeInsets.zero,
       );
-      expect(ownerMetrics.pixels, 425);
+      expect(ownerMetrics.offset, 425);
     });
 
     test(
@@ -322,7 +322,7 @@ void main() {
           oldViewportSize: const Size(400, 900),
           oldViewportInsets: EdgeInsets.zero,
         );
-        expect(ownerMetrics.pixels, 290);
+        expect(ownerMetrics.offset, 290);
         // Still in the idle activity.
         verifyNever(owner.beginActivity(any));
       },
@@ -350,7 +350,7 @@ void main() {
           oldViewportSize: const Size(400, 900),
           oldViewportInsets: EdgeInsets.zero,
         );
-        expect(ownerMetrics.pixels, 300);
+        expect(ownerMetrics.offset, 300);
         verify(
           owner.animateTo(
             const SheetAnchor.proportional(0.5),

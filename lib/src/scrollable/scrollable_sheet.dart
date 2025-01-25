@@ -83,7 +83,7 @@ class _SheetState extends State<Sheet>
   @override
   Widget build(BuildContext context) {
     final theme = SheetTheme.maybeOf(context);
-    var physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
+    final physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
     final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
