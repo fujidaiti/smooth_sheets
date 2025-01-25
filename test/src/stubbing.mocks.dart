@@ -290,7 +290,7 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
       ) as double);
 
   @override
-  double get maxPixels => (super.noSuchMethod(
+  double get maxOffset => (super.noSuchMethod(
         Invocation.getter(#maxPixels),
         returnValue: 0.0,
         returnValueForMissingStub: 0.0,
@@ -664,7 +664,7 @@ class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
       ) as double);
 
   @override
-  double get maxPixels => (super.noSuchMethod(
+  double get maxOffset => (super.noSuchMethod(
         Invocation.getter(#maxPixels),
         returnValue: 0.0,
         returnValueForMissingStub: 0.0,

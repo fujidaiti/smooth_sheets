@@ -418,7 +418,7 @@ class DragSheetActivity extends SheetActivity
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
     switch (delta.dy) {
       case > 0:
-        final draggableDistance = max(0.0, owner.maxPixels - owner.offset);
+        final draggableDistance = max(0.0, owner.maxOffset - owner.offset);
         return Offset(delta.dx, min(draggableDistance, delta.dy));
 
       case < 0:

@@ -21,7 +21,7 @@ const _referenceSheetMetrics = SheetMetricsSnapshot(
 );
 
 final _positionAtTopEdge =
-    _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.maxPixels);
+    _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.maxOffset);
 
 final _positionAtBottomEdge =
     _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.minOffset);
@@ -67,7 +67,7 @@ void main() {
 
     test('does not apply any resistance if position is in bounds', () {
       final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
-          pixels: _referenceSheetMetrics.maxPixels - 10);
+          pixels: _referenceSheetMetrics.maxOffset - 10);
       final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
           pixels: _referenceSheetMetrics.minOffset + 10);
 
@@ -125,7 +125,7 @@ void main() {
 
     test('creates ballistic simulation which ends at the nearest edge', () {
       final overDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxPixels + 10,
+        pixels: _referenceSheetMetrics.maxOffset + 10,
       );
       final underDragPosition = _referenceSheetMetrics.copyWith(
         pixels: _referenceSheetMetrics.minOffset - 10,
@@ -144,7 +144,7 @@ void main() {
       expect(overDragSimulation, isNotNull);
       expect(
         overDragSimulation!.x(5), // 5s passed
-        moreOrLessEquals(_referenceSheetMetrics.maxPixels),
+        moreOrLessEquals(_referenceSheetMetrics.maxOffset),
       );
       expect(
         overDragSimulation.dx(5), // 5s passed
@@ -193,10 +193,10 @@ void main() {
       );
 
       final overDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxPixels + 10,
+        pixels: _referenceSheetMetrics.maxOffset + 10,
       );
       final moreOverDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxPixels + 20,
+        pixels: _referenceSheetMetrics.maxOffset + 20,
       );
 
       expect(physics.applyPhysicsToOffset(10, overDraggedPosition), 6);
@@ -210,7 +210,7 @@ void main() {
       );
 
       final overDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.maxPixels + 20,
+        pixels: _referenceSheetMetrics.maxOffset + 20,
       );
       final underDraggedPosition = _referenceSheetMetrics.copyWith(
         pixels: _referenceSheetMetrics.minOffset - 20,

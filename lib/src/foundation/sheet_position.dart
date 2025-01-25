@@ -122,7 +122,7 @@ abstract interface class SheetModelView implements ValueListenable<double?> {
 /// The [SheetPosition.offset] value determines the visible height of a sheet.
 /// As this value changes, the sheet translates its position, which changes the
 /// visible area of the content. The [SheetPosition.minOffset] and
-/// [SheetPosition.maxPixels] values limit the range of the *pixels*, but it can
+/// [SheetPosition.maxOffset] values limit the range of the *pixels*, but it can
 /// be outside of the range if the [SheetPosition.physics] allows it.
 ///
 /// The current [activity] is responsible for how the *pixels* changes
@@ -626,7 +626,7 @@ mixin SheetMetrics {
   }
 
   /// The maximum position of the sheet in pixels.
-  double get maxPixels {
+  double get maxOffset {
     assert(_debugAssertHasProperty('maxPixels', maybeMaxPixels));
     return maybeMaxPixels!;
   }
@@ -676,7 +676,7 @@ mixin SheetMetrics {
 
   /// The maximum visible height of the sheet measured from the bottom
   /// of the viewport.
-  double get maxViewPixels => maxPixels + viewportInsets.bottom;
+  double get maxViewPixels => maxOffset + viewportInsets.bottom;
 
   double? get maybeMaxViewPixels => hasDimensions ? maxViewPixels : null;
 
@@ -693,14 +693,14 @@ mixin SheetMetrics {
       maybeViewportSize != null &&
       maybeViewportInsets != null;
 
-  /// Whether the sheet is within the range of [minOffset] and [maxPixels]
+  /// Whether the sheet is within the range of [minOffset] and [maxOffset]
   /// (inclusive of both bounds).
   bool get isPixelsInBounds =>
       hasDimensions &&
       FloatComp.distance(devicePixelRatio)
-          .isInBounds(offset, minOffset, maxPixels);
+          .isInBounds(offset, minOffset, maxOffset);
 
-  /// Whether the sheet is outside the range of [minOffset] and [maxPixels].
+  /// Whether the sheet is outside the range of [minOffset] and [maxOffset].
   bool get isPixelsOutOfBounds => !isPixelsInBounds;
 
   bool _debugAssertHasProperty(String name, Object? value) {
@@ -810,7 +810,7 @@ class SheetMetricsSnapshot with SheetMetrics {
         hasPixels: hasDimensions,
         offset: maybePixels,
         minOffset: maybeMinPixels,
-        maxPixels: maybeMaxPixels,
+        maxOffset: maybeMaxPixels,
         viewPixels: maybeViewPixels,
         minViewPixels: maybeMinViewPixels,
         maxViewPixels: maybeMaxViewPixels,

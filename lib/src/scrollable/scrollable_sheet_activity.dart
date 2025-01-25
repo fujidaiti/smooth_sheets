@@ -58,7 +58,7 @@ abstract class ScrollableSheetActivity
     final cmp = FloatComp.distance(owner.context.devicePixelRatio);
     if (cmp.isApprox(offset, 0)) return 0;
 
-    final maxPixels = owner.maxPixels;
+    final maxPixels = owner.maxOffset;
     final oldPixels = owner.offset;
     final oldScrollPixels = scrollPosition.pixels;
     final minScrollPixels = scrollPosition.minScrollExtent;
@@ -177,7 +177,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
     switch (delta.dy) {
       case < 0:
         final draggablePixels = scrollPosition.extentAfter +
-            max(0.0, metrics.maxPixels - metrics.offset);
+            max(0.0, metrics.maxOffset - metrics.offset);
         assert(draggablePixels >= 0);
         return Offset(delta.dx, max(-1 * draggablePixels, delta.dy));
 

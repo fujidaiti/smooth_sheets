@@ -463,7 +463,7 @@ void main() {
       expect(controller.metrics.offset, 200,
           reason: 'The sheet should be at the initial position.');
       expect(
-        controller.metrics.minOffset < controller.metrics.maxPixels,
+        controller.metrics.minOffset < controller.metrics.maxOffset,
         isTrue,
         reason: 'The sheet should be draggable.',
       );
@@ -485,7 +485,7 @@ void main() {
           reason: 'The keyboard should be fully shown.');
       expect(
         controller.metrics.offset,
-        controller.metrics.maxPixels,
+        controller.metrics.maxOffset,
         reason: 'After the keyboard is fully shown, '
             'the entire sheet should also be visible.',
       );

@@ -61,8 +61,8 @@ mixin SheetPhysicsMixin on SheetPhysics {
   @override
   double computeOverflow(double delta, SheetMetrics metrics) {
     final newPixels = metrics.offset + delta;
-    if (newPixels > metrics.maxPixels) {
-      return min(newPixels - metrics.maxPixels, delta);
+    if (newPixels > metrics.maxOffset) {
+      return min(newPixels - metrics.maxOffset, delta);
     } else if (newPixels < metrics.minOffset) {
       return max(newPixels - metrics.minOffset, delta);
     } else {
@@ -73,9 +73,9 @@ mixin SheetPhysicsMixin on SheetPhysics {
   @override
   double applyPhysicsToOffset(double delta, SheetMetrics metrics) {
     // TODO: Use computeOverflow() to calculate the overflowed pixels.
-    if (delta > 0 && metrics.offset < metrics.maxPixels) {
+    if (delta > 0 && metrics.offset < metrics.maxOffset) {
       // Prevent the pixels from going beyond the maximum value.
-      return min(metrics.maxPixels, metrics.offset + delta) - metrics.offset;
+      return min(metrics.maxOffset, metrics.offset + delta) - metrics.offset;
     } else if (delta < 0 && metrics.offset > metrics.minOffset) {
       // Prevent the pixels from going beyond the minimum value.
       return max(metrics.minOffset, metrics.offset + delta) - metrics.offset;
@@ -138,7 +138,7 @@ abstract class BouncingBehavior {
   /// the content bounds.
   ///
   /// [BouncingSheetPhysics.applyPhysicsToOffset] calls this method to calculate
-  /// the amount of friction that should be applied to the given drag [offset].
+  /// the amount of friction that should be applied to the given drag [delta].
   ///
   /// The returned value must be non-negative. Since this method may be called
   /// every frame, and even multiple times per frame, it is not recommended to
@@ -150,7 +150,7 @@ abstract class BouncingBehavior {
 /// bounds by a fixed amount.
 ///
 /// The following is an example of a [BouncingSheetPhysics] that allows the
-/// sheet position to go beyond the [SheetMetrics.maxPixels] or
+/// sheet position to go beyond the [SheetMetrics.maxOffset] or
 /// [SheetMetrics.minOffset] by 12% of the content size.
 ///
 /// ```dart
@@ -246,7 +246,7 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
     final currentPixels = metrics.offset;
     final minPixels = metrics.minOffset;
-    final maxPixels = metrics.maxPixels;
+    final maxPixels = metrics.maxOffset;
 
     // A part of or the entire offset that is not affected by friction.
     // If the current 'pixels' plus the offset exceeds the content bounds,
