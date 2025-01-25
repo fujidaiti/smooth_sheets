@@ -43,7 +43,7 @@ sealed class SheetNotification extends Notification {
     super.debugFillDescription(description);
     description
       ..add('pixels: ${metrics.offset}')
-      ..add('minPosition: ${metrics.minPixels}')
+      ..add('minPosition: ${metrics.minOffset}')
       ..add('maxPosition: ${metrics.maxPixels}')
       ..add('viewportSize: ${metrics.viewportSize}')
       ..add('viewportInsets: ${metrics.viewportInsets}')

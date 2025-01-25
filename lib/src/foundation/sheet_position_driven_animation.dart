@@ -48,7 +48,7 @@ class SheetPositionDrivenAnimation extends Animation<double> {
     }
 
     final startPixels =
-        startPosition?.resolve(metrics.contentSize) ?? metrics.minPixels;
+        startPosition?.resolve(metrics.contentSize) ?? metrics.minOffset;
     final endPixels =
         endPosition?.resolve(metrics.contentSize) ?? metrics.maxPixels;
     final distance = endPixels - startPixels;

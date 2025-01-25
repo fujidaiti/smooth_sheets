@@ -84,7 +84,7 @@ class _MapButton extends StatelessWidget {
       if (metrics.hasDimensions) {
         // Collapse the sheet to reveal the map behind.
         sheetController.animateTo(
-          SheetAnchor.pixels(metrics.minPixels),
+          SheetAnchor.pixels(metrics.minOffset),
           curve: Curves.fastOutSlowIn,
         );
       }

@@ -121,7 +121,7 @@ abstract interface class SheetModelView implements ValueListenable<double?> {
 /// This object is much like [ScrollPosition] for scrollable widgets.
 /// The [SheetPosition.offset] value determines the visible height of a sheet.
 /// As this value changes, the sheet translates its position, which changes the
-/// visible area of the content. The [SheetPosition.minPixels] and
+/// visible area of the content. The [SheetPosition.minOffset] and
 /// [SheetPosition.maxPixels] values limit the range of the *pixels*, but it can
 /// be outside of the range if the [SheetPosition.physics] allows it.
 ///
@@ -620,7 +620,7 @@ mixin SheetMetrics {
   }
 
   /// The minimum position of the sheet in pixels.
-  double get minPixels {
+  double get minOffset {
     assert(_debugAssertHasProperty('minPixels', maybeMinPixels));
     return maybeMinPixels!;
   }
@@ -670,7 +670,7 @@ mixin SheetMetrics {
 
   /// The minimum visible height of the sheet measured from the bottom
   /// of the viewport.
-  double get minViewPixels => minPixels + viewportInsets.bottom;
+  double get minViewPixels => minOffset + viewportInsets.bottom;
 
   double? get maybeMinViewPixels => hasDimensions ? minViewPixels : null;
 
@@ -693,14 +693,14 @@ mixin SheetMetrics {
       maybeViewportSize != null &&
       maybeViewportInsets != null;
 
-  /// Whether the sheet is within the range of [minPixels] and [maxPixels]
+  /// Whether the sheet is within the range of [minOffset] and [maxPixels]
   /// (inclusive of both bounds).
   bool get isPixelsInBounds =>
       hasDimensions &&
       FloatComp.distance(devicePixelRatio)
-          .isInBounds(offset, minPixels, maxPixels);
+          .isInBounds(offset, minOffset, maxPixels);
 
-  /// Whether the sheet is outside the range of [minPixels] and [maxPixels].
+  /// Whether the sheet is outside the range of [minOffset] and [maxPixels].
   bool get isPixelsOutOfBounds => !isPixelsInBounds;
 
   bool _debugAssertHasProperty(String name, Object? value) {
@@ -809,7 +809,7 @@ class SheetMetricsSnapshot with SheetMetrics {
   String toString() => (
         hasPixels: hasDimensions,
         offset: maybePixels,
-        minPixels: maybeMinPixels,
+        minOffset: maybeMinPixels,
         maxPixels: maybeMaxPixels,
         viewPixels: maybeViewPixels,
         minViewPixels: maybeMinViewPixels,

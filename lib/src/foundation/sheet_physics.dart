@@ -63,8 +63,8 @@ mixin SheetPhysicsMixin on SheetPhysics {
     final newPixels = metrics.offset + delta;
     if (newPixels > metrics.maxPixels) {
       return min(newPixels - metrics.maxPixels, delta);
-    } else if (newPixels < metrics.minPixels) {
-      return max(newPixels - metrics.minPixels, delta);
+    } else if (newPixels < metrics.minOffset) {
+      return max(newPixels - metrics.minOffset, delta);
     } else {
       return 0;
     }
@@ -76,9 +76,9 @@ mixin SheetPhysicsMixin on SheetPhysics {
     if (delta > 0 && metrics.offset < metrics.maxPixels) {
       // Prevent the pixels from going beyond the maximum value.
       return min(metrics.maxPixels, metrics.offset + delta) - metrics.offset;
-    } else if (delta < 0 && metrics.offset > metrics.minPixels) {
+    } else if (delta < 0 && metrics.offset > metrics.minOffset) {
       // Prevent the pixels from going beyond the minimum value.
-      return max(metrics.minPixels, metrics.offset + delta) - metrics.offset;
+      return max(metrics.minOffset, metrics.offset + delta) - metrics.offset;
     } else {
       return 0;
     }
@@ -151,7 +151,7 @@ abstract class BouncingBehavior {
 ///
 /// The following is an example of a [BouncingSheetPhysics] that allows the
 /// sheet position to go beyond the [SheetMetrics.maxPixels] or
-/// [SheetMetrics.minPixels] by 12% of the content size.
+/// [SheetMetrics.minOffset] by 12% of the content size.
 ///
 /// ```dart
 /// const physics = BouncingSheetPhysics(
@@ -245,7 +245,7 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
     }
 
     final currentPixels = metrics.offset;
-    final minPixels = metrics.minPixels;
+    final minPixels = metrics.minOffset;
     final maxPixels = metrics.maxPixels;
 
     // A part of or the entire offset that is not affected by friction.

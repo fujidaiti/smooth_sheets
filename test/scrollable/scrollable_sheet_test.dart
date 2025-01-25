@@ -122,7 +122,7 @@ void main() {
 
     expect(controller.metrics.offset, 200,
         reason: 'The sheet should be at the initial position.');
-    expect(controller.metrics.minPixels < controller.metrics.maxPixels, isTrue,
+    expect(controller.metrics.minOffset < controller.metrics.maxPixels, isTrue,
         reason: 'The sheet should be draggable.');
 
     // Start animating the sheet to the max position.

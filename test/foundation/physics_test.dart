@@ -24,7 +24,7 @@ final _positionAtTopEdge =
     _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.maxPixels);
 
 final _positionAtBottomEdge =
-    _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.minPixels);
+    _referenceSheetMetrics.copyWith(pixels: _referenceSheetMetrics.minOffset);
 
 final _positionAtMiddle = _referenceSheetMetrics.copyWith(
   pixels: (_positionAtTopEdge.offset + _positionAtBottomEdge.offset) / 2,
@@ -69,7 +69,7 @@ void main() {
       final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
           pixels: _referenceSheetMetrics.maxPixels - 10);
       final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
-          pixels: _referenceSheetMetrics.minPixels + 10);
+          pixels: _referenceSheetMetrics.minOffset + 10);
 
       expect(
         physicsUnderTest.applyPhysicsToOffset(10, _positionAtMiddle),
@@ -128,7 +128,7 @@ void main() {
         pixels: _referenceSheetMetrics.maxPixels + 10,
       );
       final underDragPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.minPixels - 10,
+        pixels: _referenceSheetMetrics.minOffset - 10,
       );
       final overDragSimulation = physicsUnderTest.createBallisticSimulation(
         0,
@@ -154,7 +154,7 @@ void main() {
       expect(underDraggedSimulation, isNotNull);
       expect(
         underDraggedSimulation!.x(5), // 5s passed
-        moreOrLessEquals(_referenceSheetMetrics.minPixels),
+        moreOrLessEquals(_referenceSheetMetrics.minOffset),
       );
       expect(
         underDraggedSimulation.dx(5), // 5s passed
@@ -213,7 +213,7 @@ void main() {
         pixels: _referenceSheetMetrics.maxPixels + 20,
       );
       final underDraggedPosition = _referenceSheetMetrics.copyWith(
-        pixels: _referenceSheetMetrics.minPixels - 20,
+        pixels: _referenceSheetMetrics.minOffset - 20,
       );
 
       expect(

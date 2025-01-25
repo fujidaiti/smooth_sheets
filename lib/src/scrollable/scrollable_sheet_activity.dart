@@ -183,7 +183,7 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
 
       case > 0:
         final draggablePixels = scrollPosition.extentBefore +
-            max(0.0, metrics.offset - metrics.minPixels);
+            max(0.0, metrics.offset - metrics.minOffset);
         assert(draggablePixels >= 0);
         return Offset(delta.dx, min(draggablePixels, delta.dy));
 

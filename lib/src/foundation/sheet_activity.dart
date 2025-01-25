@@ -422,7 +422,7 @@ class DragSheetActivity extends SheetActivity
         return Offset(delta.dx, min(draggableDistance, delta.dy));
 
       case < 0:
-        final draggableDistance = max(0.0, owner.offset - owner.minPixels);
+        final draggableDistance = max(0.0, owner.offset - owner.minOffset);
         return Offset(delta.dx, max(-1 * draggableDistance, delta.dy));
 
       case _:
