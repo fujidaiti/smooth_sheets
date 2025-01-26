@@ -116,7 +116,7 @@ abstract interface class SheetModelView implements ValueListenable<double?> {
   bool get shouldIgnorePointer;
 }
 
-// Manages the position of a sheet.
+/// Manages the position of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
 /// The [SheetPosition.offset] value determines the visible height of a sheet.
@@ -164,8 +164,6 @@ abstract class SheetPosition extends ChangeNotifier
     goIdle();
   }
 
-  bool get hasGeometry => _geometry != null;
-
   SheetGeometry get geometry => _geometry!;
   SheetGeometry? _geometry;
 
@@ -181,31 +179,47 @@ abstract class SheetPosition extends ChangeNotifier
   SheetMeasurements? _measurements;
 
   set measurements(SheetMeasurements value) {
-    if (_measurements != value) {
-      final oldMeasurements = _measurements;
-      _measurements = value;
-      if (oldMeasurements != null) {
-        activity.didChangeDimensions(
-          oldContentSize: oldMeasurements.contentSize,
-          oldViewportSize: oldMeasurements.viewportSize,
-          oldViewportInsets: oldMeasurements.viewportInsets,
-        );
-      }
+    if (_measurements == value) {
+      return;
+    }
 
-      final (minOffset, maxOffset) = snapGrid.getBoundaries(
-        copyWith(
-          contentSize: value.contentSize,
-          viewportSize: value.viewportSize,
-          viewportInsets: value.viewportInsets,
-        ),
-      );
+    final (minOffset, maxOffset) = snapGrid.getBoundaries(
+      copyWith(
+        contentSize: value.contentSize,
+        viewportSize: value.viewportSize,
+        viewportInsets: value.viewportInsets,
+      ),
+    );
 
+    _boundaries = (
+      minOffset.resolve(value.contentSize),
+      maxOffset.resolve(value.contentSize),
+    );
+
+    final oldMeasurements = _measurements;
+    _measurements = value;
+    if (oldMeasurements != null) {
+      didChangeMeasurements(oldMeasurements);
+    } else {
+      assert(_geometry == null);
       geometry = SheetGeometry(
-        offset: _geometry?.offset ?? initialPosition.resolve(value.contentSize),
-        minOffset: minOffset.resolve(value.contentSize),
-        maxOffset: maxOffset.resolve(value.contentSize),
+        offset: initialPosition.resolve(value.contentSize),
       );
     }
+  }
+
+  (double, double)? _boundaries;
+
+  @override
+  double get maxOffset {
+    final (value, _) = _boundaries!;
+    return value;
+  }
+
+  @override
+  double get minOffset {
+    final (_, value) = _boundaries!;
+    return value;
   }
 
   @override
@@ -213,12 +227,6 @@ abstract class SheetPosition extends ChangeNotifier
 
   @override
   double get offset => geometry.offset;
-
-  @override
-  double get maxOffset => geometry.maxOffset;
-
-  @override
-  double get minOffset => geometry.minOffset;
 
   @override
   Size get contentSize => measurements.contentSize;
@@ -233,6 +241,9 @@ abstract class SheetPosition extends ChangeNotifier
   double get devicePixelRatio => context.devicePixelRatio;
 
   SheetStatus get status => activity.status;
+
+  bool get hasMetrics =>
+      _geometry != null && _measurements != null && _boundaries != null;
 
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
@@ -257,10 +268,12 @@ abstract class SheetPosition extends ChangeNotifier
   set snapGrid(SnapGrid snapGrid) {
     _snapGrid = snapGrid;
     final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
-    geometry = geometry.copyWith(
-      minOffset: minOffset.resolve(contentSize),
-      maxOffset: maxOffset.resolve(contentSize),
-    );
+    if (_measurements case final it?) {
+      _boundaries = (
+        minOffset.resolve(it.contentSize),
+        maxOffset.resolve(it.contentSize),
+      );
+    }
   }
 
   /// {@template SheetPosition.gestureTamperer}
@@ -335,6 +348,9 @@ abstract class SheetPosition extends ChangeNotifier
   void updatePhysics(SheetPhysics physics) {
     _physics = physics;
   }
+
+  @protected
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {}
 
   @mustCallSuper
   void beginActivity(SheetActivity activity) {
@@ -647,39 +663,27 @@ class SheetMetricsSnapshot with SheetMetrics {
 class SheetGeometry {
   const SheetGeometry({
     required this.offset,
-    required this.minOffset,
-    required this.maxOffset,
   });
 
   final double offset;
-  final double minOffset;
-  final double maxOffset;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is SheetGeometry &&
-        other.offset == offset &&
-        other.minOffset == minOffset &&
-        other.maxOffset == maxOffset;
+    return other is SheetGeometry && other.offset == offset;
   }
 
   @override
   int get hashCode => Object.hash(
+        runtimeType,
         offset,
-        minOffset,
-        maxOffset,
       );
 
   SheetGeometry copyWith({
     double? offset,
-    double? minOffset,
-    double? maxOffset,
   }) {
     return SheetGeometry(
       offset: offset ?? this.offset,
-      minOffset: minOffset ?? this.minOffset,
-      maxOffset: maxOffset ?? this.maxOffset,
     );
   }
 }

@@ -31,7 +31,7 @@ class SheetController extends ChangeNotifier
   /// Returns the result of [SheetPosition.snapshot]
   /// on the attached [SheetPosition].
   SheetMetrics? get metrics => switch (_client) {
-        final it? when it.hasGeometry => it.snapshot,
+        final it? when it.hasMetrics => it.snapshot,
         _ => null,
       };
 

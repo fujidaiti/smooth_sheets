@@ -210,15 +210,6 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
   );
 
   @override
-  bool get hasGeometry =>
-      (super.noSuchMethod(
-            Invocation.getter(#hasGeometry),
-            returnValue: false,
-            returnValueForMissingStub: false,
-          )
-          as bool);
-
-  @override
   _i2.SheetGeometry get geometry =>
       (super.noSuchMethod(
             Invocation.getter(#geometry),
@@ -261,15 +252,6 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
   );
 
   @override
-  double get offset =>
-      (super.noSuchMethod(
-            Invocation.getter(#offset),
-            returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
-          )
-          as double);
-
-  @override
   double get maxOffset =>
       (super.noSuchMethod(
             Invocation.getter(#maxOffset),
@@ -282,6 +264,15 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
   double get minOffset =>
       (super.noSuchMethod(
             Invocation.getter(#minOffset),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  double get offset =>
+      (super.noSuchMethod(
+            Invocation.getter(#offset),
             returnValue: 0.0,
             returnValueForMissingStub: 0.0,
           )
@@ -343,6 +334,15 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
             returnValueForMissingStub: _i14.SheetStatus.stable,
           )
           as _i14.SheetStatus);
+
+  @override
+  bool get hasMetrics =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasMetrics),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
 
   @override
   bool get shouldIgnorePointer =>
@@ -467,6 +467,13 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
     Invocation.method(#updatePhysics, [physics]),
     returnValueForMissingStub: null,
   );
+
+  @override
+  void didChangeMeasurements(_i2.SheetMeasurements? oldMeasurements) =>
+      super.noSuchMethod(
+        Invocation.method(#didChangeMeasurements, [oldMeasurements]),
+        returnValueForMissingStub: null,
+      );
 
   @override
   void beginActivity(_i8.SheetActivity<_i2.SheetPosition>? activity) =>

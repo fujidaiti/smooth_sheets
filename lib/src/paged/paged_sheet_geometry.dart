@@ -92,7 +92,7 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
 
   @override
   set measurements(SheetMeasurements value) {
-    final needInitialisation = !hasGeometry;
+    final needInitialisation = !hasMetrics;
     super.measurements = value;
     if (needInitialisation) {
       setPixels(
