@@ -155,7 +155,7 @@ class AnimatedSheetActivity extends SheetActivity
     final progress = curve.transform(controller.value);
     owner
       ..setPixels(lerpDouble(_startPixels, _endPixels, progress)!)
-      ..didUpdateMetrics();
+      ..didUpdateGeometry();
   }
 
   @override
@@ -201,7 +201,7 @@ class BallisticSheetActivity extends SheetActivity
     if (mounted) {
       owner
         ..setPixels(controller.value)
-        ..didUpdateMetrics();
+        ..didUpdateGeometry();
     }
   }
 
@@ -319,7 +319,7 @@ class SettlingSheetActivity extends SheetActivity {
         : max(destination, pixels - velocity * elapsedFrameTime);
     owner
       ..setPixels(newPixels)
-      ..didUpdateMetrics();
+      ..didUpdateGeometry();
 
     _elapsedDuration = elapsedDuration;
 
@@ -456,7 +456,7 @@ mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
       // likely due to animation.
       owner
         ..setPixels(newPixels)
-        ..didUpdateMetrics();
+        ..didUpdateGeometry();
       return;
     }
 
@@ -477,7 +477,7 @@ mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
       // so we immediately snap to it without animation.
       owner
         ..setPixels(newPixels)
-        ..didUpdateMetrics();
+        ..didUpdateGeometry();
     }
   }
 }
@@ -548,6 +548,6 @@ void absorbBottomViewportInset(
   if (newPixels != activityOwner.offset) {
     activityOwner
       ..setPixels(newPixels)
-      ..didUpdateMetrics();
+      ..didUpdateGeometry();
   }
 }

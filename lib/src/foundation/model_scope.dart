@@ -142,10 +142,10 @@ abstract class SheetPositionScopeState<E extends SheetModel,
       _rewireControllerAndPosition();
     }
     if (_position.physics != widget.physics) {
-      _position.updatePhysics(widget.physics);
+      _position.physics = widget.physics;
     }
     if (_position.gestureProxy != widget.gestureProxy) {
-      _position.updateGestureProxy(widget.gestureProxy);
+      _position.gestureProxy = widget.gestureProxy;
     }
   }
 

@@ -46,19 +46,19 @@ class _FakeSheetContext_1 extends _i1.SmartFake implements _i3.SheetContext {
       : super(parent, parentInvocation);
 }
 
-class _FakeSheetGeometry_2 extends _i1.SmartFake implements _i2.SheetGeometry {
-  _FakeSheetGeometry_2(Object parent, Invocation parentInvocation)
+class _FakeSheetPhysics_2 extends _i1.SmartFake implements _i4.SheetPhysics {
+  _FakeSheetPhysics_2(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeSheetMeasurements_3 extends _i1.SmartFake
+class _FakeSheetGeometry_3 extends _i1.SmartFake implements _i2.SheetGeometry {
+  _FakeSheetGeometry_3(Object parent, Invocation parentInvocation)
+      : super(parent, parentInvocation);
+}
+
+class _FakeSheetMeasurements_4 extends _i1.SmartFake
     implements _i2.SheetMeasurements {
-  _FakeSheetMeasurements_3(Object parent, Invocation parentInvocation)
-      : super(parent, parentInvocation);
-}
-
-class _FakeSheetPhysics_4 extends _i1.SmartFake implements _i4.SheetPhysics {
-  _FakeSheetPhysics_4(Object parent, Invocation parentInvocation)
+  _FakeSheetMeasurements_4(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
@@ -189,6 +189,22 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       ) as _i3.SheetContext);
 
   @override
+  _i4.SheetPhysics get physics => (super.noSuchMethod(
+        Invocation.getter(#physics),
+        returnValue: _FakeSheetPhysics_2(this, Invocation.getter(#physics)),
+        returnValueForMissingStub: _FakeSheetPhysics_2(
+          this,
+          Invocation.getter(#physics),
+        ),
+      ) as _i4.SheetPhysics);
+
+  @override
+  set physics(_i4.SheetPhysics? _physics) => super.noSuchMethod(
+        Invocation.setter(#physics, _physics),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   set currentDrag(_i12.SheetDragController? _currentDrag) => super.noSuchMethod(
         Invocation.setter(#currentDrag, _currentDrag),
         returnValueForMissingStub: null,
@@ -197,11 +213,11 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
   @override
   _i2.SheetGeometry get geometry => (super.noSuchMethod(
         Invocation.getter(#geometry),
-        returnValue: _FakeSheetGeometry_2(
+        returnValue: _FakeSheetGeometry_3(
           this,
           Invocation.getter(#geometry),
         ),
-        returnValueForMissingStub: _FakeSheetGeometry_2(
+        returnValueForMissingStub: _FakeSheetGeometry_3(
           this,
           Invocation.getter(#geometry),
         ),
@@ -216,11 +232,11 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
   @override
   _i2.SheetMeasurements get measurements => (super.noSuchMethod(
         Invocation.getter(#measurements),
-        returnValue: _FakeSheetMeasurements_3(
+        returnValue: _FakeSheetMeasurements_4(
           this,
           Invocation.getter(#measurements),
         ),
-        returnValueForMissingStub: _FakeSheetMeasurements_3(
+        returnValueForMissingStub: _FakeSheetMeasurements_4(
           this,
           Invocation.getter(#measurements),
         ),
@@ -275,16 +291,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       ) as bool);
 
   @override
-  _i4.SheetPhysics get physics => (super.noSuchMethod(
-        Invocation.getter(#physics),
-        returnValue: _FakeSheetPhysics_4(this, Invocation.getter(#physics)),
-        returnValueForMissingStub: _FakeSheetPhysics_4(
-          this,
-          Invocation.getter(#physics),
-        ),
-      ) as _i4.SheetPhysics);
-
-  @override
   _i5.SheetSnapGrid get snapGrid => (super.noSuchMethod(
         Invocation.getter(#snapGrid),
         returnValue: _FakeSheetSnapGrid_5(
@@ -300,6 +306,13 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
   @override
   set snapGrid(_i5.SheetSnapGrid? snapGrid) => super.noSuchMethod(
         Invocation.setter(#snapGrid, snapGrid),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set gestureProxy(_i13.SheetGestureProxyMixin? gestureProxy) =>
+      super.noSuchMethod(
+        Invocation.setter(#gestureProxy, gestureProxy),
         returnValueForMissingStub: null,
       );
 
@@ -346,19 +359,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
   @override
   void takeOver(_i2.SheetModel? other) => super.noSuchMethod(
         Invocation.method(#takeOver, [other]),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void updateGestureProxy(_i13.SheetGestureProxyMixin? gestureProxy) =>
-      super.noSuchMethod(
-        Invocation.method(#updateGestureProxy, [gestureProxy]),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void updatePhysics(_i4.SheetPhysics? physics) => super.noSuchMethod(
-        Invocation.method(#updatePhysics, [physics]),
         returnValueForMissingStub: null,
       );
 
@@ -485,7 +485,7 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       ) as _i2.SheetMetrics);
 
   @override
-  void didUpdateMetrics() => super.noSuchMethod(
+  void didUpdateGeometry() => super.noSuchMethod(
         Invocation.method(#didUpdateMetrics, []),
         returnValueForMissingStub: null,
       );
@@ -597,11 +597,11 @@ class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
   @override
   _i2.SheetMeasurements get measurements => (super.noSuchMethod(
         Invocation.getter(#measurements),
-        returnValue: _FakeSheetMeasurements_3(
+        returnValue: _FakeSheetMeasurements_4(
           this,
           Invocation.getter(#measurements),
         ),
-        returnValueForMissingStub: _FakeSheetMeasurements_3(
+        returnValueForMissingStub: _FakeSheetMeasurements_4(
           this,
           Invocation.getter(#measurements),
         ),
@@ -1309,8 +1309,8 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   @override
   _i4.SheetPhysics get physics => (super.noSuchMethod(
         Invocation.getter(#physics),
-        returnValue: _FakeSheetPhysics_4(this, Invocation.getter(#physics)),
-        returnValueForMissingStub: _FakeSheetPhysics_4(
+        returnValue: _FakeSheetPhysics_2(this, Invocation.getter(#physics)),
+        returnValueForMissingStub: _FakeSheetPhysics_2(
           this,
           Invocation.getter(#physics),
         ),

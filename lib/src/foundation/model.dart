@@ -146,12 +146,11 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   SheetModel({
     required this.context,
     required this.initialPosition,
-    required SheetPhysics physics,
+    required this.physics,
     required SheetSnapGrid snapGrid,
     this.debugLabel,
     SheetGestureProxyMixin? gestureProxy,
-  })  : _physics = physics,
-        _snapGrid = snapGrid,
+  })  : _snapGrid = snapGrid,
         _gestureProxy = gestureProxy {
     goIdle();
   }
@@ -231,8 +230,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   /// This determines how the sheet will behave when over-dragged or
   /// under-dragged, or when the user stops dragging.
   /// {@endtemplate}
-  SheetPhysics get physics => _physics;
-  SheetPhysics _physics;
+  SheetPhysics physics;
 
   SheetSnapGrid get snapGrid => _snapGrid;
   SheetSnapGrid _snapGrid;
@@ -250,6 +248,14 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   /// {@endtemplate}
   SheetGestureProxyMixin? get gestureProxy => _gestureProxy;
   SheetGestureProxyMixin? _gestureProxy;
+
+  @mustCallSuper
+  set gestureProxy(SheetGestureProxyMixin? gestureProxy) {
+    if (_gestureProxy != gestureProxy) {
+      _gestureProxy = gestureProxy;
+      currentDrag?.updateGestureProxy(gestureProxy);
+    }
+  }
 
   /// A label that is used to identify this object in debug output.
   final String? debugLabel;
@@ -299,21 +305,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     if (other._measurements case final measurements?) {
       _measurements = measurements;
     }
-  }
-
-  @mustCallSuper
-  // TODO: Rename to updateGestureProxy
-  void updateGestureProxy(SheetGestureProxyMixin? gestureProxy) {
-    if (_gestureProxy != gestureProxy) {
-      _gestureProxy = gestureProxy;
-      currentDrag?.updateGestureProxy(gestureProxy);
-    }
-  }
-
-  @mustCallSuper
-  // TODO: Convert to a setter.
-  void updatePhysics(SheetPhysics physics) {
-    _physics = physics;
   }
 
   @protected
@@ -446,7 +437,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     );
   }
 
-  void didUpdateMetrics() {
+  void didUpdateGeometry() {
     SheetUpdateNotification(
       metrics: snapshot,
     ).dispatch(context.notificationContext);

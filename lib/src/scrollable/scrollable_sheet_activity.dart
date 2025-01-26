@@ -263,7 +263,7 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
     _oldPixels = controller.value;
     final overflow = _applyScrollOffset(delta);
     if (owner.offset != _oldPixels) {
-      owner.didUpdateMetrics();
+      owner.didUpdateGeometry();
     }
     if (cmp.isNotApprox(overflow, 0)) {
       owner

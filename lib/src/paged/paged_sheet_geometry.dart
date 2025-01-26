@@ -59,10 +59,10 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     assert(route == null || _routeGeometries.containsKey(route));
     if (route != null) {
       _currentRoute = route;
-      updatePhysics(route.physics);
+      physics = route.physics;
     } else {
       _currentRoute = null;
-      updatePhysics(kDefaultPagedSheetPhysics);
+      physics = kDefaultPagedSheetPhysics;
     }
   }
 
