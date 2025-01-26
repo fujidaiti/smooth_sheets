@@ -164,7 +164,7 @@ class FixedBouncingBehavior implements BouncingBehavior {
   const FixedBouncingBehavior(this.range);
 
   /// How much the sheet can bounce beyond the content bounds.
-  final SheetAnchor range;
+  final SheetOffset range;
 
   @override
   double computeBounceablePixels(double delta, SheetMetrics metrics) {
@@ -192,15 +192,15 @@ class DirectionAwareBouncingBehavior implements BouncingBehavior {
   /// Creates a [BouncingBehavior] that allows the sheet to bounce by different
   /// amounts based on the direction of a drag gesture.
   const DirectionAwareBouncingBehavior({
-    this.upward = const SheetAnchor.pixels(0),
-    this.downward = const SheetAnchor.pixels(0),
+    this.upward = const SheetOffset.absolute(0),
+    this.downward = const SheetOffset.absolute(0),
   });
 
   /// Amount of bounceable pixels when dragged upward.
-  final SheetAnchor upward;
+  final SheetOffset upward;
 
   /// Amount of bounceable pixels when dragged downward.
-  final SheetAnchor downward;
+  final SheetOffset downward;
 
   @override
   double computeBounceablePixels(double delta, SheetMetrics metrics) {
@@ -214,7 +214,7 @@ class DirectionAwareBouncingBehavior implements BouncingBehavior {
 
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
-    this.behavior = const FixedBouncingBehavior(SheetAnchor.proportional(0.12)),
+    this.behavior = const FixedBouncingBehavior(SheetOffset.relative(0.12)),
     this.frictionCurve = Curves.easeOutSine,
     this.spring = kDefaultSheetSpring,
   });

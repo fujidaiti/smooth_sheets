@@ -24,7 +24,7 @@ class ScrollableSheetPositionScope
   });
 
   /// {@macro ScrollableSheetPosition.initialPosition}
-  final SheetAnchor initialPosition;
+  final SheetOffset initialPosition;
 
   /// {@macro SheetPosition.debugLabel}
   final String? debugLabel;

@@ -44,9 +44,9 @@ export 'sheet_physics.dart'
         kDefaultSheetSpring;
 export 'sheet_position.dart'
     show
-        FixedSheetAnchor,
-        ProportionalSheetAnchor,
-        SheetAnchor,
+        AbsoluteSheetOffset,
+        RelativeSheetOffset,
+        SheetOffset,
         SheetMetrics,
         SheetMetricsSnapshot;
 export 'sheet_position_driven_animation.dart' show SheetPositionDrivenAnimation;

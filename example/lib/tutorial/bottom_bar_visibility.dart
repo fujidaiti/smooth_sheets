@@ -137,9 +137,9 @@ class _ExampleSheet extends StatelessWidget {
       ),
     );
 
-    const minSize = SheetAnchor.proportional(0.3);
-    const halfSize = SheetAnchor.proportional(0.5);
-    const fullSize = SheetAnchor.proportional(1);
+    const minSize = SheetOffset.relative(0.3);
+    const halfSize = SheetOffset.relative(0.5);
+    const fullSize = SheetOffset.relative(1);
 
     const multiStopPhysics = BouncingSheetPhysics(
       parent: SnappingSheetPhysics(
@@ -170,7 +170,7 @@ class _ExampleSheet extends StatelessWidget {
                 getIsVisible: (metrics) {
                   // The bottom bar is visible when at least 50% of the sheet is visible.
                   return metrics.offset >=
-                      const SheetAnchor.proportional(0.5)
+                      const SheetOffset.relative(0.5)
                           .resolve(metrics.measurements);
                 },
                 child: bottomBar,

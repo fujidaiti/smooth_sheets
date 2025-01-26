@@ -17,15 +17,15 @@ class TextFieldWithMultipleStops extends StatelessWidget {
           SheetViewport(
             child: Sheet(
               scrollConfiguration: const SheetScrollConfiguration(),
-              initialPosition: const SheetAnchor.proportional(0.7),
-              minPosition: const SheetAnchor.proportional(0.4),
+              initialPosition: const SheetOffset.relative(0.7),
+              minPosition: const SheetOffset.relative(0.4),
               physics: const BouncingSheetPhysics(
                 parent: SnappingSheetPhysics(
                   behavior: SnapToNearest(
                     anchors: [
-                      SheetAnchor.proportional(0.4),
-                      SheetAnchor.proportional(0.7),
-                      SheetAnchor.proportional(1),
+                      SheetOffset.relative(0.4),
+                      SheetOffset.relative(0.7),
+                      SheetOffset.relative(1),
                     ],
                   ),
                 ),

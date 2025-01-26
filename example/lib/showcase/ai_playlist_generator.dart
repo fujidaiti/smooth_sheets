@@ -105,8 +105,8 @@ final _confirmRoute = GoRoute(
   pageBuilder: (context, state) {
     return const PagedSheetPage(
       scrollConfiguration: SheetScrollConfiguration(),
-      initialOffset: SheetAnchor.proportional(0.7),
-      minOffset: SheetAnchor.proportional(0.7),
+      initialOffset: SheetOffset.relative(0.7),
+      minOffset: SheetOffset.relative(0.7),
       physics: BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),
       ),

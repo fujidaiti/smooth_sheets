@@ -94,8 +94,8 @@ class _MySheet extends StatelessWidget {
     const snappingPhysics = SnappingSheetPhysics(
       behavior: SnapToNearest(
         anchors: [
-          SheetAnchor.proportional(_halfwayFraction),
-          SheetAnchor.proportional(1),
+          SheetOffset.relative(_halfwayFraction),
+          SheetOffset.relative(1),
         ],
       ),
       // Tips: The above configuration can be replaced with a 'SnapToNearestEdge',
@@ -123,10 +123,10 @@ class _MySheet extends StatelessWidget {
       // the configuration below ensures that the sheet is fully visible
       // at first and can then be dragged down to (_halfwayFraction * 100)%
       // of the sheet height at minimum.
-      minPosition: const SheetAnchor.proportional(_halfwayFraction),
-      maxPosition: const SheetAnchor.proportional(1),
+      minPosition: const SheetOffset.relative(_halfwayFraction),
+      maxPosition: const SheetOffset.relative(1),
       // Default
-      initialPosition: const SheetAnchor.proportional(1),
+      initialPosition: const SheetOffset.relative(1),
       // Default
       // 'physics' determines how the sheet will behave when the user reaches
       // the maximum or minimum position, or when the user stops dragging.

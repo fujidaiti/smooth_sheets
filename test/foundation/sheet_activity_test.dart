@@ -44,7 +44,7 @@ void main() {
     test('should animate to the destination', () {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
-        initialPosition: const SheetAnchor.pixels(300),
+        initialPosition: const SheetOffset.absolute(300),
         minOffset: 300,
         maxOffset: 700,
         contentSize: const Size(400, 700),
@@ -55,7 +55,7 @@ void main() {
 
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
-        destination: const SheetAnchor.pixels(700),
+        destination: const SheetOffset.absolute(700),
         duration: const Duration(milliseconds: 300),
         curve: Curves.linear,
       )..init(owner);
@@ -84,7 +84,7 @@ void main() {
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
-        initialPosition: const SheetAnchor.pixels(300),
+        initialPosition: const SheetOffset.absolute(300),
         minOffset: 300,
         maxOffset: 900,
         contentSize: const Size(400, 900),
@@ -95,7 +95,7 @@ void main() {
 
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
-        destination: const SheetAnchor.proportional(1),
+        destination: const SheetOffset.relative(1),
         duration: const Duration(milliseconds: 300),
         curve: Curves.linear,
       )..init(owner);
@@ -128,7 +128,7 @@ void main() {
       expect(ownerMetrics.viewOffset, 450,
           reason: 'Visual position should not change when viewport changes.');
       verify(owner.settleTo(
-        const SheetAnchor.proportional(1),
+        const SheetOffset.relative(1),
         const Duration(milliseconds: 225),
       ));
     });
@@ -143,7 +143,7 @@ void main() {
     setUp(() {
       (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 300,
-        initialPosition: const SheetAnchor.proportional(0.5),
+        initialPosition: const SheetOffset.relative(0.5),
         minOffset: 300,
         maxOffset: 600,
         contentSize: const Size(400, 600),
@@ -169,11 +169,11 @@ void main() {
 
     test('Create with velocity', () {
       final activity = SettlingSheetActivity(
-        destination: const SheetAnchor.pixels(0),
+        destination: const SheetOffset.absolute(0),
         velocity: 100,
       );
 
-      expect(activity.destination, const SheetAnchor.pixels(0));
+      expect(activity.destination, const SheetOffset.absolute(0));
       expect(activity.duration, isNull);
       expect(activity.velocity, 100);
       expect(activity.shouldIgnorePointer, isFalse);
@@ -182,10 +182,10 @@ void main() {
     test('Create with duration', () {
       final activity = SettlingSheetActivity.withDuration(
         const Duration(milliseconds: 300),
-        destination: const SheetAnchor.pixels(0),
+        destination: const SheetOffset.absolute(0),
       );
 
-      expect(activity.destination, const SheetAnchor.pixels(0));
+      expect(activity.destination, const SheetOffset.absolute(0));
       expect(activity.duration, const Duration(milliseconds: 300));
       expect(activity.shouldIgnorePointer, isFalse);
       expect(() => activity.velocity, isNotInitialized);
@@ -196,7 +196,7 @@ void main() {
       () {
         final activity = SettlingSheetActivity.withDuration(
           const Duration(milliseconds: 300),
-          destination: const SheetAnchor.proportional(1),
+          destination: const SheetOffset.relative(1),
         );
         expect(() => activity.velocity, isNotInitialized);
 
@@ -207,7 +207,7 @@ void main() {
 
     test('Progressively updates current position toward destination', () {
       final activity = SettlingSheetActivity(
-        destination: const SheetAnchor.proportional(1),
+        destination: const SheetOffset.relative(1),
         velocity: 300,
       );
 
@@ -234,7 +234,7 @@ void main() {
       'Should start an idle activity when it reaches destination',
       () {
         final _ = SettlingSheetActivity(
-          destination: const SheetAnchor.proportional(1),
+          destination: const SheetOffset.relative(1),
           velocity: 300,
         )..init(owner);
 
@@ -247,7 +247,7 @@ void main() {
     test('Should absorb viewport changes', () {
       final activity = SettlingSheetActivity.withDuration(
         const Duration(milliseconds: 300),
-        destination: const SheetAnchor.proportional(1),
+        destination: const SheetOffset.relative(1),
       )..init(owner);
 
       expect(activity.velocity, 1000); // (300 pixels / 0.3s) = 1000 pixels/s
@@ -275,7 +275,7 @@ void main() {
     test('should maintain previous position when keyboard appears', () {
       final (ownerMetrics, owner) = createMockSheetPosition(
         pixels: 450,
-        initialPosition: const SheetAnchor.proportional(0.5),
+        initialPosition: const SheetOffset.relative(0.5),
         minOffset: 425,
         maxOffset: 850,
         contentSize: const Size(400, 850),
@@ -303,7 +303,7 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetPosition(
           pixels: 300,
-          initialPosition: const SheetAnchor.proportional(0.5),
+          initialPosition: const SheetOffset.relative(0.5),
           minOffset: 290,
           maxOffset: 580,
           contentSize: const Size(400, 580),
@@ -334,7 +334,7 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetPosition(
           pixels: 300,
-          initialPosition: const SheetAnchor.proportional(0.5),
+          initialPosition: const SheetOffset.relative(0.5),
           minOffset: 250,
           maxOffset: 500,
           contentSize: const Size(400, 500),
@@ -356,7 +356,7 @@ void main() {
         expect(ownerMetrics.offset, 300);
         verify(
           owner.animateTo(
-            const SheetAnchor.proportional(0.5),
+            const SheetOffset.relative(0.5),
             duration: anyNamed('duration'),
             curve: anyNamed('curve'),
           ),

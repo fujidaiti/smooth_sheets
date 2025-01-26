@@ -14,8 +14,8 @@ class SheetPositionDrivenAnimation extends Animation<double> {
 
   final SheetController _controller;
   final double initialValue;
-  final SheetAnchor? startPosition;
-  final SheetAnchor? endPosition;
+  final SheetOffset? startPosition;
+  final SheetOffset? endPosition;
 
   @override
   void addListener(VoidCallback listener) {

@@ -106,7 +106,7 @@ abstract class SheetActivity<T extends SheetPosition> {
 /// position determined by [destination], using the specified [curve] and
 /// [duration].
 ///
-/// This activity accepts the destination position as an [SheetAnchor], allowing
+/// This activity accepts the destination position as an [SheetOffset], allowing
 /// the concrete end position (in pixels) to be updated during the animation
 /// in response to viewport changes, such as the appearance of the on-screen
 /// keyboard.
@@ -125,7 +125,7 @@ class AnimatedSheetActivity extends SheetActivity
     required this.curve,
   }) : assert(duration > Duration.zero);
 
-  final SheetAnchor destination;
+  final SheetOffset destination;
   final Duration duration;
   final Curve curve;
 
@@ -286,7 +286,7 @@ class SettlingSheetActivity extends SheetActivity {
   final Duration? duration;
 
   /// The destination position to which the sheet should settle.
-  final SheetAnchor destination;
+  final SheetOffset destination;
 
   late final Ticker _ticker;
 
@@ -374,7 +374,7 @@ class SettlingSheetActivity extends SheetActivity {
 @internal
 class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
   @override
-  late final SheetAnchor targetOffset;
+  late final SheetOffset targetOffset;
 
   @override
   void init(SheetPosition owner) {
@@ -443,12 +443,12 @@ class DragSheetActivity extends SheetActivity
 
 @internal
 mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
-  SheetAnchor get targetOffset;
+  SheetOffset get targetOffset;
 
   @override
   SheetStatus get status => SheetStatus.stable;
 
-  /// Updates [SheetMetrics.offset] to maintain the current [SheetAnchor], which
+  /// Updates [SheetMetrics.offset] to maintain the current [SheetOffset], which
   /// is determined by [SnapGrid.getSnapOffset] using the metrics of
   /// the previous frame.
   @override

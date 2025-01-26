@@ -7,27 +7,27 @@ import 'sheet_position.dart';
 
 abstract interface class SnapGrid {
   const factory SnapGrid({
-    required List<SheetAnchor> snaps,
+    required List<SheetOffset> snaps,
     double minFlingSpeed,
   }) = MultiSnapGrid;
 
   const factory SnapGrid.single({
-    required SheetAnchor snap,
+    required SheetOffset snap,
   }) = SingleSnapGrid;
 
   const factory SnapGrid.stepless({
-    required SheetAnchor minOffset,
-    required SheetAnchor maxOffset,
+    required SheetOffset minOffset,
+    required SheetOffset maxOffset,
   }) = SteplessSnapGrid;
 
   /// Returns an position to which a sheet should eventually settle
   /// based on the current [metrics] and the [velocity] of a sheet.
   // TODO: Use positional arguments.
-  SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity);
+  SheetOffset getSnapOffset(SheetMetrics metrics, double velocity);
 
   /// Returns the minimum and maximum offsets.
   /// // TODO: Change "SheetMetrics metrics" to "SheetMeasurements measurements".
-  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics);
+  (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics);
 }
 
 class SingleSnapGrid implements SnapGrid {
@@ -35,15 +35,15 @@ class SingleSnapGrid implements SnapGrid {
     required this.snap,
   });
 
-  final SheetAnchor snap;
+  final SheetOffset snap;
 
   @override
-  SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
+  SheetOffset getSnapOffset(SheetMetrics metrics, double velocity) {
     return snap;
   }
 
   @override
-  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
+  (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics) {
     return (snap, snap);
   }
 }
@@ -54,16 +54,16 @@ class SteplessSnapGrid implements SnapGrid {
     required this.maxOffset,
   });
 
-  final SheetAnchor minOffset;
-  final SheetAnchor maxOffset;
+  final SheetOffset minOffset;
+  final SheetOffset maxOffset;
 
   @override
-  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
+  (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics) {
     return (minOffset, maxOffset);
   }
 
   @override
-  SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
+  SheetOffset getSnapOffset(SheetMetrics metrics, double velocity) {
     final minimum = minOffset.resolve(metrics.measurements);
     final maximum = maxOffset.resolve(metrics.measurements);
     if (metrics.offset < minimum) {
@@ -71,7 +71,7 @@ class SteplessSnapGrid implements SnapGrid {
     } else if (metrics.offset > maximum) {
       return maxOffset;
     } else {
-      return SheetAnchor.pixels(metrics.offset);
+      return SheetOffset.absolute(metrics.offset);
     }
   }
 }
@@ -82,14 +82,14 @@ class MultiSnapGrid implements SnapGrid {
     this.minFlingSpeed = kMinFlingVelocity,
   });
 
-  final List<SheetAnchor> snaps;
+  final List<SheetOffset> snaps;
 
   /// The lowest speed (in logical pixels per second)
   /// at which a gesture is considered to be a fling.
   final double minFlingSpeed;
 
   @override
-  SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
+  SheetOffset getSnapOffset(SheetMetrics metrics, double velocity) {
     final result = _scanSnapOffsets(metrics);
     if (metrics.offset < result.min.resolve(metrics.measurements)) {
       return result.min;
@@ -105,7 +105,7 @@ class MultiSnapGrid implements SnapGrid {
   }
 
   @override
-  (SheetAnchor, SheetAnchor) getBoundaries(SheetMetrics metrics) {
+  (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics) {
     final result = _scanSnapOffsets(metrics);
     return (result.min, result.max);
   }
@@ -122,11 +122,11 @@ class MultiSnapGrid implements SnapGrid {
   /// - `rightmost` is the offset that is the minimum offset that is greater
   ///   than or equal to the `nearest`.
   ({
-    SheetAnchor min,
-    SheetAnchor max,
-    SheetAnchor nearest,
-    SheetAnchor leftmost,
-    SheetAnchor rightmost,
+    SheetOffset min,
+    SheetOffset max,
+    SheetOffset nearest,
+    SheetOffset leftmost,
+    SheetOffset rightmost,
   }) _scanSnapOffsets(SheetMetrics metrics) {
     assert(snaps.isNotEmpty);
 
@@ -183,8 +183,8 @@ class MultiSnapGrid implements SnapGrid {
           ? (firstDistance < thirdDistance ? first : third)
           : (secondDistance < thirdDistance ? second : third);
 
-      final SheetAnchor leftmost;
-      final SheetAnchor rightmost;
+      final SheetOffset leftmost;
+      final SheetOffset rightmost;
       if (nearest == first) {
         leftmost = first;
         rightmost = second;
@@ -214,7 +214,7 @@ class MultiSnapGrid implements SnapGrid {
     );
 
     late int nearestIndex;
-    late SheetAnchor nearest;
+    late SheetOffset nearest;
     var nearestDistance = double.infinity;
     for (var index = 0; index < sortedSnaps.length; index++) {
       final snap = snaps[index];

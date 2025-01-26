@@ -23,38 +23,35 @@ import 'snap_grid.dart';
 /// or to limit the range within which the sheet can be dragged.
 ///
 /// See also:
-/// - [ProportionalSheetAnchor], which defines the position
+/// - [RelativeSheetOffset], which defines the position
 ///   proportionally to the sheet's content height.
-/// - [FixedSheetAnchor], which defines the position
+/// - [AbsoluteSheetOffset], which defines the position
 ///   using a fixed value in pixels.
-// TODO: Rename to SheetOffset.
 @immutable
-abstract interface class SheetAnchor {
-  /// {@macro FixedSheetAnchor}
-  // TODO: Rename to `absolute`.
-  const factory SheetAnchor.pixels(double pixels) = FixedSheetAnchor;
+abstract interface class SheetOffset {
+  /// {@macro AbsoluteSheetOffset}
+  const factory SheetOffset.absolute(double value) = AbsoluteSheetOffset;
 
-  /// {@macro ProportionalSheetAnchor}
-  // TODO: Rename to `relative`.
-  const factory SheetAnchor.proportional(double size) = ProportionalSheetAnchor;
+  /// {@macro RelativeSheetOffset}
+  const factory SheetOffset.relative(double factor) = RelativeSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
   double resolve(SheetMeasurements measurements);
 }
 
-/// A [SheetAnchor] that represents a position proportional
+/// A [SheetOffset] that represents a position proportional
 /// to the content height of the sheet.
-class ProportionalSheetAnchor implements SheetAnchor {
-  /// {@template ProportionalSheetAnchor}
+class RelativeSheetOffset implements SheetOffset {
+  /// {@template RelativeSheetOffset}
   /// Creates an anchor that positions the sheet
   /// proportionally to its content height.
   ///
   /// The [factor] must be greater than or equal to 0.
   /// This anchor resolves to `contentSize.height * factor`.
-  /// For example, `ProportionalSheetAnchor(0.6)` represents a position
+  /// For example, `RelativeSheetOffset(0.6)` represents a position
   /// where 60% of the sheet content is visible.
   /// {@endtemplate}
-  const ProportionalSheetAnchor(this.factor) : assert(factor >= 0);
+  const RelativeSheetOffset(this.factor) : assert(factor >= 0);
 
   /// The proportion of the sheet's content height.
   ///
@@ -68,7 +65,7 @@ class ProportionalSheetAnchor implements SheetAnchor {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ProportionalSheetAnchor &&
+      (other is RelativeSheetOffset &&
           runtimeType == other.runtimeType &&
           factor == other.factor);
 
@@ -76,37 +73,37 @@ class ProportionalSheetAnchor implements SheetAnchor {
   int get hashCode => Object.hash(runtimeType, factor);
 
   @override
-  String toString() => '$ProportionalSheetAnchor(factor: $factor)';
+  String toString() => '$RelativeSheetOffset(factor: $factor)';
 }
 
-/// A [SheetAnchor] that represents a position with a fixed value in pixels.
-class FixedSheetAnchor implements SheetAnchor {
-  /// {@template FixedSheetAnchor}
+/// A [SheetOffset] that represents a position with a fixed value in pixels.
+class AbsoluteSheetOffset implements SheetOffset {
+  /// {@template AbsoluteSheetOffset}
   /// Creates an anchor that represents a fixed position in pixels.
   ///
-  /// For example, `FixedSheetAnchor(200)` represents a position
+  /// For example, `AbsoluteSheetOffset(200)` represents a position
   /// where 200 pixels from the top of the sheet content are visible.
   /// {@endtemplate}
-  const FixedSheetAnchor(this.pixels) : assert(pixels >= 0);
+  const AbsoluteSheetOffset(this.value) : assert(value >= 0);
 
   /// The position in pixels.
-  final double pixels;
+  final double value;
 
   @override
-  double resolve(_) => pixels;
+  double resolve(_) => value;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is FixedSheetAnchor &&
+      (other is AbsoluteSheetOffset &&
           runtimeType == other.runtimeType &&
-          pixels == other.pixels);
+          value == other.value);
 
   @override
-  int get hashCode => Object.hash(runtimeType, pixels);
+  int get hashCode => Object.hash(runtimeType, value);
 
   @override
-  String toString() => '$FixedSheetAnchor(pixels: $pixels)';
+  String toString() => '$AbsoluteSheetOffset(value: $value)';
 }
 
 /// Read-only view of a [SheetPosition].
@@ -227,7 +224,7 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
 
-  final SheetAnchor initialPosition;
+  final SheetOffset initialPosition;
 
   /// A handle to the owner of this object.
   final SheetContext context;
@@ -357,7 +354,7 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
     beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
-  void settleTo(SheetAnchor offset, Duration duration) {
+  void settleTo(SheetOffset offset, Duration duration) {
     beginActivity(
       SettlingSheetActivity.withDuration(
         duration,
@@ -418,7 +415,7 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
   /// whether it completed successfully or whether it was
   /// interrupted prematurely.
   Future<void> animateTo(
-    SheetAnchor newPosition, {
+    SheetOffset newPosition, {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {

@@ -39,14 +39,14 @@ abstract class SheetPositionScope<E extends SheetPosition>
   final SheetController? controller;
 
   /// {@macro SheetPosition.minPosition}
-  final SheetAnchor minPosition;
+  final SheetOffset minPosition;
 
   /// {@macro SheetPosition.maxPosition}
-  final SheetAnchor maxPosition;
+  final SheetOffset maxPosition;
 
   /// {@macro SheetPosition.physics}
   final SheetPhysics physics;
-  
+
   final SnapGrid snapGrid;
 
   /// {@macro SheetPosition.gestureTamperer}

@@ -42,9 +42,9 @@ void main() {
         geometry: geometryUnderTest,
         viewportSize: const Size(400, 800),
         initialRouteContentSize: const Size(400, 400),
-        initialOffset: const SheetAnchor.proportional(0.5),
-        initialMinOffset: const SheetAnchor.proportional(0.5),
-        initialMaxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(0.5),
+        initialMinOffset: const SheetOffset.relative(0.5),
+        initialMaxOffset: const SheetOffset.relative(1),
       );
 
       expect(geometryUnderTest.offset, 200);
@@ -66,18 +66,18 @@ void main() {
         geometry: geometryUnderTest,
         initialRouteContentSize: const Size(400, 400),
         viewportSize: const Size(400, 800),
-        initialOffset: const SheetAnchor.proportional(0.5),
-        initialMinOffset: const SheetAnchor.proportional(0.5),
-        initialMaxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(0.5),
+        initialMinOffset: const SheetOffset.relative(0.5),
+        initialMaxOffset: const SheetOffset.relative(1),
       );
 
       final (newRoute, newRouteTransitionController) = _pushRoute(
         geometry: geometryUnderTest,
         currentRoute: initialRoute,
         routeContentSize: const Size(400, 600),
-        initialOffset: const SheetAnchor.proportional(1),
-        minOffset: const SheetAnchor.proportional(1),
-        maxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(1),
+        minOffset: const SheetOffset.relative(1),
+        maxOffset: const SheetOffset.relative(1),
         transitionDuration: const Duration(milliseconds: 200),
       );
       expect(geometryUnderTest.offset, 600);
@@ -120,15 +120,15 @@ void main() {
         geometry: geometryUnderTest,
         initialRouteContentSize: const Size(400, 400),
         viewportSize: const Size(400, 800),
-        initialOffset: const SheetAnchor.proportional(0.5),
-        initialMinOffset: const SheetAnchor.proportional(0.5),
-        initialMaxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(0.5),
+        initialMinOffset: const SheetOffset.relative(0.5),
+        initialMaxOffset: const SheetOffset.relative(1),
       );
 
       final (newRoute, newRouteTransitionController) = _createRoute(
-        initialOffset: const SheetAnchor.proportional(1),
-        minOffset: const SheetAnchor.proportional(1),
-        maxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(1),
+        minOffset: const SheetOffset.relative(1),
+        maxOffset: const SheetOffset.relative(1),
         transitionDuration: const Duration(milliseconds: 200),
       );
 
@@ -189,18 +189,18 @@ void main() {
         geometry: geometryUnderTest,
         viewportSize: const Size(400, 800),
         initialRouteContentSize: const Size(400, 400),
-        initialOffset: const SheetAnchor.proportional(0.5),
-        initialMinOffset: const SheetAnchor.proportional(0.5),
-        initialMaxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(0.5),
+        initialMinOffset: const SheetOffset.relative(0.5),
+        initialMaxOffset: const SheetOffset.relative(1),
       );
 
       final (newRoute, newRouteTransitionController) = _pushRoute(
         geometry: geometryUnderTest,
         currentRoute: initialRoute,
         routeContentSize: const Size(400, 600),
-        initialOffset: const SheetAnchor.proportional(1),
-        minOffset: const SheetAnchor.proportional(1),
-        maxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(1),
+        minOffset: const SheetOffset.relative(1),
+        maxOffset: const SheetOffset.relative(1),
         transitionDuration: const Duration(milliseconds: 200),
       );
 
@@ -269,9 +269,9 @@ void main() {
         geometry: geometryUnderTest,
         initialRouteContentSize: const Size(400, 400),
         viewportSize: const Size(400, 800),
-        initialOffset: const SheetAnchor.proportional(0.5),
-        initialMinOffset: const SheetAnchor.proportional(0.5),
-        initialMaxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(0.5),
+        initialMinOffset: const SheetOffset.relative(0.5),
+        initialMaxOffset: const SheetOffset.relative(1),
       );
 
       final testActivity = _TestSheetActivity();
@@ -282,9 +282,9 @@ void main() {
       final (newRoute, newRouteTransitionController) = _pushRoute(
         geometry: geometryUnderTest,
         currentRoute: initialRoute,
-        initialOffset: const SheetAnchor.proportional(1),
-        minOffset: const SheetAnchor.proportional(1),
-        maxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(1),
+        minOffset: const SheetOffset.relative(1),
+        maxOffset: const SheetOffset.relative(1),
         routeContentSize: const Size(400, 600),
         transitionDuration: const Duration(milliseconds: 200),
       );
@@ -304,18 +304,18 @@ void main() {
         geometry: geometryUnderTest,
         viewportSize: const Size(400, 800),
         initialRouteContentSize: const Size(400, 400),
-        initialOffset: const SheetAnchor.proportional(1),
-        initialMinOffset: const SheetAnchor.proportional(1),
-        initialMaxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(1),
+        initialMinOffset: const SheetOffset.relative(1),
+        initialMaxOffset: const SheetOffset.relative(1),
       );
 
       final (newRoute, newRouteTransitionController) = _pushRoute(
         geometry: geometryUnderTest,
         currentRoute: initialRoute,
         routeContentSize: const Size(400, 600),
-        initialOffset: const SheetAnchor.proportional(1),
-        minOffset: const SheetAnchor.proportional(1),
-        maxOffset: const SheetAnchor.proportional(1),
+        initialOffset: const SheetOffset.relative(1),
+        minOffset: const SheetOffset.relative(1),
+        maxOffset: const SheetOffset.relative(1),
         transitionDuration: const Duration(milliseconds: 200),
       );
 
@@ -370,9 +370,9 @@ void main() {
 }
 
 (MockBasePagedSheetRoute<dynamic>, TestAnimationController) _createRoute({
-  required SheetAnchor initialOffset,
-  required SheetAnchor minOffset,
-  required SheetAnchor maxOffset,
+  required SheetOffset initialOffset,
+  required SheetOffset minOffset,
+  required SheetOffset maxOffset,
   required Duration transitionDuration,
 }) {
   final animationController = TestAnimationController(
@@ -394,9 +394,9 @@ MockBasePagedSheetRoute<dynamic> _firstBuild({
   required PagedSheetGeometry geometry,
   required Size viewportSize,
   required Size initialRouteContentSize,
-  required SheetAnchor initialOffset,
-  required SheetAnchor initialMinOffset,
-  required SheetAnchor initialMaxOffset,
+  required SheetOffset initialOffset,
+  required SheetOffset initialMinOffset,
+  required SheetOffset initialMaxOffset,
 }) {
   final (initialRoute, _) = _createRoute(
     initialOffset: initialOffset,
@@ -528,9 +528,9 @@ _UserGestureTransitionHandle _startUserGestureTransition({
   required PagedSheetGeometry geometry,
   required BasePagedSheetRoute currentRoute,
   required Size routeContentSize,
-  required SheetAnchor initialOffset,
-  required SheetAnchor minOffset,
-  required SheetAnchor maxOffset,
+  required SheetOffset initialOffset,
+  required SheetOffset minOffset,
+  required SheetOffset maxOffset,
   required Duration transitionDuration,
 }) {
   final (newRoute, controller) = _createRoute(

@@ -14,17 +14,17 @@ import 'paged_sheet_route.dart';
 const kDefaultPagedSheetPhysics = ClampingSheetPhysics();
 
 @internal
-const kDefaultPagedSheetInitialOffset = SheetAnchor.proportional(1);
+const kDefaultPagedSheetInitialOffset = SheetOffset.relative(1);
 
 @internal
-const kDefaultPagedSheetMinOffset = SheetAnchor.proportional(1);
+const kDefaultPagedSheetMinOffset = SheetOffset.relative(1);
 
 @internal
-const kDefaultPagedSheetMaxOffset = SheetAnchor.proportional(1);
+const kDefaultPagedSheetMaxOffset = SheetOffset.relative(1);
 
 const _kDefaultSnapGrid = SteplessSnapGrid(
-  minOffset: SheetAnchor.pixels(0),
-  maxOffset: SheetAnchor.proportional(1),
+  minOffset: SheetOffset.absolute(0),
+  maxOffset: SheetOffset.relative(1),
 );
 
 @internal
@@ -36,7 +36,7 @@ class _RouteGeometry {
   });
 
   Size? contentSize;
-  SheetAnchor targetOffset;
+  SheetOffset targetOffset;
 }
 
 @internal
@@ -221,5 +221,5 @@ class _IdleSheetActivity extends SheetActivity<PagedSheetGeometry>
   });
 
   @override
-  late final SheetAnchor targetOffset;
+  late final SheetOffset targetOffset;
 }

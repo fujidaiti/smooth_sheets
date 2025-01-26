@@ -45,6 +45,7 @@ class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   final BasePagedSheetRoute parentRoute;
 
   PagedSheetGeometry _controller;
+
   // ignore: avoid_setters_without_getters
   set controller(PagedSheetGeometry value) {
     if (_controller != value) {
@@ -68,12 +69,16 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T>
     with ObservableRouteMixin<T> {
   BasePagedSheetRoute({super.settings});
 
-  SheetAnchor get initialOffset;
-  SheetAnchor get minOffset;
-  SheetAnchor get maxOffset;
+  SheetOffset get initialOffset;
+
+  SheetOffset get minOffset;
+
+  SheetOffset get maxOffset;
+
   SheetPhysics get physics;
 
   RouteTransitionsBuilder? get transitionsBuilder;
+
   SheetDragConfiguration? get dragConfiguration;
 
   // TODO: Apply new configuration when the current route changes.
@@ -152,22 +157,22 @@ class PagedSheetRoute<T> extends BasePagedSheetRoute<T> {
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialOffset = const SheetAnchor.proportional(1),
-    this.minOffset = const SheetAnchor.proportional(1),
-    this.maxOffset = const SheetAnchor.proportional(1),
+    this.initialOffset = const SheetOffset.relative(1),
+    this.minOffset = const SheetOffset.relative(1),
+    this.maxOffset = const SheetOffset.relative(1),
     this.physics = kDefaultSheetPhysics,
     this.transitionsBuilder,
     required this.builder,
   });
 
   @override
-  final SheetAnchor initialOffset;
+  final SheetOffset initialOffset;
 
   @override
-  final SheetAnchor minOffset;
+  final SheetOffset minOffset;
 
   @override
-  final SheetAnchor maxOffset;
+  final SheetOffset maxOffset;
 
   @override
   final SheetPhysics physics;
@@ -209,19 +214,19 @@ class PagedSheetPage<T> extends Page<T> {
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialOffset = const SheetAnchor.proportional(1),
-    this.minOffset = const SheetAnchor.proportional(1),
-    this.maxOffset = const SheetAnchor.proportional(1),
+    this.initialOffset = const SheetOffset.relative(1),
+    this.minOffset = const SheetOffset.relative(1),
+    this.maxOffset = const SheetOffset.relative(1),
     this.physics = kDefaultSheetPhysics,
     this.transitionsBuilder,
     required this.child,
   });
 
-  final SheetAnchor initialOffset;
+  final SheetOffset initialOffset;
 
-  final SheetAnchor minOffset;
+  final SheetOffset minOffset;
 
-  final SheetAnchor maxOffset;
+  final SheetOffset maxOffset;
 
   final SheetPhysics physics;
 
@@ -267,13 +272,13 @@ class _PageBasedNavigationSheetRoute<T> extends BasePagedSheetRoute<T> {
   SheetScrollConfiguration? get scrollConfiguration => page.scrollConfiguration;
 
   @override
-  SheetAnchor get initialOffset => page.initialOffset;
+  SheetOffset get initialOffset => page.initialOffset;
 
   @override
-  SheetAnchor get maxOffset => page.maxOffset;
+  SheetOffset get maxOffset => page.maxOffset;
 
   @override
-  SheetAnchor get minOffset => page.minOffset;
+  SheetOffset get minOffset => page.minOffset;
 
   @override
   SheetPhysics get physics => page.physics;

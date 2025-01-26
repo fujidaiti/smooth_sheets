@@ -62,8 +62,8 @@ class _PagedSheetPositionScope extends SheetPositionScope<PagedSheetGeometry> {
   }) : super(
           isPrimary: true,
           snapGrid: const SteplessSnapGrid(
-            minOffset: SheetAnchor.pixels(0),
-            maxOffset: SheetAnchor.proportional(1),
+            minOffset: SheetOffset.absolute(0),
+            maxOffset: SheetOffset.relative(1),
           ),
         );
 

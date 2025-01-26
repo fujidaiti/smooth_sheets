@@ -38,8 +38,8 @@ void main() {
   group('Default configuration of $SheetPhysics', () {
     const physicsUnderTest = _SheetPhysicsWithDefaultConfiguration();
     const testSnapGrid = SnapGrid.stepless(
-      minOffset: SheetAnchor.pixels(0),
-      maxOffset: SheetAnchor.proportional(1),
+      minOffset: SheetOffset.absolute(0),
+      maxOffset: SheetOffset.relative(1),
     );
 
     test('dragStartDistanceMotionThreshold for different platforms', () {
@@ -169,12 +169,12 @@ void main() {
 
   test('FixedBouncingBehavior returns same value for same input metrics', () {
     expect(
-      const FixedBouncingBehavior(SheetAnchor.pixels(100))
+      const FixedBouncingBehavior(SheetOffset.absolute(100))
           .computeBounceablePixels(50, _referenceSheetMetrics),
       100,
     );
     expect(
-      const FixedBouncingBehavior(SheetAnchor.proportional(0.5))
+      const FixedBouncingBehavior(SheetOffset.relative(0.5))
           .computeBounceablePixels(50, _referenceSheetMetrics),
       300,
     );
@@ -182,8 +182,8 @@ void main() {
 
   test('DirectionAwareBouncingBehavior respects gesture direction', () {
     const behavior = DirectionAwareBouncingBehavior(
-      upward: SheetAnchor.pixels(100),
-      downward: SheetAnchor.pixels(0),
+      upward: SheetOffset.absolute(100),
+      downward: SheetOffset.absolute(0),
     );
     expect(behavior.computeBounceablePixels(50, _referenceSheetMetrics), 100);
     expect(behavior.computeBounceablePixels(-50, _referenceSheetMetrics), 0);
@@ -192,7 +192,7 @@ void main() {
   group('BouncingSheetPhysics', () {
     test('progressively applies friction if position is out of bounds', () {
       const physics = BouncingSheetPhysics(
-        behavior: FixedBouncingBehavior(SheetAnchor.pixels(50)),
+        behavior: FixedBouncingBehavior(SheetOffset.absolute(50)),
         frictionCurve: Curves.linear,
       );
 
@@ -209,7 +209,7 @@ void main() {
 
     test('does not allow to go beyond bounceable bounds', () {
       const physics = BouncingSheetPhysics(
-        behavior: FixedBouncingBehavior(SheetAnchor.pixels(30)),
+        behavior: FixedBouncingBehavior(SheetOffset.absolute(30)),
         frictionCurve: Curves.linear,
       );
 
@@ -232,7 +232,7 @@ void main() {
 
     test('applies friction even if position is on boundary', () {
       const physics = BouncingSheetPhysics(
-        behavior: FixedBouncingBehavior(SheetAnchor.pixels(50)),
+        behavior: FixedBouncingBehavior(SheetOffset.absolute(50)),
         frictionCurve: Curves.linear,
       );
 
@@ -242,7 +242,7 @@ void main() {
 
     test('can apply a reasonable friction to extremely large offset', () {
       const physics = BouncingSheetPhysics(
-        behavior: FixedBouncingBehavior(SheetAnchor.pixels(50)),
+        behavior: FixedBouncingBehavior(SheetOffset.absolute(50)),
         frictionCurve: Curves.linear,
       );
 

@@ -36,12 +36,12 @@ class SheetDragConfiguration {
 class Sheet extends StatefulWidget {
   const Sheet({
     super.key,
-    this.initialPosition = const SheetAnchor.proportional(1),
-    this.minPosition = const SheetAnchor.proportional(1),
-    this.maxPosition = const SheetAnchor.proportional(1),
+    this.initialPosition = const SheetOffset.relative(1),
+    this.minPosition = const SheetOffset.relative(1),
+    this.maxPosition = const SheetOffset.relative(1),
     this.physics,
     this.snapGrid = const SnapGrid.single(
-      snap: SheetAnchor.proportional(1),
+      snap: SheetOffset.relative(1),
     ),
     this.controller,
     this.scrollConfiguration,
@@ -50,14 +50,14 @@ class Sheet extends StatefulWidget {
   });
 
   /// {@macro ScrollableSheetPosition.initialPosition}
-  final SheetAnchor initialPosition;
+  final SheetOffset initialPosition;
 
   /// {@macro SheetPosition.minPosition}
-  final SheetAnchor minPosition;
+  final SheetOffset minPosition;
 
   /// {@macro SheetPosition.maxPosition}
   // TODO: Remove this property.
-  final SheetAnchor maxPosition;
+  final SheetOffset maxPosition;
 
   /// {@macro SheetPosition.physics}
   final SheetPhysics? physics;

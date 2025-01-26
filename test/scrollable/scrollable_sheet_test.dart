@@ -111,8 +111,8 @@ void main() {
               key: sheetKey,
               controller: controller,
               scrollConfiguration: const SheetScrollConfiguration(),
-              minPosition: const SheetAnchor.pixels(200),
-              initialPosition: const SheetAnchor.pixels(200),
+              minPosition: const SheetOffset.absolute(200),
+              initialPosition: const SheetOffset.absolute(200),
               child: const _TestSheetContent(height: 500),
             ),
           ),
@@ -131,7 +131,7 @@ void main() {
     // Start animating the sheet to the max position.
     unawaited(
       controller.animateTo(
-        const SheetAnchor.proportional(1),
+        const SheetOffset.relative(1),
         duration: const Duration(milliseconds: 250),
       ),
     );

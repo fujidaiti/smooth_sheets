@@ -65,7 +65,7 @@ class MutableSheetMetrics with SheetMetrics {
 
 (MutableSheetMetrics, MockSheetPosition) createMockSheetPosition({
   required double pixels,
-  required SheetAnchor initialPosition,
+  required SheetOffset initialPosition,
   required double minOffset,
   required double maxOffset,
   required Size contentSize,
