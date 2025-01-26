@@ -3,9 +3,9 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/activity.dart';
 import 'package:smooth_sheets/src/foundation/model.dart';
+import 'package:smooth_sheets/src/foundation/physics.dart';
 
 import '../src/matchers.dart';
 import '../src/stubbing.dart';

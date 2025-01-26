@@ -106,6 +106,7 @@ class AbsoluteSheetOffset implements SheetOffset {
 }
 
 /// Read-only view of a [SheetModel].
+@internal
 abstract class SheetModelView
     with SheetMetrics
     implements ValueListenable<SheetGeometry?> {
