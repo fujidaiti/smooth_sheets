@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../foundation/context.dart';
 import '../foundation/controller.dart';
-import '../foundation/gesture_tamperer.dart';
+import '../foundation/gesture_proxy.dart';
 import '../foundation/model.dart';
 import '../foundation/physics.dart';
 import '../foundation/snap_grid.dart';
@@ -94,7 +94,7 @@ class _SheetState extends State<Sheet>
       maxPosition: widget.maxPosition,
       physics: physics,
       snapGrid: widget.snapGrid,
-      gestureTamperer: gestureTamper,
+      gestureProxy: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,
       child: DraggableScrollableSheetContent(
         scrollConfiguration: widget.scrollConfiguration,

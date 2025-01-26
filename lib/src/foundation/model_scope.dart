@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 
 import 'context.dart';
 import 'controller.dart';
-import 'gesture_tamperer.dart';
+import 'gesture_proxy.dart';
 import 'model.dart';
 import 'physics.dart';
 import 'snap_grid.dart';
@@ -26,7 +26,7 @@ abstract class SheetPositionScope<E extends SheetModel> extends StatefulWidget {
     required this.maxPosition,
     required this.physics,
     required this.snapGrid,
-    this.gestureTamperer,
+    this.gestureProxy,
     required this.child,
   });
 
@@ -48,8 +48,8 @@ abstract class SheetPositionScope<E extends SheetModel> extends StatefulWidget {
 
   final SheetSnapGrid snapGrid;
 
-  /// {@macro SheetPosition.gestureTamperer}
-  final SheetGestureProxyMixin? gestureTamperer;
+  /// {@macro SheetPosition.gestureProxy}
+  final SheetGestureProxyMixin? gestureProxy;
 
   // TODO: Remove this. Specifying null to `controller` is sufficient.
   final bool isPrimary;
@@ -144,8 +144,8 @@ abstract class SheetPositionScopeState<E extends SheetModel,
     if (_position.physics != widget.physics) {
       _position.updatePhysics(widget.physics);
     }
-    if (_position.gestureTamperer != widget.gestureTamperer) {
-      _position.updateGestureTamperer(widget.gestureTamperer);
+    if (_position.gestureProxy != widget.gestureProxy) {
+      _position.updateGestureProxy(widget.gestureProxy);
     }
   }
 

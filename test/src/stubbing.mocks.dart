@@ -16,7 +16,7 @@ import 'package:mockito/src/dummies.dart' as _i16;
 import 'package:smooth_sheets/src/foundation/activity.dart' as _i6;
 import 'package:smooth_sheets/src/foundation/context.dart' as _i3;
 import 'package:smooth_sheets/src/foundation/drag.dart' as _i12;
-import 'package:smooth_sheets/src/foundation/gesture_tamperer.dart' as _i13;
+import 'package:smooth_sheets/src/foundation/gesture_proxy.dart' as _i13;
 import 'package:smooth_sheets/src/foundation/model.dart' as _i2;
 import 'package:smooth_sheets/src/foundation/physics.dart' as _i4;
 import 'package:smooth_sheets/src/foundation/snap_grid.dart' as _i5;
@@ -350,9 +350,9 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       );
 
   @override
-  void updateGestureTamperer(_i13.SheetGestureProxyMixin? gestureTamperer) =>
+  void updateGestureProxy(_i13.SheetGestureProxyMixin? gestureProxy) =>
       super.noSuchMethod(
-        Invocation.method(#updateGestureTamperer, [gestureTamperer]),
+        Invocation.method(#updateGestureProxy, [gestureProxy]),
         returnValueForMissingStub: null,
       );
 

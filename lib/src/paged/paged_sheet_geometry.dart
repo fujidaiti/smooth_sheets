@@ -43,7 +43,7 @@ class _RouteGeometry {
 class PagedSheetGeometry extends DraggableScrollableSheetPosition {
   PagedSheetGeometry({
     required super.context,
-    super.gestureTamperer,
+    super.gestureProxy,
     super.debugLabel,
   }) : super(
           initialPosition: kDefaultPagedSheetInitialOffset,

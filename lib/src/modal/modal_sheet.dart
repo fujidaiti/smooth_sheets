@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../foundation/drag.dart';
-import '../foundation/gesture_tamperer.dart';
+import '../foundation/gesture_proxy.dart';
 import '../internal/float_comp.dart';
 import 'swipe_dismiss_sensitivity.dart';
 

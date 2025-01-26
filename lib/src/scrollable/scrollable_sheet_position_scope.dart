@@ -18,7 +18,7 @@ class ScrollableSheetPositionScope
     required super.maxPosition,
     required super.physics,
     required super.snapGrid,
-    super.gestureTamperer,
+    super.gestureProxy,
     this.debugLabel,
     required super.child,
   });
@@ -52,7 +52,7 @@ class _ScrollableSheetPositionScopeState extends SheetPositionScopeState<
       initialPosition: widget.initialPosition,
       physics: widget.physics,
       snapGrid: widget.snapGrid,
-      gestureTamperer: widget.gestureTamperer,
+      gestureProxy: widget.gestureProxy,
       debugLabel: widget.debugLabel,
     );
   }

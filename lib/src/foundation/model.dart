@@ -9,7 +9,7 @@ import 'activity.dart';
 import 'context.dart';
 import 'controller.dart';
 import 'drag.dart';
-import 'gesture_tamperer.dart';
+import 'gesture_proxy.dart';
 import 'model_scope.dart';
 import 'notification.dart';
 import 'physics.dart';
@@ -148,10 +148,10 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     required SheetPhysics physics,
     required SheetSnapGrid snapGrid,
     this.debugLabel,
-    SheetGestureProxyMixin? gestureTamperer,
+    SheetGestureProxyMixin? gestureProxy,
   })  : _physics = physics,
         _snapGrid = snapGrid,
-        _gestureTamperer = gestureTamperer {
+        _gestureProxy = gestureProxy {
     goIdle();
   }
 
@@ -244,11 +244,11 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     }
   }
 
-  /// {@template SheetPosition.gestureTamperer}
+  /// {@template SheetPosition.gestureProxy}
   /// An object that can modify the gesture details of the sheet.
   /// {@endtemplate}
-  SheetGestureProxyMixin? get gestureTamperer => _gestureTamperer;
-  SheetGestureProxyMixin? _gestureTamperer;
+  SheetGestureProxyMixin? get gestureProxy => _gestureProxy;
+  SheetGestureProxyMixin? _gestureProxy;
 
   /// A label that is used to identify this object in debug output.
   final String? debugLabel;
@@ -302,10 +302,10 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 
   @mustCallSuper
   // TODO: Rename to updateGestureProxy
-  void updateGestureTamperer(SheetGestureProxyMixin? gestureTamperer) {
-    if (_gestureTamperer != gestureTamperer) {
-      _gestureTamperer = gestureTamperer;
-      currentDrag?.updateGestureTamperer(gestureTamperer);
+  void updateGestureProxy(SheetGestureProxyMixin? gestureProxy) {
+    if (_gestureProxy != gestureProxy) {
+      _gestureProxy = gestureProxy;
+      currentDrag?.updateGestureProxy(gestureProxy);
     }
   }
 
@@ -371,13 +371,13 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
       globalPositionY: details.globalPosition.dy,
       kind: details.kind,
     );
-    if (_gestureTamperer case final tamperer?) {
+    if (_gestureProxy case final tamperer?) {
       startDetails = tamperer.onDragStart(startDetails);
     }
 
     final drag = SheetDragController(
       target: dragActivity,
-      gestureTamperer: _gestureTamperer,
+      gestureProxy: _gestureProxy,
       details: startDetails,
       onDragCanceled: dragCancelCallback,
       // TODO: Specify a correct value.

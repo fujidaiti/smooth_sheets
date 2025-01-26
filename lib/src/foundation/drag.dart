@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'gesture_tamperer.dart';
+import 'gesture_proxy.dart';
 
 /// Represents the details of a drag event on a sheet.
 sealed class SheetDragDetails {
@@ -251,13 +251,13 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
   /// finger across the screen.
   SheetDragController({
     required SheetDragControllerTarget target,
-    required SheetGestureProxyMixin? gestureTamperer,
+    required SheetGestureProxyMixin? gestureProxy,
     required SheetDragStartDetails details,
     required VoidCallback onDragCanceled,
     required double? carriedVelocity,
     required double? motionStartDistanceThreshold,
   })  : _target = target,
-        _gestureProxy = gestureTamperer,
+        _gestureProxy = gestureProxy,
         _lastDetails = details,
         pointerDeviceKind = details.kind {
     // Actual work is done by this object.
@@ -297,8 +297,8 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     _target = delegate;
   }
 
-  void updateGestureTamperer(SheetGestureProxyMixin? gestureTamperer) {
-    _gestureProxy = gestureTamperer;
+  void updateGestureProxy(SheetGestureProxyMixin? gestureProxy) {
+    _gestureProxy = gestureProxy;
   }
 
   @override

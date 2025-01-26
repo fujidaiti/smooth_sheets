@@ -5,7 +5,7 @@ import 'package:navigator_resizable/navigator_resizable.dart';
 import '../foundation/context.dart';
 import '../foundation/controller.dart';
 import '../foundation/foundation.dart';
-import '../foundation/gesture_tamperer.dart';
+import '../foundation/gesture_proxy.dart';
 import '../foundation/model_scope.dart';
 import '../foundation/snap_grid.dart';
 import 'paged_sheet_geometry.dart';
@@ -40,7 +40,7 @@ class _PagedSheetState extends State<PagedSheet>
       minPosition: kDefaultPagedSheetMinOffset,
       maxPosition: kDefaultPagedSheetMaxOffset,
       controller: controller,
-      gestureTamperer: gestureProxy,
+      gestureProxy: gestureProxy,
       debugLabel: kDebugMode ? 'NavigationSheet' : null,
       child: NavigatorResizable(
         child: widget.child,
@@ -52,7 +52,7 @@ class _PagedSheetState extends State<PagedSheet>
 class _PagedSheetPositionScope extends SheetPositionScope<PagedSheetGeometry> {
   const _PagedSheetPositionScope({
     super.controller,
-    super.gestureTamperer,
+    super.gestureProxy,
     required super.minPosition,
     required super.maxPosition,
     required super.physics,
@@ -107,7 +107,7 @@ class _PagedSheetPositionScopeState extends SheetPositionScopeState<
   PagedSheetGeometry buildPosition(SheetContext context) {
     return PagedSheetGeometry(
       context: context,
-      gestureTamperer: widget.gestureTamperer,
+      gestureProxy: widget.gestureProxy,
       debugLabel: widget.debugLabel,
     );
   }

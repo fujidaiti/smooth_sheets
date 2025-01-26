@@ -23,7 +23,7 @@ class DraggableScrollableSheetPosition extends SheetModel
     required super.initialPosition,
     required super.physics,
     required super.snapGrid,
-    super.gestureTamperer,
+    super.gestureProxy,
     super.debugLabel,
   });
 
@@ -132,7 +132,7 @@ class DraggableScrollableSheetPosition extends SheetModel
       globalPositionY: details.globalPosition.dy,
       kind: details.kind,
     );
-    if (gestureTamperer case final tamperer?) {
+    if (gestureProxy case final tamperer?) {
       startDetails = tamperer.onDragStart(startDetails);
     }
     final heldPreviousVelocity = switch (activity) {
@@ -142,7 +142,7 @@ class DraggableScrollableSheetPosition extends SheetModel
     };
     final drag = SheetDragController(
       target: dragActivity,
-      gestureTamperer: gestureTamperer,
+      gestureProxy: gestureProxy,
       details: startDetails,
       onDragCanceled: dragCancelCallback,
       carriedVelocity:
