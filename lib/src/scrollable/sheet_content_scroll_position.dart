@@ -16,7 +16,9 @@ import 'scrollable_sheet.dart';
 abstract class SheetContentScrollPositionOwner {
   // TODO: Remove the following 3 methods.
   bool get hasPrimaryScrollPosition;
+
   void addScrollPosition(SheetContentScrollPosition position);
+
   void removeScrollPosition(SheetContentScrollPosition position);
 
   void replaceScrollPosition({
@@ -71,6 +73,7 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   /// Whether the scroll view should prevent its contents from receiving
   /// pointer events.
+  @override
   bool get shouldIgnorePointer => activity!.shouldIgnorePointer;
 
   /// Sets the user scroll direction.

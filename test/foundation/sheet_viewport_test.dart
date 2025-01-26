@@ -108,7 +108,7 @@ void main() {
       (tester) async {
         final model = MockSheetPosition();
         late VoidCallback notifyListeners;
-        when(model.offset).thenReturn(150);
+        when(model.value).thenReturn(SheetGeometry(offset: 150));
         when(model.addListener(any)).thenAnswer((invocation) {
           notifyListeners =
               invocation.positionalArguments.first as VoidCallback;
@@ -125,7 +125,7 @@ void main() {
           Offset(0, testScreenSize.height - 150),
         );
 
-        when(model.offset).thenReturn(200);
+        when(model.value).thenReturn(SheetGeometry(offset: 200));
         notifyListeners();
         await tester.pump();
 
@@ -143,7 +143,7 @@ void main() {
       Widget testWidget,
     }) boilerplate() {
       final model = MockSheetPosition();
-      when(model.offset).thenReturn(300);
+      when(model.value).thenReturn(SheetGeometry(offset: 300));
 
       final viewportKey = GlobalKey<SheetViewportState>();
       final testWidget = MediaQuery(

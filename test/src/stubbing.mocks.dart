@@ -414,15 +414,6 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
           as _i2.SheetMetrics);
 
   @override
-  bool get hasListeners =>
-      (super.noSuchMethod(
-            Invocation.getter(#hasListeners),
-            returnValue: false,
-            returnValueForMissingStub: false,
-          )
-          as bool);
-
-  @override
   bool get isPixelsInBounds =>
       (super.noSuchMethod(
             Invocation.getter(#isPixelsInBounds),
@@ -448,6 +439,15 @@ class MockSheetPosition extends _i1.Mock implements _i2.SheetPosition {
             returnValueForMissingStub: 0.0,
           )
           as double);
+
+  @override
+  bool get hasListeners =>
+      (super.noSuchMethod(
+            Invocation.getter(#hasListeners),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
 
   @override
   void takeOver(_i2.SheetPosition? other) => super.noSuchMethod(

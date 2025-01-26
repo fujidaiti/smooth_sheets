@@ -97,7 +97,11 @@ class MutableSheetMetrics with SheetMetrics {
   );
 
   final position = MockSheetPosition();
-  when(position.value).thenAnswer((_) => metricsRegistry.offset);
+  when(position.value).thenAnswer(
+    (_) => SheetGeometry(
+      offset: metricsRegistry.offset,
+    ),
+  );
   when(position.offset).thenAnswer((_) => metricsRegistry.offset);
   when(position.initialPosition).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);

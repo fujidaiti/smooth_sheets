@@ -155,7 +155,7 @@ class _RenderSheetTranslate extends RenderTransform {
   }
 
   void _invalidateTransformMatrix() {
-    final offset = _model.value;
+    final offset = _model.value?.offset;
     final viewportSize = _lastMeasuredSize;
     if (offset != null && viewportSize != null) {
       final dy = viewportSize.height - _insets.bottom - offset;
@@ -195,7 +195,7 @@ class _RenderSheetTranslate extends RenderTransform {
   }
 }
 
-class _LazySheetModelView extends ChangeNotifier implements SheetModelView {
+class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   SheetPosition? _model;
 
   void setModel(SheetPosition? newModel) {
@@ -218,8 +218,53 @@ class _LazySheetModelView extends ChangeNotifier implements SheetModelView {
   }
 
   @override
-  double? get value => _model?.offset;
+  SheetGeometry? get value => _model?.value;
+
+  @override
+  bool get hasMetrics => _model?.hasMetrics ?? false;
 
   @override
   bool get shouldIgnorePointer => _model?.shouldIgnorePointer ?? false;
+
+  @override
+  Size get contentSize => _model!.contentSize;
+
+  @override
+  double get devicePixelRatio => _model!.devicePixelRatio;
+
+  @override
+  double get maxOffset => _model!.maxOffset;
+
+  @override
+  double get minOffset => _model!.minOffset;
+
+  @override
+  double get offset => _model!.offset;
+
+  @override
+  EdgeInsets get viewportInsets => _model!.viewportInsets;
+
+  @override
+  Size get viewportSize => _model!.viewportSize;
+
+  @override
+  SheetMetrics copyWith({
+    double? offset,
+    double? minOffset,
+    double? maxOffset,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportInsets,
+    double? devicePixelRatio,
+  }) {
+    return _model!.copyWith(
+      offset: offset,
+      minOffset: minOffset,
+      maxOffset: maxOffset,
+      contentSize: contentSize,
+      viewportSize: viewportSize,
+      viewportInsets: viewportInsets,
+      devicePixelRatio: devicePixelRatio,
+    );
+  }
 }

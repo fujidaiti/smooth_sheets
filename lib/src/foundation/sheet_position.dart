@@ -112,8 +112,12 @@ class FixedSheetAnchor implements SheetAnchor {
 }
 
 /// Read-only view of a [SheetPosition].
-abstract interface class SheetModelView implements ValueListenable<double?> {
+abstract class SheetModelView
+    with SheetMetrics
+    implements ValueListenable<SheetGeometry?> {
   bool get shouldIgnorePointer;
+
+  bool get hasMetrics;
 }
 
 /// Manages the position of a sheet.
@@ -143,13 +147,8 @@ abstract interface class SheetModelView implements ValueListenable<double?> {
 ///   lifecycle and exposes it to the descendant widgets.
 @internal
 @optionalTypeArgs
-// TODO: Rename to SheetGeometryController.
-// ignore: lines_longer_than_80_chars
-// TODO: Implement ValueListenable<SheetGeometry> instead of ValueListenable<double?>.
-// TODO: Implement SheetModelView.
-abstract class SheetPosition extends ChangeNotifier
-    with SheetMetrics
-    implements SheetModelView {
+// TODO: Rename to SheetModel.
+abstract class SheetPosition extends SheetModelView with ChangeNotifier {
   /// Creates an object that manages the position of a sheet.
   SheetPosition({
     required this.context,
@@ -163,6 +162,9 @@ abstract class SheetPosition extends ChangeNotifier
         _gestureTamperer = gestureTamperer {
     goIdle();
   }
+
+  @override
+  SheetGeometry? get value => _geometry;
 
   SheetGeometry get geometry => _geometry!;
   SheetGeometry? _geometry;
@@ -223,9 +225,6 @@ abstract class SheetPosition extends ChangeNotifier
   }
 
   @override
-  double? get value => _geometry?.offset;
-
-  @override
   double get offset => geometry.offset;
 
   @override
@@ -242,6 +241,7 @@ abstract class SheetPosition extends ChangeNotifier
 
   SheetStatus get status => activity.status;
 
+  @override
   bool get hasMetrics =>
       _geometry != null && _measurements != null && _boundaries != null;
 

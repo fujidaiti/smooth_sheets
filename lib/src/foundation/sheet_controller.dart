@@ -7,7 +7,7 @@ import 'foundation.dart';
 import 'sheet_position.dart';
 
 class SheetController extends ChangeNotifier
-    implements ValueListenable<double?> {
+    implements ValueListenable<SheetGeometry?> {
   SheetPosition? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
@@ -22,7 +22,7 @@ class SheetController extends ChangeNotifier
   /// Returns [SheetPosition.value] of the attached [SheetPosition],
   /// or `null` if no [SheetPosition] is attached.
   @override
-  double? get value => _client?.value;
+  SheetGeometry? get value => _client?.value;
 
   SheetStatus? get status => _client?.status;
 
