@@ -1,10 +1,10 @@
 import 'package:flutter/animation.dart';
 
-import 'sheet_controller.dart';
-import 'sheet_model.dart';
+import 'controller.dart';
+import 'model.dart';
 
-class SheetPositionDrivenAnimation extends Animation<double> {
-  SheetPositionDrivenAnimation({
+class SheetOffsetDrivenAnimation extends Animation<double> {
+  SheetOffsetDrivenAnimation({
     required SheetController controller,
     required this.initialValue,
     this.startPosition,

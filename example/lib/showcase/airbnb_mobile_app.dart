@@ -101,7 +101,7 @@ class _MapButton extends StatelessWidget {
     // by using 'PositionDrivenAnimation', a special kind of
     // 'Animation<double>' whose value changes from 0 to 1 as
     // the sheet position changes from 'startPosition' to 'endPosition'.
-    final animation = SheetPositionDrivenAnimation(
+    final animation = SheetOffsetDrivenAnimation(
       controller: DefaultSheetController.of(context),
       // The initial value of the animation is required
       // since the sheet position is not available at the first build.
@@ -262,7 +262,7 @@ class _HouseList extends StatelessWidget {
 
     // Hide the list when the sheet is dragged down.
     return FadeTransition(
-      opacity: SheetPositionDrivenAnimation(
+      opacity: SheetOffsetDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ).drive(
@@ -454,7 +454,7 @@ class _BottomNavigationBar extends StatelessWidget {
 
     // Hide the navigation bar when the sheet is dragged down.
     return SlideTransition(
-      position: SheetPositionDrivenAnimation(
+      position: SheetOffsetDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ).drive(

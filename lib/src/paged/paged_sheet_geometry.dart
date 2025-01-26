@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../../smooth_sheets.dart';
-import '../foundation/sheet_activity.dart';
-import '../foundation/sheet_model.dart';
+import '../foundation/activity.dart';
+import '../foundation/model.dart';
 import '../foundation/snap_grid.dart';
 import '../scrollable/scrollable_sheet_position.dart';
 import 'paged_sheet_route.dart';

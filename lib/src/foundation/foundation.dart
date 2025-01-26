@@ -1,11 +1,4 @@
-export 'keyboard_dismissible.dart'
-    show
-        DragDownSheetKeyboardDismissBehavior,
-        DragSheetKeyboardDismissBehavior,
-        DragUpSheetKeyboardDismissBehavior,
-        SheetKeyboardDismissBehavior,
-        SheetKeyboardDismissible;
-export 'sheet_content_scaffold.dart'
+export 'content_scaffold.dart'
     show
         AnimatedBottomBarVisibility,
         BottomBarVisibility,
@@ -14,22 +7,29 @@ export 'sheet_content_scaffold.dart'
         ResizeScaffoldBehavior,
         SheetContentScaffold,
         StickyBottomBarVisibility;
-export 'sheet_controller.dart' show DefaultSheetController, SheetController;
-export 'sheet_drag.dart'
+export 'controller.dart' show DefaultSheetController, SheetController;
+export 'drag.dart'
     show
         SheetDragCancelDetails,
         SheetDragDetails,
         SheetDragEndDetails,
         SheetDragStartDetails,
         SheetDragUpdateDetails;
-export 'sheet_model.dart'
+export 'keyboard_dismissible.dart'
+    show
+        DragDownSheetKeyboardDismissBehavior,
+        DragSheetKeyboardDismissBehavior,
+        DragUpSheetKeyboardDismissBehavior,
+        SheetKeyboardDismissBehavior,
+        SheetKeyboardDismissible;
+export 'model.dart'
     show
         AbsoluteSheetOffset,
         RelativeSheetOffset,
         SheetMetrics,
         SheetMetricsSnapshot,
         SheetOffset;
-export 'sheet_notification.dart'
+export 'notification.dart'
     show
         SheetDragCancelNotification,
         SheetDragEndNotification,
@@ -38,7 +38,8 @@ export 'sheet_notification.dart'
         SheetNotification,
         SheetOverflowNotification,
         SheetUpdateNotification;
-export 'sheet_physics.dart'
+export 'offset_driven_animation.dart' show SheetOffsetDrivenAnimation;
+export 'physics.dart'
     show
         BouncingBehavior,
         BouncingSheetPhysics,
@@ -49,5 +50,4 @@ export 'sheet_physics.dart'
         SheetPhysicsMixin,
         kDefaultSheetPhysics,
         kDefaultSheetSpring;
-export 'sheet_position_driven_animation.dart' show SheetPositionDrivenAnimation;
-export 'sheet_viewport.dart' show SheetViewport;
+export 'viewport.dart' show SheetViewport;

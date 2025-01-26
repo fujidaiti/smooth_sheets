@@ -5,8 +5,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/sheet_activity.dart';
-import '../foundation/sheet_drag.dart';
+import '../foundation/activity.dart';
+import '../foundation/drag.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet.dart';
 import 'scrollable_sheet_position.dart';

@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:smooth_sheets/src/foundation/sheet_frame.dart';
-import 'package:smooth_sheets/src/foundation/sheet_model.dart';
+import 'package:smooth_sheets/src/foundation/frame.dart';
+import 'package:smooth_sheets/src/foundation/model.dart';
 
 import '../flutter_test_config.dart';
 import '../src/stubbing.dart';

@@ -4,8 +4,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_model.dart';
+import 'package:smooth_sheets/src/foundation/activity.dart';
+import 'package:smooth_sheets/src/foundation/model.dart';
 
 import '../src/matchers.dart';
 import '../src/stubbing.dart';

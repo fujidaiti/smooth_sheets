@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'sheet_notification.dart';
+import 'notification.dart';
 
 /// A widget that dismisses the on-screen keyboard when the user
 /// drags the sheet below this widget.

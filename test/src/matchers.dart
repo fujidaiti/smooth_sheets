@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smooth_sheets/src/foundation/sheet_model.dart';
+import 'package:smooth_sheets/src/foundation/model.dart';
 
 Matcher throwsError({required String name}) => throwsA(
       isA<Error>().having(

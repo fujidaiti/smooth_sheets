@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_position_scope.dart';
+import 'package:smooth_sheets/src/foundation/activity.dart';
+import 'package:smooth_sheets/src/foundation/controller.dart';
+import 'package:smooth_sheets/src/foundation/model_scope.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_position.dart';
 import 'package:smooth_sheets/src/scrollable/sheet_content_scroll_position.dart';
 

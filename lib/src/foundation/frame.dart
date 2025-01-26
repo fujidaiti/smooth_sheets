@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_model.dart';
+import 'model.dart';
 
 @internal
 class SheetFrame extends SingleChildRenderObjectWidget {

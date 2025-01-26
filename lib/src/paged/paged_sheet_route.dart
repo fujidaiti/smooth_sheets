@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
 import '../foundation/foundation.dart';
-import '../foundation/sheet_position_scope.dart';
+import '../foundation/model_scope.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'paged_sheet_geometry.dart';
 

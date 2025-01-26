@@ -4,8 +4,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../foundation/sheet_drag.dart';
-import '../foundation/sheet_gesture_tamperer.dart';
+import '../foundation/drag.dart';
+import '../foundation/gesture_tamperer.dart';
 import '../internal/float_comp.dart';
 import 'swipe_dismiss_sensitivity.dart';
 

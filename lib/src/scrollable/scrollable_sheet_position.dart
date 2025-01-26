@@ -4,8 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/sheet_drag.dart';
-import '../foundation/sheet_model.dart';
+import '../foundation/drag.dart';
+import '../foundation/model.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet_activity.dart';
 import 'sheet_content_scroll_activity.dart';

@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
-import 'package:smooth_sheets/src/foundation/sheet_model.dart';
-import 'package:smooth_sheets/src/foundation/sheet_notification.dart';
-import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
-import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
+import 'package:smooth_sheets/src/foundation/controller.dart';
+import 'package:smooth_sheets/src/foundation/model.dart';
+import 'package:smooth_sheets/src/foundation/notification.dart';
+import 'package:smooth_sheets/src/foundation/physics.dart';
+import 'package:smooth_sheets/src/foundation/viewport.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
 
 void main() {

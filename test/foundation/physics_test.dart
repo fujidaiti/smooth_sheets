@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/sheet_model.dart';
+import 'package:smooth_sheets/src/foundation/model.dart';
 import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 
 class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics

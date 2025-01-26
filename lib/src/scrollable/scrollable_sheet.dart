@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/sheet_context.dart';
-import '../foundation/sheet_controller.dart';
-import '../foundation/sheet_gesture_tamperer.dart';
-import '../foundation/sheet_model.dart';
-import '../foundation/sheet_physics.dart';
+import '../foundation/context.dart';
+import '../foundation/controller.dart';
+import '../foundation/gesture_tamperer.dart';
+import '../foundation/model.dart';
+import '../foundation/physics.dart';
 import '../foundation/snap_grid.dart';
 import 'scrollable_sheet_position_scope.dart';
 import 'sheet_draggable.dart';

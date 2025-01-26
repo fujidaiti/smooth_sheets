@@ -6,9 +6,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_drag.dart';
-import 'sheet_model.dart';
-import 'sheet_physics.dart';
+import 'drag.dart';
+import 'model.dart';
+import 'physics.dart';
 import 'snap_grid.dart';
 
 @internal

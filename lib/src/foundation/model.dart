@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_activity.dart';
-import 'sheet_context.dart';
-import 'sheet_controller.dart';
-import 'sheet_drag.dart';
-import 'sheet_gesture_tamperer.dart';
-import 'sheet_notification.dart';
-import 'sheet_physics.dart';
-import 'sheet_position_scope.dart';
+import 'activity.dart';
+import 'context.dart';
+import 'controller.dart';
+import 'drag.dart';
+import 'gesture_tamperer.dart';
+import 'model_scope.dart';
+import 'notification.dart';
+import 'physics.dart';
 import 'snap_grid.dart';
 
 /// An abstract representation of a sheet's position.

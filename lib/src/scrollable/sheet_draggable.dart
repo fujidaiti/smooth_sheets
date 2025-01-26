@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-import '../foundation/sheet_model.dart';
-import '../foundation/sheet_position_scope.dart';
+import '../foundation/model.dart';
+import '../foundation/model_scope.dart';
 import 'scrollable_sheet.dart';
 
 /// A widget that makes its child as a drag-handle for a sheet.

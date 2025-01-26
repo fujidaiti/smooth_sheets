@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_gesture_tamperer.dart';
+import 'gesture_tamperer.dart';
 
 /// Represents the details of a drag event on a sheet.
 sealed class SheetDragDetails {
@@ -58,11 +58,13 @@ class SheetDragStartDetails extends SheetDragDetails {
   /// The local position in the coordinate system of the event receiver
   /// at which the pointer contacted the screen.
   Offset get localPosition => _localPosition;
+
   // Lazily initialized to avoid unnecessary object creation.
   late final _localPosition = Offset(localPositionX, localPositionY);
 
   /// The global position at which the pointer contacted the screen.
   Offset get globalPosition => _globalPosition;
+
   // Lazily initialized to avoid unnecessary object creation.
   late final _globalPosition = Offset(globalPositionX, globalPositionY);
 
@@ -127,11 +129,13 @@ class SheetDragUpdateDetails extends SheetDragDetails {
   /// The local position in the coordinate system of the event receiver
   /// at which the pointer contacted the screen.
   Offset get localPosition => _localPosition;
+
   // Lazily initialized to avoid unnecessary object creation.
   late final _localPosition = Offset(localPositionX, localPositionY);
 
   /// The global position at which the pointer contacted the screen.
   Offset get globalPosition => _globalPosition;
+
   // Lazily initialized to avoid unnecessary object creation.
   late final _globalPosition = Offset(globalPositionX, globalPositionY);
 
@@ -144,6 +148,7 @@ class SheetDragUpdateDetails extends SheetDragDetails {
   /// The amount the pointer has moved in the coordinate space
   /// of the event receiver since the previous update.
   Offset get delta => _delta;
+
   // Lazily initialized to avoid unnecessary object creation.
   late final _delta = Offset(deltaX, deltaY);
 
@@ -194,6 +199,7 @@ class SheetDragEndDetails extends SheetDragDetails {
 
   /// The velocity the pointer was moving when it stopped contacting the screen.
   Velocity get velocity => _velocity;
+
   // Lazily initialized to avoid unnecessary object creation.
   late final _velocity = Velocity(
     pixelsPerSecond: Offset(velocityX, velocityY),
@@ -223,8 +229,11 @@ class SheetDragCancelDetails extends SheetDragDetails {
 @internal
 abstract class SheetDragControllerTarget {
   VerticalDirection get dragAxisDirection;
+
   void onDragUpdate(SheetDragUpdateDetails details);
+
   void onDragEnd(SheetDragEndDetails details);
+
   void onDragCancel(SheetDragCancelDetails details);
 
   /// Returns the minimum number of pixels that the sheet being dragged

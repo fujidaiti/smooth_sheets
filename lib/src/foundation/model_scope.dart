@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_context.dart';
-import 'sheet_controller.dart';
-import 'sheet_gesture_tamperer.dart';
-import 'sheet_model.dart';
-import 'sheet_physics.dart';
-import 'sheet_viewport.dart';
+import 'context.dart';
+import 'controller.dart';
+import 'gesture_tamperer.dart';
+import 'model.dart';
+import 'physics.dart';
 import 'snap_grid.dart';
+import 'viewport.dart';
 
 /// A widget that creates a [SheetModel], manages its lifecycle,
 /// and exposes it to the descendant widgets.

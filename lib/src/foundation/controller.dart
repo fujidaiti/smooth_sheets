@@ -3,7 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_model.dart';
+import 'model.dart';
 
 class SheetController extends ChangeNotifier
     implements ValueListenable<SheetGeometry?> {

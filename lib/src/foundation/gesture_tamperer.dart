@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_drag.dart';
+import 'drag.dart';
 
 // TODO: Expose this as a public API.
 @internal

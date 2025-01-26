@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 
-import 'sheet_drag.dart';
-import 'sheet_model.dart';
-import 'sheet_physics.dart';
+import 'drag.dart';
+import 'model.dart';
+import 'physics.dart';
 
 /// A [Notification] that is dispatched when the sheet position changes.
 ///

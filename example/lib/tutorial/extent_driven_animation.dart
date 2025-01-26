@@ -90,7 +90,7 @@ class _BottomAppBar extends StatelessWidget {
     // by using 'PositionDrivenAnimation', a special kind of
     // 'Animation<double>' whose value changes from 0 to 1 as
     // the sheet position changes from 'startPosition' to 'endPosition'.
-    final animation = SheetPositionDrivenAnimation(
+    final animation = SheetOffsetDrivenAnimation(
       controller: controller,
       // The initial value of the animation is required
       // since the sheet position is not available at the first build.
@@ -136,7 +136,7 @@ class _RotatedFlutterLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logo = RotationTransition(
-      turns: SheetPositionDrivenAnimation(
+      turns: SheetOffsetDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ),

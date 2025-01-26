@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../foundation/sheet_controller.dart';
+import '../foundation/controller.dart';
 import '../internal/double_utils.dart';
 import 'modal_sheet.dart';
 import 'swipe_dismiss_sensitivity.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../foundation/sheet_position_scope.dart';
+import '../foundation/model_scope.dart';
 import 'scrollable_sheet_position.dart';
 import 'sheet_content_scroll_position.dart';
 
