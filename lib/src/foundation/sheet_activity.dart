@@ -14,7 +14,7 @@ import 'snap_grid.dart';
 
 @internal
 @optionalTypeArgs
-abstract class SheetActivity<T extends SheetPosition> {
+abstract class SheetActivity<T extends SheetModel> {
   bool _disposed = false;
 
   bool get disposed {
@@ -64,7 +64,7 @@ abstract class SheetActivity<T extends SheetPosition> {
   /// this activity.
   bool get shouldIgnorePointer => false;
 
-  bool isCompatibleWith(SheetPosition newOwner) => newOwner is T;
+  bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
   void didChangeMeasurements(SheetMeasurements oldMeasurements) {
     if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
@@ -102,7 +102,7 @@ abstract class SheetActivity<T extends SheetPosition> {
   }
 }
 
-/// An activity that animates the [SheetPosition]'s `pixels` to a destination
+/// An activity that animates the [SheetModel]'s `pixels` to a destination
 /// position determined by [destination], using the specified [curve] and
 /// [duration].
 ///
@@ -133,7 +133,7 @@ class AnimatedSheetActivity extends SheetActivity
   late final double _endPixels;
 
   @override
-  void init(SheetPosition delegate) {
+  void init(SheetModel delegate) {
     super.init(delegate);
     _startPixels = owner.offset;
     _endPixels = destination.resolve(owner.measurements);
@@ -246,7 +246,7 @@ class BallisticSheetActivity extends SheetActivity
 /// A [SheetActivity] that performs a settling motion in response to changes
 /// in the viewport dimensions or content size.
 ///
-/// A [SheetPosition] may start this activity when the viewport insets change
+/// A [SheetModel] may start this activity when the viewport insets change
 /// during an animation, typically due to the appearance or disappearance of
 /// the on-screen keyboard, or when the content size changes (e.g., due to
 /// entering a new line of text in a text field).
@@ -302,7 +302,7 @@ class SettlingSheetActivity extends SheetActivity {
   SheetStatus get status => SheetStatus.animating;
 
   @override
-  void init(SheetPosition owner) {
+  void init(SheetModel owner) {
     super.init(owner);
     _ticker = owner.context.vsync.createTicker(_tick)..start();
     _invalidateVelocity();
@@ -377,7 +377,7 @@ class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
   late final SheetOffset targetOffset;
 
   @override
-  void init(SheetPosition owner) {
+  void init(SheetModel owner) {
     super.init(owner);
     targetOffset = owner.hasMetrics
         ? owner.snapGrid.getSnapOffset(owner, 0)
@@ -442,7 +442,7 @@ class DragSheetActivity extends SheetActivity
 }
 
 @internal
-mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
+mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
   SheetOffset get targetOffset;
 
   @override
@@ -493,8 +493,7 @@ mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
 
 @internal
 @optionalTypeArgs
-mixin ControlledSheetActivityMixin<T extends SheetPosition>
-    on SheetActivity<T> {
+mixin ControlledSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
   late final AnimationController controller;
 
   final _completer = Completer<void>();
@@ -534,7 +533,7 @@ mixin ControlledSheetActivityMixin<T extends SheetPosition>
 
 @internal
 @optionalTypeArgs
-mixin UserControlledSheetActivityMixin<T extends SheetPosition>
+mixin UserControlledSheetActivityMixin<T extends SheetModel>
     on SheetActivity<T> {
   @override
   SheetStatus get status => SheetStatus.dragging;
@@ -554,7 +553,7 @@ mixin UserControlledSheetActivityMixin<T extends SheetPosition>
 /// `pixels` to maintain the visual sheet position.
 @internal
 void absorbBottomViewportInset(
-  SheetPosition activityOwner,
+  SheetModel activityOwner,
   EdgeInsets oldViewportInsets,
 ) {
   final newInsets = activityOwner.measurements.viewportInsets;

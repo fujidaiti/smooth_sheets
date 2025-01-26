@@ -4,11 +4,13 @@ import 'package:meta/meta.dart';
 import 'sheet_position.dart';
 
 /// An interface that provides a set of dependencies
-/// required by [SheetPosition].
+/// required by [SheetModel].
 @internal
 abstract class SheetContext {
   TickerProvider get vsync;
+
   BuildContext? get notificationContext;
+
   double get devicePixelRatio;
 }
 

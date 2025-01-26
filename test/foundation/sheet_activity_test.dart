@@ -42,7 +42,7 @@ void main() {
     });
 
     test('should animate to the destination', () {
-      final (ownerMetrics, owner) = createMockSheetPosition(
+      final (ownerMetrics, owner) = createMockSheetModel(
         pixels: 300,
         initialPosition: const SheetOffset.absolute(300),
         minOffset: 300,
@@ -82,7 +82,7 @@ void main() {
     });
 
     test('should absorb viewport changes', () {
-      final (ownerMetrics, owner) = createMockSheetPosition(
+      final (ownerMetrics, owner) = createMockSheetModel(
         pixels: 300,
         initialPosition: const SheetOffset.absolute(300),
         minOffset: 300,
@@ -135,13 +135,13 @@ void main() {
   });
 
   group('SettlingSheetActivity', () {
-    late MockSheetPosition owner;
+    late MockSheetModel owner;
     late MutableSheetMetrics ownerMetrics;
     late MockTicker internalTicker;
     late TickerCallback? internalOnTickCallback;
 
     setUp(() {
-      (ownerMetrics, owner) = createMockSheetPosition(
+      (ownerMetrics, owner) = createMockSheetModel(
         pixels: 300,
         initialPosition: const SheetOffset.relative(0.5),
         minOffset: 300,
@@ -273,7 +273,7 @@ void main() {
 
   group('IdleSheetActivity', () {
     test('should maintain previous position when keyboard appears', () {
-      final (ownerMetrics, owner) = createMockSheetPosition(
+      final (ownerMetrics, owner) = createMockSheetModel(
         pixels: 450,
         initialPosition: const SheetOffset.relative(0.5),
         minOffset: 425,
@@ -301,7 +301,7 @@ void main() {
       'should maintain previous position when content size changes, '
       'without animation if gap is small',
       () {
-        final (ownerMetrics, owner) = createMockSheetPosition(
+        final (ownerMetrics, owner) = createMockSheetModel(
           pixels: 300,
           initialPosition: const SheetOffset.relative(0.5),
           minOffset: 290,
@@ -332,7 +332,7 @@ void main() {
       'should maintain previous position when content size changes, '
       'with animation if gap is large',
       () {
-        final (ownerMetrics, owner) = createMockSheetPosition(
+        final (ownerMetrics, owner) = createMockSheetModel(
           pixels: 300,
           initialPosition: const SheetOffset.relative(0.5),
           minOffset: 250,

@@ -8,7 +8,7 @@ import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';
 
 @GenerateNiceMocks([
-  MockSpec<SheetPosition>(),
+  MockSpec<SheetModel>(),
   MockSpec<SheetContext>(),
   MockSpec<SheetMetrics>(),
   MockSpec<AnimationController>(),
@@ -63,7 +63,7 @@ class MutableSheetMetrics with SheetMetrics {
   }
 }
 
-(MutableSheetMetrics, MockSheetPosition) createMockSheetPosition({
+(MutableSheetMetrics, MockSheetModel) createMockSheetModel({
   required double pixels,
   required SheetOffset initialPosition,
   required double minOffset,
@@ -86,7 +86,7 @@ class MutableSheetMetrics with SheetMetrics {
     devicePixelRatio: devicePixelRatio,
   );
 
-  final position = MockSheetPosition();
+  final position = MockSheetModel();
   when(position.value).thenAnswer(
     (_) => SheetGeometry(
       offset: metricsRegistry.offset,

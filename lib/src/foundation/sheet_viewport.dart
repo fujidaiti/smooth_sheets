@@ -24,7 +24,7 @@ class SheetViewportState extends State<SheetViewport> {
 
   SheetModelView get model => _modelView;
 
-  void setModel(SheetPosition? model) {
+  void setModel(SheetModel? model) {
     _modelView.setModel(model);
   }
 
@@ -196,9 +196,9 @@ class _RenderSheetTranslate extends RenderTransform {
 }
 
 class _LazySheetModelView extends SheetModelView with ChangeNotifier {
-  SheetPosition? _model;
+  SheetModel? _model;
 
-  void setModel(SheetPosition? newModel) {
+  void setModel(SheetModel? newModel) {
     if (newModel != _model) {
       final oldValue = value;
       _model?.removeListener(notifyListeners);

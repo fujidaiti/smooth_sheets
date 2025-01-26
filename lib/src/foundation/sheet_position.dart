@@ -106,7 +106,7 @@ class AbsoluteSheetOffset implements SheetOffset {
   String toString() => '$AbsoluteSheetOffset(value: $value)';
 }
 
-/// Read-only view of a [SheetPosition].
+/// Read-only view of a [SheetModel].
 abstract class SheetModelView
     with SheetMetrics
     implements ValueListenable<SheetGeometry?> {
@@ -118,16 +118,16 @@ abstract class SheetModelView
 /// Manages the position of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
-/// The [SheetPosition.offset] value determines the visible height of a sheet.
+/// The [SheetModel.offset] value determines the visible height of a sheet.
 /// As this value changes, the sheet translates its position, which changes the
-/// visible area of the content. The [SheetPosition.minOffset] and
-/// [SheetPosition.maxOffset] values limit the range of the *pixels*, but it can
-/// be outside of the range if the [SheetPosition.physics] allows it.
+/// visible area of the content. The [SheetModel.minOffset] and
+/// [SheetModel.maxOffset] values limit the range of the *pixels*, but it can
+/// be outside of the range if the [SheetModel.physics] allows it.
 ///
 /// The current [activity] is responsible for how the *pixels* changes
 /// over time, for example, [AnimatedSheetActivity] animates the *pixels* to
 /// a target value, and [IdleSheetActivity] keeps the *pixels* unchanged.
-/// [SheetPosition] starts with [IdleSheetActivity] as the initial activity,
+/// [SheetModel] starts with [IdleSheetActivity] as the initial activity,
 /// and it can be changed by calling [beginActivity].
 ///
 /// This object is a [Listenable] that notifies its listeners when the *pixels*
@@ -138,14 +138,12 @@ abstract class SheetModelView
 /// See also:
 /// - [SheetController], which can be attached to a sheet to observe and control
 ///   its position.
-/// - [SheetPositionScope], which creates a [SheetPosition], manages its
+/// - [SheetPositionScope], which creates a [SheetModel], manages its
 ///   lifecycle and exposes it to the descendant widgets.
 @internal
-@optionalTypeArgs
-// TODO: Rename to SheetModel.
-abstract class SheetPosition extends SheetModelView with ChangeNotifier {
+abstract class SheetModel extends SheetModelView with ChangeNotifier {
   /// Creates an object that manages the position of a sheet.
-  SheetPosition({
+  SheetModel({
     required this.context,
     required this.initialPosition,
     required SheetPhysics physics,
@@ -279,7 +277,7 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
       );
 
   @mustCallSuper
-  void takeOver(SheetPosition other) {
+  void takeOver(SheetModel other) {
     assert(currentDrag == null);
     if (other.activity.isCompatibleWith(this)) {
       activity.dispose();

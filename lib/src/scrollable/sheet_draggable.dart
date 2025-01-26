@@ -32,7 +32,7 @@ class SheetDraggable extends StatefulWidget {
 }
 
 class _SheetDraggableState extends State<SheetDraggable> {
-  SheetPosition? _position;
+  SheetModel? _position;
   Drag? _currentDrag;
 
   @override

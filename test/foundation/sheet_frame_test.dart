@@ -15,7 +15,7 @@ void main() {
       Widget testWidget,
       ValueSetter<Size> setContainerSize,
     }) boilerplate({
-      required SheetPosition model,
+      required SheetModel model,
       EdgeInsets viewportInsets = EdgeInsets.zero,
       Size initialContainerSize = Size.infinite,
     }) {
@@ -58,7 +58,7 @@ void main() {
       "and enforce the child's width to be the same as the parent's width",
       (tester) async {
         final env = boilerplate(
-          model: MockSheetPosition(),
+          model: MockSheetModel(),
           initialContainerSize: Size(300, double.infinity),
         );
         await tester.pumpWidget(env.testWidget);
@@ -75,7 +75,7 @@ void main() {
       'should size itself to fit the child',
       (WidgetTester tester) async {
         final env = boilerplate(
-          model: MockSheetPosition(),
+          model: MockSheetModel(),
           initialContainerSize: Size.fromHeight(300),
         );
         await tester.pumpWidget(env.testWidget);
@@ -89,7 +89,7 @@ void main() {
     testWidgets(
       'should trigger the callback on the first build',
       (WidgetTester tester) async {
-        final mockModel = MockSheetPosition();
+        final mockModel = MockSheetModel();
         final env = boilerplate(
           model: mockModel,
           viewportInsets: EdgeInsets.zero,
@@ -110,7 +110,7 @@ void main() {
     testWidgets(
       "should trigger the callback when the child's size changes",
       (tester) async {
-        final mockModel = MockSheetPosition();
+        final mockModel = MockSheetModel();
         final env = boilerplate(
           model: mockModel,
           initialContainerSize: Size.fromHeight(300),

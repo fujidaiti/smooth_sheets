@@ -16,7 +16,7 @@ const _kMaxScrollSpeedToInterrupt = double.infinity;
 
 // TODO: Rename to ScrollableSheetGeometry.
 @internal
-class DraggableScrollableSheetPosition extends SheetPosition
+class DraggableScrollableSheetPosition extends SheetModel
     implements SheetContentScrollPositionOwner {
   DraggableScrollableSheetPosition({
     required super.context,
@@ -71,7 +71,7 @@ class DraggableScrollableSheetPosition extends SheetPosition
   }
 
   @override
-  void takeOver(SheetPosition other) {
+  void takeOver(SheetModel other) {
     super.takeOver(other);
     if (other is DraggableScrollableSheetPosition) {
       assert(_scrollPositions.isEmpty);

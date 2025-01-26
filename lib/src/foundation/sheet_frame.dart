@@ -14,7 +14,7 @@ class SheetFrame extends SingleChildRenderObjectWidget {
     required super.child,
   });
 
-  final SheetPosition model;
+  final SheetModel model;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -34,7 +34,7 @@ class SheetFrame extends SingleChildRenderObjectWidget {
 
 class _RenderSheetFrame extends RenderProxyBox {
   _RenderSheetFrame({
-    required SheetPosition model,
+    required SheetModel model,
     required EdgeInsets viewportInsets,
   })  : _model = model,
         _viewportInsets = viewportInsets {
@@ -42,7 +42,7 @@ class _RenderSheetFrame extends RenderProxyBox {
   }
 
   EdgeInsets _viewportInsets;
-  SheetPosition _model;
+  SheetModel _model;
   Size? _lastMeasuredSize;
 
   @override
@@ -58,7 +58,7 @@ class _RenderSheetFrame extends RenderProxyBox {
     }
   }
 
-  void setModel(SheetPosition value) {
+  void setModel(SheetModel value) {
     if (value != _model) {
       _model = value;
       markNeedsLayout();

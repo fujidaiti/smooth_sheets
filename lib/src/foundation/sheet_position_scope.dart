@@ -11,13 +11,12 @@ import 'sheet_position.dart';
 import 'sheet_viewport.dart';
 import 'snap_grid.dart';
 
-/// A widget that creates a [SheetPosition], manages its lifecycle,
+/// A widget that creates a [SheetModel], manages its lifecycle,
 /// and exposes it to the descendant widgets.
 @internal
 // TODO: Rename to SheetPositionOwner
-abstract class SheetPositionScope<E extends SheetPosition>
-    extends StatefulWidget {
-  /// Creates a widget that hosts a [SheetPosition].
+abstract class SheetPositionScope<E extends SheetModel> extends StatefulWidget {
+  /// Creates a widget that hosts a [SheetModel].
   const SheetPositionScope({
     super.key,
     required this.context,
@@ -35,7 +34,7 @@ abstract class SheetPositionScope<E extends SheetPosition>
   /// The context the position object belongs to.
   final SheetContext context;
 
-  /// The [SheetController] attached to the [SheetPosition].
+  /// The [SheetController] attached to the [SheetModel].
   final SheetController? controller;
 
   /// {@macro SheetPosition.minPosition}
@@ -61,10 +60,10 @@ abstract class SheetPositionScope<E extends SheetPosition>
   @override
   SheetPositionScopeState<E, SheetPositionScope<E>> createState();
 
-  /// Retrieves a [SheetPosition] from the closest [SheetPositionScope]
+  /// Retrieves a [SheetModel] from the closest [SheetPositionScope]
   /// that encloses the given context, if any.
   // TODO: Add 'useRoot' option.
-  static E? maybeOf<E extends SheetPosition>(BuildContext context) {
+  static E? maybeOf<E extends SheetModel>(BuildContext context) {
     final inherited = context
         .dependOnInheritedWidgetOfExactType<InheritedSheetPositionScope>()
         ?.position;
@@ -72,9 +71,9 @@ abstract class SheetPositionScope<E extends SheetPosition>
     return inherited is E ? inherited : null;
   }
 
-  /// Retrieves a [SheetPosition] from the closest [SheetPositionScope]
+  /// Retrieves a [SheetModel] from the closest [SheetPositionScope]
   /// that encloses the given context.
-  static E of<E extends SheetPosition>(BuildContext context) {
+  static E of<E extends SheetModel>(BuildContext context) {
     final position = maybeOf<E>(context);
 
     assert(() {
@@ -94,7 +93,7 @@ abstract class SheetPositionScope<E extends SheetPosition>
 }
 
 @internal
-abstract class SheetPositionScopeState<E extends SheetPosition,
+abstract class SheetPositionScopeState<E extends SheetModel,
     W extends SheetPositionScope> extends State<W> {
   @protected
   E get position => _position;
@@ -222,7 +221,7 @@ class InheritedSheetPositionScope extends InheritedWidget {
     required super.child,
   });
 
-  final SheetPosition position;
+  final SheetModel position;
   final bool isPrimary;
 
   @override

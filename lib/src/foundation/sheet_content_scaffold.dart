@@ -219,16 +219,16 @@ abstract class BottomBarVisibility implements Widget {
 
 abstract class _RenderBottomBarVisibility extends RenderTransform {
   _RenderBottomBarVisibility({
-    required SheetPosition position,
+    required SheetModel position,
   })  : _position = position,
         super(transform: Matrix4.zero(), transformHitTests: true) {
     _position.addListener(invalidateVisibility);
   }
 
-  SheetPosition _position;
+  SheetModel _position;
 
   // ignore: avoid_setters_without_getters
-  set position(SheetPosition value) {
+  set position(SheetModel value) {
     if (_position != value) {
       _position.removeListener(invalidateVisibility);
       _position = value..addListener(invalidateVisibility);
@@ -560,7 +560,7 @@ class _ConditionalStickyBottomBarVisibilityState
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _curveAnimation;
-  SheetPosition? _position;
+  SheetModel? _position;
 
   @override
   void initState() {

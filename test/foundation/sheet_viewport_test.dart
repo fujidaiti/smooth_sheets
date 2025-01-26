@@ -15,7 +15,7 @@ void main() {
     ({
       Widget testWidget,
     }) boilerplate({
-      required SheetPosition model,
+      required SheetModel model,
       BoxConstraints parentConstraints = const BoxConstraints.expand(),
       Size containerSize = Size.infinite,
     }) {
@@ -54,7 +54,7 @@ void main() {
       'should size itself to match the biggest size that the constraints allow',
       (tester) async {
         final env = boilerplate(
-          model: MockSheetPosition(),
+          model: MockSheetModel(),
           parentConstraints: BoxConstraints(maxWidth: 400, maxHeight: 400),
         );
         await tester.pumpWidget(env.testWidget);
@@ -66,7 +66,7 @@ void main() {
       "should not constraint the child's minimum size",
       (tester) async {
         final env = boilerplate(
-          model: MockSheetPosition(),
+          model: MockSheetModel(),
           containerSize: Size.zero,
           parentConstraints: BoxConstraints(minWidth: 100, minHeight: 100),
         );
@@ -79,7 +79,7 @@ void main() {
       "should constrain the child's maximum size by the parent's constraint",
       (tester) async {
         final env = boilerplate(
-          model: MockSheetPosition(),
+          model: MockSheetModel(),
           containerSize: Size.infinite,
           parentConstraints: BoxConstraints(maxWidth: 400, maxHeight: 400),
         );
@@ -93,7 +93,7 @@ void main() {
       'even if the given constraint is tight',
       (tester) async {
         final env = boilerplate(
-          model: MockSheetPosition(),
+          model: MockSheetModel(),
           containerSize: Size.square(200),
           parentConstraints: BoxConstraints.tight(Size.square(400)),
         );
@@ -106,7 +106,7 @@ void main() {
       "should translate the child's visual position "
       'according to the current sheet metrics',
       (tester) async {
-        final model = MockSheetPosition();
+        final model = MockSheetModel();
         late VoidCallback notifyListeners;
         when(model.value).thenReturn(SheetGeometry(offset: 150));
         when(model.addListener(any)).thenAnswer((invocation) {
@@ -139,10 +139,10 @@ void main() {
 
   group('SheetViewport: hit-testing', () {
     ({
-      MockSheetPosition model,
+      MockSheetModel model,
       Widget testWidget,
     }) boilerplate() {
-      final model = MockSheetPosition();
+      final model = MockSheetModel();
       when(model.value).thenReturn(SheetGeometry(offset: 300));
 
       final viewportKey = GlobalKey<SheetViewportState>();
@@ -307,7 +307,7 @@ void main() {
       'Throws an error when the viewport is not constrained '
       'by a finite constraint',
       (tester) async {
-        final model = MockSheetPosition();
+        final model = MockSheetModel();
         final viewportKey = GlobalKey<SheetViewportState>();
         final errors = await tester.pumpWidgetAndCaptureErrors(
           MediaQuery(
