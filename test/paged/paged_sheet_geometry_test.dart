@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -7,6 +9,7 @@ import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_geometry.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';
 
+import '../src/matchers.dart';
 import '../src/stubbing.dart';
 import '../src/stubbing.mocks.dart';
 import '../src/test_ticker.dart';
@@ -29,10 +32,8 @@ void main() {
 
   group('Lifecycle test', () {
     test('Before first build', () {
-      expect(geometryUnderTest.offset, isNull);
-      expect(geometryUnderTest.contentSize, isNull);
-      expect(geometryUnderTest.viewportSize, isNull);
-      expect(geometryUnderTest.viewportSize, isNull);
+      expect(geometryUnderTest.value, isNull);
+      expect(geometryUnderTest.hasMetrics, isFalse);
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
     });
 
@@ -49,9 +50,14 @@ void main() {
       expect(geometryUnderTest.offset, 200);
       expect(geometryUnderTest.minOffset, 200);
       expect(geometryUnderTest.maxOffset, 400);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
-      expect(geometryUnderTest.viewportSize, const Size(400, 800));
-      expect(geometryUnderTest.viewportSize, EdgeInsets.zero);
+      expect(
+        geometryUnderTest.measurements,
+        SheetMeasurements(
+          contentSize: Size(400, 400),
+          viewportSize: Size(400, 800),
+          viewportInsets: EdgeInsets.zero,
+        ),
+      );
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
     });
 
@@ -77,7 +83,14 @@ void main() {
       expect(geometryUnderTest.offset, 600);
       expect(geometryUnderTest.minOffset, 600);
       expect(geometryUnderTest.maxOffset, 600);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        SheetMeasurements(
+          contentSize: Size(400, 600),
+          viewportSize: Size(400, 800),
+          viewportInsets: EdgeInsets.zero,
+        ),
+      );
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
 
       _popRoute(
@@ -89,7 +102,14 @@ void main() {
       expect(geometryUnderTest.offset, 200);
       expect(geometryUnderTest.minOffset, 200);
       expect(geometryUnderTest.maxOffset, 400);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(
+          contentSize: Size(400, 400),
+          viewportSize: Size(400, 800),
+          viewportInsets: EdgeInsets.zero,
+        ),
+      );
       expect(geometryUnderTest.activity, isA<IdleSheetActivity>());
     });
   });
@@ -122,28 +142,46 @@ void main() {
 
       pushTransition.tick(Duration.zero);
       expect(geometryUnderTest.offset, 200);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: Size(400, 400)),
+      );
 
       const curve = kDefaultPagedSheetTransitionCurve;
       pushTransition.tick(const Duration(milliseconds: 50));
       expect(geometryUnderTest.offset, 400 * curve.transform(0.25) + 200);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 400)),
+      );
 
       pushTransition.tick(const Duration(milliseconds: 50));
       expect(geometryUnderTest.offset, 400 * curve.transform(0.5) + 200);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 400)),
+      );
 
       pushTransition.tick(const Duration(milliseconds: 50));
       expect(geometryUnderTest.offset, 400 * curve.transform(0.75) + 200);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 400)),
+      );
 
       pushTransition.tickAndSettle();
       expect(geometryUnderTest.offset, 600);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 400)),
+      );
 
       pushTransition.end();
       expect(geometryUnderTest.offset, 600);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
     });
 
     test('Animate offset when popping the current route', () {
@@ -175,7 +213,10 @@ void main() {
 
       popTransition.tick(Duration.zero);
       expect(geometryUnderTest.offset, 600);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       const curve = kDefaultPagedSheetTransitionCurve;
       popTransition.tick(const Duration(milliseconds: 50));
@@ -183,29 +224,44 @@ void main() {
         geometryUnderTest.offset,
         moreOrLessEquals(600 - 400 * curve.transform(0.25)),
       );
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       popTransition.tick(const Duration(milliseconds: 50));
       expect(
         geometryUnderTest.offset,
         moreOrLessEquals(600 - 400 * curve.transform(0.5)),
       );
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       popTransition.tick(const Duration(milliseconds: 50));
       expect(
         geometryUnderTest.offset,
         moreOrLessEquals(600 - 400 * curve.transform(0.75)),
       );
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       popTransition.tickAndSettle();
       expect(geometryUnderTest.offset, 200);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       popTransition.end();
       expect(geometryUnderTest.offset, 200);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 400)),
+      );
     });
 
     test('Maintain offsets of each route throughout the transitions', () {
@@ -270,27 +326,45 @@ void main() {
         currentRouteTransitionController: newRouteTransitionController,
       );
       expect(geometryUnderTest.offset, 600);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       swipeBackGesture.dragTo(0.75);
       expect(geometryUnderTest.offset, 550);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       swipeBackGesture.dragTo(0.5);
       expect(geometryUnderTest.offset, 500);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       swipeBackGesture.dragTo(0.25);
       expect(geometryUnderTest.offset, 450);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       swipeBackGesture.releasePointer();
       expect(geometryUnderTest.offset, 400);
-      expect(geometryUnderTest.contentSize, const Size(400, 600));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 600)),
+      );
 
       swipeBackGesture.end();
       expect(geometryUnderTest.offset, 400);
-      expect(geometryUnderTest.contentSize, const Size(400, 400));
+      expect(
+        geometryUnderTest.measurements,
+        isMeasurements(contentSize: const Size(400, 400)),
+      );
     });
   });
 }

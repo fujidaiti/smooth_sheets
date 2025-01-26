@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 
 class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
@@ -15,9 +16,11 @@ const _referenceSheetMetrics = SheetMetricsSnapshot(
   offset: 600,
   minOffset: 0,
   maxOffset: 600,
-  contentSize: Size(360, 600),
-  viewportSize: Size(360, 700),
-  viewportInsets: EdgeInsets.zero,
+  measurements: SheetMeasurements(
+    contentSize: Size(360, 600),
+    viewportSize: Size(360, 700),
+    viewportInsets: EdgeInsets.zero,
+  ),
   devicePixelRatio: 1,
 );
 

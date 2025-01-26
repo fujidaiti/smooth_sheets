@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:ui';
-
+import 'package:flutter/widgets.dart';
 import 'package:mockito/mockito.dart';
-import 'package:smooth_sheets/src/foundation/foundation.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 
+import '../flutter_test_config.dart';
 import '../src/flutter_test_x.dart';
 import '../src/stubbing.dart';
 
@@ -15,7 +15,13 @@ void main() {
     Size contentSize = Size.zero,
   }) {
     final mock = MockSheetMetrics();
-    when(mock.contentSize).thenReturn(contentSize);
+    when(mock.measurements).thenReturn(
+      SheetMeasurements(
+        contentSize: contentSize,
+        viewportSize: testScreenSize,
+        viewportInsets: EdgeInsets.zero,
+      ),
+    );
     when(mock.offset).thenReturn(offset);
     return mock;
   }

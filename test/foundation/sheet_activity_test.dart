@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
+import 'package:smooth_sheets/src/foundation/sheet_position.dart';
 
 import '../src/matchers.dart';
 import '../src/stubbing.dart';
@@ -116,17 +117,13 @@ void main() {
       //    increased bottom inset.
       // This scenario mimics the behavior when opening a keyboard
       // on a sheet that uses SheetContentScaffold.
-      final oldViewportInsets = ownerMetrics.viewportInsets;
-      final oldContentSize = ownerMetrics.contentSize;
-      ownerMetrics
-        ..viewportInsets = const EdgeInsets.only(bottom: 50)
-        ..contentSize = const Size(400, 850);
-
-      activity.didChangeDimensions(
-        oldContentSize: oldContentSize,
-        oldViewportSize: const Size(400, 900),
-        oldViewportInsets: oldViewportInsets,
+      final oldMeasurements = ownerMetrics.measurements;
+      ownerMetrics.measurements = ownerMetrics.measurements.copyWith(
+        contentSize: const Size(400, 850),
+        viewportInsets: const EdgeInsets.only(bottom: 50),
       );
+
+      activity.didChangeMeasurements(oldMeasurements);
       expect(ownerMetrics.offset, 400);
       expect(ownerMetrics.viewOffset, 450,
           reason: 'Visual position should not change when viewport changes.');
@@ -258,15 +255,12 @@ void main() {
       internalOnTickCallback!(const Duration(milliseconds: 50));
       expect(ownerMetrics.offset, 350); // 1000 * 0.05 = 50 pixels in 50ms
 
-      final oldViewportInsets = ownerMetrics.viewportInsets;
-      final oldContentSize = ownerMetrics.contentSize;
+      final oldMeasurements = ownerMetrics.measurements;
       // Show the on-screen keyboard.
-      ownerMetrics.viewportInsets = const EdgeInsets.only(bottom: 30);
-      activity.didChangeDimensions(
-        oldContentSize: oldContentSize,
-        oldViewportSize: const Size(400, 900),
-        oldViewportInsets: oldViewportInsets,
+      ownerMetrics.measurements = oldMeasurements.copyWith(
+        viewportInsets: const EdgeInsets.only(bottom: 30),
       );
+      activity.didChangeMeasurements(oldMeasurements);
       expect(ownerMetrics.offset, 320,
           reason: 'Visual position should not change when viewport changes.');
       expect(activity.velocity, 1120, // 280 pixels / 0.25s = 1120 pixels/s
@@ -291,12 +285,15 @@ void main() {
         physics: kDefaultSheetPhysics,
       );
 
-      final activity = IdleSheetActivity()..init(owner);
-      activity.didChangeDimensions(
-        oldContentSize: const Size(400, 900),
-        oldViewportSize: const Size(400, 900),
-        oldViewportInsets: EdgeInsets.zero,
-      );
+      IdleSheetActivity()
+        ..init(owner)
+        ..didChangeMeasurements(
+          const SheetMeasurements(
+            contentSize: Size(400, 900),
+            viewportSize: Size(400, 900),
+            viewportInsets: EdgeInsets.zero,
+          ),
+        );
       expect(ownerMetrics.offset, 425);
     });
 
@@ -316,12 +313,15 @@ void main() {
           physics: kDefaultSheetPhysics,
         );
 
-        final activity = IdleSheetActivity()..init(owner);
-        activity.didChangeDimensions(
-          oldContentSize: const Size(400, 600),
-          oldViewportSize: const Size(400, 900),
-          oldViewportInsets: EdgeInsets.zero,
-        );
+        IdleSheetActivity()
+          ..init(owner)
+          ..didChangeMeasurements(
+            const SheetMeasurements(
+              contentSize: Size(400, 600),
+              viewportSize: Size(400, 900),
+              viewportInsets: EdgeInsets.zero,
+            ),
+          );
         expect(ownerMetrics.offset, 290);
         // Still in the idle activity.
         verifyNever(owner.beginActivity(any));
@@ -344,12 +344,15 @@ void main() {
           physics: kDefaultSheetPhysics,
         );
 
-        final activity = IdleSheetActivity()..init(owner);
-        activity.didChangeDimensions(
-          oldContentSize: const Size(400, 600),
-          oldViewportSize: const Size(400, 900),
-          oldViewportInsets: EdgeInsets.zero,
-        );
+        IdleSheetActivity()
+          ..init(owner)
+          ..didChangeMeasurements(
+            const SheetMeasurements(
+              contentSize: Size(400, 600),
+              viewportSize: Size(400, 900),
+              viewportInsets: EdgeInsets.zero,
+            ),
+          );
         expect(ownerMetrics.offset, 300);
         verify(
           owner.animateTo(

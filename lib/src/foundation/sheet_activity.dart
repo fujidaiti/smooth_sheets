@@ -66,13 +66,9 @@ abstract class SheetActivity<T extends SheetPosition> {
 
   bool isCompatibleWith(SheetPosition newOwner) => newOwner is T;
 
-  void didChangeDimensions({
-    required Size oldContentSize,
-    required Size oldViewportSize,
-    required EdgeInsets oldViewportInsets,
-  }) {
-    if (owner.viewportInsets != oldViewportInsets) {
-      absorbBottomViewportInset(owner, oldViewportInsets);
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
+      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
     }
   }
 
@@ -140,7 +136,7 @@ class AnimatedSheetActivity extends SheetActivity
   void init(SheetPosition delegate) {
     super.init(delegate);
     _startPixels = owner.offset;
-    _endPixels = destination.resolve(owner.contentSize);
+    _endPixels = destination.resolve(owner.measurements);
   }
 
   @override
@@ -171,15 +167,11 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void didChangeDimensions({
-    required Size oldContentSize,
-    required Size oldViewportSize,
-    required EdgeInsets oldViewportInsets,
-  }) {
-    if (owner.viewportInsets != oldViewportInsets) {
-      absorbBottomViewportInset(owner, oldViewportInsets);
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
+      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
     }
-    final newEndPixels = destination.resolve(owner.contentSize);
+    final newEndPixels = destination.resolve(owner.measurements);
     if (newEndPixels != _endPixels) {
       final remainingDuration =
           duration - (controller.lastElapsedDuration ?? Duration.zero);
@@ -222,23 +214,15 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void didChangeDimensions({
-    required Size oldContentSize,
-    required Size oldViewportSize,
-    required EdgeInsets oldViewportInsets,
-  }) {
-    final oldMetrics = owner.copyWith(
-      contentSize: oldContentSize,
-      viewportSize: oldViewportSize,
-      viewportInsets: oldViewportInsets,
-    );
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    final oldMetrics = owner.copyWith(measurements: oldMeasurements);
     final destination = owner.snapGrid.getSnapOffset(oldMetrics, velocity);
 
-    if (oldViewportInsets != owner.viewportInsets) {
-      absorbBottomViewportInset(owner, oldViewportInsets);
+    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
+      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
     }
 
-    final endPixels = destination.resolve(owner.contentSize);
+    final endPixels = destination.resolve(owner.measurements);
     if (endPixels == owner.offset) {
       return;
     }
@@ -334,7 +318,7 @@ class SettlingSheetActivity extends SheetActivity {
     final elapsedFrameTime =
         (elapsedDuration - _elapsedDuration).inMicroseconds /
             Duration.microsecondsPerSecond;
-    final destination = this.destination.resolve(owner.contentSize);
+    final destination = this.destination.resolve(owner.measurements);
     final pixels = owner.offset;
     final newPixels = destination > pixels
         ? min(destination, pixels + velocity * elapsedFrameTime)
@@ -351,13 +335,9 @@ class SettlingSheetActivity extends SheetActivity {
   }
 
   @override
-  void didChangeDimensions({
-    required Size oldContentSize,
-    required Size oldViewportSize,
-    required EdgeInsets oldViewportInsets,
-  }) {
-    if (oldViewportInsets != owner.viewportInsets) {
-      absorbBottomViewportInset(owner, oldViewportInsets);
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
+      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
     }
 
     _invalidateVelocity();
@@ -381,7 +361,7 @@ class SettlingSheetActivity extends SheetActivity {
     if (duration case final duration?) {
       final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
           Duration.microsecondsPerSecond;
-      final destination = this.destination.resolve(owner.contentSize);
+      final destination = this.destination.resolve(owner.measurements);
       final pixels = owner.offset;
       _velocity = remainingSeconds > 0
           ? (destination - pixels).abs() / remainingSeconds
@@ -472,15 +452,12 @@ mixin IdleSheetActivityMixin<T extends SheetPosition> on SheetActivity<T> {
   /// is determined by [SnapGrid.getSnapOffset] using the metrics of
   /// the previous frame.
   @override
-  void didChangeDimensions({
-    required Size oldContentSize,
-    required Size oldViewportSize,
-    required EdgeInsets oldViewportInsets,
-  }) {
-    final newPixels = targetOffset.resolve(owner.contentSize);
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    final newPixels = targetOffset.resolve(owner.measurements);
     if (newPixels == owner.offset) {
       return;
-    } else if (oldViewportInsets.bottom != owner.viewportInsets.bottom) {
+    } else if (owner.measurements.viewportInsets.bottom !=
+        oldMeasurements.viewportInsets.bottom) {
       // TODO: Is it possible to remove this assumption?
       // We currently assume that when the bottom viewport inset changes,
       // it is due to the appearance or disappearance of the keyboard,
@@ -563,13 +540,9 @@ mixin UserControlledSheetActivityMixin<T extends SheetPosition>
   SheetStatus get status => SheetStatus.dragging;
 
   @override
-  void didChangeDimensions({
-    required Size oldContentSize,
-    required Size oldViewportSize,
-    required EdgeInsets oldViewportInsets,
-  }) {
-    if (oldViewportInsets != owner.viewportInsets) {
-      absorbBottomViewportInset(owner, oldViewportInsets);
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
+      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
     }
     // We don't call `goSettling` here because the user is still
     // manually controlling the sheet position.
@@ -584,7 +557,7 @@ void absorbBottomViewportInset(
   SheetPosition activityOwner,
   EdgeInsets oldViewportInsets,
 ) {
-  final newInsets = activityOwner.viewportInsets;
+  final newInsets = activityOwner.measurements.viewportInsets;
   final oldInsets = oldViewportInsets;
   final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
   final newPixels = activityOwner.offset - deltaInsetBottom;

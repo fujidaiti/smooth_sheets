@@ -227,9 +227,6 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   bool get shouldIgnorePointer => _model?.shouldIgnorePointer ?? false;
 
   @override
-  Size get contentSize => _model!.contentSize;
-
-  @override
   double get devicePixelRatio => _model!.devicePixelRatio;
 
   @override
@@ -242,28 +239,21 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   double get offset => _model!.offset;
 
   @override
-  EdgeInsets get viewportInsets => _model!.viewportInsets;
-
-  @override
-  Size get viewportSize => _model!.viewportSize;
+  SheetMeasurements get measurements => _model!.measurements;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Size? contentSize,
-    Size? viewportSize,
-    EdgeInsets? viewportInsets,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return _model!.copyWith(
       offset: offset,
       minOffset: minOffset,
       maxOffset: maxOffset,
-      contentSize: contentSize,
-      viewportSize: viewportSize,
-      viewportInsets: viewportInsets,
+      measurements: measurements,
       devicePixelRatio: devicePixelRatio,
     );
   }

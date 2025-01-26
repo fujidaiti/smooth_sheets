@@ -42,12 +42,12 @@ sealed class SheetNotification extends Notification {
   void debugFillDescription(List<String> description) {
     super.debugFillDescription(description);
     description
-      ..add('pixels: ${metrics.offset}')
-      ..add('minPosition: ${metrics.minOffset}')
-      ..add('maxPosition: ${metrics.maxOffset}')
-      ..add('viewportSize: ${metrics.viewportSize}')
-      ..add('viewportInsets: ${metrics.viewportInsets}')
-      ..add('contentSize: ${metrics.contentSize}')
+      ..add('offset: ${metrics.offset}')
+      ..add('minOffset: ${metrics.minOffset}')
+      ..add('maxOffset: ${metrics.maxOffset}')
+      ..add('viewportSize: ${metrics.measurements.viewportSize}')
+      ..add('viewportInsets: ${metrics.measurements.viewportInsets}')
+      ..add('contentSize: ${metrics.measurements.contentSize}')
       ..add('status: $status');
   }
 }

@@ -384,8 +384,8 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
             controller!.value,
             metrics.viewOffset.inverseLerp(
               // TODO: Make this configurable.
-              metrics.viewportSize.height / 2,
-              metrics.viewportSize.height,
+              metrics.measurements.viewportSize.height / 2,
+              metrics.measurements.viewportSize.height,
             ),
           );
         }

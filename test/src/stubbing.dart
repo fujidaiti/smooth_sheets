@@ -26,9 +26,7 @@ class MutableSheetMetrics with SheetMetrics {
     required this.offset,
     required this.minOffset,
     required this.maxOffset,
-    required this.contentSize,
-    required this.viewportSize,
-    required this.viewportInsets,
+    required this.measurements,
     required this.devicePixelRatio,
   });
 
@@ -45,31 +43,21 @@ class MutableSheetMetrics with SheetMetrics {
   double maxOffset;
 
   @override
-  Size contentSize;
-
-  @override
-  Size viewportSize;
-
-  @override
-  EdgeInsets viewportInsets;
+  SheetMeasurements measurements;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Size? contentSize,
-    Size? viewportSize,
-    EdgeInsets? viewportInsets,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
       offset: offset ?? this.offset,
       minOffset: minOffset ?? this.minOffset,
       maxOffset: maxOffset ?? this.maxOffset,
-      contentSize: contentSize ?? this.contentSize,
-      viewportSize: viewportSize ?? this.viewportSize,
-      viewportInsets: viewportInsets ?? this.viewportInsets,
+      measurements: measurements ?? this.measurements,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
@@ -90,9 +78,11 @@ class MutableSheetMetrics with SheetMetrics {
     offset: pixels,
     minOffset: minOffset,
     maxOffset: maxOffset,
-    contentSize: contentSize,
-    viewportSize: viewportSize,
-    viewportInsets: viewportInsets,
+    measurements: SheetMeasurements(
+      contentSize: contentSize,
+      viewportSize: viewportSize,
+      viewportInsets: viewportInsets,
+    ),
     devicePixelRatio: devicePixelRatio,
   );
 
@@ -106,13 +96,7 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.initialPosition).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
-  when(position.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
-  when(position.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
-  when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
-  when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
-  when(position.viewportInsets)
-      .thenAnswer((_) => metricsRegistry.viewportInsets);
-  when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
+  when(position.measurements).thenAnswer((_) => metricsRegistry.measurements);
   when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);
   when(position.snapshot).thenAnswer((_) => metricsRegistry);
@@ -121,28 +105,23 @@ class MutableSheetMetrics with SheetMetrics {
     metricsRegistry.offset = invocation.positionalArguments.first as double;
   });
   when(position.measurements = any).thenAnswer((invocation) {
-    metricsRegistry
-      ..contentSize = invocation.positionalArguments[0] as Size
-      ..viewportSize = invocation.positionalArguments[1] as Size
-      ..viewportInsets = invocation.positionalArguments[2] as EdgeInsets;
+    metricsRegistry.measurements =
+        invocation.positionalArguments[0] as SheetMeasurements;
   });
   when(position.copyWith(
     offset: anyNamed('offset'),
     minOffset: anyNamed('minOffset'),
     maxOffset: anyNamed('maxOffset'),
-    contentSize: anyNamed('contentSize'),
-    viewportSize: anyNamed('viewportSize'),
-    viewportInsets: anyNamed('viewportInsets'),
     devicePixelRatio: anyNamed('devicePixelRatio'),
+    measurements: anyNamed('measurements'),
   )).thenAnswer((invocation) {
     return metricsRegistry.copyWith(
       offset: invocation.namedArguments[#pixels] as double?,
       minOffset: invocation.namedArguments[#minOffset] as double?,
       maxOffset: invocation.namedArguments[#maxOffset] as double?,
-      contentSize: invocation.namedArguments[#contentSize] as Size?,
-      viewportSize: invocation.namedArguments[#viewportSize] as Size?,
-      viewportInsets: invocation.namedArguments[#viewportInsets] as EdgeInsets?,
       devicePixelRatio: invocation.namedArguments[#devicePixelRatio] as double?,
+      measurements:
+          invocation.namedArguments[#measurements] as SheetMeasurements?,
     );
   });
 

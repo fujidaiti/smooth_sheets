@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../internal/float_comp.dart';
 import 'sheet_activity.dart';
 import 'sheet_context.dart';
 import 'sheet_controller.dart';
@@ -29,6 +28,7 @@ import 'snap_grid.dart';
 /// - [FixedSheetAnchor], which defines the position
 ///   using a fixed value in pixels.
 // TODO: Rename to SheetOffset.
+@immutable
 abstract interface class SheetAnchor {
   /// {@macro FixedSheetAnchor}
   // TODO: Rename to `absolute`.
@@ -39,10 +39,7 @@ abstract interface class SheetAnchor {
   const factory SheetAnchor.proportional(double size) = ProportionalSheetAnchor;
 
   /// Resolves the position to an actual value in pixels.
-  ///
-  /// The [contentSize] parameter should not be cached
-  /// as it may change over time.
-  double resolve(Size contentSize);
+  double resolve(SheetMeasurements measurements);
 }
 
 /// A [SheetAnchor] that represents a position proportional
@@ -65,7 +62,8 @@ class ProportionalSheetAnchor implements SheetAnchor {
   final double factor;
 
   @override
-  double resolve(Size contentSize) => contentSize.height * factor;
+  double resolve(SheetMeasurements measurements) =>
+      measurements.contentSize.height * factor;
 
   @override
   bool operator ==(Object other) =>
@@ -95,7 +93,7 @@ class FixedSheetAnchor implements SheetAnchor {
   final double pixels;
 
   @override
-  double resolve(Size contentSize) => pixels;
+  double resolve(_) => pixels;
 
   @override
   bool operator ==(Object other) =>
@@ -177,6 +175,7 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
     }
   }
 
+  @override
   SheetMeasurements get measurements => _measurements!;
   SheetMeasurements? _measurements;
 
@@ -185,28 +184,17 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
       return;
     }
 
-    final (minOffset, maxOffset) = snapGrid.getBoundaries(
-      copyWith(
-        contentSize: value.contentSize,
-        viewportSize: value.viewportSize,
-        viewportInsets: value.viewportInsets,
-      ),
-    );
-
-    _boundaries = (
-      minOffset.resolve(value.contentSize),
-      maxOffset.resolve(value.contentSize),
-    );
-
     final oldMeasurements = _measurements;
     _measurements = value;
+
+    final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
+    _boundaries = (minOffset.resolve(value), maxOffset.resolve(value));
+
     if (oldMeasurements != null) {
       didChangeMeasurements(oldMeasurements);
     } else {
       assert(_geometry == null);
-      geometry = SheetGeometry(
-        offset: initialPosition.resolve(value.contentSize),
-      );
+      geometry = SheetGeometry(offset: initialPosition.resolve(value));
     }
   }
 
@@ -226,15 +214,6 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
 
   @override
   double get offset => geometry.offset;
-
-  @override
-  Size get contentSize => measurements.contentSize;
-
-  @override
-  Size get viewportSize => measurements.viewportSize;
-
-  @override
-  EdgeInsets get viewportInsets => measurements.viewportInsets;
 
   @override
   double get devicePixelRatio => context.devicePixelRatio;
@@ -269,10 +248,7 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
     _snapGrid = snapGrid;
     final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
     if (_measurements case final it?) {
-      _boundaries = (
-        minOffset.resolve(it.contentSize),
-        maxOffset.resolve(it.contentSize),
-      );
+      _boundaries = (minOffset.resolve(it), maxOffset.resolve(it));
     }
   }
 
@@ -301,9 +277,7 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
         offset: offset,
         minOffset: minOffset,
         maxOffset: maxOffset,
-        contentSize: contentSize,
-        viewportSize: viewportSize,
-        viewportInsets: viewportInsets,
+        measurements: measurements,
         devicePixelRatio: devicePixelRatio,
       );
 
@@ -448,7 +422,7 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    if (offset == newPosition.resolve(contentSize)) {
+    if (offset == newPosition.resolve(measurements)) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
@@ -467,18 +441,14 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Size? contentSize,
-    Size? viewportSize,
-    EdgeInsets? viewportInsets,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
       offset: offset ?? this.offset,
       minOffset: minOffset ?? this.minOffset,
       maxOffset: maxOffset ?? this.maxOffset,
-      contentSize: contentSize ?? this.contentSize,
-      viewportSize: viewportSize ?? this.viewportSize,
-      viewportInsets: viewportInsets ?? this.viewportInsets,
+      measurements: measurements ?? this.measurements,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
@@ -531,7 +501,6 @@ abstract class SheetPosition extends SheetModelView with ChangeNotifier {
 mixin SheetMetrics {
   /// The [FlutterView.devicePixelRatio] of the view that the sheet
   /// associated with this metrics is drawn into.
-  // TODO: Move this to SheetContext.
   double get devicePixelRatio;
 
   /// Creates a copy of the metrics with the given fields replaced.
@@ -539,9 +508,7 @@ mixin SheetMetrics {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Size? contentSize,
-    Size? viewportSize,
-    EdgeInsets? viewportInsets,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   });
 
@@ -554,27 +521,13 @@ mixin SheetMetrics {
   /// The maximum position of the sheet in pixels.
   double get maxOffset;
 
-  /// The size of the sheet's content.
-  Size get contentSize;
-
-  /// The size of the viewport that hosts the sheet.
-  Size get viewportSize;
-
-  EdgeInsets get viewportInsets;
-
-  /// Whether the sheet is within the range of [minOffset] and [maxOffset]
-  /// (inclusive of both bounds).
-  bool get isPixelsInBounds => FloatComp.distance(devicePixelRatio)
-      .isInBounds(offset, minOffset, maxOffset);
-
-  /// Whether the sheet is outside the range of [minOffset] and [maxOffset].
-  bool get isPixelsOutOfBounds => !isPixelsInBounds;
+  SheetMeasurements get measurements;
 
   /// The visible height of the sheet measured from the bottom of the viewport.
   ///
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [offset] and the keyboard's height. Otherwise, it is equal to [offset].
-  double get viewOffset => offset + viewportInsets.bottom;
+  double get viewOffset => offset + measurements.viewportInsets.bottom;
 }
 
 /// An immutable snapshot of the state of a sheet.
@@ -585,9 +538,7 @@ class SheetMetricsSnapshot with SheetMetrics {
     required this.offset,
     required this.minOffset,
     required this.maxOffset,
-    required this.contentSize,
-    required this.viewportSize,
-    required this.viewportInsets,
+    required this.measurements,
     required this.devicePixelRatio,
   });
 
@@ -601,13 +552,7 @@ class SheetMetricsSnapshot with SheetMetrics {
   final double maxOffset;
 
   @override
-  final Size contentSize;
-
-  @override
-  final Size viewportSize;
-
-  @override
-  final EdgeInsets viewportInsets;
+  final SheetMeasurements measurements;
 
   @override
   final double devicePixelRatio;
@@ -617,18 +562,14 @@ class SheetMetricsSnapshot with SheetMetrics {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Size? contentSize,
-    Size? viewportSize,
-    EdgeInsets? viewportInsets,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
       offset: offset ?? this.offset,
       minOffset: minOffset ?? this.minOffset,
       maxOffset: maxOffset ?? this.maxOffset,
-      contentSize: contentSize ?? this.contentSize,
-      viewportSize: viewportSize ?? this.viewportSize,
-      viewportInsets: viewportInsets ?? this.viewportInsets,
+      measurements: measurements ?? this.measurements,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
   }
@@ -641,9 +582,7 @@ class SheetMetricsSnapshot with SheetMetrics {
           offset == other.offset &&
           minOffset == other.minOffset &&
           maxOffset == other.maxOffset &&
-          contentSize == other.contentSize &&
-          viewportSize == other.viewportSize &&
-          viewportInsets == other.viewportInsets &&
+          measurements == other.measurements &&
           devicePixelRatio == other.devicePixelRatio);
 
   @override
@@ -652,9 +591,7 @@ class SheetMetricsSnapshot with SheetMetrics {
         offset,
         minOffset,
         maxOffset,
-        contentSize,
-        viewportSize,
-        viewportInsets,
+        measurements,
         devicePixelRatio,
       );
 }

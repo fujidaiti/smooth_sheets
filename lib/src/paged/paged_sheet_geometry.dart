@@ -37,9 +37,6 @@ class _RouteGeometry {
 
   Size? contentSize;
   SheetAnchor targetOffset;
-
-  double? get resolvedTargetOffset =>
-      contentSize != null ? targetOffset.resolve(contentSize!) : null;
 }
 
 @internal
@@ -90,14 +87,25 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     _routeGeometries[route]?.contentSize = contentSize;
   }
 
+  double _resolveTargetOffset(BasePagedSheetRoute route) {
+    final geometry = _routeGeometries[route]!;
+    return geometry.targetOffset.resolve(
+      measurements.copyWith(
+        contentSize: geometry.contentSize,
+      ),
+    );
+  }
+
   @override
   set measurements(SheetMeasurements value) {
     final needInitialisation = !hasMetrics;
     super.measurements = value;
     if (needInitialisation) {
       setPixels(
-        _currentRoute?.initialOffset.resolve(contentSize) ??
-            initialPosition.resolve(contentSize),
+        switch (_currentRoute) {
+          null => initialPosition.resolve(value),
+          final it => _resolveTargetOffset(it),
+        },
       );
     }
   }
@@ -139,10 +147,8 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     assert(_routeGeometries.containsKey(nextRoute));
     _setCurrentRoute(null);
     beginActivity(RouteTransitionSheetActivity(
-      originRouteOffset: () =>
-          _routeGeometries[currentRoute]?.resolvedTargetOffset,
-      destinationRouteOffset: () =>
-          _routeGeometries[nextRoute]?.resolvedTargetOffset,
+      originRouteOffset: () => _resolveTargetOffset(currentRoute),
+      destinationRouteOffset: () => _resolveTargetOffset(nextRoute),
       animation: effectiveAnimation,
       animationCurve: effectiveCurve,
     ));
@@ -201,13 +207,9 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
   }
 
   @override
-  void didChangeDimensions({
-    required Size oldContentSize,
-    required Size oldViewportSize,
-    required EdgeInsets oldViewportInsets,
-  }) {
-    if (owner.viewportInsets != oldViewportInsets) {
-      absorbBottomViewportInset(owner, oldViewportInsets);
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
+      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
     }
   }
 }

@@ -47,7 +47,7 @@ class _ExampleSheet extends StatelessWidget {
           return metrics.viewportInsets.bottom == 0 &&
               metrics.offset >
                   const SheetAnchor.proportional(0.5)
-                      .resolve(metrics.contentSize);
+                      .resolve(metrics.measurements);
         },
         child: buildBottomBar(),
       ),

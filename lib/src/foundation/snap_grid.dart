@@ -64,8 +64,8 @@ class SteplessSnapGrid implements SnapGrid {
 
   @override
   SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
-    final minimum = minOffset.resolve(metrics.contentSize);
-    final maximum = maxOffset.resolve(metrics.contentSize);
+    final minimum = minOffset.resolve(metrics.measurements);
+    final maximum = maxOffset.resolve(metrics.measurements);
     if (metrics.offset < minimum) {
       return minOffset;
     } else if (metrics.offset > maximum) {
@@ -91,9 +91,9 @@ class MultiSnapGrid implements SnapGrid {
   @override
   SheetAnchor getSnapOffset(SheetMetrics metrics, double velocity) {
     final result = _scanSnapOffsets(metrics);
-    if (metrics.offset < result.min.resolve(metrics.contentSize)) {
+    if (metrics.offset < result.min.resolve(metrics.measurements)) {
       return result.min;
-    } else if (metrics.offset > result.max.resolve(metrics.contentSize)) {
+    } else if (metrics.offset > result.max.resolve(metrics.measurements)) {
       return result.max;
     } else if (velocity.abs() < minFlingSpeed) {
       return result.nearest;
@@ -141,8 +141,8 @@ class MultiSnapGrid implements SnapGrid {
     }
 
     if (snaps.length == 2) {
-      final first = snaps.first.resolve(metrics.contentSize);
-      final second = snaps.last.resolve(metrics.contentSize);
+      final first = snaps.first.resolve(metrics.measurements);
+      final second = snaps.last.resolve(metrics.measurements);
 
       final (minimum, maximum) = first < second
           ? (snaps.first, snaps.last)
@@ -165,9 +165,9 @@ class MultiSnapGrid implements SnapGrid {
       final first = snaps[0];
       final second = snaps[1];
       final third = snaps[2];
-      final rFirst = first.resolve(metrics.contentSize);
-      final rSecond = second.resolve(metrics.contentSize);
-      final rThird = third.resolve(metrics.contentSize);
+      final rFirst = first.resolve(metrics.measurements);
+      final rSecond = second.resolve(metrics.measurements);
+      final rThird = third.resolve(metrics.measurements);
 
       final minimum = rFirst < rSecond
           ? (rFirst < rThird ? first : third)
@@ -209,8 +209,8 @@ class MultiSnapGrid implements SnapGrid {
     assert(snaps.length > 3);
     final sortedSnaps = snaps.sorted(
       (a, b) => a
-          .resolve(metrics.contentSize)
-          .compareTo(b.resolve(metrics.contentSize)),
+          .resolve(metrics.measurements)
+          .compareTo(b.resolve(metrics.measurements)),
     );
 
     late int nearestIndex;
@@ -219,7 +219,7 @@ class MultiSnapGrid implements SnapGrid {
     for (var index = 0; index < sortedSnaps.length; index++) {
       final snap = snaps[index];
       final distance =
-          (snap.resolve(metrics.contentSize) - metrics.offset).abs();
+          (snap.resolve(metrics.measurements) - metrics.offset).abs();
       if (distance < nearestDistance) {
         nearestIndex = index;
         nearest = snap;
@@ -233,22 +233,6 @@ class MultiSnapGrid implements SnapGrid {
       nearest: nearest,
       leftmost: sortedSnaps[max(nearestIndex - 1, 0)],
       rightmost: sortedSnaps[min(nearestIndex + 1, sortedSnaps.length - 1)],
-    );
-  }
-}
-
-extension type ResolvedSnapGrid(({SnapGrid grid, SheetMetrics metrics}) self) {
-  double getSnapOffset(double velocity) {
-    return self.grid
-        .getSnapOffset(self.metrics, velocity)
-        .resolve(self.metrics.contentSize);
-  }
-
-  (double, double) getBoundaries() {
-    final (min, max) = self.grid.getBoundaries(self.metrics);
-    return (
-      min.resolve(self.metrics.contentSize),
-      max.resolve(self.metrics.contentSize),
     );
   }
 }
