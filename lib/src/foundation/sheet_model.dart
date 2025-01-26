@@ -146,7 +146,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     required this.context,
     required this.initialPosition,
     required SheetPhysics physics,
-    required SnapGrid snapGrid,
+    required SheetSnapGrid snapGrid,
     this.debugLabel,
     SheetGestureProxyMixin? gestureTamperer,
   })  : _physics = physics,
@@ -233,10 +233,10 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   SheetPhysics get physics => _physics;
   SheetPhysics _physics;
 
-  SnapGrid get snapGrid => _snapGrid;
-  SnapGrid _snapGrid;
+  SheetSnapGrid get snapGrid => _snapGrid;
+  SheetSnapGrid _snapGrid;
 
-  set snapGrid(SnapGrid snapGrid) {
+  set snapGrid(SheetSnapGrid snapGrid) {
     _snapGrid = snapGrid;
     final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
     if (_measurements case final it?) {

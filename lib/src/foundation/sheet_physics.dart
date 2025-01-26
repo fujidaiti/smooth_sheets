@@ -50,7 +50,7 @@ abstract class SheetPhysics {
   Simulation? createBallisticSimulation(
     double velocity,
     SheetMetrics metrics,
-    SnapGrid snapGrid,
+    SheetSnapGrid snapGrid,
   );
 }
 
@@ -88,7 +88,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
   Simulation? createBallisticSimulation(
     double velocity,
     SheetMetrics metrics,
-    SnapGrid snapGrid,
+    SheetSnapGrid snapGrid,
   ) {
     // Ensure that this method always uses the default implementation
     // of findSettledPosition.

@@ -46,7 +46,7 @@ abstract class SheetPositionScope<E extends SheetModel> extends StatefulWidget {
   /// {@macro SheetPosition.physics}
   final SheetPhysics physics;
 
-  final SnapGrid snapGrid;
+  final SheetSnapGrid snapGrid;
 
   /// {@macro SheetPosition.gestureTamperer}
   final SheetGestureProxyMixin? gestureTamperer;

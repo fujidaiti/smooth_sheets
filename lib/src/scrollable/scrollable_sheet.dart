@@ -39,7 +39,7 @@ class Sheet extends StatefulWidget {
     this.minPosition = const SheetOffset.relative(1),
     this.maxPosition = const SheetOffset.relative(1),
     this.physics,
-    this.snapGrid = const SnapGrid.single(
+    this.snapGrid = const SheetSnapGrid.single(
       snap: SheetOffset.relative(1),
     ),
     this.controller,
@@ -61,7 +61,7 @@ class Sheet extends StatefulWidget {
   /// {@macro SheetPosition.physics}
   final SheetPhysics? physics;
 
-  final SnapGrid snapGrid;
+  final SheetSnapGrid snapGrid;
 
   /// An object that can be used to control and observe the sheet height.
   final SheetController? controller;

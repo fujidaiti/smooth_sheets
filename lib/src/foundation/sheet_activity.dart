@@ -440,7 +440,7 @@ mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
   SheetOffset get targetOffset;
 
   /// Updates [SheetMetrics.offset] to maintain the current [SheetOffset], which
-  /// is determined by [SnapGrid.getSnapOffset] using the metrics of
+  /// is determined by [SheetSnapGrid.getSnapOffset] using the metrics of
   /// the previous frame.
   @override
   void didChangeMeasurements(SheetMeasurements oldMeasurements) {

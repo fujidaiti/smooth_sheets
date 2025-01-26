@@ -37,7 +37,7 @@ final _positionAtMiddle = _referenceSheetMetrics.copyWith(
 void main() {
   group('Default configuration of $SheetPhysics', () {
     const physicsUnderTest = _SheetPhysicsWithDefaultConfiguration();
-    const testSnapGrid = SnapGrid.stepless(
+    const testSnapGrid = SheetSnapGrid.stepless(
       minOffset: SheetOffset.absolute(0),
       maxOffset: SheetOffset.relative(1),
     );

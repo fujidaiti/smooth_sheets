@@ -5,17 +5,17 @@ import 'package:flutter/gestures.dart';
 
 import 'sheet_model.dart';
 
-abstract interface class SnapGrid {
-  const factory SnapGrid({
+abstract interface class SheetSnapGrid {
+  const factory SheetSnapGrid({
     required List<SheetOffset> snaps,
     double minFlingSpeed,
   }) = MultiSnapGrid;
 
-  const factory SnapGrid.single({
+  const factory SheetSnapGrid.single({
     required SheetOffset snap,
   }) = SingleSnapGrid;
 
-  const factory SnapGrid.stepless({
+  const factory SheetSnapGrid.stepless({
     required SheetOffset minOffset,
     required SheetOffset maxOffset,
   }) = SteplessSnapGrid;
@@ -30,7 +30,7 @@ abstract interface class SnapGrid {
   (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics);
 }
 
-class SingleSnapGrid implements SnapGrid {
+class SingleSnapGrid implements SheetSnapGrid {
   const SingleSnapGrid({
     required this.snap,
   });
@@ -48,7 +48,7 @@ class SingleSnapGrid implements SnapGrid {
   }
 }
 
-class SteplessSnapGrid implements SnapGrid {
+class SteplessSnapGrid implements SheetSnapGrid {
   const SteplessSnapGrid({
     required this.minOffset,
     required this.maxOffset,
@@ -76,7 +76,7 @@ class SteplessSnapGrid implements SnapGrid {
   }
 }
 
-class MultiSnapGrid implements SnapGrid {
+class MultiSnapGrid implements SheetSnapGrid {
   const MultiSnapGrid({
     required this.snaps,
     this.minFlingSpeed = kMinFlingVelocity,
