@@ -8,7 +8,6 @@ import '../foundation/sheet_controller.dart';
 import '../foundation/sheet_gesture_tamperer.dart';
 import '../foundation/sheet_model.dart';
 import '../foundation/sheet_physics.dart';
-import '../foundation/sheet_theme.dart';
 import '../foundation/snap_grid.dart';
 import 'scrollable_sheet_position_scope.dart';
 import 'sheet_draggable.dart';
@@ -82,8 +81,7 @@ class _SheetState extends State<Sheet>
     with TickerProviderStateMixin, SheetContextStateMixin {
   @override
   Widget build(BuildContext context) {
-    final theme = SheetTheme.maybeOf(context);
-    final physics = widget.physics ?? theme?.physics ?? kDefaultSheetPhysics;
+    final physics = widget.physics ?? kDefaultSheetPhysics;
     final gestureTamper = SheetGestureProxy.maybeOf(context);
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);

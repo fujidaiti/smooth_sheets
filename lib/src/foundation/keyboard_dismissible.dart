@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 
 import 'sheet_notification.dart';
-import 'sheet_theme.dart';
 
 /// A widget that dismisses the on-screen keyboard when the user
 /// drags the sheet below this widget.
@@ -36,10 +35,8 @@ class SheetKeyboardDismissible extends StatefulWidget {
 
   /// Determines when the on-screen keyboard should be dismissed.
   ///
-  /// If null, [SheetThemeData.keyboardDismissBehavior] obtained by
-  /// [SheetTheme.maybeOf] will be used. If that is also null,
-  /// [DragSheetKeyboardDismissBehavior] with `isContentScrollAware` set to
-  /// `false` will be used as a fallback.
+  /// If null, [DragSheetKeyboardDismissBehavior] with `isContentScrollAware`
+  /// set to `false` will be used as the fallback.
   final SheetKeyboardDismissBehavior? dismissBehavior;
 
   /// The widget below this widget in the tree.
@@ -52,9 +49,7 @@ class SheetKeyboardDismissible extends StatefulWidget {
 
 class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
   SheetKeyboardDismissBehavior get _dismissBehavior =>
-      widget.dismissBehavior ??
-      SheetTheme.maybeOf(context)?.keyboardDismissBehavior ??
-      const DragSheetKeyboardDismissBehavior();
+      widget.dismissBehavior ?? const DragSheetKeyboardDismissBehavior();
 
   @override
   Widget build(BuildContext context) {

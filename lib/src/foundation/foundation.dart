@@ -50,5 +50,4 @@ export 'sheet_physics.dart'
         kDefaultSheetPhysics,
         kDefaultSheetSpring;
 export 'sheet_position_driven_animation.dart' show SheetPositionDrivenAnimation;
-export 'sheet_theme.dart' show SheetTheme, SheetThemeData;
 export 'sheet_viewport.dart' show SheetViewport;
