@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import '../internal/double_utils.dart';
 import '../internal/float_comp.dart';
-import 'sheet_position.dart';
+import 'sheet_model.dart';
 import 'snap_grid.dart';
 
 /// The default [SpringDescription] used by [SheetPhysics] subclasses.

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'sheet_position.dart';
+import 'sheet_model.dart';
 
 /// An interface that provides a set of dependencies
 /// required by [SheetModel].

@@ -7,8 +7,8 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'sheet_drag.dart';
+import 'sheet_model.dart';
 import 'sheet_physics.dart';
-import 'sheet_position.dart';
 import 'sheet_status.dart';
 import 'snap_grid.dart';
 

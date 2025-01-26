@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mockito/mockito.dart';
-import 'package:smooth_sheets/src/foundation/sheet_position.dart';
+import 'package:smooth_sheets/src/foundation/sheet_model.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 
 import '../flutter_test_config.dart';

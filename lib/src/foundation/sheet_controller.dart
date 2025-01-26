@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'foundation.dart';
-import 'sheet_position.dart';
+import 'sheet_model.dart';
 
 class SheetController extends ChangeNotifier
     implements ValueListenable<SheetGeometry?> {

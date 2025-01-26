@@ -22,6 +22,13 @@ export 'sheet_drag.dart'
         SheetDragEndDetails,
         SheetDragStartDetails,
         SheetDragUpdateDetails;
+export 'sheet_model.dart'
+    show
+        AbsoluteSheetOffset,
+        RelativeSheetOffset,
+        SheetMetrics,
+        SheetMetricsSnapshot,
+        SheetOffset;
 export 'sheet_notification.dart'
     show
         SheetDragCancelNotification,
@@ -42,13 +49,6 @@ export 'sheet_physics.dart'
         SheetPhysicsMixin,
         kDefaultSheetPhysics,
         kDefaultSheetSpring;
-export 'sheet_position.dart'
-    show
-        AbsoluteSheetOffset,
-        RelativeSheetOffset,
-        SheetOffset,
-        SheetMetrics,
-        SheetMetricsSnapshot;
 export 'sheet_position_driven_animation.dart' show SheetPositionDrivenAnimation;
 export 'sheet_status.dart' show SheetStatus;
 export 'sheet_theme.dart' show SheetTheme, SheetThemeData;

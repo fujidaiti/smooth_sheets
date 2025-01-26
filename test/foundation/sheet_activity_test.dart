@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
-import 'package:smooth_sheets/src/foundation/sheet_position.dart';
+import 'package:smooth_sheets/src/foundation/sheet_model.dart';
 
 import '../src/matchers.dart';
 import '../src/stubbing.dart';

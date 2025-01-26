@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 
-import 'sheet_position.dart';
+import 'sheet_model.dart';
 
 abstract interface class SnapGrid {
   const factory SnapGrid({

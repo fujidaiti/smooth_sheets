@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../foundation/sheet_context.dart';
-import '../foundation/sheet_position.dart';
+import '../foundation/sheet_model.dart';
 import '../foundation/sheet_position_scope.dart';
 import 'scrollable_sheet_position.dart';
 
