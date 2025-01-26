@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/foundation/sheet_activity.dart';
 import 'package:smooth_sheets/src/foundation/sheet_model.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_geometry.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';
 
@@ -570,7 +569,4 @@ void _popRoute({
 
 class _TestSheetActivity extends SheetActivity {
   void setOffset(double offset) => owner.setPixels(offset);
-
-  @override
-  SheetStatus get status => SheetStatus.animating;
 }

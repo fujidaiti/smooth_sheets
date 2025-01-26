@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 
 import '../foundation/sheet_activity.dart';
 import '../foundation/sheet_drag.dart';
-import '../foundation/sheet_status.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet.dart';
 import 'scrollable_sheet_position.dart';
@@ -316,9 +315,6 @@ class HoldScrollDrivenSheetActivity extends ScrollableSheetActivity
 
   final double heldPreviousVelocity;
   final VoidCallback? onHoldCanceled;
-
-  @override
-  SheetStatus get status => SheetStatus.dragging;
 
   @override
   void cancel() {

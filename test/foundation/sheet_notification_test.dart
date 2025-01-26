@@ -7,7 +7,6 @@ import 'package:smooth_sheets/src/foundation/sheet_controller.dart';
 import 'package:smooth_sheets/src/foundation/sheet_model.dart';
 import 'package:smooth_sheets/src/foundation/sheet_notification.dart';
 import 'package:smooth_sheets/src/foundation/sheet_physics.dart';
-import 'package:smooth_sheets/src/foundation/sheet_status.dart';
 import 'package:smooth_sheets/src/foundation/sheet_viewport.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
 
@@ -48,7 +47,6 @@ void main() {
         reportedNotifications[0],
         isA<SheetDragStartNotification>()
             .having((e) => e.metrics.offset, 'pixels', 500)
-            .having((e) => e.status, 'status', SheetStatus.dragging)
             .having((e) => e.dragDetails.kind, 'kind', PointerDeviceKind.touch)
             .having(
               (e) => e.dragDetails.localPosition,
@@ -65,7 +63,6 @@ void main() {
         reportedNotifications[1],
         isA<SheetDragUpdateNotification>()
             .having((e) => e.metrics.offset, 'pixels', 480)
-            .having((e) => e.status, 'status', SheetStatus.dragging)
             .having(
               (e) => e.dragDetails.axisDirection,
               'axisDirection',
@@ -90,7 +87,6 @@ void main() {
         reportedNotifications.single,
         isA<SheetDragUpdateNotification>()
             .having((e) => e.metrics.offset, 'pixels', 460)
-            .having((e) => e.status, 'status', SheetStatus.dragging)
             .having(
               (e) => e.dragDetails.axisDirection,
               'axisDirection',
@@ -115,7 +111,6 @@ void main() {
         reportedNotifications.single,
         isA<SheetDragUpdateNotification>()
             .having((e) => e.metrics.offset, 'pixels', 480)
-            .having((e) => e.status, 'status', SheetStatus.dragging)
             .having(
               (e) => e.dragDetails.axisDirection,
               'axisDirection',
@@ -140,7 +135,6 @@ void main() {
         reportedNotifications.single,
         isA<SheetDragEndNotification>()
             .having((e) => e.metrics.offset, 'pixels', 480)
-            .having((e) => e.status, 'status', SheetStatus.dragging)
             .having((e) => e.dragDetails.velocity, 'velocity', Velocity.zero)
             .having(
               (e) => e.dragDetails.axisDirection,
@@ -196,8 +190,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(600))
-            .having((e) => e.status, 'status', SheetStatus.animating),
+            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(600)),
       );
 
       reportedNotifications.clear();
@@ -205,8 +198,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(400))
-            .having((e) => e.status, 'status', SheetStatus.animating),
+            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(400)),
       );
 
       reportedNotifications.clear();
@@ -214,8 +206,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(200))
-            .having((e) => e.status, 'status', SheetStatus.animating),
+            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(200)),
       );
 
       reportedNotifications.clear();
@@ -223,8 +214,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(0))
-            .having((e) => e.status, 'status', SheetStatus.animating),
+            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(0)),
       );
 
       reportedNotifications.clear();
@@ -236,7 +226,7 @@ void main() {
   );
 
   testWidgets(
-    'Over-darg gesture should dispatch both darg and overflow notifications',
+    'Over-darg gesture should dispatch both drag and overflow notifications',
     (tester) async {
       final reportedNotifications = <SheetNotification>[];
       const targetKey = Key('target');
@@ -283,7 +273,6 @@ void main() {
         reportedNotifications[1],
         isA<SheetOverflowNotification>()
             .having((e) => e.metrics.offset, 'pixels', 500)
-            .having((e) => e.status, 'status', SheetStatus.dragging)
             .having((e) => e.overflow, 'overflow', -20),
       );
 
@@ -294,7 +283,6 @@ void main() {
         reportedNotifications.single,
         isA<SheetOverflowNotification>()
             .having((e) => e.metrics.offset, 'pixels', 500)
-            .having((e) => e.status, 'status', SheetStatus.dragging)
             .having((e) => e.overflow, 'overflow', -20),
       );
 

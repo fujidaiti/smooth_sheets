@@ -13,7 +13,6 @@ import 'sheet_gesture_tamperer.dart';
 import 'sheet_notification.dart';
 import 'sheet_physics.dart';
 import 'sheet_position_scope.dart';
-import 'sheet_status.dart';
 import 'snap_grid.dart';
 
 /// An abstract representation of a sheet's position.
@@ -212,8 +211,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 
   @override
   double get devicePixelRatio => context.devicePixelRatio;
-
-  SheetStatus get status => activity.status;
 
   @override
   bool get hasMetrics =>
@@ -451,7 +448,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   void didUpdateMetrics() {
     SheetUpdateNotification(
       metrics: snapshot,
-      status: status,
     ).dispatch(context.notificationContext);
   }
 
@@ -485,7 +481,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   void didOverflowBy(double overflow) {
     SheetOverflowNotification(
       metrics: snapshot,
-      status: status,
       overflow: overflow,
     ).dispatch(context.notificationContext);
   }

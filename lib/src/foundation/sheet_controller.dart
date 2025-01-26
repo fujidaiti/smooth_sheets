@@ -3,7 +3,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'foundation.dart';
 import 'sheet_model.dart';
 
 class SheetController extends ChangeNotifier
@@ -23,8 +22,6 @@ class SheetController extends ChangeNotifier
   /// or `null` if no [SheetModel] is attached.
   @override
   SheetGeometry? get value => _client?.value;
-
-  SheetStatus? get status => _client?.status;
 
   /// The current metrics of the sheet.
   ///

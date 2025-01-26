@@ -9,7 +9,6 @@ import 'package:meta/meta.dart';
 import 'sheet_drag.dart';
 import 'sheet_model.dart';
 import 'sheet_physics.dart';
-import 'sheet_status.dart';
 import 'snap_grid.dart';
 
 @internal
@@ -37,8 +36,6 @@ abstract class SheetActivity<T extends SheetModel> {
   }
 
   double get velocity => 0.0;
-
-  SheetStatus get status;
 
   @mustCallSuper
   void init(T owner) {
@@ -299,9 +296,6 @@ class SettlingSheetActivity extends SheetActivity {
   late double _velocity;
 
   @override
-  SheetStatus get status => SheetStatus.animating;
-
-  @override
   void init(SheetModel owner) {
     super.init(owner);
     _ticker = owner.context.vsync.createTicker(_tick)..start();
@@ -445,9 +439,6 @@ class DragSheetActivity extends SheetActivity
 mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
   SheetOffset get targetOffset;
 
-  @override
-  SheetStatus get status => SheetStatus.stable;
-
   /// Updates [SheetMetrics.offset] to maintain the current [SheetOffset], which
   /// is determined by [SnapGrid.getSnapOffset] using the metrics of
   /// the previous frame.
@@ -513,9 +504,6 @@ mixin ControlledSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
   double get velocity => controller.velocity;
 
   @override
-  SheetStatus get status => SheetStatus.animating;
-
-  @override
   void init(T delegate) {
     super.init(delegate);
     controller = createAnimationController()..addListener(onAnimationTick);
@@ -535,9 +523,6 @@ mixin ControlledSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
 @optionalTypeArgs
 mixin UserControlledSheetActivityMixin<T extends SheetModel>
     on SheetActivity<T> {
-  @override
-  SheetStatus get status => SheetStatus.dragging;
-
   @override
   void didChangeMeasurements(SheetMeasurements oldMeasurements) {
     if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {

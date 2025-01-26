@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'sheet_drag.dart';
 import 'sheet_model.dart';
 import 'sheet_physics.dart';
-import 'sheet_status.dart';
 
 /// A [Notification] that is dispatched when the sheet position changes.
 ///
@@ -29,14 +28,10 @@ import 'sheet_status.dart';
 sealed class SheetNotification extends Notification {
   const SheetNotification({
     required this.metrics,
-    required this.status,
   });
 
   /// A snapshot of the sheet metrics at the time this notification was sent.
   final SheetMetrics metrics;
-
-  /// The status of the sheet at the time this notification was sent.
-  final SheetStatus status;
 
   @override
   void debugFillDescription(List<String> description) {
@@ -47,18 +42,14 @@ sealed class SheetNotification extends Notification {
       ..add('maxOffset: ${metrics.maxOffset}')
       ..add('viewportSize: ${metrics.measurements.viewportSize}')
       ..add('viewportInsets: ${metrics.measurements.viewportInsets}')
-      ..add('contentSize: ${metrics.measurements.contentSize}')
-      ..add('status: $status');
+      ..add('contentSize: ${metrics.measurements.contentSize}');
   }
 }
 
 /// A [SheetNotification] that is dispatched when the sheet position
 /// is updated by other than user interaction such as animation.
 class SheetUpdateNotification extends SheetNotification {
-  const SheetUpdateNotification({
-    required super.metrics,
-    required super.status,
-  });
+  const SheetUpdateNotification({required super.metrics});
 }
 
 /// A [SheetNotification] that is dispatched when the sheet is dragged.
@@ -66,7 +57,7 @@ class SheetDragUpdateNotification extends SheetNotification {
   const SheetDragUpdateNotification({
     required super.metrics,
     required this.dragDetails,
-  }) : super(status: SheetStatus.dragging);
+  });
 
   /// The details of a drag that caused this notification.
   final SheetDragUpdateDetails dragDetails;
@@ -86,7 +77,7 @@ class SheetDragStartNotification extends SheetNotification {
   const SheetDragStartNotification({
     required super.metrics,
     required this.dragDetails,
-  }) : super(status: SheetStatus.dragging);
+  });
 
   /// The details of a drag that caused this notification.
   final SheetDragStartDetails dragDetails;
@@ -106,7 +97,7 @@ class SheetDragEndNotification extends SheetNotification {
   const SheetDragEndNotification({
     required super.metrics,
     required this.dragDetails,
-  }) : super(status: SheetStatus.dragging);
+  });
 
   /// The details of a drag that caused this notification.
   final SheetDragEndDetails dragDetails;
@@ -125,7 +116,7 @@ class SheetDragCancelNotification extends SheetNotification {
   /// in the sheet is canceled.
   const SheetDragCancelNotification({
     required super.metrics,
-  }) : super(status: SheetStatus.dragging);
+  });
 }
 
 /// A [SheetNotification] that is dispatched when the user tries
@@ -134,7 +125,6 @@ class SheetDragCancelNotification extends SheetNotification {
 class SheetOverflowNotification extends SheetNotification {
   const SheetOverflowNotification({
     required super.metrics,
-    required super.status,
     required this.overflow,
   });
 

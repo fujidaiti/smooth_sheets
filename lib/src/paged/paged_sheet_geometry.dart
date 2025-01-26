@@ -177,9 +177,6 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
   late final Animation<double> _effectiveAnimation;
 
   @override
-  SheetStatus get status => SheetStatus.animating;
-
-  @override
   bool get shouldIgnorePointer => true;
 
   @override
