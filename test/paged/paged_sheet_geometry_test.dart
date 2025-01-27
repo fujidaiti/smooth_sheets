@@ -568,5 +568,5 @@ void _popRoute({
 }
 
 class _TestSheetActivity extends SheetActivity {
-  void setOffset(double offset) => owner.setPixels(offset);
+  void setOffset(double offset) => owner.setOffset(offset);
 }

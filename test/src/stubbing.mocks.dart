@@ -457,8 +457,8 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
   );
 
   @override
-  void setPixels(double? pixels) => super.noSuchMethod(
-    Invocation.method(#setPixels, [pixels]),
+  void setOffset(double? offset) => super.noSuchMethod(
+    Invocation.method(#setOffset, [offset]),
     returnValueForMissingStub: null,
   );
 

@@ -60,11 +60,11 @@ mixin SheetPhysicsMixin on SheetPhysics {
 
   @override
   double computeOverflow(double delta, SheetMetrics metrics) {
-    final newPixels = metrics.offset + delta;
-    if (newPixels > metrics.maxOffset) {
-      return min(newPixels - metrics.maxOffset, delta);
-    } else if (newPixels < metrics.minOffset) {
-      return max(newPixels - metrics.minOffset, delta);
+    final newOffset = metrics.offset + delta;
+    if (newOffset > metrics.maxOffset) {
+      return min(newOffset - metrics.maxOffset, delta);
+    } else if (newOffset < metrics.minOffset) {
+      return max(newOffset - metrics.minOffset, delta);
     } else {
       return 0;
     }
@@ -72,12 +72,12 @@ mixin SheetPhysicsMixin on SheetPhysics {
 
   @override
   double applyPhysicsToOffset(double delta, SheetMetrics metrics) {
-    // TODO: Use computeOverflow() to calculate the overflowed pixels.
+    // TODO: Use computeOverflow() to calculate the overflowed offset.
     if (delta > 0 && metrics.offset < metrics.maxOffset) {
-      // Prevent the pixels from going beyond the maximum value.
+      // Prevent the offset from going beyond the maximum value.
       return min(metrics.maxOffset, metrics.offset + delta) - metrics.offset;
     } else if (delta < 0 && metrics.offset > metrics.minOffset) {
-      // Prevent the pixels from going beyond the minimum value.
+      // Prevent the offset from going beyond the minimum value.
       return max(metrics.minOffset, metrics.offset + delta) - metrics.offset;
     } else {
       return 0;
@@ -244,17 +244,17 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       return const ClampingSheetPhysics().applyPhysicsToOffset(delta, metrics);
     }
 
-    final currentPixels = metrics.offset;
-    final minPixels = metrics.minOffset;
-    final maxPixels = metrics.maxOffset;
+    final currentOffset = metrics.offset;
+    final minOffset = metrics.minOffset;
+    final maxOffset = metrics.maxOffset;
 
     // A part of or the entire offset that is not affected by friction.
     // If the current 'pixels' plus the offset exceeds the content bounds,
     // only the exceeding part is affected by friction. Otherwise, friction
     // is not applied to the offset at all.
     final zeroFrictionOffset = switch (delta) {
-      > 0 => max(min(currentPixels + delta, maxPixels) - currentPixels, 0.0),
-      < 0 => min(max(currentPixels + delta, minPixels) - currentPixels, 0.0),
+      > 0 => max(min(currentOffset + delta, maxOffset) - currentOffset, 0.0),
+      < 0 => min(max(currentOffset + delta, minOffset) - currentOffset, 0.0),
       _ => 0.0,
     };
 
@@ -262,8 +262,8 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
             .isApprox(zeroFrictionOffset, delta) ||
         // The friction is also not applied if the motion
         // direction is towards the content bounds.
-        (currentPixels > maxPixels && delta < 0) ||
-        (currentPixels < minPixels && delta > 0)) {
+        (currentOffset > maxOffset && delta < 0) ||
+        (currentOffset < minOffset && delta > 0)) {
       return delta;
     }
 
@@ -272,20 +272,20 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
     // if the delta is too large relative to the exceeding pixels, preventing
     // the sheet from slipping too far.
     const offsetSlop = 18.0;
-    var newPixels = currentPixels;
+    var newOffset = currentOffset;
     var consumedOffset = zeroFrictionOffset;
     while (consumedOffset.abs() < delta.abs()) {
       final fragment = (delta - consumedOffset).clampAbs(offsetSlop);
-      final overflowPastStart = max(minPixels - (newPixels + fragment), 0.0);
-      final overflowPastEnd = max(newPixels + fragment - maxPixels, 0.0);
+      final overflowPastStart = max(minOffset - (newOffset + fragment), 0.0);
+      final overflowPastEnd = max(newOffset + fragment - maxOffset, 0.0);
       final overflowPast = max(overflowPastStart, overflowPastEnd);
       final overflowFraction = (overflowPast / bounceablePixels).clampAbs(1);
       final frictionFactor = frictionCurve.transform(overflowFraction);
 
-      newPixels += fragment * (1.0 - frictionFactor);
+      newOffset += fragment * (1.0 - frictionFactor);
       consumedOffset += fragment;
     }
 
-    return newPixels - currentPixels;
+    return newOffset - currentOffset;
   }
 }

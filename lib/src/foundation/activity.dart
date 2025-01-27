@@ -99,12 +99,12 @@ abstract class SheetActivity<T extends SheetModel> {
   }
 }
 
-/// An activity that animates the [SheetModel]'s `pixels` to a destination
+/// An activity that animates the [SheetModel]'s `offset` to a destination
 /// position determined by [destination], using the specified [curve] and
 /// [duration].
 ///
 /// This activity accepts the destination position as an [SheetOffset], allowing
-/// the concrete end position (in pixels) to be updated during the animation
+/// the concrete end position (in offset) to be updated during the animation
 /// in response to viewport changes, such as the appearance of the on-screen
 /// keyboard.
 ///
@@ -126,14 +126,14 @@ class AnimatedSheetActivity extends SheetActivity
   final Duration duration;
   final Curve curve;
 
-  late final double _startPixels;
-  late final double _endPixels;
+  late final double _startOffset;
+  late final double _endOffset;
 
   @override
   void init(SheetModel delegate) {
     super.init(delegate);
-    _startPixels = owner.offset;
-    _endPixels = destination.resolve(owner.measurements);
+    _startOffset = owner.offset;
+    _endOffset = destination.resolve(owner.measurements);
   }
 
   @override
@@ -154,7 +154,7 @@ class AnimatedSheetActivity extends SheetActivity
   void onAnimationTick() {
     final progress = curve.transform(controller.value);
     owner
-      ..setPixels(lerpDouble(_startPixels, _endPixels, progress)!)
+      ..setOffset(lerpDouble(_startOffset, _endOffset, progress)!)
       ..didUpdateGeometry();
   }
 
@@ -168,8 +168,8 @@ class AnimatedSheetActivity extends SheetActivity
     if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
       absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
     }
-    final newEndPixels = destination.resolve(owner.measurements);
-    if (newEndPixels != _endPixels) {
+    final newEndOffset = destination.resolve(owner.measurements);
+    if (newEndOffset != _endOffset) {
       final remainingDuration =
           duration - (controller.lastElapsedDuration ?? Duration.zero);
       owner.settleTo(destination, remainingDuration);
@@ -200,7 +200,7 @@ class BallisticSheetActivity extends SheetActivity
   void onAnimationTick() {
     if (mounted) {
       owner
-        ..setPixels(controller.value)
+        ..setOffset(controller.value)
         ..didUpdateGeometry();
     }
   }
@@ -219,13 +219,13 @@ class BallisticSheetActivity extends SheetActivity
       absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
     }
 
-    final endPixels = destination.resolve(owner.measurements);
-    if (endPixels == owner.offset) {
+    final endOffset = destination.resolve(owner.measurements);
+    if (endOffset == owner.offset) {
       return;
     }
 
     const maxSettlingDuration = 150; // milliseconds
-    final distance = (endPixels - owner.offset).abs();
+    final distance = (endOffset - owner.offset).abs();
     final velocityNorm = velocity.abs();
     final estimatedSettlingDuration = velocityNorm > 0
         ? distance / velocityNorm * Duration.millisecondsPerSecond
@@ -313,17 +313,17 @@ class SettlingSheetActivity extends SheetActivity {
         (elapsedDuration - _elapsedDuration).inMicroseconds /
             Duration.microsecondsPerSecond;
     final destination = this.destination.resolve(owner.measurements);
-    final pixels = owner.offset;
-    final newPixels = destination > pixels
-        ? min(destination, pixels + velocity * elapsedFrameTime)
-        : max(destination, pixels - velocity * elapsedFrameTime);
+    final offset = owner.offset;
+    final newOffset = destination > offset
+        ? min(destination, offset + velocity * elapsedFrameTime)
+        : max(destination, offset - velocity * elapsedFrameTime);
     owner
-      ..setPixels(newPixels)
+      ..setOffset(newOffset)
       ..didUpdateGeometry();
 
     _elapsedDuration = elapsedDuration;
 
-    if (newPixels == destination) {
+    if (newOffset == destination) {
       owner.goIdle();
     }
   }
@@ -356,10 +356,10 @@ class SettlingSheetActivity extends SheetActivity {
       final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
           Duration.microsecondsPerSecond;
       final destination = this.destination.resolve(owner.measurements);
-      final pixels = owner.offset;
+      final offset = owner.offset;
       _velocity = remainingSeconds > 0
-          ? (destination - pixels).abs() / remainingSeconds
-          : (destination - pixels).abs();
+          ? (destination - offset).abs() / remainingSeconds
+          : (destination - offset).abs();
     }
   }
 }
@@ -410,7 +410,7 @@ class DragSheetActivity extends SheetActivity
         owner.physics.applyPhysicsToOffset(details.deltaY, owner);
     if (physicsAppliedDelta != 0) {
       owner
-        ..setPixels(owner.offset + physicsAppliedDelta)
+        ..setOffset(owner.offset + physicsAppliedDelta)
         ..didDragUpdateMetrics(details);
     }
 
@@ -444,8 +444,8 @@ mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
   /// the previous frame.
   @override
   void didChangeMeasurements(SheetMeasurements oldMeasurements) {
-    final newPixels = targetOffset.resolve(owner.measurements);
-    if (newPixels == owner.offset) {
+    final newOffset = targetOffset.resolve(owner.measurements);
+    if (newOffset == owner.offset) {
       return;
     } else if (owner.measurements.viewportInsets.bottom !=
         oldMeasurements.viewportInsets.bottom) {
@@ -455,14 +455,14 @@ mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
       // and that this change will gradually occur over several frames,
       // likely due to animation.
       owner
-        ..setPixels(newPixels)
+        ..setOffset(newOffset)
         ..didUpdateGeometry();
       return;
     }
 
     const minAnimationDuration = Duration(milliseconds: 150);
-    const meanAnimationVelocity = 300 / 1000; // pixels per millisecond
-    final distance = (newPixels - owner.offset).abs();
+    const meanAnimationVelocity = 300 / 1000; // offset per millisecond
+    final distance = (newOffset - owner.offset).abs();
     final estimatedDuration = Duration(
       milliseconds: (distance / meanAnimationVelocity).round(),
     );
@@ -476,7 +476,7 @@ mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
       // The destination is close enough to the current position,
       // so we immediately snap to it without animation.
       owner
-        ..setPixels(newPixels)
+        ..setOffset(newOffset)
         ..didUpdateGeometry();
     }
   }
@@ -535,7 +535,7 @@ mixin UserControlledSheetActivityMixin<T extends SheetModel>
 
 /// Appends the negative delta of the bottom viewport inset, which is typically
 /// equal to the height of the on-screen keyboard, to the [activityOwner]'s
-/// `pixels` to maintain the visual sheet position.
+/// `offset` to maintain the visual sheet position.
 @internal
 void absorbBottomViewportInset(
   SheetModel activityOwner,
@@ -544,10 +544,10 @@ void absorbBottomViewportInset(
   final newInsets = activityOwner.measurements.viewportInsets;
   final oldInsets = oldViewportInsets;
   final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
-  final newPixels = activityOwner.offset - deltaInsetBottom;
-  if (newPixels != activityOwner.offset) {
+  final newOffset = activityOwner.offset - deltaInsetBottom;
+  if (newOffset != activityOwner.offset) {
     activityOwner
-      ..setPixels(newPixels)
+      ..setOffset(newOffset)
       ..didUpdateGeometry();
   }
 }

@@ -43,7 +43,7 @@ void main() {
 
     test('should animate to the destination', () {
       final (ownerMetrics, owner) = createMockSheetModel(
-        pixels: 300,
+        offset: 300,
         initialPosition: const SheetOffset.absolute(300),
         minOffset: 300,
         maxOffset: 700,
@@ -83,7 +83,7 @@ void main() {
 
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
-        pixels: 300,
+        offset: 300,
         initialPosition: const SheetOffset.absolute(300),
         minOffset: 300,
         maxOffset: 900,
@@ -142,7 +142,7 @@ void main() {
 
     setUp(() {
       (ownerMetrics, owner) = createMockSheetModel(
-        pixels: 300,
+        offset: 300,
         initialPosition: const SheetOffset.relative(0.5),
         minOffset: 300,
         maxOffset: 600,
@@ -201,7 +201,7 @@ void main() {
         expect(() => activity.velocity, isNotInitialized);
 
         activity.init(owner);
-        expect(activity.velocity, 1000); // (300pixels / 300ms) = 1000 pixels/s
+        expect(activity.velocity, 1000); // (300pixels / 300ms) = 1000 offset/s
       },
     );
 
@@ -215,19 +215,19 @@ void main() {
       verify(internalTicker.start());
 
       internalOnTickCallback!(const Duration(milliseconds: 200));
-      expect(ownerMetrics.offset, 360); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.offset, 360); // 300 * 0.2 = 60 offset in 200ms
 
       internalOnTickCallback!(const Duration(milliseconds: 400));
-      expect(ownerMetrics.offset, 420); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.offset, 420); // 300 * 0.2 = 60 offset in 200ms
 
       internalOnTickCallback!(const Duration(milliseconds: 500));
-      expect(ownerMetrics.offset, 450); // 300 * 0.1 = 30 pixels in 100ms
+      expect(ownerMetrics.offset, 450); // 300 * 0.1 = 30 offset in 100ms
 
       internalOnTickCallback!(const Duration(milliseconds: 800));
-      expect(ownerMetrics.offset, 540); // 300 * 0.3 = 90 pixels in 300ms
+      expect(ownerMetrics.offset, 540); // 300 * 0.3 = 90 offset in 300ms
 
       internalOnTickCallback!(const Duration(milliseconds: 1000));
-      expect(ownerMetrics.offset, 600); // 300 * 0.2 = 60 pixels in 200ms
+      expect(ownerMetrics.offset, 600); // 300 * 0.2 = 60 offset in 200ms
     });
 
     test(
@@ -250,10 +250,10 @@ void main() {
         destination: const SheetOffset.relative(1),
       )..init(owner);
 
-      expect(activity.velocity, 1000); // (300 pixels / 0.3s) = 1000 pixels/s
+      expect(activity.velocity, 1000); // (300 offset / 0.3s) = 1000 offset/s
 
       internalOnTickCallback!(const Duration(milliseconds: 50));
-      expect(ownerMetrics.offset, 350); // 1000 * 0.05 = 50 pixels in 50ms
+      expect(ownerMetrics.offset, 350); // 1000 * 0.05 = 50 offset in 50ms
 
       final oldMeasurements = ownerMetrics.measurements;
       // Show the on-screen keyboard.
@@ -263,18 +263,18 @@ void main() {
       activity.didChangeMeasurements(oldMeasurements);
       expect(ownerMetrics.offset, 320,
           reason: 'Visual position should not change when viewport changes.');
-      expect(activity.velocity, 1120, // 280 pixels / 0.25s = 1120 pixels/s
+      expect(activity.velocity, 1120, // 280 offset / 0.25s = 1120 offset/s
           reason: 'Velocity should be updated when viewport changes.');
 
       internalOnTickCallback!(const Duration(milliseconds: 100));
-      expect(ownerMetrics.offset, 376); // 1120 * 0.05 = 56 pixels in 50ms
+      expect(ownerMetrics.offset, 376); // 1120 * 0.05 = 56 offset in 50ms
     });
   });
 
   group('IdleSheetActivity', () {
     test('should maintain previous position when keyboard appears', () {
       final (ownerMetrics, owner) = createMockSheetModel(
-        pixels: 450,
+        offset: 450,
         initialPosition: const SheetOffset.relative(0.5),
         minOffset: 425,
         maxOffset: 850,
@@ -302,7 +302,7 @@ void main() {
       'without animation if gap is small',
       () {
         final (ownerMetrics, owner) = createMockSheetModel(
-          pixels: 300,
+          offset: 300,
           initialPosition: const SheetOffset.relative(0.5),
           minOffset: 290,
           maxOffset: 580,
@@ -333,7 +333,7 @@ void main() {
       'with animation if gap is large',
       () {
         final (ownerMetrics, owner) = createMockSheetModel(
-          pixels: 300,
+          offset: 300,
           initialPosition: const SheetOffset.relative(0.5),
           minOffset: 250,
           maxOffset: 500,

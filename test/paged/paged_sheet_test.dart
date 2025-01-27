@@ -275,7 +275,7 @@ void main() {
     (tester) async {
       final controller = SheetController();
 
-      (double?, double?)? lastBoundaryValues; // (minPixels, maxPixels)
+      (double?, double?)? lastBoundaryValues; // (minOffset, maxOffset)
       controller.addListener(() {
         lastBoundaryValues = (
           controller.metrics?.minOffset,

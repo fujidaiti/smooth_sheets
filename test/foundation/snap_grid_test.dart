@@ -88,7 +88,7 @@ void main() {
 
     test(
       'getSnapOffset: returns maxOffset '
-      'when metrics.pixels is greater than maxOffset',
+      'when metrics.offset is greater than maxOffset',
       () {
         final result = snap.getSnapOffset(metrics(offset: 600), 0);
         expect(result, maxOffset);

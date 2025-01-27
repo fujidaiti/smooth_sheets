@@ -75,17 +75,17 @@ class RelativeSheetOffset implements SheetOffset {
   String toString() => '$RelativeSheetOffset(factor: $factor)';
 }
 
-/// A [SheetOffset] that represents a position with a fixed value in pixels.
+/// A [SheetOffset] that represents a position with a fixed value in offset.
 class AbsoluteSheetOffset implements SheetOffset {
   /// {@template AbsoluteSheetOffset}
-  /// Creates an anchor that represents a fixed position in pixels.
+  /// Creates an anchor that represents a fixed position in offset.
   ///
   /// For example, `AbsoluteSheetOffset(200)` represents a position
-  /// where 200 pixels from the top of the sheet content are visible.
+  /// where 200 offset from the top of the sheet content are visible.
   /// {@endtemplate}
   const AbsoluteSheetOffset(this.value) : assert(value >= 0);
 
-  /// The position in pixels.
+  /// The position in offset.
   final double value;
 
   @override
@@ -121,19 +121,19 @@ abstract class SheetModelView
 /// The [SheetModel.offset] value determines the visible height of a sheet.
 /// As this value changes, the sheet translates its position, which changes the
 /// visible area of the content. The [SheetModel.minOffset] and
-/// [SheetModel.maxOffset] values limit the range of the *pixels*, but it can
+/// [SheetModel.maxOffset] values limit the range of the *offset*, but it can
 /// be outside of the range if the [SheetModel.physics] allows it.
 ///
-/// The current [activity] is responsible for how the *pixels* changes
-/// over time, for example, [AnimatedSheetActivity] animates the *pixels* to
-/// a target value, and [IdleSheetActivity] keeps the *pixels* unchanged.
+/// The current [activity] is responsible for how the *offset* changes
+/// over time, for example, [AnimatedSheetActivity] animates the *offset* to
+/// a target value, and [IdleSheetActivity] keeps the *offset* unchanged.
 /// [SheetModel] starts with [IdleSheetActivity] as the initial activity,
 /// and it can be changed by calling [beginActivity].
 ///
-/// This object is a [Listenable] that notifies its listeners when the *pixels*
+/// This object is a [Listenable] that notifies its listeners when the *offset*
 /// changes, even during build or layout phase. For listeners that can cause
 /// any widget to rebuild, consider using [SheetController], which is also
-/// [Listenable] of the *pixels*, but avoids notifying listeners during a build.
+/// [Listenable] of the *offset*, but avoids notifying listeners during a build.
 ///
 /// See also:
 /// - [SheetController], which can be attached to a sheet to observe and control
@@ -392,8 +392,8 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   }
 
   // TODO: Rename to `setOffset`.
-  void setPixels(double pixels) {
-    geometry = geometry.copyWith(offset: pixels);
+  void setOffset(double offset) {
+    geometry = geometry.copyWith(offset: offset);
   }
 
   /// Animates the sheet position to the given value.

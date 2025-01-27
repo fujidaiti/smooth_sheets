@@ -213,7 +213,7 @@ class DraggableScrollableSheetPosition extends SheetModel
         BallisticScrollDrivenSheetActivity(
           scrollPosition,
           simulation: scrollSimulation,
-          initialPixels: scrollPixelsForScrollPhysics,
+          initialOffset: scrollPixelsForScrollPhysics,
           // TODO: Make this configurable.
           shouldInterrupt: (velocity) =>
               velocity.abs() < _kMaxScrollSpeedToInterrupt,

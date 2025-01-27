@@ -101,7 +101,7 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     final needInitialisation = !hasMetrics;
     super.measurements = value;
     if (needInitialisation) {
-      setPixels(
+      setOffset(
         switch (_currentRoute) {
           null => initialPosition.resolve(value),
           final it => _resolveTargetOffset(it),
@@ -199,7 +199,7 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
     final destOffset = destinationRouteOffset();
 
     if (originOffset != null && destOffset != null) {
-      owner.setPixels(lerpDouble(originOffset, destOffset, fraction)!);
+      owner.setOffset(lerpDouble(originOffset, destOffset, fraction)!);
     }
   }
 

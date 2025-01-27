@@ -514,7 +514,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 ///   bottomBar: ConditionalStickyBottomBarVisibility(
 ///     getIsVisible: (metrics) =>
 ///         metrics.viewportInsets.bottom == 0 &&
-///         metrics.pixels >
+///         metrics.offset >
 ///             const SheetAnchor.proportional(0.5)
 ///                 .resolve(metrics.contentSize),
 ///     child: BottomAppBar(),

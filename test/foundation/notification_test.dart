@@ -46,7 +46,7 @@ void main() {
       expect(
         reportedNotifications[0],
         isA<SheetDragStartNotification>()
-            .having((e) => e.metrics.offset, 'pixels', 500)
+            .having((e) => e.metrics.offset, 'offset', 500)
             .having((e) => e.dragDetails.kind, 'kind', PointerDeviceKind.touch)
             .having(
               (e) => e.dragDetails.localPosition,
@@ -62,7 +62,7 @@ void main() {
       expect(
         reportedNotifications[1],
         isA<SheetDragUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', 480)
+            .having((e) => e.metrics.offset, 'offset', 480)
             .having(
               (e) => e.dragDetails.axisDirection,
               'axisDirection',
@@ -86,7 +86,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetDragUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', 460)
+            .having((e) => e.metrics.offset, 'offset', 460)
             .having(
               (e) => e.dragDetails.axisDirection,
               'axisDirection',
@@ -110,7 +110,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetDragUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', 480)
+            .having((e) => e.metrics.offset, 'offset', 480)
             .having(
               (e) => e.dragDetails.axisDirection,
               'axisDirection',
@@ -134,7 +134,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetDragEndNotification>()
-            .having((e) => e.metrics.offset, 'pixels', 480)
+            .having((e) => e.metrics.offset, 'offset', 480)
             .having((e) => e.dragDetails.velocity, 'velocity', Velocity.zero)
             .having(
               (e) => e.dragDetails.axisDirection,
@@ -190,7 +190,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(600)),
+            .having((e) => e.metrics.offset, 'offset', moreOrLessEquals(600)),
       );
 
       reportedNotifications.clear();
@@ -198,7 +198,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(400)),
+            .having((e) => e.metrics.offset, 'offset', moreOrLessEquals(400)),
       );
 
       reportedNotifications.clear();
@@ -206,7 +206,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(200)),
+            .having((e) => e.metrics.offset, 'offset', moreOrLessEquals(200)),
       );
 
       reportedNotifications.clear();
@@ -214,7 +214,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'pixels', moreOrLessEquals(0)),
+            .having((e) => e.metrics.offset, 'offset', moreOrLessEquals(0)),
       );
 
       reportedNotifications.clear();
@@ -272,7 +272,7 @@ void main() {
       expect(
         reportedNotifications[1],
         isA<SheetOverflowNotification>()
-            .having((e) => e.metrics.offset, 'pixels', 500)
+            .having((e) => e.metrics.offset, 'offset', 500)
             .having((e) => e.overflow, 'overflow', -20),
       );
 
@@ -282,7 +282,7 @@ void main() {
       expect(
         reportedNotifications.single,
         isA<SheetOverflowNotification>()
-            .having((e) => e.metrics.offset, 'pixels', 500)
+            .having((e) => e.metrics.offset, 'offset', 500)
             .having((e) => e.overflow, 'overflow', -20),
       );
 

@@ -116,7 +116,7 @@ class MultiSnapGrid implements SheetSnapGrid {
   /// Where:
   /// - `min` is the smallest offset.
   /// - `max` is the largest offset.
-  /// - `nearest` is the offset that is closest to the `metrics.pixels`.
+  /// - `nearest` is the offset that is closest to the `metrics.offset`.
   /// - `leftmost` is the offset that is the maximum offset that is less than
   ///   or equal to the `nearest`.
   /// - `rightmost` is the offset that is the minimum offset that is greater

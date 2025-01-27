@@ -64,7 +64,7 @@ class MutableSheetMetrics with SheetMetrics {
 }
 
 (MutableSheetMetrics, MockSheetModel) createMockSheetModel({
-  required double pixels,
+  required double offset,
   required SheetOffset initialPosition,
   required double minOffset,
   required double maxOffset,
@@ -75,7 +75,7 @@ class MutableSheetMetrics with SheetMetrics {
   SheetPhysics? physics,
 }) {
   final metricsRegistry = MutableSheetMetrics(
-    offset: pixels,
+    offset: offset,
     minOffset: minOffset,
     maxOffset: maxOffset,
     measurements: SheetMeasurements(
@@ -101,7 +101,7 @@ class MutableSheetMetrics with SheetMetrics {
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);
   when(position.snapshot).thenAnswer((_) => metricsRegistry);
 
-  when(position.setPixels(any)).thenAnswer((invocation) {
+  when(position.setOffset(any)).thenAnswer((invocation) {
     metricsRegistry.offset = invocation.positionalArguments.first as double;
   });
   when(position.measurements = any).thenAnswer((invocation) {
@@ -116,7 +116,7 @@ class MutableSheetMetrics with SheetMetrics {
     measurements: anyNamed('measurements'),
   )).thenAnswer((invocation) {
     return metricsRegistry.copyWith(
-      offset: invocation.namedArguments[#pixels] as double?,
+      offset: invocation.namedArguments[#offset] as double?,
       minOffset: invocation.namedArguments[#minOffset] as double?,
       maxOffset: invocation.namedArguments[#maxOffset] as double?,
       devicePixelRatio: invocation.namedArguments[#devicePixelRatio] as double?,

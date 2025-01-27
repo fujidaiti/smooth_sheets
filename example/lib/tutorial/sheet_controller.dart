@@ -50,9 +50,9 @@ class _ExampleHomeState extends State<_ExampleHome> {
               // SheetController can be used to observe changes in the sheet position.
               child: ValueListenableBuilder(
                 valueListenable: controller,
-                builder: (context, pixels, child) {
+                builder: (context, offset, child) {
                   return Text(
-                    'Position: ${pixels?.toStringAsFixed(1)}',
+                    'Position: ${offset?.toStringAsFixed(1)}',
                     style: Theme.of(context).textTheme.displaySmall,
                   );
                 },

@@ -47,14 +47,14 @@ class SheetOffsetDrivenAnimation extends Animation<double> {
       return initialValue;
     }
 
-    final startPixels =
+    final startOffset =
         startPosition?.resolve(metrics.measurements) ?? metrics.minOffset;
-    final endPixels =
+    final endOffset =
         endPosition?.resolve(metrics.measurements) ?? metrics.maxOffset;
-    final distance = endPixels - startPixels;
+    final distance = endOffset - startOffset;
 
     if (distance.isFinite && distance > 0) {
-      return ((metrics.offset - startPixels) / distance).clamp(0, 1);
+      return ((metrics.offset - startOffset) / distance).clamp(0, 1);
     }
 
     return 1;
