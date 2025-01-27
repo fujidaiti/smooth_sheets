@@ -10,7 +10,7 @@ import 'context.dart';
 import 'controller.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
-import 'model_scope.dart';
+import 'model_owner.dart';
 import 'notification.dart';
 import 'physics.dart';
 import 'snap_grid.dart';
@@ -138,7 +138,7 @@ abstract class SheetModelView
 /// See also:
 /// - [SheetController], which can be attached to a sheet to observe and control
 ///   its position.
-/// - [SheetPositionScope], which creates a [SheetModel], manages its
+/// - [SheetModelOwner], which creates a [SheetModel], manages its
 ///   lifecycle and exposes it to the descendant widgets.
 @internal
 abstract class SheetModel extends SheetModelView with ChangeNotifier {

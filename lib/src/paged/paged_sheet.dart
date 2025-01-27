@@ -6,7 +6,7 @@ import '../foundation/context.dart';
 import '../foundation/controller.dart';
 import '../foundation/foundation.dart';
 import '../foundation/gesture_proxy.dart';
-import '../foundation/model_scope.dart';
+import '../foundation/model_owner.dart';
 import '../foundation/snap_grid.dart';
 import 'paged_sheet_geometry.dart';
 import 'paged_sheet_route.dart';
@@ -34,11 +34,9 @@ class _PagedSheetState extends State<PagedSheet>
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return _PagedSheetPositionScope(
+    return _PagedSheetModelOwner(
       context: this,
       physics: kDefaultPagedSheetPhysics,
-      minPosition: kDefaultPagedSheetMinOffset,
-      maxPosition: kDefaultPagedSheetMaxOffset,
       controller: controller,
       gestureProxy: gestureProxy,
       debugLabel: kDebugMode ? 'NavigationSheet' : null,
@@ -49,18 +47,15 @@ class _PagedSheetState extends State<PagedSheet>
   }
 }
 
-class _PagedSheetPositionScope extends SheetPositionScope<PagedSheetGeometry> {
-  const _PagedSheetPositionScope({
+class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetGeometry> {
+  const _PagedSheetModelOwner({
     super.controller,
     super.gestureProxy,
-    required super.minPosition,
-    required super.maxPosition,
     required super.physics,
     required super.context,
     this.debugLabel,
     required super.child,
   }) : super(
-          isPrimary: true,
           snapGrid: const SteplessSnapGrid(
             minOffset: SheetOffset.absolute(0),
             maxOffset: SheetOffset.relative(1),
@@ -71,13 +66,14 @@ class _PagedSheetPositionScope extends SheetPositionScope<PagedSheetGeometry> {
   final String? debugLabel;
 
   @override
-  _PagedSheetPositionScopeState createState() {
-    return _PagedSheetPositionScopeState();
+  _PagedSheetModelOwnerState createState() {
+    return _PagedSheetModelOwnerState();
   }
 }
 
-class _PagedSheetPositionScopeState extends SheetPositionScopeState<
-    PagedSheetGeometry, _PagedSheetPositionScope> with NavigatorEventListener {
+class _PagedSheetModelOwnerState
+    extends SheetModelOwnerState<PagedSheetGeometry, _PagedSheetModelOwner>
+    with NavigatorEventListener {
   NavigatorEventObserverState? _navigatorEventObserver;
 
   @override
@@ -98,13 +94,12 @@ class _PagedSheetPositionScopeState extends SheetPositionScopeState<
   }
 
   @override
-  bool shouldRebuildPosition(PagedSheetGeometry oldPosition) {
-    return widget.debugLabel != oldPosition.debugLabel ||
-        super.shouldRebuildPosition(oldPosition);
+  bool shouldRefreshModel() {
+    return widget.debugLabel != model.debugLabel || super.shouldRefreshModel();
   }
 
   @override
-  PagedSheetGeometry buildPosition(SheetContext context) {
+  PagedSheetGeometry createModel(SheetContext context) {
     return PagedSheetGeometry(
       context: context,
       gestureProxy: widget.gestureProxy,
@@ -115,8 +110,8 @@ class _PagedSheetPositionScopeState extends SheetPositionScopeState<
   @override
   VoidCallback? didInstall(Route<dynamic> route) {
     if (route is BasePagedSheetRoute) {
-      position.addRoute(route);
-      return () => position.removeRoute(route);
+      model.addRoute(route);
+      return () => model.removeRoute(route);
     }
     return null;
   }
@@ -130,7 +125,7 @@ class _PagedSheetPositionScopeState extends SheetPositionScopeState<
   }) {
     if (currentRoute is BasePagedSheetRoute &&
         nextRoute is BasePagedSheetRoute) {
-      position.didStartTransition(
+      model.didStartTransition(
         currentRoute,
         nextRoute,
         animation,
@@ -142,7 +137,7 @@ class _PagedSheetPositionScopeState extends SheetPositionScopeState<
   @override
   void didEndTransition(Route<dynamic> route) {
     if (route is BasePagedSheetRoute) {
-      position.didEndTransition(route);
+      model.didEndTransition(route);
     }
   }
 }

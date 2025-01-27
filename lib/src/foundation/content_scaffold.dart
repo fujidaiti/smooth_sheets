@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 
 import '../scrollable/sheet_draggable.dart';
 import 'model.dart';
-import 'model_scope.dart';
+import 'viewport.dart';
 
 class SheetContentScaffold extends StatelessWidget {
   const SheetContentScaffold({
@@ -219,16 +219,16 @@ abstract class BottomBarVisibility implements Widget {
 
 abstract class _RenderBottomBarVisibility extends RenderTransform {
   _RenderBottomBarVisibility({
-    required SheetModel position,
+    required SheetModelView position,
   })  : _position = position,
         super(transform: Matrix4.zero(), transformHitTests: true) {
     _position.addListener(invalidateVisibility);
   }
 
-  SheetModel _position;
+  SheetModelView _position;
 
   // ignore: avoid_setters_without_getters
-  set position(SheetModel value) {
+  set position(SheetModelView value) {
     if (_position != value) {
       _position.removeListener(invalidateVisibility);
       _position = value..addListener(invalidateVisibility);
@@ -298,7 +298,7 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderFixedBottomBarVisibility(
-      position: SheetPositionScope.of(context),
+      position: SheetViewportState.of(context)!.model,
       resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
@@ -307,7 +307,7 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderFixedBottomBarVisibility)
-      ..position = SheetPositionScope.of(context)
+      ..position = SheetViewportState.of(context)!.model
       ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
   }
 }
@@ -387,7 +387,7 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderStickyBottomBarVisibility(
-      position: SheetPositionScope.of(context),
+      position: SheetViewportState.of(context)!.model,
       resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
@@ -396,7 +396,7 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderStickyBottomBarVisibility)
-      ..position = SheetPositionScope.of(context)
+      ..position = SheetViewportState.of(context)!.model
       ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
   }
 }
@@ -451,7 +451,7 @@ class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderAnimatedBottomBarVisibility(
-      position: SheetPositionScope.of(context),
+      position: SheetViewportState.of(context)!.model,
       visibility: visibility,
     );
   }
@@ -460,7 +460,7 @@ class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderAnimatedBottomBarVisibility)
-      ..position = SheetPositionScope.of(context)
+      ..position = SheetViewportState.of(context)!.model
       ..visibility = visibility;
   }
 }
@@ -560,7 +560,7 @@ class _ConditionalStickyBottomBarVisibilityState
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _curveAnimation;
-  SheetModel? _position;
+  SheetModelView? _position;
 
   @override
   void initState() {
@@ -584,7 +584,7 @@ class _ConditionalStickyBottomBarVisibilityState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final position = SheetPositionScope.of(context);
+    final position = SheetViewportState.of(context)!.model;
     if (_position != position) {
       _position?.removeListener(_didSheetMetricsChanged);
       _position = position..addListener(_didSheetMetricsChanged);

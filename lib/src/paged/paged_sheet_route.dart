@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
 import '../foundation/foundation.dart';
-import '../foundation/model_scope.dart';
+import '../foundation/model_owner.dart';
 import '../scrollable/scrollable_sheet.dart';
 import 'paged_sheet_geometry.dart';
 
@@ -21,7 +21,7 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return _RenderRouteContentLayoutObserver(
       parentRoute: parentRoute,
-      controller: SheetPositionScope.of<PagedSheetGeometry>(context),
+      controller: SheetModelOwner.of<PagedSheetGeometry>(context)!,
     );
   }
 
@@ -31,8 +31,7 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
     _RenderRouteContentLayoutObserver renderObject,
   ) {
     assert(parentRoute == renderObject.parentRoute);
-    renderObject.controller =
-        SheetPositionScope.of<PagedSheetGeometry>(context);
+    renderObject.controller = SheetModelOwner.of<PagedSheetGeometry>(context)!;
   }
 }
 

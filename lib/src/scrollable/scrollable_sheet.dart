@@ -90,8 +90,6 @@ class _SheetState extends State<Sheet>
       context: this,
       controller: controller,
       initialPosition: widget.initialPosition,
-      minPosition: widget.minPosition,
-      maxPosition: widget.maxPosition,
       physics: physics,
       snapGrid: widget.snapGrid,
       gestureProxy: gestureTamper,

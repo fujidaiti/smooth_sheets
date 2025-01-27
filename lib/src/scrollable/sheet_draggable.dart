@@ -3,7 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
 import '../foundation/model.dart';
-import '../foundation/model_scope.dart';
+import '../foundation/model_owner.dart';
 import 'scrollable_sheet.dart';
 
 /// A widget that makes its child as a drag-handle for a sheet.
@@ -38,7 +38,7 @@ class _SheetDraggableState extends State<SheetDraggable> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _position = SheetPositionScope.maybeOf(context);
+    _position = SheetModelOwner.of(context);
   }
 
   @override

@@ -2,20 +2,17 @@ import 'package:meta/meta.dart';
 
 import '../foundation/context.dart';
 import '../foundation/model.dart';
-import '../foundation/model_scope.dart';
+import '../foundation/model_owner.dart';
 import 'scrollable_sheet_position.dart';
 
 @internal
 class ScrollableSheetPositionScope
-    extends SheetPositionScope<DraggableScrollableSheetPosition> {
+    extends SheetModelOwner<DraggableScrollableSheetPosition> {
   const ScrollableSheetPositionScope({
     super.key,
     super.controller,
-    super.isPrimary,
     required super.context,
     required this.initialPosition,
-    required super.minPosition,
-    required super.maxPosition,
     required super.physics,
     required super.snapGrid,
     super.gestureProxy,
@@ -30,23 +27,23 @@ class ScrollableSheetPositionScope
   final String? debugLabel;
 
   @override
-  SheetPositionScopeState<DraggableScrollableSheetPosition,
-      SheetPositionScope<DraggableScrollableSheetPosition>> createState() {
+  SheetModelOwnerState<DraggableScrollableSheetPosition,
+      SheetModelOwner<DraggableScrollableSheetPosition>> createState() {
     return _ScrollableSheetPositionScopeState();
   }
 }
 
-class _ScrollableSheetPositionScopeState extends SheetPositionScopeState<
+class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
     DraggableScrollableSheetPosition, ScrollableSheetPositionScope> {
   @override
-  bool shouldRebuildPosition(DraggableScrollableSheetPosition oldPosition) {
-    return widget.initialPosition != oldPosition.initialPosition ||
-        widget.debugLabel != oldPosition.debugLabel ||
-        super.shouldRebuildPosition(oldPosition);
+  bool shouldRefreshModel() {
+    return widget.initialPosition != model.initialPosition ||
+        widget.debugLabel != model.debugLabel ||
+        super.shouldRefreshModel();
   }
 
   @override
-  DraggableScrollableSheetPosition buildPosition(SheetContext context) {
+  DraggableScrollableSheetPosition createModel(SheetContext context) {
     return DraggableScrollableSheetPosition(
       context: context,
       initialPosition: widget.initialPosition,
