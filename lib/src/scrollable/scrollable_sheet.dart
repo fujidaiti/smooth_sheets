@@ -35,9 +35,7 @@ class SheetDragConfiguration {
 class Sheet extends StatefulWidget {
   const Sheet({
     super.key,
-    this.initialPosition = const SheetOffset.relative(1),
-    this.minPosition = const SheetOffset.relative(1),
-    this.maxPosition = const SheetOffset.relative(1),
+    this.initialOffset = const SheetOffset.relative(1),
     this.physics,
     this.snapGrid = const SheetSnapGrid.single(
       snap: SheetOffset.relative(1),
@@ -49,14 +47,7 @@ class Sheet extends StatefulWidget {
   });
 
   /// {@macro ScrollableSheetPosition.initialPosition}
-  final SheetOffset initialPosition;
-
-  /// {@macro SheetPosition.minPosition}
-  final SheetOffset minPosition;
-
-  /// {@macro SheetPosition.maxPosition}
-  // TODO: Remove this property.
-  final SheetOffset maxPosition;
+  final SheetOffset initialOffset;
 
   /// {@macro SheetPosition.physics}
   final SheetPhysics? physics;
@@ -89,7 +80,7 @@ class _SheetState extends State<Sheet>
     return ScrollableSheetPositionScope(
       context: this,
       controller: controller,
-      initialPosition: widget.initialPosition,
+      initialOffset: widget.initialOffset,
       physics: physics,
       snapGrid: widget.snapGrid,
       gestureProxy: gestureTamper,

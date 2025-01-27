@@ -46,7 +46,7 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     super.gestureProxy,
     super.debugLabel,
   }) : super(
-          initialPosition: kDefaultPagedSheetInitialOffset,
+          initialOffset: kDefaultPagedSheetInitialOffset,
           physics: kDefaultPagedSheetPhysics,
           snapGrid: _kDefaultSnapGrid,
         );
@@ -103,7 +103,7 @@ class PagedSheetGeometry extends DraggableScrollableSheetPosition {
     if (needInitialisation) {
       setOffset(
         switch (_currentRoute) {
-          null => initialPosition.resolve(value),
+          null => initialOffset.resolve(value),
           final it => _resolveTargetOffset(it),
         },
       );

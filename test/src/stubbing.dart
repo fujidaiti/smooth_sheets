@@ -93,7 +93,7 @@ class MutableSheetMetrics with SheetMetrics {
     ),
   );
   when(position.offset).thenAnswer((_) => metricsRegistry.offset);
-  when(position.initialPosition).thenAnswer((_) => initialPosition);
+  when(position.initialOffset).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
   when(position.measurements).thenAnswer((_) => metricsRegistry.measurements);

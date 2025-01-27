@@ -375,7 +375,7 @@ class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
     super.init(owner);
     targetOffset = owner.hasMetrics
         ? owner.snapGrid.getSnapOffset(owner, 0)
-        : owner.initialPosition;
+        : owner.initialOffset;
   }
 }
 

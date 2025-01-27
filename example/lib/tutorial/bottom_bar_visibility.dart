@@ -153,7 +153,7 @@ class _ExampleSheet extends StatelessWidget {
       bottom: false,
       child: Sheet(
         minPosition: minSize,
-        initialPosition: halfSize,
+        initialOffset: halfSize,
         physics: multiStopPhysics,
         child: SheetContentScaffold(
           appBar: AppBar(),

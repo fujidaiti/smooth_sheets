@@ -12,7 +12,7 @@ class ScrollableSheetPositionScope
     super.key,
     super.controller,
     required super.context,
-    required this.initialPosition,
+    required this.initialOffset,
     required super.physics,
     required super.snapGrid,
     super.gestureProxy,
@@ -21,7 +21,7 @@ class ScrollableSheetPositionScope
   });
 
   /// {@macro ScrollableSheetPosition.initialPosition}
-  final SheetOffset initialPosition;
+  final SheetOffset initialOffset;
 
   /// {@macro SheetPosition.debugLabel}
   final String? debugLabel;
@@ -37,7 +37,7 @@ class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
     DraggableScrollableSheetPosition, ScrollableSheetPositionScope> {
   @override
   bool shouldRefreshModel() {
-    return widget.initialPosition != model.initialPosition ||
+    return widget.initialOffset != model.initialOffset ||
         widget.debugLabel != model.debugLabel ||
         super.shouldRefreshModel();
   }
@@ -46,7 +46,7 @@ class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
   DraggableScrollableSheetPosition createModel(SheetContext context) {
     return DraggableScrollableSheetPosition(
       context: context,
-      initialPosition: widget.initialPosition,
+      initialOffset: widget.initialOffset,
       physics: widget.physics,
       snapGrid: widget.snapGrid,
       gestureProxy: widget.gestureProxy,

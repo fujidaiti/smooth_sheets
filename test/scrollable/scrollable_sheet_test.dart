@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/activity.dart';
 import 'package:smooth_sheets/src/foundation/controller.dart';
 import 'package:smooth_sheets/src/foundation/model_owner.dart';
+import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet_position.dart';
 import 'package:smooth_sheets/src/scrollable/sheet_content_scroll_position.dart';
 
@@ -111,8 +114,10 @@ void main() {
               key: sheetKey,
               controller: controller,
               scrollConfiguration: const SheetScrollConfiguration(),
-              minPosition: const SheetOffset.absolute(200),
-              initialPosition: const SheetOffset.absolute(200),
+              snapGrid: SheetSnapGrid.stepless(
+                minOffset: SheetOffset.absolute(200),
+              ),
+              initialOffset: const SheetOffset.absolute(200),
               child: const _TestSheetContent(height: 500),
             ),
           ),

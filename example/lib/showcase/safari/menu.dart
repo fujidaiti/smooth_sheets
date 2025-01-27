@@ -27,7 +27,7 @@ class MenuSheet extends StatelessWidget {
     const halfWayPosition = SheetOffset.relative(0.5);
     return Sheet(
       scrollConfiguration: const SheetScrollConfiguration(),
-      initialPosition: halfWayPosition,
+      initialOffset: halfWayPosition,
       minPosition: halfWayPosition,
       physics: const BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),

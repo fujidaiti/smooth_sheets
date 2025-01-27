@@ -16,8 +16,8 @@ abstract interface class SheetSnapGrid {
   }) = SingleSnapGrid;
 
   const factory SheetSnapGrid.stepless({
-    required SheetOffset minOffset,
-    required SheetOffset maxOffset,
+    SheetOffset minOffset,
+    SheetOffset maxOffset,
   }) = SteplessSnapGrid;
 
   /// Returns an position to which a sheet should eventually settle
@@ -50,8 +50,8 @@ class SingleSnapGrid implements SheetSnapGrid {
 
 class SteplessSnapGrid implements SheetSnapGrid {
   const SteplessSnapGrid({
-    required this.minOffset,
-    required this.maxOffset,
+    this.minOffset = const SheetOffset.absolute(0),
+    this.maxOffset = const SheetOffset.relative(1),
   });
 
   final SheetOffset minOffset;

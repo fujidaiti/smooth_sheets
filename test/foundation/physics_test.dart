@@ -24,14 +24,14 @@ const _referenceSheetMetrics = SheetMetricsSnapshot(
   devicePixelRatio: 1,
 );
 
-final _positionAtTopEdge =
+final _metricsAtTopEdge =
     _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.maxOffset);
 
-final _positionAtBottomEdge =
+final _metricsAtBottomEdge =
     _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.minOffset);
 
-final _positionAtMiddle = _referenceSheetMetrics.copyWith(
-  offset: (_positionAtTopEdge.offset + _positionAtBottomEdge.offset) / 2,
+final _metricsAtMiddle = _referenceSheetMetrics.copyWith(
+  offset: (_metricsAtTopEdge.offset + _metricsAtBottomEdge.offset) / 2,
 );
 
 void main() {
@@ -60,11 +60,11 @@ void main() {
 
     test('does not allow over/under dragging', () {
       expect(
-        physicsUnderTest.computeOverflow(10, _positionAtTopEdge),
+        physicsUnderTest.computeOverflow(10, _metricsAtTopEdge),
         moreOrLessEquals(10),
       );
       expect(
-        physicsUnderTest.computeOverflow(-10, _positionAtBottomEdge),
+        physicsUnderTest.computeOverflow(-10, _metricsAtBottomEdge),
         moreOrLessEquals(-10),
       );
     });
@@ -76,7 +76,7 @@ void main() {
           offset: _referenceSheetMetrics.minOffset + 10);
 
       expect(
-        physicsUnderTest.applyPhysicsToOffset(10, _positionAtMiddle),
+        physicsUnderTest.applyPhysicsToOffset(10, _metricsAtMiddle),
         moreOrLessEquals(10),
       );
       expect(
@@ -91,11 +91,11 @@ void main() {
 
     test('prevents position from going out of bounds', () {
       expect(
-        physicsUnderTest.applyPhysicsToOffset(10, _positionAtTopEdge),
+        physicsUnderTest.applyPhysicsToOffset(10, _metricsAtTopEdge),
         moreOrLessEquals(0),
       );
       expect(
-        physicsUnderTest.applyPhysicsToOffset(-10, _positionAtBottomEdge),
+        physicsUnderTest.applyPhysicsToOffset(-10, _metricsAtBottomEdge),
         moreOrLessEquals(0),
       );
     });
@@ -104,7 +104,7 @@ void main() {
       expect(
         physicsUnderTest.createBallisticSimulation(
           0,
-          _positionAtMiddle,
+          _metricsAtMiddle,
           testSnapGrid,
         ),
         isNull,
@@ -112,7 +112,7 @@ void main() {
       expect(
         physicsUnderTest.createBallisticSimulation(
           0,
-          _positionAtTopEdge,
+          _metricsAtTopEdge,
           testSnapGrid,
         ),
         isNull,
@@ -120,7 +120,7 @@ void main() {
       expect(
         physicsUnderTest.createBallisticSimulation(
           0,
-          _positionAtBottomEdge,
+          _metricsAtBottomEdge,
           testSnapGrid,
         ),
         isNull,
@@ -236,8 +236,8 @@ void main() {
         frictionCurve: Curves.linear,
       );
 
-      expect(physics.applyPhysicsToOffset(10, _positionAtTopEdge), 8);
-      expect(physics.applyPhysicsToOffset(-10, _positionAtBottomEdge), -8);
+      expect(physics.applyPhysicsToOffset(10, _metricsAtTopEdge), 8);
+      expect(physics.applyPhysicsToOffset(-10, _metricsAtBottomEdge), -8);
     });
 
     test('can apply a reasonable friction to extremely large offset', () {
@@ -247,11 +247,11 @@ void main() {
       );
 
       expect(
-        physics.applyPhysicsToOffset(300, _positionAtTopEdge),
+        physics.applyPhysicsToOffset(300, _metricsAtTopEdge),
         moreOrLessEquals(33.42, epsilon: 0.01),
       );
       expect(
-        physics.applyPhysicsToOffset(-300, _positionAtBottomEdge),
+        physics.applyPhysicsToOffset(-300, _metricsAtBottomEdge),
         moreOrLessEquals(-33.42, epsilon: 0.01),
       );
     });

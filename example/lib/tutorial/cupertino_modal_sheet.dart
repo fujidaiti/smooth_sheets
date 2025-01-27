@@ -74,7 +74,7 @@ class _HalfScreenSheet extends StatelessWidget {
     // `CupertinoStackedTransition` won't start the transition animation until
     // the visible height of a modal sheet (the position) exceeds 50% of the screen height.
     return const Sheet(
-      initialPosition: SheetOffset.relative(0.5),
+      initialOffset: SheetOffset.relative(0.5),
       minPosition: SheetOffset.relative(0.5),
       physics: BouncingSheetPhysics(
         parent: SnappingSheetPhysics(),

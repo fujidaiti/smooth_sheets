@@ -126,7 +126,7 @@ class _MySheet extends StatelessWidget {
       minPosition: const SheetOffset.relative(_halfwayFraction),
       maxPosition: const SheetOffset.relative(1),
       // Default
-      initialPosition: const SheetOffset.relative(1),
+      initialOffset: const SheetOffset.relative(1),
       // Default
       // 'physics' determines how the sheet will behave when the user reaches
       // the maximum or minimum position, or when the user stops dragging.

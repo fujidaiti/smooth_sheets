@@ -219,26 +219,26 @@ abstract class BottomBarVisibility implements Widget {
 
 abstract class _RenderBottomBarVisibility extends RenderTransform {
   _RenderBottomBarVisibility({
-    required SheetModelView position,
-  })  : _position = position,
+    required SheetModelView model,
+  })  : _model = model,
         super(transform: Matrix4.zero(), transformHitTests: true) {
-    _position.addListener(invalidateVisibility);
+    _model.addListener(invalidateVisibility);
   }
 
-  SheetModelView _position;
+  SheetModelView _model;
 
   // ignore: avoid_setters_without_getters
-  set position(SheetModelView value) {
-    if (_position != value) {
-      _position.removeListener(invalidateVisibility);
-      _position = value..addListener(invalidateVisibility);
+  set model(SheetModelView value) {
+    if (_model != value) {
+      _model.removeListener(invalidateVisibility);
+      _model = value..addListener(invalidateVisibility);
       invalidateVisibility();
     }
   }
 
   @override
   void dispose() {
-    _position.removeListener(invalidateVisibility);
+    _model.removeListener(invalidateVisibility);
     super.dispose();
   }
 
@@ -255,11 +255,11 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 
   void invalidateVisibility() {
     final size = _bottomBarSize;
-    if (size != null && _position.hasMetrics) {
-      final baseTransition = (_position.offset -
-              _position.measurements.viewportSize.height)
-          .clamp(size.height - _position.measurements.viewportSize.height, 0.0);
-      final visibility = computeVisibility(_position, size);
+    if (size != null && _model.hasMetrics) {
+      final baseTransition = (_model.offset -
+              _model.measurements.viewportSize.height)
+          .clamp(size.height - _model.measurements.viewportSize.height, 0.0);
+      final visibility = computeVisibility(_model, size);
       assert(0 <= visibility && visibility <= 1);
       final invisibleHeight = size.height * (1 - visibility);
       final transition = baseTransition + invisibleHeight;
@@ -298,7 +298,7 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderFixedBottomBarVisibility(
-      position: SheetViewportState.of(context)!.model,
+      model: SheetViewportState.of(context)!.model,
       resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
@@ -307,14 +307,14 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderFixedBottomBarVisibility)
-      ..position = SheetViewportState.of(context)!.model
+      ..model = SheetViewportState.of(context)!.model
       ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
   }
 }
 
 class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderFixedBottomBarVisibility({
-    required super.position,
+    required super.model,
     required ResizeScaffoldBehavior resizeBehavior,
   }) : _resizeBehavior = resizeBehavior;
 
@@ -387,7 +387,7 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderStickyBottomBarVisibility(
-      position: SheetViewportState.of(context)!.model,
+      model: SheetViewportState.of(context)!.model,
       resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
@@ -396,14 +396,14 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderStickyBottomBarVisibility)
-      ..position = SheetViewportState.of(context)!.model
+      ..model = SheetViewportState.of(context)!.model
       ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
   }
 }
 
 class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderStickyBottomBarVisibility({
-    required super.position,
+    required super.model,
     required ResizeScaffoldBehavior resizeBehavior,
   }) : _resizeBehavior = resizeBehavior;
 
@@ -451,7 +451,7 @@ class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderAnimatedBottomBarVisibility(
-      position: SheetViewportState.of(context)!.model,
+      model: SheetViewportState.of(context)!.model,
       visibility: visibility,
     );
   }
@@ -460,14 +460,14 @@ class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderAnimatedBottomBarVisibility)
-      ..position = SheetViewportState.of(context)!.model
+      ..model = SheetViewportState.of(context)!.model
       ..visibility = visibility;
   }
 }
 
 class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderAnimatedBottomBarVisibility({
-    required super.position,
+    required super.model,
     required Animation<double> visibility,
   }) : _visibility = visibility {
     _visibility.addListener(invalidateVisibility);
@@ -560,7 +560,7 @@ class _ConditionalStickyBottomBarVisibilityState
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _curveAnimation;
-  SheetModelView? _position;
+  SheetModelView? _model;
 
   @override
   void initState() {
@@ -576,7 +576,7 @@ class _ConditionalStickyBottomBarVisibilityState
 
   @override
   void dispose() {
-    _position!.removeListener(_didSheetMetricsChanged);
+    _model!.removeListener(_didSheetMetricsChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -584,10 +584,10 @@ class _ConditionalStickyBottomBarVisibilityState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final position = SheetViewportState.of(context)!.model;
-    if (_position != position) {
-      _position?.removeListener(_didSheetMetricsChanged);
-      _position = position..addListener(_didSheetMetricsChanged);
+    final model = SheetViewportState.of(context)!.model;
+    if (_model != model) {
+      _model?.removeListener(_didSheetMetricsChanged);
+      _model = model..addListener(_didSheetMetricsChanged);
       _didSheetMetricsChanged();
     }
   }
@@ -606,7 +606,7 @@ class _ConditionalStickyBottomBarVisibilityState
   }
 
   void _didSheetMetricsChanged() {
-    final isVisible = _position!.hasMetrics && widget.getIsVisible(_position!);
+    final isVisible = _model!.hasMetrics && widget.getIsVisible(_model!);
 
     if (isVisible) {
       if (_controller.status != AnimationStatus.forward) {

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
@@ -7,6 +9,7 @@ import 'package:smooth_sheets/src/foundation/controller.dart';
 import 'package:smooth_sheets/src/foundation/model.dart';
 import 'package:smooth_sheets/src/foundation/notification.dart';
 import 'package:smooth_sheets/src/foundation/physics.dart';
+import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 import 'package:smooth_sheets/src/foundation/viewport.dart';
 import 'package:smooth_sheets/src/scrollable/scrollable_sheet.dart';
 
@@ -25,7 +28,9 @@ void main() {
           },
           child: SheetViewport(
             child: Sheet(
-              minPosition: const SheetOffset.absolute(0),
+              snapGrid: const SheetSnapGrid.stepless(
+                minOffset: SheetOffset.absolute(0),
+              ),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
               child: Container(
@@ -166,7 +171,9 @@ void main() {
           child: SheetViewport(
             child: Sheet(
               controller: controller,
-              minPosition: const SheetOffset.absolute(0),
+              snapGrid: SheetSnapGrid.stepless(
+                minOffset: SheetOffset.absolute(0),
+              ),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
               child: Container(
@@ -240,8 +247,9 @@ void main() {
           child: SheetViewport(
             child: Sheet(
               // Make sure the sheet can't be dragged
-              minPosition: const SheetOffset.relative(1),
-              maxPosition: const SheetOffset.relative(1),
+              snapGrid: SheetSnapGrid.single(
+                snap: SheetOffset.relative(1),
+              ),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
               child: Container(

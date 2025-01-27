@@ -20,7 +20,7 @@ class DraggableScrollableSheetPosition extends SheetModel
     implements SheetContentScrollPositionOwner {
   DraggableScrollableSheetPosition({
     required super.context,
-    required super.initialPosition,
+    required super.initialOffset,
     required super.physics,
     required super.snapGrid,
     super.gestureProxy,
