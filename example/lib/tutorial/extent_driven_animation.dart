@@ -96,9 +96,9 @@ class _BottomAppBar extends StatelessWidget {
       // since the sheet position is not available at the first build.
       initialValue: 1,
       // If null, the minimum position will be used. (Default)
-      startPosition: null,
+      startOffset: null,
       // If null, the maximum position will be used. (Default)
-      endPosition: null,
+      endOffset: null,
     );
 
     final bottomAppBar = BottomAppBar(

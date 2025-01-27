@@ -7,15 +7,15 @@ class SheetOffsetDrivenAnimation extends Animation<double> {
   SheetOffsetDrivenAnimation({
     required SheetController controller,
     required this.initialValue,
-    this.startPosition,
-    this.endPosition,
+    this.startOffset,
+    this.endOffset,
   })  : _controller = controller,
         assert(initialValue >= 0.0 && initialValue <= 1.0);
 
   final SheetController _controller;
   final double initialValue;
-  final SheetOffset? startPosition;
-  final SheetOffset? endPosition;
+  final SheetOffset? startOffset;
+  final SheetOffset? endOffset;
 
   @override
   void addListener(VoidCallback listener) {
@@ -48,9 +48,9 @@ class SheetOffsetDrivenAnimation extends Animation<double> {
     }
 
     final startOffset =
-        startPosition?.resolve(metrics.measurements) ?? metrics.minOffset;
+        this.startOffset?.resolve(metrics.measurements) ?? metrics.minOffset;
     final endOffset =
-        endPosition?.resolve(metrics.measurements) ?? metrics.maxOffset;
+        this.endOffset?.resolve(metrics.measurements) ?? metrics.maxOffset;
     final distance = endOffset - startOffset;
 
     if (distance.isFinite && distance > 0) {
