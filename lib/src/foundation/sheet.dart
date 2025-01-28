@@ -20,6 +20,7 @@ class SheetScrollConfiguration {
   });
 
   // TODO: Come up with a better name.
+  // TODO: Apply this value to the model.
   final double thresholdVelocityToInterruptBallisticScroll;
 }
 
@@ -119,9 +120,7 @@ class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
     ScrollAwareSheetModel, _ScrollAwareSheetModelOwner> {
   @override
   bool shouldRefreshModel() {
-    return widget.initialOffset != model.initialOffset ||
-        widget.debugLabel != model.debugLabel ||
-        super.shouldRefreshModel();
+    return widget.debugLabel != model.debugLabel || super.shouldRefreshModel();
   }
 
   @override
@@ -137,6 +136,7 @@ class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
   }
 }
 
+// TODO: Rename to SheetContent.
 @internal
 class DraggableScrollableSheetContent extends StatelessWidget {
   const DraggableScrollableSheetContent({
