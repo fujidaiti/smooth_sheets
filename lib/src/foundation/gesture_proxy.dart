@@ -8,11 +8,11 @@ import 'drag.dart';
 class SheetGestureProxy extends StatefulWidget {
   const SheetGestureProxy({
     super.key,
-    required this.tamperer,
+    required this.proxy,
     required this.child,
   });
 
-  final SheetGestureProxyMixin tamperer;
+  final SheetGestureProxyMixin proxy;
   final Widget child;
 
   @override
@@ -21,7 +21,7 @@ class SheetGestureProxy extends StatefulWidget {
   static SheetGestureProxyMixin? maybeOf(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<_SheetGestureProxyScope>()
-        ?.tamperer;
+        ?.proxy;
   }
 }
 
@@ -29,26 +29,26 @@ class _SheetGestureProxyState extends State<SheetGestureProxy> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    widget.tamperer.updateParent(SheetGestureProxy.maybeOf(context));
+    widget.proxy.updateParent(SheetGestureProxy.maybeOf(context));
   }
 
   @override
   void didUpdateWidget(SheetGestureProxy oldWidget) {
     super.didUpdateWidget(oldWidget);
-    oldWidget.tamperer.updateParent(null);
-    widget.tamperer.updateParent(SheetGestureProxy.maybeOf(context));
+    oldWidget.proxy.updateParent(null);
+    widget.proxy.updateParent(SheetGestureProxy.maybeOf(context));
   }
 
   @override
   void dispose() {
-    widget.tamperer.updateParent(null);
+    widget.proxy.updateParent(null);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return _SheetGestureProxyScope(
-      tamperer: widget.tamperer,
+      proxy: widget.proxy,
       child: widget.child,
     );
   }
@@ -56,15 +56,15 @@ class _SheetGestureProxyState extends State<SheetGestureProxy> {
 
 class _SheetGestureProxyScope extends InheritedWidget {
   const _SheetGestureProxyScope({
-    required this.tamperer,
+    required this.proxy,
     required super.child,
   });
 
-  final SheetGestureProxyMixin tamperer;
+  final SheetGestureProxyMixin proxy;
 
   @override
   bool updateShouldNotify(_SheetGestureProxyScope oldWidget) =>
-      oldWidget.tamperer != tamperer;
+      oldWidget.proxy != proxy;
 }
 
 // TODO: Expose this as a public API.

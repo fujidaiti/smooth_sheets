@@ -186,7 +186,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   ) {
     return switch (swipeDismissible) {
       true => SheetGestureProxy(
-          tamperer: _swipeDismissibleController,
+          proxy: _swipeDismissibleController,
           child: buildContent(context),
         ),
       false => buildContent(context),
