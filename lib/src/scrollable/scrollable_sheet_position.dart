@@ -31,7 +31,7 @@ class DraggableScrollableSheetPosition extends SheetModel
 
   /// A [ScrollPosition] that is currently driving the sheet position.
   SheetContentScrollPosition? get _primaryScrollPosition => switch (activity) {
-        final ScrollableSheetActivity activity => activity.scrollPosition,
+        final ScrollAwareSheetActivityMixin activity => activity.scrollPosition,
         _ => null,
       };
 
@@ -63,7 +63,7 @@ class DraggableScrollableSheetPosition extends SheetModel
     assert(_scrollPositions.contains(oldPosition));
     _scrollPositions.remove(oldPosition);
     _scrollPositions.add(newPosition);
-    if (activity case final ScrollableSheetActivity activity
+    if (activity case final ScrollAwareSheetActivityMixin activity
         when activity.scrollPosition == oldPosition) {
       activity.scrollPosition = newPosition;
     }

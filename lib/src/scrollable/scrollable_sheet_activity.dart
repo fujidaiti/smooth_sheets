@@ -13,7 +13,8 @@ import 'scrollable_sheet_position.dart';
 import 'sheet_content_scroll_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
-/// A [SheetActivity] that is associated with a [SheetContentScrollPosition].
+/// A mixin for [SheetActivity]s that is associated with
+/// a [SheetContentScrollPosition].
 ///
 /// This activity is responsible for both scrolling a scrollable content
 /// in the sheet and dragging the sheet itself.
@@ -26,7 +27,7 @@ import 'sheet_content_scroll_position.dart';
 /// interrupt the ballistic scroll animation, are not stolen by clickable
 /// items in the scroll view.
 @internal
-mixin ScrollableSheetActivity
+mixin ScrollAwareSheetActivityMixin
     on SheetActivity<DraggableScrollableSheetPosition> {
   SheetContentScrollPosition get scrollPosition;
 
@@ -127,8 +128,7 @@ mixin ScrollableSheetActivity
 @internal
 class DragScrollDrivenSheetActivity
     extends DragSheetActivity<DraggableScrollableSheetPosition>
-    with UserControlledSheetActivityMixin, ScrollableSheetActivity
-    implements SheetDragControllerTarget {
+    with ScrollAwareSheetActivityMixin {
   DragScrollDrivenSheetActivity(
     SheetContentScrollPosition scrollPosition, {
     required super.startDetails,
@@ -236,7 +236,7 @@ class DragScrollDrivenSheetActivity
 @internal
 class BallisticScrollDrivenSheetActivity
     extends SheetActivity<DraggableScrollableSheetPosition>
-    with ControlledSheetActivityMixin, ScrollableSheetActivity {
+    with ControlledSheetActivityMixin, ScrollAwareSheetActivityMixin {
   BallisticScrollDrivenSheetActivity(
     SheetContentScrollPosition scrollPosition, {
     required this.simulation,
@@ -324,7 +324,7 @@ class BallisticScrollDrivenSheetActivity
 /// as its activity throughout the lifetime of this activity.
 class HoldScrollDrivenSheetActivity
     extends SheetActivity<DraggableScrollableSheetPosition>
-    with ScrollableSheetActivity
+    with ScrollAwareSheetActivityMixin
     implements ScrollHoldController {
   HoldScrollDrivenSheetActivity(
     SheetContentScrollPosition scrollPosition, {
