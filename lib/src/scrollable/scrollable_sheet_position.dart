@@ -16,7 +16,7 @@ const _kMaxScrollSpeedToInterrupt = double.infinity;
 // TODO: Rename to ScrollableSheetGeometry.
 @internal
 class DraggableScrollableSheetPosition extends SheetModel
-    implements SheetContentScrollPositionOwner {
+    implements SheetScrollPositionDelegate {
   DraggableScrollableSheetPosition({
     required super.context,
     required super.initialOffset,
@@ -27,10 +27,10 @@ class DraggableScrollableSheetPosition extends SheetModel
   });
 
   // TODO: Stop scroll animations when a non-scrollable activity starts.
-  final _scrollPositions = HashSet<SheetContentScrollPosition>();
+  final _scrollPositions = HashSet<SheetScrollPosition>();
 
   /// A [ScrollPosition] that is currently driving the sheet position.
-  SheetContentScrollPosition? get _primaryScrollPosition => switch (activity) {
+  SheetScrollPosition? get _primaryScrollPosition => switch (activity) {
         final ScrollAwareSheetActivityMixin activity => activity.scrollPosition,
         _ => null,
       };
@@ -39,14 +39,14 @@ class DraggableScrollableSheetPosition extends SheetModel
   bool get hasPrimaryScrollPosition => _primaryScrollPosition != null;
 
   @override
-  void addScrollPosition(SheetContentScrollPosition position) {
+  void addScrollPosition(SheetScrollPosition position) {
     assert(!_scrollPositions.contains(position));
     assert(position != _primaryScrollPosition);
     _scrollPositions.add(position);
   }
 
   @override
-  void removeScrollPosition(SheetContentScrollPosition position) {
+  void removeScrollPosition(SheetScrollPosition position) {
     assert(_scrollPositions.contains(position));
     _scrollPositions.remove(position);
     if (position == _primaryScrollPosition) {
@@ -57,8 +57,8 @@ class DraggableScrollableSheetPosition extends SheetModel
 
   @override
   void replaceScrollPosition({
-    required SheetContentScrollPosition oldPosition,
-    required SheetContentScrollPosition newPosition,
+    required SheetScrollPosition oldPosition,
+    required SheetScrollPosition newPosition,
   }) {
     assert(_scrollPositions.contains(oldPosition));
     _scrollPositions.remove(oldPosition);
@@ -92,7 +92,7 @@ class DraggableScrollableSheetPosition extends SheetModel
   @override
   void goIdleWithScrollPosition() {
     assert(hasPrimaryScrollPosition);
-    _primaryScrollPosition!.goIdle(calledByOwner: true);
+    _primaryScrollPosition!.goIdle(calledByDelegate: true);
     goIdle();
   }
 
@@ -100,7 +100,7 @@ class DraggableScrollableSheetPosition extends SheetModel
   ScrollHoldController holdWithScrollPosition({
     required double heldPreviousVelocity,
     required VoidCallback holdCancelCallback,
-    required SheetContentScrollPosition scrollPosition,
+    required SheetScrollPosition scrollPosition,
   }) {
     final holdActivity = HoldScrollDrivenSheetActivity(
       scrollPosition,
@@ -118,7 +118,7 @@ class DraggableScrollableSheetPosition extends SheetModel
   Drag dragWithScrollPosition({
     required DragStartDetails details,
     required VoidCallback dragCancelCallback,
-    required SheetContentScrollPosition scrollPosition,
+    required SheetScrollPosition scrollPosition,
   }) {
     final heldPreviousVelocity = switch (activity) {
       final HoldScrollDrivenSheetActivity holdActivity =>
@@ -148,14 +148,14 @@ class DraggableScrollableSheetPosition extends SheetModel
   @override
   void goBallisticWithScrollPosition({
     required double velocity,
-    required SheetContentScrollPosition scrollPosition,
+    required SheetScrollPosition scrollPosition,
   }) {
     if (FloatComp.distance(context.devicePixelRatio)
         .isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
       final simulation =
           physics.createBallisticSimulation(velocity, this, snapGrid);
       if (simulation != null) {
-        scrollPosition.goIdle(calledByOwner: true);
+        scrollPosition.goIdle(calledByDelegate: true);
         goBallisticWith(simulation);
         return;
       }

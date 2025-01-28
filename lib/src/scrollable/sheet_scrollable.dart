@@ -51,9 +51,9 @@ class _SheetScrollableState extends State<SheetScrollable> {
   }
 
   @factory
-  SheetContentScrollController createController() {
-    return SheetContentScrollController(
-      getOwner: () => _model,
+  SheetScrollController createController() {
+    return SheetScrollController(
+      delegate: () => _model,
       debugLabel: widget.debugLabel,
       initialScrollOffset: widget.initialScrollOffset,
       keepScrollOffset: widget.keepScrollOffset,

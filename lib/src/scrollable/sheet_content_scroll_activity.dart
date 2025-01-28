@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'scrollable_sheet_activity.dart';
 import 'sheet_content_scroll_position.dart';
 
-/// A [ScrollActivity] for the [SheetContentScrollPosition] that is associated
+/// A [ScrollActivity] for the [SheetScrollPosition] that is associated
 /// with a [DragScrollDrivenSheetActivity].
 ///
 /// This activity is like a placeholder, meaning it doesn't actually modify the
@@ -123,7 +123,7 @@ class SheetContentDragScrollActivity extends ScrollActivity {
   double get velocity => 0.0;
 }
 
-/// A [ScrollActivity] for the [SheetContentScrollPosition] that is associated
+/// A [ScrollActivity] for the [SheetScrollPosition] that is associated
 /// with a [BallisticScrollDrivenSheetActivity].
 ///
 /// This activity is like a placeholder, meaning it doesn't actually modify the
@@ -172,7 +172,7 @@ class SheetContentBallisticScrollActivity extends ScrollActivity {
   double get velocity => getVelocity();
 }
 
-/// A [ScrollActivity] for the [SheetContentScrollPosition] that is associated
+/// A [ScrollActivity] for the [SheetScrollPosition] that is associated
 /// with a [HoldScrollDrivenSheetActivity].
 ///
 /// This activity is like a placeholder, meaning it doesn't actually modify the

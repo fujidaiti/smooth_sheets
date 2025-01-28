@@ -7,23 +7,22 @@ import 'package:meta/meta.dart';
 
 import 'scrollable_sheet.dart';
 
-/// An owner of [SheetContentScrollPosition]s.
+/// Delegate of a [SheetScrollPosition].
 ///
 /// The associated scroll positions delegate their behavior of
-/// `goIdle`, `hold`, `drag`, and `goBallistic` to this owner.
+/// `goIdle`, `hold`, `drag`, and `goBallistic` to this object.
 @internal
-// TODO: Rename to SheetScrollPositionDelegate
-abstract class SheetContentScrollPositionOwner {
+abstract class SheetScrollPositionDelegate {
   // TODO: Remove the following 3 methods.
   bool get hasPrimaryScrollPosition;
 
-  void addScrollPosition(SheetContentScrollPosition position);
+  void addScrollPosition(SheetScrollPosition position);
 
-  void removeScrollPosition(SheetContentScrollPosition position);
+  void removeScrollPosition(SheetScrollPosition position);
 
   void replaceScrollPosition({
-    required SheetContentScrollPosition oldPosition,
-    required SheetContentScrollPosition newPosition,
+    required SheetScrollPosition oldPosition,
+    required SheetScrollPosition newPosition,
   });
 
   // TODO: Change the signature to `(SheetScrollPosition) -> void`.
@@ -32,26 +31,25 @@ abstract class SheetContentScrollPositionOwner {
   ScrollHoldController holdWithScrollPosition({
     required double heldPreviousVelocity,
     required VoidCallback holdCancelCallback,
-    required SheetContentScrollPosition scrollPosition,
+    required SheetScrollPosition scrollPosition,
   });
 
   Drag dragWithScrollPosition({
     required DragStartDetails details,
     required VoidCallback dragCancelCallback,
-    required SheetContentScrollPosition scrollPosition,
+    required SheetScrollPosition scrollPosition,
   });
 
   void goBallisticWithScrollPosition({
     required double velocity,
-    required SheetContentScrollPosition scrollPosition,
+    required SheetScrollPosition scrollPosition,
   });
 }
 
 /// A [ScrollPosition] for a scrollable content in a [Sheet].
 @internal
-// TODO: Rename to SheetScrollPosition.
-class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
-  SheetContentScrollPosition({
+class SheetScrollPosition extends ScrollPositionWithSingleContext {
+  SheetScrollPosition({
     required ScrollPhysics physics,
     required super.context,
     super.oldPosition,
@@ -65,11 +63,11 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
           },
         );
 
-  /// Getter for the owner of this scroll position.
+  /// Getter of a [SheetScrollPositionDelegate] for this scroll position.
   ///
-  /// This property is set by [SheetContentScrollController] when attaching
+  /// This property is set by [SheetScrollController] when attaching
   /// this object to the controller, and it is unset when detaching.
-  ValueGetter<SheetContentScrollPositionOwner?>? _getOwner;
+  ValueGetter<SheetScrollPositionDelegate?>? _delegate;
 
   /// Whether the scroll view should prevent its contents from receiving
   /// pointer events.
@@ -86,8 +84,8 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void absorb(ScrollPosition other) {
-    if (other is SheetContentScrollPosition) {
-      _getOwner?.call()?.replaceScrollPosition(
+    if (other is SheetScrollPosition) {
+      _delegate?.call()?.replaceScrollPosition(
             oldPosition: other,
             newPosition: this,
           );
@@ -96,10 +94,12 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
   }
 
   @override
-  void goIdle({bool calledByOwner = false}) {
-    final owner = _getOwner?.call();
-    if (owner != null && owner.hasPrimaryScrollPosition && !calledByOwner) {
-      owner.goIdleWithScrollPosition();
+  void goIdle({bool calledByDelegate = false}) {
+    final delegate = _delegate?.call();
+    if (delegate != null &&
+        delegate.hasPrimaryScrollPosition &&
+        !calledByDelegate) {
+      delegate.goIdleWithScrollPosition();
     } else {
       beginActivity(IdleScrollActivity(this));
     }
@@ -107,9 +107,9 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   ScrollHoldController hold(VoidCallback holdCancelCallback) {
-    return switch (_getOwner?.call()) {
+    return switch (_delegate?.call()) {
       null => super.hold(holdCancelCallback),
-      final owner => owner.holdWithScrollPosition(
+      final it => it.holdWithScrollPosition(
           scrollPosition: this,
           holdCancelCallback: holdCancelCallback,
           heldPreviousVelocity: activity!.velocity,
@@ -119,9 +119,9 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-    return switch (_getOwner?.call()) {
+    return switch (_delegate?.call()) {
       null => super.drag(details, dragCancelCallback),
-      final owner => owner.dragWithScrollPosition(
+      final it => it.dragWithScrollPosition(
           scrollPosition: this,
           dragCancelCallback: dragCancelCallback,
           details: details,
@@ -131,9 +131,11 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void goBallistic(double velocity, {bool calledByOwner = false}) {
-    final owner = _getOwner?.call();
-    if (owner != null && owner.hasPrimaryScrollPosition && !calledByOwner) {
-      owner.goBallisticWithScrollPosition(
+    final delegate = _delegate?.call();
+    if (delegate != null &&
+        delegate.hasPrimaryScrollPosition &&
+        !calledByOwner) {
+      delegate.goBallisticWithScrollPosition(
         velocity: velocity,
         scrollPosition: this,
       );
@@ -148,22 +150,21 @@ class SheetContentScrollPosition extends ScrollPositionWithSingleContext {
         activity?.shouldIgnorePointer ?? true,
       ));
     } else {
-      goIdle(calledByOwner: calledByOwner);
+      goIdle(calledByDelegate: calledByOwner);
     }
   }
 }
 
 @internal
-// TODO: Rename to SheetScrollController.
-class SheetContentScrollController extends ScrollController {
-  SheetContentScrollController({
-    required this.getOwner,
+class SheetScrollController extends ScrollController {
+  SheetScrollController({
+    required this.delegate,
     super.debugLabel,
     super.initialScrollOffset,
     super.keepScrollOffset,
   });
 
-  final ValueGetter<SheetContentScrollPositionOwner?> getOwner;
+  final ValueGetter<SheetScrollPositionDelegate?> delegate;
 
   @override
   ScrollPosition createScrollPosition(
@@ -171,7 +172,7 @@ class SheetContentScrollController extends ScrollController {
     ScrollContext context,
     ScrollPosition? oldPosition,
   ) {
-    return SheetContentScrollPosition(
+    return SheetScrollPosition(
       initialPixels: initialScrollOffset,
       keepScrollOffset: keepScrollOffset,
       debugLabel: debugLabel,
@@ -183,21 +184,21 @@ class SheetContentScrollController extends ScrollController {
 
   @override
   void attach(ScrollPosition position) {
-    assert(position is SheetContentScrollPosition);
+    assert(position is SheetScrollPosition);
     super.attach(position);
-    if (getOwner() case final owner?) {
-      owner.addScrollPosition(position as SheetContentScrollPosition);
-      position._getOwner = getOwner;
+    if (delegate() case final it?) {
+      it.addScrollPosition(position as SheetScrollPosition);
+      position._delegate = delegate;
     }
   }
 
   @override
   void detach(ScrollPosition position) {
-    assert(position is SheetContentScrollPosition);
+    assert(position is SheetScrollPosition);
     super.detach(position);
-    if (getOwner() case final owner?) {
-      owner.removeScrollPosition(position as SheetContentScrollPosition);
-      position._getOwner = null;
+    if (delegate() case final it?) {
+      it.removeScrollPosition(position as SheetScrollPosition);
+      position._delegate = null;
     }
   }
 }

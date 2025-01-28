@@ -401,7 +401,7 @@ void main() {
       scrollController.position.correctPixels(-0.000000001);
       sheetPosition.goBallisticWithScrollPosition(
         velocity: 0,
-        scrollPosition: scrollController.position as SheetContentScrollPosition,
+        scrollPosition: scrollController.position as SheetScrollPosition,
       );
       await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 0);
@@ -422,7 +422,7 @@ void main() {
       scrollController.position.correctPixels(600.000000001);
       sheetPosition.goBallisticWithScrollPosition(
         velocity: 0,
-        scrollPosition: scrollController.position as SheetContentScrollPosition,
+        scrollPosition: scrollController.position as SheetScrollPosition,
       );
       await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 600.0);
