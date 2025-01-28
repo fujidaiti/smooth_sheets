@@ -18,5 +18,4 @@ export 'src/scrollable/scrollable.dart'
         SheetScrollController,
         SheetScrollPosition,
         SheetScrollPositionDelegate;
-export 'src/scrollable/scrollable_sheet.dart'
-    hide DraggableScrollableSheetContent;
+export 'src/scrollable/sheet.dart' hide DraggableScrollableSheetContent;

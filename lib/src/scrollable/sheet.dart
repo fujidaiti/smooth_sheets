@@ -11,7 +11,6 @@ import '../foundation/model_owner.dart';
 import '../foundation/physics.dart';
 import '../foundation/snap_grid.dart';
 import 'scrollable.dart';
-import 'scrollable_sheet_position_scope.dart';
 import 'sheet_draggable.dart';
 
 @immutable
@@ -77,7 +76,7 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return ScrollableSheetPositionScope(
+    return _ScrollAwareSheetModelOwner(
       controller: controller,
       initialOffset: widget.initialOffset,
       physics: physics,
@@ -89,6 +88,51 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
         dragConfiguration: widget.dragConfiguration,
         child: widget.child,
       ),
+    );
+  }
+}
+
+class _ScrollAwareSheetModelOwner
+    extends SheetModelOwner<ScrollAwareSheetModel> {
+  const _ScrollAwareSheetModelOwner({
+    super.controller,
+    required this.initialOffset,
+    required super.physics,
+    required super.snapGrid,
+    super.gestureProxy,
+    this.debugLabel,
+    required super.child,
+  });
+
+  final SheetOffset initialOffset;
+
+  final String? debugLabel;
+
+  @override
+  SheetModelOwnerState<ScrollAwareSheetModel,
+      SheetModelOwner<ScrollAwareSheetModel>> createState() {
+    return _ScrollableSheetPositionScopeState();
+  }
+}
+
+class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
+    ScrollAwareSheetModel, _ScrollAwareSheetModelOwner> {
+  @override
+  bool shouldRefreshModel() {
+    return widget.initialOffset != model.initialOffset ||
+        widget.debugLabel != model.debugLabel ||
+        super.shouldRefreshModel();
+  }
+
+  @override
+  ScrollAwareSheetModel createModel() {
+    return ScrollAwareSheetModel(
+      context: this,
+      initialOffset: widget.initialOffset,
+      physics: widget.physics,
+      snapGrid: widget.snapGrid,
+      gestureProxy: widget.gestureProxy,
+      debugLabel: widget.debugLabel,
     );
   }
 }
