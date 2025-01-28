@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 
-import '../foundation/context.dart';
 import '../foundation/model.dart';
 import '../foundation/model_owner.dart';
 import 'scrollable_sheet_position.dart';
@@ -11,7 +10,6 @@ class ScrollableSheetPositionScope
   const ScrollableSheetPositionScope({
     super.key,
     super.controller,
-    required super.context,
     required this.initialOffset,
     required super.physics,
     required super.snapGrid,
@@ -43,9 +41,9 @@ class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
   }
 
   @override
-  DraggableScrollableSheetPosition createModel(SheetContext context) {
+  DraggableScrollableSheetPosition createModel() {
     return DraggableScrollableSheetPosition(
-      context: context,
+      context: this,
       initialOffset: widget.initialOffset,
       physics: widget.physics,
       snapGrid: widget.snapGrid,

@@ -2,7 +2,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:smooth_sheets/src/foundation/context.dart';
 import 'package:smooth_sheets/src/foundation/foundation.dart';
 import 'package:smooth_sheets/src/foundation/model.dart';
 import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';

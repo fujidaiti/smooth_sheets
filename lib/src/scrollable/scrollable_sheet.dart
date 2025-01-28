@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/context.dart';
 import '../foundation/controller.dart';
 import '../foundation/frame.dart';
 import '../foundation/gesture_proxy.dart';
@@ -70,8 +69,7 @@ class Sheet extends StatefulWidget {
   State<Sheet> createState() => _SheetState();
 }
 
-class _SheetState extends State<Sheet>
-    with TickerProviderStateMixin, SheetContextStateMixin {
+class _SheetState extends State<Sheet> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final physics = widget.physics ?? kDefaultSheetPhysics;
@@ -80,7 +78,6 @@ class _SheetState extends State<Sheet>
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
     return ScrollableSheetPositionScope(
-      context: this,
       controller: controller,
       initialOffset: widget.initialOffset,
       physics: physics,

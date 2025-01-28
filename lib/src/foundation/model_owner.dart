@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import 'context.dart';
 import 'controller.dart';
 import 'gesture_proxy.dart';
 import 'model.dart';
@@ -18,16 +17,12 @@ abstract class SheetModelOwner<E extends SheetModel> extends StatefulWidget {
   /// Creates a widget that hosts a [SheetModel].
   const SheetModelOwner({
     super.key,
-    required this.context,
     this.controller,
     required this.physics,
     required this.snapGrid,
     this.gestureProxy,
     required this.child,
   });
-
-  /// The context the position object belongs to.
-  final SheetContext context;
 
   /// The [SheetController] attached to the [SheetModel].
   final SheetController? controller;
@@ -54,17 +49,31 @@ abstract class SheetModelOwner<E extends SheetModel> extends StatefulWidget {
 
 @internal
 abstract class SheetModelOwnerState<M extends SheetModel,
-    W extends SheetModelOwner> extends State<W> {
+        W extends SheetModelOwner> extends State<W>
+    with TickerProviderStateMixin<W>
+    implements SheetContext {
+  SheetViewportState? _viewport;
+
   @protected
   M get model => _model;
   late M _model;
 
-  SheetViewportState? _viewport;
+  @override
+  TickerProvider get vsync => this;
+
+  @override
+  BuildContext? get notificationContext => mounted ? context : null;
+
+  // Returns the cached value instead of directly accessing MediaQuery
+  // so that the getter can be used in the dispose() method.
+  @override
+  double get devicePixelRatio => _devicePixelRatio;
+  late double _devicePixelRatio;
 
   @override
   void initState() {
     super.initState();
-    _model = createModel(widget.context);
+    _model = createModel();
     widget.controller?.attach(model);
   }
 
@@ -80,6 +89,7 @@ abstract class SheetModelOwnerState<M extends SheetModel,
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final viewport = SheetViewportState.of(context);
     if (viewport != _viewport) {
       _viewport?.setModel(null);
@@ -93,7 +103,7 @@ abstract class SheetModelOwnerState<M extends SheetModel,
 
     final oldModel = _model;
     if (shouldRefreshModel()) {
-      _model = createModel(widget.context)..takeOver(oldModel);
+      _model = createModel()..takeOver(oldModel);
       _viewport?.setModel(model);
     }
     if (widget.controller != oldWidget.controller) {
@@ -112,11 +122,11 @@ abstract class SheetModelOwnerState<M extends SheetModel,
 
   @factory
   @protected
-  M createModel(SheetContext context);
+  M createModel();
 
   @protected
   @mustCallSuper
-  bool shouldRefreshModel() => widget.context != model.context;
+  bool shouldRefreshModel() => false;
 
   @override
   Widget build(BuildContext context) {

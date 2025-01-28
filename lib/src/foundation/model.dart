@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'activity.dart';
-import 'context.dart';
 import 'controller.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
@@ -103,6 +102,17 @@ class AbsoluteSheetOffset implements SheetOffset {
 
   @override
   String toString() => '$AbsoluteSheetOffset(value: $value)';
+}
+
+/// An interface that provides a set of dependencies
+/// required by [SheetModel].
+@internal
+abstract class SheetContext {
+  TickerProvider get vsync;
+
+  BuildContext? get notificationContext;
+
+  double get devicePixelRatio;
 }
 
 /// Read-only view of a [SheetModel].

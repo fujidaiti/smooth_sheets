@@ -14,10 +14,10 @@ import 'package:flutter/src/animation/curves.dart' as _i15;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i16;
 import 'package:smooth_sheets/src/foundation/activity.dart' as _i6;
-import 'package:smooth_sheets/src/foundation/context.dart' as _i3;
 import 'package:smooth_sheets/src/foundation/drag.dart' as _i14;
+import 'package:smooth_sheets/src/foundation/foundation.dart' as _i2;
 import 'package:smooth_sheets/src/foundation/gesture_proxy.dart' as _i12;
-import 'package:smooth_sheets/src/foundation/model.dart' as _i2;
+import 'package:smooth_sheets/src/foundation/model.dart' as _i3;
 import 'package:smooth_sheets/src/foundation/physics.dart' as _i4;
 import 'package:smooth_sheets/src/foundation/snap_grid.dart' as _i5;
 import 'package:smooth_sheets/src/paged/paged_sheet_route.dart' as _i17;
@@ -67,7 +67,7 @@ class _FakeSheetSnapGrid_5 extends _i1.SmartFake implements _i5.SheetSnapGrid {
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetActivity_6<T extends _i2.SheetModel> extends _i1.SmartFake
+class _FakeSheetActivity_6<T extends _i3.SheetModel> extends _i1.SmartFake
     implements _i6.SheetActivity<T> {
   _FakeSheetActivity_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
@@ -163,7 +163,7 @@ class _FakeAnimationController_20 extends _i1.SmartFake
 /// A class which mocks [SheetModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
+class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
   @override
   _i2.SheetOffset get initialOffset =>
       (super.noSuchMethod(
@@ -334,19 +334,19 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
   );
 
   @override
-  _i6.SheetActivity<_i2.SheetModel> get activity =>
+  _i6.SheetActivity<_i3.SheetModel> get activity =>
       (super.noSuchMethod(
             Invocation.getter(#activity),
-            returnValue: _FakeSheetActivity_6<_i2.SheetModel>(
+            returnValue: _FakeSheetActivity_6<_i3.SheetModel>(
               this,
               Invocation.getter(#activity),
             ),
-            returnValueForMissingStub: _FakeSheetActivity_6<_i2.SheetModel>(
+            returnValueForMissingStub: _FakeSheetActivity_6<_i3.SheetModel>(
               this,
               Invocation.getter(#activity),
             ),
           )
-          as _i6.SheetActivity<_i2.SheetModel>);
+          as _i6.SheetActivity<_i3.SheetModel>);
 
   @override
   _i2.SheetMetrics get snapshot =>
@@ -382,7 +382,7 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
           as bool);
 
   @override
-  void takeOver(_i2.SheetModel? other) => super.noSuchMethod(
+  void takeOver(_i3.SheetModel? other) => super.noSuchMethod(
     Invocation.method(#takeOver, [other]),
     returnValueForMissingStub: null,
   );
@@ -395,7 +395,7 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       );
 
   @override
-  void beginActivity(_i6.SheetActivity<_i2.SheetModel>? activity) =>
+  void beginActivity(_i6.SheetActivity<_i3.SheetModel>? activity) =>
       super.noSuchMethod(
         Invocation.method(#beginActivity, [activity]),
         returnValueForMissingStub: null,

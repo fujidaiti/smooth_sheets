@@ -13,7 +13,6 @@ import 'sheet_content_scroll_position.dart';
 // TODO: Expose this from the ScrollableSheet's constructor
 const _kMaxScrollSpeedToInterrupt = double.infinity;
 
-// TODO: Rename to ScrollableSheetGeometry.
 @internal
 class DraggableScrollableSheetPosition extends SheetModel
     implements SheetScrollPositionDelegate {

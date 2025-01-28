@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
-import '../foundation/context.dart';
 import '../foundation/controller.dart';
 import '../foundation/foundation.dart';
 import '../foundation/gesture_proxy.dart';
@@ -26,8 +25,7 @@ class PagedSheet extends StatefulWidget {
   State<PagedSheet> createState() => _PagedSheetState();
 }
 
-class _PagedSheetState extends State<PagedSheet>
-    with TickerProviderStateMixin, SheetContextStateMixin {
+class _PagedSheetState extends State<PagedSheet> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final gestureProxy = SheetGestureProxy.maybeOf(context);
@@ -35,7 +33,6 @@ class _PagedSheetState extends State<PagedSheet>
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
     return _PagedSheetModelOwner(
-      context: this,
       physics: kDefaultPagedSheetPhysics,
       controller: controller,
       gestureProxy: gestureProxy,
@@ -52,7 +49,6 @@ class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetGeometry> {
     super.controller,
     super.gestureProxy,
     required super.physics,
-    required super.context,
     this.debugLabel,
     required super.child,
   }) : super(
@@ -99,9 +95,9 @@ class _PagedSheetModelOwnerState
   }
 
   @override
-  PagedSheetGeometry createModel(SheetContext context) {
+  PagedSheetGeometry createModel() {
     return PagedSheetGeometry(
-      context: context,
+      context: this,
       gestureProxy: widget.gestureProxy,
       debugLabel: widget.debugLabel,
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import '../foundation/model.dart';
 import '../foundation/model_owner.dart';
@@ -11,6 +12,7 @@ import 'scrollable_sheet.dart';
 /// Typically, this widget is used when placing non-scrollable widget(s)
 /// in a [Sheet], since it only works with scrollable widgets,
 /// so you can't drag the sheet by touching a non-scrollable area.
+@internal
 class SheetDraggable extends StatefulWidget {
   /// Creates a drag-handle for a sheet.
   ///
