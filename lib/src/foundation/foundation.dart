@@ -10,12 +10,7 @@ export 'scrollable.dart'
     hide
         BallisticScrollDrivenSheetActivity,
         DragScrollDrivenSheetActivity,
-        ScrollAwareSheetActivityMixin,
         ScrollAwareSheetModel,
-        SheetBallisticScrollActivity,
-        SheetDragScrollActivity,
-        SheetScrollController,
-        SheetScrollPosition,
-        SheetScrollPositionDelegate;
+        SheetScrollPosition;
 export 'sheet.dart' hide DraggableScrollableSheetContent;
 export 'viewport.dart' hide SheetViewportState;

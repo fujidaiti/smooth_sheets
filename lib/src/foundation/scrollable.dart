@@ -18,7 +18,7 @@ const _kMaxScrollSpeedToInterrupt = double.infinity;
 
 @internal
 class ScrollAwareSheetModel extends SheetModel
-    implements SheetScrollPositionDelegate {
+    implements _SheetScrollPositionDelegate {
   ScrollAwareSheetModel({
     required super.context,
     required super.initialOffset,
@@ -33,7 +33,8 @@ class ScrollAwareSheetModel extends SheetModel
 
   /// A [ScrollPosition] that is currently driving the sheet position.
   SheetScrollPosition? get _primaryScrollPosition => switch (activity) {
-        final ScrollAwareSheetActivityMixin activity => activity.scrollPosition,
+        final _ScrollAwareSheetActivityMixin activity =>
+          activity.scrollPosition,
         _ => null,
       };
 
@@ -65,7 +66,7 @@ class ScrollAwareSheetModel extends SheetModel
     assert(_scrollPositions.contains(oldPosition));
     _scrollPositions.remove(oldPosition);
     _scrollPositions.add(newPosition);
-    if (activity case final ScrollAwareSheetActivityMixin activity
+    if (activity case final _ScrollAwareSheetActivityMixin activity
         when activity.scrollPosition == oldPosition) {
       activity.scrollPosition = newPosition;
     }
@@ -110,7 +111,7 @@ class ScrollAwareSheetModel extends SheetModel
       heldPreviousVelocity: heldPreviousVelocity,
     );
     scrollPosition.beginActivity(
-      SheetHoldScrollActivity(delegate: scrollPosition),
+      _SheetHoldScrollActivity(delegate: scrollPosition),
     );
     beginActivity(holdActivity);
     return holdActivity;
@@ -137,7 +138,7 @@ class ScrollAwareSheetModel extends SheetModel
 
     beginActivity(dragActivity);
     scrollPosition.beginActivity(
-      SheetDragScrollActivity(
+      _SheetDragScrollActivity(
         delegate: scrollPosition,
         getLastDragDetails: () => dragActivity.drag.lastRawDetails,
         getPointerDeviceKind: () => dragActivity.drag.pointerDeviceKind,
@@ -204,7 +205,7 @@ class ScrollAwareSheetModel extends SheetModel
         ),
       );
       scrollPosition.beginActivity(
-        SheetBallisticScrollActivity(
+        _SheetBallisticScrollActivity(
           delegate: scrollPosition,
           shouldIgnorePointer: scrollPosition.shouldIgnorePointer,
           getVelocity: () => activity.velocity,
@@ -230,8 +231,7 @@ class ScrollAwareSheetModel extends SheetModel
 /// in most cases to ensure that the pointer events, which potentially
 /// interrupt the ballistic scroll animation, are not stolen by clickable
 /// items in the scroll view.
-@internal
-mixin ScrollAwareSheetActivityMixin on SheetActivity<ScrollAwareSheetModel> {
+mixin _ScrollAwareSheetActivityMixin on SheetActivity<ScrollAwareSheetModel> {
   SheetScrollPosition get scrollPosition;
 
   set scrollPosition(SheetScrollPosition value);
@@ -326,12 +326,13 @@ mixin ScrollAwareSheetActivityMixin on SheetActivity<ScrollAwareSheetModel> {
 /// their finger across the screen.
 ///
 /// The [scrollPosition], which is associated with the scrollable content,
-/// must have a [SheetDragScrollActivity] as its activity throughout
+/// must have a [_SheetDragScrollActivity] as its activity throughout
 /// the lifetime of this activity.
 @internal
+@visibleForTesting
 class DragScrollDrivenSheetActivity
     extends DragSheetActivity<ScrollAwareSheetModel>
-    with ScrollAwareSheetActivityMixin {
+    with _ScrollAwareSheetActivityMixin {
   DragScrollDrivenSheetActivity(
     SheetScrollPosition scrollPosition, {
     required super.startDetails,
@@ -434,12 +435,13 @@ class DragScrollDrivenSheetActivity
 /// a sheet or the sheet itself based on a physics simulation.
 ///
 /// The [scrollPosition], which is associated with the scrollable content,
-/// must have a [SheetBallisticScrollActivity] as its activity throughout
+/// must have a [_SheetBallisticScrollActivity] as its activity throughout
 /// the lifetime of this activity.
 @internal
+@visibleForTesting
 class BallisticScrollDrivenSheetActivity
     extends SheetActivity<ScrollAwareSheetModel>
-    with ControlledSheetActivityMixin, ScrollAwareSheetActivityMixin {
+    with ControlledSheetActivityMixin, _ScrollAwareSheetActivityMixin {
   BallisticScrollDrivenSheetActivity(
     SheetScrollPosition scrollPosition, {
     required this.simulation,
@@ -523,10 +525,12 @@ class BallisticScrollDrivenSheetActivity
 ///
 /// This is used while the user is touching the scrollable content but before
 /// the touch has become a [Drag]. The [scrollPosition], which is associated
-/// with the scrollable content must have a [SheetHoldScrollActivity]
+/// with the scrollable content must have a [_SheetHoldScrollActivity]
 /// as its activity throughout the lifetime of this activity.
+@visibleForTesting
+@internal
 class HoldScrollDrivenSheetActivity extends SheetActivity<ScrollAwareSheetModel>
-    with ScrollAwareSheetActivityMixin
+    with _ScrollAwareSheetActivityMixin
     implements ScrollHoldController {
   HoldScrollDrivenSheetActivity(
     SheetScrollPosition scrollPosition, {
@@ -611,8 +615,8 @@ class _SheetScrollableState extends State<SheetScrollable> {
   }
 
   @factory
-  SheetScrollController createController() {
-    return SheetScrollController(
+  _SheetScrollController createController() {
+    return _SheetScrollController(
       delegate: () => _model,
       debugLabel: widget.debugLabel,
       initialScrollOffset: widget.initialScrollOffset,
@@ -636,8 +640,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
 ///
 /// The associated scroll positions delegate their behavior of
 /// `goIdle`, `hold`, `drag`, and `goBallistic` to this object.
-@internal
-abstract class SheetScrollPositionDelegate {
+abstract class _SheetScrollPositionDelegate {
   // TODO: Remove the following 3 methods.
   bool get hasPrimaryScrollPosition;
 
@@ -688,11 +691,11 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
           },
         );
 
-  /// Getter of a [SheetScrollPositionDelegate] for this scroll position.
+  /// Getter of a [_SheetScrollPositionDelegate] for this scroll position.
   ///
-  /// This property is set by [SheetScrollController] when attaching
+  /// This property is set by [_SheetScrollController] when attaching
   /// this object to the controller, and it is unset when detaching.
-  ValueGetter<SheetScrollPositionDelegate?>? _delegate;
+  ValueGetter<_SheetScrollPositionDelegate?>? _delegate;
 
   /// Whether the scroll view should prevent its contents from receiving
   /// pointer events.
@@ -786,9 +789,8 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
 /// This activity is like a placeholder, meaning it doesn't actually modify the
 /// scroll position and the actual scrolling is done by the associated
 /// [DragScrollDrivenSheetActivity].
-@internal
-class SheetDragScrollActivity extends ScrollActivity {
-  SheetDragScrollActivity({
+class _SheetDragScrollActivity extends ScrollActivity {
+  _SheetDragScrollActivity({
     required ScrollActivityDelegate delegate,
     required this.getLastDragDetails,
     required this.getPointerDeviceKind,
@@ -902,9 +904,8 @@ class SheetDragScrollActivity extends ScrollActivity {
 /// This activity is like a placeholder, meaning it doesn't actually modify the
 /// scroll position and the actual scrolling is done by the associated
 /// [BallisticScrollDrivenSheetActivity].
-@internal
-class SheetBallisticScrollActivity extends ScrollActivity {
-  SheetBallisticScrollActivity({
+class _SheetBallisticScrollActivity extends ScrollActivity {
+  _SheetBallisticScrollActivity({
     required ScrollActivityDelegate delegate,
     required this.getVelocity,
     required this.shouldIgnorePointer,
@@ -951,8 +952,8 @@ class SheetBallisticScrollActivity extends ScrollActivity {
 /// This activity is like a placeholder, meaning it doesn't actually modify the
 /// scroll position and the actual scrolling is done by the associated
 /// [HoldScrollDrivenSheetActivity].
-class SheetHoldScrollActivity extends ScrollActivity {
-  SheetHoldScrollActivity({
+class _SheetHoldScrollActivity extends ScrollActivity {
+  _SheetHoldScrollActivity({
     required ScrollActivityDelegate delegate,
   }) : super(delegate);
 
@@ -966,16 +967,15 @@ class SheetHoldScrollActivity extends ScrollActivity {
   double get velocity => 0.0;
 }
 
-@internal
-class SheetScrollController extends ScrollController {
-  SheetScrollController({
+class _SheetScrollController extends ScrollController {
+  _SheetScrollController({
     required this.delegate,
     super.debugLabel,
     super.initialScrollOffset,
     super.keepScrollOffset,
   });
 
-  final ValueGetter<SheetScrollPositionDelegate?> delegate;
+  final ValueGetter<_SheetScrollPositionDelegate?> delegate;
 
   @override
   ScrollPosition createScrollPosition(
