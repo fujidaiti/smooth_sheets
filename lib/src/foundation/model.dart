@@ -149,9 +149,8 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     required this.physics,
     required SheetSnapGrid snapGrid,
     this.debugLabel,
-    SheetGestureProxyMixin? gestureProxy,
-  })  : _snapGrid = snapGrid,
-        _gestureProxy = gestureProxy {
+    this.gestureProxy,
+  }) : _snapGrid = snapGrid {
     goIdle();
   }
 
@@ -246,16 +245,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   /// {@template SheetPosition.gestureProxy}
   /// An object that can modify the gesture details of the sheet.
   /// {@endtemplate}
-  SheetGestureProxyMixin? get gestureProxy => _gestureProxy;
-  SheetGestureProxyMixin? _gestureProxy;
-
-  @mustCallSuper
-  set gestureProxy(SheetGestureProxyMixin? gestureProxy) {
-    if (_gestureProxy != gestureProxy) {
-      _gestureProxy = gestureProxy;
-      currentDrag?.updateGestureProxy(gestureProxy);
-    }
-  }
+  SheetGestureProxyMixin? gestureProxy;
 
   /// A label that is used to identify this object in debug output.
   final String? debugLabel;
@@ -263,14 +253,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   /// The current activity of the sheet.
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
-
-  /// The current drag that is currently driving the sheet.
-  ///
-  /// Intentionally exposed so that a subclass can override
-  /// the default implementation of [drag].
-  // TODO: Move this to the activity classes.
-  @protected
-  SheetDragController? currentDrag;
 
   SheetMetrics get snapshot => SheetMetricsSnapshot(
         offset: offset,
@@ -282,7 +264,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 
   @mustCallSuper
   void takeOver(SheetModel other) {
-    assert(currentDrag == null);
     if (other.activity.isCompatibleWith(this)) {
       activity.dispose();
       _activity = other.activity;
@@ -290,12 +271,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
       // when `other` is disposed of.
       other._activity = null;
       activity.updateOwner(this);
-
-      if ((other.currentDrag, activity)
-          case (final drag?, final SheetDragControllerTarget dragActivity)) {
-        currentDrag = drag..updateTarget(dragActivity);
-        other.currentDrag = null;
-      }
     } else {
       goIdle();
     }
@@ -312,10 +287,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 
   @mustCallSuper
   void beginActivity(SheetActivity activity) {
-    assert((_activity is SheetDragControllerTarget) == (currentDrag != null));
-    currentDrag?.dispose();
-    currentDrag = null;
-
     final oldActivity = _activity;
     // Update the current activity before initialization.
     _activity = activity;
@@ -350,44 +321,19 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     );
   }
 
-  // TODO: Move this to DraggableScrollableSheetPosition.
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-    assert(currentDrag == null);
-    final dragActivity = DragSheetActivity();
-    var startDetails = SheetDragStartDetails(
-      sourceTimeStamp: details.sourceTimeStamp,
-      axisDirection: dragActivity.dragAxisDirection,
-      localPositionX: details.localPosition.dx,
-      localPositionY: details.localPosition.dy,
-      globalPositionX: details.globalPosition.dx,
-      globalPositionY: details.globalPosition.dy,
-      kind: details.kind,
-    );
-    if (_gestureProxy case final tamperer?) {
-      startDetails = tamperer.onDragStart(startDetails);
-    }
-
-    final drag = SheetDragController(
-      target: dragActivity,
-      gestureProxy: _gestureProxy,
-      details: startDetails,
-      onDragCanceled: dragCancelCallback,
-      // TODO: Specify a correct value.
-      carriedVelocity: 0,
-      motionStartDistanceThreshold: physics.dragStartDistanceMotionThreshold,
+    final dragActivity = DragSheetActivity(
+      startDetails: details,
+      cancelCallback: dragCancelCallback,
     );
     beginActivity(dragActivity);
-    currentDrag = drag;
-    didDragStart(startDetails);
-    return drag;
+    return dragActivity.drag;
   }
 
   @override
   void dispose() {
     _activity?.dispose();
-    currentDrag?.dispose();
     _activity = null;
-    currentDrag = null;
     super.dispose();
   }
 

@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/drag.dart';
 import '../foundation/model.dart';
 import '../internal/float_comp.dart';
 import 'scrollable_sheet_activity.dart';
@@ -66,7 +65,7 @@ class DraggableScrollableSheetPosition extends SheetModel
     _scrollPositions.add(newPosition);
     if (activity case final ScrollableSheetActivity activity
         when activity.scrollPosition == oldPosition) {
-      activity.updateScrollPosition(newPosition);
+      activity.scrollPosition = newPosition;
     }
   }
 
@@ -121,46 +120,29 @@ class DraggableScrollableSheetPosition extends SheetModel
     required VoidCallback dragCancelCallback,
     required SheetContentScrollPosition scrollPosition,
   }) {
-    assert(currentDrag == null);
-    final dragActivity = DragScrollDrivenSheetActivity(scrollPosition);
-    var startDetails = SheetDragStartDetails(
-      sourceTimeStamp: details.sourceTimeStamp,
-      axisDirection: dragActivity.dragAxisDirection,
-      localPositionX: details.localPosition.dx,
-      localPositionY: details.localPosition.dy,
-      globalPositionX: details.globalPosition.dx,
-      globalPositionY: details.globalPosition.dy,
-      kind: details.kind,
-    );
-    if (gestureProxy case final tamperer?) {
-      startDetails = tamperer.onDragStart(startDetails);
-    }
     final heldPreviousVelocity = switch (activity) {
       final HoldScrollDrivenSheetActivity holdActivity =>
         holdActivity.heldPreviousVelocity,
       _ => 0.0,
     };
-    final drag = SheetDragController(
-      target: dragActivity,
-      gestureProxy: gestureProxy,
-      details: startDetails,
-      onDragCanceled: dragCancelCallback,
+    final dragActivity = DragScrollDrivenSheetActivity(
+      scrollPosition,
+      startDetails: details,
+      cancelCallback: dragCancelCallback,
       carriedVelocity:
           scrollPosition.physics.carriedMomentum(heldPreviousVelocity),
-      motionStartDistanceThreshold:
-          scrollPosition.physics.dragStartDistanceMotionThreshold,
     );
+
+    beginActivity(dragActivity);
     scrollPosition.beginActivity(
       SheetContentDragScrollActivity(
         delegate: scrollPosition,
-        getLastDragDetails: () => drag.lastRawDetails,
-        getPointerDeviceKind: () => drag.pointerDeviceKind,
+        getLastDragDetails: () => dragActivity.drag.lastRawDetails,
+        getPointerDeviceKind: () => dragActivity.drag.pointerDeviceKind,
       ),
     );
-    beginActivity(dragActivity);
-    currentDrag = drag;
-    didDragStart(startDetails);
-    return drag;
+
+    return dragActivity.drag;
   }
 
   @override

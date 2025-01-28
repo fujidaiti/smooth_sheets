@@ -26,28 +26,11 @@ import 'sheet_content_scroll_position.dart';
 /// interrupt the ballistic scroll animation, are not stolen by clickable
 /// items in the scroll view.
 @internal
-abstract class ScrollableSheetActivity
-    extends SheetActivity<DraggableScrollableSheetPosition> {
-  ScrollableSheetActivity(SheetContentScrollPosition scrollPosition)
-      : _scrollPosition = scrollPosition;
+mixin ScrollableSheetActivity
+    on SheetActivity<DraggableScrollableSheetPosition> {
+  SheetContentScrollPosition get scrollPosition;
 
-  SheetContentScrollPosition? _scrollPosition;
-
-  SheetContentScrollPosition get scrollPosition {
-    assert(debugAssertNotDisposed());
-    return _scrollPosition!;
-  }
-
-  @mustCallSuper
-  void updateScrollPosition(SheetContentScrollPosition scrollPosition) {
-    _scrollPosition = scrollPosition;
-  }
-
-  @override
-  void dispose() {
-    _scrollPosition = null;
-    super.dispose();
-  }
+  set scrollPosition(SheetContentScrollPosition value);
 
   double _applyPhysicsToOffset(double offset) {
     return owner.physics.applyPhysicsToOffset(offset, owner);
@@ -142,11 +125,17 @@ abstract class ScrollableSheetActivity
 /// must have a [SheetContentDragScrollActivity] as its activity throughout
 /// the lifetime of this activity.
 @internal
-class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
-    with UserControlledSheetActivityMixin
+class DragScrollDrivenSheetActivity
+    extends DragSheetActivity<DraggableScrollableSheetPosition>
+    with UserControlledSheetActivityMixin, ScrollableSheetActivity
     implements SheetDragControllerTarget {
-  DragScrollDrivenSheetActivity(super.scrollPosition)
-      : assert(() {
+  DragScrollDrivenSheetActivity(
+    SheetContentScrollPosition scrollPosition, {
+    required super.startDetails,
+    required super.cancelCallback,
+    required super.carriedVelocity,
+  })  : _scrollPosition = scrollPosition,
+        assert(() {
           if (scrollPosition.axisDirection != AxisDirection.down &&
               scrollPosition.axisDirection != AxisDirection.up) {
             throw FlutterError(
@@ -158,6 +147,19 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
           }
           return true;
         }());
+
+  SheetContentScrollPosition? _scrollPosition;
+
+  @override
+  SheetContentScrollPosition get scrollPosition {
+    assert(debugAssertNotDisposed());
+    return _scrollPosition!;
+  }
+
+  @override
+  set scrollPosition(SheetContentScrollPosition value) {
+    _scrollPosition = value;
+  }
 
   @override
   VerticalDirection get dragAxisDirection {
@@ -232,19 +234,34 @@ class DragScrollDrivenSheetActivity extends ScrollableSheetActivity
 /// must have a [SheetContentBallisticScrollActivity] as its activity throughout
 /// the lifetime of this activity.
 @internal
-class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
-    with ControlledSheetActivityMixin {
+class BallisticScrollDrivenSheetActivity
+    extends SheetActivity<DraggableScrollableSheetPosition>
+    with ControlledSheetActivityMixin, ScrollableSheetActivity {
   BallisticScrollDrivenSheetActivity(
-    super.scrollPosition, {
+    SheetContentScrollPosition scrollPosition, {
     required this.simulation,
     required this.shouldInterrupt,
     required double initialOffset,
-  }) : _oldOffset = initialOffset;
+  })  : _scrollPosition = scrollPosition,
+        _oldOffset = initialOffset;
 
   final Simulation simulation;
   final bool Function(double velocity) shouldInterrupt;
 
   double _oldOffset;
+
+  SheetContentScrollPosition? _scrollPosition;
+
+  @override
+  SheetContentScrollPosition get scrollPosition {
+    assert(debugAssertNotDisposed());
+    return _scrollPosition!;
+  }
+
+  @override
+  set scrollPosition(SheetContentScrollPosition value) {
+    _scrollPosition = value;
+  }
 
   @override
   AnimationController createAnimationController() {
@@ -305,16 +322,31 @@ class BallisticScrollDrivenSheetActivity extends ScrollableSheetActivity
 /// the touch has become a [Drag]. The [scrollPosition], which is associated
 /// with the scrollable content must have a [SheetContentHoldScrollActivity]
 /// as its activity throughout the lifetime of this activity.
-class HoldScrollDrivenSheetActivity extends ScrollableSheetActivity
+class HoldScrollDrivenSheetActivity
+    extends SheetActivity<DraggableScrollableSheetPosition>
+    with ScrollableSheetActivity
     implements ScrollHoldController {
   HoldScrollDrivenSheetActivity(
-    super.scrollPosition, {
+    SheetContentScrollPosition scrollPosition, {
     required this.heldPreviousVelocity,
     required this.onHoldCanceled,
-  });
+  }) : _scrollPosition = scrollPosition;
 
   final double heldPreviousVelocity;
   final VoidCallback? onHoldCanceled;
+
+  SheetContentScrollPosition? _scrollPosition;
+
+  @override
+  SheetContentScrollPosition get scrollPosition {
+    assert(debugAssertNotDisposed());
+    return _scrollPosition!;
+  }
+
+  @override
+  set scrollPosition(SheetContentScrollPosition value) {
+    _scrollPosition = value;
+  }
 
   @override
   void cancel() {

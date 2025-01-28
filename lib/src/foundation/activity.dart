@@ -380,13 +380,57 @@ class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
 }
 
 @internal
-class DragSheetActivity extends SheetActivity
+class DragSheetActivity<T extends SheetModel> extends SheetActivity<T>
     with UserControlledSheetActivityMixin
     implements SheetDragControllerTarget {
-  DragSheetActivity();
+  DragSheetActivity({
+    required this.startDetails,
+    required this.cancelCallback,
+    this.carriedVelocity,
+  });
+
+  final DragStartDetails startDetails;
+  final VoidCallback cancelCallback;
+  final double? carriedVelocity;
+  late final SheetDragController drag;
 
   @override
   VerticalDirection get dragAxisDirection => VerticalDirection.up;
+
+  @override
+  void init(T owner) {
+    super.init(owner);
+    var startDetails = SheetDragStartDetails(
+      sourceTimeStamp: this.startDetails.sourceTimeStamp,
+      axisDirection: dragAxisDirection,
+      localPositionX: this.startDetails.localPosition.dx,
+      localPositionY: this.startDetails.localPosition.dy,
+      globalPositionX: this.startDetails.globalPosition.dx,
+      globalPositionY: this.startDetails.globalPosition.dy,
+      kind: this.startDetails.kind,
+    );
+    if (owner.gestureProxy case final proxy?) {
+      startDetails = proxy.onDragStart(startDetails);
+    }
+
+    drag = SheetDragController(
+      target: this,
+      gestureProxy: () => owner.gestureProxy,
+      details: startDetails,
+      onDragCanceled: cancelCallback,
+      carriedVelocity: carriedVelocity,
+      motionStartDistanceThreshold:
+          owner.physics.dragStartDistanceMotionThreshold,
+    );
+
+    owner.didDragStart(startDetails);
+  }
+
+  @override
+  void dispose() {
+    drag.dispose();
+    super.dispose();
+  }
 
   @override
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
