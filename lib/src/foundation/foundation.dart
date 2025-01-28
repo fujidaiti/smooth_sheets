@@ -6,4 +6,16 @@ export 'model.dart' hide SheetContext, SheetModel, SheetModelView;
 export 'notification.dart';
 export 'offset_driven_animation.dart';
 export 'physics.dart';
+export 'scrollable.dart'
+    hide
+        BallisticScrollDrivenSheetActivity,
+        DragScrollDrivenSheetActivity,
+        ScrollAwareSheetActivityMixin,
+        ScrollAwareSheetModel,
+        SheetBallisticScrollActivity,
+        SheetDragScrollActivity,
+        SheetScrollController,
+        SheetScrollPosition,
+        SheetScrollPositionDelegate;
+export 'sheet.dart' hide DraggableScrollableSheetContent;
 export 'viewport.dart' hide SheetViewportState;

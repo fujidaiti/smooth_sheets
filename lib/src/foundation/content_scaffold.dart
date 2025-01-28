@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../scrollable/sheet_draggable.dart';
+import 'draggable.dart';
 import 'model.dart';
 import 'viewport.dart';
 

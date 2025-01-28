@@ -7,15 +7,3 @@ export 'src/foundation/foundation.dart';
 export 'src/modal/modal.dart';
 export 'src/paged/paged.dart';
 export 'src/paged/paged_sheet.dart';
-export 'src/scrollable/scrollable.dart'
-    hide
-        BallisticScrollDrivenSheetActivity,
-        DragScrollDrivenSheetActivity,
-        ScrollAwareSheetActivityMixin,
-        ScrollAwareSheetModel,
-        SheetBallisticScrollActivity,
-        SheetDragScrollActivity,
-        SheetScrollController,
-        SheetScrollPosition,
-        SheetScrollPositionDelegate;
-export 'src/scrollable/sheet.dart' hide DraggableScrollableSheetContent;

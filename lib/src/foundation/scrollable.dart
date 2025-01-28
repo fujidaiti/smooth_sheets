@@ -7,11 +7,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/activity.dart';
-import '../foundation/drag.dart';
-import '../foundation/model.dart';
-import '../foundation/model_owner.dart';
 import '../internal/float_comp.dart';
+import 'activity.dart';
+import 'drag.dart';
+import 'model.dart';
+import 'model_owner.dart';
 
 // TODO: Expose this from the ScrollableSheet's constructor
 const _kMaxScrollSpeedToInterrupt = double.infinity;

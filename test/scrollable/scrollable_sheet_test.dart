@@ -8,8 +8,8 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/activity.dart';
 import 'package:smooth_sheets/src/foundation/controller.dart';
 import 'package:smooth_sheets/src/foundation/model_owner.dart';
+import 'package:smooth_sheets/src/foundation/scrollable.dart';
 import 'package:smooth_sheets/src/foundation/snap_grid.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable.dart';
 
 import '../src/keyboard_inset_simulation.dart';
 

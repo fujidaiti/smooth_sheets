@@ -9,9 +9,9 @@ import 'package:smooth_sheets/src/foundation/controller.dart';
 import 'package:smooth_sheets/src/foundation/model.dart';
 import 'package:smooth_sheets/src/foundation/notification.dart';
 import 'package:smooth_sheets/src/foundation/physics.dart';
+import 'package:smooth_sheets/src/foundation/sheet.dart';
 import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 import 'package:smooth_sheets/src/foundation/viewport.dart';
-import 'package:smooth_sheets/src/scrollable/sheet.dart';
 
 void main() {
   testWidgets(

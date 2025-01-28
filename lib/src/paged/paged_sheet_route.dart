@@ -5,7 +5,7 @@ import 'package:navigator_resizable/navigator_resizable.dart';
 
 import '../foundation/foundation.dart';
 import '../foundation/model_owner.dart';
-import '../scrollable/sheet.dart';
+import '../foundation/sheet.dart';
 import 'paged_sheet_geometry.dart';
 
 // TODO: DRY this widget across the library.

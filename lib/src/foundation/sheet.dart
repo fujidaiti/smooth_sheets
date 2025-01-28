@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/controller.dart';
-import '../foundation/frame.dart';
-import '../foundation/gesture_proxy.dart';
-import '../foundation/model.dart';
-import '../foundation/model_owner.dart';
-import '../foundation/physics.dart';
-import '../foundation/snap_grid.dart';
+import 'controller.dart';
+import 'draggable.dart';
+import 'frame.dart';
+import 'gesture_proxy.dart';
+import 'model.dart';
+import 'model_owner.dart';
+import 'physics.dart';
 import 'scrollable.dart';
-import 'sheet_draggable.dart';
+import 'snap_grid.dart';
 
 @immutable
 class SheetScrollConfiguration {

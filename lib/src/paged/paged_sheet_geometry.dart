@@ -6,8 +6,8 @@ import 'package:meta/meta.dart';
 import '../foundation/activity.dart';
 import '../foundation/model.dart';
 import '../foundation/physics.dart';
+import '../foundation/scrollable.dart';
 import '../foundation/snap_grid.dart';
-import '../scrollable/scrollable.dart';
 import 'paged_sheet_route.dart';
 
 @internal
