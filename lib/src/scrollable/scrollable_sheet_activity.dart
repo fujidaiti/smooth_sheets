@@ -123,7 +123,7 @@ mixin ScrollAwareSheetActivityMixin
 /// their finger across the screen.
 ///
 /// The [scrollPosition], which is associated with the scrollable content,
-/// must have a [SheetContentDragScrollActivity] as its activity throughout
+/// must have a [SheetDragScrollActivity] as its activity throughout
 /// the lifetime of this activity.
 @internal
 class DragScrollDrivenSheetActivity
@@ -231,7 +231,7 @@ class DragScrollDrivenSheetActivity
 /// a [Sheet] or the sheet itself based on a physics simulation.
 ///
 /// The [scrollPosition], which is associated with the scrollable content,
-/// must have a [SheetContentBallisticScrollActivity] as its activity throughout
+/// must have a [SheetBallisticScrollActivity] as its activity throughout
 /// the lifetime of this activity.
 @internal
 class BallisticScrollDrivenSheetActivity
@@ -320,7 +320,7 @@ class BallisticScrollDrivenSheetActivity
 ///
 /// This is used while the user is touching the scrollable content but before
 /// the touch has become a [Drag]. The [scrollPosition], which is associated
-/// with the scrollable content must have a [SheetContentHoldScrollActivity]
+/// with the scrollable content must have a [SheetHoldScrollActivity]
 /// as its activity throughout the lifetime of this activity.
 class HoldScrollDrivenSheetActivity
     extends SheetActivity<DraggableScrollableSheetPosition>

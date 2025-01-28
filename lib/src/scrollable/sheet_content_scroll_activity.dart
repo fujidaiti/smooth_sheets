@@ -14,8 +14,8 @@ import 'sheet_content_scroll_position.dart';
 /// scroll position and the actual scrolling is done by the associated
 /// [DragScrollDrivenSheetActivity].
 @internal
-class SheetContentDragScrollActivity extends ScrollActivity {
-  SheetContentDragScrollActivity({
+class SheetDragScrollActivity extends ScrollActivity {
+  SheetDragScrollActivity({
     required ScrollActivityDelegate delegate,
     required this.getLastDragDetails,
     required this.getPointerDeviceKind,
@@ -130,8 +130,8 @@ class SheetContentDragScrollActivity extends ScrollActivity {
 /// scroll position and the actual scrolling is done by the associated
 /// [BallisticScrollDrivenSheetActivity].
 @internal
-class SheetContentBallisticScrollActivity extends ScrollActivity {
-  SheetContentBallisticScrollActivity({
+class SheetBallisticScrollActivity extends ScrollActivity {
+  SheetBallisticScrollActivity({
     required ScrollActivityDelegate delegate,
     required this.getVelocity,
     required this.shouldIgnorePointer,
@@ -178,8 +178,8 @@ class SheetContentBallisticScrollActivity extends ScrollActivity {
 /// This activity is like a placeholder, meaning it doesn't actually modify the
 /// scroll position and the actual scrolling is done by the associated
 /// [HoldScrollDrivenSheetActivity].
-class SheetContentHoldScrollActivity extends ScrollActivity {
-  SheetContentHoldScrollActivity({
+class SheetHoldScrollActivity extends ScrollActivity {
+  SheetHoldScrollActivity({
     required ScrollActivityDelegate delegate,
   }) : super(delegate);
 

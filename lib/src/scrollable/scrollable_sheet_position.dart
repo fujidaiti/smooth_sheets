@@ -108,7 +108,7 @@ class DraggableScrollableSheetPosition extends SheetModel
       heldPreviousVelocity: heldPreviousVelocity,
     );
     scrollPosition.beginActivity(
-      SheetContentHoldScrollActivity(delegate: scrollPosition),
+      SheetHoldScrollActivity(delegate: scrollPosition),
     );
     beginActivity(holdActivity);
     return holdActivity;
@@ -135,7 +135,7 @@ class DraggableScrollableSheetPosition extends SheetModel
 
     beginActivity(dragActivity);
     scrollPosition.beginActivity(
-      SheetContentDragScrollActivity(
+      SheetDragScrollActivity(
         delegate: scrollPosition,
         getLastDragDetails: () => dragActivity.drag.lastRawDetails,
         getPointerDeviceKind: () => dragActivity.drag.pointerDeviceKind,
@@ -202,7 +202,7 @@ class DraggableScrollableSheetPosition extends SheetModel
         ),
       );
       scrollPosition.beginActivity(
-        SheetContentBallisticScrollActivity(
+        SheetBallisticScrollActivity(
           delegate: scrollPosition,
           shouldIgnorePointer: scrollPosition.shouldIgnorePointer,
           getVelocity: () => activity.velocity,
