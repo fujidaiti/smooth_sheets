@@ -7,7 +7,7 @@ import '../foundation/activity.dart';
 import '../foundation/model.dart';
 import '../foundation/physics.dart';
 import '../foundation/snap_grid.dart';
-import '../scrollable/scrollable_sheet_position.dart';
+import '../scrollable/scrollable.dart';
 import 'paged_sheet_route.dart';
 
 @internal
@@ -40,7 +40,7 @@ class _RouteGeometry {
 }
 
 @internal
-class PagedSheetGeometry extends DraggableScrollableSheetPosition {
+class PagedSheetGeometry extends ScrollAwareSheetModel {
   PagedSheetGeometry({
     required super.context,
     super.gestureProxy,

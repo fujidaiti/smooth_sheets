@@ -10,9 +10,9 @@ import '../foundation/model.dart';
 import '../foundation/model_owner.dart';
 import '../foundation/physics.dart';
 import '../foundation/snap_grid.dart';
+import 'scrollable.dart';
 import 'scrollable_sheet_position_scope.dart';
 import 'sheet_draggable.dart';
-import 'sheet_scrollable.dart';
 
 @immutable
 class SheetScrollConfiguration {

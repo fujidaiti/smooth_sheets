@@ -2,11 +2,11 @@ import 'package:meta/meta.dart';
 
 import '../foundation/model.dart';
 import '../foundation/model_owner.dart';
-import 'scrollable_sheet_position.dart';
+import 'scrollable.dart';
 
 @internal
 class ScrollableSheetPositionScope
-    extends SheetModelOwner<DraggableScrollableSheetPosition> {
+    extends SheetModelOwner<ScrollAwareSheetModel> {
   const ScrollableSheetPositionScope({
     super.key,
     super.controller,
@@ -25,14 +25,14 @@ class ScrollableSheetPositionScope
   final String? debugLabel;
 
   @override
-  SheetModelOwnerState<DraggableScrollableSheetPosition,
-      SheetModelOwner<DraggableScrollableSheetPosition>> createState() {
+  SheetModelOwnerState<ScrollAwareSheetModel,
+      SheetModelOwner<ScrollAwareSheetModel>> createState() {
     return _ScrollableSheetPositionScopeState();
   }
 }
 
 class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
-    DraggableScrollableSheetPosition, ScrollableSheetPositionScope> {
+    ScrollAwareSheetModel, ScrollableSheetPositionScope> {
   @override
   bool shouldRefreshModel() {
     return widget.initialOffset != model.initialOffset ||
@@ -41,8 +41,8 @@ class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
   }
 
   @override
-  DraggableScrollableSheetPosition createModel() {
-    return DraggableScrollableSheetPosition(
+  ScrollAwareSheetModel createModel() {
+    return ScrollAwareSheetModel(
       context: this,
       initialOffset: widget.initialOffset,
       physics: widget.physics,

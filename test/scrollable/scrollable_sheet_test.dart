@@ -9,8 +9,7 @@ import 'package:smooth_sheets/src/foundation/activity.dart';
 import 'package:smooth_sheets/src/foundation/controller.dart';
 import 'package:smooth_sheets/src/foundation/model_owner.dart';
 import 'package:smooth_sheets/src/foundation/snap_grid.dart';
-import 'package:smooth_sheets/src/scrollable/scrollable_sheet_position.dart';
-import 'package:smooth_sheets/src/scrollable/sheet_content_scroll_position.dart';
+import 'package:smooth_sheets/src/scrollable/scrollable.dart';
 
 import '../src/keyboard_inset_simulation.dart';
 
@@ -365,7 +364,7 @@ void main() {
   // - https://github.com/fujidaiti/smooth_sheets/issues/212
   group('Infinite ballistic scroll activity test', () {
     late ScrollController scrollController;
-    late DraggableScrollableSheetPosition sheetPosition;
+    late ScrollAwareSheetModel sheetPosition;
     late Widget testWidget;
 
     setUp(() {
@@ -375,8 +374,8 @@ void main() {
           child: Builder(
             builder: (context) {
               scrollController = PrimaryScrollController.of(context);
-              sheetPosition = SheetModelOwner.of(context)!
-                  as DraggableScrollableSheetPosition;
+              sheetPosition =
+                  SheetModelOwner.of(context)! as ScrollAwareSheetModel;
               return SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Container(
