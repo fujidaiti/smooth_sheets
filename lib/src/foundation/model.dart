@@ -196,13 +196,13 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 
   @override
   double get maxOffset {
-    final (value, _) = _boundaries!;
+    final (_, value) = _boundaries!;
     return value;
   }
 
   @override
   double get minOffset {
-    final (_, value) = _boundaries!;
+    final (value, _) = _boundaries!;
     return value;
   }
 

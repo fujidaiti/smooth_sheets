@@ -45,9 +45,9 @@ abstract class SheetModelOwner<E extends SheetModel> extends StatefulWidget {
   @override
   SheetModelOwnerState<E, SheetModelOwner<E>> createState();
 
-  static M? of<M extends SheetModel>(BuildContext context) {
+  static SheetModel? of(BuildContext context) {
     return context
-        .dependOnInheritedWidgetOfExactType<_InheritedSheetModel<M>>()
+        .dependOnInheritedWidgetOfExactType<_InheritedSheetModel>()
         ?.model;
   }
 }
@@ -65,13 +65,15 @@ abstract class SheetModelOwnerState<M extends SheetModel,
   void initState() {
     super.initState();
     _model = createModel(widget.context);
+    widget.controller?.attach(model);
   }
 
   @override
   void dispose() {
+    widget.controller?.detach(model);
     _viewport?.setModel(null);
-    disposeModel(_model);
     _viewport = null;
+    model.dispose();
     super.dispose();
   }
 
@@ -99,7 +101,7 @@ abstract class SheetModelOwnerState<M extends SheetModel,
       widget.controller?.attach(model);
     }
     if (oldModel != model) {
-      disposeModel(oldModel);
+      oldModel.dispose();
     }
 
     _model
@@ -116,12 +118,6 @@ abstract class SheetModelOwnerState<M extends SheetModel,
   @mustCallSuper
   bool shouldRefreshModel() => widget.context != model.context;
 
-  @protected
-  void disposeModel(M model) {
-    widget.controller?.detach(model);
-    model.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return _InheritedSheetModel(
@@ -131,13 +127,13 @@ abstract class SheetModelOwnerState<M extends SheetModel,
   }
 }
 
-class _InheritedSheetModel<M extends SheetModel> extends InheritedWidget {
+class _InheritedSheetModel extends InheritedWidget {
   const _InheritedSheetModel({
     required this.model,
     required super.child,
   });
 
-  final M model;
+  final SheetModel model;
 
   @override
   bool updateShouldNotify(_InheritedSheetModel oldWidget) {

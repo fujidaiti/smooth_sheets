@@ -5,8 +5,10 @@ import 'package:meta/meta.dart';
 
 import '../foundation/context.dart';
 import '../foundation/controller.dart';
+import '../foundation/frame.dart';
 import '../foundation/gesture_proxy.dart';
 import '../foundation/model.dart';
+import '../foundation/model_owner.dart';
 import '../foundation/physics.dart';
 import '../foundation/snap_grid.dart';
 import 'scrollable_sheet_position_scope.dart';
@@ -130,6 +132,9 @@ class DraggableScrollableSheetContent extends StatelessWidget {
       );
     }
 
-    return result;
+    return SheetFrame(
+      model: SheetModelOwner.of(context)!,
+      child: result,
+    );
   }
 }

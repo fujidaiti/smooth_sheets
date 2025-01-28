@@ -375,7 +375,8 @@ void main() {
           child: Builder(
             builder: (context) {
               scrollController = PrimaryScrollController.of(context);
-              sheetPosition = SheetModelOwner.of(context)!;
+              sheetPosition = SheetModelOwner.of(context)!
+                  as DraggableScrollableSheetPosition;
               return SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Container(

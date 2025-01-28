@@ -36,7 +36,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _model = SheetModelOwner.of(context);
+    _model = SheetModelOwner.of(context)! as DraggableScrollableSheetPosition;
   }
 
   @override

@@ -21,7 +21,7 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return _RenderRouteContentLayoutObserver(
       parentRoute: parentRoute,
-      controller: SheetModelOwner.of<PagedSheetGeometry>(context)!,
+      controller: SheetModelOwner.of(context)! as PagedSheetGeometry,
     );
   }
 
@@ -31,7 +31,8 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
     _RenderRouteContentLayoutObserver renderObject,
   ) {
     assert(parentRoute == renderObject.parentRoute);
-    renderObject.controller = SheetModelOwner.of<PagedSheetGeometry>(context)!;
+    renderObject.controller =
+        SheetModelOwner.of(context)! as PagedSheetGeometry;
   }
 }
 
