@@ -367,7 +367,7 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return _RenderRouteContentLayoutObserver(
       parentRoute: parentRoute,
-      controller: SheetModelOwner.of(context)! as PagedSheetModel,
+      model: SheetModelOwner.of(context)! as PagedSheetModel,
     );
   }
 
@@ -377,24 +377,24 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
     _RenderRouteContentLayoutObserver renderObject,
   ) {
     assert(parentRoute == renderObject.parentRoute);
-    renderObject.controller = SheetModelOwner.of(context)! as PagedSheetModel;
+    renderObject.model = SheetModelOwner.of(context)! as PagedSheetModel;
   }
 }
 
 class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   _RenderRouteContentLayoutObserver({
     required this.parentRoute,
-    required PagedSheetModel controller,
-  }) : _controller = controller;
+    required PagedSheetModel model,
+  }) : _model = model;
 
   final BasePagedSheetRoute parentRoute;
 
-  PagedSheetModel _controller;
+  PagedSheetModel _model;
 
   // ignore: avoid_setters_without_getters
-  set controller(PagedSheetModel value) {
-    if (_controller != value) {
-      _controller = value;
+  set model(PagedSheetModel value) {
+    if (_model != value) {
+      _model = value;
       markNeedsLayout();
     }
   }
@@ -403,7 +403,7 @@ class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     if (child?.size case final childSize?) {
-      _controller.applyNewRouteContentSize(parentRoute, childSize);
+      _model.applyNewRouteContentSize(parentRoute, childSize);
     }
   }
 }
