@@ -2,9 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/controller.dart';
+import 'package:smooth_sheets/src/foundation/keyboard_dismissible.dart';
+import 'package:smooth_sheets/src/foundation/model.dart';
 import 'package:smooth_sheets/src/foundation/paged.dart';
+import 'package:smooth_sheets/src/foundation/physics.dart';
+import 'package:smooth_sheets/src/foundation/sheet.dart';
+import 'package:smooth_sheets/src/foundation/viewport.dart';
 
 import '../src/keyboard_inset_simulation.dart';
 
