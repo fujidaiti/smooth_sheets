@@ -4,7 +4,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/foundation/foundation.dart';
 import 'package:smooth_sheets/src/foundation/model.dart';
-import 'package:smooth_sheets/src/paged/paged_sheet_route.dart';
+import 'package:smooth_sheets/src/foundation/paged.dart';
 
 @GenerateNiceMocks([
   MockSpec<SheetModel>(),

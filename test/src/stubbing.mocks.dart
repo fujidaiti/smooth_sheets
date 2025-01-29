@@ -18,9 +18,9 @@ import 'package:smooth_sheets/src/foundation/drag.dart' as _i14;
 import 'package:smooth_sheets/src/foundation/foundation.dart' as _i2;
 import 'package:smooth_sheets/src/foundation/gesture_proxy.dart' as _i12;
 import 'package:smooth_sheets/src/foundation/model.dart' as _i3;
+import 'package:smooth_sheets/src/foundation/paged.dart' as _i17;
 import 'package:smooth_sheets/src/foundation/physics.dart' as _i4;
 import 'package:smooth_sheets/src/foundation/snap_grid.dart' as _i5;
-import 'package:smooth_sheets/src/paged/paged_sheet_route.dart' as _i17;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
