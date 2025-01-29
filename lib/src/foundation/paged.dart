@@ -45,8 +45,8 @@ class _RouteGeometry {
 }
 
 @internal
-class PagedSheetGeometry extends ScrollAwareSheetModel {
-  PagedSheetGeometry({
+class PagedSheetModel extends ScrollAwareSheetModel {
+  PagedSheetModel({
     required super.context,
     super.gestureProxy,
     super.debugLabel,
@@ -167,7 +167,7 @@ class PagedSheetGeometry extends ScrollAwareSheetModel {
 }
 
 @visibleForTesting
-class RouteTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
+class RouteTransitionSheetActivity extends SheetActivity<PagedSheetModel> {
   RouteTransitionSheetActivity({
     required this.originRouteOffset,
     required this.destinationRouteOffset,
@@ -185,7 +185,7 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
   bool get shouldIgnorePointer => true;
 
   @override
-  void init(PagedSheetGeometry owner) {
+  void init(PagedSheetModel owner) {
     super.init(owner);
     _effectiveAnimation = animation.drive(
       CurveTween(curve: animationCurve),
@@ -216,8 +216,8 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetGeometry> {
   }
 }
 
-class _IdleSheetActivity extends SheetActivity<PagedSheetGeometry>
-    with IdleSheetActivityMixin<PagedSheetGeometry> {
+class _IdleSheetActivity extends SheetActivity<PagedSheetModel>
+    with IdleSheetActivityMixin<PagedSheetModel> {
   _IdleSheetActivity({
     required this.targetOffset,
   });
@@ -260,7 +260,7 @@ class _PagedSheetState extends State<PagedSheet> with TickerProviderStateMixin {
   }
 }
 
-class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetGeometry> {
+class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetModel> {
   const _PagedSheetModelOwner({
     super.controller,
     super.gestureProxy,
@@ -284,7 +284,7 @@ class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetGeometry> {
 }
 
 class _PagedSheetModelOwnerState
-    extends SheetModelOwnerState<PagedSheetGeometry, _PagedSheetModelOwner>
+    extends SheetModelOwnerState<PagedSheetModel, _PagedSheetModelOwner>
     with NavigatorEventListener {
   NavigatorEventObserverState? _navigatorEventObserver;
 
@@ -311,8 +311,8 @@ class _PagedSheetModelOwnerState
   }
 
   @override
-  PagedSheetGeometry createModel() {
-    return PagedSheetGeometry(
+  PagedSheetModel createModel() {
+    return PagedSheetModel(
       context: this,
       gestureProxy: widget.gestureProxy,
       debugLabel: widget.debugLabel,
@@ -367,7 +367,7 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return _RenderRouteContentLayoutObserver(
       parentRoute: parentRoute,
-      controller: SheetModelOwner.of(context)! as PagedSheetGeometry,
+      controller: SheetModelOwner.of(context)! as PagedSheetModel,
     );
   }
 
@@ -377,23 +377,22 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
     _RenderRouteContentLayoutObserver renderObject,
   ) {
     assert(parentRoute == renderObject.parentRoute);
-    renderObject.controller =
-        SheetModelOwner.of(context)! as PagedSheetGeometry;
+    renderObject.controller = SheetModelOwner.of(context)! as PagedSheetModel;
   }
 }
 
 class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   _RenderRouteContentLayoutObserver({
     required this.parentRoute,
-    required PagedSheetGeometry controller,
+    required PagedSheetModel controller,
   }) : _controller = controller;
 
   final BasePagedSheetRoute parentRoute;
 
-  PagedSheetGeometry _controller;
+  PagedSheetModel _controller;
 
   // ignore: avoid_setters_without_getters
-  set controller(PagedSheetGeometry value) {
+  set controller(PagedSheetModel value) {
     if (_controller != value) {
       _controller = value;
       markNeedsLayout();

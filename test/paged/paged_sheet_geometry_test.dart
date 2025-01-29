@@ -16,10 +16,10 @@ void main() {
   // Required because AnimationController depends on SemanticsBinding.
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  late PagedSheetGeometry geometryUnderTest;
+  late PagedSheetModel geometryUnderTest;
 
   setUp(() {
-    geometryUnderTest = PagedSheetGeometry(
+    geometryUnderTest = PagedSheetModel(
       context: MockSheetContext(),
     );
   });
@@ -389,7 +389,7 @@ void main() {
 }
 
 MockBasePagedSheetRoute<dynamic> _firstBuild({
-  required PagedSheetGeometry geometry,
+  required PagedSheetModel geometry,
   required Size viewportSize,
   required Size initialRouteContentSize,
   required SheetOffset initialOffset,
@@ -422,7 +422,7 @@ typedef _TransitionHandle = ({
 });
 
 _TransitionHandle _startForwardTransition({
-  required PagedSheetGeometry geometry,
+  required PagedSheetModel geometry,
   required BasePagedSheetRoute currentRoute,
   required BasePagedSheetRoute newRoute,
   required Size newRouteContentSize,
@@ -453,7 +453,7 @@ _TransitionHandle _startForwardTransition({
 }
 
 _TransitionHandle _startBackwardTransition({
-  required PagedSheetGeometry geometry,
+  required PagedSheetModel geometry,
   required BasePagedSheetRoute currentRoute,
   required BasePagedSheetRoute destinationRoute,
   required TestAnimationController currentRouteTransitionController,
@@ -487,7 +487,7 @@ typedef _UserGestureTransitionHandle = ({
 });
 
 _UserGestureTransitionHandle _startUserGestureTransition({
-  required PagedSheetGeometry geometry,
+  required PagedSheetModel geometry,
   required BasePagedSheetRoute currentRoute,
   required BasePagedSheetRoute previousRoute,
   required TestAnimationController currentRouteTransitionController,
@@ -523,7 +523,7 @@ _UserGestureTransitionHandle _startUserGestureTransition({
 }
 
 (MockBasePagedSheetRoute<dynamic>, TestAnimationController) _pushRoute({
-  required PagedSheetGeometry geometry,
+  required PagedSheetModel geometry,
   required BasePagedSheetRoute currentRoute,
   required Size routeContentSize,
   required SheetOffset initialOffset,
@@ -551,7 +551,7 @@ _UserGestureTransitionHandle _startUserGestureTransition({
 }
 
 void _popRoute({
-  required PagedSheetGeometry geometry,
+  required PagedSheetModel geometry,
   required BasePagedSheetRoute currentRoute,
   required BasePagedSheetRoute destinationRoute,
   required TestAnimationController currentRouteTransitionController,
