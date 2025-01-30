@@ -70,6 +70,7 @@ class PagedSheetModel extends ScrollAwareSheetModel {
     super.dispose();
   }
 
+  // TODO: Move the logic to didStartTransition and didEndTransition.
   void _setCurrentEntry(_PagedSheetEntry? entry) {
     if (!hasMetrics) {
       assert(entry != null && _currentEntry == null);

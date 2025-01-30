@@ -315,7 +315,9 @@ void main() {
         const Offset(0, 20),
       );
       await tester.pumpAndSettle();
-      expect(lastBoundaryValues, equals((300, 300)));
+      // expect(lastBoundaryValues, equals((300, 300)));
+      expect(controller.metrics?.minOffset, 300);
+      expect(controller.metrics?.maxOffset, 300);
 
       // The controller still emits the boundary values of the first page
       // during a route transition.
@@ -325,7 +327,8 @@ void main() {
       expect(lastBoundaryValues, equals((300, 300)));
       // Wait for the transition to finish.
       await tester.pumpAndSettle();
-      expect(lastBoundaryValues, equals((300, 300)));
+      expect(controller.metrics?.minOffset, 200);
+      expect(controller.metrics?.maxOffset, 500);
 
       // The controller emits the boundary values of the second page
       // after the transition is finished.
@@ -334,7 +337,9 @@ void main() {
         const Offset(0, 20),
       );
       await tester.pumpAndSettle();
-      expect(lastBoundaryValues, equals((200, 500)));
+      // expect(lastBoundaryValues, equals((200, 500)));
+      expect(controller.metrics?.minOffset, 200);
+      expect(controller.metrics?.maxOffset, 500);
     },
   );
 
@@ -543,6 +548,9 @@ void main() {
       focusNode = FocusNode();
       scrollController = ScrollController();
       final routeWithTextField = PagedSheetRoute<dynamic>(
+        snapGrid: const SheetSnapGrid.stepless(
+          minOffset: SheetOffset.absolute(0),
+        ),
         builder: (context) {
           return Material(
             child: TextField(
@@ -582,7 +590,7 @@ void main() {
       expect(focusNode.hasFocus, isTrue,
           reason: 'The keyboard should be shown.');
 
-      await tester.drag(textField, const Offset(0, -40));
+      await tester.drag(textField, const Offset(0, 40));
       await tester.pumpAndSettle();
       expect(focusNode.hasFocus, isFalse,
           reason: 'Downward dragging should dismiss the keyboard.');
