@@ -1391,46 +1391,19 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
           as _i2.SheetOffset);
 
   @override
-  _i2.SheetOffset get minOffset =>
+  _i5.SheetSnapGrid get snapGrid =>
       (super.noSuchMethod(
-            Invocation.getter(#minOffset),
-            returnValue: _FakeSheetOffset_0(
+            Invocation.getter(#snapGrid),
+            returnValue: _FakeSheetSnapGrid_5(
               this,
-              Invocation.getter(#minOffset),
+              Invocation.getter(#snapGrid),
             ),
-            returnValueForMissingStub: _FakeSheetOffset_0(
+            returnValueForMissingStub: _FakeSheetSnapGrid_5(
               this,
-              Invocation.getter(#minOffset),
+              Invocation.getter(#snapGrid),
             ),
           )
-          as _i2.SheetOffset);
-
-  @override
-  _i2.SheetOffset get maxOffset =>
-      (super.noSuchMethod(
-            Invocation.getter(#maxOffset),
-            returnValue: _FakeSheetOffset_0(
-              this,
-              Invocation.getter(#maxOffset),
-            ),
-            returnValueForMissingStub: _FakeSheetOffset_0(
-              this,
-              Invocation.getter(#maxOffset),
-            ),
-          )
-          as _i2.SheetOffset);
-
-  @override
-  _i4.SheetPhysics get physics =>
-      (super.noSuchMethod(
-            Invocation.getter(#physics),
-            returnValue: _FakeSheetPhysics_2(this, Invocation.getter(#physics)),
-            returnValueForMissingStub: _FakeSheetPhysics_2(
-              this,
-              Invocation.getter(#physics),
-            ),
-          )
-          as _i4.SheetPhysics);
+          as _i5.SheetSnapGrid);
 
   @override
   bool get fullscreenDialog =>

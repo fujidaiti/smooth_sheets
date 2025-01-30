@@ -16,125 +16,73 @@ import 'sheet.dart';
 import 'snap_grid.dart';
 
 @internal
-const kDefaultPagedSheetPhysics = ClampingSheetPhysics();
-
-@internal
-const kDefaultPagedSheetInitialOffset = SheetOffset.relative(1);
-
-@internal
-const kDefaultPagedSheetMinOffset = SheetOffset.relative(1);
-
-@internal
-const kDefaultPagedSheetMaxOffset = SheetOffset.relative(1);
+const kDefaultPagedSheetTransitionCurve = Curves.easeInOutCubic;
 
 const _kDefaultSnapGrid = SteplessSnapGrid(
   minOffset: SheetOffset.absolute(0),
   maxOffset: SheetOffset.relative(1),
 );
 
-@internal
-const kDefaultPagedSheetTransitionCurve = Curves.easeInOutCubic;
+abstract interface class _PagedSheetEntry {
+  Size get contentSize;
 
-class _RouteGeometry {
-  _RouteGeometry({
-    required this.targetOffset,
-  });
+  SheetSnapGrid get snapGrid;
 
-  Size? contentSize;
-  SheetOffset targetOffset;
+  SheetOffset get targetOffset;
+
+  set targetOffset(SheetOffset value);
+}
+
+class _PagedSheetInitialOffset implements SheetOffset {
+  _PagedSheetInitialOffset();
+
+  late final _PagedSheetEntry initialEntry;
+
+  @override
+  double resolve(SheetMeasurements measurements) {
+    return initialEntry.targetOffset.resolve(
+      measurements.copyWith(
+        contentSize: initialEntry.contentSize,
+      ),
+    );
+  }
 }
 
 @internal
 class PagedSheetModel extends ScrollAwareSheetModel {
   PagedSheetModel({
     required super.context,
+    required super.physics,
     super.gestureProxy,
     super.debugLabel,
   }) : super(
-          initialOffset: kDefaultPagedSheetInitialOffset,
-          physics: kDefaultPagedSheetPhysics,
+          initialOffset: _PagedSheetInitialOffset(),
           snapGrid: _kDefaultSnapGrid,
         );
 
-  final Map<BasePagedSheetRoute, _RouteGeometry> _routeGeometries = {};
+  _PagedSheetEntry? _currentEntry;
 
-  BasePagedSheetRoute? _currentRoute;
-
-  void _setCurrentRoute(BasePagedSheetRoute? route) {
-    assert(route == null || _routeGeometries.containsKey(route));
-    if (route != null) {
-      _currentRoute = route;
-      physics = route.physics;
+  void _setCurrentEntry(_PagedSheetEntry? entry) {
+    if (!hasMetrics) {
+      assert(entry != null && _currentEntry == null);
+      (initialOffset as _PagedSheetInitialOffset).initialEntry = entry!;
+    }
+    if (entry != null) {
+      _currentEntry = entry;
+      snapGrid = entry.snapGrid;
     } else {
-      _currentRoute = null;
-      physics = kDefaultPagedSheetPhysics;
-    }
-  }
-
-  void addRoute(BasePagedSheetRoute route) {
-    assert(!_routeGeometries.containsKey(route));
-    _routeGeometries[route] = _RouteGeometry(
-      targetOffset: route.initialOffset,
-    );
-  }
-
-  void removeRoute(BasePagedSheetRoute route) {
-    assert(_routeGeometries.containsKey(route));
-    _routeGeometries.remove(route);
-    if (route == _currentRoute) {
-      _setCurrentRoute(null);
-      goIdle();
-    }
-  }
-
-  void applyNewRouteContentSize(BasePagedSheetRoute route, Size contentSize) {
-    assert(_routeGeometries.containsKey(route));
-    _routeGeometries[route]?.contentSize = contentSize;
-  }
-
-  double _resolveTargetOffset(BasePagedSheetRoute route) {
-    final geometry = _routeGeometries[route]!;
-    return geometry.targetOffset.resolve(
-      measurements.copyWith(
-        contentSize: geometry.contentSize,
-      ),
-    );
-  }
-
-  @override
-  set measurements(SheetMeasurements value) {
-    final needInitialisation = !hasMetrics;
-    super.measurements = value;
-    if (needInitialisation) {
-      setOffset(
-        switch (_currentRoute) {
-          null => initialOffset.resolve(value),
-          final it => _resolveTargetOffset(it),
-        },
-      );
-    }
-  }
-
-  @override
-  void goIdle() {
-    if (_currentRoute case final route?) {
-      beginActivity(
-        _IdleSheetActivity(
-          targetOffset:
-              _routeGeometries[route]?.targetOffset ?? route.initialOffset,
-        ),
-      );
-    } else {
-      super.goIdle();
+      _currentEntry = null;
+      snapGrid = _kDefaultSnapGrid;
     }
   }
 
   void didStartTransition(
-    BasePagedSheetRoute currentRoute,
-    BasePagedSheetRoute nextRoute,
-    Animation<double> animation, {
-    bool isUserGestureInProgress = false,
-  }) {
+    _PagedSheetEntry currentEntry,
+    _PagedSheetEntry nextEntry,
+    Animation<double> animation,
+    // ignore: avoid_positional_boolean_parameters
+    bool isUserGestureInProgress,
+  ) {
     final Curve effectiveCurve;
     final Animation<double> effectiveAnimation;
     if (isUserGestureInProgress) {
@@ -148,20 +96,27 @@ class PagedSheetModel extends ScrollAwareSheetModel {
       effectiveAnimation = animation;
     }
 
-    assert(_routeGeometries.containsKey(currentRoute));
-    assert(_routeGeometries.containsKey(nextRoute));
-    _setCurrentRoute(null);
-    beginActivity(RouteTransitionSheetActivity(
-      originRouteOffset: () => _resolveTargetOffset(currentRoute),
-      destinationRouteOffset: () => _resolveTargetOffset(nextRoute),
-      animation: effectiveAnimation,
-      animationCurve: effectiveCurve,
-    ));
+    ValueGetter<double> targetOffsetResolver(_PagedSheetEntry entry) {
+      return () => entry.targetOffset.resolve(
+            measurements.copyWith(
+              contentSize: entry.contentSize,
+            ),
+          );
+    }
+
+    _setCurrentEntry(null);
+    beginActivity(
+      RouteTransitionSheetActivity(
+        originRouteOffset: targetOffsetResolver(currentEntry),
+        destinationRouteOffset: targetOffsetResolver(nextEntry),
+        animation: effectiveAnimation,
+        animationCurve: effectiveCurve,
+      ),
+    );
   }
 
-  void didEndTransition(BasePagedSheetRoute route) {
-    assert(_routeGeometries.containsKey(route));
-    _setCurrentRoute(route);
+  void didEndTransition(_PagedSheetEntry entry) {
+    _setCurrentEntry(entry);
     goIdle();
   }
 }
@@ -216,24 +171,17 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetModel> {
   }
 }
 
-class _IdleSheetActivity extends SheetActivity<PagedSheetModel>
-    with IdleSheetActivityMixin<PagedSheetModel> {
-  _IdleSheetActivity({
-    required this.targetOffset,
-  });
-
-  @override
-  late final SheetOffset targetOffset;
-}
-
 class PagedSheet extends StatefulWidget {
   const PagedSheet({
     super.key,
     this.controller,
+    this.physics = const ClampingSheetPhysics(),
     required this.child,
   });
 
   final SheetController? controller;
+
+  final SheetPhysics physics;
 
   final Widget child;
 
@@ -241,7 +189,7 @@ class PagedSheet extends StatefulWidget {
   State<PagedSheet> createState() => _PagedSheetState();
 }
 
-class _PagedSheetState extends State<PagedSheet> with TickerProviderStateMixin {
+class _PagedSheetState extends State<PagedSheet> {
   @override
   Widget build(BuildContext context) {
     final gestureProxy = SheetGestureProxy.maybeOf(context);
@@ -249,10 +197,10 @@ class _PagedSheetState extends State<PagedSheet> with TickerProviderStateMixin {
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
     return _PagedSheetModelOwner(
-      physics: kDefaultPagedSheetPhysics,
+      physics: widget.physics,
       controller: controller,
       gestureProxy: gestureProxy,
-      debugLabel: kDebugMode ? 'NavigationSheet' : null,
+      debugLabel: kDebugMode ? 'PagedSheet' : null,
       child: NavigatorResizable(
         child: widget.child,
       ),
@@ -267,12 +215,7 @@ class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetModel> {
     required super.physics,
     this.debugLabel,
     required super.child,
-  }) : super(
-          snapGrid: const SteplessSnapGrid(
-            minOffset: SheetOffset.absolute(0),
-            maxOffset: SheetOffset.relative(1),
-          ),
-        );
+  }) : super(snapGrid: _kDefaultSnapGrid);
 
   /// {@macro SheetPosition.debugLabel}
   final String? debugLabel;
@@ -314,18 +257,10 @@ class _PagedSheetModelOwnerState
   PagedSheetModel createModel() {
     return PagedSheetModel(
       context: this,
+      physics: widget.physics,
       gestureProxy: widget.gestureProxy,
       debugLabel: widget.debugLabel,
     );
-  }
-
-  @override
-  VoidCallback? didInstall(Route<dynamic> route) {
-    if (route is BasePagedSheetRoute) {
-      model.addRoute(route);
-      return () => model.removeRoute(route);
-    }
-    return null;
   }
 
   @override
@@ -335,21 +270,24 @@ class _PagedSheetModelOwnerState
     Animation<double> animation, {
     bool isUserGestureInProgress = false,
   }) {
-    if (currentRoute is BasePagedSheetRoute &&
-        nextRoute is BasePagedSheetRoute) {
+    if ((currentRoute, nextRoute)
+        case (
+          final _PagedSheetEntry currentEntry,
+          final _PagedSheetEntry nextEntry
+        )) {
       model.didStartTransition(
-        currentRoute,
-        nextRoute,
+        currentEntry,
+        nextEntry,
         animation,
-        isUserGestureInProgress: isUserGestureInProgress,
+        isUserGestureInProgress,
       );
     }
   }
 
   @override
   void didEndTransition(Route<dynamic> route) {
-    if (route is BasePagedSheetRoute) {
-      model.didEndTransition(route);
+    if (route case final _PagedSheetEntry entry) {
+      model.didEndTransition(entry);
     }
   }
 }
@@ -365,10 +303,7 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderRouteContentLayoutObserver(
-      parentRoute: parentRoute,
-      model: SheetModelOwner.of(context)! as PagedSheetModel,
-    );
+    return _RenderRouteContentLayoutObserver(parentRoute);
   }
 
   @override
@@ -377,33 +312,19 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
     _RenderRouteContentLayoutObserver renderObject,
   ) {
     assert(parentRoute == renderObject.parentRoute);
-    renderObject.model = SheetModelOwner.of(context)! as PagedSheetModel;
   }
 }
 
 class _RenderRouteContentLayoutObserver extends RenderProxyBox {
-  _RenderRouteContentLayoutObserver({
-    required this.parentRoute,
-    required PagedSheetModel model,
-  }) : _model = model;
+  _RenderRouteContentLayoutObserver(this.parentRoute);
 
   final BasePagedSheetRoute parentRoute;
-
-  PagedSheetModel _model;
-
-  // ignore: avoid_setters_without_getters
-  set model(PagedSheetModel value) {
-    if (_model != value) {
-      _model = value;
-      markNeedsLayout();
-    }
-  }
 
   @override
   void performLayout() {
     super.performLayout();
     if (child?.size case final childSize?) {
-      _model.applyNewRouteContentSize(parentRoute, childSize);
+      parentRoute._contentSize = childSize;
     }
   }
 }
@@ -411,16 +332,14 @@ class _RenderRouteContentLayoutObserver extends RenderProxyBox {
 @internal
 @optionalTypeArgs
 abstract class BasePagedSheetRoute<T> extends PageRoute<T>
-    with ObservableRouteMixin<T> {
+    with ObservableRouteMixin<T>
+    implements _PagedSheetEntry {
   BasePagedSheetRoute({super.settings});
 
   SheetOffset get initialOffset;
 
-  SheetOffset get minOffset;
-
-  SheetOffset get maxOffset;
-
-  SheetPhysics get physics;
+  @override
+  SheetSnapGrid get snapGrid;
 
   RouteTransitionsBuilder? get transitionsBuilder;
 
@@ -434,6 +353,20 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T>
 
   @override
   String? get barrierLabel => null;
+
+  SheetOffset? _targetOffset;
+
+  @override
+  SheetOffset get targetOffset => _targetOffset ?? initialOffset;
+
+  @override
+  set targetOffset(SheetOffset value) => _targetOffset = value;
+
+  // This is updated in _RouteContentLayoutObserver.performLayout.
+  late Size _contentSize;
+
+  @override
+  Size get contentSize => _contentSize;
 
   @override
   bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
@@ -503,9 +436,7 @@ class PagedSheetRoute<T> extends BasePagedSheetRoute<T> {
     this.dragConfiguration = const SheetDragConfiguration(),
     this.transitionDuration = const Duration(milliseconds: 300),
     this.initialOffset = const SheetOffset.relative(1),
-    this.minOffset = const SheetOffset.relative(1),
-    this.maxOffset = const SheetOffset.relative(1),
-    this.physics = kDefaultSheetPhysics,
+    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset.relative(1)),
     this.transitionsBuilder,
     required this.builder,
   });
@@ -514,13 +445,7 @@ class PagedSheetRoute<T> extends BasePagedSheetRoute<T> {
   final SheetOffset initialOffset;
 
   @override
-  final SheetOffset minOffset;
-
-  @override
-  final SheetOffset maxOffset;
-
-  @override
-  final SheetPhysics physics;
+  final SheetSnapGrid snapGrid;
 
   @override
   final bool maintainState;
@@ -560,8 +485,7 @@ class PagedSheetPage<T> extends Page<T> {
     this.dragConfiguration = const SheetDragConfiguration(),
     this.transitionDuration = const Duration(milliseconds: 300),
     this.initialOffset = const SheetOffset.relative(1),
-    this.minOffset = const SheetOffset.relative(1),
-    this.maxOffset = const SheetOffset.relative(1),
+    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset.relative(1)),
     this.physics = kDefaultSheetPhysics,
     this.transitionsBuilder,
     required this.child,
@@ -569,9 +493,7 @@ class PagedSheetPage<T> extends Page<T> {
 
   final SheetOffset initialOffset;
 
-  final SheetOffset minOffset;
-
-  final SheetOffset maxOffset;
+  final SheetSnapGrid snapGrid;
 
   final SheetPhysics physics;
 
@@ -620,13 +542,7 @@ class _PageBasedNavigationSheetRoute<T> extends BasePagedSheetRoute<T> {
   SheetOffset get initialOffset => page.initialOffset;
 
   @override
-  SheetOffset get maxOffset => page.maxOffset;
-
-  @override
-  SheetOffset get minOffset => page.minOffset;
-
-  @override
-  SheetPhysics get physics => page.physics;
+  SheetSnapGrid get snapGrid => page.snapGrid;
 
   @override
   Widget buildContent(

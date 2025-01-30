@@ -6,6 +6,8 @@ import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/foundation/activity.dart';
 import 'package:smooth_sheets/src/foundation/model.dart';
 import 'package:smooth_sheets/src/foundation/paged.dart';
+import 'package:smooth_sheets/src/foundation/physics.dart';
+import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 
 import '../src/matchers.dart';
 import '../src/stubbing.dart';
@@ -20,6 +22,7 @@ void main() {
 
   setUp(() {
     geometryUnderTest = PagedSheetModel(
+      physics: ClampingSheetPhysics(),
       context: MockSheetContext(),
     );
   });
@@ -382,8 +385,12 @@ void main() {
 
   final route = MockBasePagedSheetRoute<dynamic>();
   when(route.initialOffset).thenReturn(initialOffset);
-  when(route.minOffset).thenReturn(minOffset);
-  when(route.maxOffset).thenReturn(maxOffset);
+  when(route.snapGrid).thenReturn(
+    SheetSnapGrid.stepless(
+      minOffset: minOffset,
+      maxOffset: maxOffset,
+    ),
+  );
 
   return (route, animationController);
 }

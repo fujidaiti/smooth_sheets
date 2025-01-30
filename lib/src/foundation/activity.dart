@@ -366,8 +366,7 @@ class SettlingSheetActivity extends SheetActivity {
 
 // TODO: Rename to `StableSheetActivity` or similar.
 @internal
-class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
-  @override
+class IdleSheetActivity extends SheetActivity {
   late final SheetOffset targetOffset;
 
   @override
@@ -376,6 +375,48 @@ class IdleSheetActivity extends SheetActivity with IdleSheetActivityMixin {
     targetOffset = owner.hasMetrics
         ? owner.snapGrid.getSnapOffset(owner, 0)
         : owner.initialOffset;
+  }
+
+  /// Updates [SheetMetrics.offset] to maintain the current [SheetOffset], which
+  /// is determined by [SheetSnapGrid.getSnapOffset] using the metrics of
+  /// the previous frame.
+  @override
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    final newOffset = targetOffset.resolve(owner.measurements);
+    if (newOffset == owner.offset) {
+      return;
+    } else if (owner.measurements.viewportInsets.bottom !=
+        oldMeasurements.viewportInsets.bottom) {
+      // TODO: Is it possible to remove this assumption?
+      // We currently assume that when the bottom viewport inset changes,
+      // it is due to the appearance or disappearance of the keyboard,
+      // and that this change will gradually occur over several frames,
+      // likely due to animation.
+      owner
+        ..setOffset(newOffset)
+        ..didUpdateGeometry();
+      return;
+    }
+
+    const minAnimationDuration = Duration(milliseconds: 150);
+    const meanAnimationVelocity = 300 / 1000; // offset per millisecond
+    final distance = (newOffset - owner.offset).abs();
+    final estimatedDuration = Duration(
+      milliseconds: (distance / meanAnimationVelocity).round(),
+    );
+    if (estimatedDuration >= minAnimationDuration) {
+      owner.animateTo(
+        targetOffset,
+        duration: estimatedDuration,
+        curve: Curves.easeInOut,
+      );
+    } else {
+      // The destination is close enough to the current position,
+      // so we immediately snap to it without animation.
+      owner
+        ..setOffset(newOffset)
+        ..didUpdateGeometry();
+    }
   }
 }
 
@@ -476,53 +517,6 @@ class DragSheetActivity<T extends SheetModel> extends SheetActivity<T>
     owner
       ..didDragCancel()
       ..goBallistic(0);
-  }
-}
-
-@internal
-mixin IdleSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
-  SheetOffset get targetOffset;
-
-  /// Updates [SheetMetrics.offset] to maintain the current [SheetOffset], which
-  /// is determined by [SheetSnapGrid.getSnapOffset] using the metrics of
-  /// the previous frame.
-  @override
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
-    final newOffset = targetOffset.resolve(owner.measurements);
-    if (newOffset == owner.offset) {
-      return;
-    } else if (owner.measurements.viewportInsets.bottom !=
-        oldMeasurements.viewportInsets.bottom) {
-      // TODO: Is it possible to remove this assumption?
-      // We currently assume that when the bottom viewport inset changes,
-      // it is due to the appearance or disappearance of the keyboard,
-      // and that this change will gradually occur over several frames,
-      // likely due to animation.
-      owner
-        ..setOffset(newOffset)
-        ..didUpdateGeometry();
-      return;
-    }
-
-    const minAnimationDuration = Duration(milliseconds: 150);
-    const meanAnimationVelocity = 300 / 1000; // offset per millisecond
-    final distance = (newOffset - owner.offset).abs();
-    final estimatedDuration = Duration(
-      milliseconds: (distance / meanAnimationVelocity).round(),
-    );
-    if (estimatedDuration >= minAnimationDuration) {
-      owner.animateTo(
-        targetOffset,
-        duration: estimatedDuration,
-        curve: Curves.easeInOut,
-      );
-    } else {
-      // The destination is close enough to the current position,
-      // so we immediately snap to it without animation.
-      owner
-        ..setOffset(newOffset)
-        ..didUpdateGeometry();
-    }
   }
 }
 

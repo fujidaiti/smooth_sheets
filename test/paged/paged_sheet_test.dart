@@ -8,6 +8,7 @@ import 'package:smooth_sheets/src/foundation/model.dart';
 import 'package:smooth_sheets/src/foundation/paged.dart';
 import 'package:smooth_sheets/src/foundation/physics.dart';
 import 'package:smooth_sheets/src/foundation/sheet.dart';
+import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 import 'package:smooth_sheets/src/foundation/viewport.dart';
 
 import '../src/keyboard_inset_simulation.dart';
@@ -37,6 +38,7 @@ class _TestWidget extends StatelessWidget {
       child: PagedSheet(
         key: sheetKey,
         controller: sheetController,
+        physics: const ClampingSheetPhysics(),
         child: ColoredBox(
           color: Colors.white,
           child: Navigator(
@@ -129,13 +131,13 @@ class _TestDraggablePageWidget extends StatelessWidget {
     SheetOffset initialPosition = const SheetOffset.relative(1),
     SheetOffset minPosition = const SheetOffset.relative(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
-    SheetPhysics physics = kDefaultSheetPhysics,
   }) {
     return PagedSheetRoute(
-      physics: physics,
       initialOffset: initialPosition,
-      minOffset: minPosition,
       transitionDuration: transitionDuration,
+      snapGrid: SheetSnapGrid.stepless(
+        minOffset: minPosition,
+      ),
       builder: (context) => _TestDraggablePageWidget(
         key: key,
         height: height,
@@ -206,15 +208,11 @@ class _TestScrollablePageWidget extends StatelessWidget {
     int itemCount = 30,
     String? nextRoute,
     SheetOffset initialPosition = const SheetOffset.relative(1),
-    SheetOffset minPosition = const SheetOffset.relative(1),
     Duration transitionDuration = const Duration(milliseconds: 300),
-    SheetPhysics physics = kDefaultSheetPhysics,
     void Function(int index)? onTapItem,
   }) {
     return PagedSheetRoute(
-      physics: physics,
       initialOffset: initialPosition,
-      minOffset: minPosition,
       scrollConfiguration: const SheetScrollConfiguration(),
       transitionDuration: transitionDuration,
       builder: (context) => _TestScrollablePageWidget(
@@ -253,8 +251,6 @@ void main() {
                   label: 'First',
                   height: 300,
                   minPosition: const SheetOffset.absolute(0),
-                  // Disable the snapping effect.
-                  physics: const ClampingSheetPhysics(),
                 ),
           },
         ),
@@ -356,7 +352,6 @@ void main() {
                   label: 'First',
                   height: 300,
                   minPosition: const SheetOffset.absolute(0),
-                  physics: const ClampingSheetPhysics(),
                 ),
           },
         ),
