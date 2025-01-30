@@ -296,6 +296,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   void didChangeMeasurements(SheetMeasurements oldMeasurements) {}
 
   @mustCallSuper
+  @protected
   void beginActivity(SheetActivity activity) {
     final oldActivity = _activity;
     // Update the current activity before initialization.

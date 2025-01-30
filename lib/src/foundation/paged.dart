@@ -24,24 +24,14 @@ const _kDefaultSnapGrid = SteplessSnapGrid(
   maxOffset: SheetOffset.relative(1),
 );
 
-// TODO: Make the methods private.
-abstract interface class _PagedSheetEntry {
-  Size? get contentSize;
-
-  SheetSnapGrid get snapGrid;
-
-  SheetOffset get targetOffset;
-
-  set targetOffset(SheetOffset value);
-}
-
 class _PagedSheetInitialOffset implements SheetOffset {
   _PagedSheetInitialOffset();
 
-  late final _PagedSheetEntry initialEntry;
+  late final _PagedSheetEntryState initialEntry;
 
   @override
   double resolve(SheetMeasurements measurements) {
+    assert(initialEntry.contentSize != null);
     return initialEntry.targetOffset.resolve(
       measurements.copyWith(
         contentSize: initialEntry.contentSize,
@@ -50,9 +40,22 @@ class _PagedSheetInitialOffset implements SheetOffset {
   }
 }
 
-@internal
-class PagedSheetModel extends ScrollAwareSheetModel {
-  PagedSheetModel({
+abstract interface class _PagedSheetEntry {
+  SheetSnapGrid get snapGrid;
+  SheetOffset get initialOffset;
+}
+
+class _PagedSheetEntryState {
+  _PagedSheetEntryState({
+    required this.targetOffset,
+  });
+
+  SheetOffset targetOffset;
+  Size? contentSize;
+}
+
+class _PagedSheetModel extends ScrollAwareSheetModel {
+  _PagedSheetModel({
     required super.context,
     required super.physics,
     super.gestureProxy,
@@ -62,36 +65,55 @@ class PagedSheetModel extends ScrollAwareSheetModel {
           snapGrid: _kDefaultSnapGrid,
         );
 
+  final Map<_PagedSheetEntry, _PagedSheetEntryState> _entryStates = {};
   _PagedSheetEntry? _currentEntry;
+
+  @override
+  _PagedSheetInitialOffset get initialOffset =>
+      super.initialOffset as _PagedSheetInitialOffset;
 
   @override
   void dispose() {
     _currentEntry = null;
+    _entryStates.clear();
     super.dispose();
   }
 
-  // TODO: Move the logic to didStartTransition and didEndTransition.
-  void _setCurrentEntry(_PagedSheetEntry? entry) {
-    if (!hasMetrics) {
-      assert(entry != null && _currentEntry == null);
-      (initialOffset as _PagedSheetInitialOffset).initialEntry = entry!;
-    }
-    if (entry != null) {
-      _currentEntry = entry;
-      snapGrid = entry.snapGrid;
-    } else {
-      _currentEntry = null;
-      snapGrid = _kDefaultSnapGrid;
+  @override
+  void beginActivity(SheetActivity activity) {
+    super.beginActivity(activity);
+    if (activity is IdleSheetActivity && _currentEntry != null) {
+      final targetOffset = activity.targetOffset;
+      if (targetOffset != initialOffset) {
+        _entryStates[_currentEntry]!.targetOffset = targetOffset;
+      }
     }
   }
 
-  void _didChangeInternalStateOfEntry(_PagedSheetEntry entry) {
+  void addEntry(_PagedSheetEntry entry) {
+    assert(!_entryStates.containsKey(entry));
+    _entryStates[entry] = _PagedSheetEntryState(
+      targetOffset: entry.initialOffset,
+    );
+  }
+
+  void removeEntry(_PagedSheetEntry entry) {
+    assert(_entryStates.containsKey(entry));
+    _entryStates.remove(entry);
+  }
+
+  void didChangeInternalStateOfEntry(_PagedSheetEntry entry) {
+    assert(_entryStates.containsKey(entry));
     if (_currentEntry == entry) {
       snapGrid = entry.snapGrid;
     }
   }
 
-  // TODO: Make this private.
+  void didChangeContentStateOfEntry(_PagedSheetEntry entry, Size contentSize) {
+    assert(_entryStates.containsKey(entry));
+    _entryStates[entry]!.contentSize = contentSize;
+  }
+
   void didStartTransition(
     _PagedSheetEntry currentEntry,
     _PagedSheetEntry nextEntry,
@@ -99,6 +121,10 @@ class PagedSheetModel extends ScrollAwareSheetModel {
     // ignore: avoid_positional_boolean_parameters
     bool isUserGestureInProgress,
   ) {
+    assert(_entryStates.containsKey(currentEntry));
+    assert(_entryStates.containsKey(nextEntry));
+    _currentEntry = null;
+
     final Curve effectiveCurve;
     final Animation<double> effectiveAnimation;
     if (isUserGestureInProgress) {
@@ -113,16 +139,20 @@ class PagedSheetModel extends ScrollAwareSheetModel {
     }
 
     ValueGetter<double?> targetOffsetResolver(_PagedSheetEntry entry) {
-      return () => switch (entry.contentSize) {
-            null => null,
-            final size => entry.targetOffset
-                .resolve(measurements.copyWith(contentSize: size)),
+      return () => switch (_entryStates[entry]) {
+            _PagedSheetEntryState(
+              :final targetOffset,
+              :final contentSize?,
+            ) =>
+              targetOffset.resolve(
+                measurements.copyWith(contentSize: contentSize),
+              ),
+            _ => null,
           };
     }
 
-    _setCurrentEntry(null);
     beginActivity(
-      RouteTransitionSheetActivity(
+      _RouteTransitionSheetActivity(
         originRouteOffset: targetOffsetResolver(currentEntry),
         destinationRouteOffset: targetOffsetResolver(nextEntry),
         animation: effectiveAnimation,
@@ -132,14 +162,21 @@ class PagedSheetModel extends ScrollAwareSheetModel {
   }
 
   void didEndTransition(_PagedSheetEntry entry) {
-    _setCurrentEntry(entry);
+    assert(_entryStates.containsKey(entry));
+    if (!hasMetrics) {
+      assert(_currentEntry == null);
+      initialOffset.initialEntry = _entryStates[entry]!;
+    }
+
+    _currentEntry = entry;
+    didChangeInternalStateOfEntry(entry);
+
     goIdle();
   }
 }
 
-@visibleForTesting
-class RouteTransitionSheetActivity extends SheetActivity<PagedSheetModel> {
-  RouteTransitionSheetActivity({
+class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
+  _RouteTransitionSheetActivity({
     required this.originRouteOffset,
     required this.destinationRouteOffset,
     required this.animation,
@@ -156,8 +193,9 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetModel> {
   bool get shouldIgnorePointer => true;
 
   @override
-  void init(PagedSheetModel owner) {
+  void init(_PagedSheetModel owner) {
     super.init(owner);
+    owner.snapGrid = _kDefaultSnapGrid;
     _effectiveAnimation = animation.drive(
       CurveTween(curve: animationCurve),
     )..addListener(_onAnimationTick);
@@ -191,7 +229,7 @@ class PagedSheet extends StatelessWidget {
   const PagedSheet({
     super.key,
     this.controller,
-    this.physics = const ClampingSheetPhysics(),
+    this.physics = kDefaultSheetPhysics,
     required this.child,
   });
 
@@ -227,7 +265,7 @@ class PagedSheet extends StatelessWidget {
   }
 }
 
-class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetModel> {
+class _PagedSheetModelOwner extends SheetModelOwner<_PagedSheetModel> {
   const _PagedSheetModelOwner({
     super.controller,
     super.gestureProxy,
@@ -236,7 +274,6 @@ class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetModel> {
     required super.child,
   }) : super(snapGrid: _kDefaultSnapGrid);
 
-  /// {@macro SheetPosition.debugLabel}
   final String? debugLabel;
 
   @override
@@ -246,15 +283,15 @@ class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetModel> {
 }
 
 class _PagedSheetModelOwnerState
-    extends SheetModelOwnerState<PagedSheetModel, _PagedSheetModelOwner> {
+    extends SheetModelOwnerState<_PagedSheetModel, _PagedSheetModelOwner> {
   @override
   bool shouldRefreshModel() {
     return widget.debugLabel != model.debugLabel || super.shouldRefreshModel();
   }
 
   @override
-  PagedSheetModel createModel() {
-    return PagedSheetModel(
+  _PagedSheetModel createModel() {
+    return _PagedSheetModel(
       context: this,
       physics: widget.physics,
       gestureProxy: widget.gestureProxy,
@@ -277,13 +314,13 @@ class _NavigatorEventDispatcher extends StatefulWidget {
 
 class _NavigatorEventDispatcherState extends State<_NavigatorEventDispatcher>
     with NavigatorEventListener {
-  PagedSheetModel? _model;
+  _PagedSheetModel? _model;
   NavigatorEventObserverState? _navigatorEventObserver;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _model = SheetModelOwner.of(context)! as PagedSheetModel;
+    _model = SheetModelOwner.of(context)! as _PagedSheetModel;
     final observer = NavigatorEventObserver.of(context)!;
     if (observer != _navigatorEventObserver) {
       _navigatorEventObserver?.removeListener(this);
@@ -297,6 +334,15 @@ class _NavigatorEventDispatcherState extends State<_NavigatorEventDispatcher>
     _navigatorEventObserver = null;
     _model = null;
     super.dispose();
+  }
+
+  @override
+  VoidCallback? didInstall(Route<dynamic> route) {
+    if (route case final _PagedSheetEntry it) {
+      _model!.addEntry(it);
+      return () => _model!.removeEntry(it);
+    }
+    return null;
   }
 
   @override
@@ -365,7 +411,8 @@ class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     if (child?.size case final childSize?) {
-      parentRoute._contentSize = childSize;
+      (SheetModelOwner.of(parentRoute.navigator!.context)! as _PagedSheetModel)
+          .didChangeContentStateOfEntry(parentRoute, childSize);
     }
   }
 }
@@ -377,6 +424,7 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T>
     implements _PagedSheetEntry {
   BasePagedSheetRoute({super.settings});
 
+  @override
   SheetOffset get initialOffset;
 
   @override
@@ -395,25 +443,11 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T>
   @override
   String? get barrierLabel => null;
 
-  SheetOffset? _targetOffset;
-
-  @override
-  SheetOffset get targetOffset => _targetOffset ?? initialOffset;
-
-  @override
-  set targetOffset(SheetOffset value) => _targetOffset = value;
-
-  // This is updated in _RouteContentLayoutObserver.performLayout.
-  Size? _contentSize;
-
-  @override
-  Size? get contentSize => _contentSize;
-
   @override
   void changedInternalState() {
     super.changedInternalState();
-    (SheetModelOwner.of(navigator!.context)! as PagedSheetModel)
-        ._didChangeInternalStateOfEntry(this);
+    (SheetModelOwner.of(navigator!.context)! as _PagedSheetModel)
+        .didChangeInternalStateOfEntry(this);
   }
 
   @override
