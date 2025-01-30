@@ -9,6 +9,7 @@ import 'package:navigator_resizable/navigator_resizable.dart';
 import 'activity.dart';
 import 'controller.dart';
 import 'foundation.dart';
+import 'frame.dart';
 import 'gesture_proxy.dart';
 import 'model_owner.dart';
 import 'scrollable.dart';
@@ -23,8 +24,9 @@ const _kDefaultSnapGrid = SteplessSnapGrid(
   maxOffset: SheetOffset.relative(1),
 );
 
+// TODO: Make the methods private.
 abstract interface class _PagedSheetEntry {
-  Size get contentSize;
+  Size? get contentSize;
 
   SheetSnapGrid get snapGrid;
 
@@ -62,6 +64,12 @@ class PagedSheetModel extends ScrollAwareSheetModel {
 
   _PagedSheetEntry? _currentEntry;
 
+  @override
+  void dispose() {
+    _currentEntry = null;
+    super.dispose();
+  }
+
   void _setCurrentEntry(_PagedSheetEntry? entry) {
     if (!hasMetrics) {
       assert(entry != null && _currentEntry == null);
@@ -76,6 +84,13 @@ class PagedSheetModel extends ScrollAwareSheetModel {
     }
   }
 
+  void _didChangeInternalStateOfEntry(_PagedSheetEntry entry) {
+    if (_currentEntry == entry) {
+      snapGrid = entry.snapGrid;
+    }
+  }
+
+  // TODO: Make this private.
   void didStartTransition(
     _PagedSheetEntry currentEntry,
     _PagedSheetEntry nextEntry,
@@ -96,12 +111,12 @@ class PagedSheetModel extends ScrollAwareSheetModel {
       effectiveAnimation = animation;
     }
 
-    ValueGetter<double> targetOffsetResolver(_PagedSheetEntry entry) {
-      return () => entry.targetOffset.resolve(
-            measurements.copyWith(
-              contentSize: entry.contentSize,
-            ),
-          );
+    ValueGetter<double?> targetOffsetResolver(_PagedSheetEntry entry) {
+      return () => switch (entry.contentSize) {
+            null => null,
+            final size => entry.targetOffset
+                .resolve(measurements.copyWith(contentSize: size)),
+          };
     }
 
     _setCurrentEntry(null);
@@ -171,7 +186,7 @@ class RouteTransitionSheetActivity extends SheetActivity<PagedSheetModel> {
   }
 }
 
-class PagedSheet extends StatefulWidget {
+class PagedSheet extends StatelessWidget {
   const PagedSheet({
     super.key,
     this.controller,
@@ -186,23 +201,26 @@ class PagedSheet extends StatefulWidget {
   final Widget child;
 
   @override
-  State<PagedSheet> createState() => _PagedSheetState();
-}
-
-class _PagedSheetState extends State<PagedSheet> {
-  @override
   Widget build(BuildContext context) {
     final gestureProxy = SheetGestureProxy.maybeOf(context);
-    final controller =
-        widget.controller ?? SheetControllerScope.maybeOf(context);
+    final controller = this.controller ?? SheetControllerScope.maybeOf(context);
 
     return _PagedSheetModelOwner(
-      physics: widget.physics,
+      physics: physics,
       controller: controller,
       gestureProxy: gestureProxy,
       debugLabel: kDebugMode ? 'PagedSheet' : null,
-      child: NavigatorResizable(
-        child: widget.child,
+      child: Builder(
+        builder: (context) {
+          return SheetFrame(
+            model: SheetModelOwner.of(context)!,
+            child: NavigatorResizable(
+              child: _NavigatorEventDispatcher(
+                child: child,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -227,27 +245,7 @@ class _PagedSheetModelOwner extends SheetModelOwner<PagedSheetModel> {
 }
 
 class _PagedSheetModelOwnerState
-    extends SheetModelOwnerState<PagedSheetModel, _PagedSheetModelOwner>
-    with NavigatorEventListener {
-  NavigatorEventObserverState? _navigatorEventObserver;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final observer = NavigatorEventObserver.of(context)!;
-    if (observer != _navigatorEventObserver) {
-      _navigatorEventObserver?.removeListener(this);
-      _navigatorEventObserver = observer..addListener(this);
-    }
-  }
-
-  @override
-  void dispose() {
-    _navigatorEventObserver?.removeListener(this);
-    _navigatorEventObserver = null;
-    super.dispose();
-  }
-
+    extends SheetModelOwnerState<PagedSheetModel, _PagedSheetModelOwner> {
   @override
   bool shouldRefreshModel() {
     return widget.debugLabel != model.debugLabel || super.shouldRefreshModel();
@@ -262,6 +260,43 @@ class _PagedSheetModelOwnerState
       debugLabel: widget.debugLabel,
     );
   }
+}
+
+class _NavigatorEventDispatcher extends StatefulWidget {
+  const _NavigatorEventDispatcher({
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  State<_NavigatorEventDispatcher> createState() =>
+      _NavigatorEventDispatcherState();
+}
+
+class _NavigatorEventDispatcherState extends State<_NavigatorEventDispatcher>
+    with NavigatorEventListener {
+  PagedSheetModel? _model;
+  NavigatorEventObserverState? _navigatorEventObserver;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _model = SheetModelOwner.of(context)! as PagedSheetModel;
+    final observer = NavigatorEventObserver.of(context)!;
+    if (observer != _navigatorEventObserver) {
+      _navigatorEventObserver?.removeListener(this);
+      _navigatorEventObserver = observer..addListener(this);
+    }
+  }
+
+  @override
+  void dispose() {
+    _navigatorEventObserver?.removeListener(this);
+    _navigatorEventObserver = null;
+    _model = null;
+    super.dispose();
+  }
 
   @override
   void didStartTransition(
@@ -275,7 +310,7 @@ class _PagedSheetModelOwnerState
           final _PagedSheetEntry currentEntry,
           final _PagedSheetEntry nextEntry
         )) {
-      model.didStartTransition(
+      _model!.didStartTransition(
         currentEntry,
         nextEntry,
         animation,
@@ -287,8 +322,13 @@ class _PagedSheetModelOwnerState
   @override
   void didEndTransition(Route<dynamic> route) {
     if (route case final _PagedSheetEntry entry) {
-      model.didEndTransition(entry);
+      _model!.didEndTransition(entry);
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
 
@@ -363,10 +403,17 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T>
   set targetOffset(SheetOffset value) => _targetOffset = value;
 
   // This is updated in _RouteContentLayoutObserver.performLayout.
-  late Size _contentSize;
+  Size? _contentSize;
 
   @override
-  Size get contentSize => _contentSize;
+  Size? get contentSize => _contentSize;
+
+  @override
+  void changedInternalState() {
+    super.changedInternalState();
+    (SheetModelOwner.of(navigator!.context)! as PagedSheetModel)
+        ._didChangeInternalStateOfEntry(this);
+  }
 
   @override
   bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {

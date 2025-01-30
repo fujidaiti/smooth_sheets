@@ -4,7 +4,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i9;
-import 'dart:ui' as _i13;
+import 'dart:ui' as _i12;
 
 import 'package:flutter/cupertino.dart' as _i8;
 import 'package:flutter/foundation.dart' as _i10;
@@ -16,7 +16,7 @@ import 'package:mockito/src/dummies.dart' as _i16;
 import 'package:smooth_sheets/src/foundation/activity.dart' as _i6;
 import 'package:smooth_sheets/src/foundation/drag.dart' as _i14;
 import 'package:smooth_sheets/src/foundation/foundation.dart' as _i2;
-import 'package:smooth_sheets/src/foundation/gesture_proxy.dart' as _i12;
+import 'package:smooth_sheets/src/foundation/gesture_proxy.dart' as _i13;
 import 'package:smooth_sheets/src/foundation/model.dart' as _i3;
 import 'package:smooth_sheets/src/foundation/paged.dart' as _i17;
 import 'package:smooth_sheets/src/foundation/physics.dart' as _i4;
@@ -124,29 +124,34 @@ class _FakeTicker_14 extends _i1.SmartFake implements _i11.Ticker {
   String toString({bool? debugIncludeStack = false}) => super.toString();
 }
 
-class _FakeCurve_15 extends _i1.SmartFake implements _i8.Curve {
-  _FakeCurve_15(Object parent, Invocation parentInvocation)
+class _FakeSize_15 extends _i1.SmartFake implements _i12.Size {
+  _FakeSize_15(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDuration_16 extends _i1.SmartFake implements Duration {
-  _FakeDuration_16(Object parent, Invocation parentInvocation)
+class _FakeCurve_16 extends _i1.SmartFake implements _i8.Curve {
+  _FakeCurve_16(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeRouteSettings_17 extends _i1.SmartFake implements _i8.RouteSettings {
-  _FakeRouteSettings_17(Object parent, Invocation parentInvocation)
+class _FakeDuration_17 extends _i1.SmartFake implements Duration {
+  _FakeDuration_17(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeValueListenable_18<T1> extends _i1.SmartFake
+class _FakeRouteSettings_18 extends _i1.SmartFake implements _i8.RouteSettings {
+  _FakeRouteSettings_18(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeValueListenable_19<T1> extends _i1.SmartFake
     implements _i10.ValueListenable<T1> {
-  _FakeValueListenable_18(Object parent, Invocation parentInvocation)
+  _FakeValueListenable_19(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeWidget_19 extends _i1.SmartFake implements _i8.Widget {
-  _FakeWidget_19(Object parent, Invocation parentInvocation)
+class _FakeWidget_20 extends _i1.SmartFake implements _i8.Widget {
+  _FakeWidget_20(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 
   @override
@@ -154,9 +159,9 @@ class _FakeWidget_19 extends _i1.SmartFake implements _i8.Widget {
       super.toString();
 }
 
-class _FakeAnimationController_20 extends _i1.SmartFake
+class _FakeAnimationController_21 extends _i1.SmartFake
     implements _i8.AnimationController {
-  _FakeAnimationController_20(Object parent, Invocation parentInvocation)
+  _FakeAnimationController_21(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -210,7 +215,7 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
   );
 
   @override
-  set gestureProxy(_i12.SheetGestureProxyMixin? _gestureProxy) =>
+  set gestureProxy(_i13.SheetGestureProxyMixin? _gestureProxy) =>
       super.noSuchMethod(
         Invocation.setter(#gestureProxy, _gestureProxy),
         returnValueForMissingStub: null,
@@ -429,7 +434,7 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
   @override
   _i7.Drag drag(
     _i8.DragStartDetails? details,
-    _i13.VoidCallback? dragCancelCallback,
+    _i12.VoidCallback? dragCancelCallback,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#drag, [details, dragCancelCallback]),
@@ -550,13 +555,13 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
   );
 
   @override
-  void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i13.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -1058,13 +1063,13 @@ class MockAnimationController extends _i1.Mock
           as String);
 
   @override
-  void addListener(_i13.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i13.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -1149,7 +1154,7 @@ class MockTickerFuture extends _i1.Mock implements _i8.TickerFuture {
           as _i9.Future<void>);
 
   @override
-  void whenCompleteOrCancel(_i13.VoidCallback? callback) => super.noSuchMethod(
+  void whenCompleteOrCancel(_i12.VoidCallback? callback) => super.noSuchMethod(
     Invocation.method(#whenCompleteOrCancel, [callback]),
     returnValueForMissingStub: null,
   );
@@ -1406,6 +1411,39 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
           as _i5.SheetSnapGrid);
 
   @override
+  _i2.SheetOffset get targetOffset =>
+      (super.noSuchMethod(
+            Invocation.getter(#targetOffset),
+            returnValue: _FakeSheetOffset_0(
+              this,
+              Invocation.getter(#targetOffset),
+            ),
+            returnValueForMissingStub: _FakeSheetOffset_0(
+              this,
+              Invocation.getter(#targetOffset),
+            ),
+          )
+          as _i2.SheetOffset);
+
+  @override
+  set targetOffset(_i2.SheetOffset? value) => super.noSuchMethod(
+    Invocation.setter(#targetOffset, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i12.Size get contentSize =>
+      (super.noSuchMethod(
+            Invocation.getter(#contentSize),
+            returnValue: _FakeSize_15(this, Invocation.getter(#contentSize)),
+            returnValueForMissingStub: _FakeSize_15(
+              this,
+              Invocation.getter(#contentSize),
+            ),
+          )
+          as _i12.Size);
+
+  @override
   bool get fullscreenDialog =>
       (super.noSuchMethod(
             Invocation.getter(#fullscreenDialog),
@@ -1470,8 +1508,8 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   _i8.Curve get barrierCurve =>
       (super.noSuchMethod(
             Invocation.getter(#barrierCurve),
-            returnValue: _FakeCurve_15(this, Invocation.getter(#barrierCurve)),
-            returnValueForMissingStub: _FakeCurve_15(
+            returnValue: _FakeCurve_16(this, Invocation.getter(#barrierCurve)),
+            returnValueForMissingStub: _FakeCurve_16(
               this,
               Invocation.getter(#barrierCurve),
             ),
@@ -1579,11 +1617,11 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   Duration get transitionDuration =>
       (super.noSuchMethod(
             Invocation.getter(#transitionDuration),
-            returnValue: _FakeDuration_16(
+            returnValue: _FakeDuration_17(
               this,
               Invocation.getter(#transitionDuration),
             ),
-            returnValueForMissingStub: _FakeDuration_16(
+            returnValueForMissingStub: _FakeDuration_17(
               this,
               Invocation.getter(#transitionDuration),
             ),
@@ -1594,11 +1632,11 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   Duration get reverseTransitionDuration =>
       (super.noSuchMethod(
             Invocation.getter(#reverseTransitionDuration),
-            returnValue: _FakeDuration_16(
+            returnValue: _FakeDuration_17(
               this,
               Invocation.getter(#reverseTransitionDuration),
             ),
-            returnValueForMissingStub: _FakeDuration_16(
+            returnValueForMissingStub: _FakeDuration_17(
               this,
               Invocation.getter(#reverseTransitionDuration),
             ),
@@ -1651,11 +1689,11 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   _i8.RouteSettings get settings =>
       (super.noSuchMethod(
             Invocation.getter(#settings),
-            returnValue: _FakeRouteSettings_17(
+            returnValue: _FakeRouteSettings_18(
               this,
               Invocation.getter(#settings),
             ),
-            returnValueForMissingStub: _FakeRouteSettings_17(
+            returnValueForMissingStub: _FakeRouteSettings_18(
               this,
               Invocation.getter(#settings),
             ),
@@ -1666,11 +1704,11 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   _i10.ValueListenable<String?> get restorationScopeId =>
       (super.noSuchMethod(
             Invocation.getter(#restorationScopeId),
-            returnValue: _FakeValueListenable_18<String?>(
+            returnValue: _FakeValueListenable_19<String?>(
               this,
               Invocation.getter(#restorationScopeId),
             ),
-            returnValueForMissingStub: _FakeValueListenable_18<String?>(
+            returnValueForMissingStub: _FakeValueListenable_19<String?>(
               this,
               Invocation.getter(#restorationScopeId),
             ),
@@ -1732,6 +1770,12 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
           as bool);
 
   @override
+  void changedInternalState() => super.noSuchMethod(
+    Invocation.method(#changedInternalState, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   bool canTransitionFrom(_i8.TransitionRoute<dynamic>? previousRoute) =>
       (super.noSuchMethod(
             Invocation.method(#canTransitionFrom, [previousRoute]),
@@ -1761,7 +1805,7 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
               animation,
               secondaryAnimation,
             ]),
-            returnValue: _FakeWidget_19(
+            returnValue: _FakeWidget_20(
               this,
               Invocation.method(#buildContent, [
                 context,
@@ -1769,7 +1813,7 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
                 secondaryAnimation,
               ]),
             ),
-            returnValueForMissingStub: _FakeWidget_19(
+            returnValueForMissingStub: _FakeWidget_20(
               this,
               Invocation.method(#buildContent, [
                 context,
@@ -1792,7 +1836,7 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
               animation,
               secondaryAnimation,
             ]),
-            returnValue: _FakeWidget_19(
+            returnValue: _FakeWidget_20(
               this,
               Invocation.method(#buildPage, [
                 context,
@@ -1800,7 +1844,7 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
                 secondaryAnimation,
               ]),
             ),
-            returnValueForMissingStub: _FakeWidget_19(
+            returnValueForMissingStub: _FakeWidget_20(
               this,
               Invocation.method(#buildPage, [
                 context,
@@ -1825,7 +1869,7 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
               secondaryAnimation,
               child,
             ]),
-            returnValue: _FakeWidget_19(
+            returnValue: _FakeWidget_20(
               this,
               Invocation.method(#buildTransitions, [
                 context,
@@ -1834,7 +1878,7 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
                 child,
               ]),
             ),
-            returnValueForMissingStub: _FakeWidget_19(
+            returnValueForMissingStub: _FakeWidget_20(
               this,
               Invocation.method(#buildTransitions, [
                 context,
@@ -1847,7 +1891,7 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
           as _i8.Widget);
 
   @override
-  void setState(_i13.VoidCallback? fn) => super.noSuchMethod(
+  void setState(_i12.VoidCallback? fn) => super.noSuchMethod(
     Invocation.method(#setState, [fn]),
     returnValueForMissingStub: null,
   );
@@ -1946,12 +1990,6 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   );
 
   @override
-  void changedInternalState() => super.noSuchMethod(
-    Invocation.method(#changedInternalState, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
   void changedExternalState() => super.noSuchMethod(
     Invocation.method(#changedExternalState, []),
     returnValueForMissingStub: null,
@@ -1961,11 +1999,11 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   _i8.Widget buildModalBarrier() =>
       (super.noSuchMethod(
             Invocation.method(#buildModalBarrier, []),
-            returnValue: _FakeWidget_19(
+            returnValue: _FakeWidget_20(
               this,
               Invocation.method(#buildModalBarrier, []),
             ),
-            returnValueForMissingStub: _FakeWidget_19(
+            returnValueForMissingStub: _FakeWidget_20(
               this,
               Invocation.method(#buildModalBarrier, []),
             ),
@@ -1985,11 +2023,11 @@ class MockBasePagedSheetRoute<T> extends _i1.Mock
   _i8.AnimationController createAnimationController() =>
       (super.noSuchMethod(
             Invocation.method(#createAnimationController, []),
-            returnValue: _FakeAnimationController_20(
+            returnValue: _FakeAnimationController_21(
               this,
               Invocation.method(#createAnimationController, []),
             ),
-            returnValueForMissingStub: _FakeAnimationController_20(
+            returnValueForMissingStub: _FakeAnimationController_21(
               this,
               Invocation.method(#createAnimationController, []),
             ),

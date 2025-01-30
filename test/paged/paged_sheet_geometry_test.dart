@@ -410,9 +410,7 @@ MockBasePagedSheetRoute<dynamic> _firstBuild({
     transitionDuration: Duration.zero,
   );
   geometry
-    ..addRoute(initialRoute)
     ..didEndTransition(initialRoute)
-    ..applyNewRouteContentSize(initialRoute, initialRouteContentSize)
     ..measurements = SheetMeasurements(
       contentSize: initialRouteContentSize,
       viewportSize: viewportSize,
@@ -436,15 +434,12 @@ _TransitionHandle _startForwardTransition({
   required TestAnimationController newRouteTransitionController,
 }) {
   newRouteTransitionController.forward();
-  geometry
-    ..addRoute(newRoute)
-    ..didStartTransition(
-      currentRoute,
-      newRoute,
-      newRouteTransitionController,
-      isUserGestureInProgress: false,
-    )
-    ..applyNewRouteContentSize(newRoute, newRouteContentSize);
+  geometry.didStartTransition(
+    currentRoute,
+    newRoute,
+    newRouteTransitionController,
+    false,
+  );
 
   return (
     tick: (duration) {
@@ -470,6 +465,7 @@ _TransitionHandle _startBackwardTransition({
     currentRoute,
     destinationRoute,
     currentRouteTransitionController,
+    false,
   );
 
   return (
@@ -480,9 +476,7 @@ _TransitionHandle _startBackwardTransition({
       currentRouteTransitionController.tickAndSettle();
     },
     end: () {
-      geometry
-        ..didEndTransition(destinationRoute)
-        ..removeRoute(currentRoute);
+      geometry.didEndTransition(destinationRoute);
     },
   );
 }
@@ -504,7 +498,7 @@ _UserGestureTransitionHandle _startUserGestureTransition({
     currentRoute,
     previousRoute,
     currentRouteTransitionController,
-    isUserGestureInProgress: true,
+    true,
   );
 
   return (

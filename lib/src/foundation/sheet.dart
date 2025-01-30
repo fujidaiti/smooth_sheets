@@ -69,7 +69,7 @@ class Sheet extends StatefulWidget {
   State<Sheet> createState() => _SheetState();
 }
 
-class _SheetState extends State<Sheet> with TickerProviderStateMixin {
+class _SheetState extends State<Sheet> {
   @override
   Widget build(BuildContext context) {
     final physics = widget.physics ?? kDefaultSheetPhysics;
@@ -84,10 +84,17 @@ class _SheetState extends State<Sheet> with TickerProviderStateMixin {
       snapGrid: widget.snapGrid,
       gestureProxy: gestureTamper,
       debugLabel: kDebugMode ? 'ScrollableSheet' : null,
-      child: DraggableScrollableSheetContent(
-        scrollConfiguration: widget.scrollConfiguration,
-        dragConfiguration: widget.dragConfiguration,
-        child: widget.child,
+      child: Builder(
+        builder: (context) {
+          return SheetFrame(
+            model: SheetModelOwner.of(context)!,
+            child: DraggableScrollableSheetContent(
+              scrollConfiguration: widget.scrollConfiguration,
+              dragConfiguration: widget.dragConfiguration,
+              child: widget.child,
+            ),
+          );
+        },
       ),
     );
   }
@@ -173,9 +180,6 @@ class DraggableScrollableSheetContent extends StatelessWidget {
       );
     }
 
-    return SheetFrame(
-      model: SheetModelOwner.of(context)!,
-      child: result,
-    );
+    return result;
   }
 }

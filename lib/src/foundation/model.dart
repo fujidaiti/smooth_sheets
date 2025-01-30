@@ -347,7 +347,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     super.dispose();
   }
 
-  // TODO: Rename to `setOffset`.
+  // TODO: Should be a setter.
   void setOffset(double offset) {
     geometry = geometry.copyWith(offset: offset);
   }
