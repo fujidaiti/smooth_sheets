@@ -12,16 +12,19 @@ void main() {
   group('PagedSheet basics', () {
     ({
       Widget testWidget,
+      Key sheetKey,
       ValueGetter<NavigatorState> getNavigator,
       Rect Function(WidgetTester) getSheetRect,
     }) boilerplate({
       required ValueGetter<Route<dynamic>> initialRoute,
     }) {
       final navigatorKey = GlobalKey<NavigatorState>();
+      const sheetKey = Key('sheet');
       final testWidget = Directionality(
         textDirection: TextDirection.ltr,
         child: SheetViewport(
           child: PagedSheet(
+            key: sheetKey,
             child: Navigator(
               key: navigatorKey,
               onGenerateRoute: (_) {
@@ -34,6 +37,7 @@ void main() {
 
       return (
         testWidget: testWidget,
+        sheetKey: sheetKey,
         getNavigator: () {
           return navigatorKey.currentState!;
         },
@@ -166,6 +170,45 @@ void main() {
         await tester.pumpAndSettle();
         await tester.drag(find.byKey(Key('b')), Offset(0, 100));
         expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+      },
+    );
+
+    testWidgets(
+      'Pointer events should be ignored during a transition',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              builder: (_) => _TestPage(
+                key: Key('a'),
+                height: 300,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        unawaited(
+          env.getNavigator().push(
+                PagedSheetRoute(
+                  snapGrid: SheetSnapGrid.stepless(),
+                  builder: (_) => _TestPage(
+                    key: Key('b'),
+                    height: 500,
+                  ),
+                ),
+              ),
+        );
+
+        // Forwards the transition animation by half.
+        await tester.pump(const Duration(milliseconds: 150));
+        await tester.tap(find.byKey(env.sheetKey));
+        expect(tester.takeException(), isFlutterError);
+
+        await tester.pumpAndSettle();
+        expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+        expect(find.byKey(Key('b')), findsOneWidget);
       },
     );
   });
