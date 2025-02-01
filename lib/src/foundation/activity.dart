@@ -383,40 +383,45 @@ class IdleSheetActivity extends SheetActivity {
   @override
   void didChangeMeasurements(SheetMeasurements oldMeasurements) {
     final newOffset = targetOffset.resolve(owner.measurements);
-    if (newOffset == owner.offset) {
-      return;
-    } else if (owner.measurements.viewportInsets.bottom !=
-        oldMeasurements.viewportInsets.bottom) {
-      // TODO: Is it possible to remove this assumption?
-      // We currently assume that when the bottom viewport inset changes,
-      // it is due to the appearance or disappearance of the keyboard,
-      // and that this change will gradually occur over several frames,
-      // likely due to animation.
-      owner
-        ..setOffset(newOffset)
-        ..didUpdateGeometry();
-      return;
-    }
-
-    const minAnimationDuration = Duration(milliseconds: 150);
-    const meanAnimationVelocity = 300 / 1000; // offset per millisecond
-    final distance = (newOffset - owner.offset).abs();
-    final estimatedDuration = Duration(
-      milliseconds: (distance / meanAnimationVelocity).round(),
-    );
-    if (estimatedDuration >= minAnimationDuration) {
-      owner.animateTo(
-        targetOffset,
-        duration: estimatedDuration,
-        curve: Curves.easeInOut,
-      );
-    } else {
-      // The destination is close enough to the current position,
-      // so we immediately snap to it without animation.
+    if (newOffset != owner.offset) {
       owner
         ..setOffset(newOffset)
         ..didUpdateGeometry();
     }
+    // if (newOffset == owner.offset) {
+    //   return;
+    // } else if (owner.measurements.viewportInsets.bottom !=
+    //     oldMeasurements.viewportInsets.bottom) {
+    //   // TODO: Is it possible to remove this assumption?
+    //   // We currently assume that when the bottom viewport inset changes,
+    //   // it is due to the appearance or disappearance of the keyboard,
+    //   // and that this change will gradually occur over several frames,
+    //   // likely due to animation.
+    //   owner
+    //     ..setOffset(newOffset)
+    //     ..didUpdateGeometry();
+    //   return;
+    // }
+    //
+    // const minAnimationDuration = Duration(milliseconds: 150);
+    // const meanAnimationVelocity = 300 / 1000; // offset per millisecond
+    // final distance = (newOffset - owner.offset).abs();
+    // final estimatedDuration = Duration(
+    //   milliseconds: (distance / meanAnimationVelocity).round(),
+    // );
+    // if (estimatedDuration >= minAnimationDuration) {
+    //   owner.animateTo(
+    //     targetOffset,
+    //     duration: estimatedDuration,
+    //     curve: Curves.easeInOut,
+    //   );
+    // } else {
+    //   // The destination is close enough to the current position,
+    //   // so we immediately snap to it without animation.
+    //   owner
+    //     ..setOffset(newOffset)
+    //     ..didUpdateGeometry();
+    // }
   }
 }
 

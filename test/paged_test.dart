@@ -1,12 +1,176 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 
 import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
 import 'src/matchers.dart';
 
 void main() {
+  group('PagedSheet basics', () {
+    ({
+      Widget testWidget,
+      ValueGetter<NavigatorState> getNavigator,
+      Rect Function(WidgetTester) getSheetRect,
+    }) boilerplate({
+      required ValueGetter<Route<dynamic>> initialRoute,
+    }) {
+      final navigatorKey = GlobalKey<NavigatorState>();
+      final testWidget = Directionality(
+        textDirection: TextDirection.ltr,
+        child: SheetViewport(
+          child: PagedSheet(
+            child: Navigator(
+              key: navigatorKey,
+              onGenerateRoute: (_) {
+                return initialRoute();
+              },
+            ),
+          ),
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        getNavigator: () {
+          return navigatorKey.currentState!;
+        },
+        getSheetRect: (tester) {
+          return tester.getRect(find.byType(PagedSheet));
+        },
+      );
+    }
+
+    testWidgets(
+      'The position before a push transition should be restored '
+      'when back to that route',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              snapGrid: SheetSnapGrid(
+                snaps: [
+                  SheetOffset.absolute(100),
+                  SheetOffset.relative(1),
+                ],
+              ),
+              builder: (_) => _TestPage(
+                key: Key('a'),
+                height: 300,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        await tester.fling(find.byKey(Key('a')), Offset(0, 50), 500);
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 100);
+
+        unawaited(
+          env.getNavigator().push(
+                PagedSheetRoute(
+                  builder: (_) => _TestPage(
+                    key: Key('b'),
+                    height: 500,
+                  ),
+                ),
+              ),
+        );
+
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        env.getNavigator().pop();
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 100);
+      },
+    );
+
+    testWidgets(
+      'Each route should be able to have different initial offset',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              initialOffset: SheetOffset.absolute(100),
+              builder: (_) => _TestPage(
+                key: Key('a'),
+                height: 300,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 100);
+
+        unawaited(
+          env.getNavigator().push(
+                PagedSheetRoute(
+                  snapGrid: SheetSnapGrid.stepless(),
+                  initialOffset: SheetOffset.relative(0.5),
+                  builder: (_) => _TestPage(
+                    key: Key('b'),
+                    height: 500,
+                  ),
+                ),
+              ),
+        );
+
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 250);
+      },
+    );
+
+    testWidgets(
+      'Each route should be able to have different snap grid',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              snapGrid: SheetSnapGrid(
+                snaps: [
+                  SheetOffset.absolute(100),
+                  SheetOffset.relative(1),
+                ],
+              ),
+              builder: (_) => _TestPage(
+                key: Key('a'),
+                height: 300,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        await tester.fling(find.byKey(Key('a')), Offset(0, 50), 500);
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 100);
+
+        unawaited(
+          env.getNavigator().push(
+                PagedSheetRoute(
+                  snapGrid: SheetSnapGrid.stepless(),
+                  builder: (_) => _TestPage(
+                    key: Key('b'),
+                    height: 500,
+                  ),
+                ),
+              ),
+        );
+
+        await tester.pumpAndSettle();
+        await tester.drag(find.byKey(Key('b')), Offset(0, 100));
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+      },
+    );
+  });
+
   group('PagedSheet transition test', () {
     ({
       Widget testWidget,
@@ -436,28 +600,6 @@ void main() {
       // Reset the default target platform.
       debugDefaultTargetPlatformOverride = null;
     });
-
-    testWidgets(
-      'The position before a transition should be restored '
-      'when back to that route',
-      (tester) async {
-        // TODO: Implement test
-      },
-    );
-
-    testWidgets(
-      'Each route should be able to have different initial offset',
-      (tester) async {
-        // TODO: Implement test
-      },
-    );
-
-    testWidgets(
-      'Each route should be able to have different snap grid',
-      (tester) async {
-        // TODO: Implement test
-      },
-    );
   });
 }
 

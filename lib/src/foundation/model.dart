@@ -297,7 +297,9 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   }
 
   @protected
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {}
+  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+    activity.didChangeMeasurements(oldMeasurements);
+  }
 
   @mustCallSuper
   @protected
