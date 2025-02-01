@@ -4,4 +4,3 @@
 library;
 
 export 'src/foundation/foundation.dart';
-export 'src/modal/modal.dart';
