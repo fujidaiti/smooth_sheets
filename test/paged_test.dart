@@ -7,9 +7,10 @@ import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
 import 'src/matchers.dart';
+import 'src/test_stateful_widget.dart';
 
 void main() {
-  group('PagedSheet basics', () {
+  group('PagedSheet', () {
     ({
       Widget testWidget,
       Key sheetKey,
@@ -213,7 +214,7 @@ void main() {
     );
   });
 
-  group('PagedSheet transition test', () {
+  group('PagedSheet transition test with Imperative API', () {
     ({
       Widget testWidget,
       GlobalKey<NavigatorState> navigatorKey,
@@ -512,6 +513,386 @@ void main() {
         ),
       );
       env.pushRoute('b', 500);
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')), findsOneWidget);
+
+      // Start a swipe back gesture
+      final pointerLocation = Offset(5, testScreenSize.height - 250);
+      final gesture = await tester.startGesture(pointerLocation);
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+
+      final sheetTopHistory = <double>[];
+      // Move the finger toward the right side of the screen.
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+
+      expect(sheetTopHistory, isMonotonicallyIncreasing);
+      sheetTopHistory.clear();
+
+      // Cancel the swipe back gesture.
+      await gesture.up();
+      // Then a forward transition should be performed.
+      await tester.pump(Duration(milliseconds: 50));
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await tester.pump(Duration(milliseconds: 50));
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await tester.pump(Duration(milliseconds: 50));
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await tester.pump(Duration(milliseconds: 50));
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await tester.pumpAndSettle();
+
+      expect(sheetTopHistory, isMonotonicallyDecreasing);
+      expect(find.byKey(Key('a')), findsNothing);
+      expect(find.byKey(Key('b')), findsOneWidget);
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+    });
+  });
+
+  group('PagedSheet transition test with Pages API', () {
+    ({
+      Widget testWidget,
+      GlobalKey<NavigatorState> navigatorKey,
+      ValueSetter<List<Page<dynamic>>> setPages,
+      Rect Function(WidgetTester) getSheetRect,
+    }) boilerplate({
+      required List<Page<dynamic>> initialPages,
+    }) {
+      const sheetKey = Key('sheet');
+      final navigatorKey = GlobalKey<NavigatorState>();
+      final statefulKey =
+          GlobalKey<TestStatefulWidgetState<List<Page<dynamic>>>>();
+      final testWidget = Directionality(
+        textDirection: TextDirection.ltr,
+        child: SheetViewport(
+          child: PagedSheet(
+            key: sheetKey,
+            offsetInterpolationCurve: Curves.linear,
+            physics: const ClampingSheetPhysics(),
+            child: TestStatefulWidget(
+              key: statefulKey,
+              initialState: initialPages,
+              builder: (context, pages) {
+                return Navigator(
+                  key: navigatorKey,
+                  onDidRemovePage: (_) {},
+                  pages: pages,
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        navigatorKey: navigatorKey,
+        setPages: (pages) {
+          statefulKey.currentState!.state = pages;
+        },
+        getSheetRect: (tester) {
+          return tester.getRect(find.byKey(sheetKey));
+        },
+      );
+    }
+
+    Page<dynamic> createPage({
+      required String name,
+      required double height,
+      Duration transitionDuration = const Duration(milliseconds: 300),
+    }) {
+      return PagedSheetPage(
+        name: name,
+        key: ValueKey('Page($name)'),
+        transitionDuration: transitionDuration,
+        child: _TestPage(
+          key: Key(name),
+          height: height,
+        ),
+      );
+    }
+
+    testWidgets('On initial build', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final env = boilerplate(initialPages: [pageA]);
+      await tester.pumpWidget(env.testWidget);
+      expect(find.byKey(Key('a')), findsOneWidget);
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+    });
+
+    testWidgets('On initial build with multiple routes', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final pageB = createPage(name: 'b', height: 500);
+      final pageC = createPage(name: 'c', height: 200);
+      final env = boilerplate(initialPages: [pageA, pageB, pageC]);
+      await tester.pumpWidget(env.testWidget);
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('c')), findsOneWidget);
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+    });
+
+    testWidgets('When pushing a route', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final env = boilerplate(initialPages: [pageA]);
+      await tester.pumpWidget(env.testWidget);
+
+      final pageB = createPage(name: 'b', height: 500);
+      env.setPages([pageA, pageB]);
+
+      await tester.pump();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
+
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')), findsOneWidget);
+    });
+
+    testWidgets('When pushing a route without animation', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final env = boilerplate(initialPages: [pageA]);
+      await tester.pumpWidget(env.testWidget);
+
+      final pageB = createPage(
+        name: 'b',
+        height: 500,
+        transitionDuration: Duration.zero,
+      );
+      env.setPages([pageA, pageB]);
+
+      await tester.pump();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')), findsOneWidget);
+    });
+
+    testWidgets('When pushing multiple routes simultaneously', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final env = boilerplate(initialPages: [pageA]);
+      await tester.pumpWidget(env.testWidget);
+
+      final pageB = createPage(name: 'b', height: 500);
+      final pageC = createPage(name: 'c', height: 200);
+      env.setPages([pageA, pageB, pageC]);
+
+      await tester.pump();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 250);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 225);
+
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('c')), findsOneWidget);
+    });
+
+    testWidgets('When popping a route', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final pageB = createPage(name: 'b', height: 500);
+      final env = boilerplate(initialPages: [pageA, pageB]);
+      await tester.pumpWidget(env.testWidget);
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')), findsOneWidget);
+
+      env.setPages([pageA]);
+      await tester.pump();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+
+      expect(find.byKey(Key('a')), findsOneWidget);
+      expect(find.byKey(Key('b')), findsNothing);
+    });
+
+    testWidgets('When popping a route without animation', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final pageB = createPage(
+        name: 'b',
+        height: 500,
+        transitionDuration: Duration.zero,
+      );
+      final env = boilerplate(initialPages: [pageA, pageB]);
+      await tester.pumpWidget(env.testWidget);
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')), findsOneWidget);
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+      env.setPages([pageA]);
+      await tester.pump();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+
+      expect(find.byKey(Key('a')), findsOneWidget);
+      expect(find.byKey(Key('b')), findsNothing);
+    });
+
+    testWidgets('When popping multiple routes simultaneously', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final pageB = createPage(name: 'b', height: 500);
+      final pageC = createPage(name: 'c', height: 200);
+      final env = boilerplate(initialPages: [pageA, pageB, pageC]);
+      await tester.pumpWidget(env.testWidget);
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('c')), findsOneWidget);
+
+      env.setPages([pageA]);
+      await tester.pump();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 225);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 250);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
+
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+
+      expect(find.byKey(Key('a')), findsOneWidget);
+      expect(find.byKey(Key('b')), findsNothing);
+      expect(find.byKey(Key('c')), findsNothing);
+    });
+
+    testWidgets('When replacing the entire page stack', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final pageB = createPage(name: 'b', height: 500);
+      final env = boilerplate(initialPages: [pageA, pageB]);
+      await tester.pumpWidget(env.testWidget);
+
+      final pageC = createPage(name: 'c', height: 200);
+      env.setPages([pageC]);
+      await tester.pump();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 425);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
+
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+
+      expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('b')).hitTestable(), findsNothing);
+      expect(find.byKey(Key('c')), findsOneWidget);
+    });
+
+    testWidgets('When iOS swipe back gesture is performed', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final pageB = createPage(name: 'b', height: 500);
+      final env = boilerplate(initialPages: [pageA, pageB]);
+      await tester.pumpWidget(
+        Theme(
+          data: ThemeData(platform: TargetPlatform.iOS),
+          child: env.testWidget,
+        ),
+      );
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+      // Start a swipe back gesture
+      final pointerLocation = Offset(5, testScreenSize.height - 250);
+      final gesture = await tester.startGesture(pointerLocation);
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+
+      final sheetTopHistory = <double>[];
+      // Move the finger toward the right side of the screen.
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      await gesture.moveBy(const Offset(50, 0));
+      await tester.pumpAndSettle();
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await gesture.moveBy(const Offset(200, 0));
+      await tester.pumpAndSettle();
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      // End the swipe back gesture.
+      await gesture.up();
+      // Then a backward transition should be performed.
+      await tester.pump(Duration(milliseconds: 50));
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await tester.pump(Duration(milliseconds: 50));
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await tester.pump(Duration(milliseconds: 50));
+      sheetTopHistory.add(env.getSheetRect(tester).top);
+      await tester.pump(Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(Key('a')), findsOneWidget);
+      expect(find.byKey(Key('b')), findsNothing);
+      expect(sheetTopHistory, isMonotonicallyIncreasing);
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+    });
+
+    testWidgets('When iOS swipe back gesture is canceled', (tester) async {
+      final pageA = createPage(name: 'a', height: 300);
+      final pageB = createPage(name: 'b', height: 500);
+      final env = boilerplate(initialPages: [pageA, pageB]);
+      await tester.pumpWidget(
+        Theme(
+          data: ThemeData(platform: TargetPlatform.iOS),
+          child: env.testWidget,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')), findsOneWidget);
