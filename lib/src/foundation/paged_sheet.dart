@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:meta/meta.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
 import 'activity.dart';
@@ -334,7 +333,7 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
     required super.child,
   });
 
-  final BasePagedSheetRoute parentRoute;
+  final _BasePagedSheetRoute parentRoute;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -353,7 +352,7 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
 class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   _RenderRouteContentLayoutObserver(this.parentRoute);
 
-  final BasePagedSheetRoute parentRoute;
+  final _BasePagedSheetRoute parentRoute;
 
   @override
   void performLayout() {
@@ -364,11 +363,10 @@ class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   }
 }
 
-@internal
 @optionalTypeArgs
-abstract class BasePagedSheetRoute<T> extends PageRoute<T>
+abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
     with ObservableRouteMixin<T>, _PagedSheetEntry {
-  BasePagedSheetRoute({super.settings});
+  _BasePagedSheetRoute({super.settings});
 
   _PagedSheetModel? _model;
 
@@ -417,12 +415,12 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T>
 
   @override
   bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
-    return previousRoute is BasePagedSheetRoute;
+    return previousRoute is _BasePagedSheetRoute;
   }
 
   @override
   bool canTransitionTo(TransitionRoute<dynamic> nextRoute) {
-    return nextRoute is BasePagedSheetRoute;
+    return nextRoute is _BasePagedSheetRoute;
   }
 
   Widget buildContent(
@@ -475,7 +473,7 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T>
   }
 }
 
-class PagedSheetRoute<T> extends BasePagedSheetRoute<T> {
+class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
   PagedSheetRoute({
     super.settings,
     this.maintainState = true,
@@ -563,7 +561,7 @@ class PagedSheetPage<T> extends Page<T> {
   }
 }
 
-class _PageBasedNavigationSheetRoute<T> extends BasePagedSheetRoute<T> {
+class _PageBasedNavigationSheetRoute<T> extends _BasePagedSheetRoute<T> {
   _PageBasedNavigationSheetRoute({
     required PagedSheetPage<T> page,
   }) : super(settings: page);
