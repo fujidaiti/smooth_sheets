@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/snap_grid.dart';
 
 import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';

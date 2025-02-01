@@ -5,13 +5,13 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smooth_sheets/src/foundation/controller.dart';
-import 'package:smooth_sheets/src/foundation/model.dart';
-import 'package:smooth_sheets/src/foundation/notification.dart';
-import 'package:smooth_sheets/src/foundation/physics.dart';
-import 'package:smooth_sheets/src/foundation/sheet.dart';
-import 'package:smooth_sheets/src/foundation/snap_grid.dart';
-import 'package:smooth_sheets/src/foundation/viewport.dart';
+import 'package:smooth_sheets/src/controller.dart';
+import 'package:smooth_sheets/src/model.dart';
+import 'package:smooth_sheets/src/notification.dart';
+import 'package:smooth_sheets/src/physics.dart';
+import 'package:smooth_sheets/src/sheet.dart';
+import 'package:smooth_sheets/src/snap_grid.dart';
+import 'package:smooth_sheets/src/viewport.dart';
 
 void main() {
   testWidgets(

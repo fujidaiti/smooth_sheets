@@ -3,9 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../foundation/model.dart';
-import '../foundation/model_owner.dart';
-import '../foundation/sheet.dart';
+import 'model.dart';
+import 'model_owner.dart';
+import 'sheet.dart';
 
 /// A widget that makes its child as a drag-handle for a sheet.
 ///

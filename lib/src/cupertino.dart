@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../internal/double_utils.dart';
 import 'controller.dart';
-import 'modal.dart';
+import 'internal/double_utils.dart';
+import 'modal_sheet.dart';
 
 const _minimizedViewportScale = 0.92;
 const _cupertinoBarrierColor = Color(0x18000000);

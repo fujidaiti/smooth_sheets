@@ -7,9 +7,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../internal/float_comp.dart';
 import 'activity.dart';
 import 'drag.dart';
+import 'internal/float_comp.dart';
 import 'model.dart';
 import 'model_owner.dart';
 

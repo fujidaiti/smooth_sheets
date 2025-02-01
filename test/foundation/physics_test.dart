@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:smooth_sheets/src/foundation/model.dart';
-import 'package:smooth_sheets/src/foundation/physics.dart';
-import 'package:smooth_sheets/src/foundation/snap_grid.dart';
+import 'package:smooth_sheets/src/model.dart';
+import 'package:smooth_sheets/src/physics.dart';
+import 'package:smooth_sheets/src/snap_grid.dart';
 
 class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
     with SheetPhysicsMixin {

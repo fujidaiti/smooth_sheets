@@ -4,9 +4,9 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../internal/float_comp.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
+import 'internal/float_comp.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;

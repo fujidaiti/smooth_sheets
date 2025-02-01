@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/widgets.dart';
 
-import '../internal/double_utils.dart';
-import '../internal/float_comp.dart';
+import 'internal/double_utils.dart';
+import 'internal/float_comp.dart';
 import 'model.dart';
 import 'snap_grid.dart';
 

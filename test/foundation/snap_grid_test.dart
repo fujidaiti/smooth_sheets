@@ -1,9 +1,7 @@
-//
-
 import 'package:flutter/widgets.dart';
 import 'package:mockito/mockito.dart';
-import 'package:smooth_sheets/src/foundation/model.dart';
-import 'package:smooth_sheets/src/foundation/snap_grid.dart';
+import 'package:smooth_sheets/src/model.dart';
+import 'package:smooth_sheets/src/snap_grid.dart';
 
 import '../flutter_test_config.dart';
 import '../src/flutter_test_x.dart';

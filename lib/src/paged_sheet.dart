@@ -7,11 +7,11 @@ import 'package:navigator_resizable/navigator_resizable.dart';
 
 import 'activity.dart';
 import 'controller.dart';
-import 'foundation.dart';
 import 'frame.dart';
 import 'gesture_proxy.dart';
 import 'model.dart';
 import 'model_owner.dart';
+import 'physics.dart';
 import 'scrollable.dart';
 import 'sheet.dart';
 import 'snap_grid.dart';
