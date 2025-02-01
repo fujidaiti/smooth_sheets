@@ -7,7 +7,7 @@ import 'package:smooth_sheets/src/controller.dart';
 import 'package:smooth_sheets/src/model_owner.dart';
 import 'package:smooth_sheets/src/scrollable.dart';
 
-import '../src/keyboard_inset_simulation.dart';
+import 'src/keyboard_inset_simulation.dart';
 
 class _TestApp extends StatelessWidget {
   const _TestApp({

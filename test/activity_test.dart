@@ -7,8 +7,8 @@ import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/physics.dart';
 
-import '../src/matchers.dart';
-import '../src/stubbing.dart';
+import 'src/matchers.dart';
+import 'src/stubbing.dart';
 
 class _TestAnimatedSheetActivity extends AnimatedSheetActivity {
   _TestAnimatedSheetActivity({

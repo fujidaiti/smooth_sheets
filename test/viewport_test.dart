@@ -5,10 +5,10 @@ import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/viewport.dart';
 
-import '../flutter_test_config.dart';
-import '../src/flutter_test_x.dart';
-import '../src/stubbing.dart';
-import '../src/test_stateful_widget.dart';
+import 'flutter_test_config.dart';
+import 'src/flutter_test_x.dart';
+import 'src/stubbing.dart';
+import 'src/test_stateful_widget.dart';
 
 void main() {
   group('SheetViewport', () {

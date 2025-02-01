@@ -3,9 +3,9 @@ import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/snap_grid.dart';
 
-import '../flutter_test_config.dart';
-import '../src/flutter_test_x.dart';
-import '../src/stubbing.dart';
+import 'flutter_test_config.dart';
+import 'src/flutter_test_x.dart';
+import 'src/stubbing.dart';
 
 void main() {
   SheetMetrics metrics({

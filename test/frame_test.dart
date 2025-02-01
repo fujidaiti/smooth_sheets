@@ -6,8 +6,8 @@ import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/frame.dart';
 import 'package:smooth_sheets/src/model.dart';
 
-import '../flutter_test_config.dart';
-import '../src/stubbing.dart';
+import 'flutter_test_config.dart';
+import 'src/stubbing.dart';
 
 void main() {
   group('SheetFrame', () {
