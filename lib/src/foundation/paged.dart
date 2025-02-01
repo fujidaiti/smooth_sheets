@@ -27,31 +27,28 @@ const _kDefaultSnapGrid = SteplessSnapGrid(
 class _PagedSheetInitialOffset implements SheetOffset {
   _PagedSheetInitialOffset();
 
-  late final _PagedSheetEntryState initialEntry;
+  late final _PagedSheetModel _model;
 
   @override
   double resolve(SheetMeasurements measurements) {
-    assert(initialEntry.contentSize != null);
-    return initialEntry.targetOffset.resolve(
+    assert(_model._currentEntry != null);
+    assert(_model._currentEntry!._contentSize != null);
+    return _model._currentEntry!.initialOffset.resolve(
       measurements.copyWith(
-        contentSize: initialEntry.contentSize,
+        contentSize: _model._currentEntry!._contentSize,
       ),
     );
   }
 }
 
-abstract interface class _PagedSheetEntry {
+mixin _PagedSheetEntry {
   SheetSnapGrid get snapGrid;
+
   SheetOffset get initialOffset;
-}
 
-class _PagedSheetEntryState {
-  _PagedSheetEntryState({
-    required this.targetOffset,
-  });
+  SheetOffset? _targetOffset;
 
-  SheetOffset targetOffset;
-  Size? contentSize;
+  Size? _contentSize;
 }
 
 class _PagedSheetModel extends ScrollAwareSheetModel {
@@ -63,55 +60,31 @@ class _PagedSheetModel extends ScrollAwareSheetModel {
   }) : super(
           initialOffset: _PagedSheetInitialOffset(),
           snapGrid: _kDefaultSnapGrid,
-        );
+        ) {
+    (initialOffset as _PagedSheetInitialOffset)._model = this;
+  }
 
-  final Map<_PagedSheetEntry, _PagedSheetEntryState> _entryStates = {};
   _PagedSheetEntry? _currentEntry;
-
-  @override
-  _PagedSheetInitialOffset get initialOffset =>
-      super.initialOffset as _PagedSheetInitialOffset;
 
   @override
   void dispose() {
     _currentEntry = null;
-    _entryStates.clear();
     super.dispose();
   }
 
   @override
   void beginActivity(SheetActivity activity) {
     super.beginActivity(activity);
-    if (activity is IdleSheetActivity && _currentEntry != null) {
-      final targetOffset = activity.targetOffset;
-      if (targetOffset != initialOffset) {
-        _entryStates[_currentEntry]!.targetOffset = targetOffset;
-      }
+    if (activity case IdleSheetActivity(:final targetOffset)
+        when targetOffset is! _PagedSheetInitialOffset) {
+      _currentEntry?._targetOffset = targetOffset;
     }
-  }
-
-  void addEntry(_PagedSheetEntry entry) {
-    assert(!_entryStates.containsKey(entry));
-    _entryStates[entry] = _PagedSheetEntryState(
-      targetOffset: entry.initialOffset,
-    );
-  }
-
-  void removeEntry(_PagedSheetEntry entry) {
-    assert(_entryStates.containsKey(entry));
-    _entryStates.remove(entry);
   }
 
   void didChangeInternalStateOfEntry(_PagedSheetEntry entry) {
-    assert(_entryStates.containsKey(entry));
     if (_currentEntry == entry) {
       snapGrid = entry.snapGrid;
     }
-  }
-
-  void didChangeContentStateOfEntry(_PagedSheetEntry entry, Size contentSize) {
-    assert(_entryStates.containsKey(entry));
-    _entryStates[entry]!.contentSize = contentSize;
   }
 
   void didStartTransition(
@@ -121,8 +94,6 @@ class _PagedSheetModel extends ScrollAwareSheetModel {
     // ignore: avoid_positional_boolean_parameters
     bool isUserGestureInProgress,
   ) {
-    assert(_entryStates.containsKey(currentEntry));
-    assert(_entryStates.containsKey(nextEntry));
     _currentEntry = null;
 
     final Curve effectiveCurve;
@@ -139,16 +110,13 @@ class _PagedSheetModel extends ScrollAwareSheetModel {
     }
 
     ValueGetter<double?> targetOffsetResolver(_PagedSheetEntry entry) {
-      return () => switch (_entryStates[entry]) {
-            _PagedSheetEntryState(
-              :final targetOffset,
-              :final contentSize?,
-            ) =>
-              targetOffset.resolve(
-                measurements.copyWith(contentSize: contentSize),
-              ),
-            _ => null,
-          };
+      return () {
+        if (entry._contentSize case final contentSize?) {
+          return (entry._targetOffset ?? entry.initialOffset)
+              .resolve(measurements.copyWith(contentSize: contentSize));
+        }
+        return null;
+      };
     }
 
     beginActivity(
@@ -162,15 +130,8 @@ class _PagedSheetModel extends ScrollAwareSheetModel {
   }
 
   void didEndTransition(_PagedSheetEntry entry) {
-    assert(_entryStates.containsKey(entry));
-    if (!hasMetrics) {
-      assert(_currentEntry == null);
-      initialOffset.initialEntry = _entryStates[entry]!;
-    }
-
     _currentEntry = entry;
     didChangeInternalStateOfEntry(entry);
-
     goIdle();
   }
 }
@@ -337,15 +298,6 @@ class _NavigatorEventDispatcherState extends State<_NavigatorEventDispatcher>
   }
 
   @override
-  VoidCallback? didInstall(Route<dynamic> route) {
-    if (route case final _PagedSheetEntry it) {
-      _model!.addEntry(it);
-      return () => _model!.removeEntry(it);
-    }
-    return null;
-  }
-
-  @override
   void didStartTransition(
     Route<dynamic> currentRoute,
     Route<dynamic> nextRoute,
@@ -411,8 +363,7 @@ class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   void performLayout() {
     super.performLayout();
     if (child?.size case final childSize?) {
-      (SheetModelOwner.of(parentRoute.navigator!.context)! as _PagedSheetModel)
-          .didChangeContentStateOfEntry(parentRoute, childSize);
+      parentRoute._contentSize = childSize;
     }
   }
 }
@@ -420,9 +371,10 @@ class _RenderRouteContentLayoutObserver extends RenderProxyBox {
 @internal
 @optionalTypeArgs
 abstract class BasePagedSheetRoute<T> extends PageRoute<T>
-    with ObservableRouteMixin<T>
-    implements _PagedSheetEntry {
+    with ObservableRouteMixin<T>, _PagedSheetEntry {
   BasePagedSheetRoute({super.settings});
+
+  _PagedSheetModel? _model;
 
   @override
   SheetOffset get initialOffset;
@@ -444,10 +396,27 @@ abstract class BasePagedSheetRoute<T> extends PageRoute<T>
   String? get barrierLabel => null;
 
   @override
+  void install() {
+    super.install();
+    _model = SheetModelOwner.of(navigator!.context)! as _PagedSheetModel;
+  }
+
+  @override
+  void dispose() {
+    _model = null;
+    super.dispose();
+  }
+
+  @override
+  void changedExternalState() {
+    super.changedExternalState();
+    _model = SheetModelOwner.of(navigator!.context)! as _PagedSheetModel;
+  }
+
+  @override
   void changedInternalState() {
     super.changedInternalState();
-    (SheetModelOwner.of(navigator!.context)! as _PagedSheetModel)
-        .didChangeInternalStateOfEntry(this);
+    _model!.didChangeInternalStateOfEntry(this);
   }
 
   @override
