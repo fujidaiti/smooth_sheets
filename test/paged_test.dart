@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/foundation/snap_grid.dart';
@@ -474,13 +473,16 @@ void main() {
     });
 
     testWidgets('When iOS swipe back gesture is performed', (tester) async {
-      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-
       final env = boilerplate(
         initialRoute: 'a',
         initialRouteHeight: 300,
       );
-      await tester.pumpWidget(env.testWidget);
+      await tester.pumpWidget(
+        Theme(
+          data: ThemeData(platform: TargetPlatform.iOS),
+          child: env.testWidget,
+        ),
+      );
       env.pushRoute('b', 500);
       await tester.pumpAndSettle();
 
@@ -531,19 +533,19 @@ void main() {
         env.getSheetRect(tester).topLeft,
         Offset(0, testScreenSize.height - 300),
       );
-
-      // Reset the default target platform.
-      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('When iOS swipe back gesture is canceled', (tester) async {
-      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
-
       final env = boilerplate(
         initialRoute: 'a',
         initialRouteHeight: 300,
       );
-      await tester.pumpWidget(env.testWidget);
+      await tester.pumpWidget(
+        Theme(
+          data: ThemeData(platform: TargetPlatform.iOS),
+          child: env.testWidget,
+        ),
+      );
       env.pushRoute('b', 500);
       await tester.pumpAndSettle();
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
@@ -596,9 +598,6 @@ void main() {
         env.getSheetRect(tester).topLeft,
         Offset(0, testScreenSize.height - 500),
       );
-
-      // Reset the default target platform.
-      debugDefaultTargetPlatformOverride = null;
     });
   });
 }
