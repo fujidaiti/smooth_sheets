@@ -298,69 +298,31 @@ void main() {
     });
 
     test(
-      'should maintain previous position when content size changes, '
-      'without animation if gap is small',
+      'should maintain previous position when content size changes',
       () {
         final (ownerMetrics, owner) = createMockSheetModel(
-          offset: 300,
-          initialPosition: const SheetOffset.relative(0.5),
-          minOffset: 290,
-          maxOffset: 580,
-          contentSize: const Size(400, 580),
-          viewportSize: const Size(400, 900),
-          viewportInsets: EdgeInsets.zero,
-          devicePixelRatio: 1,
-          physics: kDefaultSheetPhysics,
-        );
-
-        IdleSheetActivity()
-          ..init(owner)
-          ..didChangeMeasurements(
-            const SheetMeasurements(
-              contentSize: Size(400, 600),
-              viewportSize: Size(400, 900),
-              viewportInsets: EdgeInsets.zero,
-            ),
-          );
-        expect(ownerMetrics.offset, 290);
-        // Still in the idle activity.
-        verifyNever(owner.beginActivity(any));
-      },
-    );
-
-    test(
-      'should maintain previous position when content size changes, '
-      'with animation if gap is large',
-      () {
-        final (ownerMetrics, owner) = createMockSheetModel(
-          offset: 300,
+          offset: 250,
           initialPosition: const SheetOffset.relative(0.5),
           minOffset: 250,
-          maxOffset: 500,
+          maxOffset: 600,
           contentSize: const Size(400, 500),
           viewportSize: const Size(400, 900),
           viewportInsets: EdgeInsets.zero,
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
         );
+        expect(ownerMetrics.offset, 250);
 
+        final oldMeasurements = owner.measurements;
+        owner.measurements = owner.measurements.copyWith(
+          contentSize: const Size(400, 600),
+        );
         IdleSheetActivity()
           ..init(owner)
-          ..didChangeMeasurements(
-            const SheetMeasurements(
-              contentSize: Size(400, 600),
-              viewportSize: Size(400, 900),
-              viewportInsets: EdgeInsets.zero,
-            ),
-          );
-        expect(ownerMetrics.offset, 300);
-        verify(
-          owner.animateTo(
-            const SheetOffset.relative(0.5),
-            duration: anyNamed('duration'),
-            curve: anyNamed('curve'),
-          ),
-        );
+          ..didChangeMeasurements(oldMeasurements);
+        expect(owner.offset, 300);
+        // Still in the idle activity.
+        verifyNever(owner.beginActivity(any));
       },
     );
   });

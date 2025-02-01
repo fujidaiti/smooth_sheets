@@ -9,7 +9,6 @@ import 'package:meta/meta.dart';
 import 'drag.dart';
 import 'model.dart';
 import 'physics.dart';
-import 'snap_grid.dart';
 
 @internal
 @optionalTypeArgs
@@ -377,9 +376,7 @@ class IdleSheetActivity extends SheetActivity {
         : owner.initialOffset;
   }
 
-  /// Updates [SheetMetrics.offset] to maintain the current [SheetOffset], which
-  /// is determined by [SheetSnapGrid.getSnapOffset] using the metrics of
-  /// the previous frame.
+  /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
   void didChangeMeasurements(SheetMeasurements oldMeasurements) {
     final newOffset = targetOffset.resolve(owner.measurements);
@@ -388,40 +385,6 @@ class IdleSheetActivity extends SheetActivity {
         ..setOffset(newOffset)
         ..didUpdateGeometry();
     }
-    // if (newOffset == owner.offset) {
-    //   return;
-    // } else if (owner.measurements.viewportInsets.bottom !=
-    //     oldMeasurements.viewportInsets.bottom) {
-    //   // TODO: Is it possible to remove this assumption?
-    //   // We currently assume that when the bottom viewport inset changes,
-    //   // it is due to the appearance or disappearance of the keyboard,
-    //   // and that this change will gradually occur over several frames,
-    //   // likely due to animation.
-    //   owner
-    //     ..setOffset(newOffset)
-    //     ..didUpdateGeometry();
-    //   return;
-    // }
-    //
-    // const minAnimationDuration = Duration(milliseconds: 150);
-    // const meanAnimationVelocity = 300 / 1000; // offset per millisecond
-    // final distance = (newOffset - owner.offset).abs();
-    // final estimatedDuration = Duration(
-    //   milliseconds: (distance / meanAnimationVelocity).round(),
-    // );
-    // if (estimatedDuration >= minAnimationDuration) {
-    //   owner.animateTo(
-    //     targetOffset,
-    //     duration: estimatedDuration,
-    //     curve: Curves.easeInOut,
-    //   );
-    // } else {
-    //   // The destination is close enough to the current position,
-    //   // so we immediately snap to it without animation.
-    //   owner
-    //     ..setOffset(newOffset)
-    //     ..didUpdateGeometry();
-    // }
   }
 }
 
