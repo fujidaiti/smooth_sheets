@@ -16,9 +16,6 @@ import 'scrollable.dart';
 import 'sheet.dart';
 import 'snap_grid.dart';
 
-@internal
-const kDefaultPagedSheetTransitionCurve = Curves.easeInOutCubic;
-
 const _kDefaultSnapGrid = SteplessSnapGrid(
   minOffset: SheetOffset.absolute(0),
   maxOffset: SheetOffset.relative(1),
@@ -53,6 +50,7 @@ mixin _PagedSheetEntry {
 
 class _PagedSheetModel extends ScrollAwareSheetModel {
   _PagedSheetModel({
+    required this.offsetInterpolationCurve,
     required super.context,
     required super.physics,
     super.gestureProxy,
@@ -63,6 +61,8 @@ class _PagedSheetModel extends ScrollAwareSheetModel {
         ) {
     (initialOffset as _PagedSheetInitialOffset)._model = this;
   }
+
+  Curve offsetInterpolationCurve;
 
   _PagedSheetEntry? _currentEntry;
 
@@ -102,10 +102,10 @@ class _PagedSheetModel extends ScrollAwareSheetModel {
       effectiveCurve = Curves.linear;
       effectiveAnimation = animation.drive(Tween(begin: 1.0, end: 0.0));
     } else if (animation.status == AnimationStatus.reverse) {
-      effectiveCurve = kDefaultPagedSheetTransitionCurve;
+      effectiveCurve = offsetInterpolationCurve;
       effectiveAnimation = animation.drive(Tween(begin: 1.0, end: 0.0));
     } else {
-      effectiveCurve = kDefaultPagedSheetTransitionCurve;
+      effectiveCurve = offsetInterpolationCurve;
       effectiveAnimation = animation;
     }
 
@@ -191,12 +191,15 @@ class PagedSheet extends StatelessWidget {
     super.key,
     this.controller,
     this.physics = kDefaultSheetPhysics,
+    this.offsetInterpolationCurve = Curves.easeInOutCubic,
     required this.child,
   });
 
   final SheetController? controller;
 
   final SheetPhysics physics;
+
+  final Curve offsetInterpolationCurve;
 
   final Widget child;
 
@@ -207,6 +210,7 @@ class PagedSheet extends StatelessWidget {
 
     return _PagedSheetModelOwner(
       physics: physics,
+      offsetInterpolationCurve: offsetInterpolationCurve,
       controller: controller,
       gestureProxy: gestureProxy,
       debugLabel: kDebugMode ? 'PagedSheet' : null,
@@ -215,6 +219,7 @@ class PagedSheet extends StatelessWidget {
           return SheetFrame(
             model: SheetModelOwner.of(context)!,
             child: NavigatorResizable(
+              interpolationCurve: Curves.linear,
               child: _NavigatorEventDispatcher(
                 child: child,
               ),
@@ -231,11 +236,13 @@ class _PagedSheetModelOwner extends SheetModelOwner<_PagedSheetModel> {
     super.controller,
     super.gestureProxy,
     required super.physics,
+    required this.offsetInterpolationCurve,
     this.debugLabel,
     required super.child,
   }) : super(snapGrid: _kDefaultSnapGrid);
 
   final String? debugLabel;
+  final Curve offsetInterpolationCurve;
 
   @override
   _PagedSheetModelOwnerState createState() {
@@ -251,10 +258,17 @@ class _PagedSheetModelOwnerState
   }
 
   @override
+  void didUpdateWidget(_PagedSheetModelOwner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    model.offsetInterpolationCurve = widget.offsetInterpolationCurve;
+  }
+
+  @override
   _PagedSheetModel createModel() {
     return _PagedSheetModel(
       context: this,
       physics: widget.physics,
+      offsetInterpolationCurve: widget.offsetInterpolationCurve,
       gestureProxy: widget.gestureProxy,
       debugLabel: widget.debugLabel,
     );

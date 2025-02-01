@@ -190,14 +190,15 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     final oldMeasurements = _measurements;
     _measurements = value;
 
+    if (_geometry == null) {
+      geometry = SheetGeometry(offset: initialOffset.resolve(value));
+    }
+
     final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
     _boundaries = (minOffset.resolve(value), maxOffset.resolve(value));
 
     if (oldMeasurements != null) {
       didChangeMeasurements(oldMeasurements);
-    } else {
-      assert(_geometry == null);
-      geometry = SheetGeometry(offset: initialOffset.resolve(value));
     }
   }
 
@@ -246,9 +247,12 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 
   set snapGrid(SheetSnapGrid snapGrid) {
     _snapGrid = snapGrid;
-    final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
-    if (_measurements case final it?) {
-      _boundaries = (minOffset.resolve(it), maxOffset.resolve(it));
+    if (hasMetrics) {
+      final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
+      _boundaries = (
+        minOffset.resolve(measurements),
+        maxOffset.resolve(measurements),
+      );
     }
   }
 
