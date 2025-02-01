@@ -285,6 +285,7 @@ void main() {
       await tester.pumpWidget(env.testWidget);
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
     });
 
     testWidgets('When pushing a route', (tester) async {
@@ -297,18 +298,23 @@ void main() {
 
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+      expect(env.getSheetRect(tester).height, 350);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+      expect(env.getSheetRect(tester).height, 400);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
+      expect(env.getSheetRect(tester).height, 450);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')), findsOneWidget);
@@ -324,6 +330,7 @@ void main() {
 
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')), findsOneWidget);
@@ -340,18 +347,23 @@ void main() {
 
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
+      expect(env.getSheetRect(tester).height, 275);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 250);
+      expect(env.getSheetRect(tester).height, 250);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 225);
+      expect(env.getSheetRect(tester).height, 225);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
 
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')).hitTestable(), findsNothing);
@@ -372,18 +384,23 @@ void main() {
       env.popRoute();
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
+      expect(env.getSheetRect(tester).height, 450);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+      expect(env.getSheetRect(tester).height, 400);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+      expect(env.getSheetRect(tester).height, 350);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(find.byKey(Key('b')), findsNothing);
@@ -400,10 +417,12 @@ void main() {
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')), findsOneWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       env.popRoute();
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(find.byKey(Key('b')), findsNothing);
@@ -426,18 +445,23 @@ void main() {
       env.popRoute();
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 225);
+      expect(env.getSheetRect(tester).height, 225);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 250);
+      expect(env.getSheetRect(tester).height, 250);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
+      expect(env.getSheetRect(tester).height, 275);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(find.byKey(Key('b')), findsNothing);
@@ -633,6 +657,7 @@ void main() {
       await tester.pumpWidget(env.testWidget);
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
     });
 
     testWidgets('On initial build with multiple routes', (tester) async {
@@ -645,6 +670,7 @@ void main() {
       expect(find.byKey(Key('b')).hitTestable(), findsNothing);
       expect(find.byKey(Key('c')), findsOneWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
     });
 
     testWidgets('When pushing a route', (tester) async {
@@ -657,18 +683,23 @@ void main() {
 
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+      expect(env.getSheetRect(tester).height, 350);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+      expect(env.getSheetRect(tester).height, 400);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
+      expect(env.getSheetRect(tester).height, 450);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')), findsOneWidget);
@@ -688,6 +719,7 @@ void main() {
 
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')), findsOneWidget);
@@ -704,18 +736,23 @@ void main() {
 
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
+      expect(env.getSheetRect(tester).height, 275);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 250);
+      expect(env.getSheetRect(tester).height, 250);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 225);
+      expect(env.getSheetRect(tester).height, 225);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
 
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')).hitTestable(), findsNothing);
@@ -733,18 +770,23 @@ void main() {
       env.setPages([pageA]);
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
+      expect(env.getSheetRect(tester).height, 450);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+      expect(env.getSheetRect(tester).height, 400);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+      expect(env.getSheetRect(tester).height, 350);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(find.byKey(Key('b')), findsNothing);
@@ -762,10 +804,12 @@ void main() {
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')), findsOneWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       env.setPages([pageA]);
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(find.byKey(Key('b')), findsNothing);
@@ -784,18 +828,23 @@ void main() {
       env.setPages([pageA]);
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 225);
+      expect(env.getSheetRect(tester).height, 225);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 250);
+      expect(env.getSheetRect(tester).height, 250);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
+      expect(env.getSheetRect(tester).height, 275);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(find.byKey(Key('b')), findsNothing);
@@ -812,18 +861,23 @@ void main() {
       env.setPages([pageC]);
       await tester.pump();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 425);
+      expect(env.getSheetRect(tester).height, 425);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+      expect(env.getSheetRect(tester).height, 350);
 
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
+      expect(env.getSheetRect(tester).height, 275);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
 
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')).hitTestable(), findsNothing);
