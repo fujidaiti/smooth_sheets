@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/foundation/activity.dart';
 import 'package:smooth_sheets/src/foundation/controller.dart';
 import 'package:smooth_sheets/src/foundation/model_owner.dart';
 import 'package:smooth_sheets/src/foundation/scrollable.dart';
@@ -402,11 +401,10 @@ void main() {
         velocity: 0,
         scrollPosition: scrollController.position as SheetScrollPosition,
       );
-      await tester.pumpAndSettle();
+      final pumpedFrames = await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 0);
-      expect(sheetPosition.activity, isA<IdleSheetActivity>(),
-          reason: 'Should not enter an infinite recursion '
-              'of BallisticScrollDrivenSheetActivity');
+      expect(pumpedFrames, 1,
+          reason: 'Should not enter an infinite build loop');
     });
 
     testWidgets('bottom edge', (tester) async {
@@ -423,11 +421,10 @@ void main() {
         velocity: 0,
         scrollPosition: scrollController.position as SheetScrollPosition,
       );
-      await tester.pumpAndSettle();
+      final pumpedFrames = await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 600.0);
-      expect(sheetPosition.activity, isA<IdleSheetActivity>(),
-          reason: 'Should not enter an infinite recursion '
-              'of BallisticScrollDrivenSheetActivity');
+      expect(pumpedFrames, 1,
+          reason: 'Should not enter an infinite build loop');
     });
   });
 }

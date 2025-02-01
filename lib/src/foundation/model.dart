@@ -264,6 +264,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   final String? debugLabel;
 
   /// The current activity of the sheet.
+  @protected
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
 
