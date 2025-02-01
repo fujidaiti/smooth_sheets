@@ -155,7 +155,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   /// Creates an object that manages the position of a sheet.
   SheetModel({
     required this.context,
-    required this.initialOffset,
     required this.physics,
     required SheetSnapGrid snapGrid,
     this.debugLabel,
@@ -229,7 +228,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
 
-  final SheetOffset initialOffset;
+  SheetOffset get initialOffset;
 
   /// A handle to the owner of this object.
   final SheetContext context;

@@ -15,11 +15,11 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i16;
 import 'package:smooth_sheets/src/foundation/activity.dart' as _i6;
 import 'package:smooth_sheets/src/foundation/drag.dart' as _i14;
-import 'package:smooth_sheets/src/foundation/foundation.dart' as _i2;
+import 'package:smooth_sheets/src/foundation/foundation.dart' as _i4;
 import 'package:smooth_sheets/src/foundation/gesture_proxy.dart' as _i12;
-import 'package:smooth_sheets/src/foundation/model.dart' as _i3;
+import 'package:smooth_sheets/src/foundation/model.dart' as _i2;
 import 'package:smooth_sheets/src/foundation/paged_sheet.dart' as _i17;
-import 'package:smooth_sheets/src/foundation/physics.dart' as _i4;
+import 'package:smooth_sheets/src/foundation/physics.dart' as _i3;
 import 'package:smooth_sheets/src/foundation/snap_grid.dart' as _i5;
 
 // ignore_for_file: type=lint
@@ -36,29 +36,29 @@ import 'package:smooth_sheets/src/foundation/snap_grid.dart' as _i5;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeSheetOffset_0 extends _i1.SmartFake implements _i2.SheetOffset {
-  _FakeSheetOffset_0(Object parent, Invocation parentInvocation)
+class _FakeSheetContext_0 extends _i1.SmartFake implements _i2.SheetContext {
+  _FakeSheetContext_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetContext_1 extends _i1.SmartFake implements _i3.SheetContext {
-  _FakeSheetContext_1(Object parent, Invocation parentInvocation)
+class _FakeSheetPhysics_1 extends _i1.SmartFake implements _i3.SheetPhysics {
+  _FakeSheetPhysics_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetPhysics_2 extends _i1.SmartFake implements _i4.SheetPhysics {
-  _FakeSheetPhysics_2(Object parent, Invocation parentInvocation)
+class _FakeSheetGeometry_2 extends _i1.SmartFake implements _i4.SheetGeometry {
+  _FakeSheetGeometry_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetGeometry_3 extends _i1.SmartFake implements _i2.SheetGeometry {
-  _FakeSheetGeometry_3(Object parent, Invocation parentInvocation)
+class _FakeSheetMeasurements_3 extends _i1.SmartFake
+    implements _i4.SheetMeasurements {
+  _FakeSheetMeasurements_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetMeasurements_4 extends _i1.SmartFake
-    implements _i2.SheetMeasurements {
-  _FakeSheetMeasurements_4(Object parent, Invocation parentInvocation)
+class _FakeSheetOffset_4 extends _i1.SmartFake implements _i4.SheetOffset {
+  _FakeSheetOffset_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -67,13 +67,13 @@ class _FakeSheetSnapGrid_5 extends _i1.SmartFake implements _i5.SheetSnapGrid {
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetActivity_6<T extends _i3.SheetModel> extends _i1.SmartFake
+class _FakeSheetActivity_6<T extends _i2.SheetModel> extends _i1.SmartFake
     implements _i6.SheetActivity<T> {
   _FakeSheetActivity_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetMetrics_7 extends _i1.SmartFake implements _i2.SheetMetrics {
+class _FakeSheetMetrics_7 extends _i1.SmartFake implements _i4.SheetMetrics {
   _FakeSheetMetrics_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
@@ -163,48 +163,33 @@ class _FakeAnimationController_20 extends _i1.SmartFake
 /// A class which mocks [SheetModel].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
+class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
   @override
-  _i2.SheetOffset get initialOffset =>
-      (super.noSuchMethod(
-            Invocation.getter(#initialOffset),
-            returnValue: _FakeSheetOffset_0(
-              this,
-              Invocation.getter(#initialOffset),
-            ),
-            returnValueForMissingStub: _FakeSheetOffset_0(
-              this,
-              Invocation.getter(#initialOffset),
-            ),
-          )
-          as _i2.SheetOffset);
-
-  @override
-  _i3.SheetContext get context =>
+  _i2.SheetContext get context =>
       (super.noSuchMethod(
             Invocation.getter(#context),
-            returnValue: _FakeSheetContext_1(this, Invocation.getter(#context)),
-            returnValueForMissingStub: _FakeSheetContext_1(
+            returnValue: _FakeSheetContext_0(this, Invocation.getter(#context)),
+            returnValueForMissingStub: _FakeSheetContext_0(
               this,
               Invocation.getter(#context),
             ),
           )
-          as _i3.SheetContext);
+          as _i2.SheetContext);
 
   @override
-  _i4.SheetPhysics get physics =>
+  _i3.SheetPhysics get physics =>
       (super.noSuchMethod(
             Invocation.getter(#physics),
-            returnValue: _FakeSheetPhysics_2(this, Invocation.getter(#physics)),
-            returnValueForMissingStub: _FakeSheetPhysics_2(
+            returnValue: _FakeSheetPhysics_1(this, Invocation.getter(#physics)),
+            returnValueForMissingStub: _FakeSheetPhysics_1(
               this,
               Invocation.getter(#physics),
             ),
           )
-          as _i4.SheetPhysics);
+          as _i3.SheetPhysics);
 
   @override
-  set physics(_i4.SheetPhysics? _physics) => super.noSuchMethod(
+  set physics(_i3.SheetPhysics? _physics) => super.noSuchMethod(
     Invocation.setter(#physics, _physics),
     returnValueForMissingStub: null,
   );
@@ -217,43 +202,43 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
       );
 
   @override
-  _i2.SheetGeometry get geometry =>
+  _i4.SheetGeometry get geometry =>
       (super.noSuchMethod(
             Invocation.getter(#geometry),
-            returnValue: _FakeSheetGeometry_3(
+            returnValue: _FakeSheetGeometry_2(
               this,
               Invocation.getter(#geometry),
             ),
-            returnValueForMissingStub: _FakeSheetGeometry_3(
+            returnValueForMissingStub: _FakeSheetGeometry_2(
               this,
               Invocation.getter(#geometry),
             ),
           )
-          as _i2.SheetGeometry);
+          as _i4.SheetGeometry);
 
   @override
-  set geometry(_i2.SheetGeometry? value) => super.noSuchMethod(
+  set geometry(_i4.SheetGeometry? value) => super.noSuchMethod(
     Invocation.setter(#geometry, value),
     returnValueForMissingStub: null,
   );
 
   @override
-  _i2.SheetMeasurements get measurements =>
+  _i4.SheetMeasurements get measurements =>
       (super.noSuchMethod(
             Invocation.getter(#measurements),
-            returnValue: _FakeSheetMeasurements_4(
+            returnValue: _FakeSheetMeasurements_3(
               this,
               Invocation.getter(#measurements),
             ),
-            returnValueForMissingStub: _FakeSheetMeasurements_4(
+            returnValueForMissingStub: _FakeSheetMeasurements_3(
               this,
               Invocation.getter(#measurements),
             ),
           )
-          as _i2.SheetMeasurements);
+          as _i4.SheetMeasurements);
 
   @override
-  set measurements(_i2.SheetMeasurements? value) => super.noSuchMethod(
+  set measurements(_i4.SheetMeasurements? value) => super.noSuchMethod(
     Invocation.setter(#measurements, value),
     returnValueForMissingStub: null,
   );
@@ -313,6 +298,21 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
           as bool);
 
   @override
+  _i4.SheetOffset get initialOffset =>
+      (super.noSuchMethod(
+            Invocation.getter(#initialOffset),
+            returnValue: _FakeSheetOffset_4(
+              this,
+              Invocation.getter(#initialOffset),
+            ),
+            returnValueForMissingStub: _FakeSheetOffset_4(
+              this,
+              Invocation.getter(#initialOffset),
+            ),
+          )
+          as _i4.SheetOffset);
+
+  @override
   _i5.SheetSnapGrid get snapGrid =>
       (super.noSuchMethod(
             Invocation.getter(#snapGrid),
@@ -334,22 +334,22 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
   );
 
   @override
-  _i6.SheetActivity<_i3.SheetModel> get activity =>
+  _i6.SheetActivity<_i2.SheetModel> get activity =>
       (super.noSuchMethod(
             Invocation.getter(#activity),
-            returnValue: _FakeSheetActivity_6<_i3.SheetModel>(
+            returnValue: _FakeSheetActivity_6<_i2.SheetModel>(
               this,
               Invocation.getter(#activity),
             ),
-            returnValueForMissingStub: _FakeSheetActivity_6<_i3.SheetModel>(
+            returnValueForMissingStub: _FakeSheetActivity_6<_i2.SheetModel>(
               this,
               Invocation.getter(#activity),
             ),
           )
-          as _i6.SheetActivity<_i3.SheetModel>);
+          as _i6.SheetActivity<_i2.SheetModel>);
 
   @override
-  _i2.SheetMetrics get snapshot =>
+  _i4.SheetMetrics get snapshot =>
       (super.noSuchMethod(
             Invocation.getter(#snapshot),
             returnValue: _FakeSheetMetrics_7(
@@ -361,7 +361,7 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
               Invocation.getter(#snapshot),
             ),
           )
-          as _i2.SheetMetrics);
+          as _i4.SheetMetrics);
 
   @override
   double get viewOffset =>
@@ -382,20 +382,20 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
           as bool);
 
   @override
-  void takeOver(_i3.SheetModel? other) => super.noSuchMethod(
+  void takeOver(_i2.SheetModel? other) => super.noSuchMethod(
     Invocation.method(#takeOver, [other]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void didChangeMeasurements(_i2.SheetMeasurements? oldMeasurements) =>
+  void didChangeMeasurements(_i4.SheetMeasurements? oldMeasurements) =>
       super.noSuchMethod(
         Invocation.method(#didChangeMeasurements, [oldMeasurements]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void beginActivity(_i6.SheetActivity<_i3.SheetModel>? activity) =>
+  void beginActivity(_i6.SheetActivity<_i2.SheetModel>? activity) =>
       super.noSuchMethod(
         Invocation.method(#beginActivity, [activity]),
         returnValueForMissingStub: null,
@@ -420,7 +420,7 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
   );
 
   @override
-  void settleTo(_i2.SheetOffset? offset, Duration? duration) =>
+  void settleTo(_i4.SheetOffset? offset, Duration? duration) =>
       super.noSuchMethod(
         Invocation.method(#settleTo, [offset, duration]),
         returnValueForMissingStub: null,
@@ -458,7 +458,7 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
 
   @override
   _i9.Future<void> animateTo(
-    _i2.SheetOffset? newPosition, {
+    _i4.SheetOffset? newPosition, {
     _i8.Curve? curve = _i8.Curves.easeInOut,
     Duration? duration = const Duration(milliseconds: 300),
   }) =>
@@ -474,11 +474,11 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
           as _i9.Future<void>);
 
   @override
-  _i2.SheetMetrics copyWith({
+  _i4.SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    _i2.SheetMeasurements? measurements,
+    _i4.SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) =>
       (super.noSuchMethod(
@@ -510,7 +510,7 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
               }),
             ),
           )
-          as _i2.SheetMetrics);
+          as _i4.SheetMetrics);
 
   @override
   void didUpdateGeometry() => super.noSuchMethod(
@@ -571,7 +571,7 @@ class MockSheetModel extends _i1.Mock implements _i3.SheetModel {
 /// A class which mocks [SheetContext].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSheetContext extends _i1.Mock implements _i3.SheetContext {
+class MockSheetContext extends _i1.Mock implements _i2.SheetContext {
   @override
   _i8.TickerProvider get vsync =>
       (super.noSuchMethod(
@@ -597,7 +597,7 @@ class MockSheetContext extends _i1.Mock implements _i3.SheetContext {
 /// A class which mocks [SheetMetrics].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
+class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
   @override
   double get devicePixelRatio =>
       (super.noSuchMethod(
@@ -635,19 +635,19 @@ class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
           as double);
 
   @override
-  _i2.SheetMeasurements get measurements =>
+  _i4.SheetMeasurements get measurements =>
       (super.noSuchMethod(
             Invocation.getter(#measurements),
-            returnValue: _FakeSheetMeasurements_4(
+            returnValue: _FakeSheetMeasurements_3(
               this,
               Invocation.getter(#measurements),
             ),
-            returnValueForMissingStub: _FakeSheetMeasurements_4(
+            returnValueForMissingStub: _FakeSheetMeasurements_3(
               this,
               Invocation.getter(#measurements),
             ),
           )
-          as _i2.SheetMeasurements);
+          as _i4.SheetMeasurements);
 
   @override
   double get viewOffset =>
@@ -659,11 +659,11 @@ class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
           as double);
 
   @override
-  _i2.SheetMetrics copyWith({
+  _i4.SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    _i2.SheetMeasurements? measurements,
+    _i4.SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) =>
       (super.noSuchMethod(
@@ -695,7 +695,7 @@ class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
               }),
             ),
           )
-          as _i2.SheetMetrics);
+          as _i4.SheetMetrics);
 }
 
 /// A class which mocks [AnimationController].
@@ -1376,19 +1376,19 @@ class MockTickerProvider extends _i1.Mock implements _i8.TickerProvider {
 class MockBasePagedSheetRoute<T> extends _i1.Mock
     implements _i17.BasePagedSheetRoute<T> {
   @override
-  _i2.SheetOffset get initialOffset =>
+  _i4.SheetOffset get initialOffset =>
       (super.noSuchMethod(
             Invocation.getter(#initialOffset),
-            returnValue: _FakeSheetOffset_0(
+            returnValue: _FakeSheetOffset_4(
               this,
               Invocation.getter(#initialOffset),
             ),
-            returnValueForMissingStub: _FakeSheetOffset_0(
+            returnValueForMissingStub: _FakeSheetOffset_4(
               this,
               Invocation.getter(#initialOffset),
             ),
           )
-          as _i2.SheetOffset);
+          as _i4.SheetOffset);
 
   @override
   _i5.SheetSnapGrid get snapGrid =>

@@ -22,23 +22,6 @@ const _kDefaultSnapGrid = SteplessSnapGrid(
   maxOffset: SheetOffset.relative(1),
 );
 
-class _PagedSheetInitialOffset implements SheetOffset {
-  _PagedSheetInitialOffset();
-
-  late final _PagedSheetModel _model;
-
-  @override
-  double resolve(SheetMeasurements measurements) {
-    assert(_model._currentEntry != null);
-    assert(_model._currentEntry!._contentSize != null);
-    return _model._currentEntry!.initialOffset.resolve(
-      measurements.copyWith(
-        contentSize: _model._currentEntry!._contentSize,
-      ),
-    );
-  }
-}
-
 mixin _PagedSheetEntry {
   SheetSnapGrid get snapGrid;
 
@@ -56,16 +39,15 @@ class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
     required super.physics,
     super.gestureProxy,
     super.debugLabel,
-  }) : super(
-          initialOffset: _PagedSheetInitialOffset(),
-          snapGrid: _kDefaultSnapGrid,
-        ) {
-    (initialOffset as _PagedSheetInitialOffset)._model = this;
-  }
+  }) : super(snapGrid: _kDefaultSnapGrid);
 
   Curve offsetInterpolationCurve;
 
   _PagedSheetEntry? _currentEntry;
+
+  @override
+  SheetOffset get initialOffset =>
+      _currentEntry?.initialOffset ?? const SheetOffset.relative(1);
 
   @override
   void dispose() {
@@ -76,9 +58,8 @@ class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
   @override
   void beginActivity(SheetActivity activity) {
     super.beginActivity(activity);
-    if (activity case IdleSheetActivity(:final targetOffset)
-        when targetOffset is! _PagedSheetInitialOffset) {
-      _currentEntry?._targetOffset = targetOffset;
+    if (activity is IdleSheetActivity) {
+      _currentEntry?._targetOffset = activity.targetOffset;
     }
   }
 

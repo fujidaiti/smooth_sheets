@@ -37,12 +37,15 @@ class _DraggableScrollableSheetModel extends SheetModel
     with ScrollAwareSheetModelMixin {
   _DraggableScrollableSheetModel({
     required super.context,
-    required super.initialOffset,
     required super.physics,
     required super.snapGrid,
     super.gestureProxy,
     super.debugLabel,
+    required this.initialOffset,
   });
+
+  @override
+  final SheetOffset initialOffset;
 }
 
 class Sheet extends StatefulWidget {
