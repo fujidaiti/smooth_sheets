@@ -364,7 +364,7 @@ void main() {
   // - https://github.com/fujidaiti/smooth_sheets/issues/212
   group('Infinite ballistic scroll activity test', () {
     late ScrollController scrollController;
-    late ScrollAwareSheetModel sheetPosition;
+    late ScrollAwareSheetModelMixin sheetPosition;
     late Widget testWidget;
 
     setUp(() {
@@ -375,7 +375,7 @@ void main() {
             builder: (context) {
               scrollController = PrimaryScrollController.of(context);
               sheetPosition =
-                  SheetModelOwner.of(context)! as ScrollAwareSheetModel;
+                  SheetModelOwner.of(context)! as ScrollAwareSheetModelMixin;
               return SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Container(

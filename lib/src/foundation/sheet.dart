@@ -33,6 +33,18 @@ class SheetDragConfiguration {
   final HitTestBehavior hitTestBehavior;
 }
 
+class _DraggableScrollableSheetModel extends SheetModel
+    with ScrollAwareSheetModelMixin {
+  _DraggableScrollableSheetModel({
+    required super.context,
+    required super.initialOffset,
+    required super.physics,
+    required super.snapGrid,
+    super.gestureProxy,
+    super.debugLabel,
+  });
+}
+
 class Sheet extends StatefulWidget {
   const Sheet({
     super.key,
@@ -101,7 +113,7 @@ class _SheetState extends State<Sheet> {
 }
 
 class _ScrollAwareSheetModelOwner
-    extends SheetModelOwner<ScrollAwareSheetModel> {
+    extends SheetModelOwner<ScrollAwareSheetModelMixin> {
   const _ScrollAwareSheetModelOwner({
     super.controller,
     required this.initialOffset,
@@ -117,22 +129,22 @@ class _ScrollAwareSheetModelOwner
   final String? debugLabel;
 
   @override
-  SheetModelOwnerState<ScrollAwareSheetModel,
-      SheetModelOwner<ScrollAwareSheetModel>> createState() {
+  SheetModelOwnerState<ScrollAwareSheetModelMixin,
+      SheetModelOwner<ScrollAwareSheetModelMixin>> createState() {
     return _ScrollableSheetPositionScopeState();
   }
 }
 
 class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
-    ScrollAwareSheetModel, _ScrollAwareSheetModelOwner> {
+    ScrollAwareSheetModelMixin, _ScrollAwareSheetModelOwner> {
   @override
   bool shouldRefreshModel() {
     return widget.debugLabel != model.debugLabel || super.shouldRefreshModel();
   }
 
   @override
-  ScrollAwareSheetModel createModel() {
-    return ScrollAwareSheetModel(
+  ScrollAwareSheetModelMixin createModel() {
+    return _DraggableScrollableSheetModel(
       context: this,
       initialOffset: widget.initialOffset,
       physics: widget.physics,

@@ -11,6 +11,7 @@ import 'controller.dart';
 import 'foundation.dart';
 import 'frame.dart';
 import 'gesture_proxy.dart';
+import 'model.dart';
 import 'model_owner.dart';
 import 'scrollable.dart';
 import 'sheet.dart';
@@ -48,7 +49,7 @@ mixin _PagedSheetEntry {
   Size? _contentSize;
 }
 
-class _PagedSheetModel extends ScrollAwareSheetModel {
+class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
   _PagedSheetModel({
     required this.offsetInterpolationCurve,
     required super.context,

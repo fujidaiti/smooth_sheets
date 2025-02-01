@@ -17,17 +17,8 @@ import 'model_owner.dart';
 const _kMaxScrollSpeedToInterrupt = double.infinity;
 
 @internal
-class ScrollAwareSheetModel extends SheetModel
+mixin ScrollAwareSheetModelMixin on SheetModel
     implements _SheetScrollPositionDelegate {
-  ScrollAwareSheetModel({
-    required super.context,
-    required super.initialOffset,
-    required super.physics,
-    required super.snapGrid,
-    super.gestureProxy,
-    super.debugLabel,
-  });
-
   // TODO: Stop scroll animations when a non-scrollable activity starts.
   final _scrollPositions = HashSet<SheetScrollPosition>();
 
@@ -75,7 +66,7 @@ class ScrollAwareSheetModel extends SheetModel
   @override
   void takeOver(SheetModel other) {
     super.takeOver(other);
-    if (other is ScrollAwareSheetModel) {
+    if (other is ScrollAwareSheetModelMixin) {
       assert(_scrollPositions.isEmpty);
       _scrollPositions.addAll(other._scrollPositions);
       other._scrollPositions.clear();
@@ -231,7 +222,8 @@ class ScrollAwareSheetModel extends SheetModel
 /// in most cases to ensure that the pointer events, which potentially
 /// interrupt the ballistic scroll animation, are not stolen by clickable
 /// items in the scroll view.
-mixin _ScrollAwareSheetActivityMixin on SheetActivity<ScrollAwareSheetModel> {
+mixin _ScrollAwareSheetActivityMixin
+    on SheetActivity<ScrollAwareSheetModelMixin> {
   SheetScrollPosition get scrollPosition;
 
   set scrollPosition(SheetScrollPosition value);
@@ -331,7 +323,7 @@ mixin _ScrollAwareSheetActivityMixin on SheetActivity<ScrollAwareSheetModel> {
 @internal
 @visibleForTesting
 class DragScrollDrivenSheetActivity
-    extends DragSheetActivity<ScrollAwareSheetModel>
+    extends DragSheetActivity<ScrollAwareSheetModelMixin>
     with _ScrollAwareSheetActivityMixin {
   DragScrollDrivenSheetActivity(
     SheetScrollPosition scrollPosition, {
@@ -440,7 +432,7 @@ class DragScrollDrivenSheetActivity
 @internal
 @visibleForTesting
 class BallisticScrollDrivenSheetActivity
-    extends SheetActivity<ScrollAwareSheetModel>
+    extends SheetActivity<ScrollAwareSheetModelMixin>
     with ControlledSheetActivityMixin, _ScrollAwareSheetActivityMixin {
   BallisticScrollDrivenSheetActivity(
     SheetScrollPosition scrollPosition, {
@@ -529,7 +521,8 @@ class BallisticScrollDrivenSheetActivity
 /// as its activity throughout the lifetime of this activity.
 @visibleForTesting
 @internal
-class HoldScrollDrivenSheetActivity extends SheetActivity<ScrollAwareSheetModel>
+class HoldScrollDrivenSheetActivity
+    extends SheetActivity<ScrollAwareSheetModelMixin>
     with _ScrollAwareSheetActivityMixin
     implements ScrollHoldController {
   HoldScrollDrivenSheetActivity(
@@ -589,7 +582,7 @@ class SheetScrollable extends StatefulWidget {
 
 class _SheetScrollableState extends State<SheetScrollable> {
   late ScrollController _scrollController;
-  ScrollAwareSheetModel? _model;
+  ScrollAwareSheetModelMixin? _model;
 
   @override
   void initState() {
@@ -600,7 +593,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _model = SheetModelOwner.of(context)! as ScrollAwareSheetModel;
+    _model = SheetModelOwner.of(context)! as ScrollAwareSheetModelMixin;
   }
 
   @override
