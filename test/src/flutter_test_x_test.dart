@@ -125,4 +125,107 @@ void main() {
       },
     );
   });
+
+  group('WidgetTesterX.startDrag', () {
+    DragDownDetails? verticalDragDownDetails;
+    DragStartDetails? verticalDragStartDetails;
+    DragUpdateDetails? verticalDragUpdateDetails;
+    DragStartDetails? horizontalDragStartDetails;
+    DragDownDetails? horizontalDragDownDetails;
+    DragUpdateDetails? horizontalDragUpdateDetails;
+    late Widget testWidget;
+
+    setUp(() {
+      verticalDragDownDetails = null;
+      verticalDragStartDetails = null;
+      verticalDragUpdateDetails = null;
+      horizontalDragStartDetails = null;
+      horizontalDragDownDetails = null;
+      horizontalDragUpdateDetails = null;
+
+      testWidget = GestureDetector(
+        onVerticalDragDown: (details) {
+          verticalDragDownDetails = details;
+        },
+        onVerticalDragStart: (details) {
+          verticalDragStartDetails = details;
+        },
+        onVerticalDragUpdate: (details) {
+          verticalDragUpdateDetails = details;
+        },
+        onHorizontalDragDown: (details) {
+          horizontalDragDownDetails = details;
+        },
+        onHorizontalDragStart: (details) {
+          horizontalDragStartDetails = details;
+        },
+        onHorizontalDragUpdate: (details) {
+          horizontalDragUpdateDetails = details;
+        },
+        child: Container(
+          color: Colors.white,
+        ),
+      );
+    });
+
+    testWidgets('Start a downward drag', (tester) async {
+      await tester.pumpWidget(testWidget);
+      final center = tester.getCenter(find.byType(Container));
+      final gesture = await tester.startDrag(center, AxisDirection.down);
+      expect(verticalDragDownDetails?.globalPosition, center);
+      expect(
+        verticalDragStartDetails?.globalPosition.dy,
+        greaterThan(center.dy),
+      );
+      expect(verticalDragUpdateDetails, isNull);
+
+      await gesture.moveBy(Offset(0, 50));
+      expect(verticalDragUpdateDetails?.primaryDelta, 50);
+    });
+
+    testWidgets('Start an upward drag', (tester) async {
+      await tester.pumpWidget(testWidget);
+      final center = tester.getCenter(find.byType(Container));
+      final gesture = await tester.startDrag(center, AxisDirection.up);
+      expect(verticalDragDownDetails?.globalPosition, center);
+      expect(
+        verticalDragStartDetails?.globalPosition.dy,
+        lessThan(center.dy),
+      );
+      expect(verticalDragUpdateDetails, isNull);
+
+      await gesture.moveBy(Offset(0, -50));
+      expect(verticalDragUpdateDetails?.primaryDelta, -50);
+    });
+
+    testWidgets('Start a rightward drag', (tester) async {
+      await tester.pumpWidget(testWidget);
+      final center = tester.getCenter(find.byType(Container));
+      final gesture = await tester.startDrag(center, AxisDirection.right);
+      expect(horizontalDragDownDetails?.globalPosition, center);
+      expect(
+        horizontalDragStartDetails?.globalPosition.dx,
+        greaterThan(center.dx),
+      );
+      expect(horizontalDragUpdateDetails, isNull);
+
+      await gesture.moveBy(Offset(50, 0));
+      expect(horizontalDragUpdateDetails?.primaryDelta, 50);
+    });
+
+    testWidgets('Start a leftward drag', (tester) async {
+      await tester.pumpWidget(testWidget);
+      final center = tester.getCenter(find.byType(Container));
+      final gesture = await tester.startDrag(center, AxisDirection.left);
+      expect(horizontalDragDownDetails?.globalPosition, center);
+      expect(
+        horizontalDragStartDetails?.globalPosition.dx,
+        lessThan(center.dx),
+      );
+      expect(horizontalDragUpdateDetails, isNull);
+
+      await gesture.moveBy(Offset(-50, 0));
+      expect(horizontalDragUpdateDetails?.primaryDelta, -50);
+    });
+  });
 }

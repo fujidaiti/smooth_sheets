@@ -279,11 +279,7 @@ void main() {
 
         await tester.pumpWidget(env.testWidget);
         var centerLocation = tester.getCenter(find.byKey(Key('a')));
-        var gesture = await tester.startGesture(centerLocation);
-        // For some unknown reason, the first moveBy is necessary
-        // to make the second moveBy work as expected.
-        // Strangely, the first moveBy does not affect the sheet's position.
-        await gesture.moveBy(Offset(0, kDragSlopDefault));
+        var gesture = await tester.startDrag(centerLocation);
         await gesture.moveBy(Offset(0, 50));
         await tester.pumpAndSettle();
         expect(env.getSheetRect(tester).top, testScreenSize.height - 250,
@@ -306,8 +302,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         centerLocation = tester.getCenter(find.byKey(Key('b')));
-        gesture = await tester.startGesture(centerLocation);
-        await gesture.moveBy(Offset(0, kDragSlopDefault));
+        gesture = await tester.startDrag(centerLocation);
         await gesture.moveBy(Offset(0, 50));
         await tester.pumpAndSettle();
         expect(env.getSheetRect(tester).top, testScreenSize.height - 300,

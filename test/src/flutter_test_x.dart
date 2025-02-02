@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart' as t;
 import 'package:meta/meta.dart';
@@ -143,5 +143,33 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
         stack: StackTrace.current,
       ),
     );
+  }
+
+  /// Initiates a drag gesture at the specified [downLocation].
+  ///
+  /// The [axisDirection] determines the initial direction of the drag gesture.
+  /// For example, if [axisDirection] is [AxisDirection.down],
+  /// the gesture moves downward.
+  ///
+  /// This method emits a pointer-down event and a drag-start event but
+  /// does not generate drag-update events.
+  /// Use [t.TestGesture.moveBy] on the returned [t.TestGesture]
+  /// to generate subsequent drag-update events.
+  Future<t.TestGesture> startDrag(
+    Offset downLocation, [
+    AxisDirection axisDirection = AxisDirection.down,
+  ]) async {
+    final gesture = await self.startGesture(downLocation);
+    switch (axisDirection) {
+      case AxisDirection.down:
+        await gesture.moveBy(const Offset(0, t.kDragSlopDefault));
+      case AxisDirection.up:
+        await gesture.moveBy(const Offset(0, -t.kDragSlopDefault));
+      case AxisDirection.right:
+        await gesture.moveBy(const Offset(t.kDragSlopDefault, 0));
+      case AxisDirection.left:
+        await gesture.moveBy(const Offset(-t.kDragSlopDefault, 0));
+    }
+    return gesture;
   }
 }
