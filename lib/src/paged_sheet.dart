@@ -316,39 +316,36 @@ class _NavigatorEventDispatcherState extends State<_NavigatorEventDispatcher>
   }
 }
 
-// TODO: DRY this widget across the library.
 class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
   const _RouteContentLayoutObserver({
-    required this.parentRoute,
+    required this.onContentSizeChanged,
     required super.child,
   });
 
-  final _BasePagedSheetRoute parentRoute;
+  final ValueChanged<Size> onContentSizeChanged;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderRouteContentLayoutObserver(parentRoute);
+    return _RenderRouteContentLayoutObserver(onContentSizeChanged);
   }
 
   @override
   void updateRenderObject(
     BuildContext context,
     _RenderRouteContentLayoutObserver renderObject,
-  ) {
-    assert(parentRoute == renderObject.parentRoute);
-  }
+  ) {}
 }
 
 class _RenderRouteContentLayoutObserver extends RenderProxyBox {
-  _RenderRouteContentLayoutObserver(this.parentRoute);
+  _RenderRouteContentLayoutObserver(this.onContentSizeChanged);
 
-  final _BasePagedSheetRoute parentRoute;
+  final ValueChanged<Size> onContentSizeChanged;
 
   @override
   void performLayout() {
     super.performLayout();
     if (child?.size case final childSize?) {
-      parentRoute._contentSize = childSize;
+      onContentSizeChanged(childSize);
     }
   }
 }
@@ -428,7 +425,7 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   ) {
     return ResizableNavigatorRouteContentBoundary(
       child: _RouteContentLayoutObserver(
-        parentRoute: this,
+        onContentSizeChanged: (size) => _contentSize = size,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,
