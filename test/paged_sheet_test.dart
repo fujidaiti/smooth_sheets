@@ -211,6 +211,109 @@ void main() {
         expect(find.byKey(Key('b')), findsOneWidget);
       },
     );
+
+    testWidgets(
+      'Each route should be able to have different drag configuration',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              dragConfiguration: SheetDragConfiguration(),
+              builder: (_) => _TestPage(
+                key: Key('a'),
+                height: 300,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        var centerLocation = tester.getCenter(find.byKey(Key('a')));
+        var gesture = await tester.startGesture(centerLocation);
+        await gesture.moveBy(Offset(0, 50));
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 250,
+            reason: 'The first page should be draggable.');
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+        unawaited(
+          env.getNavigator().push(
+                PagedSheetRoute(
+                  snapGrid: SheetSnapGrid.stepless(),
+                  dragConfiguration: null,
+                  builder: (_) => _TestPage(
+                    key: Key('b'),
+                    height: 300,
+                  ),
+                ),
+              ),
+        );
+        await tester.pumpAndSettle();
+        centerLocation = tester.getCenter(find.byKey(Key('b')));
+        gesture = await tester.startGesture(centerLocation);
+        await gesture.moveBy(Offset(0, 50));
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 300,
+            reason: 'The second page should not be draggable.');
+      },
+    );
+
+    testWidgets(
+      'Each route should be able to have different scroll configuration',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              scrollConfiguration: SheetScrollConfiguration(),
+              builder: (_) => _TestPage(
+                key: Key('a'),
+                height: 300,
+                isScrollable: true,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        var centerLocation = tester.getCenter(find.byKey(Key('a')));
+        var gesture = await tester.startGesture(centerLocation);
+        // For some unknown reason, the first moveBy is necessary
+        // to make the second moveBy work as expected.
+        // Strangely, the first moveBy does not affect the sheet's position.
+        await gesture.moveBy(Offset(0, kDragSlopDefault));
+        await gesture.moveBy(Offset(0, 50));
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 250,
+            reason: 'The first page should be draggable.');
+
+        // await gesture.up();
+        await tester.pumpAndSettle();
+        unawaited(
+          env.getNavigator().push(
+                PagedSheetRoute(
+                  snapGrid: SheetSnapGrid.stepless(),
+                  scrollConfiguration: null,
+                  builder: (_) => _TestPage(
+                    key: Key('b'),
+                    height: 300,
+                    isScrollable: true,
+                  ),
+                ),
+              ),
+        );
+        await tester.pumpAndSettle();
+        centerLocation = tester.getCenter(find.byKey(Key('b')));
+        gesture = await tester.startGesture(centerLocation);
+        await gesture.moveBy(Offset(0, kDragSlopDefault));
+        await gesture.moveBy(Offset(0, 50));
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 300,
+            reason: 'The second page should not be draggable.');
+      },
+    );
   });
 
   group('PagedSheet transition test with Imperative API', () {
@@ -1002,16 +1105,30 @@ class _TestPage extends StatelessWidget {
   const _TestPage({
     super.key,
     required this.height,
+    this.isScrollable = false,
   });
 
   final double height;
+  final bool isScrollable;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Material(
       color: Colors.white,
-      width: double.infinity,
-      height: height,
+      child: SizedBox.fromSize(
+        size: Size.fromHeight(height),
+        child: switch (isScrollable) {
+          false => null,
+          true => ListView.builder(
+              itemCount: 50,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text('Item $index'),
+                );
+              },
+            ),
+        },
+      ),
     );
   }
 }
