@@ -217,8 +217,8 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     }
 
     final barrierColor = this.barrierColor;
-    if (barrierColor != null && barrierColor.alpha != 0 && !offstage) {
-      assert(barrierColor != barrierColor.withOpacity(0.0));
+    if (barrierColor != null && barrierColor.a != 0 && !offstage) {
+      assert(barrierColor != barrierColor.withValues(alpha: 0));
       return AnimatedModalBarrier(
         onDismiss: onDismiss,
         dismissible: barrierDismissible,
@@ -226,7 +226,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         barrierSemanticsDismissible: semanticsDismissible,
         color: animation!.drive(
           ColorTween(
-            begin: barrierColor.withOpacity(0.0),
+            begin: barrierColor.withValues(alpha: 0.0),
             end: barrierColor,
           ).chain(CurveTween(curve: barrierCurve)),
         ),
