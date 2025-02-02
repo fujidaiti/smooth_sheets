@@ -71,7 +71,6 @@ class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
     _PagedSheetEntry currentEntry,
     _PagedSheetEntry nextEntry,
     Animation<double> animation,
-    // ignore: avoid_positional_boolean_parameters
     bool isUserGestureInProgress,
   ) {
     _currentEntry = null;
