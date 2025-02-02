@@ -9,9 +9,11 @@ import 'model.dart';
 class SheetViewport extends StatefulWidget {
   const SheetViewport({
     super.key,
+    this.avoidBottomInset = true,
     required this.child,
   });
 
+  final bool avoidBottomInset;
   final Widget child;
 
   @override
@@ -47,6 +49,7 @@ class SheetViewportState extends State<SheetViewport> {
       child: _SheetTranslate(
         model: model,
         insets: MediaQuery.of(context).viewInsets,
+        avoidBottomInset: widget.avoidBottomInset,
         child: widget.child,
       ),
     );
@@ -75,22 +78,29 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
   const _SheetTranslate({
     required this.model,
     required this.insets,
+    required this.avoidBottomInset,
     required super.child,
   });
 
   final SheetModelView model;
   final EdgeInsets insets;
+  final bool avoidBottomInset;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderSheetTranslate(model: model, insets: insets);
+    return _RenderSheetTranslate(
+      model: model,
+      insets: insets,
+      avoidBottomInset: avoidBottomInset,
+    );
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetTranslate)
       ..setModel(model)
-      ..setInsets(insets);
+      ..setInsets(insets)
+      ..setAvoidBottomInset(avoidBottomInset);
   }
 }
 
@@ -98,8 +108,10 @@ class _RenderSheetTranslate extends RenderTransform {
   _RenderSheetTranslate({
     required SheetModelView model,
     required EdgeInsets insets,
+    required bool avoidBottomInset,
   })  : _model = model,
         _insets = insets,
+        _avoidBottomInset = avoidBottomInset,
         super(
           transform: Matrix4.zero()..setIdentity(),
           transformHitTests: true,
@@ -110,6 +122,7 @@ class _RenderSheetTranslate extends RenderTransform {
 
   SheetModelView _model;
   EdgeInsets _insets;
+  bool _avoidBottomInset;
   Size? _lastMeasuredSize;
 
   void setModel(SheetModelView value) {
@@ -123,9 +136,14 @@ class _RenderSheetTranslate extends RenderTransform {
   void setInsets(EdgeInsets value) {
     if (value != _insets) {
       _insets = value;
-      // ignore: lines_longer_than_80_chars
-      // TODO: Remove this line when the `baseline` property is added to SheetPosition.
-      markNeedsPaint();
+      markNeedsLayout();
+    }
+  }
+
+  void setAvoidBottomInset(bool value) {
+    if (value != _avoidBottomInset) {
+      _avoidBottomInset = value;
+      markNeedsLayout();
     }
   }
 
@@ -142,14 +160,17 @@ class _RenderSheetTranslate extends RenderTransform {
       'The model object must be attached to the SheetViewport '
       'before the first layout phase.',
     );
-
     assert(
       constraints.biggest.isFinite,
       'The SheetViewport must be given a finite constraint.',
     );
 
     size = constraints.biggest;
-    child!.layout(constraints.loosen());
+    var childConstraints = constraints.loosen();
+    if (_avoidBottomInset) {
+      childConstraints = childConstraints.deflate(_insets);
+    }
+    child!.layout(childConstraints);
     // Ensure that the transform matrix is up-to-date.
     _invalidateTransformMatrix();
   }

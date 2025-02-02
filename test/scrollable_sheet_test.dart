@@ -105,6 +105,7 @@ void main() {
           key: keyboardSimulationKey,
           keyboardHeight: 200,
           child: SheetViewport(
+            avoidBottomInset: true,
             child: Sheet(
               key: sheetKey,
               controller: controller,
@@ -113,7 +114,7 @@ void main() {
                 minOffset: SheetOffset.absolute(200),
               ),
               initialOffset: const SheetOffset.absolute(200),
-              child: const _TestSheetContent(height: 500),
+              child: const _TestSheetContent(height: 400),
             ),
           ),
         ),
@@ -143,12 +144,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
         reason: 'The keyboard should be fully shown.');
-    expect(
-      controller.metrics!.offset,
-      controller.metrics!.maxOffset,
-      reason: 'After the keyboard is fully shown, '
-          'the entire sheet should also be visible.',
-    );
+    expect(controller.metrics!.offset, 400,
+        reason: 'After the keyboard is fully shown, '
+            'the entire sheet should also be visible.');
   });
 
   group('Press-and-hold gesture should stop momentum scrolling', () {

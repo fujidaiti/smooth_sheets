@@ -14,40 +14,56 @@ void main() {
   group('SheetViewport', () {
     ({
       Widget testWidget,
+      ValueSetter<EdgeInsets> setViewInsets,
     }) boilerplate({
       required SheetModel model,
       BoxConstraints parentConstraints = const BoxConstraints.expand(),
       Size containerSize = Size.infinite,
+      EdgeInsets initialViewInsets = EdgeInsets.zero,
+      bool avoidBottomInset = true,
     }) {
       final viewportKey = GlobalKey<SheetViewportState>();
-      final testWidget = MediaQuery(
-        data: MediaQueryData(
-          viewInsets: EdgeInsets.zero,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: parentConstraints,
-            child: SheetViewport(
-              key: viewportKey,
-              child: TestStatefulWidget(
-                initialState: containerSize,
-                didChangeDependencies: () {
-                  viewportKey.currentState!.setModel(model);
-                },
-                builder: (_, size) {
-                  return Container(
-                    color: Colors.white,
-                    height: size.height,
-                    width: size.width,
-                  );
-                },
+      final mediaQueryKey = GlobalKey<TestStatefulWidgetState<EdgeInsets>>();
+      final testWidget = TestStatefulWidget(
+        key: mediaQueryKey,
+        initialState: initialViewInsets,
+        builder: (_, viewInsets) {
+          return MediaQuery(
+            data: MediaQueryData(
+              viewInsets: viewInsets,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: parentConstraints,
+                child: SheetViewport(
+                  key: viewportKey,
+                  avoidBottomInset: avoidBottomInset,
+                  child: TestStatefulWidget(
+                    initialState: containerSize,
+                    didChangeDependencies: () {
+                      viewportKey.currentState!.setModel(model);
+                    },
+                    builder: (_, size) {
+                      return Container(
+                        color: Colors.white,
+                        height: size.height,
+                        width: size.width,
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       );
 
-      return (testWidget: testWidget,);
+      return (
+        testWidget: testWidget,
+        setViewInsets: (viewInsets) {
+          mediaQueryKey.currentState!.state = viewInsets;
+        },
+      );
     }
 
     testWidgets(
@@ -99,6 +115,40 @@ void main() {
         );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byType(Container)), Size.square(200));
+      },
+    );
+
+    testWidgets(
+      'should constrain the child to avoid bottom inset '
+      'when avoidBottomInset is true',
+      (tester) async {
+        final env = boilerplate(
+          model: MockSheetModel(),
+          containerSize: Size.infinite,
+          initialViewInsets: EdgeInsets.only(bottom: 120),
+          avoidBottomInset: true,
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byType(Container)),
+          Size(testScreenSize.width, testScreenSize.height - 120),
+        );
+      },
+    );
+
+    testWidgets(
+      'should ignore the bottom inset when constraining the child '
+      'if avoidBottomInset is false',
+      (tester) async {
+        final env = boilerplate(
+          model: MockSheetModel(),
+          containerSize: Size.infinite,
+          initialViewInsets: EdgeInsets.only(bottom: 120),
+          avoidBottomInset: false,
+        );
+        await tester.pumpWidget(env.testWidget);
+        await tester.pump();
+        expect(tester.getSize(find.byType(Container)), testScreenSize);
       },
     );
 
