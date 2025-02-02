@@ -157,7 +157,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     required this.context,
     required this.physics,
     required SheetSnapGrid snapGrid,
-    this.debugLabel,
     this.gestureProxy,
   }) : _snapGrid = snapGrid {
     goIdle();
@@ -259,9 +258,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   /// An object that can modify the gesture details of the sheet.
   /// {@endtemplate}
   SheetGestureProxyMixin? gestureProxy;
-
-  /// A label that is used to identify this object in debug output.
-  final String? debugLabel;
 
   /// The current activity of the sheet.
   @protected

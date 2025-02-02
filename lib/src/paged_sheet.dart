@@ -37,7 +37,6 @@ class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
     required super.context,
     required super.physics,
     super.gestureProxy,
-    super.debugLabel,
   }) : super(snapGrid: _kDefaultSnapGrid);
 
   Curve offsetInterpolationCurve;
@@ -194,7 +193,6 @@ class PagedSheet extends StatelessWidget {
       offsetInterpolationCurve: offsetInterpolationCurve,
       controller: controller,
       gestureProxy: gestureProxy,
-      debugLabel: kDebugMode ? 'PagedSheet' : null,
       child: Builder(
         builder: (context) {
           return SheetFrame(
@@ -218,11 +216,9 @@ class _PagedSheetModelOwner extends SheetModelOwner<_PagedSheetModel> {
     super.gestureProxy,
     required super.physics,
     required this.offsetInterpolationCurve,
-    this.debugLabel,
     required super.child,
   }) : super(snapGrid: _kDefaultSnapGrid);
 
-  final String? debugLabel;
   final Curve offsetInterpolationCurve;
 
   @override
@@ -233,11 +229,6 @@ class _PagedSheetModelOwner extends SheetModelOwner<_PagedSheetModel> {
 
 class _PagedSheetModelOwnerState
     extends SheetModelOwnerState<_PagedSheetModel, _PagedSheetModelOwner> {
-  @override
-  bool shouldRefreshModel() {
-    return widget.debugLabel != model.debugLabel || super.shouldRefreshModel();
-  }
-
   @override
   void didUpdateWidget(_PagedSheetModelOwner oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -251,7 +242,6 @@ class _PagedSheetModelOwnerState
       physics: widget.physics,
       offsetInterpolationCurve: widget.offsetInterpolationCurve,
       gestureProxy: widget.gestureProxy,
-      debugLabel: widget.debugLabel,
     );
   }
 }

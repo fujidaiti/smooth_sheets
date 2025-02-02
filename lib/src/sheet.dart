@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -40,7 +39,6 @@ class _DraggableScrollableSheetModel extends SheetModel
     required super.physics,
     required super.snapGrid,
     super.gestureProxy,
-    super.debugLabel,
     required this.initialOffset,
   });
 
@@ -92,13 +90,12 @@ class _SheetState extends State<Sheet> {
     final controller =
         widget.controller ?? SheetControllerScope.maybeOf(context);
 
-    return _ScrollAwareSheetModelOwner(
+    return _DraggableScrollableSheetModelOwner(
       controller: controller,
       initialOffset: widget.initialOffset,
       physics: physics,
       snapGrid: widget.snapGrid,
       gestureProxy: gestureTamper,
-      debugLabel: kDebugMode ? 'ScrollableSheet' : null,
       child: Builder(
         builder: (context) {
           return SheetFrame(
@@ -115,50 +112,39 @@ class _SheetState extends State<Sheet> {
   }
 }
 
-class _ScrollAwareSheetModelOwner
-    extends SheetModelOwner<ScrollAwareSheetModelMixin> {
-  const _ScrollAwareSheetModelOwner({
+class _DraggableScrollableSheetModelOwner
+    extends SheetModelOwner<_DraggableScrollableSheetModel> {
+  const _DraggableScrollableSheetModelOwner({
     super.controller,
     required this.initialOffset,
     required super.physics,
     required super.snapGrid,
     super.gestureProxy,
-    this.debugLabel,
     required super.child,
   });
 
   final SheetOffset initialOffset;
 
-  final String? debugLabel;
-
   @override
-  SheetModelOwnerState<ScrollAwareSheetModelMixin,
-      SheetModelOwner<ScrollAwareSheetModelMixin>> createState() {
-    return _ScrollableSheetPositionScopeState();
+  _DraggableScrollableSheetModelOwnerState createState() {
+    return _DraggableScrollableSheetModelOwnerState();
   }
 }
 
-class _ScrollableSheetPositionScopeState extends SheetModelOwnerState<
-    ScrollAwareSheetModelMixin, _ScrollAwareSheetModelOwner> {
+class _DraggableScrollableSheetModelOwnerState extends SheetModelOwnerState<
+    _DraggableScrollableSheetModel, _DraggableScrollableSheetModelOwner> {
   @override
-  bool shouldRefreshModel() {
-    return widget.debugLabel != model.debugLabel || super.shouldRefreshModel();
-  }
-
-  @override
-  ScrollAwareSheetModelMixin createModel() {
+  _DraggableScrollableSheetModel createModel() {
     return _DraggableScrollableSheetModel(
       context: this,
       initialOffset: widget.initialOffset,
       physics: widget.physics,
       snapGrid: widget.snapGrid,
       gestureProxy: widget.gestureProxy,
-      debugLabel: widget.debugLabel,
     );
   }
 }
 
-// TODO: Rename to SheetContent.
 @internal
 class DraggableScrollableSheetContent extends StatelessWidget {
   const DraggableScrollableSheetContent({
