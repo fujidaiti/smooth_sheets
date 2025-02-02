@@ -101,8 +101,10 @@ class SheetController extends ChangeNotifier
   }
 }
 
+@Deprecated('Will be removed in the first stable release.')
 @internal
 class SheetControllerScope extends InheritedWidget {
+  @Deprecated('Will be removed in the first stable release.')
   const SheetControllerScope({
     super.key,
     required this.controller,
@@ -138,49 +140,5 @@ class SheetControllerScope extends InheritedWidget {
   @override
   bool updateShouldNotify(SheetControllerScope oldWidget) {
     return controller != oldWidget.controller;
-  }
-}
-
-class DefaultSheetController extends StatefulWidget {
-  const DefaultSheetController({
-    super.key,
-    required this.child,
-  });
-
-  final Widget child;
-
-  @override
-  State<DefaultSheetController> createState() => _DefaultSheetControllerState();
-
-  static SheetController of(BuildContext context) {
-    return SheetControllerScope.of(context);
-  }
-
-  static SheetController? maybeOf(BuildContext context) {
-    return SheetControllerScope.maybeOf(context);
-  }
-}
-
-class _DefaultSheetControllerState extends State<DefaultSheetController> {
-  late final SheetController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = SheetController();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SheetControllerScope(
-      controller: _controller,
-      child: widget.child,
-    );
   }
 }
