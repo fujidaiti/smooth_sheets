@@ -301,7 +301,7 @@ mixin _ScrollAwareSheetActivityMixin
         ..didUpdateScrollPositionBy(scrollPosition.pixels - oldScrollPixels);
     }
 
-    owner.setOffset(newOffset);
+    owner.offset = newOffset;
 
     final overflow = owner.physics.computeOverflow(delta, owner);
     if (overflow.abs() > 0) {

@@ -217,6 +217,10 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   @override
   double get offset => geometry.offset;
 
+  set offset(double value) {
+    geometry = geometry.copyWith(offset: value);
+  }
+
   @override
   double get devicePixelRatio => context.devicePixelRatio;
 
@@ -348,11 +352,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     _activity?.dispose();
     _activity = null;
     super.dispose();
-  }
-
-  // TODO: Should be a setter.
-  void setOffset(double offset) {
-    geometry = geometry.copyWith(offset: offset);
   }
 
   /// Animates the sheet position to the given value.

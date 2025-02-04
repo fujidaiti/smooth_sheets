@@ -153,7 +153,7 @@ class AnimatedSheetActivity extends SheetActivity
   void onAnimationTick() {
     final progress = curve.transform(controller.value);
     owner
-      ..setOffset(lerpDouble(_startOffset, _endOffset, progress)!)
+      ..offset = lerpDouble(_startOffset, _endOffset, progress)!
       ..didUpdateGeometry();
   }
 
@@ -199,7 +199,7 @@ class BallisticSheetActivity extends SheetActivity
   void onAnimationTick() {
     if (mounted) {
       owner
-        ..setOffset(controller.value)
+        ..offset = controller.value
         ..didUpdateGeometry();
     }
   }
@@ -317,7 +317,7 @@ class SettlingSheetActivity extends SheetActivity {
         ? min(destination, offset + velocity * elapsedFrameTime)
         : max(destination, offset - velocity * elapsedFrameTime);
     owner
-      ..setOffset(newOffset)
+      ..offset = newOffset
       ..didUpdateGeometry();
 
     _elapsedDuration = elapsedDuration;
@@ -382,7 +382,7 @@ class IdleSheetActivity extends SheetActivity {
     final newOffset = targetOffset.resolve(owner.measurements);
     if (newOffset != owner.offset) {
       owner
-        ..setOffset(newOffset)
+        ..offset = newOffset
         ..didUpdateGeometry();
     }
   }
@@ -463,7 +463,7 @@ class DragSheetActivity<T extends SheetModel> extends SheetActivity<T>
         owner.physics.applyPhysicsToOffset(details.deltaY, owner);
     if (physicsAppliedDelta != 0) {
       owner
-        ..setOffset(owner.offset + physicsAppliedDelta)
+        ..offset = owner.offset + physicsAppliedDelta
         ..didDragUpdateMetrics(details);
     }
 
@@ -553,7 +553,7 @@ void absorbBottomViewportInset(
   final newOffset = activityOwner.offset - deltaInsetBottom;
   if (newOffset != activityOwner.offset) {
     activityOwner
-      ..setOffset(newOffset)
+      ..offset = newOffset
       ..didUpdateGeometry();
   }
 }

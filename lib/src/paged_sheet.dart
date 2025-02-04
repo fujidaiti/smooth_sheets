@@ -153,7 +153,7 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
     final destOffset = destinationRouteOffset();
 
     if (originOffset != null && destOffset != null) {
-      owner.setOffset(lerpDouble(originOffset, destOffset, fraction)!);
+      owner.offset = lerpDouble(originOffset, destOffset, fraction)!;
     }
   }
 

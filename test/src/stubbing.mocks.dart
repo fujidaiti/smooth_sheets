@@ -220,6 +220,12 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       ) as double);
 
   @override
+  set offset(double? value) => super.noSuchMethod(
+        Invocation.setter(#offset, value),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   double get devicePixelRatio => (super.noSuchMethod(
         Invocation.getter(#devicePixelRatio),
         returnValue: 0.0,
@@ -377,12 +383,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
   @override
   void dispose() => super.noSuchMethod(
         Invocation.method(#dispose, []),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void setOffset(double? offset) => super.noSuchMethod(
-        Invocation.method(#setOffset, [offset]),
         returnValueForMissingStub: null,
       );
 
