@@ -192,17 +192,13 @@ class PagedSheet extends StatelessWidget {
       offsetInterpolationCurve: offsetInterpolationCurve,
       controller: controller,
       gestureProxy: gestureProxy,
-      child: Builder(
-        builder: (context) {
-          return RenderSheetWidget(
-            child: NavigatorResizable(
-              interpolationCurve: Curves.linear,
-              child: _NavigatorEventDispatcher(
-                child: child,
-              ),
-            ),
-          );
-        },
+      child: RenderSheetWidget(
+        child: NavigatorResizable(
+          interpolationCurve: Curves.linear,
+          child: _NavigatorEventDispatcher(
+            child: child,
+          ),
+        ),
       ),
     );
   }

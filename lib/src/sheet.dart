@@ -96,16 +96,12 @@ class _SheetState extends State<Sheet> {
       physics: physics,
       snapGrid: widget.snapGrid,
       gestureProxy: gestureTamper,
-      child: Builder(
-        builder: (context) {
-          return RenderSheetWidget(
-            child: DraggableScrollableSheetContent(
-              scrollConfiguration: widget.scrollConfiguration,
-              dragConfiguration: widget.dragConfiguration,
-              child: widget.child,
-            ),
-          );
-        },
+      child: RenderSheetWidget(
+        child: DraggableScrollableSheetContent(
+          scrollConfiguration: widget.scrollConfiguration,
+          dragConfiguration: widget.dragConfiguration,
+          child: widget.child,
+        ),
       ),
     );
   }
