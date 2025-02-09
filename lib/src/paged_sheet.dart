@@ -7,7 +7,6 @@ import 'package:navigator_resizable/navigator_resizable.dart';
 
 import 'activity.dart';
 import 'controller.dart';
-import 'frame.dart';
 import 'gesture_proxy.dart';
 import 'model.dart';
 import 'model_owner.dart';
@@ -15,6 +14,7 @@ import 'physics.dart';
 import 'scrollable.dart';
 import 'sheet.dart';
 import 'snap_grid.dart';
+import 'viewport.dart';
 
 const _kDefaultSnapGrid = SteplessSnapGrid(
   minOffset: SheetOffset.absolute(0),
@@ -194,8 +194,7 @@ class PagedSheet extends StatelessWidget {
       gestureProxy: gestureProxy,
       child: Builder(
         builder: (context) {
-          return SheetFrame(
-            model: SheetModelOwner.of(context)!,
+          return RenderSheetWidget(
             child: NavigatorResizable(
               interpolationCurve: Curves.linear,
               child: _NavigatorEventDispatcher(

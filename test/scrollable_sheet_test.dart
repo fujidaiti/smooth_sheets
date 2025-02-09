@@ -105,7 +105,7 @@ void main() {
           key: keyboardSimulationKey,
           keyboardHeight: 200,
           child: SheetViewport(
-            avoidBottomInset: true,
+            ignoreViewInsets: true,
             child: Sheet(
               key: sheetKey,
               controller: controller,

@@ -67,7 +67,8 @@ class MutableSheetMetrics with SheetMetrics {
   required double maxOffset,
   required Size contentSize,
   required Size viewportSize,
-  required EdgeInsets viewportInsets,
+  required double sheetExtent,
+  required double baseline,
   required double devicePixelRatio,
   SheetPhysics? physics,
 }) {
@@ -78,7 +79,8 @@ class MutableSheetMetrics with SheetMetrics {
     measurements: Measurements(
       contentSize: contentSize,
       viewportSize: viewportSize,
-      viewportInsets: viewportInsets,
+      sheetExtent: sheetExtent,
+      baseline: baseline,
     ),
     devicePixelRatio: devicePixelRatio,
   );

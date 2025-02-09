@@ -4,13 +4,13 @@ import 'package:meta/meta.dart';
 
 import 'controller.dart';
 import 'draggable.dart';
-import 'frame.dart';
 import 'gesture_proxy.dart';
 import 'model.dart';
 import 'model_owner.dart';
 import 'physics.dart';
 import 'scrollable.dart';
 import 'snap_grid.dart';
+import 'viewport.dart';
 
 @immutable
 class SheetScrollConfiguration {
@@ -98,8 +98,7 @@ class _SheetState extends State<Sheet> {
       gestureProxy: gestureTamper,
       child: Builder(
         builder: (context) {
-          return SheetFrame(
-            model: SheetModelOwner.of(context)!,
+          return RenderSheetWidget(
             child: DraggableScrollableSheetContent(
               scrollConfiguration: widget.scrollConfiguration,
               dragConfiguration: widget.dragConfiguration,
