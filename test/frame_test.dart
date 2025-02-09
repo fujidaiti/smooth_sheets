@@ -98,10 +98,11 @@ void main() {
         await tester.pumpWidget(env.testWidget, phase: EnginePhase.layout);
 
         verify(
-          mockModel.measurements = SheetMeasurements(
+          mockModel.measurements = Measurements(
             contentSize: Size(testScreenSize.width, 300),
+            sheetExtent: 300,
             viewportSize: testScreenSize,
-            viewportInsets: EdgeInsets.zero,
+            baseline: 0,
           ),
         );
       },
@@ -122,10 +123,11 @@ void main() {
         await tester.pump(null, EnginePhase.layout);
 
         verify(
-          mockModel.measurements = SheetMeasurements(
+          mockModel.measurements = Measurements(
             contentSize: Size(testScreenSize.width, 400),
+            sheetExtent: 400,
             viewportSize: testScreenSize,
-            viewportInsets: EdgeInsets.zero,
+            baseline: 0,
           ),
         );
       },

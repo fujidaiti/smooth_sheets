@@ -340,9 +340,8 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
 
     switch (_resizeBehavior) {
       case _AvoidBottomInset(maintainBottomBar: false):
-        final bottomInset = sheetMetrics.measurements.viewportInsets.bottom;
-        return (visibility - bottomInset / bottomBarSize.height)
-            .clamp(0.0, 1.0);
+        final baseline = sheetMetrics.measurements.baseline;
+        return (visibility - baseline / bottomBarSize.height).clamp(0.0, 1.0);
 
       case _AvoidBottomInset(maintainBottomBar: true):
         return visibility;
@@ -424,7 +423,7 @@ class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
         return 1.0;
 
       case _AvoidBottomInset(maintainBottomBar: false):
-        final bottomInset = sheetMetrics.measurements.viewportInsets.bottom;
+        final bottomInset = sheetMetrics.measurements.baseline;
         return (1 - bottomInset / bottomBarSize.height).clamp(0.0, 1.0);
     }
   }
@@ -513,7 +512,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 ///   body: SizedBox.expand(),
 ///   bottomBar: ConditionalStickyBottomBarVisibility(
 ///     getIsVisible: (metrics) =>
-///         metrics.viewportInsets.bottom == 0 &&
+///         metrics.baseline.bottom == 0 &&
 ///         metrics.offset >
 ///             const SheetAnchor.proportional(0.5)
 ///                 .resolve(metrics.contentSize),

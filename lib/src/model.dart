@@ -34,7 +34,7 @@ abstract interface class SheetOffset {
   const factory SheetOffset.relative(double factor) = RelativeSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
-  double resolve(SheetMeasurements measurements);
+  double resolve(Measurements measurements);
 }
 
 /// A [SheetOffset] that represents a position proportional
@@ -57,7 +57,7 @@ class RelativeSheetOffset implements SheetOffset {
   final double factor;
 
   @override
-  double resolve(SheetMeasurements measurements) =>
+  double resolve(Measurements measurements) =>
       measurements.contentSize.height * factor;
 
   @override
@@ -177,10 +177,10 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   }
 
   @override
-  SheetMeasurements get measurements => _measurements!;
-  SheetMeasurements? _measurements;
+  Measurements get measurements => _measurements!;
+  Measurements? _measurements;
 
-  set measurements(SheetMeasurements value) {
+  set measurements(Measurements value) {
     if (_measurements == value) {
       return;
     }
@@ -297,7 +297,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   }
 
   @protected
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+  void didChangeMeasurements(Measurements oldMeasurements) {
     activity.didChangeMeasurements(oldMeasurements);
   }
 
@@ -383,7 +383,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    Measurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -448,7 +448,7 @@ mixin SheetMetrics {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    Measurements? measurements,
     double? devicePixelRatio,
   });
 
@@ -461,13 +461,13 @@ mixin SheetMetrics {
   /// The maximum position of the sheet in pixels.
   double get maxOffset;
 
-  SheetMeasurements get measurements;
+  Measurements get measurements;
 
   /// The visible height of the sheet measured from the bottom of the viewport.
   ///
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [offset] and the keyboard's height. Otherwise, it is equal to [offset].
-  double get viewOffset => offset + measurements.viewportInsets.bottom;
+  double get viewOffset => offset + measurements.baseline;
 }
 
 /// An immutable snapshot of the state of a sheet.
@@ -492,7 +492,7 @@ class SheetMetricsSnapshot with SheetMetrics {
   final double maxOffset;
 
   @override
-  final SheetMeasurements measurements;
+  final Measurements measurements;
 
   @override
   final double devicePixelRatio;
@@ -502,7 +502,7 @@ class SheetMetricsSnapshot with SheetMetrics {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    Measurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -566,42 +566,54 @@ class SheetGeometry {
 }
 
 @immutable
-class SheetMeasurements {
-  const SheetMeasurements({
+class Measurements {
+  const Measurements({
     required this.contentSize,
     required this.viewportSize,
-    required this.viewportInsets,
+    required this.sheetExtent,
+    required this.baseline,
   });
 
+  // TODO: Rename to contentExtent.
   final Size contentSize;
+
+  // TODO: Rename to viewportExtent.
   final Size viewportSize;
-  final EdgeInsets viewportInsets;
+
+  final double sheetExtent;
+
+  final double baseline;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is SheetMeasurements &&
+    return other is Measurements &&
         other.contentSize == contentSize &&
         other.viewportSize == viewportSize &&
-        other.viewportInsets == viewportInsets;
+        other.sheetExtent == sheetExtent &&
+        other.baseline == baseline;
   }
 
   @override
   int get hashCode => Object.hash(
         contentSize,
         viewportSize,
-        viewportInsets,
+        sheetExtent,
+        baseline,
       );
 
-  SheetMeasurements copyWith({
+  Measurements copyWith({
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
+    double? sheetExtent,
+    double? baseline,
   }) {
-    return SheetMeasurements(
+    return Measurements(
       contentSize: contentSize ?? this.contentSize,
       viewportSize: viewportSize ?? this.viewportSize,
-      viewportInsets: viewportInsets ?? this.viewportInsets,
+      sheetExtent: sheetExtent ?? this.sheetExtent,
+      baseline: baseline ?? this.baseline,
     );
   }
 }

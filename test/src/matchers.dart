@@ -20,7 +20,7 @@ Matcher isMeasurements({
   Size? viewportSize,
   EdgeInsets? viewportInsets,
 }) {
-  var result = isA<SheetMeasurements>();
+  var result = isA<Measurements>();
   if (contentSize != null) {
     result = result.having(
       (it) => it.contentSize,
@@ -37,7 +37,7 @@ Matcher isMeasurements({
   }
   if (viewportInsets != null) {
     result = result.having(
-      (it) => it.viewportInsets,
+      (it) => it.baseline,
       'viewportInsets',
       viewportInsets,
     );

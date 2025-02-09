@@ -62,9 +62,9 @@ abstract class SheetActivity<T extends SheetModel> {
 
   bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
-    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
-      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
+  void didChangeMeasurements(Measurements oldMeasurements) {
+    if (owner.measurements.baseline != oldMeasurements.baseline) {
+      absorbBaseDelta(owner, oldMeasurements.baseline);
     }
   }
 
@@ -163,9 +163,9 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
-    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
-      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
+  void didChangeMeasurements(Measurements oldMeasurements) {
+    if (owner.measurements.baseline != oldMeasurements.baseline) {
+      absorbBaseDelta(owner, oldMeasurements.baseline);
     }
     final newEndOffset = destination.resolve(owner.measurements);
     if (newEndOffset != _endOffset) {
@@ -210,12 +210,12 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+  void didChangeMeasurements(Measurements oldMeasurements) {
     final oldMetrics = owner.copyWith(measurements: oldMeasurements);
     final destination = owner.snapGrid.getSnapOffset(oldMetrics, velocity);
 
-    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
-      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
+    if (owner.measurements.baseline != oldMeasurements.baseline) {
+      absorbBaseDelta(owner, oldMeasurements.baseline);
     }
 
     final endOffset = destination.resolve(owner.measurements);
@@ -328,9 +328,9 @@ class SettlingSheetActivity extends SheetActivity {
   }
 
   @override
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
-    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
-      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
+  void didChangeMeasurements(Measurements oldMeasurements) {
+    if (owner.measurements.baseline != oldMeasurements.baseline) {
+      absorbBaseDelta(owner, oldMeasurements.baseline);
     }
 
     _invalidateVelocity();
@@ -378,7 +378,7 @@ class IdleSheetActivity extends SheetActivity {
 
   /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
+  void didChangeMeasurements(Measurements oldMeasurements) {
     final newOffset = targetOffset.resolve(owner.measurements);
     if (newOffset != owner.offset) {
       owner
@@ -530,9 +530,9 @@ mixin ControlledSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
 mixin UserControlledSheetActivityMixin<T extends SheetModel>
     on SheetActivity<T> {
   @override
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
-    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
-      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
+  void didChangeMeasurements(Measurements oldMeasurements) {
+    if (owner.measurements.baseline != oldMeasurements.baseline) {
+      absorbBaseDelta(owner, oldMeasurements.baseline);
     }
     // We don't call `goSettling` here because the user is still
     // manually controlling the sheet position.
@@ -543,13 +543,8 @@ mixin UserControlledSheetActivityMixin<T extends SheetModel>
 /// equal to the height of the on-screen keyboard, to the [activityOwner]'s
 /// `offset` to maintain the visual sheet position.
 @internal
-void absorbBottomViewportInset(
-  SheetModel activityOwner,
-  EdgeInsets oldViewportInsets,
-) {
-  final newInsets = activityOwner.measurements.viewportInsets;
-  final oldInsets = oldViewportInsets;
-  final deltaInsetBottom = newInsets.bottom - oldInsets.bottom;
+void absorbBaseDelta(SheetModel activityOwner, double oldBaseline) {
+  final deltaInsetBottom = activityOwner.measurements.baseline - oldBaseline;
   final newOffset = activityOwner.offset - deltaInsetBottom;
   if (newOffset != activityOwner.offset) {
     activityOwner

@@ -288,10 +288,11 @@ void main() {
       IdleSheetActivity()
         ..init(owner)
         ..didChangeMeasurements(
-          const SheetMeasurements(
+          const Measurements(
             contentSize: Size(400, 900),
             viewportSize: Size(400, 900),
-            viewportInsets: EdgeInsets.zero,
+            sheetExtent: 900,
+            baseline: 0,
           ),
         );
       expect(ownerMetrics.offset, 425);

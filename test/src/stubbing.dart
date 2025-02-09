@@ -40,14 +40,14 @@ class MutableSheetMetrics with SheetMetrics {
   double maxOffset;
 
   @override
-  SheetMeasurements measurements;
+  Measurements measurements;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    Measurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -75,7 +75,7 @@ class MutableSheetMetrics with SheetMetrics {
     offset: offset,
     minOffset: minOffset,
     maxOffset: maxOffset,
-    measurements: SheetMeasurements(
+    measurements: Measurements(
       contentSize: contentSize,
       viewportSize: viewportSize,
       viewportInsets: viewportInsets,
@@ -103,7 +103,7 @@ class MutableSheetMetrics with SheetMetrics {
   });
   when(position.measurements = any).thenAnswer((invocation) {
     metricsRegistry.measurements =
-        invocation.positionalArguments[0] as SheetMeasurements;
+        invocation.positionalArguments[0] as Measurements;
   });
   when(position.copyWith(
     offset: anyNamed('offset'),
@@ -117,8 +117,7 @@ class MutableSheetMetrics with SheetMetrics {
       minOffset: invocation.namedArguments[#minOffset] as double?,
       maxOffset: invocation.namedArguments[#maxOffset] as double?,
       devicePixelRatio: invocation.namedArguments[#devicePixelRatio] as double?,
-      measurements:
-          invocation.namedArguments[#measurements] as SheetMeasurements?,
+      measurements: invocation.namedArguments[#measurements] as Measurements?,
     );
   });
 

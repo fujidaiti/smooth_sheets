@@ -99,7 +99,7 @@ class _RenderSheetFrame extends RenderProxyBox {
     final childConstraints = constraints.tighten(width: constraints.maxWidth);
     child.layout(childConstraints, parentUsesSize: true);
     final viewportSize = constraints.biggest;
-    _model.measurements = SheetMeasurements(
+    _model.measurements = Measurements(
       contentSize: Size.copy(child.size),
       viewportSize: viewportSize,
       viewportInsets: _viewportInsets,

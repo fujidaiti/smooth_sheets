@@ -14,10 +14,11 @@ void main() {
   }) {
     final mock = MockSheetMetrics();
     when(mock.measurements).thenReturn(
-      SheetMeasurements(
+      Measurements(
         contentSize: contentSize,
         viewportSize: testScreenSize,
-        viewportInsets: EdgeInsets.zero,
+        sheetExtent: contentSize.height,
+        baseline: 0,
       ),
     );
     when(mock.offset).thenReturn(offset);

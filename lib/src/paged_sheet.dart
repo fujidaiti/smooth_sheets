@@ -158,9 +158,9 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
   }
 
   @override
-  void didChangeMeasurements(SheetMeasurements oldMeasurements) {
-    if (owner.measurements.viewportInsets != oldMeasurements.viewportInsets) {
-      absorbBottomViewportInset(owner, oldMeasurements.viewportInsets);
+  void didChangeMeasurements(Measurements oldMeasurements) {
+    if (owner.measurements.baseline != oldMeasurements.baseline) {
+      absorbBaseDelta(owner, oldMeasurements.baseline);
     }
   }
 }

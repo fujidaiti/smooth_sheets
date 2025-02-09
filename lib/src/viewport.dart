@@ -46,7 +46,7 @@ class SheetViewportState extends State<SheetViewport> {
   Widget build(BuildContext context) {
     return _InheritedSheetViewport(
       state: this,
-      child: _SheetTranslate(
+      child: _RenderSheetViewportWidget(
         model: model,
         insets: MediaQuery.of(context).viewInsets,
         avoidBottomInset: widget.avoidBottomInset,
@@ -74,8 +74,8 @@ class _InheritedSheetViewport extends InheritedWidget {
   bool updateShouldNotify(_InheritedSheetViewport oldWidget) => true;
 }
 
-class _SheetTranslate extends SingleChildRenderObjectWidget {
-  const _SheetTranslate({
+class _RenderSheetViewportWidget extends SingleChildRenderObjectWidget {
+  const _RenderSheetViewportWidget({
     required this.model,
     required this.insets,
     required this.avoidBottomInset,
@@ -88,7 +88,7 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderSheetTranslate(
+    return _RenderSheetViewport(
       model: model,
       insets: insets,
       avoidBottomInset: avoidBottomInset,
@@ -97,15 +97,15 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderSheetTranslate)
+    (renderObject as _RenderSheetViewport)
       ..setModel(model)
       ..setInsets(insets)
       ..setAvoidBottomInset(avoidBottomInset);
   }
 }
 
-class _RenderSheetTranslate extends RenderTransform {
-  _RenderSheetTranslate({
+class _RenderSheetViewport extends RenderTransform {
+  _RenderSheetViewport({
     required SheetModelView model,
     required EdgeInsets insets,
     required bool avoidBottomInset,
@@ -125,6 +125,9 @@ class _RenderSheetTranslate extends RenderTransform {
   bool _avoidBottomInset;
   Size? _lastMeasuredSize;
 
+  // Initialized by the descendant _RenderSheet in its constructor.
+  _RenderSheet? _renderSheet;
+
   void setModel(SheetModelView value) {
     if (value != _model) {
       _model.removeListener(_invalidateTransformMatrix);
@@ -132,6 +135,10 @@ class _RenderSheetTranslate extends RenderTransform {
       _invalidateTransformMatrix();
     }
   }
+
+  EdgeInsets get viewInsets => _insets;
+
+  EdgeInsets get padding => EdgeInsets.zero;
 
   void setInsets(EdgeInsets value) {
     if (value != _insets) {
@@ -216,6 +223,111 @@ class _RenderSheetTranslate extends RenderTransform {
   }
 }
 
+@internal
+class RenderSheetWidget extends SingleChildRenderObjectWidget {
+  const RenderSheetWidget({
+    super.key,
+    required this.model,
+    required super.child,
+  });
+
+  final SheetModel model;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderSheet(
+      model: model,
+      viewportInsets: MediaQuery.viewInsetsOf(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderSheet)
+      ..setModel(model)
+      ..setViewportInsets(MediaQuery.viewInsetsOf(context));
+  }
+}
+
+class _RenderSheet extends RenderProxyBox {
+  _RenderSheet({
+    required SheetModel model,
+    required EdgeInsets viewportInsets,
+  })  : _model = model,
+        _viewportInsets = viewportInsets {
+    model.addListener(_onMetricsChange);
+  }
+
+  EdgeInsets _viewportInsets;
+  SheetModel _model;
+  Size? _lastMeasuredSize;
+
+  @override
+  set size(Size value) {
+    _lastMeasuredSize = value;
+    super.size = value;
+  }
+
+  void setViewportInsets(EdgeInsets value) {
+    if (value != _viewportInsets) {
+      _viewportInsets = value;
+      markNeedsLayout();
+    }
+  }
+
+  void setModel(SheetModel value) {
+    if (value != _model) {
+      _model = value;
+      markNeedsLayout();
+    }
+  }
+
+  @override
+  void dispose() {
+    _renderViewport?._renderSheet = null;
+    _model.removeListener(_onMetricsChange);
+    super.dispose();
+  }
+
+  void _onMetricsChange() {
+    // ignore: lines_longer_than_80_chars
+    // TODO: Mark this render object as needing layout when the preferred sheet size changes.
+    /*
+    final metrics = _metricsNotifier.value;
+    if (metrics.contentSize != _lastMeasuredSize &&
+        // Calling SheetPosition.applyNewDimensions() in the performLayout()
+        // eventually triggers this callback. In that case, we must not
+        // call markNeedsLayout() as it is already in the layout phase.
+        SchedulerBinding.instance.schedulerPhase !=
+            SchedulerPhase.persistentCallbacks) {
+      markNeedsLayout();
+    }
+    */
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      super.performLayout();
+      return;
+    }
+
+    assert(constraints.biggest.isFinite);
+    final childConstraints = constraints.tighten(width: constraints.maxWidth);
+    child.layout(childConstraints, parentUsesSize: true);
+    final viewportSize = constraints.biggest;
+    _model.measurements = Measurements(
+      contentSize: Size.copy(child.size),
+      viewportSize: viewportSize,
+      viewportInsets: _viewportInsets,
+    );
+    // ignore: lines_longer_than_80_chars
+    // TODO: The size of this widget should be determined by the geometry controller.
+    size = child.size;
+  }
+}
+
 class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   SheetModel? _model;
 
@@ -260,14 +372,14 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   double get offset => _model!.offset;
 
   @override
-  SheetMeasurements get measurements => _model!.measurements;
+  Measurements get measurements => _model!.measurements;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    Measurements? measurements,
     double? devicePixelRatio,
   }) {
     return _model!.copyWith(
