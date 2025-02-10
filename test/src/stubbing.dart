@@ -67,8 +67,7 @@ class MutableSheetMetrics with SheetMetrics {
   required double maxOffset,
   required Size contentSize,
   required Size viewportSize,
-  required double sheetExtent,
-  required double baseline,
+  EdgeInsets viewportInsets = EdgeInsets.zero,
   required double devicePixelRatio,
   SheetPhysics? physics,
 }) {
@@ -79,8 +78,8 @@ class MutableSheetMetrics with SheetMetrics {
     measurements: Measurements(
       contentSize: contentSize,
       viewportSize: viewportSize,
-      sheetExtent: sheetExtent,
-      baseline: baseline,
+      viewportPadding: EdgeInsets.zero,
+      viewportInsets: viewportInsets,
     ),
     devicePixelRatio: devicePixelRatio,
   );
@@ -95,6 +94,7 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.initialOffset).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
+  when(position.baseline).thenAnswer((_) => metricsRegistry.baseline);
   when(position.measurements).thenAnswer((_) => metricsRegistry.measurements);
   when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);

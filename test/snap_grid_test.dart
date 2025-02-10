@@ -17,8 +17,8 @@ void main() {
       Measurements(
         contentSize: contentSize,
         viewportSize: testScreenSize,
-        sheetExtent: contentSize.height,
-        baseline: 0,
+        viewportPadding: EdgeInsets.zero,
+        viewportInsets: EdgeInsets.zero,
       ),
     );
     when(mock.offset).thenReturn(offset);

@@ -37,7 +37,7 @@ Matcher isMeasurements({
   }
   if (viewportInsets != null) {
     result = result.having(
-      (it) => it.baseline,
+      (it) => it.viewportInsets,
       'viewportInsets',
       viewportInsets,
     );

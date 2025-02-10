@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -437,7 +439,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 }
 
 /// The metrics of a sheet.
-// TODO: Add `baseline` property of type double.
 mixin SheetMetrics {
   /// The [FlutterView.devicePixelRatio] of the view that the sheet
   /// associated with this metrics is drawn into.
@@ -463,11 +464,16 @@ mixin SheetMetrics {
 
   Measurements get measurements;
 
+  double get baseline => max(
+        measurements.viewportInsets.bottom,
+        measurements.viewportPadding.bottom,
+      );
+
   /// The visible height of the sheet measured from the bottom of the viewport.
   ///
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [offset] and the keyboard's height. Otherwise, it is equal to [offset].
-  double get viewOffset => offset + measurements.baseline;
+  double get viewOffset => offset + baseline;
 }
 
 /// An immutable snapshot of the state of a sheet.
@@ -570,19 +576,17 @@ class Measurements {
   const Measurements({
     required this.contentSize,
     required this.viewportSize,
-    required this.sheetExtent,
-    required this.baseline,
+    required this.viewportInsets,
+    required this.viewportPadding,
   });
 
-  // TODO: Rename to contentExtent.
   final Size contentSize;
 
-  // TODO: Rename to viewportExtent.
   final Size viewportSize;
 
-  final double sheetExtent;
+  final EdgeInsets viewportInsets;
 
-  final double baseline;
+  final EdgeInsets viewportPadding;
 
   @override
   bool operator ==(Object other) {
@@ -590,30 +594,29 @@ class Measurements {
     return other is Measurements &&
         other.contentSize == contentSize &&
         other.viewportSize == viewportSize &&
-        other.sheetExtent == sheetExtent &&
-        other.baseline == baseline;
+        other.viewportInsets == viewportInsets &&
+        other.viewportPadding == viewportPadding;
   }
 
   @override
   int get hashCode => Object.hash(
         contentSize,
         viewportSize,
-        sheetExtent,
-        baseline,
+        viewportInsets,
+        viewportPadding,
       );
 
   Measurements copyWith({
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportInsets,
-    double? sheetExtent,
-    double? baseline,
+    EdgeInsets? viewportPadding,
   }) {
     return Measurements(
       contentSize: contentSize ?? this.contentSize,
       viewportSize: viewportSize ?? this.viewportSize,
-      sheetExtent: sheetExtent ?? this.sheetExtent,
-      baseline: baseline ?? this.baseline,
+      viewportInsets: viewportInsets ?? this.viewportInsets,
+      viewportPadding: viewportPadding ?? this.viewportPadding,
     );
   }
 }

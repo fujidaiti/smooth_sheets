@@ -159,8 +159,9 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
 
   @override
   void didChangeMeasurements(Measurements oldMeasurements) {
-    if (owner.measurements.baseline != oldMeasurements.baseline) {
-      absorbBaseDelta(owner, oldMeasurements.baseline);
+    final oldMetrics = owner.copyWith(measurements: oldMeasurements);
+    if (owner.baseline != oldMetrics.baseline) {
+      absorbBaseDelta(owner, oldMetrics);
     }
   }
 }

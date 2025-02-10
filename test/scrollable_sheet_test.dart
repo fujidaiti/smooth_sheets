@@ -95,6 +95,7 @@ void main() {
   testWidgets('Opening keyboard does not interrupt sheet animation',
       (tester) async {
     final controller = SheetController();
+    final viewportKey = GlobalKey();
     final sheetKey = GlobalKey();
     final keyboardSimulationKey = GlobalKey<KeyboardInsetSimulationState>();
 
@@ -105,7 +106,7 @@ void main() {
           key: keyboardSimulationKey,
           keyboardHeight: 200,
           child: SheetViewport(
-            ignoreViewInsets: true,
+            key: viewportKey,
             child: Sheet(
               key: sheetKey,
               controller: controller,
@@ -142,7 +143,7 @@ void main() {
           .showKeyboard(const Duration(milliseconds: 250)),
     );
     await tester.pumpAndSettle();
-    expect(MediaQuery.viewInsetsOf(sheetKey.currentContext!).bottom, 200,
+    expect(MediaQuery.viewInsetsOf(viewportKey.currentContext!).bottom, 200,
         reason: 'The keyboard should be fully shown.');
     expect(controller.metrics!.offset, 400,
         reason: 'After the keyboard is fully shown, '

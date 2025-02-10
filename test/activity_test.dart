@@ -49,8 +49,6 @@ void main() {
         maxOffset: 700,
         contentSize: const Size(400, 700),
         viewportSize: const Size(400, 900),
-        sheetExtent: 700,
-        baseline: 0,
         devicePixelRatio: 1,
       );
 
@@ -90,8 +88,6 @@ void main() {
         maxOffset: 900,
         contentSize: const Size(400, 900),
         viewportSize: const Size(400, 900),
-        sheetExtent: 900,
-        baseline: 0,
         devicePixelRatio: 1,
       );
 
@@ -150,8 +146,6 @@ void main() {
         maxOffset: 600,
         contentSize: const Size(400, 600),
         viewportSize: const Size(400, 900),
-        sheetExtent: 600,
-        baseline: 0,
         devicePixelRatio: 1,
       );
       internalTicker = MockTicker();
@@ -281,10 +275,9 @@ void main() {
         initialPosition: const SheetOffset.relative(0.5),
         minOffset: 425,
         maxOffset: 850,
-        baseline: 50,
+        viewportInsets: const EdgeInsets.only(bottom: 50),
         contentSize: const Size(400, 850),
         viewportSize: const Size(400, 900),
-        sheetExtent: 850,
         devicePixelRatio: 1,
         physics: kDefaultSheetPhysics,
       );
@@ -295,8 +288,8 @@ void main() {
           const Measurements(
             contentSize: Size(400, 900),
             viewportSize: Size(400, 900),
-            sheetExtent: 900,
-            baseline: 0,
+            viewportInsets: EdgeInsets.zero,
+            viewportPadding: EdgeInsets.zero,
           ),
         );
       expect(ownerMetrics.offset, 425);
@@ -312,8 +305,6 @@ void main() {
           maxOffset: 600,
           contentSize: const Size(400, 500),
           viewportSize: const Size(400, 900),
-          sheetExtent: 500,
-          baseline: 0,
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
         );

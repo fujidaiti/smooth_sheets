@@ -479,9 +479,9 @@ void main() {
         verify(
           mockModel.measurements = Measurements(
             contentSize: Size(testScreenSize.width, 300),
-            sheetExtent: 300,
             viewportSize: testScreenSize,
-            baseline: 0,
+            viewportInsets: EdgeInsets.zero,
+            viewportPadding: EdgeInsets.zero,
           ),
         );
       },
@@ -504,9 +504,9 @@ void main() {
         verify(
           mockModel.measurements = Measurements(
             contentSize: Size(testScreenSize.width, 400),
-            sheetExtent: 400,
             viewportSize: testScreenSize,
-            baseline: 0,
+            viewportInsets: EdgeInsets.zero,
+            viewportPadding: EdgeInsets.zero,
           ),
         );
       },
