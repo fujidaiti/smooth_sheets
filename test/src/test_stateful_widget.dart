@@ -15,7 +15,7 @@ class TestStatefulWidget<T> extends StatefulWidget {
 
   final T initialState;
   final Widget Function(BuildContext, T) builder;
-  final VoidCallback? didChangeDependencies;
+  final void Function(BuildContext)? didChangeDependencies;
 
   @override
   State<TestStatefulWidget<T>> createState() => TestStatefulWidgetState();
@@ -41,7 +41,7 @@ class TestStatefulWidgetState<T> extends State<TestStatefulWidget<T>> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    widget.didChangeDependencies?.call();
+    widget.didChangeDependencies?.call(context);
   }
 
   @override

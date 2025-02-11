@@ -35,7 +35,7 @@ void main() {
         builder: (_, __) {
           return Container();
         },
-        didChangeDependencies: () {
+        didChangeDependencies: (context) {
           didChangeDependenciesCalledCount++;
         },
       ),

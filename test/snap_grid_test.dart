@@ -56,15 +56,15 @@ void main() {
 
     test('getBoundaries: min and max offsets are always the same', () {
       var result = const SingleSnapGrid(snap: SheetOffset.absolute(500))
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
+          .getBoundaries(metrics(contentSize: Size(300, 400)).measurements);
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
       result = const SingleSnapGrid(snap: SheetOffset.absolute(500))
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
+          .getBoundaries(metrics(contentSize: Size(300, 600)).measurements);
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
       result = const SingleSnapGrid(snap: SheetOffset.absolute(500))
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
+          .getBoundaries(metrics(contentSize: Size(300, 500)).measurements);
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
     });
   });
@@ -102,19 +102,19 @@ void main() {
     });
 
     test('getBoundaries: always returns min and max offsets', () {
-      var result = snap.getBoundaries(metrics(offset: -100));
+      var result = snap.getBoundaries(metrics(offset: -100).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = snap.getBoundaries(metrics(offset: 0));
+      result = snap.getBoundaries(metrics(offset: 0).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = snap.getBoundaries(metrics(offset: 250));
+      result = snap.getBoundaries(metrics(offset: 250).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = snap.getBoundaries(metrics(offset: 500));
+      result = snap.getBoundaries(metrics(offset: 500).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = snap.getBoundaries(metrics(offset: 600));
+      result = snap.getBoundaries(metrics(offset: 600).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
   });
@@ -151,15 +151,15 @@ void main() {
 
     test('getBoundaries', () {
       var result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
+          .getBoundaries(metrics(contentSize: Size(300, 400)).measurements);
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
       result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
+          .getBoundaries(metrics(contentSize: Size(300, 600)).measurements);
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
       result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
+          .getBoundaries(metrics(contentSize: Size(300, 500)).measurements);
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
     });
   });
@@ -257,15 +257,15 @@ void main() {
 
     test('getBoundaries', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
+          .getBoundaries(metrics(contentSize: Size(300, 400)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
+          .getBoundaries(metrics(contentSize: Size(300, 600)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
+          .getBoundaries(metrics(contentSize: Size(300, 500)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
 
@@ -276,7 +276,7 @@ void main() {
           SheetOffset.absolute(0),
         ],
       ).getBoundaries(
-        metrics(contentSize: Size(300, 400)),
+        metrics(contentSize: Size(300, 400)).measurements,
       );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
@@ -415,15 +415,15 @@ void main() {
 
     test('getBoundaries', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
+          .getBoundaries(metrics(contentSize: Size(300, 400)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
+          .getBoundaries(metrics(contentSize: Size(300, 600)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
+          .getBoundaries(metrics(contentSize: Size(300, 500)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
 
@@ -435,7 +435,7 @@ void main() {
           SheetOffset.absolute(0),
         ],
       ).getBoundaries(
-        metrics(contentSize: Size(300, 400)),
+        metrics(contentSize: Size(300, 400)).measurements,
       );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
@@ -601,15 +601,15 @@ void main() {
 
     test('getBoundaries', () {
       var result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 400)));
+          .getBoundaries(metrics(contentSize: Size(300, 400)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 600)));
+          .getBoundaries(metrics(contentSize: Size(300, 600)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
 
       result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(metrics(contentSize: Size(300, 500)));
+          .getBoundaries(metrics(contentSize: Size(300, 500)).measurements);
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
     });
 
@@ -622,7 +622,7 @@ void main() {
           SheetOffset.absolute(0),
         ],
       ).getBoundaries(
-        metrics(contentSize: Size(300, 400)),
+        metrics(contentSize: Size(300, 400)).measurements,
       );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
     });

@@ -6,7 +6,9 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/model.dart';
 
 @GenerateNiceMocks([
-  MockSpec<SheetModel>(),
+  MockSpec<SheetModel>(
+    onMissingStub: OnMissingStub.throwException,
+  ),
   MockSpec<SheetContext>(),
   MockSpec<SheetMetrics>(),
   MockSpec<AnimationController>(),

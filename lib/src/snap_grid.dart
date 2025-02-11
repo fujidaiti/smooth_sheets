@@ -22,12 +22,10 @@ abstract interface class SheetSnapGrid {
 
   /// Returns an position to which a sheet should eventually settle
   /// based on the current [metrics] and the [velocity] of a sheet.
-  // TODO: Use positional arguments.
   SheetOffset getSnapOffset(SheetMetrics metrics, double velocity);
 
   /// Returns the minimum and maximum offsets.
-  /// // TODO: Change "SheetMetrics metrics" to "SheetMeasurements measurements".
-  (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics);
+  (SheetOffset, SheetOffset) getBoundaries(Measurements measurements);
 }
 
 class SingleSnapGrid implements SheetSnapGrid {
@@ -43,7 +41,7 @@ class SingleSnapGrid implements SheetSnapGrid {
   }
 
   @override
-  (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics) {
+  (SheetOffset, SheetOffset) getBoundaries(Measurements measurements) {
     return (snap, snap);
   }
 }
@@ -58,7 +56,7 @@ class SteplessSnapGrid implements SheetSnapGrid {
   final SheetOffset maxOffset;
 
   @override
-  (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics) {
+  (SheetOffset, SheetOffset) getBoundaries(Measurements measurements) {
     return (minOffset, maxOffset);
   }
 
@@ -105,9 +103,35 @@ class MultiSnapGrid implements SheetSnapGrid {
   }
 
   @override
-  (SheetOffset, SheetOffset) getBoundaries(SheetMetrics metrics) {
-    final result = _scanSnapOffsets(metrics);
-    return (result.min, result.max);
+  (SheetOffset, SheetOffset) getBoundaries(Measurements measurements) {
+    assert(snaps.isNotEmpty);
+    if (snaps.length == 1) {
+      return (snaps.first, snaps.first);
+    }
+
+    if (snaps.length == 2) {
+      final first = snaps.first.resolve(measurements);
+      final second = snaps.last.resolve(measurements);
+      return first < second
+          ? (snaps.first, snaps.last)
+          : (snaps.last, snaps.first);
+    }
+
+    var minimum = snaps.first;
+    var maximum = minimum;
+    var resolvedMinimum = minimum.resolve(measurements);
+    var resolvedMaximum = resolvedMinimum;
+    for (var index = 1; index < snaps.length; index++) {
+      final resolved = snaps[index].resolve(measurements);
+      if (resolved < resolvedMinimum) {
+        minimum = snaps[index];
+        resolvedMinimum = resolved;
+      } else if (resolved > resolvedMaximum) {
+        maximum = snaps[index];
+        resolvedMaximum = resolved;
+      }
+    }
+    return (minimum, maximum);
   }
 
   /// Given a [metrics], finds the minimum, maximum, nearest, leftmost,

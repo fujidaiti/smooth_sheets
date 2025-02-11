@@ -125,15 +125,15 @@ class _FakeTicker_14 extends _i1.SmartFake implements _i10.Ticker {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
+  MockSheetModel() {
+    _i1.throwOnMissingStub(this);
+  }
+
   @override
   _i2.SheetContext get context =>
       (super.noSuchMethod(
             Invocation.getter(#context),
             returnValue: _FakeSheetContext_0(this, Invocation.getter(#context)),
-            returnValueForMissingStub: _FakeSheetContext_0(
-              this,
-              Invocation.getter(#context),
-            ),
           )
           as _i2.SheetContext);
 
@@ -142,10 +142,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       (super.noSuchMethod(
             Invocation.getter(#physics),
             returnValue: _FakeSheetPhysics_1(this, Invocation.getter(#physics)),
-            returnValueForMissingStub: _FakeSheetPhysics_1(
-              this,
-              Invocation.getter(#physics),
-            ),
           )
           as _i3.SheetPhysics);
 
@@ -170,10 +166,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
               this,
               Invocation.getter(#geometry),
             ),
-            returnValueForMissingStub: _FakeSheetGeometry_2(
-              this,
-              Invocation.getter(#geometry),
-            ),
           )
           as _i2.SheetGeometry);
 
@@ -191,10 +183,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
               this,
               Invocation.getter(#measurements),
             ),
-            returnValueForMissingStub: _FakeMeasurements_3(
-              this,
-              Invocation.getter(#measurements),
-            ),
           )
           as _i2.Measurements);
 
@@ -206,29 +194,17 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
 
   @override
   double get maxOffset =>
-      (super.noSuchMethod(
-            Invocation.getter(#maxOffset),
-            returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
-          )
+      (super.noSuchMethod(Invocation.getter(#maxOffset), returnValue: 0.0)
           as double);
 
   @override
   double get minOffset =>
-      (super.noSuchMethod(
-            Invocation.getter(#minOffset),
-            returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
-          )
+      (super.noSuchMethod(Invocation.getter(#minOffset), returnValue: 0.0)
           as double);
 
   @override
   double get offset =>
-      (super.noSuchMethod(
-            Invocation.getter(#offset),
-            returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
-          )
+      (super.noSuchMethod(Invocation.getter(#offset), returnValue: 0.0)
           as double);
 
   @override
@@ -242,17 +218,12 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       (super.noSuchMethod(
             Invocation.getter(#devicePixelRatio),
             returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
           )
           as double);
 
   @override
   bool get hasMetrics =>
-      (super.noSuchMethod(
-            Invocation.getter(#hasMetrics),
-            returnValue: false,
-            returnValueForMissingStub: false,
-          )
+      (super.noSuchMethod(Invocation.getter(#hasMetrics), returnValue: false)
           as bool);
 
   @override
@@ -260,7 +231,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       (super.noSuchMethod(
             Invocation.getter(#shouldIgnorePointer),
             returnValue: false,
-            returnValueForMissingStub: false,
           )
           as bool);
 
@@ -272,10 +242,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
               this,
               Invocation.getter(#initialOffset),
             ),
-            returnValueForMissingStub: _FakeSheetOffset_4(
-              this,
-              Invocation.getter(#initialOffset),
-            ),
           )
           as _i2.SheetOffset);
 
@@ -284,10 +250,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       (super.noSuchMethod(
             Invocation.getter(#snapGrid),
             returnValue: _FakeSheetSnapGrid_5(
-              this,
-              Invocation.getter(#snapGrid),
-            ),
-            returnValueForMissingStub: _FakeSheetSnapGrid_5(
               this,
               Invocation.getter(#snapGrid),
             ),
@@ -308,10 +270,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
               this,
               Invocation.getter(#activity),
             ),
-            returnValueForMissingStub: _FakeSheetActivity_6<_i2.SheetModel>(
-              this,
-              Invocation.getter(#activity),
-            ),
           )
           as _i5.SheetActivity<_i2.SheetModel>);
 
@@ -323,38 +281,22 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
               this,
               Invocation.getter(#snapshot),
             ),
-            returnValueForMissingStub: _FakeSheetMetrics_7(
-              this,
-              Invocation.getter(#snapshot),
-            ),
           )
           as _i2.SheetMetrics);
 
   @override
   double get baseline =>
-      (super.noSuchMethod(
-            Invocation.getter(#baseline),
-            returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
-          )
+      (super.noSuchMethod(Invocation.getter(#baseline), returnValue: 0.0)
           as double);
 
   @override
   double get viewOffset =>
-      (super.noSuchMethod(
-            Invocation.getter(#viewOffset),
-            returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
-          )
+      (super.noSuchMethod(Invocation.getter(#viewOffset), returnValue: 0.0)
           as double);
 
   @override
   bool get hasListeners =>
-      (super.noSuchMethod(
-            Invocation.getter(#hasListeners),
-            returnValue: false,
-            returnValueForMissingStub: false,
-          )
+      (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
 
   @override
@@ -413,10 +355,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
               this,
               Invocation.method(#drag, [details, dragCancelCallback]),
             ),
-            returnValueForMissingStub: _FakeDrag_8(
-              this,
-              Invocation.method(#drag, [details, dragCancelCallback]),
-            ),
           )
           as _i6.Drag);
 
@@ -460,16 +398,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
               #devicePixelRatio: devicePixelRatio,
             }),
             returnValue: _FakeSheetMetrics_7(
-              this,
-              Invocation.method(#copyWith, [], {
-                #offset: offset,
-                #minOffset: minOffset,
-                #maxOffset: maxOffset,
-                #measurements: measurements,
-                #devicePixelRatio: devicePixelRatio,
-              }),
-            ),
-            returnValueForMissingStub: _FakeSheetMetrics_7(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,

@@ -1,12 +1,12 @@
-//
-
 import 'package:flutter/material.dart';
-import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/model.dart';
+import 'package:smooth_sheets/src/physics.dart';
+import 'package:smooth_sheets/src/snap_grid.dart';
 import 'package:smooth_sheets/src/viewport.dart';
 
 import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
+import 'src/matchers.dart';
 import 'src/stubbing.dart';
 import 'src/test_stateful_widget.dart';
 
@@ -17,12 +17,9 @@ void main() {
       ValueSetter<EdgeInsets> setViewInsets,
     }) boilerplate({
       required SheetModel model,
-      BoxConstraints parentConstraints = const BoxConstraints.expand(),
-      Size containerSize = Size.infinite,
       EdgeInsets initialViewInsets = EdgeInsets.zero,
-      bool avoidBottomInset = true,
+      required Widget Function(Widget child) builder,
     }) {
-      final viewportKey = GlobalKey<SheetViewportState>();
       final mediaQueryKey = GlobalKey<TestStatefulWidgetState<EdgeInsets>>();
       final testWidget = TestStatefulWidget(
         key: mediaQueryKey,
@@ -33,24 +30,15 @@ void main() {
               viewInsets: viewInsets,
             ),
             child: Center(
-              child: ConstrainedBox(
-                constraints: parentConstraints,
-                child: SheetViewport(
-                  key: viewportKey,
-                  ignoreViewInsets: avoidBottomInset,
-                  child: TestStatefulWidget(
-                    initialState: containerSize,
-                    didChangeDependencies: () {
-                      viewportKey.currentState!.setModel(model);
-                    },
-                    builder: (_, size) {
-                      return Container(
-                        color: Colors.white,
-                        height: size.height,
-                        width: size.width,
-                      );
-                    },
-                  ),
+              child: builder(
+                TestStatefulWidget(
+                  initialState: null,
+                  didChangeDependencies: (context) {
+                    context
+                        .findAncestorStateOfType<SheetViewportState>()!
+                        .setModel(model);
+                  },
+                  builder: (_, __) => SizedBox.shrink(),
                 ),
               ),
             ),
@@ -70,8 +58,13 @@ void main() {
       'should size itself to match the biggest size that the constraints allow',
       (tester) async {
         final env = boilerplate(
-          model: MockSheetModel(),
-          parentConstraints: BoxConstraints(maxWidth: 400, maxHeight: 400),
+          model: _TestSheetModel(),
+          builder: (child) => ConstrainedBox(
+            constraints: BoxConstraints.loose(Size(400, 400)),
+            child: SheetViewport(
+              child: child,
+            ),
+          ),
         );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byType(SheetViewport)), Size.square(400));
@@ -79,76 +72,193 @@ void main() {
     );
 
     testWidgets(
-      "should not constraint the child's minimum size",
+      "should force the sheet's width to match the viewport's width, "
+      'but not the height',
       (tester) async {
         final env = boilerplate(
-          model: MockSheetModel(),
-          containerSize: Size.zero,
-          parentConstraints: BoxConstraints(minWidth: 100, minHeight: 100),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byType(Container)), Size.zero);
-      },
-    );
-
-    testWidgets(
-      "should constrain the child's maximum size by the parent's constraint",
-      (tester) async {
-        final env = boilerplate(
-          model: MockSheetModel(),
-          containerSize: Size.infinite,
-          parentConstraints: BoxConstraints(maxWidth: 400, maxHeight: 400),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byType(Container)), Size.square(400));
-      },
-    );
-
-    testWidgets(
-      'should constrain the child by a loose constraint '
-      'even if the given constraint is tight',
-      (tester) async {
-        final env = boilerplate(
-          model: MockSheetModel(),
-          containerSize: Size.square(200),
-          parentConstraints: BoxConstraints.tight(Size.square(400)),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byType(Container)), Size.square(200));
-      },
-    );
-
-    testWidgets(
-      'should constrain the child to avoid bottom inset '
-      'when avoidBottomInset is true',
-      (tester) async {
-        final env = boilerplate(
-          model: MockSheetModel(),
-          containerSize: Size.infinite,
-          initialViewInsets: EdgeInsets.only(bottom: 120),
-          avoidBottomInset: true,
+          model: _TestSheetModel(),
+          builder: (child) => SheetViewport(
+            child: RenderSheetWidget(
+              child: SizedBox.shrink(
+                key: Key('content'),
+                child: child,
+              ),
+            ),
+          ),
         );
         await tester.pumpWidget(env.testWidget);
         expect(
-          tester.getSize(find.byType(Container)),
-          Size(testScreenSize.width, testScreenSize.height - 120),
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, 0),
+        );
+        expect(
+          tester.getSize(find.byType(RenderSheetWidget)),
+          Size(testScreenSize.width, 0),
         );
       },
     );
 
     testWidgets(
-      'should ignore the bottom inset when constraining the child '
-      'if avoidBottomInset is false',
+      'should allow the sheet to size its height freely within the viewport',
       (tester) async {
         final env = boilerplate(
-          model: MockSheetModel(),
-          containerSize: Size.infinite,
-          initialViewInsets: EdgeInsets.only(bottom: 120),
-          avoidBottomInset: false,
+          model: _TestSheetModel(),
+          builder: (child) => ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: 400,
+            ),
+            child: SheetViewport(
+              child: RenderSheetWidget(
+                child: SizedBox.fromSize(
+                  key: Key('content'),
+                  size: Size.fromHeight(300),
+                  child: child,
+                ),
+              ),
+            ),
+          ),
         );
         await tester.pumpWidget(env.testWidget);
-        await tester.pump();
-        expect(tester.getSize(find.byType(Container)), testScreenSize);
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getSize(find.byType(RenderSheetWidget)),
+          Size(testScreenSize.width, 300),
+        );
+      },
+    );
+
+    testWidgets(
+      "should constrain the sheet's maximum size by its size",
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          builder: (child) => SheetViewport(
+            child: RenderSheetWidget(
+              child: SizedBox.expand(
+                key: Key('content'),
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byKey(Key('content'))), testScreenSize);
+        expect(tester.getSize(find.byType(RenderSheetWidget)), testScreenSize);
+      },
+    );
+
+    testWidgets(
+      "should shrink the sheet's maximum size by its padding",
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          builder: (child) => SheetViewport(
+            padding: EdgeInsets.all(10),
+            child: RenderSheetWidget(
+              child: SizedBox.expand(
+                key: Key('content'),
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          EdgeInsets.all(10).deflateSize(testScreenSize),
+        );
+        expect(
+          tester.getSize(find.byType(RenderSheetWidget)),
+          EdgeInsets.all(10).deflateSize(testScreenSize),
+        );
+      },
+    );
+
+    testWidgets(
+      "should ignore 'MediaQueryData.viewInsets' "
+      "if 'ignoreViewInsets' is true",
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          initialViewInsets: EdgeInsets.all(10),
+          builder: (child) => SheetViewport(
+            ignoreViewInsets: true,
+            child: RenderSheetWidget(
+              child: SizedBox.expand(
+                key: Key('content'),
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byKey(Key('content'))), testScreenSize);
+        expect(
+          tester.getSize(find.byType(RenderSheetWidget)),
+          testScreenSize,
+        );
+      },
+    );
+
+    testWidgets(
+      "should shrink the sheet content's size by 'MediaQueryData.viewInsets' "
+      "if 'ignoreViewInsets' is false",
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          initialViewInsets: EdgeInsets.all(10),
+          builder: (child) => SheetViewport(
+            ignoreViewInsets: false,
+            child: RenderSheetWidget(
+              child: SizedBox.expand(
+                key: Key('content'),
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          EdgeInsets.all(10).deflateSize(testScreenSize),
+        );
+        expect(
+          tester.getSize(find.byType(RenderSheetWidget)),
+          testScreenSize,
+        );
+      },
+    );
+
+    testWidgets(
+      "should respect both 'padding' and 'MediaQueryData.viewInsets' "
+      "if 'ignoreViewInsets' is false",
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          initialViewInsets: EdgeInsets.only(bottom: 100),
+          builder: (child) => SheetViewport(
+            padding: EdgeInsets.all(10),
+            ignoreViewInsets: false,
+            child: RenderSheetWidget(
+              child: SizedBox.expand(
+                key: Key('content'),
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          EdgeInsets.fromLTRB(10, 10, 10, 100).deflateSize(testScreenSize),
+        );
+        expect(
+          tester.getSize(find.byType(RenderSheetWidget)),
+          EdgeInsets.all(10).deflateSize(testScreenSize),
+        );
       },
     );
 
@@ -156,32 +266,235 @@ void main() {
       "should translate the child's visual position "
       'according to the current sheet metrics',
       (tester) async {
-        final model = MockSheetModel();
-        late VoidCallback notifyListeners;
-        when(model.value).thenReturn(SheetGeometry(offset: 150));
-        when(model.addListener(any)).thenAnswer((invocation) {
-          notifyListeners =
-              invocation.positionalArguments.first as VoidCallback;
-        });
-
+        final model = _TestSheetModel(
+          initialOffset: SheetOffset.absolute(150),
+        );
         final env = boilerplate(
           model: model,
-          containerSize: Size.fromHeight(300),
+          builder: (child) => SheetViewport(
+            child: RenderSheetWidget(
+              child: SizedBox.fromSize(
+                key: Key('content'),
+                size: Size.fromHeight(300),
+                child: child,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byType(RenderSheetWidget)).top,
+          testScreenSize.height - 150,
+        );
+
+        model.offset = 200;
+        await tester.pump();
+        expect(
+          tester.getRect(find.byType(RenderSheetWidget)).top,
+          testScreenSize.height - 200,
+        );
+      },
+    );
+
+    testWidgets(
+      "should keep the sheet's bottom edge always at "
+      'the bottom of the viewport',
+      (tester) async {
+        final model = _TestSheetModel(
+          initialOffset: SheetOffset.absolute(300),
+        );
+        final env = boilerplate(
+          model: model,
+          builder: (child) => SheetViewport(
+            child: RenderSheetWidget(
+              child: SizedBox.fromSize(
+                key: Key('content'),
+                size: Size.fromHeight(300),
+                child: child,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getRect(find.byType(RenderSheetWidget)),
+          Rect.fromLTWH(
+            0,
+            testScreenSize.height - 300,
+            testScreenSize.width,
+            300,
+          ),
+        );
+
+        model.offset = 350;
+        await tester.pump();
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getRect(find.byType(RenderSheetWidget)),
+          Rect.fromLTWH(
+            0,
+            testScreenSize.height - 350,
+            testScreenSize.width,
+            350,
+          ),
+        );
+
+        model.offset = 150;
+        await tester.pump();
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getRect(find.byType(RenderSheetWidget)),
+          Rect.fromLTWH(
+            0,
+            testScreenSize.height - 150,
+            testScreenSize.width,
+            300,
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      "should keep the sheet's bottom edge always at "
+      'the bottom of the viewport (with paddings)',
+      (tester) async {
+        final model = _TestSheetModel(
+          initialOffset: SheetOffset.absolute(300),
+        );
+        final env = boilerplate(
+          model: model,
+          builder: (child) => SheetViewport(
+            padding: EdgeInsets.all(10),
+            child: RenderSheetWidget(
+              child: SizedBox.fromSize(
+                key: Key('content'),
+                size: Size.fromHeight(300),
+                child: child,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byType(RenderSheetWidget)),
+          Rect.fromLTWH(
+            10,
+            testScreenSize.height - 310,
+            testScreenSize.width - 20,
+            300,
+          ),
+        );
+
+        model.offset = 350;
+        await tester.pump();
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getRect(find.byType(RenderSheetWidget)),
+          Rect.fromLTWH(
+            10,
+            testScreenSize.height - 360,
+            testScreenSize.width - 20,
+            350,
+          ),
+        );
+
+        model.offset = 150;
+        await tester.pump();
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getRect(find.byType(RenderSheetWidget)),
+          Rect.fromLTWH(
+            10,
+            testScreenSize.height - 160,
+            testScreenSize.width - 20,
+            300,
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      "should update the model's 'measurements' on the first build",
+      (tester) async {
+        final model = _TestSheetModel();
+        final env = boilerplate(
+          model: model,
+          builder: (child) => SheetViewport(
+            child: RenderSheetWidget(
+              child: SizedBox.fromSize(
+                key: Key('content'),
+                size: Size.fromHeight(300),
+                child: child,
+              ),
+            ),
+          ),
+        );
+
+        expect(model.hasMetrics, isFalse);
+        await tester.pumpWidget(env.testWidget, phase: EnginePhase.layout);
+
+        expect(model.hasMetrics, isTrue);
+        expect(
+          model.measurements,
+          isMeasurements(contentSize: Size(testScreenSize.width, 300)),
+        );
+      },
+    );
+
+    testWidgets(
+      "should update the model's 'measurements' "
+      'when the content size changes',
+      (tester) async {
+        final model = _TestSheetModel();
+        final contentStateKey = GlobalKey<TestStatefulWidgetState<Size>>();
+        final env = boilerplate(
+          model: model,
+          builder: (child) => SheetViewport(
+            child: RenderSheetWidget(
+              child: TestStatefulWidget(
+                key: contentStateKey,
+                initialState: Size.fromHeight(300),
+                builder: (_, size) {
+                  return SizedBox.fromSize(
+                    key: Key('content'),
+                    size: size,
+                    child: child,
+                  );
+                },
+              ),
+            ),
+          ),
         );
         await tester.pumpWidget(env.testWidget);
-
         expect(
-          tester.getRect(find.byType(Container)).topLeft,
-          Offset(0, testScreenSize.height - 150),
+          model.measurements,
+          isMeasurements(contentSize: Size(testScreenSize.width, 300)),
         );
 
-        when(model.value).thenReturn(SheetGeometry(offset: 200));
-        notifyListeners();
+        contentStateKey.currentState!.state = Size.fromHeight(200);
         await tester.pump();
-
         expect(
-          tester.getRect(find.byType(Container)).topLeft,
-          Offset(0, testScreenSize.height - 200),
+          model.measurements,
+          isMeasurements(contentSize: Size(testScreenSize.width, 200)),
         );
       },
     );
@@ -189,13 +502,13 @@ void main() {
 
   group('SheetViewport: hit-testing', () {
     ({
-      MockSheetModel model,
+      _TestSheetModel model,
       Widget testWidget,
     }) boilerplate() {
-      final model = MockSheetModel();
-      when(model.value).thenReturn(SheetGeometry(offset: 300));
+      final model = _TestSheetModel(
+        initialOffset: SheetOffset.absolute(300),
+      );
 
-      final viewportKey = GlobalKey<SheetViewportState>();
       final testWidget = MediaQuery(
         data: MediaQueryData(),
         child: Directionality(
@@ -212,18 +525,21 @@ void main() {
               Padding(
                 padding: EdgeInsets.all(10),
                 child: SheetViewport(
-                  key: viewportKey,
                   child: TestStatefulWidget(
                     initialState: null,
-                    didChangeDependencies: () {
-                      viewportKey.currentState!.setModel(model);
+                    didChangeDependencies: (context) {
+                      context
+                          .findAncestorStateOfType<SheetViewportState>()!
+                          .setModel(model);
                     },
                     builder: (_, __) {
-                      return Container(
-                        key: Key('child'),
-                        color: Colors.white,
-                        height: 300,
-                        width: double.infinity,
+                      return RenderSheetWidget(
+                        child: Container(
+                          key: Key('child'),
+                          color: Colors.white,
+                          height: 300,
+                          width: double.infinity,
+                        ),
                       );
                     },
                   ),
@@ -246,11 +562,11 @@ void main() {
         final env = boilerplate();
         await tester.pumpWidget(env.testWidget);
 
-        when(env.model.shouldIgnorePointer).thenReturn(false);
+        env.model.debugShouldIgnorePointerOverride = false;
         await tester.tap(find.byKey(Key('child')));
         expect(tester.takeException(), isNull);
 
-        when(env.model.shouldIgnorePointer).thenReturn(true);
+        env.model.debugShouldIgnorePointerOverride = true;
         await tester.tap(find.byKey(Key('child')));
         expect(tester.takeException(), isA<FlutterError>());
       },
@@ -329,49 +645,25 @@ void main() {
 
   group('SheetViewport: usage error test', () {
     testWidgets(
-      'Throws an error when no model object is attached '
-      'before the first layout phase',
+      'Throws when the viewport is not constrained by a finite constraint',
       (tester) async {
-        final errors = await tester.pumpWidgetAndCaptureErrors(
-          MediaQuery(
-            data: MediaQueryData(),
-            child: SheetViewport(
-              child: Container(),
-            ),
-          ),
-        );
-
-        expect(
-          errors.first.exception,
-          isAssertionError.having(
-            (e) => e.message,
-            'message',
-            'The model object must be attached to the SheetViewport '
-                'before the first layout phase.',
-          ),
-        );
-      },
-    );
-
-    testWidgets(
-      'Throws an error when the viewport is not constrained '
-      'by a finite constraint',
-      (tester) async {
-        final model = MockSheetModel();
-        final viewportKey = GlobalKey<SheetViewportState>();
+        final model = _TestSheetModel();
         final errors = await tester.pumpWidgetAndCaptureErrors(
           MediaQuery(
             data: MediaQueryData(),
             child: Column(
               children: [
                 SheetViewport(
-                  key: viewportKey,
                   child: TestStatefulWidget(
                     initialState: null,
-                    didChangeDependencies: () {
-                      viewportKey.currentState!.setModel(model);
+                    didChangeDependencies: (context) {
+                      context
+                          .findAncestorStateOfType<SheetViewportState>()!
+                          .setModel(model);
                     },
-                    builder: (_, __) => Container(),
+                    builder: (_, __) => RenderSheetWidget(
+                      child: Container(),
+                    ),
                   ),
                 ),
               ],
@@ -389,127 +681,132 @@ void main() {
         );
       },
     );
-  });
 
-  group('SheetFrame', () {
-    ({
-      Widget testWidget,
-      ValueSetter<Size> setContainerSize,
-    }) boilerplate({
-      required SheetModel model,
-      EdgeInsets viewportInsets = EdgeInsets.zero,
-      Size initialContainerSize = Size.infinite,
-    }) {
-      late StateSetter setStateFn;
-      var containerSize = initialContainerSize;
-      void setContainerSize(Size size) {
-        setStateFn(() => containerSize = size);
-      }
-
-      final testWidget = MediaQuery(
-        data: MediaQueryData(
-          viewInsets: viewportInsets,
-        ),
-        child: Align(
-          alignment: Alignment.topLeft,
-          child: RenderSheetWidget(
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                setStateFn = setState;
-                return Container(
-                  color: Colors.white,
-                  height: containerSize.height,
-                  width: containerSize.width,
-                );
-              },
+    testWidgets(
+      'Throws when the viewport does not have a RenderSheetWidget '
+      'in its subtree',
+      (tester) async {
+        final model = _TestSheetModel();
+        final errors = await tester.pumpWidgetAndCaptureErrors(
+          MediaQuery(
+            data: MediaQueryData(),
+            child: SheetViewport(
+              child: TestStatefulWidget(
+                initialState: null,
+                didChangeDependencies: (context) {
+                  context
+                      .findAncestorStateOfType<SheetViewportState>()!
+                      .setModel(model);
+                },
+                builder: (_, __) => Container(),
+              ),
             ),
           ),
-        ),
-      );
-
-      return (
-        testWidget: testWidget,
-        setContainerSize: setContainerSize,
-      );
-    }
-
-    testWidgets(
-      "should constraint the child's height by the parent's constraints, "
-      "and enforce the child's width to be the same as the parent's width",
-      (tester) async {
-        final env = boilerplate(
-          model: MockSheetModel(),
-          initialContainerSize: Size(300, double.infinity),
         );
-        await tester.pumpWidget(env.testWidget);
+
         expect(
-          tester.getSize(find.byType(Container)),
-          equals(testScreenSize),
-        );
-      },
-    );
-
-    // ignore: lines_longer_than_80_chars
-    // TODO: Remove this test and add "should size itself to according to the current metrics" test instead.
-    testWidgets(
-      'should size itself to fit the child',
-      (WidgetTester tester) async {
-        final env = boilerplate(
-          model: MockSheetModel(),
-          initialContainerSize: Size.fromHeight(300),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byType(RenderSheetWidget)),
-          equals(Size(testScreenSize.width, 300)),
-        );
-      },
-    );
-
-    testWidgets(
-      'should trigger the callback on the first build',
-      (WidgetTester tester) async {
-        final mockModel = MockSheetModel();
-        final env = boilerplate(
-          model: mockModel,
-          initialContainerSize: Size.fromHeight(300),
-        );
-        await tester.pumpWidget(env.testWidget, phase: EnginePhase.layout);
-
-        verify(
-          mockModel.measurements = Measurements(
-            contentSize: Size(testScreenSize.width, 300),
-            viewportSize: testScreenSize,
-            viewportInsets: EdgeInsets.zero,
-            viewportPadding: EdgeInsets.zero,
+          errors.first.exception,
+          isAssertionError.having(
+            (e) => e.message,
+            'message',
+            'The SheetViewport must have exactly one RenderSheetWidget '
+                'in its subtree.',
           ),
         );
       },
     );
 
     testWidgets(
-      "should trigger the callback when the child's size changes",
+      'Throws when the viewport has another viewport in its subtree',
       (tester) async {
-        final mockModel = MockSheetModel();
-        final env = boilerplate(
-          model: mockModel,
-          initialContainerSize: Size.fromHeight(300),
+        final model = _TestSheetModel();
+        final errors = await tester.pumpWidgetAndCaptureErrors(
+          MediaQuery(
+            data: MediaQueryData(),
+            child: SheetViewport(
+              child: TestStatefulWidget(
+                initialState: null,
+                didChangeDependencies: (context) {
+                  context
+                      .findAncestorStateOfType<SheetViewportState>()!
+                      .setModel(model);
+                },
+                builder: (_, __) => SheetViewport(
+                  child: RenderSheetWidget(
+                    child: Container(),
+                  ),
+                ),
+              ),
+            ),
+          ),
         );
-        await tester.pumpWidget(env.testWidget);
 
-        reset(mockModel);
-        env.setContainerSize(Size.fromHeight(400));
-        await tester.pump(null, EnginePhase.layout);
+        expect(
+          errors.first.exception,
+          isAssertionError.having(
+            (e) => e.message,
+            'message',
+            'The SheetViewport must not have another SheetViewport '
+                'in its subtree.',
+          ),
+        );
+      },
+    );
 
-        verify(
-          mockModel.measurements = Measurements(
-            contentSize: Size(testScreenSize.width, 400),
-            viewportSize: testScreenSize,
-            viewportInsets: EdgeInsets.zero,
-            viewportPadding: EdgeInsets.zero,
+    testWidgets(
+      'Throws when the sheet has another sheet in its subtree',
+      (tester) async {
+        final model = _TestSheetModel();
+        final errors = await tester.pumpWidgetAndCaptureErrors(
+          MediaQuery(
+            data: MediaQueryData(),
+            child: SheetViewport(
+              child: TestStatefulWidget(
+                initialState: null,
+                didChangeDependencies: (context) {
+                  context
+                      .findAncestorStateOfType<SheetViewportState>()!
+                      .setModel(model);
+                },
+                builder: (_, __) => RenderSheetWidget(
+                  child: RenderSheetWidget(
+                    child: Container(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          errors.first.exception,
+          isAssertionError.having(
+            (e) => e.message,
+            'message',
+            'The SheetViewport must have exactly one RenderSheetWidget '
+                'in its subtree.',
           ),
         );
       },
     );
   });
+}
+
+class _TestSheetModel extends SheetModel {
+  _TestSheetModel({
+    this.initialOffset = const SheetOffset.relative(1),
+  }) : super(
+          context: MockSheetContext(),
+          physics: const ClampingSheetPhysics(),
+          snapGrid: const SheetSnapGrid.stepless(),
+        );
+
+  bool? debugShouldIgnorePointerOverride;
+
+  @override
+  bool get shouldIgnorePointer =>
+      debugShouldIgnorePointerOverride ?? super.shouldIgnorePointer;
+
+  @override
+  final SheetOffset initialOffset;
 }

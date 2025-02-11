@@ -189,13 +189,14 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 
     final oldMeasurements = _measurements;
     _measurements = value;
+    final (minOffset, maxOffset) = snapGrid.getBoundaries(value);
+    _boundaries = (minOffset.resolve(value), maxOffset.resolve(value));
 
     if (_geometry == null) {
       geometry = SheetGeometry(offset: initialOffset.resolve(value));
     }
 
-    final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
-    _boundaries = (minOffset.resolve(value), maxOffset.resolve(value));
+    assert(hasMetrics);
 
     if (oldMeasurements != null) {
       didChangeMeasurements(oldMeasurements);
@@ -227,8 +228,10 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   double get devicePixelRatio => context.devicePixelRatio;
 
   @override
-  bool get hasMetrics =>
-      _geometry != null && _measurements != null && _boundaries != null;
+  bool get hasMetrics {
+    assert((_measurements != null) == (_boundaries != null));
+    return _geometry != null && _measurements != null;
+  }
 
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
@@ -252,7 +255,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   set snapGrid(SheetSnapGrid snapGrid) {
     _snapGrid = snapGrid;
     if (hasMetrics) {
-      final (minOffset, maxOffset) = snapGrid.getBoundaries(this);
+      final (minOffset, maxOffset) = snapGrid.getBoundaries(measurements);
       _boundaries = (
         minOffset.resolve(measurements),
         maxOffset.resolve(measurements),
@@ -464,6 +467,7 @@ mixin SheetMetrics {
 
   Measurements get measurements;
 
+  // TODO: Should this be moved to Measurements class?
   double get baseline => max(
         measurements.viewportInsets.bottom,
         measurements.viewportPadding.bottom,
