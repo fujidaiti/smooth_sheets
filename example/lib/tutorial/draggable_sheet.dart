@@ -17,6 +17,7 @@ class _BasicSheetExample extends StatelessWidget {
         children: [
           Scaffold(),
           SheetViewport(
+            padding: EdgeInsets.all(24),
             child: _MySheet(),
           ),
         ],
@@ -34,20 +35,21 @@ class _MySheet extends StatelessWidget {
     // If you want to the sheet to be as big as the screen,
     // wrap the content in a widget that fills the free space
     // such as SizedBox.expand().
-    const content = SafeArea(
-      top: false,
-      child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Text(_loremIpsum),
-      ),
-    );
 
     // Then, wrap the content in Sheet.
     // Note that Sheet does not work with scrollable widgets.
     // If you want to use a scrollable widget as its content,
     // use ScrollableSheet instead.
-    return Sheet(
-      child: buildSheetBackground(context, content),
+    return Material(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: const Sheet(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text(_loremIpsum),
+        ),
+      ),
     );
   }
 

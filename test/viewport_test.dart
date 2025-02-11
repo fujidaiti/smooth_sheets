@@ -167,12 +167,22 @@ void main() {
         );
         await tester.pumpWidget(env.testWidget);
         expect(
-          tester.getSize(find.byKey(Key('content'))),
-          EdgeInsets.all(10).deflateSize(testScreenSize),
+          tester.getRect(find.byKey(Key('content'))),
+          Rect.fromLTWH(
+            10,
+            10,
+            testScreenSize.width - 20,
+            testScreenSize.height - 20,
+          ),
         );
         expect(
-          tester.getSize(find.byType(RenderSheetWidget)),
-          EdgeInsets.all(10).deflateSize(testScreenSize),
+          tester.getRect(find.byType(RenderSheetWidget)),
+          Rect.fromLTWH(
+            10,
+            10,
+            testScreenSize.width - 20,
+            testScreenSize.height - 20,
+          ),
         );
       },
     );
@@ -500,6 +510,7 @@ void main() {
     );
   });
 
+  // TODO: Use SheetViewport.padding instead of Padding widget.
   group('SheetViewport: hit-testing', () {
     ({
       _TestSheetModel model,
@@ -522,27 +533,25 @@ void main() {
                 width: double.infinity,
                 height: double.infinity,
               ),
-              Padding(
+              SheetViewport(
                 padding: EdgeInsets.all(10),
-                child: SheetViewport(
-                  child: TestStatefulWidget(
-                    initialState: null,
-                    didChangeDependencies: (context) {
-                      context
-                          .findAncestorStateOfType<SheetViewportState>()!
-                          .setModel(model);
-                    },
-                    builder: (_, __) {
-                      return RenderSheetWidget(
-                        child: Container(
-                          key: Key('child'),
-                          color: Colors.white,
-                          height: 300,
-                          width: double.infinity,
-                        ),
-                      );
-                    },
-                  ),
+                child: TestStatefulWidget(
+                  initialState: null,
+                  didChangeDependencies: (context) {
+                    context
+                        .findAncestorStateOfType<SheetViewportState>()!
+                        .setModel(model);
+                  },
+                  builder: (_, __) {
+                    return RenderSheetWidget(
+                      child: Container(
+                        key: Key('child'),
+                        color: Colors.white,
+                        height: 300,
+                        width: double.infinity,
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
