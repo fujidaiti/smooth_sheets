@@ -48,40 +48,43 @@ class SheetViewportState extends State<SheetViewport> {
 
   @override
   Widget build(BuildContext context) {
-    final viewInsets = MediaQuery.viewInsetsOf(context);
+    final inheritedViewInsets = MediaQuery.viewInsetsOf(context);
     final viewInsetsForChild = EdgeInsets.fromLTRB(
-      max(viewInsets.left - widget.padding.left, 0),
-      max(viewInsets.top - widget.padding.top, 0),
-      max(viewInsets.right - widget.padding.right, 0),
-      max(viewInsets.bottom - widget.padding.bottom, 0),
+      max(inheritedViewInsets.left - widget.padding.left, 0),
+      max(inheritedViewInsets.top - widget.padding.top, 0),
+      max(inheritedViewInsets.right - widget.padding.right, 0),
+      max(inheritedViewInsets.bottom - widget.padding.bottom, 0),
+    );
+    final inheritedPadding = MediaQuery.paddingOf(context);
+    final paddingForChild = EdgeInsets.fromLTRB(
+      max(inheritedPadding.left - widget.padding.left, 0),
+      max(inheritedPadding.top - widget.padding.top, 0),
+      max(inheritedPadding.right - widget.padding.right, 0),
+      max(inheritedPadding.bottom - widget.padding.bottom, 0),
+    );
+    final inheritedViewPadding = MediaQuery.viewPaddingOf(context);
+    final viewPaddingForChild = EdgeInsets.fromLTRB(
+      max(inheritedViewPadding.left - widget.padding.left, 0),
+      max(inheritedViewPadding.top - widget.padding.top, 0),
+      max(inheritedViewPadding.right - widget.padding.right, 0),
+      max(inheritedViewPadding.bottom - widget.padding.bottom, 0),
     );
 
-    Widget result = switch (widget.ignoreViewInsets) {
-      true => _RenderSheetViewportWidget(
-          model: _modelView,
-          padding: widget.padding,
-          viewInsets: EdgeInsets.zero,
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              viewInsets: viewInsetsForChild,
-            ),
-            child: widget.child,
-          ),
+    Widget result = _RenderSheetViewportWidget(
+      model: _modelView,
+      padding: widget.padding,
+      viewInsets:
+          widget.ignoreViewInsets ? EdgeInsets.zero : viewInsetsForChild,
+      child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          viewInsets:
+              widget.ignoreViewInsets ? viewInsetsForChild : EdgeInsets.zero,
+          padding: paddingForChild,
+          viewPadding: viewPaddingForChild,
         ),
-      false => _RenderSheetViewportWidget(
-          model: _modelView,
-          padding: widget.padding,
-          viewInsets: viewInsetsForChild,
-          child: MediaQuery.removeViewInsets(
-            removeLeft: true,
-            removeTop: true,
-            removeRight: true,
-            removeBottom: true,
-            context: context,
-            child: widget.child,
-          ),
-        ),
-    };
+        child: widget.child,
+      ),
+    );
 
     if (widget.padding.collapsedSize != Size.zero) {
       result = Padding(

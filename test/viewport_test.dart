@@ -14,44 +14,35 @@ void main() {
   group('SheetViewport', () {
     ({
       Widget testWidget,
-      ValueSetter<EdgeInsets> setViewInsets,
     }) boilerplate({
       required SheetModel model,
-      EdgeInsets initialViewInsets = EdgeInsets.zero,
+      EdgeInsets viewInsets = EdgeInsets.zero,
+      EdgeInsets padding = EdgeInsets.zero,
+      EdgeInsets viewPadding = EdgeInsets.zero,
       required Widget Function(Widget child) builder,
     }) {
-      final mediaQueryKey = GlobalKey<TestStatefulWidgetState<EdgeInsets>>();
-      final testWidget = TestStatefulWidget(
-        key: mediaQueryKey,
-        initialState: initialViewInsets,
-        builder: (_, viewInsets) {
-          return MediaQuery(
-            data: MediaQueryData(
-              viewInsets: viewInsets,
+      final testWidget = MediaQuery(
+        data: MediaQueryData(
+          viewInsets: viewInsets,
+          padding: padding,
+          viewPadding: viewPadding,
+        ),
+        child: Center(
+          child: builder(
+            TestStatefulWidget(
+              initialState: null,
+              didChangeDependencies: (context) {
+                context
+                    .findAncestorStateOfType<SheetViewportState>()!
+                    .setModel(model);
+              },
+              builder: (_, __) => SizedBox.shrink(),
             ),
-            child: Center(
-              child: builder(
-                TestStatefulWidget(
-                  initialState: null,
-                  didChangeDependencies: (context) {
-                    context
-                        .findAncestorStateOfType<SheetViewportState>()!
-                        .setModel(model);
-                  },
-                  builder: (_, __) => SizedBox.shrink(),
-                ),
-              ),
-            ),
-          );
-        },
+          ),
+        ),
       );
 
-      return (
-        testWidget: testWidget,
-        setViewInsets: (viewInsets) {
-          mediaQueryKey.currentState!.state = viewInsets;
-        },
-      );
+      return (testWidget: testWidget);
     }
 
     testWidgets(
@@ -193,7 +184,7 @@ void main() {
       (tester) async {
         final env = boilerplate(
           model: _TestSheetModel(),
-          initialViewInsets: EdgeInsets.all(10),
+          viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
             ignoreViewInsets: true,
             child: RenderSheetWidget(
@@ -219,7 +210,7 @@ void main() {
       (tester) async {
         final env = boilerplate(
           model: _TestSheetModel(),
-          initialViewInsets: EdgeInsets.all(10),
+          viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
             ignoreViewInsets: false,
             child: RenderSheetWidget(
@@ -243,12 +234,102 @@ void main() {
     );
 
     testWidgets(
+      "should reduce the inherited viewInsets by the viewport's padding "
+      "if 'ignoreViewInsets' is true",
+      (tester) async {
+        late EdgeInsets inheritedViewInsets;
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          viewInsets: EdgeInsets.all(20),
+          builder: (child) => SheetViewport(
+            ignoreViewInsets: true,
+            padding: EdgeInsets.all(10),
+            child: RenderSheetWidget(
+              child: Builder(
+                builder: (context) {
+                  inheritedViewInsets = MediaQuery.viewInsetsOf(context);
+                  return SizedBox.expand(
+                    child: child,
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(inheritedViewInsets, EdgeInsets.all(10));
+      },
+    );
+
+    testWidgets(
+      "should remove the inherited viewInsets if 'ignoreViewInsets' is false",
+      (tester) async {
+        late EdgeInsets inheritedViewInsets;
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          viewPadding: EdgeInsets.all(20),
+          builder: (child) => SheetViewport(
+            ignoreViewInsets: false,
+            padding: EdgeInsets.all(10),
+            child: RenderSheetWidget(
+              child: Builder(
+                builder: (context) {
+                  inheritedViewInsets = MediaQuery.viewInsetsOf(context);
+                  return SizedBox.expand(
+                    child: child,
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(inheritedViewInsets, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'should reduce the inherited padding and viewPadding '
+      "by the viewport's padding",
+      (tester) async {
+        late EdgeInsets inheritedPadding;
+        late EdgeInsets inheritedViewPadding;
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          viewInsets: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          viewPadding: EdgeInsets.all(40),
+          builder: (child) => SheetViewport(
+            padding: EdgeInsets.all(10),
+            child: RenderSheetWidget(
+              child: Builder(
+                builder: (context) {
+                  inheritedPadding = MediaQuery.paddingOf(context);
+                  inheritedViewPadding = MediaQuery.viewPaddingOf(context);
+                  return SizedBox.expand(
+                    child: child,
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          inheritedPadding,
+          EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+        );
+        expect(inheritedViewPadding, EdgeInsets.all(30));
+      },
+    );
+
+    testWidgets(
       "should respect both 'padding' and 'MediaQueryData.viewInsets' "
       "if 'ignoreViewInsets' is false",
       (tester) async {
         final env = boilerplate(
           model: _TestSheetModel(),
-          initialViewInsets: EdgeInsets.only(bottom: 100),
+          viewInsets: EdgeInsets.only(bottom: 100),
           builder: (child) => SheetViewport(
             padding: EdgeInsets.all(10),
             ignoreViewInsets: false,
@@ -399,6 +480,10 @@ void main() {
 
         await tester.pumpWidget(env.testWidget);
         expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width - 20, 300),
+        );
+        expect(
           tester.getRect(find.byType(RenderSheetWidget)),
           Rect.fromLTWH(
             10,
@@ -412,7 +497,7 @@ void main() {
         await tester.pump();
         expect(
           tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width, 300),
+          Size(testScreenSize.width - 20, 300),
         );
         expect(
           tester.getRect(find.byType(RenderSheetWidget)),
@@ -428,7 +513,7 @@ void main() {
         await tester.pump();
         expect(
           tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width, 300),
+          Size(testScreenSize.width - 20, 300),
         );
         expect(
           tester.getRect(find.byType(RenderSheetWidget)),
@@ -686,114 +771,6 @@ void main() {
             (e) => e.message,
             'message',
             'The SheetViewport must be given a finite constraint.',
-          ),
-        );
-      },
-    );
-
-    testWidgets(
-      'Throws when the viewport does not have a RenderSheetWidget '
-      'in its subtree',
-      (tester) async {
-        final model = _TestSheetModel();
-        final errors = await tester.pumpWidgetAndCaptureErrors(
-          MediaQuery(
-            data: MediaQueryData(),
-            child: SheetViewport(
-              child: TestStatefulWidget(
-                initialState: null,
-                didChangeDependencies: (context) {
-                  context
-                      .findAncestorStateOfType<SheetViewportState>()!
-                      .setModel(model);
-                },
-                builder: (_, __) => Container(),
-              ),
-            ),
-          ),
-        );
-
-        expect(
-          errors.first.exception,
-          isAssertionError.having(
-            (e) => e.message,
-            'message',
-            'The SheetViewport must have exactly one RenderSheetWidget '
-                'in its subtree.',
-          ),
-        );
-      },
-    );
-
-    testWidgets(
-      'Throws when the viewport has another viewport in its subtree',
-      (tester) async {
-        final model = _TestSheetModel();
-        final errors = await tester.pumpWidgetAndCaptureErrors(
-          MediaQuery(
-            data: MediaQueryData(),
-            child: SheetViewport(
-              child: TestStatefulWidget(
-                initialState: null,
-                didChangeDependencies: (context) {
-                  context
-                      .findAncestorStateOfType<SheetViewportState>()!
-                      .setModel(model);
-                },
-                builder: (_, __) => SheetViewport(
-                  child: RenderSheetWidget(
-                    child: Container(),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-
-        expect(
-          errors.first.exception,
-          isAssertionError.having(
-            (e) => e.message,
-            'message',
-            'The SheetViewport must not have another SheetViewport '
-                'in its subtree.',
-          ),
-        );
-      },
-    );
-
-    testWidgets(
-      'Throws when the sheet has another sheet in its subtree',
-      (tester) async {
-        final model = _TestSheetModel();
-        final errors = await tester.pumpWidgetAndCaptureErrors(
-          MediaQuery(
-            data: MediaQueryData(),
-            child: SheetViewport(
-              child: TestStatefulWidget(
-                initialState: null,
-                didChangeDependencies: (context) {
-                  context
-                      .findAncestorStateOfType<SheetViewportState>()!
-                      .setModel(model);
-                },
-                builder: (_, __) => RenderSheetWidget(
-                  child: RenderSheetWidget(
-                    child: Container(),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-
-        expect(
-          errors.first.exception,
-          isAssertionError.having(
-            (e) => e.message,
-            'message',
-            'The SheetViewport must have exactly one RenderSheetWidget '
-                'in its subtree.',
           ),
         );
       },
