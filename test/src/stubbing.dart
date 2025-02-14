@@ -69,9 +69,10 @@ class MutableSheetMetrics with SheetMetrics {
   required double maxOffset,
   required Size contentSize,
   required Size viewportSize,
-  EdgeInsets viewportInsets = EdgeInsets.zero,
+  EdgeInsets contentMargin = EdgeInsets.zero,
   required double devicePixelRatio,
   SheetPhysics? physics,
+  SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {
   final metricsRegistry = MutableSheetMetrics(
     offset: offset,
@@ -81,12 +82,13 @@ class MutableSheetMetrics with SheetMetrics {
       contentSize: contentSize,
       viewportSize: viewportSize,
       viewportPadding: EdgeInsets.zero,
-      viewportInsets: viewportInsets,
+      contentMargin: contentMargin,
     ),
     devicePixelRatio: devicePixelRatio,
   );
 
   final position = MockSheetModel();
+  when(position.hasMetrics).thenReturn(true);
   when(position.value).thenAnswer(
     (_) => SheetGeometry(
       offset: metricsRegistry.offset,
@@ -109,6 +111,7 @@ class MutableSheetMetrics with SheetMetrics {
     metricsRegistry.measurements =
         invocation.positionalArguments[0] as Measurements;
   });
+  when(position.snapGrid).thenReturn(snapGrid);
   when(position.copyWith(
     offset: anyNamed('offset'),
     minOffset: anyNamed('minOffset'),

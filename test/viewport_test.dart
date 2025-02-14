@@ -69,7 +69,7 @@ void main() {
         final env = boilerplate(
           model: _TestSheetModel(),
           builder: (child) => SheetViewport(
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: SizedBox.shrink(
                 key: Key('content'),
                 child: child,
@@ -83,7 +83,7 @@ void main() {
           Size(testScreenSize.width, 0),
         );
         expect(
-          tester.getSize(find.byType(RenderSheetWidget)),
+          tester.getSize(find.byType(BareSheet)),
           Size(testScreenSize.width, 0),
         );
       },
@@ -99,7 +99,7 @@ void main() {
               maxHeight: 400,
             ),
             child: SheetViewport(
-              child: RenderSheetWidget(
+              child: BareSheet(
                 child: SizedBox.fromSize(
                   key: Key('content'),
                   size: Size.fromHeight(300),
@@ -115,7 +115,7 @@ void main() {
           Size(testScreenSize.width, 300),
         );
         expect(
-          tester.getSize(find.byType(RenderSheetWidget)),
+          tester.getSize(find.byType(BareSheet)),
           Size(testScreenSize.width, 300),
         );
       },
@@ -127,7 +127,7 @@ void main() {
         final env = boilerplate(
           model: _TestSheetModel(),
           builder: (child) => SheetViewport(
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -137,7 +137,7 @@ void main() {
         );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byKey(Key('content'))), testScreenSize);
-        expect(tester.getSize(find.byType(RenderSheetWidget)), testScreenSize);
+        expect(tester.getSize(find.byType(BareSheet)), testScreenSize);
       },
     );
 
@@ -148,7 +148,7 @@ void main() {
           model: _TestSheetModel(),
           builder: (child) => SheetViewport(
             padding: EdgeInsets.all(10),
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -167,7 +167,7 @@ void main() {
           ),
         );
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)),
+          tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(
             10,
             10,
@@ -180,14 +180,14 @@ void main() {
 
     testWidgets(
       "should ignore 'MediaQueryData.viewInsets' "
-      "if 'ignoreViewInsets' is true",
+      "if 'resizeChildToAvoidViewInsets' is false",
       (tester) async {
         final env = boilerplate(
           model: _TestSheetModel(),
           viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
-            ignoreViewInsets: true,
-            child: RenderSheetWidget(
+            child: BareSheet(
+              resizeChildToAvoidViewInsets: false,
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -198,7 +198,7 @@ void main() {
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byKey(Key('content'))), testScreenSize);
         expect(
-          tester.getSize(find.byType(RenderSheetWidget)),
+          tester.getSize(find.byType(BareSheet)),
           testScreenSize,
         );
       },
@@ -206,17 +206,15 @@ void main() {
 
     testWidgets(
       "should shrink the sheet content's size by 'MediaQueryData.viewInsets' "
-      "if 'ignoreViewInsets' is false",
+      "if 'resizeChildToAvoidViewInsets' is true",
       (tester) async {
         final env = boilerplate(
-          model: _TestSheetModel(
-            initialOffset: SheetOffset.absolute(590),
-          ),
+          model: _TestSheetModel(),
           viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
-            ignoreViewInsets: false,
-            child: RenderSheetWidget(
-              child: Placeholder(
+            child: BareSheet(
+              resizeChildToAvoidViewInsets: true,
+              child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
               ),
@@ -234,7 +232,7 @@ void main() {
           ),
         );
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)),
+          tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height),
         );
       },
@@ -249,9 +247,9 @@ void main() {
           model: _TestSheetModel(),
           viewInsets: EdgeInsets.all(20),
           builder: (child) => SheetViewport(
-            ignoreViewInsets: true,
             padding: EdgeInsets.all(10),
-            child: RenderSheetWidget(
+            child: BareSheet(
+              resizeChildToAvoidViewInsets: true,
               child: Builder(
                 builder: (context) {
                   inheritedViewInsets = MediaQuery.viewInsetsOf(context);
@@ -276,9 +274,9 @@ void main() {
           model: _TestSheetModel(),
           viewPadding: EdgeInsets.all(20),
           builder: (child) => SheetViewport(
-            ignoreViewInsets: false,
             padding: EdgeInsets.all(10),
-            child: RenderSheetWidget(
+            child: BareSheet(
+              resizeChildToAvoidViewInsets: false,
               child: Builder(
                 builder: (context) {
                   inheritedViewInsets = MediaQuery.viewInsetsOf(context);
@@ -308,7 +306,7 @@ void main() {
           viewPadding: EdgeInsets.all(40),
           builder: (child) => SheetViewport(
             padding: EdgeInsets.all(10),
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: Builder(
                 builder: (context) {
                   inheritedPadding = MediaQuery.paddingOf(context);
@@ -332,15 +330,15 @@ void main() {
 
     testWidgets(
       "should respect both 'padding' and 'MediaQueryData.viewInsets' "
-      "if 'ignoreViewInsets' is false",
+      "if 'resizeChildToAvoidViewInsets' is true",
       (tester) async {
         final env = boilerplate(
           model: _TestSheetModel(),
           viewInsets: EdgeInsets.only(bottom: 100),
           builder: (child) => SheetViewport(
             padding: EdgeInsets.all(10),
-            ignoreViewInsets: false,
-            child: RenderSheetWidget(
+            child: BareSheet(
+              resizeChildToAvoidViewInsets: true,
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -354,7 +352,7 @@ void main() {
           EdgeInsets.fromLTRB(10, 10, 10, 100).deflateSize(testScreenSize),
         );
         expect(
-          tester.getSize(find.byType(RenderSheetWidget)),
+          tester.getSize(find.byType(BareSheet)),
           EdgeInsets.all(10).deflateSize(testScreenSize),
         );
       },
@@ -370,7 +368,7 @@ void main() {
         final env = boilerplate(
           model: model,
           builder: (child) => SheetViewport(
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: SizedBox.fromSize(
                 key: Key('content'),
                 size: Size.fromHeight(300),
@@ -382,14 +380,14 @@ void main() {
 
         await tester.pumpWidget(env.testWidget);
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)).top,
+          tester.getRect(find.byType(BareSheet)).top,
           testScreenSize.height - 150,
         );
 
         model.offset = 200;
         await tester.pump();
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)).top,
+          tester.getRect(find.byType(BareSheet)).top,
           testScreenSize.height - 200,
         );
       },
@@ -405,7 +403,7 @@ void main() {
         final env = boilerplate(
           model: model,
           builder: (child) => SheetViewport(
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: SizedBox.fromSize(
                 key: Key('content'),
                 size: Size.fromHeight(300),
@@ -421,7 +419,7 @@ void main() {
           Size(testScreenSize.width, 300),
         );
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)),
+          tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(
             0,
             testScreenSize.height - 300,
@@ -437,7 +435,7 @@ void main() {
           Size(testScreenSize.width, 300),
         );
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)),
+          tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(
             0,
             testScreenSize.height - 350,
@@ -453,7 +451,7 @@ void main() {
           Size(testScreenSize.width, 300),
         );
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)),
+          tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(
             0,
             testScreenSize.height - 150,
@@ -475,7 +473,7 @@ void main() {
           model: model,
           builder: (child) => SheetViewport(
             padding: EdgeInsets.all(10),
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: SizedBox.fromSize(
                 key: Key('content'),
                 size: Size.fromHeight(300),
@@ -491,7 +489,7 @@ void main() {
           Size(testScreenSize.width - 20, 300),
         );
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)),
+          tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(
             10,
             testScreenSize.height - 310,
@@ -507,7 +505,7 @@ void main() {
           Size(testScreenSize.width - 20, 300),
         );
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)),
+          tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(
             10,
             testScreenSize.height - 360,
@@ -523,7 +521,7 @@ void main() {
           Size(testScreenSize.width - 20, 300),
         );
         expect(
-          tester.getRect(find.byType(RenderSheetWidget)),
+          tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(
             10,
             testScreenSize.height - 160,
@@ -541,7 +539,7 @@ void main() {
         final env = boilerplate(
           model: model,
           builder: (child) => SheetViewport(
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: SizedBox.fromSize(
                 key: Key('content'),
                 size: Size.fromHeight(300),
@@ -563,15 +561,14 @@ void main() {
     );
 
     testWidgets(
-      "should update the model's 'measurements' "
-      'when the content size changes',
+      "should update the model's 'measurements' when the content size changes",
       (tester) async {
         final model = _TestSheetModel();
         final contentStateKey = GlobalKey<TestStatefulWidgetState<Size>>();
         final env = boilerplate(
           model: model,
           builder: (child) => SheetViewport(
-            child: RenderSheetWidget(
+            child: BareSheet(
               child: TestStatefulWidget(
                 key: contentStateKey,
                 initialState: Size.fromHeight(300),
@@ -597,6 +594,63 @@ void main() {
         expect(
           model.measurements,
           isMeasurements(contentSize: Size(testScreenSize.width, 200)),
+        );
+      },
+    );
+
+    testWidgets(
+      'The sheet should be able to be decorated by a widget '
+      'that does not add any padding around it, e.g. Material',
+      (tester) async {
+        final model = _TestSheetModel();
+        final env = boilerplate(
+          model: model,
+          builder: (child) => SheetViewport(
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              clipBehavior: Clip.antiAlias,
+              elevation: 2,
+              child: BareSheet(
+                child: SizedBox(
+                  key: Key('content'),
+                  width: double.infinity,
+                  height: 300,
+                  child: child,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+
+        expect(
+          tester.getRect(find.byType(Material)),
+          Rect.fromLTWH(
+            0,
+            testScreenSize.height - 300,
+            testScreenSize.width,
+            300,
+          ),
+        );
+        expect(
+          tester.getRect(find.byType(BareSheet)),
+          Rect.fromLTWH(
+            0,
+            testScreenSize.height - 300,
+            testScreenSize.width,
+            300,
+          ),
+        );
+        expect(
+          tester.getRect(find.byKey(Key('content'))),
+          Rect.fromLTWH(
+            0,
+            testScreenSize.height - 300,
+            testScreenSize.width,
+            300,
+          ),
         );
       },
     );
@@ -634,7 +688,7 @@ void main() {
                         .setModel(model);
                   },
                   builder: (_, __) {
-                    return RenderSheetWidget(
+                    return BareSheet(
                       child: Container(
                         key: Key('child'),
                         color: Colors.white,
@@ -761,7 +815,7 @@ void main() {
                           .findAncestorStateOfType<SheetViewportState>()!
                           .setModel(model);
                     },
-                    builder: (_, __) => RenderSheetWidget(
+                    builder: (_, __) => BareSheet(
                       child: Container(),
                     ),
                   ),
@@ -777,6 +831,46 @@ void main() {
             (e) => e.message,
             'message',
             'The SheetViewport must be given a finite constraint.',
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      'Throws when the sheet is wrapped by a widget '
+      'that adds extra margin around it, e.g. Padding',
+      (tester) async {
+        final model = _TestSheetModel();
+        final errors = await tester.pumpWidgetAndCaptureErrors(
+          MediaQuery(
+            data: MediaQueryData(),
+            child: SheetViewport(
+              child: TestStatefulWidget(
+                initialState: null,
+                didChangeDependencies: (context) {
+                  context
+                      .findAncestorStateOfType<SheetViewportState>()!
+                      .setModel(model);
+                },
+                builder: (_, __) => Padding(
+                  padding: EdgeInsets.all(10),
+                  child: BareSheet(
+                    child: Container(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          errors.first.exception,
+          isAssertionError.having(
+            (e) => e.message,
+            'message',
+            'The maximum size of the sheet is smaller than the expected size. '
+                'This is likely because the sheet is wrapped by a widget that '
+                'adds extra margin around it (e.g. Padding).',
           ),
         );
       },

@@ -18,7 +18,7 @@ void main() {
         contentSize: contentSize,
         viewportSize: testScreenSize,
         viewportPadding: EdgeInsets.zero,
-        viewportInsets: EdgeInsets.zero,
+        contentMargin: EdgeInsets.zero,
       ),
     );
     when(mock.offset).thenReturn(offset);

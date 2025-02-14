@@ -57,6 +57,7 @@ class Sheet extends StatefulWidget {
     this.controller,
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
+    this.resizeChildToAvoidViewInsets = true,
     required this.child,
   });
 
@@ -74,6 +75,9 @@ class Sheet extends StatefulWidget {
   final SheetScrollConfiguration? scrollConfiguration;
 
   final SheetDragConfiguration? dragConfiguration;
+
+  /// Whether to resize the child to avoid view insets.
+  final bool resizeChildToAvoidViewInsets;
 
   /// The content of the sheet.
   final Widget child;
@@ -96,7 +100,8 @@ class _SheetState extends State<Sheet> {
       physics: physics,
       snapGrid: widget.snapGrid,
       gestureProxy: gestureTamper,
-      child: RenderSheetWidget(
+      child: BareSheet(
+        resizeChildToAvoidViewInsets: widget.resizeChildToAvoidViewInsets,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: widget.scrollConfiguration,
           dragConfiguration: widget.dragConfiguration,

@@ -22,4 +22,4 @@ export 'src/scrollable.dart'
         SheetScrollPosition;
 export 'src/sheet.dart' hide DraggableScrollableSheetContent;
 export 'src/snap_grid.dart';
-export 'src/viewport.dart' hide RenderSheetWidget, SheetViewportState;
+export 'src/viewport.dart' hide BareSheet, SheetViewportState;

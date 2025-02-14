@@ -172,6 +172,7 @@ class PagedSheet extends StatelessWidget {
     this.controller,
     this.physics = kDefaultSheetPhysics,
     this.offsetInterpolationCurve = Curves.easeInOutCubic,
+    this.resizeChildToAvoidViewInsets = true,
     required this.child,
   });
 
@@ -180,6 +181,8 @@ class PagedSheet extends StatelessWidget {
   final SheetPhysics physics;
 
   final Curve offsetInterpolationCurve;
+
+  final bool resizeChildToAvoidViewInsets;
 
   final Widget child;
 
@@ -193,7 +196,8 @@ class PagedSheet extends StatelessWidget {
       offsetInterpolationCurve: offsetInterpolationCurve,
       controller: controller,
       gestureProxy: gestureProxy,
-      child: RenderSheetWidget(
+      child: BareSheet(
+        resizeChildToAvoidViewInsets: resizeChildToAvoidViewInsets,
         child: NavigatorResizable(
           interpolationCurve: Curves.linear,
           child: _NavigatorEventDispatcher(

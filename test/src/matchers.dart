@@ -18,7 +18,7 @@ Matcher get isNotInitialized => throwsError(name: 'LateError');
 Matcher isMeasurements({
   Size? contentSize,
   Size? viewportSize,
-  EdgeInsets? viewportInsets,
+  EdgeInsets? contentMargin,
 }) {
   var result = isA<Measurements>();
   if (contentSize != null) {
@@ -35,11 +35,11 @@ Matcher isMeasurements({
       viewportSize,
     );
   }
-  if (viewportInsets != null) {
+  if (contentMargin != null) {
     result = result.having(
-      (it) => it.viewportInsets,
-      'viewportInsets',
-      viewportInsets,
+      (it) => it.contentMargin,
+      'contentMargin',
+      contentMargin,
     );
   }
 

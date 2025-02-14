@@ -118,7 +118,7 @@ void main() {
       final oldMeasurements = ownerMetrics.measurements;
       ownerMetrics.measurements = ownerMetrics.measurements.copyWith(
         contentSize: const Size(400, 850),
-        viewportInsets: const EdgeInsets.only(bottom: 50),
+        contentMargin: const EdgeInsets.only(bottom: 50),
       );
 
       activity.didChangeMeasurements(oldMeasurements);
@@ -255,7 +255,7 @@ void main() {
       final oldMeasurements = ownerMetrics.measurements;
       // Show the on-screen keyboard.
       ownerMetrics.measurements = oldMeasurements.copyWith(
-        viewportInsets: const EdgeInsets.only(bottom: 30),
+        contentMargin: const EdgeInsets.only(bottom: 30),
       );
       activity.didChangeMeasurements(oldMeasurements);
       expect(ownerMetrics.offset, 320,
@@ -275,7 +275,7 @@ void main() {
         initialPosition: const SheetOffset.relative(0.5),
         minOffset: 425,
         maxOffset: 850,
-        viewportInsets: const EdgeInsets.only(bottom: 50),
+        contentMargin: const EdgeInsets.only(bottom: 50),
         contentSize: const Size(400, 850),
         viewportSize: const Size(400, 900),
         devicePixelRatio: 1,
@@ -288,7 +288,7 @@ void main() {
           const Measurements(
             contentSize: Size(400, 900),
             viewportSize: Size(400, 900),
-            viewportInsets: EdgeInsets.zero,
+            contentMargin: EdgeInsets.zero,
             viewportPadding: EdgeInsets.zero,
           ),
         );

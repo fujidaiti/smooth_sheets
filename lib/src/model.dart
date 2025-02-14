@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -468,16 +466,14 @@ mixin SheetMetrics {
   Measurements get measurements;
 
   // TODO: Should this be moved to Measurements class?
-  double get baseline => max(
-        measurements.viewportInsets.bottom,
-        measurements.viewportPadding.bottom,
-      );
+  double get baseline =>
+      measurements.contentMargin.bottom + measurements.viewportPadding.bottom;
 
   /// The visible height of the sheet measured from the bottom of the viewport.
   ///
   /// If the on-screen keyboard is visible, this value is the sum of
   /// [offset] and the keyboard's height. Otherwise, it is equal to [offset].
-  double get viewOffset => offset + baseline;
+  double get viewOffset => offset + baseline + measurements.contentMargin.top;
 }
 
 /// An immutable snapshot of the state of a sheet.
@@ -578,49 +574,49 @@ class SheetGeometry {
 @immutable
 class Measurements {
   const Measurements({
-    required this.contentSize,
     required this.viewportSize,
-    required this.viewportInsets,
     required this.viewportPadding,
+    required this.contentSize,
+    required this.contentMargin,
   });
-
-  final Size contentSize;
 
   final Size viewportSize;
 
-  final EdgeInsets viewportInsets;
-
   final EdgeInsets viewportPadding;
+
+  final Size contentSize;
+
+  final EdgeInsets contentMargin;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is Measurements &&
-        other.contentSize == contentSize &&
         other.viewportSize == viewportSize &&
-        other.viewportInsets == viewportInsets &&
-        other.viewportPadding == viewportPadding;
+        other.viewportPadding == viewportPadding &&
+        other.contentSize == contentSize &&
+        other.contentMargin == contentMargin;
   }
 
   @override
   int get hashCode => Object.hash(
         contentSize,
         viewportSize,
-        viewportInsets,
         viewportPadding,
+        contentMargin,
       );
 
   Measurements copyWith({
     Size? contentSize,
     Size? viewportSize,
-    EdgeInsets? viewportInsets,
     EdgeInsets? viewportPadding,
+    EdgeInsets? contentMargin,
   }) {
     return Measurements(
       contentSize: contentSize ?? this.contentSize,
       viewportSize: viewportSize ?? this.viewportSize,
-      viewportInsets: viewportInsets ?? this.viewportInsets,
       viewportPadding: viewportPadding ?? this.viewportPadding,
+      contentMargin: contentMargin ?? this.contentMargin,
     );
   }
 }

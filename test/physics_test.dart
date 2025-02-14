@@ -19,7 +19,7 @@ const _referenceSheetMetrics = SheetMetricsSnapshot(
   measurements: Measurements(
     contentSize: Size(360, 600),
     viewportSize: Size(360, 700),
-    viewportInsets: EdgeInsets.zero,
+    contentMargin: EdgeInsets.zero,
     viewportPadding: EdgeInsets.zero,
   ),
   devicePixelRatio: 1,
