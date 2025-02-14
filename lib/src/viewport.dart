@@ -316,8 +316,8 @@ class _RenderSheet extends RenderProxyBox {
   _RenderSheet({
     required _LazySheetModelView model,
   }) : _model = model {
-    model.addListener(_invalidatePreferredSize);
-    _invalidatePreferredSize();
+    model.addListener(_updatePreferredSize);
+    _updatePreferredSize();
   }
 
   _LazySheetModelView _model;
@@ -325,26 +325,24 @@ class _RenderSheet extends RenderProxyBox {
   // ignore: avoid_setters_without_getters
   set model(_LazySheetModelView value) {
     if (value != _model) {
-      _model.removeListener(_invalidatePreferredSize);
-      _model = value..addListener(_invalidatePreferredSize);
-      _invalidatePreferredSize();
+      _model.removeListener(_updatePreferredSize);
+      _model = value..addListener(_updatePreferredSize);
+      _updatePreferredSize();
       markNeedsLayout();
     }
   }
 
-  // TODO: Refactor this flag.
-  bool _isInLayout = false;
-
+  bool _isPerformingLayout = false;
   Size? _preferredSize;
 
-  void _invalidatePreferredSize() {
+  void _updatePreferredSize() {
     if (_model.hasMetrics) {
       final preferredSize = Size.fromHeight(
         max(_model.viewOffset - _model.measurements.viewportPadding.bottom, 0),
       );
       final oldPreferredSize = _preferredSize;
       _preferredSize = preferredSize;
-      if (oldPreferredSize != preferredSize && !_isInLayout) {
+      if (oldPreferredSize != preferredSize && !_isPerformingLayout) {
         markNeedsLayout();
       }
     }
@@ -352,8 +350,13 @@ class _RenderSheet extends RenderProxyBox {
 
   @override
   void dispose() {
-    _model.removeListener(_invalidatePreferredSize);
+    _model.removeListener(_updatePreferredSize);
     super.dispose();
+  }
+
+  @override
+  void setupParentData(RenderObject child) {
+    child.parentData = BoxParentData();
   }
 
   @override
@@ -376,6 +379,8 @@ class _RenderSheet extends RenderProxyBox {
       'such as Padding widget.',
     );
 
+    _isPerformingLayout = true;
+
     final constraints = this.constraints as _SheetViewportConstraints;
     final viewportSize = constraints.biggest;
     final viewportInsets = constraints.viewInsets;
@@ -397,8 +402,8 @@ class _RenderSheet extends RenderProxyBox {
       ),
       parentUsesSize: true,
     );
+    (child.parentData! as BoxParentData).offset = insets.topLeft;
 
-    _isInLayout = true;
     final contentSize = Size.copy(child.size);
     _model._inner!.measurements = Measurements(
       contentSize: contentSize,
@@ -406,7 +411,6 @@ class _RenderSheet extends RenderProxyBox {
       viewportInsets: constraints.viewInsets,
       viewportPadding: constraints.padding,
     );
-    _isInLayout = false;
 
     assert(_preferredSize != null);
     final minSize = insets.inflateSize(contentSize);
@@ -416,6 +420,16 @@ class _RenderSheet extends RenderProxyBox {
       minHeight: minSize.height,
       maxHeight: maxSize.height,
     ).constrain(_preferredSize!);
+
+    _isPerformingLayout = false;
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (child case final RenderObject child) {
+      final localOffset = (child.parentData! as BoxParentData).offset;
+      context.paintChild(child, Offset(10, 10));
+    }
   }
 }
 

@@ -209,12 +209,14 @@ void main() {
       "if 'ignoreViewInsets' is false",
       (tester) async {
         final env = boilerplate(
-          model: _TestSheetModel(),
+          model: _TestSheetModel(
+            initialOffset: SheetOffset.absolute(590),
+          ),
           viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
             ignoreViewInsets: false,
             child: RenderSheetWidget(
-              child: SizedBox.expand(
+              child: Placeholder(
                 key: Key('content'),
                 child: child,
               ),
@@ -223,12 +225,17 @@ void main() {
         );
         await tester.pumpWidget(env.testWidget);
         expect(
-          tester.getSize(find.byKey(Key('content'))),
-          EdgeInsets.all(10).deflateSize(testScreenSize),
+          tester.getRect(find.byKey(Key('content'))),
+          Rect.fromLTWH(
+            10,
+            10,
+            testScreenSize.width - 20,
+            testScreenSize.height - 20,
+          ),
         );
         expect(
-          tester.getSize(find.byType(RenderSheetWidget)),
-          testScreenSize,
+          tester.getRect(find.byType(RenderSheetWidget)),
+          Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height),
         );
       },
     );
@@ -389,8 +396,8 @@ void main() {
     );
 
     testWidgets(
-      "should keep the sheet's bottom edge always at "
-      'the bottom of the viewport',
+      "should stick the sheet's bottom edge at the bottom of the viewport "
+      'when the content is fully visible',
       (tester) async {
         final model = _TestSheetModel(
           initialOffset: SheetOffset.absolute(300),
@@ -458,8 +465,8 @@ void main() {
     );
 
     testWidgets(
-      "should keep the sheet's bottom edge always at "
-      'the bottom of the viewport (with paddings)',
+      "should stick the sheet's bottom edge at the bottom of "
+      'the padded viewport when the content is fully visible',
       (tester) async {
         final model = _TestSheetModel(
           initialOffset: SheetOffset.absolute(300),
@@ -595,7 +602,6 @@ void main() {
     );
   });
 
-  // TODO: Use SheetViewport.padding instead of Padding widget.
   group('SheetViewport: hit-testing', () {
     ({
       _TestSheetModel model,
