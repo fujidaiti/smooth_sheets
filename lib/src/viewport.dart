@@ -45,7 +45,6 @@ class SheetViewportState extends State<SheetViewport>
   void initState() {
     super.initState();
     _modelView = _LazySheetModelView();
-    _lastMeasuredViewportPadding = widget.padding;
   }
 
   @override
@@ -66,17 +65,12 @@ class SheetViewportState extends State<SheetViewport>
   }
 
   @override
-  void didUpdateWidget(SheetViewport oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _lastMeasuredViewportPadding = widget.padding;
-  }
-
-  @override
   Widget build(BuildContext context) {
     if (widget.padding == EdgeInsets.zero) {
       return _InheritedSheetViewport(
         state: this,
         child: _SheetTranslate(
+          padding: EdgeInsets.zero,
           child: widget.child,
         ),
       );
@@ -106,7 +100,7 @@ class SheetViewportState extends State<SheetViewport>
 
     return _InheritedSheetViewport(
       state: this,
-      child: Padding(
+      child: _SheetTranslate(
         padding: widget.padding,
         child: MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -114,9 +108,7 @@ class SheetViewportState extends State<SheetViewport>
             padding: paddingForChild,
             viewPadding: viewPaddingForChild,
           ),
-          child: _SheetTranslate(
-            child: widget.child,
-          ),
+          child: widget.child,
         ),
       ),
     );
@@ -144,13 +136,17 @@ class _InheritedSheetViewport extends InheritedWidget {
 class _SheetTranslate extends SingleChildRenderObjectWidget {
   const _SheetTranslate({
     required super.child,
+    required this.padding,
   });
+
+  final EdgeInsets padding;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetTranslate(
       model: SheetViewportState.of(context)!._modelView,
       measurementPipeline: SheetViewportState.of(context)!,
+      padding: padding,
     );
   }
 
@@ -158,7 +154,8 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetTranslate)
       ..model = SheetViewportState.of(context)!._modelView
-      ..measurementPipeline = SheetViewportState.of(context)!;
+      ..measurementPipeline = SheetViewportState.of(context)!
+      ..padding = padding;
   }
 }
 
@@ -166,8 +163,10 @@ class _RenderSheetTranslate extends RenderTransform {
   _RenderSheetTranslate({
     required SheetModelView model,
     required _MeasurementPipeline measurementPipeline,
+    required EdgeInsets padding,
   })  : _model = model,
         _measurementPipeline = measurementPipeline,
+        _padding = padding,
         super(
           transform: Matrix4.zero()..setIdentity(),
           transformHitTests: true,
@@ -198,8 +197,21 @@ class _RenderSheetTranslate extends RenderTransform {
     }
   }
 
-  // TODO: Remove this.
-  Size? _lastMeasuredSize;
+  EdgeInsets _padding;
+  // ignore: avoid_setters_without_getters
+  set padding(EdgeInsets value) {
+    if (_padding != value) {
+      _padding = value;
+      _invalidateTransformMatrix();
+    }
+  }
+
+  late Size _lastMeasuredSize;
+  @override
+  set size(Size value) {
+    _lastMeasuredSize = value;
+    super.size = value;
+  }
 
   @override
   void performLayout() {
@@ -208,20 +220,19 @@ class _RenderSheetTranslate extends RenderTransform {
       'The SheetViewport must be given a finite constraint.',
     );
 
-    size = _lastMeasuredSize = constraints.biggest;
-    _measurementPipeline._lastMeasuredViewportSize =
-        _measurementPipeline._lastMeasuredViewportPadding.inflateSize(size);
-    child!.layout(constraints.loosen());
+    _measurementPipeline
+      .._lastMeasuredViewportPadding = _padding
+      .._lastMeasuredViewportSize = Size.copy(constraints.biggest);
+    size = constraints.biggest;
+    child!.layout(constraints.loosen().deflate(_padding));
   }
 
   void _invalidateTransformMatrix() {
-    if (_model.hasMetrics && _lastMeasuredSize != null) {
-      final viewportPadding = _measurementPipeline._lastMeasuredViewportPadding;
-      final localOffset = _model.viewOffset - viewportPadding.bottom;
-      final dy = _lastMeasuredSize!.height - localOffset;
+    if (_model.hasMetrics) {
+      final dy = _lastMeasuredSize.height - _model.viewOffset;
       // Update the translation value and mark this render object
       // as needing to be repainted.
-      transform = Matrix4.translationValues(0, dy, 0);
+      transform = Matrix4.translationValues(_padding.left, dy, 0);
     }
   }
 
