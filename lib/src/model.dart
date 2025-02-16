@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -170,7 +169,8 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     final oldMeasurements = _measurements;
     _measurements = value;
     final (minOffset, maxOffset) = snapGrid.getBoundaries(value);
-    _boundaries = (minOffset.resolve(value), maxOffset.resolve(value));
+    _minOffset = minOffset.resolve(value);
+    _maxOffset = maxOffset.resolve(value);
 
     if (_offset == null) {
       offset = initialOffset.resolve(value);
@@ -179,23 +179,17 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     assert(hasMetrics);
 
     if (oldMeasurements != null) {
-      didChangeMeasurements(oldMeasurements);
+      activity.didChangeMeasurements(oldMeasurements);
     }
   }
 
-  (double, double)? _boundaries;
+  @override
+  double get maxOffset => _maxOffset!;
+  double? _maxOffset;
 
   @override
-  double get maxOffset {
-    final (_, value) = _boundaries!;
-    return value;
-  }
-
-  @override
-  double get minOffset {
-    final (value, _) = _boundaries!;
-    return value;
-  }
+  double get minOffset => _minOffset!;
+  double? _minOffset;
 
   @override
   double get offset => _offset!;
@@ -211,10 +205,11 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   double get devicePixelRatio => context.devicePixelRatio;
 
   @override
-  bool get hasMetrics {
-    assert((_measurements != null) == (_boundaries != null));
-    return _offset != null && _measurements != null;
-  }
+  bool get hasMetrics =>
+      _measurements != null &&
+      _minOffset != null &&
+      _maxOffset != null &&
+      _offset != null;
 
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
@@ -239,10 +234,8 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     _snapGrid = snapGrid;
     if (hasMetrics) {
       final (minOffset, maxOffset) = snapGrid.getBoundaries(measurements);
-      _boundaries = (
-        minOffset.resolve(measurements),
-        maxOffset.resolve(measurements),
-      );
+      _minOffset = minOffset.resolve(measurements);
+      _maxOffset = maxOffset.resolve(measurements);
     }
   }
 
@@ -276,17 +269,17 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     } else {
       goIdle();
     }
-    if (other._offset case final offset?) {
-      _offset = offset;
+    if (other.hasMetrics) {
+      _offset = other._offset;
+      _measurements = other._measurements;
+      _minOffset = other._minOffset;
+      _maxOffset = other._maxOffset;
+    } else {
+      _offset = null;
+      _measurements = null;
+      _minOffset = null;
+      _maxOffset = null;
     }
-    if (other._measurements case final measurements?) {
-      _measurements = measurements;
-    }
-  }
-
-  @protected
-  void didChangeMeasurements(Measurements oldMeasurements) {
-    activity.didChangeMeasurements(oldMeasurements);
   }
 
   @mustCallSuper

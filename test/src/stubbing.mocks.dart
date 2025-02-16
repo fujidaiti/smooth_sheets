@@ -7,10 +7,10 @@ import 'dart:async' as _i8;
 import 'dart:ui' as _i12;
 
 import 'package:flutter/cupertino.dart' as _i7;
-import 'package:flutter/foundation.dart' as _i9;
 import 'package:flutter/gestures.dart' as _i6;
 import 'package:flutter/scheduler.dart' as _i10;
 import 'package:flutter/src/animation/curves.dart' as _i14;
+import 'package:flutter/src/foundation/diagnostics.dart' as _i9;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i15;
 import 'package:smooth_sheets/src/activity.dart' as _i5;
@@ -272,13 +272,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
     Invocation.method(#takeOver, [other]),
     returnValueForMissingStub: null,
   );
-
-  @override
-  void didChangeMeasurements(_i2.Measurements? oldMeasurements) =>
-      super.noSuchMethod(
-        Invocation.method(#didChangeMeasurements, [oldMeasurements]),
-        returnValueForMissingStub: null,
-      );
 
   @override
   void beginActivity(_i5.SheetActivity<_i2.SheetModel>? activity) =>
