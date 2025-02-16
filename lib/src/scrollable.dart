@@ -64,20 +64,6 @@ mixin ScrollAwareSheetModelMixin on SheetModel
   }
 
   @override
-  void takeOver(SheetModel other) {
-    super.takeOver(other);
-    if (other is ScrollAwareSheetModelMixin) {
-      assert(_scrollPositions.isEmpty);
-      _scrollPositions.addAll(other._scrollPositions);
-      other._scrollPositions.clear();
-    }
-    assert(
-      _primaryScrollPosition == null ||
-          _scrollPositions.contains(_primaryScrollPosition),
-    );
-  }
-
-  @override
   void dispose() {
     _scrollPositions.clear();
     super.dispose();

@@ -258,31 +258,6 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
       );
 
   @mustCallSuper
-  void takeOver(SheetModel other) {
-    if (other.activity.isCompatibleWith(this)) {
-      activity.dispose();
-      _activity = other.activity;
-      // This is necessary to prevent the activity from being disposed of
-      // when `other` is disposed of.
-      other._activity = null;
-      activity.updateOwner(this);
-    } else {
-      goIdle();
-    }
-    if (other.hasMetrics) {
-      _offset = other._offset;
-      _measurements = other._measurements;
-      _minOffset = other._minOffset;
-      _maxOffset = other._maxOffset;
-    } else {
-      _offset = null;
-      _measurements = null;
-      _minOffset = null;
-      _maxOffset = null;
-    }
-  }
-
-  @mustCallSuper
   @protected
   void beginActivity(SheetActivity activity) {
     final oldActivity = _activity;

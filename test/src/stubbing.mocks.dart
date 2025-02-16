@@ -268,12 +268,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
           as bool);
 
   @override
-  void takeOver(_i2.SheetModel? other) => super.noSuchMethod(
-    Invocation.method(#takeOver, [other]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
   void beginActivity(_i5.SheetActivity<_i2.SheetModel>? activity) =>
       super.noSuchMethod(
         Invocation.method(#beginActivity, [activity]),

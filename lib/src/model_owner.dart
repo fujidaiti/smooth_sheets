@@ -56,7 +56,7 @@ abstract class SheetModelOwnerState<M extends SheetModel,
 
   @protected
   M get model => _model;
-  late M _model;
+  late final M _model;
 
   @override
   TickerProvider get vsync => this;
@@ -100,21 +100,11 @@ abstract class SheetModelOwnerState<M extends SheetModel,
   @override
   void didUpdateWidget(W oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    final oldModel = _model;
-    if (shouldRefreshModel()) {
-      _model = createModel()..takeOver(oldModel);
-      _viewport?.setModel(model);
-    }
     if (widget.controller != oldWidget.controller) {
-      oldWidget.controller?.detach(oldModel);
+      oldWidget.controller?.detach(model);
       widget.controller?.attach(model);
     }
-    if (oldModel != model) {
-      oldModel.dispose();
-    }
-
-    _model
+    model
       ..physics = widget.physics
       ..gestureProxy = widget.gestureProxy
       ..snapGrid = widget.snapGrid;
@@ -123,10 +113,6 @@ abstract class SheetModelOwnerState<M extends SheetModel,
   @factory
   @protected
   M createModel();
-
-  @protected
-  @mustCallSuper
-  bool shouldRefreshModel() => false;
 
   @override
   Widget build(BuildContext context) {
