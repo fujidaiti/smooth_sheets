@@ -204,8 +204,11 @@ class BallisticSheetActivity extends SheetActivity
 
   @override
   void didChangeMeasurements(Measurements oldMeasurements) {
-    final oldMetrics = owner.copyWith(measurements: oldMeasurements);
-    final destination = owner.snapGrid.getSnapOffset(oldMetrics, velocity);
+    final destination = owner.snapGrid.getSnapOffset(
+      oldMeasurements,
+      owner.offset,
+      velocity,
+    );
     final endOffset = destination.resolve(owner.measurements);
     if (endOffset == owner.offset) {
       return;
@@ -356,7 +359,7 @@ class IdleSheetActivity extends SheetActivity {
   void init(SheetModel owner) {
     super.init(owner);
     targetOffset = owner.hasMetrics
-        ? owner.snapGrid.getSnapOffset(owner, 0)
+        ? owner.snapGrid.getSnapOffset(owner.measurements, owner.offset, 0)
         : owner.initialOffset;
   }
 

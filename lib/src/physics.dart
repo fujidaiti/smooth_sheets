@@ -92,8 +92,14 @@ mixin SheetPhysicsMixin on SheetPhysics {
   ) {
     // Ensure that this method always uses the default implementation
     // of findSettledPosition.
-    final snap =
-        snapGrid.getSnapOffset(metrics, velocity).resolve(metrics.measurements);
+    final snap = snapGrid
+        .getSnapOffset(
+          metrics.measurements,
+          metrics.offset,
+          velocity,
+        )
+        .resolve(metrics.measurements);
+
     if (FloatComp.distance(metrics.devicePixelRatio)
         .isNotApprox(snap, metrics.offset)) {
       final direction = (snap - metrics.offset).sign;
