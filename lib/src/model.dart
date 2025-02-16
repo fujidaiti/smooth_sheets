@@ -117,11 +117,8 @@ abstract class SheetContext {
 
 /// Read-only view of a [SheetModel].
 @internal
-abstract class SheetModelView
-    with SheetMetrics
-    implements ValueListenable<SheetGeometry?> {
+abstract class SheetModelView with SheetMetrics implements Listenable {
   bool get shouldIgnorePointer;
-
   bool get hasMetrics;
 }
 
@@ -163,23 +160,8 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   }
 
   @override
-  SheetGeometry? get value => _geometry;
-
-  SheetGeometry get geometry => _geometry!;
-  SheetGeometry? _geometry;
-
-  @protected
-  set geometry(SheetGeometry value) {
-    if (_geometry != value) {
-      _geometry = value;
-      notifyListeners();
-    }
-  }
-
-  @override
   Measurements get measurements => _measurements!;
   Measurements? _measurements;
-
   set measurements(Measurements value) {
     if (_measurements == value) {
       return;
@@ -190,8 +172,8 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     final (minOffset, maxOffset) = snapGrid.getBoundaries(value);
     _boundaries = (minOffset.resolve(value), maxOffset.resolve(value));
 
-    if (_geometry == null) {
-      geometry = SheetGeometry(offset: initialOffset.resolve(value));
+    if (_offset == null) {
+      offset = initialOffset.resolve(value);
     }
 
     assert(hasMetrics);
@@ -216,10 +198,13 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   }
 
   @override
-  double get offset => geometry.offset;
-
+  double get offset => _offset!;
+  double? _offset;
   set offset(double value) {
-    geometry = geometry.copyWith(offset: value);
+    if (value != _offset) {
+      _offset = value;
+      notifyListeners();
+    }
   }
 
   @override
@@ -228,7 +213,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   @override
   bool get hasMetrics {
     assert((_measurements != null) == (_boundaries != null));
-    return _geometry != null && _measurements != null;
+    return _offset != null && _measurements != null;
   }
 
   @override
@@ -291,8 +276,8 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     } else {
       goIdle();
     }
-    if (other._geometry case final geometry?) {
-      _geometry = geometry;
+    if (other._offset case final offset?) {
+      _offset = offset;
     }
     if (other._measurements case final measurements?) {
       _measurements = measurements;
@@ -530,35 +515,6 @@ class SheetMetricsSnapshot with SheetMetrics {
         measurements,
         devicePixelRatio,
       );
-}
-
-@immutable
-class SheetGeometry {
-  const SheetGeometry({
-    required this.offset,
-  });
-
-  final double offset;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is SheetGeometry && other.offset == offset;
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        offset,
-      );
-
-  SheetGeometry copyWith({
-    double? offset,
-  }) {
-    return SheetGeometry(
-      offset: offset ?? this.offset,
-    );
-  }
 }
 
 @immutable

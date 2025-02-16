@@ -483,11 +483,11 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
 
   void setModel(SheetModel? newModel) {
     if (newModel != _inner) {
-      final oldValue = value;
+      final oldValue = _inner?.offset;
       _inner?.removeListener(notifyListeners);
       _inner = newModel?..addListener(notifyListeners);
-      final newValue = value;
-      if (oldValue != newValue) {
+      if (newModel case SheetModel(hasMetrics: true, :final offset)
+          when offset != oldValue) {
         notifyListeners();
       }
     }
@@ -499,9 +499,6 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
     _inner = null;
     super.dispose();
   }
-
-  @override
-  SheetGeometry? get value => _inner?.value;
 
   @override
   bool get hasMetrics => _inner?.hasMetrics ?? false;

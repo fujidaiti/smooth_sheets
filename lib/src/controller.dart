@@ -1,12 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'model.dart';
 
-class SheetController extends ChangeNotifier
-    implements ValueListenable<SheetGeometry?> {
+class SheetController extends ChangeNotifier {
   SheetModel? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
@@ -15,13 +13,6 @@ class SheetController extends ChangeNotifier
   /// notified immediately when the [_client] fires, and the ones that should
   /// not be notified during the middle of a frame.
   final _immediateListeners = ChangeNotifier();
-
-  /// The current sheet position.
-  ///
-  /// Returns [SheetModel.value] of the attached [SheetModel],
-  /// or `null` if no [SheetModel] is attached.
-  @override
-  SheetGeometry? get value => _client?.value;
 
   /// The current metrics of the sheet.
   ///
