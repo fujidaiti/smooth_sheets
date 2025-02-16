@@ -65,24 +65,31 @@ class MutableSheetMetrics with SheetMetrics {
 (MutableSheetMetrics, MockSheetModel) createMockSheetModel({
   required double offset,
   required SheetOffset initialPosition,
-  required double minOffset,
-  required double maxOffset,
-  required Size contentSize,
-  required Size viewportSize,
-  EdgeInsets contentMargin = EdgeInsets.zero,
+  required double contentExtent,
+  required double viewportExtent,
+  double baseline = 0,
+  double contentBaseline = 0,
   required double devicePixelRatio,
   SheetPhysics? physics,
   SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {
+  final initialMeasurements = Measurements(
+    contentExtent: contentExtent,
+    viewportExtent: viewportExtent,
+    baseline: baseline,
+    contentBaseline: contentBaseline,
+  );
+  final (initialMinOffset, initialMaxOffset) =
+      snapGrid.getBoundaries(initialMeasurements);
   final metricsRegistry = MutableSheetMetrics(
     offset: offset,
-    minOffset: minOffset,
-    maxOffset: maxOffset,
+    minOffset: initialMinOffset.resolve(initialMeasurements),
+    maxOffset: initialMaxOffset.resolve(initialMeasurements),
     measurements: Measurements(
-      contentSize: contentSize,
-      viewportSize: viewportSize,
-      viewportPadding: EdgeInsets.zero,
-      contentMargin: contentMargin,
+      contentExtent: contentExtent,
+      viewportExtent: viewportExtent,
+      baseline: baseline,
+      contentBaseline: contentBaseline,
     ),
     devicePixelRatio: devicePixelRatio,
   );
@@ -98,7 +105,6 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.initialOffset).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
-  when(position.baseline).thenAnswer((_) => metricsRegistry.baseline);
   when(position.measurements).thenAnswer((_) => metricsRegistry.measurements);
   when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);

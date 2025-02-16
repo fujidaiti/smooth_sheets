@@ -111,8 +111,11 @@ void main() {
               key: sheetKey,
               controller: controller,
               scrollConfiguration: const SheetScrollConfiguration(),
-              snapGrid: SheetSnapGrid.stepless(
-                minOffset: SheetOffset.absolute(200),
+              snapGrid: SheetSnapGrid(
+                snaps: [
+                  const SheetOffset.absolute(200),
+                  const SheetOffset.relative(1),
+                ],
               ),
               initialOffset: const SheetOffset.absolute(200),
               child: const _TestSheetContent(height: 400),
@@ -145,7 +148,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(MediaQuery.viewInsetsOf(viewportKey.currentContext!).bottom, 200,
         reason: 'The keyboard should be fully shown.');
-    expect(controller.metrics!.offset, 400,
+    expect(controller.metrics!.offset, 600,
         reason: 'After the keyboard is fully shown, '
             'the entire sheet should also be visible.');
   });

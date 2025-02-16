@@ -58,7 +58,7 @@ class RelativeSheetOffset implements SheetOffset {
 
   @override
   double resolve(Measurements measurements) =>
-      measurements.contentSize.height * factor;
+      measurements.contentExtent * factor + measurements.contentBaseline;
 
   @override
   bool operator ==(Object other) =>
@@ -464,16 +464,6 @@ mixin SheetMetrics {
   double get maxOffset;
 
   Measurements get measurements;
-
-  // TODO: Should this be moved to Measurements class?
-  double get baseline =>
-      measurements.contentMargin.bottom + measurements.viewportPadding.bottom;
-
-  /// The visible height of the sheet measured from the bottom of the viewport.
-  ///
-  /// If the on-screen keyboard is visible, this value is the sum of
-  /// [offset] and the keyboard's height. Otherwise, it is equal to [offset].
-  double get viewOffset => offset + baseline + measurements.contentMargin.top;
 }
 
 /// An immutable snapshot of the state of a sheet.
@@ -574,49 +564,49 @@ class SheetGeometry {
 @immutable
 class Measurements {
   const Measurements({
-    required this.viewportSize,
-    required this.viewportPadding,
-    required this.contentSize,
-    required this.contentMargin,
+    required this.viewportExtent,
+    required this.contentExtent,
+    required this.contentBaseline,
+    required this.baseline,
   });
 
-  final Size viewportSize;
+  final double viewportExtent;
 
-  final EdgeInsets viewportPadding;
+  final double contentExtent;
 
-  final Size contentSize;
+  final double contentBaseline;
 
-  final EdgeInsets contentMargin;
+  final double baseline;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is Measurements &&
-        other.viewportSize == viewportSize &&
-        other.viewportPadding == viewportPadding &&
-        other.contentSize == contentSize &&
-        other.contentMargin == contentMargin;
+        other.viewportExtent == viewportExtent &&
+        other.contentExtent == contentExtent &&
+        other.contentBaseline == contentBaseline &&
+        other.baseline == baseline;
   }
 
   @override
   int get hashCode => Object.hash(
-        contentSize,
-        viewportSize,
-        viewportPadding,
-        contentMargin,
+        contentExtent,
+        viewportExtent,
+        contentBaseline,
+        baseline,
       );
 
   Measurements copyWith({
-    Size? contentSize,
-    Size? viewportSize,
-    EdgeInsets? viewportPadding,
-    EdgeInsets? contentMargin,
+    double? contentExtent,
+    double? viewportExtent,
+    double? contentBaseline,
+    double? baseline,
   }) {
     return Measurements(
-      contentSize: contentSize ?? this.contentSize,
-      viewportSize: viewportSize ?? this.viewportSize,
-      viewportPadding: viewportPadding ?? this.viewportPadding,
-      contentMargin: contentMargin ?? this.contentMargin,
+      contentExtent: contentExtent ?? this.contentExtent,
+      viewportExtent: viewportExtent ?? this.viewportExtent,
+      contentBaseline: contentBaseline ?? this.contentBaseline,
+      baseline: baseline ?? this.baseline,
     );
   }
 }

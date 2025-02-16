@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/model.dart';
 
@@ -16,30 +15,38 @@ Matcher throwsError({required String name}) => throwsA(
 Matcher get isNotInitialized => throwsError(name: 'LateError');
 
 Matcher isMeasurements({
-  Size? contentSize,
-  Size? viewportSize,
-  EdgeInsets? contentMargin,
+  double? contentExtent,
+  double? viewportExtent,
+  double? contentBaseline,
+  double? baseline,
 }) {
   var result = isA<Measurements>();
-  if (contentSize != null) {
+  if (contentExtent != null) {
     result = result.having(
-      (it) => it.contentSize,
-      'contentSize',
-      contentSize,
+      (it) => it.contentExtent,
+      'contentExtent',
+      contentExtent,
     );
   }
-  if (viewportSize != null) {
+  if (viewportExtent != null) {
     result = result.having(
-      (it) => it.viewportSize,
-      'viewportSize',
-      viewportSize,
+      (it) => it.viewportExtent,
+      'viewportExtent',
+      viewportExtent,
     );
   }
-  if (contentMargin != null) {
+  if (contentBaseline != null) {
     result = result.having(
-      (it) => it.contentMargin,
-      'contentMargin',
-      contentMargin,
+      (it) => it.contentBaseline,
+      'contentBaseline',
+      contentBaseline,
+    );
+  }
+  if (baseline != null) {
+    result = result.having(
+      (it) => it.baseline,
+      'baseline',
+      baseline,
     );
   }
 

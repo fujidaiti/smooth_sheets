@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/physics.dart';
@@ -17,15 +19,19 @@ void main() {
     }) boilerplate({
       required SheetModel model,
       EdgeInsets viewInsets = EdgeInsets.zero,
-      EdgeInsets padding = EdgeInsets.zero,
       EdgeInsets viewPadding = EdgeInsets.zero,
       required Widget Function(Widget child) builder,
     }) {
       final testWidget = MediaQuery(
         data: MediaQueryData(
           viewInsets: viewInsets,
-          padding: padding,
           viewPadding: viewPadding,
+          padding: EdgeInsets.fromLTRB(
+            max(viewInsets.left - viewPadding.left, 0),
+            max(viewInsets.top - viewPadding.top, 0),
+            max(viewInsets.right - viewPadding.right, 0),
+            max(viewInsets.bottom - viewPadding.bottom, 0),
+          ),
         ),
         child: Center(
           child: builder(
@@ -179,7 +185,7 @@ void main() {
     );
 
     testWidgets(
-      "should ignore 'MediaQueryData.viewInsets' "
+      "should not shrink the sheet content's height "
       "if 'resizeChildToAvoidViewInsets' is false",
       (tester) async {
         final env = boilerplate(
@@ -187,7 +193,7 @@ void main() {
           viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
             child: BareSheet(
-              resizeChildToAvoidViewInsets: false,
+              resizeChildToAvoidBottomInsets: false,
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -205,7 +211,8 @@ void main() {
     );
 
     testWidgets(
-      "should shrink the sheet content's size by 'MediaQueryData.viewInsets' "
+      // ignore: lines_longer_than_80_chars
+      "should shrink the sheet content's height by 'MediaQueryData.viewInsets.bottom' "
       "if 'resizeChildToAvoidViewInsets' is true",
       (tester) async {
         final env = boilerplate(
@@ -213,7 +220,7 @@ void main() {
           viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
             child: BareSheet(
-              resizeChildToAvoidViewInsets: true,
+              resizeChildToAvoidBottomInsets: true,
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -224,12 +231,7 @@ void main() {
         await tester.pumpWidget(env.testWidget);
         expect(
           tester.getRect(find.byKey(Key('content'))),
-          Rect.fromLTWH(
-            10,
-            10,
-            testScreenSize.width - 20,
-            testScreenSize.height - 20,
-          ),
+          Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 10),
         );
         expect(
           tester.getRect(find.byType(BareSheet)),
@@ -239,17 +241,16 @@ void main() {
     );
 
     testWidgets(
-      "should reduce the inherited viewInsets by the viewport's padding "
-      "if 'ignoreViewInsets' is true",
+      "should remove the inherited 'viewInsets.bottom' "
+      "if 'resizeChildToAvoidViewInsets' is true",
       (tester) async {
         late EdgeInsets inheritedViewInsets;
         final env = boilerplate(
           model: _TestSheetModel(),
-          viewInsets: EdgeInsets.all(20),
+          viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
-            padding: EdgeInsets.all(10),
             child: BareSheet(
-              resizeChildToAvoidViewInsets: true,
+              resizeChildToAvoidBottomInsets: true,
               child: Builder(
                 builder: (context) {
                   inheritedViewInsets = MediaQuery.viewInsetsOf(context);
@@ -262,48 +263,21 @@ void main() {
           ),
         );
         await tester.pumpWidget(env.testWidget);
-        expect(inheritedViewInsets, EdgeInsets.all(10));
+        expect(inheritedViewInsets, EdgeInsets.fromLTRB(10, 10, 10, 0));
       },
     );
 
     testWidgets(
-      "should remove the inherited viewInsets if 'ignoreViewInsets' is false",
-      (tester) async {
-        late EdgeInsets inheritedViewInsets;
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewPadding: EdgeInsets.all(20),
-          builder: (child) => SheetViewport(
-            padding: EdgeInsets.all(10),
-            child: BareSheet(
-              resizeChildToAvoidViewInsets: false,
-              child: Builder(
-                builder: (context) {
-                  inheritedViewInsets = MediaQuery.viewInsetsOf(context);
-                  return SizedBox.expand(
-                    child: child,
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(inheritedViewInsets, EdgeInsets.zero);
-      },
-    );
-
-    testWidgets(
-      'should reduce the inherited padding and viewPadding '
+      'should reduce the inherited padding, viewInsets, and viewPadding '
       "by the viewport's padding",
       (tester) async {
         late EdgeInsets inheritedPadding;
         late EdgeInsets inheritedViewPadding;
+        late EdgeInsets inheritedViewInsets;
         final env = boilerplate(
           model: _TestSheetModel(),
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          viewPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           viewInsets: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          viewPadding: EdgeInsets.all(40),
           builder: (child) => SheetViewport(
             padding: EdgeInsets.all(10),
             child: BareSheet(
@@ -311,6 +285,7 @@ void main() {
                 builder: (context) {
                   inheritedPadding = MediaQuery.paddingOf(context);
                   inheritedViewPadding = MediaQuery.viewPaddingOf(context);
+                  inheritedViewInsets = MediaQuery.viewInsetsOf(context);
                   return SizedBox.expand(
                     child: child,
                   );
@@ -320,11 +295,12 @@ void main() {
           ),
         );
         await tester.pumpWidget(env.testWidget);
+        expect(inheritedPadding, EdgeInsets.zero);
+        expect(inheritedViewInsets, EdgeInsets.symmetric(horizontal: 10));
         expect(
-          inheritedPadding,
-          EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+          inheritedViewPadding,
+          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         );
-        expect(inheritedViewPadding, EdgeInsets.all(30));
       },
     );
 
@@ -338,7 +314,7 @@ void main() {
           builder: (child) => SheetViewport(
             padding: EdgeInsets.all(10),
             child: BareSheet(
-              resizeChildToAvoidViewInsets: true,
+              resizeChildToAvoidBottomInsets: true,
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -467,7 +443,7 @@ void main() {
       'the padded viewport when the content is fully visible',
       (tester) async {
         final model = _TestSheetModel(
-          initialOffset: SheetOffset.absolute(300),
+          initialOffset: SheetOffset.relative(1),
         );
         final env = boilerplate(
           model: model,
@@ -498,7 +474,7 @@ void main() {
           ),
         );
 
-        model.offset = 350;
+        model.offset = 360;
         await tester.pump();
         expect(
           tester.getSize(find.byKey(Key('content'))),
@@ -514,7 +490,7 @@ void main() {
           ),
         );
 
-        model.offset = 150;
+        model.offset = 160;
         await tester.pump();
         expect(
           tester.getSize(find.byKey(Key('content'))),
@@ -553,10 +529,7 @@ void main() {
         await tester.pumpWidget(env.testWidget, phase: EnginePhase.layout);
 
         expect(model.hasMetrics, isTrue);
-        expect(
-          model.measurements,
-          isMeasurements(contentSize: Size(testScreenSize.width, 300)),
-        );
+        expect(model.measurements, isMeasurements(contentExtent: 300));
       },
     );
 
@@ -584,17 +557,11 @@ void main() {
           ),
         );
         await tester.pumpWidget(env.testWidget);
-        expect(
-          model.measurements,
-          isMeasurements(contentSize: Size(testScreenSize.width, 300)),
-        );
+        expect(model.measurements, isMeasurements(contentExtent: 300));
 
         contentStateKey.currentState!.state = Size.fromHeight(200);
         await tester.pump();
-        expect(
-          model.measurements,
-          isMeasurements(contentSize: Size(testScreenSize.width, 200)),
-        );
+        expect(model.measurements, isMeasurements(contentExtent: 200));
       },
     );
 
@@ -661,9 +628,7 @@ void main() {
       _TestSheetModel model,
       Widget testWidget,
     }) boilerplate() {
-      final model = _TestSheetModel(
-        initialOffset: SheetOffset.absolute(300),
-      );
+      final model = _TestSheetModel();
 
       final testWidget = MediaQuery(
         data: MediaQueryData(),

@@ -256,9 +256,9 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
   void invalidateVisibility() {
     final size = _bottomBarSize;
     if (size != null && _model.hasMetrics) {
-      final baseTransition = (_model.offset -
-              _model.measurements.viewportSize.height)
-          .clamp(size.height - _model.measurements.viewportSize.height, 0.0);
+      final baseTransition =
+          (_model.offset - _model.measurements.viewportExtent)
+              .clamp(size.height - _model.measurements.viewportExtent, 0.0);
       final visibility = computeVisibility(_model, size);
       assert(0 <= visibility && visibility <= 1);
       final invisibleHeight = size.height * (1 - visibility);
@@ -331,8 +331,8 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
   @override
   double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize) {
     final invisibleSheetHeight =
-        (sheetMetrics.measurements.contentSize.height - sheetMetrics.offset)
-            .clamp(0.0, sheetMetrics.measurements.contentSize.height);
+        (sheetMetrics.measurements.contentExtent - sheetMetrics.offset)
+            .clamp(0.0, sheetMetrics.measurements.contentExtent);
 
     final visibleBarHeight =
         max(0.0, bottomBarSize.height - invisibleSheetHeight);
@@ -340,7 +340,7 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
 
     switch (_resizeBehavior) {
       case _AvoidBottomInset(maintainBottomBar: false):
-        final baseline = sheetMetrics.baseline;
+        final baseline = sheetMetrics.measurements.baseline;
         return (visibility - baseline / bottomBarSize.height).clamp(0.0, 1.0);
 
       case _AvoidBottomInset(maintainBottomBar: true):
@@ -423,7 +423,7 @@ class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
         return 1.0;
 
       case _AvoidBottomInset(maintainBottomBar: false):
-        final bottomInset = sheetMetrics.baseline;
+        final bottomInset = sheetMetrics.measurements.baseline;
         return (1 - bottomInset / bottomBarSize.height).clamp(0.0, 1.0);
     }
   }

@@ -1,11 +1,11 @@
 import 'package:flutter/animation.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/physics.dart';
+import 'package:smooth_sheets/src/snap_grid.dart';
 
 import 'src/matchers.dart';
 import 'src/stubbing.dart';
@@ -45,10 +45,11 @@ void main() {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 300,
         initialPosition: const SheetOffset.absolute(300),
-        minOffset: 300,
-        maxOffset: 700,
-        contentSize: const Size(400, 700),
-        viewportSize: const Size(400, 900),
+        snapGrid: SheetSnapGrid.stepless(
+          minOffset: const SheetOffset.absolute(300),
+        ),
+        contentExtent: 700,
+        viewportExtent: 900,
         devicePixelRatio: 1,
       );
 
@@ -82,12 +83,13 @@ void main() {
 
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
-        offset: 300,
-        initialPosition: const SheetOffset.absolute(300),
-        minOffset: 300,
-        maxOffset: 900,
-        contentSize: const Size(400, 900),
-        viewportSize: const Size(400, 900),
+        offset: 250,
+        initialPosition: const SheetOffset.absolute(250),
+        snapGrid: SheetSnapGrid.stepless(
+          minOffset: const SheetOffset.absolute(250),
+        ),
+        contentExtent: 850,
+        viewportExtent: 900,
         devicePixelRatio: 1,
       );
 
@@ -100,31 +102,29 @@ void main() {
 
       when(controller.value).thenReturn(0.0);
       activity.onAnimationTick();
-      expect(ownerMetrics.offset, 300);
+      expect(ownerMetrics.offset, 250);
 
       when(controller.value).thenReturn(0.25);
       when(controller.lastElapsedDuration)
           .thenReturn(const Duration(milliseconds: 75));
       activity.onAnimationTick();
-      expect(ownerMetrics.offset, 450);
+      expect(ownerMetrics.offset, 400);
 
       // The following lines simulate a viewport change, in which:
       // 1. The viewport's bottom inset increases, simulating the
       //    appearance of an on-screen keyboard.
-      // 2. The content size then reduces to avoid overlapping with the
-      //    increased bottom inset.
+      // 2. The content is then pushed up to avoid being overlapped by
+      //    the keyboard.
       // This scenario mimics the behavior when opening a keyboard
       // on a sheet that uses SheetContentScaffold.
       final oldMeasurements = ownerMetrics.measurements;
       ownerMetrics.measurements = ownerMetrics.measurements.copyWith(
-        contentSize: const Size(400, 850),
-        contentMargin: const EdgeInsets.only(bottom: 50),
+        contentExtent: 850,
+        contentBaseline: 50,
       );
 
       activity.didChangeMeasurements(oldMeasurements);
       expect(ownerMetrics.offset, 400);
-      expect(ownerMetrics.viewOffset, 450,
-          reason: 'Visual position should not change when viewport changes.');
       verify(owner.settleTo(
         const SheetOffset.relative(1),
         const Duration(milliseconds: 225),
@@ -142,10 +142,11 @@ void main() {
       (ownerMetrics, owner) = createMockSheetModel(
         offset: 300,
         initialPosition: const SheetOffset.relative(0.5),
-        minOffset: 300,
-        maxOffset: 600,
-        contentSize: const Size(400, 600),
-        viewportSize: const Size(400, 900),
+        snapGrid: SheetSnapGrid.stepless(
+          minOffset: const SheetOffset.absolute(300),
+        ),
+        contentExtent: 600,
+        viewportExtent: 900,
         devicePixelRatio: 1,
       );
       internalTicker = MockTicker();
@@ -254,46 +255,51 @@ void main() {
 
       final oldMeasurements = ownerMetrics.measurements;
       // Show the on-screen keyboard.
-      ownerMetrics.measurements = oldMeasurements.copyWith(
-        contentMargin: const EdgeInsets.only(bottom: 30),
-      );
+      ownerMetrics.measurements = oldMeasurements.copyWith(contentBaseline: 30);
       activity.didChangeMeasurements(oldMeasurements);
-      expect(ownerMetrics.offset, 320,
+      expect(ownerMetrics.offset, 350,
           reason: 'Visual position should not change when viewport changes.');
       expect(activity.velocity, 1120, // 280 offset / 0.25s = 1120 offset/s
           reason: 'Velocity should be updated when viewport changes.');
 
       internalOnTickCallback!(const Duration(milliseconds: 100));
-      expect(ownerMetrics.offset, 376); // 1120 * 0.05 = 56 offset in 50ms
+      expect(ownerMetrics.offset, 406); // 1120 * 0.05 = 56 offset in 50ms
     });
   });
 
   group('IdleSheetActivity', () {
-    test('should maintain previous position when keyboard appears', () {
-      final (ownerMetrics, owner) = createMockSheetModel(
-        offset: 450,
-        initialPosition: const SheetOffset.relative(0.5),
-        minOffset: 425,
-        maxOffset: 850,
-        contentMargin: const EdgeInsets.only(bottom: 50),
-        contentSize: const Size(400, 850),
-        viewportSize: const Size(400, 900),
-        devicePixelRatio: 1,
-        physics: kDefaultSheetPhysics,
-      );
-
-      IdleSheetActivity()
-        ..init(owner)
-        ..didChangeMeasurements(
-          const Measurements(
-            contentSize: Size(400, 900),
-            viewportSize: Size(400, 900),
-            contentMargin: EdgeInsets.zero,
-            viewportPadding: EdgeInsets.zero,
+    test(
+      'should keep the only 50% of the content visible when keyboard appears',
+      () {
+        final (ownerMetrics, owner) = createMockSheetModel(
+          offset: 160,
+          initialPosition: const SheetOffset.relative(0.2),
+          snapGrid: SheetSnapGrid(
+            snaps: [
+              const SheetOffset.relative(0.2),
+              const SheetOffset.relative(1),
+            ],
           ),
+          contentExtent: 800,
+          viewportExtent: 900,
+          contentBaseline: 50,
+          devicePixelRatio: 1,
+          physics: kDefaultSheetPhysics,
         );
-      expect(ownerMetrics.offset, 425);
-    });
+
+        final oldMeasurements = ownerMetrics.measurements;
+        ownerMetrics.measurements = const Measurements(
+          contentExtent: 850,
+          viewportExtent: 900,
+          contentBaseline: 50,
+          baseline: 0,
+        );
+        IdleSheetActivity()
+          ..init(owner)
+          ..didChangeMeasurements(oldMeasurements);
+        expect(ownerMetrics.offset, 220);
+      },
+    );
 
     test(
       'should maintain previous position when content size changes',
@@ -301,10 +307,14 @@ void main() {
         final (ownerMetrics, owner) = createMockSheetModel(
           offset: 250,
           initialPosition: const SheetOffset.relative(0.5),
-          minOffset: 250,
-          maxOffset: 600,
-          contentSize: const Size(400, 500),
-          viewportSize: const Size(400, 900),
+          snapGrid: SheetSnapGrid(
+            snaps: [
+              const SheetOffset.relative(0.5),
+              const SheetOffset.relative(1),
+            ],
+          ),
+          contentExtent: 500,
+          viewportExtent: 900,
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
         );
@@ -312,7 +322,7 @@ void main() {
 
         final oldMeasurements = owner.measurements;
         owner.measurements = owner.measurements.copyWith(
-          contentSize: const Size(400, 600),
+          contentExtent: 600,
         );
         IdleSheetActivity()
           ..init(owner)

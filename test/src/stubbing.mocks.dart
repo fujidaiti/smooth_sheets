@@ -285,16 +285,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
           as _i2.SheetMetrics);
 
   @override
-  double get baseline =>
-      (super.noSuchMethod(Invocation.getter(#baseline), returnValue: 0.0)
-          as double);
-
-  @override
-  double get viewOffset =>
-      (super.noSuchMethod(Invocation.getter(#viewOffset), returnValue: 0.0)
-          as double);
-
-  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
@@ -546,24 +536,6 @@ class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
             ),
           )
           as _i2.Measurements);
-
-  @override
-  double get baseline =>
-      (super.noSuchMethod(
-            Invocation.getter(#baseline),
-            returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
-          )
-          as double);
-
-  @override
-  double get viewOffset =>
-      (super.noSuchMethod(
-            Invocation.getter(#viewOffset),
-            returnValue: 0.0,
-            returnValueForMissingStub: 0.0,
-          )
-          as double);
 
   @override
   _i2.SheetMetrics copyWith({

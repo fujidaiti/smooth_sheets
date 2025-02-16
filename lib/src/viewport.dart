@@ -9,10 +9,10 @@ import 'package:meta/meta.dart';
 import 'model.dart';
 
 mixin _MeasurementPipeline {
-  late Size _lastMeasuredViewportSize;
-  late Size _lastMeasuredContentSize;
-  late EdgeInsets _lastMeasuredViewportPadding;
-  late EdgeInsets _lastMeasuredContentMargin;
+  late double _lastMeasuredViewportExtent;
+  late double _lastMeasuredContentExtent;
+  late double _lastMeasuredBaseline;
+  late double _lastMeasuredContentBaseline;
   void _flushMeasurements();
 }
 
@@ -57,10 +57,10 @@ class SheetViewportState extends State<SheetViewport>
   void _flushMeasurements() {
     assert(_modelView._inner != null);
     _modelView._inner!.measurements = Measurements(
-      viewportSize: _lastMeasuredViewportSize,
-      viewportPadding: _lastMeasuredViewportPadding,
-      contentSize: _lastMeasuredContentSize,
-      contentMargin: _lastMeasuredContentMargin,
+      viewportExtent: _lastMeasuredViewportExtent,
+      contentExtent: _lastMeasuredContentExtent,
+      contentBaseline: _lastMeasuredContentBaseline,
+      baseline: _lastMeasuredBaseline,
     );
   }
 
@@ -221,15 +221,15 @@ class _RenderSheetTranslate extends RenderTransform {
     );
 
     _measurementPipeline
-      .._lastMeasuredViewportPadding = _padding
-      .._lastMeasuredViewportSize = Size.copy(constraints.biggest);
+      .._lastMeasuredBaseline = _padding.bottom
+      .._lastMeasuredViewportExtent = constraints.biggest.height;
     size = constraints.biggest;
     child!.layout(constraints.loosen().deflate(_padding));
   }
 
   void _invalidateTransformMatrix() {
     if (_model.hasMetrics) {
-      final dy = _lastMeasuredSize.height - _model.viewOffset;
+      final dy = _lastMeasuredSize.height - _model.offset;
       // Update the translation value and mark this render object
       // as needing to be repainted.
       transform = Matrix4.translationValues(_padding.left, dy, 0);
@@ -271,25 +271,26 @@ class BareSheet extends StatelessWidget {
   const BareSheet({
     super.key,
     required this.child,
-    this.resizeChildToAvoidViewInsets = true,
+    this.resizeChildToAvoidBottomInsets = true,
   });
 
   final Widget child;
-  final bool resizeChildToAvoidViewInsets;
+  final bool resizeChildToAvoidBottomInsets;
 
   @override
   Widget build(BuildContext context) {
-    if (resizeChildToAvoidViewInsets) {
+    if (resizeChildToAvoidBottomInsets) {
       return _SheetSkelton(
-        padding: MediaQuery.viewInsetsOf(context),
+        bottomPadding: MediaQuery.viewInsetsOf(context).bottom,
         child: MediaQuery.removeViewInsets(
+          removeBottom: true,
           context: context,
           child: child,
         ),
       );
     } else {
       return _SheetSkelton(
-        padding: EdgeInsets.zero,
+        bottomPadding: 0,
         child: child,
       );
     }
@@ -299,15 +300,15 @@ class BareSheet extends StatelessWidget {
 class _SheetSkelton extends SingleChildRenderObjectWidget {
   const _SheetSkelton({
     required super.child,
-    required this.padding,
+    required this.bottomPadding,
   });
 
-  final EdgeInsets padding;
+  final double bottomPadding;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetSkelton(
-      padding: padding,
+      bottomPadding: bottomPadding,
       measurementPipeline: SheetViewportState.of(context)!,
       model: SheetViewportState.of(context)!._modelView,
     );
@@ -316,7 +317,7 @@ class _SheetSkelton extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetSkelton)
-      ..padding = padding
+      ..bottomPadding = bottomPadding
       ..measurementPipeline = SheetViewportState.of(context)!
       ..model = SheetViewportState.of(context)!._modelView;
   }
@@ -325,23 +326,23 @@ class _SheetSkelton extends SingleChildRenderObjectWidget {
 class _RenderSheetSkelton extends RenderShiftedBox {
   _RenderSheetSkelton({
     required _LazySheetModelView model,
-    required EdgeInsets padding,
+    required double bottomPadding,
     required _MeasurementPipeline measurementPipeline,
   })  : _model = model,
-        _padding = padding,
+        _bottomPadding = bottomPadding,
         _measurementPipeline = measurementPipeline,
         super(null) {
-    model.addListener(_updatePreferredSize);
-    _updatePreferredSize();
+    model.addListener(_invalidatePreferredExtent);
+    _invalidatePreferredExtent();
   }
 
   _LazySheetModelView _model;
   // ignore: avoid_setters_without_getters
   set model(_LazySheetModelView value) {
     if (value != _model) {
-      _model.removeListener(_updatePreferredSize);
-      _model = value..addListener(_updatePreferredSize);
-      _updatePreferredSize();
+      _model.removeListener(_invalidatePreferredExtent);
+      _model = value..addListener(_invalidatePreferredExtent);
+      _invalidatePreferredExtent();
       markNeedsLayout();
     }
   }
@@ -353,24 +354,22 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     markNeedsLayout();
   }
 
-  EdgeInsets _padding;
+  double _bottomPadding;
   // ignore: avoid_setters_without_getters
-  set padding(EdgeInsets value) {
-    _padding = value;
+  set bottomPadding(double value) {
+    _bottomPadding = value;
     markNeedsLayout();
   }
 
-  bool _isPerformingLayout = false;
-  Size? _preferredSize;
+  double? _preferredExtent;
 
-  void _updatePreferredSize() {
+  void _invalidatePreferredExtent() {
     if (_model.hasMetrics) {
-      final preferredSize = Size.fromHeight(
-        max(_model.viewOffset - _model.measurements.viewportPadding.bottom, 0),
-      );
-      final oldPreferredSize = _preferredSize;
-      _preferredSize = preferredSize;
-      if (oldPreferredSize != preferredSize && !_isPerformingLayout) {
+      final preferredExtent =
+          max(_model.offset - _model.measurements.baseline, 0.0);
+      final oldPreferredExtent = _preferredExtent;
+      _preferredExtent = preferredExtent;
+      if (oldPreferredExtent != preferredExtent && !_isPerformingLayout) {
         markNeedsLayout();
       }
     }
@@ -378,9 +377,11 @@ class _RenderSheetSkelton extends RenderShiftedBox {
 
   @override
   void dispose() {
-    _model.removeListener(_updatePreferredSize);
+    _model.removeListener(_invalidatePreferredExtent);
     super.dispose();
   }
+
+  bool _isPerformingLayout = false;
 
   @override
   void performLayout() {
@@ -392,44 +393,63 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     assert(_model._inner != null);
     assert(constraints.biggest.isFinite);
     assert(!constraints.isTight);
+    assert(() {
+      bool debugCheckAncestor(RenderObject? ancestor) {
+        switch (ancestor) {
+          case null:
+            throw AssertionError(
+              'No SheetViewport found in the ancestors of the sheet.',
+            );
+
+          case final _RenderSheetTranslate viewport
+              when constraints.biggest !=
+                  viewport._padding.deflateSize(viewport._lastMeasuredSize):
+            throw AssertionError(
+              // ignore: lines_longer_than_80_chars
+              'The maximum size of the sheet is smaller than the expected size. '
+              'This is likely because the sheet is wrapped by a widget that '
+              'adds extra margin around it (e.g. Padding).',
+            );
+
+          case final _RenderSheetTranslate _:
+            return true;
+
+          case _:
+            return false;
+        }
+      }
+
+      var ancestor = parent;
+      while (!debugCheckAncestor(ancestor)) {
+        ancestor = ancestor?.parent;
+      }
+      return true;
+    }());
 
     _isPerformingLayout = true;
 
-    final maxSize = constraints.biggest;
-    final maxContentSize = _padding.deflateSize(maxSize);
-
-    assert(
-      maxSize ==
-          _measurementPipeline._lastMeasuredViewportPadding
-              .deflateSize(_measurementPipeline._lastMeasuredViewportSize),
-      'The maximum size of the sheet is smaller than the expected size. '
-      'This is likely because the sheet is wrapped by a widget that adds extra '
-      'margin around it (e.g. Padding).',
-    );
-
-    (child.parentData! as BoxParentData).offset = _padding.topLeft;
     child.layout(
       BoxConstraints(
-        minWidth: maxContentSize.width,
-        maxWidth: maxContentSize.width,
-        maxHeight: maxContentSize.height,
+        minWidth: constraints.maxWidth,
+        maxWidth: constraints.maxWidth,
+        maxHeight: max(constraints.maxHeight - _bottomPadding, 0.0),
       ),
       parentUsesSize: true,
     );
 
     _measurementPipeline
-      .._lastMeasuredContentSize = Size.copy(child.size)
-      .._lastMeasuredContentMargin = _padding
+      .._lastMeasuredContentExtent = child.size.height
+      .._lastMeasuredContentBaseline =
+          _measurementPipeline._lastMeasuredBaseline + _bottomPadding
       .._flushMeasurements();
-    assert(_preferredSize != null);
+    assert(_preferredExtent != null);
 
-    final minSize = _padding.inflateSize(child.size);
     size = BoxConstraints(
-      minWidth: minSize.width,
-      maxWidth: maxSize.width,
-      minHeight: minSize.height,
-      maxHeight: maxSize.height,
-    ).constrain(_preferredSize!);
+      minWidth: constraints.minWidth,
+      maxWidth: constraints.maxWidth,
+      minHeight: child.size.height + _bottomPadding,
+      maxHeight: constraints.maxHeight,
+    ).constrain(Size.fromHeight(_preferredExtent!));
 
     _isPerformingLayout = false;
   }
@@ -442,7 +462,10 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       debugPaintPadding(
         context.canvas,
         outerRect,
-        child != null ? _padding.deflateRect(outerRect) : null,
+        switch (child) {
+          null => null,
+          final child => Offset.zero & child.size,
+        },
       );
       return true;
     }());
@@ -451,7 +474,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty('padding', _padding));
+    properties.add(DiagnosticsProperty('bottomPadding', _bottomPadding));
   }
 }
 

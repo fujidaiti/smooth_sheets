@@ -40,11 +40,10 @@ sealed class SheetNotification extends Notification {
       ..add('offset: ${metrics.offset}')
       ..add('minOffset: ${metrics.minOffset}')
       ..add('maxOffset: ${metrics.maxOffset}')
-      ..add('baseline: ${metrics.baseline}')
-      ..add('viewportSize: ${metrics.measurements.viewportSize}')
-      ..add('contentMargin: ${metrics.measurements.contentMargin}')
-      ..add('viewportPadding: ${metrics.measurements.viewportPadding}')
-      ..add('contentSize: ${metrics.measurements.contentSize}');
+      ..add('baseline: ${metrics.measurements.baseline}')
+      ..add('contentBaseline: ${metrics.measurements.contentBaseline}')
+      ..add('viewportSize: ${metrics.measurements.viewportExtent}')
+      ..add('contentSize: ${metrics.measurements.contentExtent}');
   }
 }
 

@@ -101,7 +101,7 @@ class _SheetState extends State<Sheet> {
       snapGrid: widget.snapGrid,
       gestureProxy: gestureTamper,
       child: BareSheet(
-        resizeChildToAvoidViewInsets: widget.resizeChildToAvoidViewInsets,
+        resizeChildToAvoidBottomInsets: widget.resizeChildToAvoidViewInsets,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: widget.scrollConfiguration,
           dragConfiguration: widget.dragConfiguration,

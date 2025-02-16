@@ -15,10 +15,10 @@ void main() {
     final mock = MockSheetMetrics();
     when(mock.measurements).thenReturn(
       Measurements(
-        contentSize: contentSize,
-        viewportSize: testScreenSize,
-        viewportPadding: EdgeInsets.zero,
-        contentMargin: EdgeInsets.zero,
+        contentExtent: contentSize.height,
+        viewportExtent: testScreenSize.height,
+        contentBaseline: 0,
+        baseline: 0,
       ),
     );
     when(mock.offset).thenReturn(offset);

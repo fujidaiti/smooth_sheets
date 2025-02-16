@@ -63,9 +63,8 @@ abstract class SheetActivity<T extends SheetModel> {
   bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
   void didChangeMeasurements(Measurements oldMeasurements) {
-    final oldMetrics = owner.copyWith(measurements: oldMeasurements);
-    if (owner.baseline != oldMetrics.baseline) {
-      absorbBaseDelta(owner, oldMetrics);
+    if (owner.measurements.contentBaseline != oldMeasurements.contentBaseline) {
+      absorbContentBaselineChange(owner, oldMeasurements);
     }
   }
 
@@ -165,9 +164,8 @@ class AnimatedSheetActivity extends SheetActivity
 
   @override
   void didChangeMeasurements(Measurements oldMeasurements) {
-    final oldMetrics = owner.copyWith(measurements: oldMeasurements);
-    if (owner.baseline != oldMetrics.baseline) {
-      absorbBaseDelta(owner, oldMetrics);
+    if (owner.measurements.contentBaseline != oldMeasurements.contentBaseline) {
+      absorbContentBaselineChange(owner, oldMeasurements);
     }
     final newEndOffset = destination.resolve(owner.measurements);
     if (newEndOffset != _endOffset) {
@@ -216,8 +214,8 @@ class BallisticSheetActivity extends SheetActivity
     final oldMetrics = owner.copyWith(measurements: oldMeasurements);
     final destination = owner.snapGrid.getSnapOffset(oldMetrics, velocity);
 
-    if (owner.baseline != oldMetrics.baseline) {
-      absorbBaseDelta(owner, oldMetrics);
+    if (owner.measurements.contentBaseline != oldMeasurements.contentBaseline) {
+      absorbContentBaselineChange(owner, oldMeasurements);
     }
 
     final endOffset = destination.resolve(owner.measurements);
@@ -331,9 +329,8 @@ class SettlingSheetActivity extends SheetActivity {
 
   @override
   void didChangeMeasurements(Measurements oldMeasurements) {
-    final oldMetrics = owner.copyWith(measurements: oldMeasurements);
-    if (owner.baseline != oldMetrics.baseline) {
-      absorbBaseDelta(owner, oldMetrics);
+    if (owner.measurements.contentBaseline != oldMeasurements.contentBaseline) {
+      absorbContentBaselineChange(owner, oldMeasurements);
     }
 
     _invalidateVelocity();
@@ -534,9 +531,8 @@ mixin UserControlledSheetActivityMixin<T extends SheetModel>
     on SheetActivity<T> {
   @override
   void didChangeMeasurements(Measurements oldMeasurements) {
-    final oldMetrics = owner.copyWith(measurements: oldMeasurements);
-    if (owner.baseline != oldMetrics.baseline) {
-      absorbBaseDelta(owner, oldMetrics);
+    if (owner.measurements.contentBaseline != oldMeasurements.contentBaseline) {
+      // absorbContentBaselineChange(owner, oldMeasurements);
     }
     // We don't call `goSettling` here because the user is still
     // manually controlling the sheet position.
@@ -547,12 +543,16 @@ mixin UserControlledSheetActivityMixin<T extends SheetModel>
 /// equal to the height of the on-screen keyboard, to the [activityOwner]'s
 /// `offset` to maintain the visual sheet position.
 @internal
-void absorbBaseDelta(SheetModel activityOwner, SheetMetrics oldMetrics) {
-  final deltaInsetBottom = activityOwner.baseline - oldMetrics.baseline;
-  final newOffset = activityOwner.offset - deltaInsetBottom;
-  if (newOffset != activityOwner.offset) {
-    activityOwner
-      ..offset = newOffset
-      ..didUpdateGeometry();
-  }
+void absorbContentBaselineChange(
+  SheetModel activityOwner,
+  Measurements oldMeasurements,
+) {
+  // final delta = activityOwner.measurements.contentBaseline -
+  //     oldMeasurements.contentBaseline;
+  // final newOffset = activityOwner.offset - delta;
+  // if (newOffset != activityOwner.offset) {
+  //   activityOwner
+  //     ..offset = newOffset
+  //     ..didUpdateGeometry();
+  // }
 }

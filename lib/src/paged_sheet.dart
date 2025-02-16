@@ -91,8 +91,9 @@ class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
     ValueGetter<double?> targetOffsetResolver(_PagedSheetEntry entry) {
       return () {
         if (entry._contentSize case final contentSize?) {
-          return (entry._targetOffset ?? entry.initialOffset)
-              .resolve(measurements.copyWith(contentSize: contentSize));
+          return (entry._targetOffset ?? entry.initialOffset).resolve(
+            measurements.copyWith(contentExtent: contentSize.height),
+          );
         }
         return null;
       };
@@ -159,9 +160,8 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
 
   @override
   void didChangeMeasurements(Measurements oldMeasurements) {
-    final oldMetrics = owner.copyWith(measurements: oldMeasurements);
-    if (owner.baseline != oldMetrics.baseline) {
-      absorbBaseDelta(owner, oldMetrics);
+    if (owner.measurements.contentBaseline != oldMeasurements.contentBaseline) {
+      absorbContentBaselineChange(owner, oldMeasurements);
     }
   }
 }
@@ -197,7 +197,7 @@ class PagedSheet extends StatelessWidget {
       controller: controller,
       gestureProxy: gestureProxy,
       child: BareSheet(
-        resizeChildToAvoidViewInsets: resizeChildToAvoidViewInsets,
+        resizeChildToAvoidBottomInsets: resizeChildToAvoidViewInsets,
         child: NavigatorResizable(
           interpolationCurve: Curves.linear,
           child: _NavigatorEventDispatcher(
