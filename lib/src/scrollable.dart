@@ -654,7 +654,7 @@ abstract class _SheetScrollPositionDelegate {
 }
 
 /// A [ScrollPosition] for a scrollable content in a sheet.
-@internal
+@visibleForTesting
 class SheetScrollPosition extends ScrollPositionWithSingleContext {
   SheetScrollPosition({
     required ScrollPhysics physics,
