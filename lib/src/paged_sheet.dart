@@ -157,13 +157,6 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
       owner.offset = lerpDouble(originOffset, destOffset, fraction)!;
     }
   }
-
-  @override
-  void didChangeMeasurements(Measurements oldMeasurements) {
-    if (owner.measurements.contentBaseline != oldMeasurements.contentBaseline) {
-      absorbContentBaselineChange(owner, oldMeasurements);
-    }
-  }
 }
 
 class PagedSheet extends StatelessWidget {
