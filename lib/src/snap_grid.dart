@@ -64,9 +64,9 @@ class SteplessSnapGrid implements SheetSnapGrid {
   SheetOffset getSnapOffset(SheetMetrics metrics, double velocity) {
     final minimum = minOffset.resolve(metrics.measurements);
     final maximum = maxOffset.resolve(metrics.measurements);
-    if (metrics.offset < minimum) {
+    if (metrics.offset <= minimum) {
       return minOffset;
-    } else if (metrics.offset > maximum) {
+    } else if (metrics.offset >= maximum) {
       return maxOffset;
     } else {
       return SheetOffset.absolute(metrics.offset);
