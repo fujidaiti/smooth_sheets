@@ -156,7 +156,7 @@ class _ExampleSheet extends StatelessWidget {
         initialOffset: halfSize,
         physics: multiStopPhysics,
         child: SheetContentScaffold(
-          appBar: AppBar(),
+          topBar: AppBar(),
           body: const SizedBox.expand(),
           bottomBar: switch (visibilityType) {
             _BottomBarVisibilityType.fixed =>

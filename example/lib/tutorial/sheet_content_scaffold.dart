@@ -36,7 +36,7 @@ class _ExampleSheet extends StatelessWidget {
       // With the following configuration, the sheet height will be
       // 500px + (app bar height) + (bottom bar height).
       body: Container(height: 500),
-      appBar: buildAppBar(context),
+      topBar: buildAppBar(context),
       // BottomBarVisibility widgets can be used to control the visibility
       // of the bottom bar based on the sheet's position.
       // For example, the following configuration keeps the bottom bar visible

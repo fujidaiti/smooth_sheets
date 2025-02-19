@@ -27,7 +27,7 @@ class EditActionsSheet extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: SheetContentScaffold(
           backgroundColor: CupertinoColors.systemGroupedBackground,
-          appBar: CupertinoAppBar(
+          topBar: CupertinoAppBar(
             title: const Text('Edit Actions'),
             trailing: CupertinoButton(
               onPressed: () => Navigator.pop(context),

@@ -36,7 +36,7 @@ class EditBookmarkSheet extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           child: SheetContentScaffold(
             backgroundColor: CupertinoColors.systemGroupedBackground,
-            appBar: CupertinoAppBar(
+            topBar: CupertinoAppBar(
               title: const Text('Add Bookmark'),
               leading: CupertinoButton(
                 onPressed: () => Navigator.pop(context),

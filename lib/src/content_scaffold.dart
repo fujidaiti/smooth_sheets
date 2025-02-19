@@ -3,140 +3,204 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'draggable.dart';
 import 'model.dart';
+import 'sheet.dart';
 import 'viewport.dart';
 
+/// Defines how the bottom bar should be displayed in response
+/// to the sheet's offset.
+///
+/// {@template SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
+/// If [ignoreBottomInset] is `true`, the bottom bar will be displayed
+/// even when the `bottom` of [MediaQueryData.viewInsets] is increased
+/// by a system UI, such as the onscreen keyboard.
+/// If `false`, the bottom bar will be partially, or entirely hidden
+/// according to the amount of `bottom` in [MediaQueryData.viewInsets].
+/// For example, if the `bottom` of [MediaQueryData.viewInsets] is
+/// the half of the bottom bar's height, only the half of the bottom bar
+/// will be visible. The default value is `false`.
+/// {@endtemplate}
+sealed class SheetContentScaffoldBottomBarVisibility {
+  const SheetContentScaffoldBottomBarVisibility({
+    this.ignoreBottomInset = false,
+  });
+
+  /// {@macro NaturalBottomBarVisibility}
+  ///
+  /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
+  const factory SheetContentScaffoldBottomBarVisibility.natural({
+    bool ignoreBottomInset,
+  }) = _NaturalBottomBarVisibility;
+
+  /// {@macro AlwaysVisibleBottomBarVisibility}
+  ///
+  /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
+  const factory SheetContentScaffoldBottomBarVisibility.always({
+    bool ignoreBottomInset,
+  }) = _AlwaysVisibleBottomBarVisibility;
+
+  /// {@macro ControlledBottomBarVisibility}
+  ///
+  /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
+  const factory SheetContentScaffoldBottomBarVisibility.controlled({
+    bool ignoreBottomInset,
+    required Animation<double> animation,
+  }) = _ControlledBottomBarVisibility;
+
+  /// {@macro ConditionalBottomBarVisibility}
+  ///
+  /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
+  const factory SheetContentScaffoldBottomBarVisibility.conditional({
+    bool ignoreBottomInset,
+    required bool Function(SheetMetrics) isVisible,
+    Duration duration,
+    Curve curve,
+  }) = _ConditionalBottomBarVisibility;
+
+  /// Whether the bottom bar should be displayed even when the `bottom`
+  /// of [MediaQueryData.viewInsets] is increased by a system UI, such as
+  /// the onscreen keyboard.
+  final bool ignoreBottomInset;
+}
+
+/// {@template NaturalBottomBarVisibility}
+/// The bottom bar is displayed naturally, based on the sheet's offset.
+/// {@endtemplate}
+class _NaturalBottomBarVisibility
+    extends SheetContentScaffoldBottomBarVisibility {
+  const _NaturalBottomBarVisibility({super.ignoreBottomInset});
+}
+
+/// {@template AlwaysVisibleBottomBarVisibility}
+/// The bottom bar is always visible regardless of the sheet's offset.
+/// {@endtemplate}
+class _AlwaysVisibleBottomBarVisibility
+    extends SheetContentScaffoldBottomBarVisibility {
+  const _AlwaysVisibleBottomBarVisibility({super.ignoreBottomInset});
+}
+
+/// {@template ControlledBottomBarVisibility}
+/// The visibility of the bottom bar is controlled by the [animation].
+///
+/// The value of the [animation] must be between 0 and 1, where 0 means
+/// the bottom bar is completely invisible and 1 means it's completely visible.
+/// {@endtemplate}
+class _ControlledBottomBarVisibility
+    extends SheetContentScaffoldBottomBarVisibility {
+  const _ControlledBottomBarVisibility({
+    super.ignoreBottomInset,
+    required this.animation,
+  });
+
+  final Animation<double> animation;
+}
+
+/// {@template ConditionalBottomBarVisibility}
+/// The visibility of the bottom bar is controlled by the [isVisible] callback.
+///
+/// The [isVisible] callback is called whenever the sheet offset changes.
+/// Returning `true` keeps the bottom bar visible regardless of the offset,
+/// and `false` hides it with an animation which has the [duration] and
+/// [curve].
+/// {@endtemplate}
+class _ConditionalBottomBarVisibility
+    extends SheetContentScaffoldBottomBarVisibility {
+  const _ConditionalBottomBarVisibility({
+    super.ignoreBottomInset,
+    required this.isVisible,
+    this.duration = const Duration(milliseconds: 150),
+    this.curve = Curves.easeInOut,
+  });
+
+  final bool Function(SheetMetrics) isVisible;
+  final Duration duration;
+  final Curve curve;
+}
+
+/// The basic layout of the content in a [Sheet].
+///
+/// Similar to [Scaffold], this widget provides the slots for the [topBar],
+/// [bottomBar], and [body]. Unlike [Scaffold], however, this widget
+/// sizes its height to fit the [body] height. The hights of [topBar]
+/// and [bottomBar] are also taken into account depending on
+/// [extendBodyBehindTopBar], [extendBodyBehindBottomBar], and
+/// [bottomBarVisibility] (see each property for more details).
 class SheetContentScaffold extends StatelessWidget {
+  /// Creates the basic layout of the content in a sheet.
   const SheetContentScaffold({
     super.key,
-    this.primary = false,
-    this.extendBody = false,
-    this.extendBodyBehindAppBar = false,
-    this.resizeBehavior = const ResizeScaffoldBehavior.avoidBottomInset(),
-    this.appbarDraggable = true,
+    this.extendBodyBehindBottomBar = false,
+    this.extendBodyBehindTopBar = false,
+    this.bottomBarVisibility =
+        const SheetContentScaffoldBottomBarVisibility.natural(),
     this.backgroundColor,
-    this.appBar,
-    required this.body,
+    this.topBar,
     this.bottomBar,
+    required this.body,
   });
 
-  final bool primary;
-  final bool extendBody;
-  final bool extendBodyBehindAppBar;
-  final bool appbarDraggable;
-  final ResizeScaffoldBehavior resizeBehavior;
+  /// Whether to extend the body behind the [bottomBar].
+  ///
+  /// If `true`:
+  /// * the height of the [body] is extended to include the height of the
+  ///   [bottomBar].
+  /// * the bottom of the [body] is aligned with the **bottom** of the
+  ///   [bottomBar].
+  /// * the [body] is displayed behind the [bottomBar].
+  /// * the height of the [bottomBar] is exposed to the [body] as `bottom`
+  ///   of [MediaQueryData.padding].
+  ///
+  /// If `false`:
+  /// * the height of the [body] does not include the height of the [bottomBar].
+  /// * the bottom of the [body] is aligned with the **top** of the [bottomBar].
+  ///
+  /// Defaults to `false` and has no effect if [bottomBar] is not specified.
+  final bool extendBodyBehindBottomBar;
+
+  /// Whether to extend the body behind the [topBar].
+  ///
+  /// If `true`:
+  /// * the height of the [body] is extended to include the height of the
+  ///   [topBar].
+  /// * the top of the [body] is aligned with the **top** of the [topBar].
+  /// * the [body] is displayed behind the [topBar].
+  /// * the height of the [topBar] is exposed to the [body] as `top`
+  ///   of [MediaQueryData.padding].
+  ///
+  /// If `false`:
+  /// * the height of the [body] does not include the height of the [topBar].
+  /// * the top of the [body] is aligned with the **bottom** of the [topBar].
+  ///
+  /// Defaults to `false` and has no effect if [topBar] is not specified.
+  final bool extendBodyBehindTopBar;
+
+  /// Determines the visibility of the [bottomBar].
+  ///
+  /// If [SheetContentScaffoldBottomBarVisibility.ignoreBottomInset] is `false`
+  /// and [extendBodyBehindBottomBar] is `true`, and the [bottomBar] is
+  /// partially or entirely hidden, the height of the [body] is reduced by
+  /// the amount of the invisible part of the [bottomBar].
+  ///
+  /// Defaults to [SheetContentScaffoldBottomBarVisibility.natural].
+  final SheetContentScaffoldBottomBarVisibility bottomBarVisibility;
+
+  /// Color that fills the entire background of the scaffold.
+  ///
+  /// Defaults to [ThemeData.scaffoldBackgroundColor].
   final Color? backgroundColor;
-  final PreferredSizeWidget? appBar;
-  final Widget body;
+
+  /// Widget that is displayed at the top of the scaffold.
+  final Widget? topBar;
+
+  /// Widget that is displayed at the bottom of the scaffold.
   final Widget? bottomBar;
 
-  @override
-  Widget build(BuildContext context) {
-    final backgroundColor =
-        this.backgroundColor ?? Theme.of(context).colorScheme.surface;
-
-    final appBar = this.appBar != null && appbarDraggable
-        ? _AppBarDraggable(appBar: this.appBar!)
-        : this.appBar;
-
-    final mediaQuery = MediaQuery.of(context);
-
-    return MediaQuery(
-      data: mediaQuery.copyWith(
-        viewPadding: mediaQuery.viewPadding.copyWith(
-          top: primary ? mediaQuery.viewPadding.top : 0.0,
-          // Gradually reduce the bottom view-padding, typically a notch,
-          // as the onscreen keyboard slides in/out. This may also reduce the
-          // bottom bar height.
-          bottom: max(
-            mediaQuery.viewPadding.bottom - mediaQuery.viewInsets.bottom,
-            0.0,
-          ),
-        ),
-      ),
-      child: _ResizeScaffoldBehaviorScope(
-        resizeBehavior: resizeBehavior,
-        child: Scaffold(
-          extendBody: true,
-          extendBodyBehindAppBar: true,
-          resizeToAvoidBottomInset: false,
-          backgroundColor: backgroundColor,
-          primary: primary,
-          appBar: appBar,
-          bottomNavigationBar: bottomBar,
-          body: _ScaffoldBodyContainer(
-            insetTop: appBar != null && extendBodyBehindAppBar,
-            insetBottom: bottomBar != null && extendBody,
-            resizeBehavior: resizeBehavior,
-            child: body,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _AppBarDraggable extends StatelessWidget implements PreferredSizeWidget {
-  const _AppBarDraggable({
-    required this.appBar,
-  });
-
-  final PreferredSizeWidget appBar;
-
-  @override
-  Size get preferredSize => appBar.preferredSize;
+  /// Widget that is displayed in the center of the scaffold.
+  final Widget body;
 
   @override
   Widget build(BuildContext context) {
-    return SheetDraggable(child: appBar);
-  }
-}
-
-/// Describes how a [SheetContentScaffold] should resize its body
-/// to avoid overlapping the onscreen keyboard.
-sealed class ResizeScaffoldBehavior {
-  const ResizeScaffoldBehavior._();
-
-  /// The [SheetContentScaffold] resizes its body to avoid overlapping
-  /// the onscreen keyboard.
-  ///
-  /// If the [maintainBottomBar] is true, the bottom bar will be visible
-  /// even when the keyboard is open. (Defaults to false.)
-  const factory ResizeScaffoldBehavior.avoidBottomInset({
-    bool maintainBottomBar,
-  }) = _AvoidBottomInset;
-
-// TODO: Implement ResizeScaffoldBehavior.doNotResize
-// static const ResizeScaffoldBehavior doNotResize = _DoNotResize();
-}
-
-// class _DoNotResize extends ResizeScaffoldBehavior {
-//   const _DoNotResize();
-// }
-
-class _AvoidBottomInset extends ResizeScaffoldBehavior {
-  const _AvoidBottomInset({this.maintainBottomBar = false}) : super._();
-  final bool maintainBottomBar;
-}
-
-class _ResizeScaffoldBehaviorScope extends InheritedWidget {
-  const _ResizeScaffoldBehaviorScope({
-    required this.resizeBehavior,
-    required super.child,
-  });
-
-  final ResizeScaffoldBehavior resizeBehavior;
-
-  @override
-  bool updateShouldNotify(_ResizeScaffoldBehaviorScope oldWidget) {
-    return resizeBehavior != oldWidget.resizeBehavior;
-  }
-
-  static ResizeScaffoldBehavior of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_ResizeScaffoldBehaviorScope>()!
-        .resizeBehavior;
+    throw UnimplementedError();
   }
 }
 
@@ -212,7 +276,7 @@ class _ScaffoldBodyContainer extends StatelessWidget {
 /// - [AnimatedBottomBarVisibility], which animates the visibility
 ///   of the [child].
 // ignore: avoid_implementing_value_types
-abstract class BottomBarVisibility implements Widget {
+abstract class _BottomBarVisibility implements Widget {
   /// The widget to manage the visibility of.
   Widget? get child;
 }
@@ -286,8 +350,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 ///   ),
 /// );
 /// ```
-class FixedBottomBarVisibility extends SingleChildRenderObjectWidget
-    implements BottomBarVisibility {
+class FixedBottomBarVisibility extends SingleChildRenderObjectWidget {
   /// Creates a widget that places the [child] always at the bottom
   /// of the sheet.
   const FixedBottomBarVisibility({
@@ -374,8 +437,7 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
 /// );
 /// ```
 /// {@endtemplate}
-class StickyBottomBarVisibility extends SingleChildRenderObjectWidget
-    implements BottomBarVisibility {
+class StickyBottomBarVisibility extends SingleChildRenderObjectWidget {
   /// Creates a widget that keeps the [child] always visible
   /// regardless of the sheet position.
   const StickyBottomBarVisibility({
@@ -432,8 +494,7 @@ class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
 /// A widget that animates the visibility of the [child].
 ///
 /// Intended to be used as the [SheetContentScaffold.bottomBar].
-class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget
-    implements BottomBarVisibility {
+class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget {
   /// Creates a widget that animates the visibility of the [child].
   ///
   /// The [visibility] animation must be between 0 and 1, where 0 means
@@ -520,8 +581,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 ///   ),
 /// );
 /// ```
-class ConditionalStickyBottomBarVisibility extends StatefulWidget
-    implements BottomBarVisibility {
+class ConditionalStickyBottomBarVisibility extends StatefulWidget {
   /// Creates a widget that animates the visibility of the [child]
   /// based on a condition.
   const ConditionalStickyBottomBarVisibility({

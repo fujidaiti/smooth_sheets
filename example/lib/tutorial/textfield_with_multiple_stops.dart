@@ -33,7 +33,7 @@ class TextFieldWithMultipleStops extends StatelessWidget {
               child: SheetContentScaffold(
                 primary: true,
                 backgroundColor: Colors.grey,
-                appBar: AppBar(
+                topBar: AppBar(
                   backgroundColor: Colors.grey,
                   title: const Text('Sheet with a TextField'),
                   leading: IconButton(

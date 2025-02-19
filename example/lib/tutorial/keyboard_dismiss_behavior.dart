@@ -176,7 +176,7 @@ class _ExampleSheet extends StatelessWidget {
       child: Sheet(
         scrollConfiguration: const SheetScrollConfiguration(),
         child: SheetContentScaffold(
-          appBar: AppBar(),
+          topBar: AppBar(),
           body: body,
           bottomBar: StickyBottomBarVisibility(
             child: BottomAppBar(
