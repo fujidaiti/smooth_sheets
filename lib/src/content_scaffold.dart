@@ -20,29 +20,29 @@ import 'viewport.dart';
 /// the half of the bottom bar's height, only the half of the bottom bar
 /// will be visible. The default value is `false`.
 /// {@endtemplate}
-sealed class SheetContentScaffoldBottomBarVisibility {
-  const SheetContentScaffoldBottomBarVisibility({
+sealed class BottomBarVisibility {
+  const BottomBarVisibility({
     this.ignoreBottomInset = false,
   });
 
   /// {@macro NaturalBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const factory SheetContentScaffoldBottomBarVisibility.natural({
+  const factory BottomBarVisibility.natural({
     bool ignoreBottomInset,
   }) = _NaturalBottomBarVisibility;
 
   /// {@macro AlwaysVisibleBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const factory SheetContentScaffoldBottomBarVisibility.always({
+  const factory BottomBarVisibility.always({
     bool ignoreBottomInset,
   }) = _AlwaysVisibleBottomBarVisibility;
 
   /// {@macro ControlledBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const factory SheetContentScaffoldBottomBarVisibility.controlled({
+  const factory BottomBarVisibility.controlled({
     bool ignoreBottomInset,
     required Animation<double> animation,
   }) = _ControlledBottomBarVisibility;
@@ -50,7 +50,7 @@ sealed class SheetContentScaffoldBottomBarVisibility {
   /// {@macro ConditionalBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const factory SheetContentScaffoldBottomBarVisibility.conditional({
+  const factory BottomBarVisibility.conditional({
     bool ignoreBottomInset,
     required bool Function(SheetMetrics) isVisible,
     Duration duration,
@@ -66,16 +66,14 @@ sealed class SheetContentScaffoldBottomBarVisibility {
 /// {@template NaturalBottomBarVisibility}
 /// The bottom bar is displayed naturally, based on the sheet's offset.
 /// {@endtemplate}
-class _NaturalBottomBarVisibility
-    extends SheetContentScaffoldBottomBarVisibility {
+class _NaturalBottomBarVisibility extends BottomBarVisibility {
   const _NaturalBottomBarVisibility({super.ignoreBottomInset});
 }
 
 /// {@template AlwaysVisibleBottomBarVisibility}
 /// The bottom bar is always visible regardless of the sheet's offset.
 /// {@endtemplate}
-class _AlwaysVisibleBottomBarVisibility
-    extends SheetContentScaffoldBottomBarVisibility {
+class _AlwaysVisibleBottomBarVisibility extends BottomBarVisibility {
   const _AlwaysVisibleBottomBarVisibility({super.ignoreBottomInset});
 }
 
@@ -85,8 +83,7 @@ class _AlwaysVisibleBottomBarVisibility
 /// The value of the [animation] must be between 0 and 1, where 0 means
 /// the bottom bar is completely invisible and 1 means it's completely visible.
 /// {@endtemplate}
-class _ControlledBottomBarVisibility
-    extends SheetContentScaffoldBottomBarVisibility {
+class _ControlledBottomBarVisibility extends BottomBarVisibility {
   const _ControlledBottomBarVisibility({
     super.ignoreBottomInset,
     required this.animation,
@@ -103,8 +100,7 @@ class _ControlledBottomBarVisibility
 /// and `false` hides it with an animation which has the [duration] and
 /// [curve].
 /// {@endtemplate}
-class _ConditionalBottomBarVisibility
-    extends SheetContentScaffoldBottomBarVisibility {
+class _ConditionalBottomBarVisibility extends BottomBarVisibility {
   const _ConditionalBottomBarVisibility({
     super.ignoreBottomInset,
     required this.isVisible,
@@ -131,8 +127,7 @@ class SheetContentScaffold extends StatelessWidget {
     super.key,
     this.extendBodyBehindBottomBar = false,
     this.extendBodyBehindTopBar = false,
-    this.bottomBarVisibility =
-        const SheetContentScaffoldBottomBarVisibility.natural(),
+    this.bottomBarVisibility = const BottomBarVisibility.natural(),
     this.backgroundColor,
     this.topBar,
     this.bottomBar,
@@ -176,13 +171,13 @@ class SheetContentScaffold extends StatelessWidget {
 
   /// Determines the visibility of the [bottomBar].
   ///
-  /// If [SheetContentScaffoldBottomBarVisibility.ignoreBottomInset] is `false`
+  /// If [BottomBarVisibility.ignoreBottomInset] is `false`
   /// and [extendBodyBehindBottomBar] is `true`, and the [bottomBar] is
   /// partially or entirely hidden, the height of the [body] is reduced by
   /// the amount of the invisible part of the [bottomBar].
   ///
-  /// Defaults to [SheetContentScaffoldBottomBarVisibility.natural].
-  final SheetContentScaffoldBottomBarVisibility bottomBarVisibility;
+  /// Defaults to [BottomBarVisibility.natural].
+  final BottomBarVisibility bottomBarVisibility;
 
   /// Color that fills the entire background of the scaffold.
   ///
@@ -200,56 +195,251 @@ class SheetContentScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    final effectiveTopBar = switch (topBar) {
+      PreferredSizeWidget(:final preferredSize) => ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: preferredSize.height,
+          ),
+          child: topBar,
+        ),
+      _ => topBar,
+    };
+
+    var effectiveBottomBar = bottomBar;
+    if (bottomBar != null) {
+      if (bottomBar case PreferredSizeWidget(:final preferredSize)) {
+        effectiveBottomBar = ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: preferredSize.height,
+          ),
+          child: bottomBar,
+        );
+      }
+      effectiveBottomBar = switch (bottomBarVisibility) {
+        _NaturalBottomBarVisibility() => effectiveBottomBar,
+        _AlwaysVisibleBottomBarVisibility() => effectiveBottomBar,
+        final _ControlledBottomBarVisibility it => AnimatedBottomBarVisibility(
+            visibility: it.animation,
+            child: effectiveBottomBar,
+          ),
+        final _ConditionalBottomBarVisibility it =>
+          ConditionalStickyBottomBarVisibility(
+            getIsVisible: it.isVisible,
+            duration: it.duration,
+            curve: it.curve,
+            child: effectiveBottomBar,
+          ),
+      };
+    }
+
+    return Material(
+      color: backgroundColor,
+      child: _ScaffoldLayout(
+        extendBodyBehindTopBar: extendBodyBehindTopBar,
+        extendBodyBehindBottomBar: extendBodyBehindBottomBar,
+        topBar: effectiveTopBar,
+        bottomBar: effectiveBottomBar,
+        body: _ScaffoldBodyContainer(
+          child: body,
+        ),
+      ),
+    );
   }
+}
+
+enum _ScaffoldSlot { topBar, bottomBar, body }
+
+class _ScaffoldLayout
+    extends SlottedMultiChildRenderObjectWidget<_ScaffoldSlot, RenderBox> {
+  const _ScaffoldLayout({
+    required this.extendBodyBehindTopBar,
+    required this.extendBodyBehindBottomBar,
+    required this.topBar,
+    required this.bottomBar,
+    required this.body,
+  });
+
+  final bool extendBodyBehindTopBar;
+  final bool extendBodyBehindBottomBar;
+  final Widget? topBar;
+  final Widget? bottomBar;
+  final Widget body;
+
+  @override
+  Iterable<_ScaffoldSlot> get slots => _ScaffoldSlot.values;
+
+  @override
+  Widget? childForSlot(_ScaffoldSlot slot) {
+    switch (slot) {
+      case _ScaffoldSlot.topBar:
+        return topBar;
+      case _ScaffoldSlot.bottomBar:
+        return bottomBar;
+      case _ScaffoldSlot.body:
+        return body;
+    }
+  }
+
+  @override
+  SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox>
+      createRenderObject(BuildContext context) {
+    return _RenderScaffoldLayout(
+      extendBodyBehindTopBar: extendBodyBehindTopBar,
+      extendBodyBehindBottomBar: extendBodyBehindBottomBar,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    super.updateRenderObject(context, renderObject);
+    (renderObject as _RenderScaffoldLayout)
+      ..extendBodyBehindTopBar = extendBodyBehindTopBar
+      ..extendBodyBehindBottomBar = extendBodyBehindBottomBar;
+  }
+}
+
+class _RenderScaffoldLayout extends RenderBox
+    with SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox> {
+  _RenderScaffoldLayout({
+    required bool extendBodyBehindTopBar,
+    required bool extendBodyBehindBottomBar,
+  })  : _extendBodyBehindTopBar = extendBodyBehindTopBar,
+        _extendBodyBehindBottomBar = extendBodyBehindBottomBar;
+
+  bool get extendBodyBehindTopBar => _extendBodyBehindTopBar;
+  bool _extendBodyBehindTopBar;
+  set extendBodyBehindTopBar(bool value) {
+    if (value != _extendBodyBehindTopBar) {
+      _extendBodyBehindTopBar = value;
+      markNeedsLayout();
+    }
+  }
+
+  bool get extendBodyBehindBottomBar => _extendBodyBehindBottomBar;
+  bool _extendBodyBehindBottomBar;
+  set extendBodyBehindBottomBar(bool value) {
+    if (value != _extendBodyBehindBottomBar) {
+      _extendBodyBehindBottomBar = value;
+      markNeedsLayout();
+    }
+  }
+
+  @override
+  Iterable<RenderBox> get children {
+    final topBar = childForSlot(_ScaffoldSlot.topBar);
+    final bottomBar = childForSlot(_ScaffoldSlot.bottomBar);
+    final body = childForSlot(_ScaffoldSlot.body)!;
+    return [
+      if (topBar != null) topBar,
+      if (bottomBar != null) bottomBar,
+      body,
+    ];
+  }
+
+  @override
+  void performLayout() {
+    Size layoutChild(_ScaffoldSlot slot, BoxConstraints constraints) {
+      return switch (childForSlot(slot)) {
+        null => Size.zero,
+        final child => (child..layout(constraints, parentUsesSize: true)).size,
+      };
+    }
+
+    void positionChild(_ScaffoldSlot slot, Offset offset) {
+      if (childForSlot(slot) case final child?) {
+        (child.parentData! as BoxParentData).offset = offset;
+      }
+    }
+
+    final childConstraints = BoxConstraints(
+      minWidth: constraints.maxWidth,
+      maxWidth: constraints.maxWidth,
+      maxHeight: constraints.maxHeight,
+    );
+
+    final topBarHeight =
+        layoutChild(_ScaffoldSlot.topBar, childConstraints).height;
+    final bottomBarHeight =
+        layoutChild(_ScaffoldSlot.bottomBar, childConstraints).height;
+
+    var bodyMaxHeight = childConstraints.maxHeight;
+    if (!extendBodyBehindTopBar) {
+      bodyMaxHeight = max(bodyMaxHeight - topBarHeight, 0);
+    }
+    if (!extendBodyBehindBottomBar) {
+      bodyMaxHeight = max(bodyMaxHeight - bottomBarHeight, 0);
+    }
+    final bodyHeight = layoutChild(
+      _ScaffoldSlot.body,
+      _BodyConstraints(
+        topInset: topBarHeight,
+        bottomInset: bottomBarHeight,
+        minWidth: childConstraints.minWidth,
+        maxWidth: childConstraints.maxWidth,
+        maxHeight: bodyMaxHeight,
+      ),
+    ).height;
+
+    // Top bar position
+    positionChild(_ScaffoldSlot.topBar, Offset.zero);
+
+    // Body position
+    final double bodyBottom;
+    if (extendBodyBehindTopBar) {
+      positionChild(_ScaffoldSlot.body, Offset.zero);
+      bodyBottom = bodyHeight;
+    } else {
+      positionChild(_ScaffoldSlot.body, Offset(0, topBarHeight));
+      bodyBottom = topBarHeight + bodyHeight;
+    }
+
+    // Bottom bar position
+    if (extendBodyBehindBottomBar) {
+      final bottomBarTop = max(bodyBottom - bottomBarHeight, 0.0);
+      positionChild(_ScaffoldSlot.bottomBar, Offset(0, bottomBarTop));
+    } else {
+      positionChild(_ScaffoldSlot.bottomBar, Offset(0, bodyBottom));
+    }
+  }
+}
+
+class _BodyConstraints extends BoxConstraints {
+  const _BodyConstraints({
+    required this.topInset,
+    required this.bottomInset,
+    super.minWidth,
+    super.maxWidth,
+    super.maxHeight,
+  });
+
+  final double topInset;
+  final double bottomInset;
 }
 
 class _ScaffoldBodyContainer extends StatelessWidget {
   const _ScaffoldBodyContainer({
-    required this.insetTop,
-    required this.insetBottom,
-    required this.resizeBehavior,
     required this.child,
   });
 
-  final bool insetTop;
-  final bool insetBottom;
-  final ResizeScaffoldBehavior resizeBehavior;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    if (insetBottom && insetTop) {
-      return child;
-    }
-
-    final mediaQuery = MediaQuery.of(context);
-    final topPadding = mediaQuery.padding.top;
-    final bottomPadding = switch (resizeBehavior) {
-      _AvoidBottomInset(maintainBottomBar: true) => mediaQuery.padding.bottom,
-      _AvoidBottomInset(maintainBottomBar: false) =>
-        max(0.0, mediaQuery.padding.bottom - mediaQuery.viewInsets.bottom),
-    };
-
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: mediaQuery.viewInsets.bottom,
-      ),
-      child: Padding(
-        padding: EdgeInsets.only(
-          top: insetTop ? 0.0 : topPadding,
-          bottom: insetBottom ? 0.0 : bottomPadding,
-        ),
-        child: MediaQuery(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final topInset = (constraints as _BodyConstraints).topInset;
+        final bottomInset = constraints.bottomInset;
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
           data: mediaQuery.copyWith(
-            padding: mediaQuery.padding.copyWith(
-              top: insetTop ? topPadding : 0.0,
-              bottom: insetBottom ? bottomPadding : 0.0,
+            viewInsets: mediaQuery.padding.copyWith(
+              top: topInset,
+              bottom: bottomInset,
             ),
           ),
           child: child,
-        ),
-      ),
+        );
+      },
     );
   }
 }

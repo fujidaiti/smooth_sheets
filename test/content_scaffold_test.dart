@@ -240,8 +240,7 @@ void main() {
               bottomBar:
                   Container(key: bottomBarKey, height: 50, color: Colors.blue),
               bottomBarVisibility:
-                  const SheetContentScaffoldBottomBarVisibility.natural(
-                      ignoreBottomInset: false),
+                  const BottomBarVisibility.natural(ignoreBottomInset: false),
               body: Container(color: Colors.green, height: 200),
             ),
           ),
@@ -260,8 +259,7 @@ void main() {
               bottomBar:
                   Container(key: bottomBarKey, height: 50, color: Colors.blue),
               bottomBarVisibility:
-                  const SheetContentScaffoldBottomBarVisibility.natural(
-                      ignoreBottomInset: false),
+                  const BottomBarVisibility.natural(ignoreBottomInset: false),
               body: Container(color: Colors.green, height: 200),
             ),
           ),
@@ -285,8 +283,7 @@ void main() {
               bottomBar:
                   Container(key: bottomBarKey, height: 50, color: Colors.blue),
               bottomBarVisibility:
-                  const SheetContentScaffoldBottomBarVisibility.natural(
-                      ignoreBottomInset: true),
+                  const BottomBarVisibility.natural(ignoreBottomInset: true),
               body: Container(color: Colors.green, height: 200),
             ),
           ),
@@ -305,8 +302,7 @@ void main() {
               bottomBar:
                   Container(key: bottomBarKey, height: 50, color: Colors.blue),
               bottomBarVisibility:
-                  const SheetContentScaffoldBottomBarVisibility.natural(
-                      ignoreBottomInset: true),
+                  const BottomBarVisibility.natural(ignoreBottomInset: true),
               body: Container(color: Colors.green, height: 200),
             ),
           ),
@@ -328,8 +324,7 @@ void main() {
           home: SheetContentScaffold(
             bottomBar:
                 Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility:
-                const SheetContentScaffoldBottomBarVisibility.always(),
+            bottomBarVisibility: const BottomBarVisibility.always(),
             body: Container(color: Colors.green, height: 200),
           ),
         ),
@@ -352,8 +347,7 @@ void main() {
               bottomBar:
                   Container(key: bottomBarKey, height: 50, color: Colors.blue),
               bottomBarVisibility:
-                  const SheetContentScaffoldBottomBarVisibility.always(
-                      ignoreBottomInset: false),
+                  const BottomBarVisibility.always(ignoreBottomInset: false),
               body: Container(color: Colors.green, height: 200),
             ),
           ),
@@ -373,8 +367,7 @@ void main() {
               bottomBar:
                   Container(key: bottomBarKey, height: 50, color: Colors.blue),
               bottomBarVisibility:
-                  const SheetContentScaffoldBottomBarVisibility.always(
-                      ignoreBottomInset: true),
+                  const BottomBarVisibility.always(ignoreBottomInset: true),
               body: Container(color: Colors.green, height: 200),
             ),
           ),
@@ -399,8 +392,7 @@ void main() {
           home: SheetContentScaffold(
             bottomBar:
                 Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility:
-                SheetContentScaffoldBottomBarVisibility.controlled(
+            bottomBarVisibility: BottomBarVisibility.controlled(
               animation: controller,
             ),
             body: Container(color: Colors.green, height: 200),
@@ -440,8 +432,7 @@ void main() {
                         key: bottomBarKey, height: 50, color: Colors.blue)
                     : Container(
                         key: bottomBarKey, height: 0, color: Colors.blue),
-                bottomBarVisibility:
-                    SheetContentScaffoldBottomBarVisibility.conditional(
+                bottomBarVisibility: BottomBarVisibility.conditional(
                   isVisible: (metrics) => showBottomBar,
                   duration: const Duration(milliseconds: 100),
                   curve: Curves.linear,
