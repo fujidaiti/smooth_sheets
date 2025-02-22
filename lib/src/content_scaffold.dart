@@ -218,15 +218,16 @@ class SheetContentScaffold extends StatelessWidget {
       effectiveBottomBar = switch (bottomBarVisibility) {
         _NaturalBottomBarVisibility() => effectiveBottomBar,
         _AlwaysVisibleBottomBarVisibility() => effectiveBottomBar,
-        final _ControlledBottomBarVisibility it => AnimatedBottomBarVisibility(
-            visibility: it.animation,
+        final _ControlledBottomBarVisibility visibility =>
+          AnimatedBottomBarVisibility(
+            visibility: visibility.animation,
             child: effectiveBottomBar,
           ),
-        final _ConditionalBottomBarVisibility it =>
+        final _ConditionalBottomBarVisibility visibility =>
           ConditionalStickyBottomBarVisibility(
-            getIsVisible: it.isVisible,
-            duration: it.duration,
-            curve: it.curve,
+            getIsVisible: visibility.isVisible,
+            duration: visibility.duration,
+            curve: visibility.curve,
             child: effectiveBottomBar,
           ),
       };
@@ -360,11 +361,11 @@ class _RenderScaffoldLayout extends RenderBox
   Iterable<RenderBox> get children {
     final topBar = childForSlot(_ScaffoldSlot.topBar);
     final bottomBar = childForSlot(_ScaffoldSlot.bottomBar);
-    final body = childForSlot(_ScaffoldSlot.body)!;
+    final body = childForSlot(_ScaffoldSlot.body);
     return [
       if (topBar != null) topBar,
       if (bottomBar != null) bottomBar,
-      body,
+      if (body != null) body,
     ];
   }
 
@@ -389,13 +390,13 @@ class _RenderScaffoldLayout extends RenderBox
       maxHeight: constraints.maxHeight,
     );
 
-    // Layout the top bar
+    // Layout the bars
     final topBarHeight =
         layoutChild(_ScaffoldSlot.topBar, childConstraints).height;
-
-    // Layout the bottom bar
     final bottomBarHeight =
         layoutChild(_ScaffoldSlot.bottomBar, childConstraints).height;
+
+    // Calculate the visible height of the bottom bar
     final bottomInsetOverlap = max(
       0,
       _sheetLayoutSpec.viewportSize.height -
@@ -416,7 +417,7 @@ class _RenderScaffoldLayout extends RenderBox
     }
     final bodyHeight = layoutChild(
       _ScaffoldSlot.body,
-      _BodyConstraints(
+      _ScaffoldBodyConstraints(
         topInset: topBarHeight,
         bottomInset: visibleBottomBarHeight,
         minWidth: childConstraints.minWidth,
@@ -458,8 +459,8 @@ class _RenderScaffoldLayout extends RenderBox
   }
 }
 
-class _BodyConstraints extends BoxConstraints {
-  const _BodyConstraints({
+class _ScaffoldBodyConstraints extends BoxConstraints {
+  const _ScaffoldBodyConstraints({
     required this.topInset,
     required this.bottomInset,
     super.minWidth,
@@ -482,14 +483,13 @@ class _ScaffoldBodyContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final topInset = (constraints as _BodyConstraints).topInset;
-        final bottomInset = constraints.bottomInset;
+        final bodyConstraints = constraints as _ScaffoldBodyConstraints;
         final mediaQuery = MediaQuery.of(context);
         return MediaQuery(
           data: mediaQuery.copyWith(
-            viewInsets: mediaQuery.padding.copyWith(
-              top: topInset,
-              bottom: bottomInset,
+            padding: mediaQuery.padding.copyWith(
+              top: bodyConstraints.topInset,
+              bottom: bodyConstraints.bottomInset,
             ),
           ),
           child: child,
@@ -497,33 +497,6 @@ class _ScaffoldBodyContainer extends StatelessWidget {
       },
     );
   }
-}
-
-/// The base class of widgets that manage the visibility of the [child]
-/// based on the enclosing sheet's position.
-///
-/// Intended to be used as the [SheetContentScaffold.bottomBar].
-/// For example, the [StickyBottomBarVisibility] can be used to keep
-/// the [child] always visible regardless of the sheet position. You may want
-/// to use the [ResizeScaffoldBehavior.avoidBottomInset] with setting
-/// `maintainBottomBar` to true to keep the bottom bar visible even when
-/// the onscreen keyboard is open.
-///
-/// {@macro StickyBottomBarVisibility:example}
-///
-/// See also:
-///  - [FixedBottomBarVisibility], which places the [child] at the bottom
-///    of the sheet.
-///  - [StickyBottomBarVisibility], which keeps the [child] always visible
-///    regardless of the sheet position.
-/// - [ConditionalStickyBottomBarVisibility], which changes the visibility
-///   of the [child] based on a condition.
-/// - [AnimatedBottomBarVisibility], which animates the visibility
-///   of the [child].
-// ignore: avoid_implementing_value_types
-abstract class _BottomBarVisibility implements Widget {
-  /// The widget to manage the visibility of.
-  Widget? get child;
 }
 
 abstract class _RenderBottomBarVisibility extends RenderTransform {

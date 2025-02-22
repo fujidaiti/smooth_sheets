@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/content_scaffold.dart';
 
 import 'src/flutter_test_x.dart';
@@ -18,10 +19,18 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints.tight(const Size(100, 50)),
-              child: SheetContentScaffold(
-                body: Container(key: bodyKey, color: Colors.green),
+            child: SheetMediaQuery(
+              layoutSpec: SheetLayoutSpec(
+                viewportSize: const Size(100, 100),
+                viewportPadding: EdgeInsets.zero,
+                viewportInsets: EdgeInsets.zero,
+                resizeContentToAvoidBottomInset: false,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints.tight(const Size(100, 50)),
+                child: SheetContentScaffold(
+                  body: Container(key: bodyKey, color: Colors.green),
+                ),
               ),
             ),
           ),
