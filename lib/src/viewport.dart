@@ -63,7 +63,7 @@ class SheetLayoutSpec {
 
 /// Stores the layout information of the sheet and the [SheetViewport].
 ///
-/// Intended to be placed between the sheet and its content in the widget tree.
+/// Intended to be placed between a sheet and its content in the widget tree.
 class SheetMediaQuery extends StatelessWidget {
   @visibleForTesting
   const SheetMediaQuery({
