@@ -390,13 +390,13 @@ class _RenderScaffoldLayout extends RenderBox
       maxHeight: constraints.maxHeight,
     );
 
-    // Layout the bars
+    // Layout the bars.
     final topBarHeight =
         layoutChild(_ScaffoldSlot.topBar, childConstraints).height;
     final bottomBarHeight =
         layoutChild(_ScaffoldSlot.bottomBar, childConstraints).height;
 
-    // Calculate the visible height of the bottom bar
+    // Calculate the visible height of the bottom bar.
     final bottomInsetOverlap = max(
       0,
       _sheetLayoutSpec.viewportSize.height -
@@ -407,7 +407,7 @@ class _RenderScaffoldLayout extends RenderBox
         ? bottomBarHeight
         : max(0.0, bottomBarHeight - bottomInsetOverlap);
 
-    // Layout the body
+    // Layout the body.
     var bodyMaxHeight = childConstraints.maxHeight;
     if (!extendBodyBehindTopBar) {
       bodyMaxHeight = max(bodyMaxHeight - topBarHeight, 0);
@@ -422,11 +422,12 @@ class _RenderScaffoldLayout extends RenderBox
         bottomInset: visibleBottomBarHeight,
         minWidth: childConstraints.minWidth,
         maxWidth: childConstraints.maxWidth,
+        minHeight: constraints.isTight ? bodyMaxHeight : 0,
         maxHeight: bodyMaxHeight,
       ),
     ).height;
 
-    // Position the top bar
+    // Position the top bar.
     positionChild(_ScaffoldSlot.topBar, Offset.zero);
 
     // Position the body
@@ -439,7 +440,7 @@ class _RenderScaffoldLayout extends RenderBox
       bodyBottom = topBarHeight + bodyHeight;
     }
 
-    // Position the bottom bar
+    // Position the bottom bar.
     if (extendBodyBehindBottomBar) {
       final bottomBarTop = max(bodyBottom - visibleBottomBarHeight, 0.0);
       positionChild(_ScaffoldSlot.bottomBar, Offset(0, bottomBarTop));
@@ -447,7 +448,7 @@ class _RenderScaffoldLayout extends RenderBox
       positionChild(_ScaffoldSlot.bottomBar, Offset(0, bodyBottom));
     }
 
-    // Finally, lay out the scaffold itself
+    // Finally, lay out the scaffold itself.
     var height = bodyHeight;
     if (!extendBodyBehindTopBar) {
       height += topBarHeight;
@@ -465,6 +466,7 @@ class _ScaffoldBodyConstraints extends BoxConstraints {
     required this.bottomInset,
     super.minWidth,
     super.maxWidth,
+    super.minHeight,
     super.maxHeight,
   });
 

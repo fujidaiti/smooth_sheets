@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/content_scaffold.dart';
 
+import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
 
 /// A simple TickerProvider for use in tests that need an AnimationController.
@@ -13,32 +13,53 @@ class TestTickerProvider extends TickerProvider {
 
 void main() {
   group('SheetContentScaffold - Core Layout', () {
-    testWidgets('Body-only layout with tight box-constraints',
-        (WidgetTester tester) async {
-      final bodyKey = UniqueKey();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Center(
-            child: SheetMediaQuery(
-              layoutSpec: SheetLayoutSpec(
-                viewportSize: const Size(100, 100),
+    ({Widget testWidget}) boilerplate({
+      SheetLayoutSpec? parentLayoutSpec,
+      required WidgetBuilder builder,
+    }) {
+      final testWidget = MediaQuery(
+        data: MediaQueryData(
+          viewInsets: parentLayoutSpec?.viewportInsets ?? EdgeInsets.zero,
+        ),
+        child: SheetMediaQuery(
+          layoutSpec: parentLayoutSpec ??
+              SheetLayoutSpec(
+                viewportSize: testScreenSize,
                 viewportPadding: EdgeInsets.zero,
                 viewportInsets: EdgeInsets.zero,
                 resizeContentToAvoidBottomInset: false,
               ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints.tight(const Size(100, 50)),
-                child: SheetContentScaffold(
-                  body: Container(key: bodyKey, color: Colors.green),
-                ),
-              ),
-            ),
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Builder(builder: builder),
           ),
         ),
       );
 
-      final bodySize = tester.getSize(find.byKey(bodyKey));
-      expect(bodySize, equals(const Size(100, 50)));
+      return (testWidget: testWidget);
+    }
+
+    testWidgets('Body-only layout with tight box-constraints',
+        (WidgetTester tester) async {
+      final scaffoldKey = UniqueKey();
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.tight(testScreenSize),
+            child: SheetContentScaffold(
+              key: scaffoldKey,
+              body: SizedBox.shrink(
+                key: bodyKey,
+              ),
+            ),
+          );
+        },
+      );
+
+      await tester.pumpWidget(env.testWidget);
+      expect(tester.getSize(find.byKey(scaffoldKey)), equals(testScreenSize));
+      expect(tester.getSize(find.byKey(bodyKey)), equals(testScreenSize));
     });
 
     testWidgets('Body-only layout with loose box-constraints',
