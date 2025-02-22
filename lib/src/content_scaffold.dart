@@ -290,7 +290,10 @@ class _ScaffoldLayout
   }
 
   @override
-  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+  void updateRenderObject(
+    BuildContext context,
+    SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox> renderObject,
+  ) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderScaffoldLayout)
       ..extendBodyBehindTopBar = extendBodyBehindTopBar
@@ -552,34 +555,21 @@ class FixedBottomBarVisibility extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return _RenderFixedBottomBarVisibility(
       model: SheetViewportState.of(context)!.model,
-      resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
-    (renderObject as _RenderFixedBottomBarVisibility)
-      ..model = SheetViewportState.of(context)!.model
-      ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
+    (renderObject as _RenderFixedBottomBarVisibility).model =
+        SheetViewportState.of(context)!.model;
   }
 }
 
 class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderFixedBottomBarVisibility({
     required super.model,
-    required ResizeScaffoldBehavior resizeBehavior,
-  }) : _resizeBehavior = resizeBehavior;
-
-  ResizeScaffoldBehavior _resizeBehavior;
-
-  // ignore: avoid_setters_without_getters
-  set resizeBehavior(ResizeScaffoldBehavior value) {
-    if (_resizeBehavior != value) {
-      _resizeBehavior = value;
-      invalidateVisibility();
-    }
-  }
+  });
 
   @override
   double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize) {
@@ -589,16 +579,7 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
 
     final visibleBarHeight =
         max(0.0, bottomBarSize.height - invisibleSheetHeight);
-    final visibility = visibleBarHeight / bottomBarSize.height;
-
-    switch (_resizeBehavior) {
-      case _AvoidBottomInset(maintainBottomBar: false):
-        final baseline = sheetMetrics.measurements.baseline;
-        return (visibility - baseline / bottomBarSize.height).clamp(0.0, 1.0);
-
-      case _AvoidBottomInset(maintainBottomBar: true):
-        return visibility;
-    }
+    return (visibleBarHeight / bottomBarSize.height).clamp(0, 1);
   }
 }
 
@@ -639,45 +620,25 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget {
   RenderObject createRenderObject(BuildContext context) {
     return _RenderStickyBottomBarVisibility(
       model: SheetViewportState.of(context)!.model,
-      resizeBehavior: _ResizeScaffoldBehaviorScope.of(context),
     );
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
-    (renderObject as _RenderStickyBottomBarVisibility)
-      ..model = SheetViewportState.of(context)!.model
-      ..resizeBehavior = _ResizeScaffoldBehaviorScope.of(context);
+    (renderObject as _RenderStickyBottomBarVisibility).model =
+        SheetViewportState.of(context)!.model;
   }
 }
 
 class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderStickyBottomBarVisibility({
     required super.model,
-    required ResizeScaffoldBehavior resizeBehavior,
-  }) : _resizeBehavior = resizeBehavior;
-
-  ResizeScaffoldBehavior _resizeBehavior;
-
-  // ignore: avoid_setters_without_getters
-  set resizeBehavior(ResizeScaffoldBehavior value) {
-    if (_resizeBehavior != value) {
-      _resizeBehavior = value;
-      invalidateVisibility();
-    }
-  }
+  });
 
   @override
   double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize) {
-    switch (_resizeBehavior) {
-      case _AvoidBottomInset(maintainBottomBar: true):
-        return 1.0;
-
-      case _AvoidBottomInset(maintainBottomBar: false):
-        final bottomInset = sheetMetrics.measurements.baseline;
-        return (1 - bottomInset / bottomBarSize.height).clamp(0.0, 1.0);
-    }
+    return 1;
   }
 }
 
@@ -796,7 +757,6 @@ class ConditionalStickyBottomBarVisibility extends StatefulWidget {
   /// The curve of the visibility animation.
   final Curve curve;
 
-  @override
   final Widget? child;
 
   @override

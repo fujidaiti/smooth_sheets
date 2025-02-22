@@ -295,12 +295,12 @@ void main() {
           ),
         );
         await tester.pumpWidget(env.testWidget);
-        expect(inheritedPadding, EdgeInsets.zero);
         expect(inheritedViewInsets, EdgeInsets.symmetric(horizontal: 10));
         expect(
           inheritedViewPadding,
           EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         );
+        expect(inheritedPadding, EdgeInsets.all(10));
       },
     );
 
@@ -833,11 +833,270 @@ void main() {
           isAssertionError.having(
             (e) => e.message,
             'message',
-            'The maximum size of the sheet is smaller than the expected size. '
-                'This is likely because the sheet is wrapped by a widget that '
-                'adds extra margin around it (e.g. Padding).',
+            'This error was likely caused either by the sheet being wrapped '
+                'in a widget that adds extra margin around it (e.g. Padding), '
+                'or by there is no SheetViewport in the ancestors of the sheet.',
           ),
         );
+      },
+    );
+  });
+
+  group('SheetLayoutSpec', () {
+    test(
+      'contentBaseline should be pushed up by the bottom view inset '
+      'if resizeContentToAvoidBottomInset is true',
+      () {
+        final spec = SheetLayoutSpec(
+          viewportSize: Size(800, 600),
+          viewportPadding: EdgeInsets.zero,
+          viewportInsets: EdgeInsets.only(bottom: 30),
+          resizeContentToAvoidBottomInset: true,
+        );
+        expect(spec.contentBaseline, 30);
+      },
+    );
+
+    test(
+      'contentBaseline should not be affected by the bottom view inset '
+      'if resizeContentToAvoidBottomInset is false',
+      () {
+        final spec = SheetLayoutSpec(
+          viewportSize: Size(800, 600),
+          viewportPadding: EdgeInsets.zero,
+          viewportInsets: EdgeInsets.only(bottom: 30),
+          resizeContentToAvoidBottomInset: false,
+        );
+        expect(spec.contentBaseline, 0);
+      },
+    );
+
+    test(
+      'sheetBaseline should always be pushed up '
+      'by the bottom padding of the viewport',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(20),
+            viewportInsets: EdgeInsets.zero,
+            resizeContentToAvoidBottomInset: false,
+          ).sheetBaseline,
+          20,
+        );
+
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(20),
+            viewportInsets: EdgeInsets.only(bottom: 30),
+            resizeContentToAvoidBottomInset: false,
+          ).sheetBaseline,
+          20,
+        );
+
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(20),
+            viewportInsets: EdgeInsets.only(bottom: 30),
+            resizeContentToAvoidBottomInset: true,
+          ).sheetBaseline,
+          20,
+        );
+      },
+    );
+
+    test(
+      'maxSheetRect should match the viewport if there is no padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            viewportInsets: EdgeInsets.zero,
+            resizeContentToAvoidBottomInset: false,
+          ).maxSheetRect,
+          Rect.fromLTWH(0, 0, 800, 600),
+        );
+      },
+    );
+
+    test(
+      'maxSheetRect should be reduced by the viewport padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportInsets: EdgeInsets.zero,
+            resizeContentToAvoidBottomInset: false,
+          ).maxSheetRect,
+          Rect.fromLTRB(10, 20, 770, 560),
+        );
+      },
+    );
+
+    test(
+      'maxContentRect should match the maxSheetRect '
+      'if resizeContentToAvoidBottomInset is true',
+      () {
+        final spec = SheetLayoutSpec(
+          viewportSize: Size(800, 600),
+          viewportPadding: EdgeInsets.zero,
+          viewportInsets: EdgeInsets.only(bottom: 50),
+          resizeContentToAvoidBottomInset: false,
+        );
+        expect(spec.maxContentRect, equals(spec.maxSheetRect));
+      },
+    );
+
+    test(
+      'maxContentRect should reduce the height to avoid the bottom view inset '
+      'if resizeContentToAvoidBottomInset is true',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            viewportInsets: EdgeInsets.only(bottom: 50),
+            resizeContentToAvoidBottomInset: true,
+          ).maxContentRect,
+          Rect.fromLTRB(0, 0, 800, 550),
+        );
+      },
+    );
+  });
+
+  group('SheetMediaQuery', () {
+    ({
+      Widget testWidget,
+    }) boilerplate({
+      required SheetLayoutSpec layoutSpec,
+      MediaQueryData? parentData,
+      required Widget child,
+    }) {
+      final testWidget = MediaQuery(
+        data: parentData ?? MediaQueryData(),
+        child: SheetMediaQuery(
+          layoutSpec: layoutSpec,
+          child: child,
+        ),
+      );
+
+      return (testWidget: testWidget);
+    }
+
+    testWidgets(
+      'should subtract viewport padding from inherited '
+      'view-padding and view-insets',
+      (tester) async {
+        late MediaQueryData childData;
+        final env = boilerplate(
+          parentData: MediaQueryData(
+            viewPadding: EdgeInsets.all(30),
+            viewInsets: EdgeInsets.all(20),
+            padding: EdgeInsets.all(10),
+          ),
+          layoutSpec: SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(10),
+            viewportInsets: EdgeInsets.zero,
+            resizeContentToAvoidBottomInset: false,
+          ),
+          child: Builder(
+            builder: (context) {
+              childData = MediaQuery.of(context);
+              return Container();
+            },
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(childData.viewPadding, EdgeInsets.all(20));
+        expect(childData.viewInsets, EdgeInsets.all(10));
+      },
+    );
+
+    testWidgets(
+      'should calculate padding as max(viewPadding - viewInsets, 0)',
+      (tester) async {
+        late MediaQueryData childData;
+        final env = boilerplate(
+          parentData: MediaQueryData(
+            viewPadding: EdgeInsets.fromLTRB(30, 20, 10, 40),
+            viewInsets: EdgeInsets.fromLTRB(10, 5, 15, 25),
+          ),
+          layoutSpec: SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(5),
+            viewportInsets: EdgeInsets.zero,
+            resizeContentToAvoidBottomInset: false,
+          ),
+          child: Builder(
+            builder: (context) {
+              childData = MediaQuery.of(context);
+              return Container();
+            },
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(childData.padding, EdgeInsets.fromLTRB(20, 15, 0, 15));
+      },
+    );
+
+    testWidgets(
+      'should zero out bottom view-inset '
+      'if resizeContentToAvoidBottomInset is true',
+      (tester) async {
+        late MediaQueryData childData;
+        final env = boilerplate(
+          parentData: MediaQueryData(
+            viewInsets: EdgeInsets.only(bottom: 50),
+          ),
+          layoutSpec: SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            viewportInsets: EdgeInsets.only(bottom: 50),
+            resizeContentToAvoidBottomInset: true,
+          ),
+          child: Builder(
+            builder: (context) {
+              childData = MediaQuery.of(context);
+              return Container();
+            },
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(childData.viewInsets.bottom, 0);
+      },
+    );
+    
+    testWidgets(
+      'should provide access to LayoutSpec through static method',
+      (tester) async {
+        late SheetLayoutSpec retrievedSpec;
+        final layoutSpec = SheetLayoutSpec(
+          viewportSize: Size(800, 600),
+          viewportPadding: EdgeInsets.all(10),
+          viewportInsets: EdgeInsets.zero,
+          resizeContentToAvoidBottomInset: false,
+        );
+
+        final env = boilerplate(
+          layoutSpec: layoutSpec,
+          child: Builder(
+            builder: (context) {
+              retrievedSpec = SheetMediaQuery.layoutSpecOf(context);
+              return Container();
+            },
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(retrievedSpec, equals(layoutSpec));
       },
     );
   });

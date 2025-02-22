@@ -8,12 +8,133 @@ import 'package:meta/meta.dart';
 
 import 'model.dart';
 
-mixin _MeasurementPipeline {
-  late double _lastMeasuredViewportExtent;
-  late double _lastMeasuredContentExtent;
-  late double _lastMeasuredBaseline;
-  late double _lastMeasuredContentBaseline;
-  void _flushMeasurements();
+@immutable
+class SheetLayoutSpec {
+  const SheetLayoutSpec({
+    required this.viewportSize,
+    required this.viewportPadding,
+    required this.viewportInsets,
+    required this.resizeContentToAvoidBottomInset,
+  });
+
+  final Size viewportSize;
+  final EdgeInsets viewportPadding;
+  final EdgeInsets viewportInsets;
+  final bool resizeContentToAvoidBottomInset;
+
+  double get contentBaseline => resizeContentToAvoidBottomInset
+      ? max(viewportInsets.bottom, sheetBaseline)
+      : sheetBaseline;
+
+  double get sheetBaseline => viewportPadding.bottom;
+
+  Rect get maxSheetRect => Rect.fromLTRB(
+        viewportPadding.left,
+        viewportPadding.top,
+        viewportSize.width - viewportPadding.right,
+        viewportSize.height - sheetBaseline,
+      );
+
+  Rect get maxContentRect => Rect.fromLTRB(
+        viewportPadding.left,
+        viewportPadding.top,
+        viewportSize.width - viewportPadding.right,
+        viewportSize.height - contentBaseline,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SheetLayoutSpec &&
+          viewportSize == other.viewportSize &&
+          viewportPadding == other.viewportPadding &&
+          viewportInsets == other.viewportInsets &&
+          resizeContentToAvoidBottomInset ==
+              other.resizeContentToAvoidBottomInset;
+
+  @override
+  int get hashCode => Object.hash(
+        viewportSize,
+        viewportPadding,
+        viewportInsets,
+        resizeContentToAvoidBottomInset,
+      );
+}
+
+/// Stores the layout information of the sheet and the [SheetViewport].
+///
+/// Intended to be placed between the sheet and its content in the widget tree.
+class SheetMediaQuery extends StatelessWidget {
+  @visibleForTesting
+  const SheetMediaQuery({
+    super.key,
+    required this.layoutSpec,
+    required this.child,
+  });
+
+  final SheetLayoutSpec layoutSpec;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final viewportPadding = layoutSpec.viewportPadding;
+    final mediaQueryData = MediaQuery.of(context);
+    final inheritedViewPadding = mediaQueryData.viewPadding;
+    final viewPaddingForChild = EdgeInsets.fromLTRB(
+      max(inheritedViewPadding.left - viewportPadding.left, 0),
+      max(inheritedViewPadding.top - viewportPadding.top, 0),
+      max(inheritedViewPadding.right - viewportPadding.right, 0),
+      max(inheritedViewPadding.bottom - viewportPadding.bottom, 0),
+    );
+
+    final inheritedViewInsets = mediaQueryData.viewInsets;
+    final viewInsetsForChild = EdgeInsets.fromLTRB(
+      max(inheritedViewInsets.left - viewportPadding.left, 0),
+      max(inheritedViewInsets.top - viewportPadding.top, 0),
+      max(inheritedViewInsets.right - viewportPadding.right, 0),
+      layoutSpec.resizeContentToAvoidBottomInset
+          ? 0
+          : max(inheritedViewInsets.bottom - viewportPadding.bottom, 0),
+    );
+
+    final paddingForChild = EdgeInsets.fromLTRB(
+      max(viewPaddingForChild.left - viewInsetsForChild.left, 0),
+      max(viewPaddingForChild.top - viewInsetsForChild.top, 0),
+      max(viewPaddingForChild.right - viewInsetsForChild.right, 0),
+      max(viewPaddingForChild.bottom - viewInsetsForChild.bottom, 0),
+    );
+
+    return _InheritedSheetMediaQuery(
+      layoutSpec: layoutSpec,
+      child: MediaQuery(
+        data: mediaQueryData.copyWith(
+          viewPadding: viewPaddingForChild,
+          viewInsets: viewInsetsForChild,
+          padding: paddingForChild,
+        ),
+        child: child,
+      ),
+    );
+  }
+
+  static SheetLayoutSpec layoutSpecOf(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_InheritedSheetMediaQuery>()!
+        .layoutSpec;
+  }
+}
+
+class _InheritedSheetMediaQuery extends InheritedWidget {
+  const _InheritedSheetMediaQuery({
+    required this.layoutSpec,
+    required super.child,
+  });
+
+  final SheetLayoutSpec layoutSpec;
+
+  @override
+  bool updateShouldNotify(_InheritedSheetMediaQuery oldWidget) =>
+      layoutSpec != oldWidget.layoutSpec;
 }
 
 class SheetViewport extends StatefulWidget {
@@ -31,8 +152,7 @@ class SheetViewport extends StatefulWidget {
 }
 
 @internal
-class SheetViewportState extends State<SheetViewport>
-    with _MeasurementPipeline {
+class SheetViewportState extends State<SheetViewport> {
   late final _LazySheetModelView _modelView;
 
   SheetModelView get model => _modelView;
@@ -54,62 +174,13 @@ class SheetViewportState extends State<SheetViewport>
   }
 
   @override
-  void _flushMeasurements() {
-    assert(_modelView._inner != null);
-    _modelView._inner!.measurements = Measurements(
-      viewportExtent: _lastMeasuredViewportExtent,
-      contentExtent: _lastMeasuredContentExtent,
-      contentBaseline: _lastMeasuredContentBaseline,
-      baseline: _lastMeasuredBaseline,
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.padding == EdgeInsets.zero) {
-      return _InheritedSheetViewport(
-        state: this,
-        child: _SheetTranslate(
-          padding: EdgeInsets.zero,
-          child: widget.child,
-        ),
-      );
-    }
-
-    final inheritedViewInsets = MediaQuery.viewInsetsOf(context);
-    final viewInsetsForChild = EdgeInsets.fromLTRB(
-      max(inheritedViewInsets.left - widget.padding.left, 0),
-      max(inheritedViewInsets.top - widget.padding.top, 0),
-      max(inheritedViewInsets.right - widget.padding.right, 0),
-      max(inheritedViewInsets.bottom - widget.padding.bottom, 0),
-    );
-    final inheritedPadding = MediaQuery.paddingOf(context);
-    final paddingForChild = EdgeInsets.fromLTRB(
-      max(inheritedPadding.left - widget.padding.left, 0),
-      max(inheritedPadding.top - widget.padding.top, 0),
-      max(inheritedPadding.right - widget.padding.right, 0),
-      max(inheritedPadding.bottom - widget.padding.bottom, 0),
-    );
-    final inheritedViewPadding = MediaQuery.viewPaddingOf(context);
-    final viewPaddingForChild = EdgeInsets.fromLTRB(
-      max(inheritedViewPadding.left - widget.padding.left, 0),
-      max(inheritedViewPadding.top - widget.padding.top, 0),
-      max(inheritedViewPadding.right - widget.padding.right, 0),
-      max(inheritedViewPadding.bottom - widget.padding.bottom, 0),
-    );
-
     return _InheritedSheetViewport(
       state: this,
       child: _SheetTranslate(
         padding: widget.padding,
-        child: MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            viewInsets: viewInsetsForChild,
-            padding: paddingForChild,
-            viewPadding: viewPaddingForChild,
-          ),
-          child: widget.child,
-        ),
+        viewInsets: MediaQuery.viewInsetsOf(context),
+        child: widget.child,
       ),
     );
   }
@@ -137,16 +208,18 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
   const _SheetTranslate({
     required super.child,
     required this.padding,
+    required this.viewInsets,
   });
 
   final EdgeInsets padding;
+  final EdgeInsets viewInsets;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetTranslate(
       model: SheetViewportState.of(context)!._modelView,
-      measurementPipeline: SheetViewportState.of(context)!,
       padding: padding,
+      viewInsets: viewInsets,
     );
   }
 
@@ -154,19 +227,19 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetTranslate)
       ..model = SheetViewportState.of(context)!._modelView
-      ..measurementPipeline = SheetViewportState.of(context)!
-      ..padding = padding;
+      ..padding = padding
+      ..viewInsets = viewInsets;
   }
 }
 
 class _RenderSheetTranslate extends RenderTransform {
   _RenderSheetTranslate({
     required SheetModelView model,
-    required _MeasurementPipeline measurementPipeline,
     required EdgeInsets padding,
+    required EdgeInsets viewInsets,
   })  : _model = model,
-        _measurementPipeline = measurementPipeline,
         _padding = padding,
+        _viewInsets = viewInsets,
         super(
           transform: Matrix4.zero()..setIdentity(),
           transformHitTests: true,
@@ -177,7 +250,6 @@ class _RenderSheetTranslate extends RenderTransform {
 
   // TODO: Change the type to `ValueListenable<double>`
   SheetModelView _model;
-
   // ignore: avoid_setters_without_getters
   set model(_LazySheetModelView value) {
     if (value != _model) {
@@ -187,21 +259,20 @@ class _RenderSheetTranslate extends RenderTransform {
     }
   }
 
-  _MeasurementPipeline _measurementPipeline;
-
-  // ignore: avoid_setters_without_getters
-  set measurementPipeline(_MeasurementPipeline value) {
-    if (value != _measurementPipeline) {
-      _measurementPipeline = value;
-      markNeedsLayout();
-    }
-  }
-
   EdgeInsets _padding;
   // ignore: avoid_setters_without_getters
   set padding(EdgeInsets value) {
     if (_padding != value) {
       _padding = value;
+      _invalidateTransformMatrix();
+    }
+  }
+
+  EdgeInsets _viewInsets;
+  // ignore: avoid_setters_without_getters
+  set viewInsets(EdgeInsets value) {
+    if (_viewInsets != value) {
+      _viewInsets = value;
       _invalidateTransformMatrix();
     }
   }
@@ -220,11 +291,14 @@ class _RenderSheetTranslate extends RenderTransform {
       'The SheetViewport must be given a finite constraint.',
     );
 
-    _measurementPipeline
-      .._lastMeasuredBaseline = _padding.bottom
-      .._lastMeasuredViewportExtent = constraints.biggest.height;
     size = constraints.biggest;
-    child!.layout(constraints.loosen().deflate(_padding));
+    child!.layout(
+      _SheetConstraints(
+        viewportSize: size,
+        viewportInsets: _viewInsets,
+        viewportPadding: _padding,
+      ),
+    );
   }
 
   void _invalidateTransformMatrix() {
@@ -266,50 +340,77 @@ class _RenderSheetTranslate extends RenderTransform {
   }
 }
 
+@immutable
+class _SheetConstraints extends BoxConstraints {
+  _SheetConstraints({
+    required this.viewportSize,
+    required this.viewportInsets,
+    required this.viewportPadding,
+  }) : super(
+          minWidth: viewportSize.width - viewportPadding.horizontal,
+          maxWidth: viewportSize.width - viewportPadding.horizontal,
+          maxHeight: viewportSize.height - viewportPadding.vertical,
+        );
+
+  final Size viewportSize;
+  final EdgeInsets viewportInsets;
+  final EdgeInsets viewportPadding;
+}
+
 @internal
 class BareSheet extends StatelessWidget {
   const BareSheet({
     super.key,
-    required this.child,
     this.resizeChildToAvoidBottomInsets = true,
+    required this.child,
   });
 
-  final Widget child;
   final bool resizeChildToAvoidBottomInsets;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    if (resizeChildToAvoidBottomInsets) {
-      return _SheetSkelton(
-        bottomPadding: MediaQuery.viewInsetsOf(context).bottom,
-        child: MediaQuery.removeViewInsets(
-          removeBottom: true,
-          context: context,
-          child: child,
-        ),
-      );
-    } else {
-      return _SheetSkelton(
-        bottomPadding: 0,
-        child: child,
-      );
-    }
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        assert(
+          constraints is _SheetConstraints,
+          'This error was likely caused either by the sheet being wrapped '
+          'in a widget that adds extra margin around it (e.g. Padding), '
+          'or by there is no SheetViewport in the ancestors of the sheet.',
+        );
+
+        final sheetConstraints = constraints as _SheetConstraints;
+        final layoutSpec = SheetLayoutSpec(
+          viewportSize: sheetConstraints.viewportSize,
+          viewportPadding: sheetConstraints.viewportPadding,
+          viewportInsets: sheetConstraints.viewportInsets,
+          resizeContentToAvoidBottomInset: resizeChildToAvoidBottomInsets,
+        );
+
+        return _SheetSkelton(
+          layoutSpec: layoutSpec,
+          child: SheetMediaQuery(
+            layoutSpec: layoutSpec,
+            child: child,
+          ),
+        );
+      },
+    );
   }
 }
 
 class _SheetSkelton extends SingleChildRenderObjectWidget {
   const _SheetSkelton({
+    required this.layoutSpec,
     required super.child,
-    required this.bottomPadding,
   });
 
-  final double bottomPadding;
+  final SheetLayoutSpec layoutSpec;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetSkelton(
-      bottomPadding: bottomPadding,
-      measurementPipeline: SheetViewportState.of(context)!,
+      layoutSpec: layoutSpec,
       model: SheetViewportState.of(context)!._modelView,
     );
   }
@@ -317,8 +418,7 @@ class _SheetSkelton extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetSkelton)
-      ..bottomPadding = bottomPadding
-      ..measurementPipeline = SheetViewportState.of(context)!
+      ..sheetMediaQueryData = layoutSpec
       ..model = SheetViewportState.of(context)!._modelView;
   }
 }
@@ -326,11 +426,9 @@ class _SheetSkelton extends SingleChildRenderObjectWidget {
 class _RenderSheetSkelton extends RenderShiftedBox {
   _RenderSheetSkelton({
     required _LazySheetModelView model,
-    required double bottomPadding,
-    required _MeasurementPipeline measurementPipeline,
+    required SheetLayoutSpec layoutSpec,
   })  : _model = model,
-        _bottomPadding = bottomPadding,
-        _measurementPipeline = measurementPipeline,
+        _layoutSpec = layoutSpec,
         super(null) {
     model.addListener(_invalidatePreferredExtent);
     _invalidatePreferredExtent();
@@ -347,26 +445,22 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     }
   }
 
-  _MeasurementPipeline _measurementPipeline;
+  SheetLayoutSpec _layoutSpec;
   // ignore: avoid_setters_without_getters
-  set measurementPipeline(_MeasurementPipeline value) {
-    _measurementPipeline = value;
-    markNeedsLayout();
-  }
-
-  double _bottomPadding;
-  // ignore: avoid_setters_without_getters
-  set bottomPadding(double value) {
-    _bottomPadding = value;
-    markNeedsLayout();
+  set sheetMediaQueryData(SheetLayoutSpec value) {
+    if (value != _layoutSpec) {
+      _layoutSpec = value;
+      markNeedsLayout();
+    }
   }
 
   double? _preferredExtent;
 
   void _invalidatePreferredExtent() {
     if (_model.hasMetrics) {
+      final sheetTop = _layoutSpec.viewportSize.height - _model.offset;
       final preferredExtent =
-          max(_model.offset - _model.measurements.baseline, 0.0);
+          max(_layoutSpec.maxSheetRect.bottom - sheetTop, 0.0);
       final oldPreferredExtent = _preferredExtent;
       _preferredExtent = preferredExtent;
       if (oldPreferredExtent != preferredExtent && !_isPerformingLayout) {
@@ -381,6 +475,15 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     super.dispose();
   }
 
+  /// Indicates whether it is in the middle of performLayout().
+  ///
+  /// Updating SheetModel.measurements in performLayout() will
+  /// eventually trigger a call to _invalidatePreferredExtent(),
+  /// which may cause markNeedsLayout() to be invoked. However,
+  /// doing so in the middle of layout phase is not allowed.
+  ///
+  /// To avoid this, we need to track whether it is in the middle
+  /// of layout phase, and check the flag before invoking markNeedsLayout().
   bool _isPerformingLayout = false;
 
   @override
@@ -390,65 +493,36 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       return super.performLayout();
     }
 
-    assert(_model._inner != null);
-    assert(constraints.biggest.isFinite);
-    assert(!constraints.isTight);
-    assert(() {
-      bool debugCheckAncestor(RenderObject? ancestor) {
-        switch (ancestor) {
-          case null:
-            throw AssertionError(
-              'No SheetViewport found in the ancestors of the sheet.',
-            );
-
-          case final _RenderSheetTranslate viewport
-              when constraints.biggest !=
-                  viewport._padding.deflateSize(viewport._lastMeasuredSize):
-            throw AssertionError(
-              // ignore: lines_longer_than_80_chars
-              'The maximum size of the sheet is smaller than the expected size. '
-              'This is likely because the sheet is wrapped by a widget that '
-              'adds extra margin around it (e.g. Padding).',
-            );
-
-          case final _RenderSheetTranslate _:
-            return true;
-
-          case _:
-            return false;
-        }
-      }
-
-      var ancestor = parent;
-      while (!debugCheckAncestor(ancestor)) {
-        ancestor = ancestor?.parent;
-      }
-      return true;
-    }());
-
     _isPerformingLayout = true;
 
+    final maxChildRect = _layoutSpec.maxContentRect;
+    final maxChildSize = maxChildRect.size;
     child.layout(
       BoxConstraints(
-        minWidth: constraints.maxWidth,
-        maxWidth: constraints.maxWidth,
-        maxHeight: max(constraints.maxHeight - _bottomPadding, 0.0),
+        minWidth: maxChildSize.width,
+        maxWidth: maxChildSize.width,
+        maxHeight: maxChildSize.height,
       ),
       parentUsesSize: true,
     );
 
-    _measurementPipeline
-      .._lastMeasuredContentExtent = child.size.height
-      .._lastMeasuredContentBaseline =
-          _measurementPipeline._lastMeasuredBaseline + _bottomPadding
-      .._flushMeasurements();
+    assert(_model._inner != null);
+    _model._inner!.measurements = Measurements(
+      viewportExtent: _layoutSpec.viewportSize.height,
+      contentExtent: child.size.height,
+      contentBaseline: _layoutSpec.contentBaseline,
+      baseline: _layoutSpec.sheetBaseline,
+    );
     assert(_preferredExtent != null);
 
+    final maxRect = _layoutSpec.maxSheetRect;
+    final maxSize = maxRect.size;
+    final bottomPadding = maxChildRect.bottom - maxRect.bottom;
     size = BoxConstraints(
-      minWidth: constraints.minWidth,
-      maxWidth: constraints.maxWidth,
-      minHeight: child.size.height + _bottomPadding,
-      maxHeight: constraints.maxHeight,
+      minWidth: maxSize.width,
+      maxWidth: maxSize.width,
+      minHeight: child.size.height + bottomPadding,
+      maxHeight: maxSize.height,
     ).constrain(Size.fromHeight(_preferredExtent!));
 
     _isPerformingLayout = false;
@@ -474,7 +548,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty('bottomPadding', _bottomPadding));
+    properties.add(DiagnosticsProperty('layoutSpec', _layoutSpec));
   }
 }
 
