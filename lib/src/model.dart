@@ -116,7 +116,7 @@ abstract class SheetContext {
 
 /// Read-only view of a [SheetModel].
 @internal
-abstract class SheetModelView with SheetMetrics implements Listenable {
+abstract class SheetModelView implements SheetMetrics, Listenable {
   bool get shouldIgnorePointer;
   bool get hasMetrics;
 }
@@ -275,14 +275,10 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     final simulation =
         physics.createBallisticSimulation(velocity, this, snapGrid);
     if (simulation != null) {
-      goBallisticWith(simulation);
+    beginActivity(BallisticSheetActivity(simulation: simulation));
     } else {
       goIdle();
     }
-  }
-
-  void goBallisticWith(Simulation simulation) {
-    beginActivity(BallisticSheetActivity(simulation: simulation));
   }
 
   void settleTo(SheetOffset offset, Duration duration) {
@@ -351,7 +347,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     );
   }
 
-  void didUpdateGeometry() {
+  void didUpdateMetrics() {
     SheetUpdateNotification(
       metrics: snapshot,
     ).dispatch(context.notificationContext);
@@ -393,20 +389,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
 }
 
 /// The metrics of a sheet.
-mixin SheetMetrics {
-  /// The [FlutterView.devicePixelRatio] of the view that the sheet
-  /// associated with this metrics is drawn into.
-  double get devicePixelRatio;
-
-  /// Creates a copy of the metrics with the given fields replaced.
-  SheetMetrics copyWith({
-    double? offset,
-    double? minOffset,
-    double? maxOffset,
-    Measurements? measurements,
-    double? devicePixelRatio,
-  });
-
+abstract interface class SheetMetrics {
   /// The current position of the sheet in pixels.
   double get offset;
 
@@ -416,13 +399,25 @@ mixin SheetMetrics {
   /// The maximum position of the sheet in pixels.
   double get maxOffset;
 
+  /// The [FlutterView.devicePixelRatio] of the view that the sheet
+  /// associated with this metrics is drawn into.
+  double get devicePixelRatio;
+
   Measurements get measurements;
+
+  /// Creates a copy of the metrics with the given fields replaced.
+  SheetMetrics copyWith({
+    double? offset,
+    double? minOffset,
+    double? maxOffset,
+    Measurements? measurements,
+    double? devicePixelRatio,
+  });
 }
 
 /// An immutable snapshot of the state of a sheet.
-// TODO: Make this private.
 @immutable
-class SheetMetricsSnapshot with SheetMetrics {
+class SheetMetricsSnapshot implements SheetMetrics {
   const SheetMetricsSnapshot({
     required this.offset,
     required this.minOffset,

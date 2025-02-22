@@ -150,7 +150,7 @@ class AnimatedSheetActivity extends SheetActivity
     final progress = curve.transform(controller.value);
     owner
       ..offset = lerpDouble(_startOffset, _endOffset, progress)!
-      ..didUpdateGeometry();
+      ..didUpdateMetrics();
   }
 
   @override
@@ -193,7 +193,7 @@ class BallisticSheetActivity extends SheetActivity
     if (mounted) {
       owner
         ..offset = controller.value
-        ..didUpdateGeometry();
+        ..didUpdateMetrics();
     }
   }
 
@@ -309,7 +309,7 @@ class SettlingSheetActivity extends SheetActivity {
         : max(destination, offset - velocity * elapsedFrameTime);
     owner
       ..offset = newOffset
-      ..didUpdateGeometry();
+      ..didUpdateMetrics();
 
     _elapsedDuration = elapsedDuration;
 
@@ -370,7 +370,7 @@ class IdleSheetActivity extends SheetActivity {
     if (newOffset != owner.offset) {
       owner
         ..offset = newOffset
-        ..didUpdateGeometry();
+        ..didUpdateMetrics();
     }
   }
 }

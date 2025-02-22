@@ -20,7 +20,7 @@ import 'stubbing.mocks.dart';
 
 export 'stubbing.mocks.dart';
 
-class MutableSheetMetrics with SheetMetrics {
+class MutableSheetMetrics implements SheetMetrics {
   MutableSheetMetrics({
     required this.offset,
     required this.minOffset,

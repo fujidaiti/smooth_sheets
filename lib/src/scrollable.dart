@@ -136,7 +136,7 @@ mixin ScrollAwareSheetModelMixin on SheetModel
           physics.createBallisticSimulation(velocity, this, snapGrid);
       if (simulation != null) {
         scrollPosition.goIdle(calledByDelegate: true);
-        goBallisticWith(simulation);
+        beginActivity(BallisticSheetActivity(simulation: simulation));
         return;
       }
     }
@@ -463,7 +463,7 @@ class BallisticScrollDrivenSheetActivity
     _oldOffset = controller.value;
     final overflow = _applyScrollOffset(delta);
     if (owner.offset != _oldOffset) {
-      owner.didUpdateGeometry();
+      owner.didUpdateMetrics();
     }
     if (cmp.isNotApprox(overflow, 0)) {
       owner

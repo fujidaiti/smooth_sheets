@@ -46,7 +46,7 @@ class _DraggableScrollableSheetModel extends SheetModel
   final SheetOffset initialOffset;
 }
 
-class Sheet extends StatefulWidget {
+class Sheet extends StatelessWidget {
   const Sheet({
     super.key,
     this.initialOffset = const SheetOffset.relative(1),
@@ -83,29 +83,23 @@ class Sheet extends StatefulWidget {
   final Widget child;
 
   @override
-  State<Sheet> createState() => _SheetState();
-}
-
-class _SheetState extends State<Sheet> {
-  @override
   Widget build(BuildContext context) {
-    final physics = widget.physics ?? kDefaultSheetPhysics;
+    final physics = this.physics ?? kDefaultSheetPhysics;
     final gestureTamper = SheetGestureProxy.maybeOf(context);
-    final controller =
-        widget.controller ?? SheetControllerScope.maybeOf(context);
+    final controller = this.controller ?? SheetControllerScope.maybeOf(context);
 
     return _DraggableScrollableSheetModelOwner(
       controller: controller,
-      initialOffset: widget.initialOffset,
+      initialOffset: initialOffset,
       physics: physics,
-      snapGrid: widget.snapGrid,
+      snapGrid: snapGrid,
       gestureProxy: gestureTamper,
       child: BareSheet(
-        resizeChildToAvoidBottomInsets: widget.resizeChildToAvoidViewInsets,
+        resizeChildToAvoidBottomInsets: resizeChildToAvoidViewInsets,
         child: DraggableScrollableSheetContent(
-          scrollConfiguration: widget.scrollConfiguration,
-          dragConfiguration: widget.dragConfiguration,
-          child: widget.child,
+          scrollConfiguration: scrollConfiguration,
+          dragConfiguration: dragConfiguration,
+          child: child,
         ),
       ),
     );

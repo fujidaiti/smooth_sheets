@@ -25,8 +25,6 @@ const kDefaultSheetSpring = SpringDescription(
 /// The default [SheetPhysics] used by sheet widgets.
 const kDefaultSheetPhysics = BouncingSheetPhysics();
 
-// TODO: Implement `equals` and `hashCode` for SheetPhysics classes.
-// TODO: Split this class into SheetBoundaryConditions and SheetSnapBehavior.
 abstract class SheetPhysics {
   const SheetPhysics();
 
