@@ -48,9 +48,7 @@ void main() {
             constraints: BoxConstraints.tight(testScreenSize),
             child: SheetContentScaffold(
               key: scaffoldKey,
-              body: SizedBox.shrink(
-                key: bodyKey,
-              ),
+              body: SizedBox.shrink(key: bodyKey),
             ),
           );
         },
@@ -70,10 +68,7 @@ void main() {
             constraints: BoxConstraints.loose(testScreenSize),
             child: SheetContentScaffold(
               key: scaffoldKey,
-              body: SizedBox(
-                key: bodyKey,
-                height: 200,
-              ),
+              body: SizedBox(key: bodyKey, height: 200),
             ),
           );
         },
@@ -105,13 +100,8 @@ void main() {
               constraints: BoxConstraints.tight(testScreenSize),
               child: SheetContentScaffold(
                 key: scaffoldKey,
-                topBar: Container(
-                  key: topBarKey,
-                  height: 50,
-                ),
-                body: SizedBox.shrink(
-                  key: bodyKey,
-                ),
+                topBar: Container(key: topBarKey, height: 50),
+                body: SizedBox.shrink(key: bodyKey),
               ),
             );
           },
@@ -149,15 +139,12 @@ void main() {
         final bodyKey = UniqueKey();
         final env = boilerplate(
           builder: (context) {
-            return SheetContentScaffold(
-              key: scaffoldKey,
-              topBar: Container(
-                key: topBarKey,
-                height: 50,
-              ),
-              body: Container(
-                key: bodyKey,
-                height: 200,
+            return ConstrainedBox(
+              constraints: BoxConstraints.loose(testScreenSize),
+              child: SheetContentScaffold(
+                key: scaffoldKey,
+                topBar: Container(key: topBarKey, height: 50),
+                body: Container(key: bodyKey, height: 200),
               ),
             );
           },
@@ -193,14 +180,12 @@ void main() {
         final bodyKey = UniqueKey();
         final env = boilerplate(
           builder: (context) {
-            return SheetContentScaffold(
-              key: scaffoldKey,
-              bottomBar: Container(
-                key: bottomBarKey,
-                height: 50,
-              ),
-              body: SizedBox.shrink(
-                key: bodyKey,
+            return ConstrainedBox(
+              constraints: BoxConstraints.tight(testScreenSize),
+              child: SheetContentScaffold(
+                key: scaffoldKey,
+                bottomBar: Container(key: bottomBarKey, height: 50),
+                body: SizedBox.shrink(key: bodyKey),
               ),
             );
           },
@@ -238,15 +223,12 @@ void main() {
         final bodyKey = UniqueKey();
         final env = boilerplate(
           builder: (context) {
-            return SheetContentScaffold(
-              key: scaffoldKey,
-              bottomBar: Container(
-                key: bottomBarKey,
-                height: 50,
-              ),
-              body: Container(
-                key: bodyKey,
-                height: 200,
+            return ConstrainedBox(
+              constraints: BoxConstraints.loose(testScreenSize),
+              child: SheetContentScaffold(
+                key: scaffoldKey,
+                bottomBar: Container(key: bottomBarKey, height: 50),
+                body: Container(key: bodyKey, height: 200),
               ),
             );
           },
@@ -283,29 +265,20 @@ void main() {
         final bodyKey = UniqueKey();
         final env = boilerplate(
           builder: (context) {
-            return SheetContentScaffold(
-              key: scaffoldKey,
-              topBar: Container(
-                key: topBarKey,
-                height: 50,
-              ),
-              bottomBar: Container(
-                key: bottomBarKey,
-                height: 50,
-              ),
-              body: Container(
-                key: bodyKey,
-                height: 200,
+            return ConstrainedBox(
+              constraints: BoxConstraints.tight(testScreenSize),
+              child: SheetContentScaffold(
+                key: scaffoldKey,
+                topBar: Container(key: topBarKey, height: 50),
+                bottomBar: Container(key: bottomBarKey, height: 50),
+                body: SizedBox.shrink(key: bodyKey),
               ),
             );
           },
         );
 
         await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byKey(scaffoldKey)),
-          Size(testScreenSize.width, 300),
-        );
+        expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
         expect(
           tester.getLocalRect(
             find.byKey(topBarKey),
@@ -318,14 +291,24 @@ void main() {
             find.byKey(bottomBarKey),
             ancestor: find.byKey(scaffoldKey),
           ),
-          Rect.fromLTWH(0, 250, testScreenSize.width, 50),
+          Rect.fromLTWH(
+            0,
+            testScreenSize.height - 50,
+            testScreenSize.width,
+            50,
+          ),
         );
         expect(
           tester.getLocalRect(
             find.byKey(bodyKey),
             ancestor: find.byKey(scaffoldKey),
           ),
-          Rect.fromLTWH(0, 50, testScreenSize.width, 200),
+          Rect.fromLTWH(
+            0,
+            50,
+            testScreenSize.width,
+            testScreenSize.height - 100,
+          ),
         );
       },
     );
@@ -339,19 +322,13 @@ void main() {
         final bodyKey = UniqueKey();
         final env = boilerplate(
           builder: (context) {
-            return SheetContentScaffold(
-              key: scaffoldKey,
-              topBar: Container(
-                key: topBarKey,
-                height: 50,
-              ),
-              bottomBar: Container(
-                key: bottomBarKey,
-                height: 50,
-              ),
-              body: Container(
-                key: bodyKey,
-                height: 200,
+            return ConstrainedBox(
+              constraints: BoxConstraints.loose(testScreenSize),
+              child: SheetContentScaffold(
+                key: scaffoldKey,
+                topBar: Container(key: topBarKey, height: 50),
+                bottomBar: Container(key: bottomBarKey, height: 50),
+                body: Container(key: bodyKey, height: 200),
               ),
             );
           },
@@ -386,146 +363,164 @@ void main() {
       },
     );
 
-    testWidgets('Extends body behind top bar', (WidgetTester tester) async {
+    testWidgets('Extends body behind top bar', (tester) async {
       final topBarKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
-        builder: (context) => SheetContentScaffold(
-          extendBodyBehindTopBar: true,
-          topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
-          body: Container(key: bodyKey, color: Colors.green, height: 200),
-        ),
+        builder: (context) {
+          return SheetContentScaffold(
+            extendBodyBehindTopBar: true,
+            topBar: Container(key: topBarKey, height: 50),
+            body: Container(key: bodyKey, height: 200),
+          );
+        },
       );
 
       await tester.pumpWidget(env.testWidget);
-      final bodyTop = tester.getTopLeft(find.byKey(bodyKey)).dy;
-      expect(bodyTop, equals(0.0));
+      expect(
+        tester.getLocalRect(find.byKey(topBarKey)),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(find.byKey(bodyKey)),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 200),
+      );
     });
 
-    testWidgets('Extends body behind bottom bar', (WidgetTester tester) async {
+    testWidgets('Extends body behind bottom bar', (tester) async {
       final bottomBarKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
-        builder: (context) => SheetContentScaffold(
-          extendBodyBehindBottomBar: true,
-          bottomBar:
-              Container(key: bottomBarKey, height: 50, color: Colors.red),
-          body: Container(key: bodyKey, color: Colors.green, height: 200),
-        ),
+        builder: (context) {
+          return SheetContentScaffold(
+            extendBodyBehindBottomBar: true,
+            bottomBar: Container(key: bottomBarKey, height: 50),
+            body: Container(key: bodyKey, height: 200),
+          );
+        },
       );
 
       await tester.pumpWidget(env.testWidget);
-      final bodyBottom = tester.getBottomLeft(find.byKey(bodyKey)).dy;
-      final scaffoldHeight =
-          tester.getSize(find.byType(SheetContentScaffold)).height;
-      expect(bodyBottom, equals(scaffoldHeight));
+      expect(
+        tester.getLocalRect(find.byKey(bottomBarKey)),
+        Rect.fromLTWH(0, 150, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(find.byKey(bodyKey)),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 200),
+      );
     });
 
-    testWidgets('Extends body behind top and bottom bars',
-        (WidgetTester tester) async {
+    testWidgets('Extends body behind top and bottom bars', (tester) async {
       final topBarKey = UniqueKey();
       final bottomBarKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
-        builder: (context) => SheetContentScaffold(
-          extendBodyBehindTopBar: true,
-          extendBodyBehindBottomBar: true,
-          topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
-          bottomBar:
-              Container(key: bottomBarKey, height: 50, color: Colors.red),
-          body: Container(key: bodyKey, color: Colors.green, height: 300),
-        ),
+        builder: (context) {
+          return SheetContentScaffold(
+            extendBodyBehindTopBar: true,
+            extendBodyBehindBottomBar: true,
+            topBar: Container(key: topBarKey, height: 50),
+            bottomBar: Container(key: bottomBarKey, height: 50),
+            body: Container(key: bodyKey, height: 200),
+          );
+        },
       );
 
       await tester.pumpWidget(env.testWidget);
-      final scaffoldHeight =
-          tester.getSize(find.byType(SheetContentScaffold)).height;
-      final bodyTop = tester.getTopLeft(find.byKey(bodyKey)).dy;
-      final bodyBottom = tester.getBottomLeft(find.byKey(bodyKey)).dy;
-      expect(bodyTop, equals(0.0));
-      expect(bodyBottom, equals(scaffoldHeight));
+      expect(
+        tester.getLocalRect(find.byKey(topBarKey)),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(find.byKey(bottomBarKey)),
+        Rect.fromLTWH(0, 150, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(find.byKey(bodyKey)),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 200),
+      );
     });
 
-    testWidgets('When top bar has a preferred size',
-        (WidgetTester tester) async {
+    testWidgets('When top bar has a preferred size', (tester) async {
       final topBarKey = UniqueKey();
       final env = boilerplate(
         builder: (context) => SheetContentScaffold(
           topBar: PreferredSize(
             key: topBarKey,
             preferredSize: const Size.fromHeight(60),
-            child: Container(color: Colors.blue),
+            child: Container(),
           ),
-          body: Container(color: Colors.green, height: 200),
+          body: Container(height: 200),
         ),
       );
 
       await tester.pumpWidget(env.testWidget);
-      final topBarSize = tester.getSize(find.byKey(topBarKey));
-      expect(topBarSize.height, equals(60));
+      expect(
+        tester.getLocalRect(find.byKey(topBarKey)),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 60),
+      );
     });
 
-    testWidgets('When bottom bar has a preferred size',
-        (WidgetTester tester) async {
+    testWidgets('When bottom bar has a preferred size', (tester) async {
       final bottomBarKey = UniqueKey();
       final env = boilerplate(
-        builder: (context) => SheetContentScaffold(
-          bottomBar: PreferredSize(
-            key: bottomBarKey,
-            preferredSize: const Size.fromHeight(60),
-            child: Container(color: Colors.red),
-          ),
-          body: Container(color: Colors.green, height: 200),
-        ),
+        builder: (context) {
+          return SheetContentScaffold(
+            bottomBar: PreferredSize(
+              key: bottomBarKey,
+              preferredSize: const Size.fromHeight(60),
+              child: Container(),
+            ),
+            body: Container(height: 200),
+          );
+        },
       );
 
       await tester.pumpWidget(env.testWidget);
-      final bottomBarSize = tester.getSize(find.byKey(bottomBarKey));
-      expect(bottomBarSize.height, equals(60));
+      expect(
+        tester.getLocalRect(find.byKey(bottomBarKey)),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 60),
+      );
     });
 
-    testWidgets('Background color fills entire area',
-        (WidgetTester tester) async {
-      const bgColor = Colors.purple;
+    testWidgets('Background color fills entire area', (tester) async {
       final env = boilerplate(
         builder: (context) => SheetContentScaffold(
-          backgroundColor: bgColor,
-          body: Container(color: Colors.transparent, height: 200),
+          backgroundColor: Colors.purple,
+          body: Container(height: 200),
         ),
       );
 
       await tester.pumpWidget(env.testWidget);
-      final finder = find.byWidgetPredicate(
-        (widget) =>
-            widget is DecoratedBox &&
-            (widget.decoration as BoxDecoration?)?.color == bgColor,
+      expect(
+        tester.widget(find.byType(Material)),
+        isA<Material>().having((m) => m.color, 'color', Colors.purple),
       );
-      expect(finder, findsAtLeastNWidgets(1));
     });
 
     testWidgets('Applies background color from theme when not explicitly set',
-        (WidgetTester tester) async {
-      const themeBgColor = Colors.orange;
+        (tester) async {
       final env = boilerplate(
         builder: (context) => Theme(
-          data: ThemeData(scaffoldBackgroundColor: themeBgColor),
+          data: ThemeData(
+            scaffoldBackgroundColor: Colors.purple,
+          ),
           child: SheetContentScaffold(
-            body: Container(color: Colors.transparent, height: 200),
+            body: Container(height: 200),
           ),
         ),
       );
 
       await tester.pumpWidget(env.testWidget);
-      final finder = find.byWidgetPredicate(
-        (widget) =>
-            widget is DecoratedBox &&
-            (widget.decoration as BoxDecoration?)?.color == themeBgColor,
+      expect(
+        tester.widget(find.byType(Material)),
+        isA<Material>().having((m) => m.color, 'color', Colors.purple),
       );
-      expect(finder, findsAtLeastNWidgets(1));
     });
 
     testWidgets('Updates MediaQuery padding based on presence of bars',
-        (WidgetTester tester) async {
+        (tester) async {
       final topBarKey = UniqueKey();
       final bottomBarKey = UniqueKey();
       final env = boilerplate(
@@ -551,7 +546,7 @@ void main() {
   group('SheetContentScaffold - Bottom Bar Visibility with Keyboard', () {
     testWidgets(
         'Hide bottom bar in response to keyboard when ignoreBottomInset is false',
-        (WidgetTester tester) async {
+        (tester) async {
       final bottomBarKey = UniqueKey();
       // Initially simulate no keyboard.
       await tester.pumpWidget(
@@ -589,7 +584,7 @@ void main() {
     });
 
     testWidgets('Maintains bottom bar position when ignoring bottom inset',
-        (WidgetTester tester) async {
+        (tester) async {
       final bottomBarKey = UniqueKey();
       // Start with no keyboard.
       await tester.pumpWidget(
@@ -629,7 +624,7 @@ void main() {
 
   group('SheetContentScaffold - Always Visible Bottom Bar', () {
     testWidgets('Bottom bar remains fully visible regardless of sheet offset',
-        (WidgetTester tester) async {
+        (tester) async {
       final bottomBarKey = UniqueKey();
       await tester.pumpWidget(
         MediaQuery(
@@ -648,7 +643,7 @@ void main() {
 
     testWidgets(
         'Bottom bar respects ignoreBottomInset setting during keyboard display',
-        (WidgetTester tester) async {
+        (tester) async {
       final bottomBarKey = UniqueKey();
       // When ignoreBottomInset is false.
       await tester.pumpWidget(
@@ -688,7 +683,7 @@ void main() {
 
   group('SheetContentScaffold - Controlled Bottom Bar Visibility', () {
     testWidgets('Follows animation values for visibility control',
-        (WidgetTester tester) async {
+        (tester) async {
       final bottomBarKey = UniqueKey();
       final tickerProvider = TestTickerProvider();
       final controller = AnimationController(
@@ -725,8 +720,7 @@ void main() {
   });
 
   group('SheetContentScaffold - Conditional Bottom Bar Visibility', () {
-    testWidgets('Responds to visibility condition changes',
-        (WidgetTester tester) async {
+    testWidgets('Responds to visibility condition changes', (tester) async {
       final bottomBarKey = UniqueKey();
       bool showBottomBar = false;
 
@@ -769,7 +763,7 @@ void main() {
   });
 
   group('SheetContentScaffold - Hit-testing', () {
-    testWidgets('Hit-testing when body-only', (WidgetTester tester) async {
+    testWidgets('Hit-testing when body-only', (tester) async {
       bool bodyTapped = false;
       final bodyKey = UniqueKey();
 
@@ -790,8 +784,7 @@ void main() {
       expect(bodyTapped, isTrue);
     });
 
-    testWidgets('Hit-testing when top bar is specified',
-        (WidgetTester tester) async {
+    testWidgets('Hit-testing when top bar is specified', (tester) async {
       bool topBarTapped = false;
       final topBarKey = UniqueKey();
 
@@ -813,8 +806,7 @@ void main() {
       expect(topBarTapped, isTrue);
     });
 
-    testWidgets('Hit-testing when bottom bar is specified',
-        (WidgetTester tester) async {
+    testWidgets('Hit-testing when bottom bar is specified', (tester) async {
       bool bottomBarTapped = false;
       final bottomBarKey = UniqueKey();
 
@@ -837,7 +829,7 @@ void main() {
     });
 
     testWidgets('Hit-testing when both top and bottom bars are specified',
-        (WidgetTester tester) async {
+        (tester) async {
       bool topBarTapped = false;
       bool bottomBarTapped = false;
       final topBarKey = UniqueKey();

@@ -179,7 +179,7 @@ class SheetContentScaffold extends StatelessWidget {
   /// Defaults to [BottomBarVisibility.natural].
   final BottomBarVisibility bottomBarVisibility;
 
-  /// Color that fills the entire background of the scaffold.
+  /// Color of the [Material] widget that underlies the entire scaffold.
   ///
   /// Defaults to [ThemeData.scaffoldBackgroundColor].
   final Color? backgroundColor;
@@ -195,6 +195,9 @@ class SheetContentScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveBackgroundColor =
+        backgroundColor ?? Theme.of(context).scaffoldBackgroundColor;
+
     final effectiveTopBar = switch (topBar) {
       PreferredSizeWidget(:final preferredSize) => ConstrainedBox(
           constraints: BoxConstraints(
@@ -234,7 +237,7 @@ class SheetContentScaffold extends StatelessWidget {
     }
 
     return Material(
-      color: backgroundColor,
+      color: effectiveBackgroundColor,
       child: _ScaffoldLayout(
         extendBodyBehindTopBar: extendBodyBehindTopBar,
         extendBodyBehindBottomBar: extendBodyBehindBottomBar,
