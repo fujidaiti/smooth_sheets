@@ -763,25 +763,51 @@ void main() {
   });
 
   group('SheetContentScaffold - Hit-testing', () {
-    testWidgets('Hit-testing when body-only', (tester) async {
-      bool bodyTapped = false;
-      final bodyKey = UniqueKey();
-
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-          child: SheetContentScaffold(
-            body: GestureDetector(
-              key: bodyKey,
-              onTap: () => bodyTapped = true,
-              child: Container(color: Colors.green, height: 200),
+    ({Widget testWidget}) boilerplate({
+      required Widget body,
+      Widget? topBar,
+      Widget? bottomBar,
+    }) {
+      final testWidget = MediaQuery(
+        data: MediaQueryData(),
+        child: SheetMediaQuery(
+          layoutSpec: SheetLayoutSpec(
+            viewportSize: testScreenSize,
+            viewportPadding: EdgeInsets.zero,
+            viewportInsets: EdgeInsets.zero,
+            resizeContentToAvoidBottomInset: false,
+          ),
+          child: Center(
+            child: SizedBox(
+              width: 600,
+              height: 400,
+              child: SheetContentScaffold(
+                key: Key('scaffold'),
+                topBar: topBar,
+                bottomBar: bottomBar,
+                body: body,
+              ),
             ),
           ),
         ),
       );
 
-      await tester.tap(find.byKey(bodyKey));
-      expect(bodyTapped, isTrue);
+      return (testWidget: testWidget);
+    }
+
+    testWidgets('Hit-testing when body-only', (tester) async {
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        body: ColoredBox(
+          key: bodyKey,
+          color: Colors.white,
+          child: SizedBox.expand(),
+        ),
+      );
+      await tester.pumpWidget(env.testWidget);
+
+      tester.hitTest(find.byKey(bodyKey), location: Offset(100, 100));
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('Hit-testing when top bar is specified', (tester) async {

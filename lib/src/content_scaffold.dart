@@ -452,24 +452,37 @@ class _RenderScaffoldLayout extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (childForSlot(_ScaffoldSlot.body) case final body?) {
-      context.paintChild(
-        body,
-        offset + (body.parentData! as BoxParentData).offset,
-      );
+    void paintChild(_ScaffoldSlot slot) {
+      if (childForSlot(slot) case final child?) {
+        final parentData = child.parentData! as BoxParentData;
+        context.paintChild(child, offset + parentData.offset);
+      }
     }
-    if (childForSlot(_ScaffoldSlot.topBar) case final topBar?) {
-      context.paintChild(
-        topBar,
-        offset + (topBar.parentData! as BoxParentData).offset,
-      );
+
+    paintChild(_ScaffoldSlot.body);
+    paintChild(_ScaffoldSlot.topBar);
+    paintChild(_ScaffoldSlot.bottomBar);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    bool hitTestChild(_ScaffoldSlot slot) {
+      if (childForSlot(slot) case final child?) {
+        final parentData = child.parentData! as BoxParentData;
+        final isHit = result.addWithPaintOffset(
+          offset: parentData.offset,
+          position: position,
+          hitTest: (result, transformed) =>
+              child.hitTest(result, position: transformed),
+        );
+        return isHit;
+      }
+      return false;
     }
-    if (childForSlot(_ScaffoldSlot.bottomBar) case final bottomBar?) {
-      context.paintChild(
-        bottomBar,
-        offset + (bottomBar.parentData! as BoxParentData).offset,
-      );
-    }
+
+    return hitTestChild(_ScaffoldSlot.bottomBar) ||
+        hitTestChild(_ScaffoldSlot.topBar) ||
+        hitTestChild(_ScaffoldSlot.body);
   }
 }
 
