@@ -459,6 +459,7 @@ class _RenderScaffoldLayout extends RenderBox
       }
     }
 
+    // Paints the children in the reverse of hit test order.
     paintChild(_ScaffoldSlot.body);
     paintChild(_ScaffoldSlot.topBar);
     paintChild(_ScaffoldSlot.bottomBar);

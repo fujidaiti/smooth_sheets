@@ -783,9 +783,11 @@ void main() {
               height: 400,
               child: SheetContentScaffold(
                 key: Key('scaffold'),
+                extendBodyBehindTopBar: true,
+                extendBodyBehindBottomBar: true,
                 topBar: topBar,
                 bottomBar: bottomBar,
-                body: body,
+                body: SizedBox.expand(child: body),
               ),
             ),
           ),
@@ -795,96 +797,160 @@ void main() {
       return (testWidget: testWidget);
     }
 
-    testWidgets('Hit-testing when body-only', (tester) async {
+    testWidgets('When body-only', (tester) async {
       final bodyKey = UniqueKey();
       final env = boilerplate(
-        body: ColoredBox(
-          key: bodyKey,
-          color: Colors.white,
-          child: SizedBox.expand(),
-        ),
+        body: ColoredBox(key: bodyKey, color: Colors.white),
       );
       await tester.pumpWidget(env.testWidget);
 
+      // Top-left corner
       tester.hitTestAt(Offset(100, 100), target: find.byKey(bodyKey));
       expect(tester.takeException(), isNull);
+
+      // Top-right corner
+      tester.hitTestAt(Offset(699, 100), target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNull);
+
+      // Bottom-left corner
+      tester.hitTestAt(Offset(100, 499), target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNull);
+
+      // Bottom-right corner
+      tester.hitTestAt(Offset(699, 499), target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNull);
+
+      // Out of top-left corner
+      tester.hitTestAt(Offset(99, 99), target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of top-right corner
+      tester.hitTestAt(Offset(700, 99), target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of bottom-left corner
+      tester.hitTestAt(Offset(99, 500), target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of bottom-right corner
+      tester.hitTestAt(Offset(700, 500), target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNotNull);
     });
 
-    testWidgets('Hit-testing when top bar is specified', (tester) async {
-      bool topBarTapped = false;
+    testWidgets('When top-bar exists', (tester) async {
+      final bodyKey = UniqueKey();
       final topBarKey = UniqueKey();
-
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-          child: SheetContentScaffold(
-            topBar: GestureDetector(
-              key: topBarKey,
-              onTap: () => topBarTapped = true,
-              child: Container(height: 50, color: Colors.blue),
-            ),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
+      final env = boilerplate(
+        topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
+        body: ColoredBox(key: bodyKey, color: Colors.white),
       );
+      await tester.pumpWidget(env.testWidget);
 
-      await tester.tap(find.byKey(topBarKey));
-      expect(topBarTapped, isTrue);
+      // Top-left corner
+      tester.hitTestAt(Offset(100, 100), target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNull);
+
+      // Top-right corner
+      tester.hitTestAt(Offset(699, 100), target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNull);
+
+      // Bottom-left corner
+      tester.hitTestAt(Offset(100, 149), target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNull);
+
+      // Bottom-right corner
+      tester.hitTestAt(Offset(699, 149), target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNull);
+
+      // Out of top-left corner
+      tester.hitTestAt(Offset(99, 99), target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of top-right corner
+      tester.hitTestAt(Offset(700, 99), target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of bottom-left corner
+      tester.hitTestAt(Offset(99, 150), target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of bottom-right corner
+      tester.hitTestAt(Offset(700, 150), target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNotNull);
     });
 
-    testWidgets('Hit-testing when bottom bar is specified', (tester) async {
-      bool bottomBarTapped = false;
-      final bottomBarKey = UniqueKey();
-
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-          child: SheetContentScaffold(
-            bottomBar: GestureDetector(
-              key: bottomBarKey,
-              onTap: () => bottomBarTapped = true,
-              child: Container(height: 50, color: Colors.red),
-            ),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
-      );
-
-      await tester.tap(find.byKey(bottomBarKey));
-      expect(bottomBarTapped, isTrue);
-    });
-
-    testWidgets('Hit-testing when both top and bottom bars are specified',
-        (tester) async {
-      bool topBarTapped = false;
-      bool bottomBarTapped = false;
+    testWidgets('Top-bar should be prioritized over body', (tester) async {
+      final bodyKey = UniqueKey();
       final topBarKey = UniqueKey();
-      final bottomBarKey = UniqueKey();
-
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-          child: SheetContentScaffold(
-            topBar: GestureDetector(
-              key: topBarKey,
-              onTap: () => topBarTapped = true,
-              child: Container(height: 50, color: Colors.blue),
-            ),
-            bottomBar: GestureDetector(
-              key: bottomBarKey,
-              onTap: () => bottomBarTapped = true,
-              child: Container(height: 50, color: Colors.red),
-            ),
-            body: Container(color: Colors.green, height: 300),
-          ),
-        ),
+      final env = boilerplate(
+        topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
+        body: ColoredBox(key: bodyKey, color: Colors.white),
       );
+      await tester.pumpWidget(env.testWidget);
 
-      await tester.tap(find.byKey(topBarKey));
-      await tester.tap(find.byKey(bottomBarKey));
+      final centerOfTopBar = Offset(400, 125);
+      tester.hitTestAt(centerOfTopBar, target: find.byKey(topBarKey));
+      expect(tester.takeException(), isNull);
+      tester.hitTestAt(centerOfTopBar, target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNotNull);
+    });
 
-      expect(topBarTapped, isTrue);
-      expect(bottomBarTapped, isTrue);
+    testWidgets('When bottom-bar exists', (tester) async {
+      final bodyKey = UniqueKey();
+      final bottomBarKey = UniqueKey();
+      final env = boilerplate(
+        bottomBar: Container(key: bottomBarKey, height: 50, color: Colors.red),
+        body: ColoredBox(key: bodyKey, color: Colors.white),
+      );
+      await tester.pumpWidget(env.testWidget);
+
+      // Top-left corner
+      tester.hitTestAt(Offset(100, 450), target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNull);
+
+      // Top-right corner
+      tester.hitTestAt(Offset(699, 450), target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNull);
+
+      // Bottom-left corner
+      tester.hitTestAt(Offset(100, 499), target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNull);
+
+      // Bottom-right corner
+      tester.hitTestAt(Offset(699, 499), target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNull);
+
+      // Out of top-left corner
+      tester.hitTestAt(Offset(99, 449), target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of top-right corner
+      tester.hitTestAt(Offset(700, 449), target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of bottom-left corner
+      tester.hitTestAt(Offset(99, 500), target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNotNull);
+
+      // Out of bottom-right corner
+      tester.hitTestAt(Offset(700, 500), target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNotNull);
+    });
+
+    testWidgets('Bottom-bar should be prioritized over body', (tester) async {
+      final bodyKey = UniqueKey();
+      final bottomBarKey = UniqueKey();
+      final env = boilerplate(
+        bottomBar: Container(key: bottomBarKey, height: 50, color: Colors.red),
+        body: ColoredBox(key: bodyKey, color: Colors.white),
+      );
+      await tester.pumpWidget(env.testWidget);
+
+      final centerOfBottomBar = Offset(400, 475);
+      tester.hitTestAt(centerOfBottomBar, target: find.byKey(bottomBarKey));
+      expect(tester.takeException(), isNull);
+      tester.hitTestAt(centerOfBottomBar, target: find.byKey(bodyKey));
+      expect(tester.takeException(), isNotNull);
     });
   });
 }
