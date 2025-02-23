@@ -270,12 +270,6 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
       );
 
   @override
-  void goBallisticWith(_i7.Simulation? simulation) => super.noSuchMethod(
-        Invocation.method(#goBallisticWith, [simulation]),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   void settleTo(_i2.SheetOffset? offset, Duration? duration) =>
       super.noSuchMethod(
         Invocation.method(#settleTo, [offset, duration]),
@@ -347,7 +341,7 @@ class MockSheetModel extends _i1.Mock implements _i2.SheetModel {
 
   @override
   void didUpdateMetrics() => super.noSuchMethod(
-        Invocation.method(#didUpdateGeometry, []),
+        Invocation.method(#didUpdateMetrics, []),
         returnValueForMissingStub: null,
       );
 
@@ -428,13 +422,6 @@ class MockSheetContext extends _i1.Mock implements _i2.SheetContext {
 /// See the documentation for Mockito's code generation for more information.
 class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
   @override
-  double get devicePixelRatio => (super.noSuchMethod(
-        Invocation.getter(#devicePixelRatio),
-        returnValue: 0.0,
-        returnValueForMissingStub: 0.0,
-      ) as double);
-
-  @override
   double get offset => (super.noSuchMethod(
         Invocation.getter(#offset),
         returnValue: 0.0,
@@ -451,6 +438,13 @@ class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
   @override
   double get maxOffset => (super.noSuchMethod(
         Invocation.getter(#maxOffset),
+        returnValue: 0.0,
+        returnValueForMissingStub: 0.0,
+      ) as double);
+
+  @override
+  double get devicePixelRatio => (super.noSuchMethod(
+        Invocation.getter(#devicePixelRatio),
         returnValue: 0.0,
         returnValueForMissingStub: 0.0,
       ) as double);

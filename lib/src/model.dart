@@ -275,7 +275,7 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
     final simulation =
         physics.createBallisticSimulation(velocity, this, snapGrid);
     if (simulation != null) {
-    beginActivity(BallisticSheetActivity(simulation: simulation));
+      beginActivity(BallisticSheetActivity(simulation: simulation));
     } else {
       goIdle();
     }
