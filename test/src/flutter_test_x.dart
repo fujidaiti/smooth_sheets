@@ -76,7 +76,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
   /// expect(tester.takeException(), isA<FlutterError>());
   /// ```
   @pragma('vm:notify-debugger-on-exception')
-  void hitTest(t.FinderBase<Element> finder, {required Offset location}) {
+  void hitTestAt(t.FinderBase<Element> finder, {required Offset location}) {
     t.TestAsyncUtils.guardSync();
     RenderBox? box;
     try {

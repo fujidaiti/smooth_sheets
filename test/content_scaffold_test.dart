@@ -806,7 +806,7 @@ void main() {
       );
       await tester.pumpWidget(env.testWidget);
 
-      tester.hitTest(find.byKey(bodyKey), location: Offset(100, 100));
+      tester.hitTestAt(find.byKey(bodyKey), location: Offset(100, 100));
       expect(tester.takeException(), isNull);
     });
 
