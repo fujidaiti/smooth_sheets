@@ -1,5 +1,3 @@
-//
-
 import 'package:flutter/material.dart';
 
 import 'flutter_test_x.dart';
@@ -227,5 +225,110 @@ void main() {
       await gesture.moveBy(Offset(-50, 0));
       expect(horizontalDragUpdateDetails?.primaryDelta, -50);
     });
+  });
+
+  group('WidgetTesterX.getLocalRect', () {
+    late Widget testWidget;
+    setUp(() {
+      testWidget = Center(
+        key: Key('root'),
+        child: Container(
+          key: Key('outer'),
+          width: 200,
+          height: 200,
+          color: Colors.blue,
+          child: Center(
+            child: Container(
+              key: Key('intermediate'),
+              width: 100,
+              height: 100,
+              color: Colors.green,
+              child: Center(
+                child: Container(
+                  key: Key('inner'),
+                  width: 50,
+                  height: 50,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+
+    testWidgets(
+      'should return correct local rectangle of the widget '
+      'when no ancestor is specified',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        expect(
+          tester.getLocalRect(find.byKey(Key('outer'))),
+          Rect.fromCenter(center: Offset(400, 300), width: 200, height: 200),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(Key('intermediate'))),
+          Rect.fromCenter(center: Offset(100, 100), width: 100, height: 100),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(Key('inner'))),
+          Rect.fromCenter(center: Offset(50, 50), width: 50, height: 50),
+        );
+      },
+    );
+
+    testWidgets(
+      'should return correct local rectangle of the widget '
+      'with a specified ancestor',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        expect(
+          tester.getLocalRect(
+            find.byKey(Key('inner')),
+            ancestor: find.byKey(Key('intermediate')),
+          ),
+          Rect.fromCenter(center: Offset(50, 50), width: 50, height: 50),
+        );
+        expect(
+          tester.getLocalRect(
+            find.byKey(Key('inner')),
+            ancestor: find.byKey(Key('outer')),
+          ),
+          Rect.fromCenter(center: Offset(100, 100), width: 50, height: 50),
+        );
+        expect(
+          tester.getLocalRect(
+            find.byKey(Key('inner')),
+            ancestor: find.byKey(Key('root')),
+          ),
+          Rect.fromCenter(center: Offset(400, 300), width: 50, height: 50),
+        );
+      },
+    );
+
+    testWidgets(
+      'should throw when widget is not found',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        expect(
+          () => tester.getLocalRect(find.byKey(Key('non-existent'))),
+          throwsFlutterError,
+        );
+      },
+    );
+
+    testWidgets(
+      'should throw when ancestor is not found',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        expect(
+          () => tester.getLocalRect(
+            find.byKey(Key('inner')),
+            ancestor: find.byKey(Key('non-existent')),
+          ),
+          throwsStateError,
+        );
+      },
+    );
   });
 }

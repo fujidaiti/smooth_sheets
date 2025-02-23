@@ -172,4 +172,24 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
     }
     return gesture;
   }
+
+  /// Returns the local rectangle of the widget specified by the [finder].
+  ///
+  /// If [ancestor] is specified, the rectangle is relative to the ancestor.
+  /// Otherwise, the rectangle is relative to the parent of the widget.
+  Rect getLocalRect(
+    t.FinderBase<Element> finder, {
+    t.FinderBase<Element>? ancestor,
+  }) {
+    final globalTopLefet = getTopLeft(finder);
+    final box = renderObject(finder) as RenderBox;
+    if (ancestor case final ancestor?) {
+      final ancestorBox = renderObject(ancestor) as RenderBox;
+      return ancestorBox.globalToLocal(globalTopLefet) & box.size;
+    } else if (box.parent case final RenderBox parentBox?) {
+      return parentBox.globalToLocal(globalTopLefet) & box.size;
+    } else {
+      return Offset.zero & box.size;
+    }
+  }
 }
