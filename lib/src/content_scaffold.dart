@@ -358,18 +358,6 @@ class _RenderScaffoldLayout extends RenderBox
   }
 
   @override
-  Iterable<RenderBox> get children {
-    final topBar = childForSlot(_ScaffoldSlot.topBar);
-    final bottomBar = childForSlot(_ScaffoldSlot.bottomBar);
-    final body = childForSlot(_ScaffoldSlot.body);
-    return [
-      if (topBar != null) topBar,
-      if (bottomBar != null) bottomBar,
-      if (body != null) body,
-    ];
-  }
-
-  @override
   void performLayout() {
     Size layoutChild(_ScaffoldSlot slot, BoxConstraints constraints) {
       return switch (childForSlot(slot)) {
@@ -457,6 +445,28 @@ class _RenderScaffoldLayout extends RenderBox
       height += visibleBottomBarHeight;
     }
     size = Size(constraints.maxWidth, height);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    if (childForSlot(_ScaffoldSlot.body) case final body?) {
+      context.paintChild(
+        body,
+        offset + (body.parentData! as BoxParentData).offset,
+      );
+    }
+    if (childForSlot(_ScaffoldSlot.topBar) case final topBar?) {
+      context.paintChild(
+        topBar,
+        offset + (topBar.parentData! as BoxParentData).offset,
+      );
+    }
+    if (childForSlot(_ScaffoldSlot.bottomBar) case final bottomBar?) {
+      context.paintChild(
+        bottomBar,
+        offset + (bottomBar.parentData! as BoxParentData).offset,
+      );
+    }
   }
 }
 

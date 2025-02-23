@@ -39,8 +39,7 @@ void main() {
       return (testWidget: testWidget);
     }
 
-    testWidgets('Body-only layout with tight box-constraints',
-        (WidgetTester tester) async {
+    testWidgets('Body-only layout with tight box-constraints', (tester) async {
       final scaffoldKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
@@ -58,70 +57,331 @@ void main() {
       );
 
       await tester.pumpWidget(env.testWidget);
-      expect(tester.getSize(find.byKey(scaffoldKey)), equals(testScreenSize));
-      expect(tester.getSize(find.byKey(bodyKey)), equals(testScreenSize));
+      expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+      expect(tester.getSize(find.byKey(bodyKey)), testScreenSize);
     });
 
-    testWidgets('Body-only layout with loose box-constraints',
-        (WidgetTester tester) async {
+    testWidgets('Body-only layout with loose box-constraints', (tester) async {
+      final scaffoldKey = UniqueKey();
       final bodyKey = UniqueKey();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Center(
-            child: IntrinsicWidth(
-              child: IntrinsicHeight(
-                child: SheetContentScaffold(
-                  body: Container(
-                      key: bodyKey,
-                      color: Colors.green,
-                      padding: const EdgeInsets.all(10)),
-                ),
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.loose(testScreenSize),
+            child: SheetContentScaffold(
+              key: scaffoldKey,
+              body: SizedBox(
+                key: bodyKey,
+                height: 200,
               ),
             ),
-          ),
-        ),
+          );
+        },
       );
 
-      // The body should size itself to its intrinsic size.
-      final bodySize = tester.getSize(find.byKey(bodyKey));
-      expect(bodySize.width, greaterThan(0));
-      expect(bodySize.height, greaterThan(0));
+      await tester.pumpWidget(env.testWidget);
+      expect(
+        tester.getSize(find.byKey(scaffoldKey)),
+        Size(testScreenSize.width, 200),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 200),
+      );
     });
+
+    testWidgets(
+      'TopBar-Body layout with tight box-constraints',
+      (tester) async {
+        final scaffoldKey = UniqueKey();
+        final topBarKey = UniqueKey();
+        final bodyKey = UniqueKey();
+        final env = boilerplate(
+          builder: (context) {
+            return ConstrainedBox(
+              constraints: BoxConstraints.tight(testScreenSize),
+              child: SheetContentScaffold(
+                key: scaffoldKey,
+                topBar: Container(
+                  key: topBarKey,
+                  height: 50,
+                ),
+                body: SizedBox.shrink(
+                  key: bodyKey,
+                ),
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+        expect(
+          tester.getLocalRect(
+            find.byKey(topBarKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
+          Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+        );
+        expect(
+          tester.getLocalRect(
+            find.byKey(bodyKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
+          Rect.fromLTWH(
+            0,
+            50,
+            testScreenSize.width,
+            testScreenSize.height - 50,
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      'TopBar-Body layout with loose box-constraints',
+      (tester) async {
+        final scaffoldKey = UniqueKey();
+        final topBarKey = UniqueKey();
+        final bodyKey = UniqueKey();
+        final env = boilerplate(
+          builder: (context) {
+            return SheetContentScaffold(
+              key: scaffoldKey,
+              topBar: Container(
+                key: topBarKey,
+                height: 50,
+              ),
+              body: Container(
+                key: bodyKey,
+                height: 200,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(scaffoldKey)),
+          Size(testScreenSize.width, 250),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(topBarKey)),
+          Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(bodyKey)),
+          Rect.fromLTWH(0, 50, testScreenSize.width, 200),
+        );
+      },
+    );
+
+    testWidgets(
+      'Body-BottomBar layout with tight box-constraints',
+      (tester) async {
+        final scaffoldKey = UniqueKey();
+        final bottomBarKey = UniqueKey();
+        final bodyKey = UniqueKey();
+        final env = boilerplate(
+          builder: (context) {
+            return SheetContentScaffold(
+              key: scaffoldKey,
+              bottomBar: Container(
+                key: bottomBarKey,
+                height: 50,
+              ),
+              body: SizedBox.shrink(
+                key: bodyKey,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+        expect(
+          tester.getLocalRect(find.byKey(bodyKey)),
+          Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 50),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(bottomBarKey)),
+          Rect.fromLTWH(
+            0,
+            testScreenSize.height - 50,
+            testScreenSize.width,
+            50,
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      'Body-BottomBar layout with loose box-constraints',
+      (tester) async {
+        final scaffoldKey = UniqueKey();
+        final bottomBarKey = UniqueKey();
+        final bodyKey = UniqueKey();
+        final env = boilerplate(
+          builder: (context) {
+            return SheetContentScaffold(
+              key: scaffoldKey,
+              bottomBar: Container(
+                key: bottomBarKey,
+                height: 50,
+              ),
+              body: Container(
+                key: bodyKey,
+                height: 200,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(scaffoldKey)),
+          Size(testScreenSize.width, 250),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(bottomBarKey)),
+          Rect.fromLTWH(0, 200, testScreenSize.width, 50),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(bodyKey)),
+          Rect.fromLTWH(0, 0, testScreenSize.width, 200),
+        );
+      },
+    );
+
+    testWidgets(
+      'TopBar-Body-BottomBar layout with tight box-constraints',
+      (tester) async {
+        final scaffoldKey = UniqueKey();
+        final topBarKey = UniqueKey();
+        final bottomBarKey = UniqueKey();
+        final bodyKey = UniqueKey();
+        final env = boilerplate(
+          builder: (context) {
+            return SheetContentScaffold(
+              key: scaffoldKey,
+              topBar: Container(
+                key: topBarKey,
+                height: 50,
+              ),
+              bottomBar: Container(
+                key: bottomBarKey,
+                height: 50,
+              ),
+              body: Container(
+                key: bodyKey,
+                height: 200,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(scaffoldKey)),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(topBarKey)),
+          Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(bottomBarKey)),
+          Rect.fromLTWH(0, 250, testScreenSize.width, 50),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(bodyKey)),
+          Rect.fromLTWH(0, 50, testScreenSize.width, 200),
+        );
+      },
+    );
+
+    testWidgets(
+      'TopBar-Body-BottomBar layout with loose box-constraints',
+      (tester) async {
+        final scaffoldKey = UniqueKey();
+        final topBarKey = UniqueKey();
+        final bottomBarKey = UniqueKey();
+        final bodyKey = UniqueKey();
+        final env = boilerplate(
+          builder: (context) {
+            return SheetContentScaffold(
+              key: scaffoldKey,
+              topBar: Container(
+                key: topBarKey,
+                height: 50,
+              ),
+              bottomBar: Container(
+                key: bottomBarKey,
+                height: 50,
+              ),
+              body: Container(
+                key: bodyKey,
+                height: 200,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(scaffoldKey)),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(topBarKey)),
+          Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(bottomBarKey)),
+          Rect.fromLTWH(0, 250, testScreenSize.width, 50),
+        );
+        expect(
+          tester.getLocalRect(find.byKey(bodyKey)),
+          Rect.fromLTWH(0, 50, testScreenSize.width, 200),
+        );
+      },
+    );
 
     testWidgets('Extends body behind top bar', (WidgetTester tester) async {
       final topBarKey = UniqueKey();
       final bodyKey = UniqueKey();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
-            extendBodyBehindTopBar: true,
-            topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
-            body: Container(key: bodyKey, color: Colors.green, height: 200),
-          ),
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          extendBodyBehindTopBar: true,
+          topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
+          body: Container(key: bodyKey, color: Colors.green, height: 200),
         ),
       );
+
+      await tester.pumpWidget(env.testWidget);
       final bodyTop = tester.getTopLeft(find.byKey(bodyKey)).dy;
-      // With extendBodyBehindTopBar true, the body should start at the very top.
       expect(bodyTop, equals(0.0));
     });
 
     testWidgets('Extends body behind bottom bar', (WidgetTester tester) async {
       final bottomBarKey = UniqueKey();
       final bodyKey = UniqueKey();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
-            extendBodyBehindBottomBar: true,
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.red),
-            body: Container(key: bodyKey, color: Colors.green, height: 200),
-          ),
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          extendBodyBehindBottomBar: true,
+          bottomBar:
+              Container(key: bottomBarKey, height: 50, color: Colors.red),
+          body: Container(key: bodyKey, color: Colors.green, height: 200),
         ),
       );
+
+      await tester.pumpWidget(env.testWidget);
       final bodyBottom = tester.getBottomLeft(find.byKey(bodyKey)).dy;
       final scaffoldHeight =
           tester.getSize(find.byType(SheetContentScaffold)).height;
-      // With extendBodyBehindBottomBar true, the body should reach the scaffold's bottom edge.
       expect(bodyBottom, equals(scaffoldHeight));
     });
 
@@ -130,18 +390,18 @@ void main() {
       final topBarKey = UniqueKey();
       final bottomBarKey = UniqueKey();
       final bodyKey = UniqueKey();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
-            extendBodyBehindTopBar: true,
-            extendBodyBehindBottomBar: true,
-            topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.red),
-            body: Container(key: bodyKey, color: Colors.green, height: 300),
-          ),
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          extendBodyBehindTopBar: true,
+          extendBodyBehindBottomBar: true,
+          topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
+          bottomBar:
+              Container(key: bottomBarKey, height: 50, color: Colors.red),
+          body: Container(key: bodyKey, color: Colors.green, height: 300),
         ),
       );
+
+      await tester.pumpWidget(env.testWidget);
       final scaffoldHeight =
           tester.getSize(find.byType(SheetContentScaffold)).height;
       final bodyTop = tester.getTopLeft(find.byKey(bodyKey)).dy;
@@ -153,18 +413,18 @@ void main() {
     testWidgets('When top bar has a preferred size',
         (WidgetTester tester) async {
       final topBarKey = UniqueKey();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
-            topBar: PreferredSize(
-              key: topBarKey,
-              preferredSize: const Size.fromHeight(60),
-              child: Container(color: Colors.blue),
-            ),
-            body: Container(color: Colors.green, height: 200),
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          topBar: PreferredSize(
+            key: topBarKey,
+            preferredSize: const Size.fromHeight(60),
+            child: Container(color: Colors.blue),
           ),
+          body: Container(color: Colors.green, height: 200),
         ),
       );
+
+      await tester.pumpWidget(env.testWidget);
       final topBarSize = tester.getSize(find.byKey(topBarKey));
       expect(topBarSize.height, equals(60));
     });
@@ -172,18 +432,18 @@ void main() {
     testWidgets('When bottom bar has a preferred size',
         (WidgetTester tester) async {
       final bottomBarKey = UniqueKey();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
-            bottomBar: PreferredSize(
-              key: bottomBarKey,
-              preferredSize: const Size.fromHeight(60),
-              child: Container(color: Colors.red),
-            ),
-            body: Container(color: Colors.green, height: 200),
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          bottomBar: PreferredSize(
+            key: bottomBarKey,
+            preferredSize: const Size.fromHeight(60),
+            child: Container(color: Colors.red),
           ),
+          body: Container(color: Colors.green, height: 200),
         ),
       );
+
+      await tester.pumpWidget(env.testWidget);
       final bottomBarSize = tester.getSize(find.byKey(bottomBarKey));
       expect(bottomBarSize.height, equals(60));
     });
@@ -191,15 +451,14 @@ void main() {
     testWidgets('Background color fills entire area',
         (WidgetTester tester) async {
       const bgColor = Colors.purple;
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
-            backgroundColor: bgColor,
-            body: Container(color: Colors.transparent, height: 200),
-          ),
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          backgroundColor: bgColor,
+          body: Container(color: Colors.transparent, height: 200),
         ),
       );
-      // Look for a DecoratedBox (or similar) that applies the background color.
+
+      await tester.pumpWidget(env.testWidget);
       final finder = find.byWidgetPredicate(
         (widget) =>
             widget is DecoratedBox &&
@@ -211,14 +470,16 @@ void main() {
     testWidgets('Applies background color from theme when not explicitly set',
         (WidgetTester tester) async {
       const themeBgColor = Colors.orange;
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: ThemeData(scaffoldBackgroundColor: themeBgColor),
-          home: SheetContentScaffold(
+      final env = boilerplate(
+        builder: (context) => Theme(
+          data: ThemeData(scaffoldBackgroundColor: themeBgColor),
+          child: SheetContentScaffold(
             body: Container(color: Colors.transparent, height: 200),
           ),
         ),
       );
+
+      await tester.pumpWidget(env.testWidget);
       final finder = find.byWidgetPredicate(
         (widget) =>
             widget is DecoratedBox &&
@@ -231,26 +492,21 @@ void main() {
         (WidgetTester tester) async {
       final topBarKey = UniqueKey();
       final bottomBarKey = UniqueKey();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
-            topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.red),
-            body: Builder(
-              builder: (context) {
-                // Use this builder to guarantee that context is that of the body.
-                final padding = MediaQuery.of(context).padding;
-                // For testing purposes, we are not asserting the exact values,
-                // but you could print or otherwise examine padding if your
-                // implementation propagates padding correctly.
-                return Container(color: Colors.green);
-              },
-            ),
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
+          bottomBar:
+              Container(key: bottomBarKey, height: 50, color: Colors.red),
+          body: Builder(
+            builder: (context) {
+              final padding = MediaQuery.of(context).padding;
+              return Container(color: Colors.green);
+            },
           ),
         ),
       );
+
+      await tester.pumpWidget(env.testWidget);
       expect(find.byKey(topBarKey), findsOneWidget);
       expect(find.byKey(bottomBarKey), findsOneWidget);
     });
@@ -263,16 +519,14 @@ void main() {
       final bottomBarKey = UniqueKey();
       // Initially simulate no keyboard.
       await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-            child: SheetContentScaffold(
-              bottomBar:
-                  Container(key: bottomBarKey, height: 50, color: Colors.blue),
-              bottomBarVisibility:
-                  const BottomBarVisibility.natural(ignoreBottomInset: false),
-              body: Container(color: Colors.green, height: 200),
-            ),
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
+            bottomBar:
+                Container(key: bottomBarKey, height: 50, color: Colors.blue),
+            bottomBarVisibility:
+                const BottomBarVisibility.natural(ignoreBottomInset: false),
+            body: Container(color: Colors.green, height: 200),
           ),
         ),
       );
@@ -281,17 +535,14 @@ void main() {
 
       // Now simulate keyboard appearance by providing a bottom inset.
       await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data:
-                const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
-            child: SheetContentScaffold(
-              bottomBar:
-                  Container(key: bottomBarKey, height: 50, color: Colors.blue),
-              bottomBarVisibility:
-                  const BottomBarVisibility.natural(ignoreBottomInset: false),
-              body: Container(color: Colors.green, height: 200),
-            ),
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
+          child: SheetContentScaffold(
+            bottomBar:
+                Container(key: bottomBarKey, height: 50, color: Colors.blue),
+            bottomBarVisibility:
+                const BottomBarVisibility.natural(ignoreBottomInset: false),
+            body: Container(color: Colors.green, height: 200),
           ),
         ),
       );
@@ -306,16 +557,14 @@ void main() {
       final bottomBarKey = UniqueKey();
       // Start with no keyboard.
       await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-            child: SheetContentScaffold(
-              bottomBar:
-                  Container(key: bottomBarKey, height: 50, color: Colors.blue),
-              bottomBarVisibility:
-                  const BottomBarVisibility.natural(ignoreBottomInset: true),
-              body: Container(color: Colors.green, height: 200),
-            ),
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
+            bottomBar:
+                Container(key: bottomBarKey, height: 50, color: Colors.blue),
+            bottomBarVisibility:
+                const BottomBarVisibility.natural(ignoreBottomInset: true),
+            body: Container(color: Colors.green, height: 200),
           ),
         ),
       );
@@ -324,17 +573,14 @@ void main() {
 
       // Simulate keyboard appearance.
       await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data:
-                const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
-            child: SheetContentScaffold(
-              bottomBar:
-                  Container(key: bottomBarKey, height: 50, color: Colors.blue),
-              bottomBarVisibility:
-                  const BottomBarVisibility.natural(ignoreBottomInset: true),
-              body: Container(color: Colors.green, height: 200),
-            ),
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
+          child: SheetContentScaffold(
+            bottomBar:
+                Container(key: bottomBarKey, height: 50, color: Colors.blue),
+            bottomBarVisibility:
+                const BottomBarVisibility.natural(ignoreBottomInset: true),
+            body: Container(color: Colors.green, height: 200),
           ),
         ),
       );
@@ -350,8 +596,9 @@ void main() {
         (WidgetTester tester) async {
       final bottomBarKey = UniqueKey();
       await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
             bottomBar:
                 Container(key: bottomBarKey, height: 50, color: Colors.blue),
             bottomBarVisibility: const BottomBarVisibility.always(),
@@ -369,17 +616,14 @@ void main() {
       final bottomBarKey = UniqueKey();
       // When ignoreBottomInset is false.
       await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data:
-                const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
-            child: SheetContentScaffold(
-              bottomBar:
-                  Container(key: bottomBarKey, height: 50, color: Colors.blue),
-              bottomBarVisibility:
-                  const BottomBarVisibility.always(ignoreBottomInset: false),
-              body: Container(color: Colors.green, height: 200),
-            ),
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
+          child: SheetContentScaffold(
+            bottomBar:
+                Container(key: bottomBarKey, height: 50, color: Colors.blue),
+            bottomBarVisibility:
+                const BottomBarVisibility.always(ignoreBottomInset: false),
+            body: Container(color: Colors.green, height: 200),
           ),
         ),
       );
@@ -389,17 +633,14 @@ void main() {
 
       // Now with ignoreBottomInset true.
       await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data:
-                const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
-            child: SheetContentScaffold(
-              bottomBar:
-                  Container(key: bottomBarKey, height: 50, color: Colors.blue),
-              bottomBarVisibility:
-                  const BottomBarVisibility.always(ignoreBottomInset: true),
-              body: Container(color: Colors.green, height: 200),
-            ),
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
+          child: SheetContentScaffold(
+            bottomBar:
+                Container(key: bottomBarKey, height: 50, color: Colors.blue),
+            bottomBarVisibility:
+                const BottomBarVisibility.always(ignoreBottomInset: true),
+            body: Container(color: Colors.green, height: 200),
           ),
         ),
       );
@@ -418,8 +659,9 @@ void main() {
           vsync: tickerProvider, duration: const Duration(milliseconds: 200));
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
             bottomBar:
                 Container(key: bottomBarKey, height: 50, color: Colors.blue),
             bottomBarVisibility: BottomBarVisibility.controlled(
@@ -453,23 +695,18 @@ void main() {
       bool showBottomBar = false;
 
       Widget buildTestWidget() {
-        return MaterialApp(
-          home: StatefulBuilder(
-            builder: (context, setState) {
-              return SheetContentScaffold(
-                bottomBar: showBottomBar
-                    ? Container(
-                        key: bottomBarKey, height: 50, color: Colors.blue)
-                    : Container(
-                        key: bottomBarKey, height: 0, color: Colors.blue),
-                bottomBarVisibility: BottomBarVisibility.conditional(
-                  isVisible: (metrics) => showBottomBar,
-                  duration: const Duration(milliseconds: 100),
-                  curve: Curves.linear,
-                ),
-                body: Container(color: Colors.green, height: 200),
-              );
-            },
+        return MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
+            bottomBar: showBottomBar
+                ? Container(key: bottomBarKey, height: 50, color: Colors.blue)
+                : Container(key: bottomBarKey, height: 0, color: Colors.blue),
+            bottomBarVisibility: BottomBarVisibility.conditional(
+              isVisible: (metrics) => showBottomBar,
+              duration: const Duration(milliseconds: 100),
+              curve: Curves.linear,
+            ),
+            body: Container(color: Colors.green, height: 200),
           ),
         );
       }
@@ -501,8 +738,9 @@ void main() {
       final bodyKey = UniqueKey();
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
             body: GestureDetector(
               key: bodyKey,
               onTap: () => bodyTapped = true,
@@ -522,8 +760,9 @@ void main() {
       final topBarKey = UniqueKey();
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
             topBar: GestureDetector(
               key: topBarKey,
               onTap: () => topBarTapped = true,
@@ -544,8 +783,9 @@ void main() {
       final bottomBarKey = UniqueKey();
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
             bottomBar: GestureDetector(
               key: bottomBarKey,
               onTap: () => bottomBarTapped = true,
@@ -568,8 +808,9 @@ void main() {
       final bottomBarKey = UniqueKey();
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: SheetContentScaffold(
+        MediaQuery(
+          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+          child: SheetContentScaffold(
             topBar: GestureDetector(
               key: topBarKey,
               onTap: () => topBarTapped = true,
