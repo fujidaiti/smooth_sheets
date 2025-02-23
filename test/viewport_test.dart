@@ -706,57 +706,57 @@ void main() {
         expect(tester.getRect(find.byKey(child)), expectedChildRect);
 
         final topLeft = expectedChildRect.topLeft;
-        tester.hitTestAt(find.byKey(child), location: topLeft);
+        tester.hitTestAt(topLeft, target: find.byKey(child));
         expect(tester.takeException(), isNull);
-        tester.hitTestAt(find.byKey(background), location: topLeft);
+        tester.hitTestAt(topLeft, target: find.byKey(background));
         expect(tester.takeException(), isA<FlutterError>());
 
         final topRight = expectedChildRect.topRight + Offset(-1, 0);
-        tester.hitTestAt(find.byKey(child), location: topRight);
+        tester.hitTestAt(topRight, target: find.byKey(child));
         expect(tester.takeException(), isNull);
-        tester.hitTestAt(find.byKey(background), location: topRight);
+        tester.hitTestAt(topRight, target: find.byKey(background));
         expect(tester.takeException(), isA<FlutterError>());
 
         final bottomLeft = expectedChildRect.bottomLeft + Offset(0, -1);
-        tester.hitTestAt(find.byKey(child), location: bottomLeft);
+        tester.hitTestAt(bottomLeft, target: find.byKey(child));
         expect(tester.takeException(), isNull);
-        tester.hitTestAt(find.byKey(background), location: bottomLeft);
+        tester.hitTestAt(bottomLeft, target: find.byKey(background));
         expect(tester.takeException(), isA<FlutterError>());
 
         final bottomRight = expectedChildRect.bottomRight + Offset(-1, -1);
-        tester.hitTestAt(find.byKey(child), location: bottomRight);
+        tester.hitTestAt(bottomRight, target: find.byKey(child));
         expect(tester.takeException(), isNull);
-        tester.hitTestAt(find.byKey(background), location: bottomRight);
+        tester.hitTestAt(bottomRight, target: find.byKey(background));
         expect(tester.takeException(), isA<FlutterError>());
 
         final center = expectedChildRect.center;
-        tester.hitTestAt(find.byKey(child), location: center);
+        tester.hitTestAt(center, target: find.byKey(child));
         expect(tester.takeException(), isNull);
-        tester.hitTestAt(find.byKey(background), location: center);
+        tester.hitTestAt(center, target: find.byKey(background));
         expect(tester.takeException(), isA<FlutterError>());
 
         final outOfTopLeft = expectedChildRect.topLeft + Offset(-1, -1);
-        tester.hitTestAt(find.byKey(child), location: outOfTopLeft);
+        tester.hitTestAt(outOfTopLeft, target: find.byKey(child));
         expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTestAt(find.byKey(background), location: outOfTopLeft);
+        tester.hitTestAt(outOfTopLeft, target: find.byKey(background));
         expect(tester.takeException(), isNull);
 
         final outOfTopRight = expectedChildRect.topRight + Offset(1, -1);
-        tester.hitTestAt(find.byKey(child), location: outOfTopRight);
+        tester.hitTestAt(outOfTopRight, target: find.byKey(child));
         expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTestAt(find.byKey(background), location: outOfTopRight);
+        tester.hitTestAt(outOfTopRight, target: find.byKey(background));
         expect(tester.takeException(), isNull);
 
         final outOfBottomLeft = expectedChildRect.bottomLeft + Offset(-1, 1);
-        tester.hitTestAt(find.byKey(child), location: outOfBottomLeft);
+        tester.hitTestAt(outOfBottomLeft, target: find.byKey(child));
         expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTestAt(find.byKey(background), location: outOfBottomLeft);
+        tester.hitTestAt(outOfBottomLeft, target: find.byKey(background));
         expect(tester.takeException(), isNull);
 
         final outOfBottomRight = expectedChildRect.bottomRight + Offset(1, 1);
-        tester.hitTestAt(find.byKey(child), location: outOfBottomRight);
+        tester.hitTestAt(outOfBottomRight, target: find.byKey(child));
         expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTestAt(find.byKey(background), location: outOfBottomRight);
+        tester.hitTestAt(outOfBottomRight, target: find.byKey(background));
         expect(tester.takeException(), isNull);
       },
     );

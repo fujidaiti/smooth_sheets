@@ -74,19 +74,19 @@ void main() {
       (tester) async {
         await tester.pumpWidget(testWidget);
         // Top-left corner
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(100, 100));
+        tester.hitTestAt(Offset(100, 100), target: find.byKey(Key('red')));
         expect(tester.takeException(), isNull);
         // Top-right corner
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(299, 100));
+        tester.hitTestAt(Offset(299, 100), target: find.byKey(Key('red')));
         expect(tester.takeException(), isNull);
         // Bottom-left corner
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(100, 299));
+        tester.hitTestAt(Offset(100, 299), target: find.byKey(Key('red')));
         expect(tester.takeException(), isNull);
         // Bottom-right corner
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(299, 299));
+        tester.hitTestAt(Offset(299, 299), target: find.byKey(Key('red')));
         expect(tester.takeException(), isNull);
         // Center
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(200, 200));
+        tester.hitTestAt(Offset(200, 200), target: find.byKey(Key('red')));
         expect(tester.takeException(), isNull);
       },
     );
@@ -97,16 +97,16 @@ void main() {
       (tester) async {
         await tester.pumpWidget(testWidget);
         // Top-left corner
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(99, 99));
+        tester.hitTestAt(Offset(99, 99), target: find.byKey(Key('red')));
         expect(tester.takeException(), isA<FlutterError>());
         // Top-right corner
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(300, 100));
+        tester.hitTestAt(Offset(300, 100), target: find.byKey(Key('red')));
         expect(tester.takeException(), isA<FlutterError>());
         // Bottom-left corner
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(100, 300));
+        tester.hitTestAt(Offset(100, 300), target: find.byKey(Key('red')));
         expect(tester.takeException(), isA<FlutterError>());
         // Bottom-right corner
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(300, 300));
+        tester.hitTestAt(Offset(300, 300), target: find.byKey(Key('red')));
         expect(tester.takeException(), isA<FlutterError>());
       },
     );
@@ -116,9 +116,9 @@ void main() {
       'cannot receive pointer events because another widget is obscuring it',
       (tester) async {
         await tester.pumpWidget(testWidget);
-        tester.hitTestAt(find.byKey(Key('blue')), location: Offset(150, 150));
+        tester.hitTestAt(Offset(150, 150), target: find.byKey(Key('blue')));
         expect(tester.takeException(), isA<FlutterError>());
-        tester.hitTestAt(find.byKey(Key('red')), location: Offset(150, 150));
+        tester.hitTestAt(Offset(150, 150), target: find.byKey(Key('red')));
         expect(tester.takeException(), isNull);
       },
     );

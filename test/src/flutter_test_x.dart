@@ -61,26 +61,26 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
   }
 
   /// performs hit test at the given [location] and throws an error if the
-  /// widget specified by the [finder] would not receive pointer events at that
+  /// widget specified by the [target] would not receive pointer events at that
   /// location.
   ///
   /// The error thrown can be obtained from [takeException] for further
-  /// verification. For example, the following test verifies that a [Container]
+  /// verification. For example, the following tests verify that a [Container]
   /// can receive pointer events at `(100, 100)` but not at `(10, 10)`:
   ///
   /// ```dart
-  /// await tester.hitTest(find.byType(Container), location: Offset(100, 100));
+  /// await tester.hitTestAt(Offset(100, 100), target: find.byType(Container));
   /// expect(tester.takeException(), isNull);
   ///
-  /// await tester.hitTest(find.byType(Container), location: Offset(10, 10));
+  /// await tester.hitTestAt(Offset(10, 10), target: find.byType(Container));
   /// expect(tester.takeException(), isA<FlutterError>());
   /// ```
   @pragma('vm:notify-debugger-on-exception')
-  void hitTestAt(t.FinderBase<Element> finder, {required Offset location}) {
+  void hitTestAt(Offset location, {required t.FinderBase<Element> target}) {
     t.TestAsyncUtils.guardSync();
     RenderBox? box;
     try {
-      box = renderObject(finder) as RenderBox;
+      box = renderObject(target) as RenderBox;
       // ignore: avoid_catching_errors
     } on FlutterError catch (error, stackTrace) {
       FlutterError.reportError(
@@ -96,7 +96,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
     }
 
     final viewFinder =
-        t.find.ancestor(of: finder, matching: t.find.byType(View));
+        t.find.ancestor(of: target, matching: t.find.byType(View));
     final view = firstWidget<View>(viewFinder).view;
     final result = HitTestResult();
     binding.hitTestInView(result, location, view.viewId);
@@ -119,7 +119,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
               'would not receive pointer events.',
             ),
             ErrorDescription(
-              'The widget specified by the finder "$finder" would not '
+              'The widget specified by the finder "$target" would not '
               'receive pointer events at the given location "$location".',
             ),
             ErrorHint(
