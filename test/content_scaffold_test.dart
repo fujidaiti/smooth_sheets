@@ -169,11 +169,17 @@ void main() {
           Size(testScreenSize.width, 250),
         );
         expect(
-          tester.getLocalRect(find.byKey(topBarKey)),
+          tester.getLocalRect(
+            find.byKey(topBarKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 0, testScreenSize.width, 50),
         );
         expect(
-          tester.getLocalRect(find.byKey(bodyKey)),
+          tester.getLocalRect(
+            find.byKey(bodyKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 50, testScreenSize.width, 200),
         );
       },
@@ -203,11 +209,17 @@ void main() {
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
         expect(
-          tester.getLocalRect(find.byKey(bodyKey)),
+          tester.getLocalRect(
+            find.byKey(bodyKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 50),
         );
         expect(
-          tester.getLocalRect(find.byKey(bottomBarKey)),
+          tester.getLocalRect(
+            find.byKey(bottomBarKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(
             0,
             testScreenSize.height - 50,
@@ -246,11 +258,17 @@ void main() {
           Size(testScreenSize.width, 250),
         );
         expect(
-          tester.getLocalRect(find.byKey(bottomBarKey)),
+          tester.getLocalRect(
+            find.byKey(bottomBarKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 200, testScreenSize.width, 50),
         );
         expect(
-          tester.getLocalRect(find.byKey(bodyKey)),
+          tester.getLocalRect(
+            find.byKey(bodyKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 0, testScreenSize.width, 200),
         );
       },
@@ -289,15 +307,24 @@ void main() {
           Size(testScreenSize.width, 300),
         );
         expect(
-          tester.getLocalRect(find.byKey(topBarKey)),
+          tester.getLocalRect(
+            find.byKey(topBarKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 0, testScreenSize.width, 50),
         );
         expect(
-          tester.getLocalRect(find.byKey(bottomBarKey)),
+          tester.getLocalRect(
+            find.byKey(bottomBarKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 250, testScreenSize.width, 50),
         );
         expect(
-          tester.getLocalRect(find.byKey(bodyKey)),
+          tester.getLocalRect(
+            find.byKey(bodyKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 50, testScreenSize.width, 200),
         );
       },
@@ -336,15 +363,24 @@ void main() {
           Size(testScreenSize.width, 300),
         );
         expect(
-          tester.getLocalRect(find.byKey(topBarKey)),
+          tester.getLocalRect(
+            find.byKey(topBarKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 0, testScreenSize.width, 50),
         );
         expect(
-          tester.getLocalRect(find.byKey(bottomBarKey)),
+          tester.getLocalRect(
+            find.byKey(bottomBarKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 250, testScreenSize.width, 50),
         );
         expect(
-          tester.getLocalRect(find.byKey(bodyKey)),
+          tester.getLocalRect(
+            find.byKey(bodyKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
           Rect.fromLTWH(0, 50, testScreenSize.width, 200),
         );
       },
