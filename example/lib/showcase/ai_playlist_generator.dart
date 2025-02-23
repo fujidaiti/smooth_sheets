@@ -647,7 +647,7 @@ class _BottomActionBar extends StatelessWidget {
     // Insert bottom padding only if there's no system viewport bottom inset.
     final systemBottomInset = MediaQuery.of(context).padding.bottom;
 
-    return StickyBottomBarVisibility(
+    return _AlwaysVisibleBottomBarVisibilityWidget(
       child: ColoredBox(
         color: Theme.of(context).colorScheme.surface,
         child: SafeArea(

@@ -41,7 +41,7 @@ class _ExampleSheet extends StatelessWidget {
       // of the bottom bar based on the sheet's position.
       // For example, the following configuration keeps the bottom bar visible
       // as long as the keyboard is closed and at least 50% of the sheet is visible.
-      bottomBar: ConditionalStickyBottomBarVisibility(
+      bottomBar: _ConditionalBottomBarVisibilityWidget(
         // This callback is called whenever the sheet's metrics changes.
         getIsVisible: (metrics) {
           return metrics.baseline.bottom == 0 &&

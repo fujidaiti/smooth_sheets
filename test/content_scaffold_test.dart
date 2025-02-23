@@ -519,27 +519,28 @@ void main() {
       );
     });
 
-    testWidgets('Updates MediaQuery padding based on presence of bars',
+    testWidgets(
+        'Exposes heights of top and bottom bars as MediaQueryData.padding',
         (tester) async {
       final topBarKey = UniqueKey();
       final bottomBarKey = UniqueKey();
+      late EdgeInsets inheritedPadding;
       final env = boilerplate(
         builder: (context) => SheetContentScaffold(
           topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
           bottomBar:
-              Container(key: bottomBarKey, height: 50, color: Colors.red),
+              Container(key: bottomBarKey, height: 60, color: Colors.red),
           body: Builder(
             builder: (context) {
-              final padding = MediaQuery.of(context).padding;
-              return Container(color: Colors.green);
+              inheritedPadding = MediaQuery.of(context).padding;
+              return SizedBox.expand();
             },
           ),
         ),
       );
 
       await tester.pumpWidget(env.testWidget);
-      expect(find.byKey(topBarKey), findsOneWidget);
-      expect(find.byKey(bottomBarKey), findsOneWidget);
+      expect(inheritedPadding, EdgeInsets.only(top: 50, bottom: 60));
     });
   });
 

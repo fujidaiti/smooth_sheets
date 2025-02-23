@@ -220,14 +220,15 @@ class SheetContentScaffold extends StatelessWidget {
       }
       effectiveBottomBar = switch (bottomBarVisibility) {
         _NaturalBottomBarVisibility() => effectiveBottomBar,
-        _AlwaysVisibleBottomBarVisibility() => effectiveBottomBar,
+        _AlwaysVisibleBottomBarVisibility() =>
+          _AlwaysVisibleBottomBarVisibilityWidget(child: effectiveBottomBar),
         final _ControlledBottomBarVisibility visibility =>
-          AnimatedBottomBarVisibility(
+          _ControlledBottomBarVisibilityWidget(
             visibility: visibility.animation,
             child: effectiveBottomBar,
           ),
         final _ConditionalBottomBarVisibility visibility =>
-          ConditionalStickyBottomBarVisibility(
+          _ConditionalBottomBarVisibilityWidget(
             getIsVisible: visibility.isVisible,
             duration: visibility.duration,
             curve: visibility.curve,
@@ -470,13 +471,12 @@ class _RenderScaffoldLayout extends RenderBox
     bool hitTestChild(_ScaffoldSlot slot) {
       if (childForSlot(slot) case final child?) {
         final parentData = child.parentData! as BoxParentData;
-        final isHit = result.addWithPaintOffset(
+        return result.addWithPaintOffset(
           offset: parentData.offset,
           position: position,
           hitTest: (result, transformed) =>
               child.hitTest(result, position: transformed),
         );
-        return isHit;
       }
       return false;
     }
@@ -581,68 +581,12 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
   double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize);
 }
 
-/// A widget that places the [child] at the bottom of the enclosing sheet.
-///
-/// Intended to be used as the [SheetContentScaffold.bottomBar].
-///
-/// The following example shows the [FixedBottomBarVisibility],
-/// which keeps the enclosed [BottomAppBar] always at the bottom
-/// of the sheet.
-///
-/// ```dart
-/// final scaffold = SheetContentScaffold(
-///   body: SizedBox.expand(),
-///   bottomBar: FixedBottomBarVisibility(
-///     child: BottomAppBar(),
-///   ),
-/// );
-/// ```
-class FixedBottomBarVisibility extends SingleChildRenderObjectWidget {
-  /// Creates a widget that places the [child] always at the bottom
-  /// of the sheet.
-  const FixedBottomBarVisibility({
-    super.key,
-    required super.child,
-  });
-
-  @override
-  RenderObject createRenderObject(BuildContext context) {
-    return _RenderFixedBottomBarVisibility(
-      model: SheetViewportState.of(context)!.model,
-    );
-  }
-
-  @override
-  void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    super.updateRenderObject(context, renderObject);
-    (renderObject as _RenderFixedBottomBarVisibility).model =
-        SheetViewportState.of(context)!.model;
-  }
-}
-
-class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
-  _RenderFixedBottomBarVisibility({
-    required super.model,
-  });
-
-  @override
-  double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize) {
-    final invisibleSheetHeight =
-        (sheetMetrics.measurements.contentExtent - sheetMetrics.offset)
-            .clamp(0.0, sheetMetrics.measurements.contentExtent);
-
-    final visibleBarHeight =
-        max(0.0, bottomBarSize.height - invisibleSheetHeight);
-    return (visibleBarHeight / bottomBarSize.height).clamp(0, 1);
-  }
-}
-
 /// A widget that keeps the [child] always visible regardless of
 /// the sheet position.
 ///
 /// Intended to be used as the [SheetContentScaffold.bottomBar].
 ///
-/// The following example shows the [StickyBottomBarVisibility],
+/// The following example shows the [_AlwaysVisibleBottomBarVisibilityWidget],
 /// which keeps the enclosed [BottomAppBar] always visible regardless
 /// of the sheet position. You may want to use the
 /// [ResizeScaffoldBehavior.avoidBottomInset] with setting `maintainBottomBar`
@@ -662,17 +606,17 @@ class _RenderFixedBottomBarVisibility extends _RenderBottomBarVisibility {
 /// );
 /// ```
 /// {@endtemplate}
-class StickyBottomBarVisibility extends SingleChildRenderObjectWidget {
+class _AlwaysVisibleBottomBarVisibilityWidget
+    extends SingleChildRenderObjectWidget {
   /// Creates a widget that keeps the [child] always visible
   /// regardless of the sheet position.
-  const StickyBottomBarVisibility({
-    super.key,
+  const _AlwaysVisibleBottomBarVisibilityWidget({
     required super.child,
   });
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderStickyBottomBarVisibility(
+    return _RenderAlwaysVisibleBottomBarVisibility(
       model: SheetViewportState.of(context)!.model,
     );
   }
@@ -680,13 +624,14 @@ class StickyBottomBarVisibility extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
-    (renderObject as _RenderStickyBottomBarVisibility).model =
+    (renderObject as _RenderAlwaysVisibleBottomBarVisibility).model =
         SheetViewportState.of(context)!.model;
   }
 }
 
-class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
-  _RenderStickyBottomBarVisibility({
+class _RenderAlwaysVisibleBottomBarVisibility
+    extends _RenderBottomBarVisibility {
+  _RenderAlwaysVisibleBottomBarVisibility({
     required super.model,
   });
 
@@ -699,13 +644,13 @@ class _RenderStickyBottomBarVisibility extends _RenderBottomBarVisibility {
 /// A widget that animates the visibility of the [child].
 ///
 /// Intended to be used as the [SheetContentScaffold.bottomBar].
-class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget {
+class _ControlledBottomBarVisibilityWidget
+    extends SingleChildRenderObjectWidget {
   /// Creates a widget that animates the visibility of the [child].
   ///
   /// The [visibility] animation must be between 0 and 1, where 0 means
   /// the [child] is completely invisible and 1 means it's completely visible.
-  const AnimatedBottomBarVisibility({
-    super.key,
+  const _ControlledBottomBarVisibilityWidget({
     required this.visibility,
     required super.child,
   });
@@ -715,7 +660,7 @@ class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderAnimatedBottomBarVisibility(
+    return _RenderControlledBottomBarVisibility(
       model: SheetViewportState.of(context)!.model,
       visibility: visibility,
     );
@@ -724,14 +669,14 @@ class AnimatedBottomBarVisibility extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
-    (renderObject as _RenderAnimatedBottomBarVisibility)
+    (renderObject as _RenderControlledBottomBarVisibility)
       ..model = SheetViewportState.of(context)!.model
       ..visibility = visibility;
   }
 }
 
-class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
-  _RenderAnimatedBottomBarVisibility({
+class _RenderControlledBottomBarVisibility extends _RenderBottomBarVisibility {
+  _RenderControlledBottomBarVisibility({
     required super.model,
     required Animation<double> visibility,
   }) : _visibility = visibility {
@@ -769,7 +714,7 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 /// and false hides it with an animation which has the [duration] and
 /// the [curve].
 ///
-/// The following example shows the [ConditionalStickyBottomBarVisibility],
+/// The following example shows the [_ConditionalBottomBarVisibilityWidget],
 /// which keeps the enclosed [BottomAppBar] visible as long as the keyboard
 /// is hidden (`insets.bottom == 0`) and at least 50% of the sheet is visible.
 ///
@@ -786,11 +731,10 @@ class _RenderAnimatedBottomBarVisibility extends _RenderBottomBarVisibility {
 ///   ),
 /// );
 /// ```
-class ConditionalStickyBottomBarVisibility extends StatefulWidget {
+class _ConditionalBottomBarVisibilityWidget extends StatefulWidget {
   /// Creates a widget that animates the visibility of the [child]
   /// based on a condition.
-  const ConditionalStickyBottomBarVisibility({
-    super.key,
+  const _ConditionalBottomBarVisibilityWidget({
     required this.getIsVisible,
     this.duration = const Duration(milliseconds: 150),
     this.curve = Curves.easeInOut,
@@ -814,12 +758,12 @@ class ConditionalStickyBottomBarVisibility extends StatefulWidget {
   final Widget? child;
 
   @override
-  State<ConditionalStickyBottomBarVisibility> createState() =>
-      _ConditionalStickyBottomBarVisibilityState();
+  State<_ConditionalBottomBarVisibilityWidget> createState() =>
+      _ConditionalBottomBarVisibilityWidgetState();
 }
 
-class _ConditionalStickyBottomBarVisibilityState
-    extends State<ConditionalStickyBottomBarVisibility>
+class _ConditionalBottomBarVisibilityWidgetState
+    extends State<_ConditionalBottomBarVisibilityWidget>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _curveAnimation;
@@ -856,7 +800,7 @@ class _ConditionalStickyBottomBarVisibilityState
   }
 
   @override
-  void didUpdateWidget(ConditionalStickyBottomBarVisibility oldWidget) {
+  void didUpdateWidget(_ConditionalBottomBarVisibilityWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     _controller.duration = widget.duration;
     if (widget.curve != oldWidget.curve) {
@@ -884,7 +828,7 @@ class _ConditionalStickyBottomBarVisibilityState
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBottomBarVisibility(
+    return _ControlledBottomBarVisibilityWidget(
       visibility: _curveAnimation,
       child: widget.child,
     );

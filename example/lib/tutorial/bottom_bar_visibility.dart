@@ -160,11 +160,11 @@ class _ExampleSheet extends StatelessWidget {
           body: const SizedBox.expand(),
           bottomBar: switch (visibilityType) {
             _BottomBarVisibilityType.fixed =>
-              FixedBottomBarVisibility(child: bottomBar),
+              _FixedBottomBarVisibility(child: bottomBar),
             _BottomBarVisibilityType.sticky =>
-              StickyBottomBarVisibility(child: bottomBar),
+              _AlwaysVisibleBottomBarVisibilityWidget(child: bottomBar),
             _BottomBarVisibilityType.conditionalSticky =>
-              ConditionalStickyBottomBarVisibility(
+              _ConditionalBottomBarVisibilityWidget(
                 // This callback is called whenever the sheet metrics changes,
                 // and returning true keeps the bottom bar visible.
                 getIsVisible: (metrics) {

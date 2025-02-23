@@ -123,7 +123,7 @@ class _TodoEditorState extends State<TodoEditor> {
       ),
     );
 
-    final bottomBar = StickyBottomBarVisibility(
+    final bottomBar = _AlwaysVisibleBottomBarVisibilityWidget(
       child: BottomAppBar(
         child: Row(
           children: [

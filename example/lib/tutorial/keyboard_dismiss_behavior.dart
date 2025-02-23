@@ -178,7 +178,7 @@ class _ExampleSheet extends StatelessWidget {
         child: SheetContentScaffold(
           topBar: AppBar(),
           body: body,
-          bottomBar: StickyBottomBarVisibility(
+          bottomBar: _AlwaysVisibleBottomBarVisibilityWidget(
             child: BottomAppBar(
               child: Row(
                 children: [
