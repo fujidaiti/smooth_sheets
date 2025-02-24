@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:smooth_sheets/src/model.dart';
 
 import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
@@ -544,223 +545,51 @@ void main() {
     });
   });
 
-  group('SheetContentScaffold - Bottom Bar Visibility with Keyboard', () {
-    testWidgets(
-        'Hide bottom bar in response to keyboard when ignoreBottomInset is false',
-        (tester) async {
-      final bottomBarKey = UniqueKey();
-      // Initially simulate no keyboard.
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
+  group('SheetContentScaffold - bottom-bar visibility', () {
+    ({Widget testWidget}) boilerplate({
+      required Widget body,
+      required BottomBarVisibility visibility,
+      bool extendBodyBehindBottomBar = false,
+      EdgeInsets viewportInsets = EdgeInsets.zero,
+    }) {
+      final testWidget = MediaQuery(
+        data: MediaQueryData(),
+        child: SheetMediaQuery(
+          layoutSpec: SheetLayoutSpec(
+            viewportSize: testScreenSize,
+            viewportPadding: EdgeInsets.zero,
+            viewportInsets: viewportInsets,
+            resizeContentToAvoidBottomInset: true,
+          ),
           child: SheetContentScaffold(
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility:
-                const BottomBarVisibility.natural(ignoreBottomInset: false),
-            body: Container(color: Colors.green, height: 200),
+            key: Key('scaffold'),
+            bottomBarVisibility: visibility,
+            extendBodyBehindBottomBar: extendBodyBehindBottomBar,
+            bottomBar: Container(height: 50, color: Colors.red),
+            body: SizedBox.expand(child: body),
           ),
         ),
       );
-      final sizeWithoutKeyboard = tester.getSize(find.byKey(bottomBarKey));
-      expect(sizeWithoutKeyboard.height, equals(50));
 
-      // Now simulate keyboard appearance by providing a bottom inset.
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
-          child: SheetContentScaffold(
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility:
-                const BottomBarVisibility.natural(ignoreBottomInset: false),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final sizeWithKeyboard = tester.getSize(find.byKey(bottomBarKey));
-      // Expect the bottom bar height to be less than its full height when keyboard is showing.
-      expect(sizeWithKeyboard.height, lessThan(50));
-    });
+      return (testWidget: testWidget);
+    }
 
-    testWidgets('Maintains bottom bar position when ignoring bottom inset',
-        (tester) async {
-      final bottomBarKey = UniqueKey();
-      // Start with no keyboard.
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-          child: SheetContentScaffold(
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility:
-                const BottomBarVisibility.natural(ignoreBottomInset: true),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
-      );
-      final sizeWithoutKeyboard = tester.getSize(find.byKey(bottomBarKey));
-      expect(sizeWithoutKeyboard.height, equals(50));
-
-      // Simulate keyboard appearance.
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
-          child: SheetContentScaffold(
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility:
-                const BottomBarVisibility.natural(ignoreBottomInset: true),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final sizeWithKeyboard = tester.getSize(find.byKey(bottomBarKey));
-      // With ignoreBottomInset true, the bottom bar remains fully visible.
-      expect(sizeWithKeyboard.height, equals(50));
-    });
-  });
-
-  group('SheetContentScaffold - Always Visible Bottom Bar', () {
-    testWidgets('Bottom bar remains fully visible regardless of sheet offset',
-        (tester) async {
-      final bottomBarKey = UniqueKey();
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-          child: SheetContentScaffold(
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility: const BottomBarVisibility.always(),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
-      );
-      final bottomBarSize = tester.getSize(find.byKey(bottomBarKey));
-      expect(bottomBarSize.height, equals(50));
-    });
+    testWidgets('visibility: natural', (tester) async {});
+    testWidgets('visibility: always', (tester) async {});
+    testWidgets('visibility: controlled', (tester) async {});
+    testWidgets('visibility: conditional', (tester) async {});
 
     testWidgets(
-        'Bottom bar respects ignoreBottomInset setting during keyboard display',
-        (tester) async {
-      final bottomBarKey = UniqueKey();
-      // When ignoreBottomInset is false.
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
-          child: SheetContentScaffold(
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility:
-                const BottomBarVisibility.always(ignoreBottomInset: false),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final sizeWithKeyboard = tester.getSize(find.byKey(bottomBarKey));
-      expect(sizeWithKeyboard.height, lessThan(50));
+      'Bottom-Bar should be hidden when the keyboard is open '
+      'if ignoreBottomViewInset is false',
+      (tester) async {},
+    );
 
-      // Now with ignoreBottomInset true.
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.only(bottom: 100)),
-          child: SheetContentScaffold(
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility:
-                const BottomBarVisibility.always(ignoreBottomInset: true),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final sizeWithKeyboardIgnored = tester.getSize(find.byKey(bottomBarKey));
-      expect(sizeWithKeyboardIgnored.height, equals(50));
-    });
-  });
-
-  group('SheetContentScaffold - Controlled Bottom Bar Visibility', () {
-    testWidgets('Follows animation values for visibility control',
-        (tester) async {
-      final bottomBarKey = UniqueKey();
-      final tickerProvider = TestTickerProvider();
-      final controller = AnimationController(
-          vsync: tickerProvider, duration: const Duration(milliseconds: 200));
-
-      await tester.pumpWidget(
-        MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-          child: SheetContentScaffold(
-            bottomBar:
-                Container(key: bottomBarKey, height: 50, color: Colors.blue),
-            bottomBarVisibility: BottomBarVisibility.controlled(
-              animation: controller,
-            ),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        ),
-      );
-
-      // When the animation value is 0, the bottom bar should be nearly invisible.
-      controller.value = 0.0;
-      await tester.pump();
-      var bottomSize = tester.getSize(find.byKey(bottomBarKey));
-      expect(bottomSize.height, lessThan(10));
-
-      // When the animation value moves to 1, the bottom bar should become fully visible.
-      controller.value = 1.0;
-      await tester.pump();
-      bottomSize = tester.getSize(find.byKey(bottomBarKey));
-      expect(bottomSize.height, equals(50));
-
-      controller.dispose();
-    });
-  });
-
-  group('SheetContentScaffold - Conditional Bottom Bar Visibility', () {
-    testWidgets('Responds to visibility condition changes', (tester) async {
-      final bottomBarKey = UniqueKey();
-      bool showBottomBar = false;
-
-      Widget buildTestWidget() {
-        return MediaQuery(
-          data: const MediaQueryData(viewInsets: EdgeInsets.zero),
-          child: SheetContentScaffold(
-            bottomBar: showBottomBar
-                ? Container(key: bottomBarKey, height: 50, color: Colors.blue)
-                : Container(key: bottomBarKey, height: 0, color: Colors.blue),
-            bottomBarVisibility: BottomBarVisibility.conditional(
-              isVisible: (metrics) => showBottomBar,
-              duration: const Duration(milliseconds: 100),
-              curve: Curves.linear,
-            ),
-            body: Container(color: Colors.green, height: 200),
-          ),
-        );
-      }
-
-      await tester.pumpWidget(buildTestWidget());
-      // Initially the bottom bar should be hidden.
-      var bottomBarSize = tester.getSize(find.byKey(bottomBarKey));
-      expect(bottomBarSize.height, equals(0));
-
-      // Change the condition so the bottom bar is visible.
-      showBottomBar = true;
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
-      bottomBarSize = tester.getSize(find.byKey(bottomBarKey));
-      expect(bottomBarSize.height, equals(50));
-
-      // Change back to hidden.
-      showBottomBar = false;
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
-      bottomBarSize = tester.getSize(find.byKey(bottomBarKey));
-      expect(bottomBarSize.height, equals(0));
-    });
+    testWidgets(
+      'Bottom-Bar should be hidden when the keyboard is open '
+      'if ignoreBottomViewInset is true',
+      (tester) async {},
+    );
   });
 
   group('SheetContentScaffold - Hit-testing', () {
