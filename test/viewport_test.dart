@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:smooth_sheets/src/gesture_proxy.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/physics.dart';
 import 'package:smooth_sheets/src/snap_grid.dart';
@@ -1102,21 +1103,35 @@ void main() {
   });
 }
 
+class _TestSheetModelConfig extends SheetModelConfig {
+  const _TestSheetModelConfig()
+      : super(
+          physics: const ClampingSheetPhysics(),
+          snapGrid: const SheetSnapGrid.stepless(),
+          gestureProxy: null,
+        );
+
+  @override
+  SheetModelConfig copyWith({
+    SheetPhysics? physics,
+    SheetSnapGrid? snapGrid,
+    SheetGestureProxyMixin? gestureProxy,
+  }) {
+    return _TestSheetModelConfig();
+  }
+}
+
 class _TestSheetModel extends SheetModel {
   _TestSheetModel({
     this.initialOffset = const SheetOffset.relative(1),
-  }) : super(
-          context: MockSheetContext(),
-          physics: const ClampingSheetPhysics(),
-          snapGrid: const SheetSnapGrid.stepless(),
-        );
+  }) : super(MockSheetContext(), _TestSheetModelConfig());
+
+  @override
+  final SheetOffset initialOffset;
 
   bool? debugShouldIgnorePointerOverride;
 
   @override
   bool get shouldIgnorePointer =>
       debugShouldIgnorePointerOverride ?? super.shouldIgnorePointer;
-
-  @override
-  final SheetOffset initialOffset;
 }

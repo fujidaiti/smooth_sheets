@@ -31,15 +31,36 @@ mixin _PagedSheetEntry {
   Size? _contentSize;
 }
 
-class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
-  _PagedSheetModel({
-    required this.offsetInterpolationCurve,
-    required super.context,
+class _PagedSheetModelConfig extends SheetModelConfig {
+  const _PagedSheetModelConfig({
     required super.physics,
-    super.gestureProxy,
-  }) : super(snapGrid: _kDefaultSnapGrid);
+    required super.gestureProxy,
+    super.snapGrid = _kDefaultSnapGrid,
+    required this.offsetInterpolationCurve,
+  });
 
-  Curve offsetInterpolationCurve;
+  final Curve offsetInterpolationCurve;
+
+  @override
+  _PagedSheetModelConfig copyWith({
+    SheetPhysics? physics,
+    SheetSnapGrid? snapGrid,
+    SheetGestureProxyMixin? gestureProxy,
+    Curve? offsetInterpolationCurve,
+  }) {
+    return _PagedSheetModelConfig(
+      physics: physics ?? this.physics,
+      snapGrid: snapGrid ?? this.snapGrid,
+      gestureProxy: gestureProxy ?? this.gestureProxy,
+      offsetInterpolationCurve:
+          offsetInterpolationCurve ?? this.offsetInterpolationCurve,
+    );
+  }
+}
+
+class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
+    with ScrollAwareSheetModelMixin<_PagedSheetModelConfig> {
+  _PagedSheetModel(super.context, super.config);
 
   _PagedSheetEntry? _currentEntry;
 
@@ -63,7 +84,7 @@ class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
 
   void didChangeInternalStateOfEntry(_PagedSheetEntry entry) {
     if (_currentEntry == entry) {
-      snapGrid = entry.snapGrid;
+      config = config.copyWith(snapGrid: entry.snapGrid);
     }
   }
 
@@ -81,10 +102,10 @@ class _PagedSheetModel extends SheetModel with ScrollAwareSheetModelMixin {
       effectiveCurve = Curves.linear;
       effectiveAnimation = animation.drive(Tween(begin: 1.0, end: 0.0));
     } else if (animation.status == AnimationStatus.reverse) {
-      effectiveCurve = offsetInterpolationCurve;
+      effectiveCurve = config.offsetInterpolationCurve;
       effectiveAnimation = animation.drive(Tween(begin: 1.0, end: 0.0));
     } else {
-      effectiveCurve = offsetInterpolationCurve;
+      effectiveCurve = config.offsetInterpolationCurve;
       effectiveAnimation = animation;
     }
 
@@ -136,7 +157,7 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
   @override
   void init(_PagedSheetModel owner) {
     super.init(owner);
-    owner.snapGrid = _kDefaultSnapGrid;
+    owner.config = owner.config.copyWith(snapGrid: _kDefaultSnapGrid);
     _effectiveAnimation = animation.drive(
       CurveTween(curve: animationCurve),
     )..addListener(_onAnimationTick);
@@ -181,14 +202,14 @@ class PagedSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gestureProxy = SheetGestureProxy.maybeOf(context);
-    final controller = this.controller ?? SheetControllerScope.maybeOf(context);
-
-    return _PagedSheetModelOwner(
-      physics: physics,
-      offsetInterpolationCurve: offsetInterpolationCurve,
-      controller: controller,
-      gestureProxy: gestureProxy,
+    return SheetModelOwner(
+      factory: _PagedSheetModel.new,
+      controller: controller ?? SheetControllerScope.maybeOf(context),
+      config: _PagedSheetModelConfig(
+        physics: physics,
+        gestureProxy: SheetGestureProxy.maybeOf(context),
+        offsetInterpolationCurve: offsetInterpolationCurve,
+      ),
       child: BareSheet(
         resizeChildToAvoidBottomInsets: resizeChildToAvoidViewInsets,
         child: NavigatorResizable(
@@ -198,42 +219,6 @@ class PagedSheet extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _PagedSheetModelOwner extends SheetModelOwner<_PagedSheetModel> {
-  const _PagedSheetModelOwner({
-    super.controller,
-    super.gestureProxy,
-    required super.physics,
-    required this.offsetInterpolationCurve,
-    required super.child,
-  }) : super(snapGrid: _kDefaultSnapGrid);
-
-  final Curve offsetInterpolationCurve;
-
-  @override
-  _PagedSheetModelOwnerState createState() {
-    return _PagedSheetModelOwnerState();
-  }
-}
-
-class _PagedSheetModelOwnerState
-    extends SheetModelOwnerState<_PagedSheetModel, _PagedSheetModelOwner> {
-  @override
-  void didUpdateWidget(_PagedSheetModelOwner oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    model.offsetInterpolationCurve = widget.offsetInterpolationCurve;
-  }
-
-  @override
-  _PagedSheetModel createModel() {
-    return _PagedSheetModel(
-      context: this,
-      physics: widget.physics,
-      offsetInterpolationCurve: widget.offsetInterpolationCurve,
-      gestureProxy: widget.gestureProxy,
     );
   }
 }

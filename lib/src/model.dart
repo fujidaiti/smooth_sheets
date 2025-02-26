@@ -114,6 +114,26 @@ abstract class SheetContext {
   double get devicePixelRatio;
 }
 
+@internal
+@immutable
+abstract class SheetModelConfig {
+  const SheetModelConfig({
+    required this.physics,
+    required this.snapGrid,
+    required this.gestureProxy,
+  });
+
+  final SheetPhysics physics;
+  final SheetSnapGrid snapGrid;
+  final SheetGestureProxyMixin? gestureProxy;
+
+  SheetModelConfig copyWith({
+    SheetPhysics? physics,
+    SheetSnapGrid? snapGrid,
+    SheetGestureProxyMixin? gestureProxy,
+  });
+}
+
 /// Read-only view of a [SheetModel].
 @internal
 abstract class SheetModelView implements SheetMetrics, Listenable {
@@ -147,14 +167,10 @@ abstract class SheetModelView implements SheetMetrics, Listenable {
 /// - [SheetModelOwner], which creates a [SheetModel], manages its
 ///   lifecycle and exposes it to the descendant widgets.
 @internal
-abstract class SheetModel extends SheetModelView with ChangeNotifier {
+abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
+    with ChangeNotifier {
   /// Creates an object that manages the position of a sheet.
-  SheetModel({
-    required this.context,
-    required this.physics,
-    required SheetSnapGrid snapGrid,
-    this.gestureProxy,
-  }) : _snapGrid = snapGrid {
+  SheetModel(this.context, C config) : _config = config {
     goIdle();
   }
 
@@ -219,30 +235,36 @@ abstract class SheetModel extends SheetModelView with ChangeNotifier {
   /// A handle to the owner of this object.
   final SheetContext context;
 
+  C get config => _config;
+  C _config;
+
+  @mustCallSuper
+  set config(C value) {
+    final oldConfig = _config;
+    _config = value;
+
+    if (value.snapGrid != oldConfig.snapGrid && hasMetrics) {
+      final (newMinOffset, newMaxOffset) =
+          value.snapGrid.getBoundaries(measurements);
+      _minOffset = newMinOffset.resolve(measurements);
+      _maxOffset = newMaxOffset.resolve(measurements);
+    }
+  }
+
   /// {@template SheetPosition.physics}
   /// How the sheet position should respond to user input.
   ///
   /// This determines how the sheet will behave when over-dragged or
   /// under-dragged, or when the user stops dragging.
   /// {@endtemplate}
-  SheetPhysics physics;
+  SheetPhysics get physics => config.physics;
 
-  SheetSnapGrid get snapGrid => _snapGrid;
-  SheetSnapGrid _snapGrid;
-
-  set snapGrid(SheetSnapGrid snapGrid) {
-    _snapGrid = snapGrid;
-    if (hasMetrics) {
-      final (minOffset, maxOffset) = snapGrid.getBoundaries(measurements);
-      _minOffset = minOffset.resolve(measurements);
-      _maxOffset = maxOffset.resolve(measurements);
-    }
-  }
+  SheetSnapGrid get snapGrid => config.snapGrid;
 
   /// {@template SheetPosition.gestureProxy}
   /// An object that can modify the gesture details of the sheet.
   /// {@endtemplate}
-  SheetGestureProxyMixin? gestureProxy;
+  SheetGestureProxyMixin? get gestureProxy => config.gestureProxy;
 
   /// The current activity of the sheet.
   @protected

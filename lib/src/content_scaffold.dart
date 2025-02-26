@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'model.dart';
+import 'model_owner.dart';
 import 'sheet.dart';
 import 'viewport.dart';
 
@@ -221,14 +222,19 @@ class SheetContentScaffold extends StatelessWidget {
       effectiveBottomBar = switch (bottomBarVisibility) {
         _NaturalBottomBarVisibility() => effectiveBottomBar,
         _AlwaysVisibleBottomBarVisibility() =>
-          _AlwaysVisibleBottomBarVisibilityWidget(child: effectiveBottomBar),
+          _AlwaysVisibleBottomBarVisibilityWidget(
+            model: SheetModelOwner.of(context)!,
+            child: effectiveBottomBar,
+          ),
         final _ControlledBottomBarVisibility visibility =>
           _ControlledBottomBarVisibilityWidget(
+            model: SheetModelOwner.of(context)!,
             visibility: visibility.animation,
             child: effectiveBottomBar,
           ),
         final _ConditionalBottomBarVisibility visibility =>
           _ConditionalBottomBarVisibilityWidget(
+            model: SheetModelOwner.of(context)!,
             getIsVisible: visibility.isVisible,
             duration: visibility.duration,
             curve: visibility.curve,
@@ -611,21 +617,21 @@ class _AlwaysVisibleBottomBarVisibilityWidget
   /// Creates a widget that keeps the [child] always visible
   /// regardless of the sheet position.
   const _AlwaysVisibleBottomBarVisibilityWidget({
+    required this.model,
     required super.child,
   });
 
+  final SheetModelView model;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderAlwaysVisibleBottomBarVisibility(
-      model: SheetViewportState.of(context)!.model,
-    );
+    return _RenderAlwaysVisibleBottomBarVisibility(model: model);
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
-    (renderObject as _RenderAlwaysVisibleBottomBarVisibility).model =
-        SheetViewportState.of(context)!.model;
+    (renderObject as _RenderAlwaysVisibleBottomBarVisibility).model = model;
   }
 }
 
@@ -651,9 +657,12 @@ class _ControlledBottomBarVisibilityWidget
   /// The [visibility] animation must be between 0 and 1, where 0 means
   /// the [child] is completely invisible and 1 means it's completely visible.
   const _ControlledBottomBarVisibilityWidget({
+    required this.model,
     required this.visibility,
     required super.child,
   });
+
+  final SheetModelView model;
 
   /// The animation driving the visibility of the [child].
   final Animation<double> visibility;
@@ -661,7 +670,7 @@ class _ControlledBottomBarVisibilityWidget
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderControlledBottomBarVisibility(
-      model: SheetViewportState.of(context)!.model,
+      model: model,
       visibility: visibility,
     );
   }
@@ -670,7 +679,7 @@ class _ControlledBottomBarVisibilityWidget
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     super.updateRenderObject(context, renderObject);
     (renderObject as _RenderControlledBottomBarVisibility)
-      ..model = SheetViewportState.of(context)!.model
+      ..model = model
       ..visibility = visibility;
   }
 }
@@ -735,11 +744,14 @@ class _ConditionalBottomBarVisibilityWidget extends StatefulWidget {
   /// Creates a widget that animates the visibility of the [child]
   /// based on a condition.
   const _ConditionalBottomBarVisibilityWidget({
+    required this.model,
     required this.getIsVisible,
     this.duration = const Duration(milliseconds: 150),
     this.curve = Curves.easeInOut,
     required this.child,
   });
+
+  final SheetModelView model;
 
   /// Whether the [child] should be visible.
   ///
@@ -767,7 +779,6 @@ class _ConditionalBottomBarVisibilityWidgetState
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _curveAnimation;
-  SheetModelView? _model;
 
   @override
   void initState() {
@@ -779,24 +790,14 @@ class _ConditionalBottomBarVisibilityWidgetState
     );
 
     _curveAnimation = _createCurvedAnimation();
+    widget.model.addListener(_didSheetMetricsChanged);
   }
 
   @override
   void dispose() {
-    _model!.removeListener(_didSheetMetricsChanged);
+    widget.model.removeListener(_didSheetMetricsChanged);
     _controller.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final model = SheetViewportState.of(context)!.model;
-    if (_model != model) {
-      _model?.removeListener(_didSheetMetricsChanged);
-      _model = model..addListener(_didSheetMetricsChanged);
-      _didSheetMetricsChanged();
-    }
   }
 
   @override
@@ -806,6 +807,11 @@ class _ConditionalBottomBarVisibilityWidgetState
     if (widget.curve != oldWidget.curve) {
       _curveAnimation = _createCurvedAnimation();
     }
+    if (widget.model != oldWidget.model) {
+      oldWidget.model.removeListener(_didSheetMetricsChanged);
+      widget.model.addListener(_didSheetMetricsChanged);
+      _didSheetMetricsChanged();
+    }
   }
 
   Animation<double> _createCurvedAnimation() {
@@ -813,7 +819,8 @@ class _ConditionalBottomBarVisibilityWidgetState
   }
 
   void _didSheetMetricsChanged() {
-    final isVisible = _model!.hasMetrics && widget.getIsVisible(_model!);
+    final isVisible =
+        widget.model.hasMetrics && widget.getIsVisible(widget.model);
 
     if (isVisible) {
       if (_controller.status != AnimationStatus.forward) {
@@ -829,6 +836,7 @@ class _ConditionalBottomBarVisibilityWidgetState
   @override
   Widget build(BuildContext context) {
     return _ControlledBottomBarVisibilityWidget(
+      model: widget.model,
       visibility: _curveAnimation,
       child: widget.child,
     );

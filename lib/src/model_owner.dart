@@ -4,59 +4,56 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'controller.dart';
-import 'gesture_proxy.dart';
 import 'model.dart';
-import 'physics.dart';
-import 'snap_grid.dart';
 import 'viewport.dart';
+
+typedef SheetModelFactory<C extends SheetModelConfig> = SheetModel<C> Function(
+  SheetContext context,
+  C config,
+);
 
 /// A widget that creates a [SheetModel], manages its lifecycle,
 /// and exposes it to the descendant widgets.
 @internal
-abstract class SheetModelOwner<E extends SheetModel> extends StatefulWidget {
+class SheetModelOwner<C extends SheetModelConfig> extends StatefulWidget {
   /// Creates a widget that hosts a [SheetModel].
   const SheetModelOwner({
     super.key,
+    required this.factory,
+    required this.config,
     this.controller,
-    required this.physics,
-    required this.snapGrid,
-    this.gestureProxy,
     required this.child,
   });
 
   /// The [SheetController] attached to the [SheetModel].
   final SheetController? controller;
 
-  /// {@macro SheetPosition.physics}
-  final SheetPhysics physics;
+  /// A factory that creates a [SheetModel].
+  ///
+  /// Changing this will not invalidate the existing [SheetModel],
+  final SheetModelFactory<C> factory;
 
-  final SheetSnapGrid snapGrid;
-
-  /// {@macro SheetPosition.gestureProxy}
-  final SheetGestureProxyMixin? gestureProxy;
+  /// {@macro SheetPosition.config}
+  final C config;
 
   final Widget child;
 
   @override
-  SheetModelOwnerState<E, SheetModelOwner<E>> createState();
+  State<StatefulWidget> createState() => SheetModelOwnerState<C>();
 
-  static SheetModel? of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_InheritedSheetModel>()
-        ?.model;
-  }
+  static SheetModel? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_InheritedSheetModel>()?.model;
 }
 
 @internal
-abstract class SheetModelOwnerState<M extends SheetModel,
-        W extends SheetModelOwner> extends State<W>
-    with TickerProviderStateMixin<W>
+class SheetModelOwnerState<C extends SheetModelConfig>
+    extends State<SheetModelOwner<C>>
+    with TickerProviderStateMixin<SheetModelOwner<C>>
     implements SheetContext {
   SheetViewportState? _viewport;
 
-  @protected
-  M get model => _model;
-  late final M _model;
+  SheetModel<C> get model => _model!;
+  SheetModel<C>? _model;
 
   @override
   TickerProvider get vsync => this;
@@ -73,22 +70,27 @@ abstract class SheetModelOwnerState<M extends SheetModel,
   @override
   void initState() {
     super.initState();
-    _model = createModel();
-    widget.controller?.attach(model);
   }
 
   @override
   void dispose() {
     widget.controller?.detach(model);
     _viewport?.setModel(null);
-    _viewport = null;
     model.dispose();
+    _viewport = null;
+    _model = null;
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    if (_model == null) {
+      _model = widget.factory(this, widget.config);
+      widget.controller?.attach(model);
+    }
+
     _devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final viewport = SheetViewportState.of(context);
     if (viewport != _viewport) {
@@ -98,21 +100,16 @@ abstract class SheetModelOwnerState<M extends SheetModel,
   }
 
   @override
-  void didUpdateWidget(W oldWidget) {
+  void didUpdateWidget(SheetModelOwner<C> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.controller != oldWidget.controller) {
       oldWidget.controller?.detach(model);
       widget.controller?.attach(model);
     }
-    model
-      ..physics = widget.physics
-      ..gestureProxy = widget.gestureProxy
-      ..snapGrid = widget.snapGrid;
+    if (widget.config != oldWidget.config) {
+      model.config = widget.config;
+    }
   }
-
-  @factory
-  @protected
-  M createModel();
 
   @override
   Widget build(BuildContext context) {

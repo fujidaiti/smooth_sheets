@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/model.dart';
 
 import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
-
-/// A simple TickerProvider for use in tests that need an AnimationController.
-class TestTickerProvider extends TickerProvider {
-  @override
-  Ticker createTicker(TickerCallback onTick) => Ticker(onTick);
-}
 
 void main() {
   group('SheetContentScaffold - Core Layout', () {

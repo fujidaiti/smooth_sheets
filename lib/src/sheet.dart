@@ -32,13 +32,33 @@ class SheetDragConfiguration {
   final HitTestBehavior hitTestBehavior;
 }
 
-class _DraggableScrollableSheetModel extends SheetModel
-    with ScrollAwareSheetModelMixin {
-  _DraggableScrollableSheetModel({
-    required super.context,
+class _DraggableScrollableSheetModelConfig extends SheetModelConfig {
+  const _DraggableScrollableSheetModelConfig({
     required super.physics,
     required super.snapGrid,
-    super.gestureProxy,
+    required super.gestureProxy,
+  });
+
+  @override
+  _DraggableScrollableSheetModelConfig copyWith({
+    SheetPhysics? physics,
+    SheetSnapGrid? snapGrid,
+    SheetGestureProxyMixin? gestureProxy,
+  }) {
+    return _DraggableScrollableSheetModelConfig(
+      physics: physics ?? this.physics,
+      snapGrid: snapGrid ?? this.snapGrid,
+      gestureProxy: gestureProxy ?? this.gestureProxy,
+    );
+  }
+}
+
+class _DraggableScrollableSheetModel
+    extends SheetModel<_DraggableScrollableSheetModelConfig>
+    with ScrollAwareSheetModelMixin {
+  _DraggableScrollableSheetModel(
+    super.context,
+    super.config, {
     required this.initialOffset,
   });
 
@@ -84,16 +104,14 @@ class Sheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final physics = this.physics ?? kDefaultSheetPhysics;
-    final gestureTamper = SheetGestureProxy.maybeOf(context);
-    final controller = this.controller ?? SheetControllerScope.maybeOf(context);
-
-    return _DraggableScrollableSheetModelOwner(
-      controller: controller,
-      initialOffset: initialOffset,
-      physics: physics,
-      snapGrid: snapGrid,
-      gestureProxy: gestureTamper,
+    return SheetModelOwner(
+      controller: controller ?? SheetControllerScope.maybeOf(context),
+      factory: _createModel,
+      config: _DraggableScrollableSheetModelConfig(
+        physics: physics ?? kDefaultSheetPhysics,
+        snapGrid: snapGrid,
+        gestureProxy: SheetGestureProxy.maybeOf(context),
+      ),
       child: BareSheet(
         resizeChildToAvoidBottomInsets: resizeChildToAvoidViewInsets,
         child: DraggableScrollableSheetContent(
@@ -104,37 +122,15 @@ class Sheet extends StatelessWidget {
       ),
     );
   }
-}
 
-class _DraggableScrollableSheetModelOwner
-    extends SheetModelOwner<_DraggableScrollableSheetModel> {
-  const _DraggableScrollableSheetModelOwner({
-    super.controller,
-    required this.initialOffset,
-    required super.physics,
-    required super.snapGrid,
-    super.gestureProxy,
-    required super.child,
-  });
-
-  final SheetOffset initialOffset;
-
-  @override
-  _DraggableScrollableSheetModelOwnerState createState() {
-    return _DraggableScrollableSheetModelOwnerState();
-  }
-}
-
-class _DraggableScrollableSheetModelOwnerState extends SheetModelOwnerState<
-    _DraggableScrollableSheetModel, _DraggableScrollableSheetModelOwner> {
-  @override
-  _DraggableScrollableSheetModel createModel() {
+  _DraggableScrollableSheetModel _createModel(
+    SheetContext context,
+    _DraggableScrollableSheetModelConfig config,
+  ) {
     return _DraggableScrollableSheetModel(
-      context: this,
-      initialOffset: widget.initialOffset,
-      physics: widget.physics,
-      snapGrid: widget.snapGrid,
-      gestureProxy: widget.gestureProxy,
+      context,
+      config,
+      initialOffset: initialOffset,
     );
   }
 }

@@ -8,7 +8,8 @@ export 'src/controller.dart' hide SheetControllerScope;
 export 'src/drag.dart' hide SheetDragController, SheetDragControllerTarget;
 export 'src/keyboard_dismissible.dart';
 export 'src/modal_sheet.dart';
-export 'src/model.dart' hide SheetContext, SheetModel, SheetModelView;
+export 'src/model.dart'
+    hide SheetContext, SheetModel, SheetModelConfig, SheetModelView;
 export 'src/notification.dart';
 export 'src/offset_driven_animation.dart';
 export 'src/paged_sheet.dart';

@@ -17,7 +17,7 @@ import 'model_owner.dart';
 const _kMaxScrollSpeedToInterrupt = double.infinity;
 
 @internal
-mixin ScrollAwareSheetModelMixin on SheetModel
+mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     implements _SheetScrollPositionDelegate {
   // TODO: Stop scroll animations when a non-scrollable activity starts.
   final _scrollPositions = HashSet<SheetScrollPosition>();
