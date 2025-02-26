@@ -69,6 +69,16 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
       _currentEntry?.initialOffset ?? const SheetOffset.relative(1);
 
   @override
+  set config(_PagedSheetModelConfig value) {
+    if (_currentEntry case final entry? when entry.snapGrid != value.snapGrid) {
+      // Always respects the snap grid of the current entry if exists.
+      super.config = value.copyWith(snapGrid: entry.snapGrid);
+    } else {
+      super.config = value;
+    }
+  }
+
+  @override
   void dispose() {
     _currentEntry = null;
     super.dispose();
