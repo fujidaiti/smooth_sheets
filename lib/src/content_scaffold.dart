@@ -576,9 +576,9 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
   void invalidateVisibility() {
     final size = _bottomBarSize;
     if (size != null && _model.hasMetrics) {
-      final baseTransition =
-          (_model.offset - _model.measurements.viewportExtent)
-              .clamp(size.height - _model.measurements.viewportExtent, 0.0);
+      final baseTransition = (_model.offset -
+              _model.measurements.viewportSize.height)
+          .clamp(size.height - _model.measurements.viewportSize.height, 0.0);
       final visibility = computeVisibility(_model, size);
       assert(0 <= visibility && visibility <= 1);
       final invisibleHeight = size.height * (1 - visibility);

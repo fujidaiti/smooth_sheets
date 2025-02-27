@@ -66,7 +66,7 @@ class MutableSheetMetrics implements SheetMetrics {
   required double offset,
   required SheetOffset initialPosition,
   required double contentExtent,
-  required double viewportExtent,
+  required Size viewportSize,
   double baseline = 0,
   double contentBaseline = 0,
   required double devicePixelRatio,
@@ -75,7 +75,7 @@ class MutableSheetMetrics implements SheetMetrics {
 }) {
   final initialMeasurements = SheetLayoutMeasurements(
     contentExtent: contentExtent,
-    viewportExtent: viewportExtent,
+    viewportSize: viewportSize,
     baseline: baseline,
     contentBaseline: contentBaseline,
   );
@@ -87,7 +87,7 @@ class MutableSheetMetrics implements SheetMetrics {
     maxOffset: initialMaxOffset.resolve(initialMeasurements),
     measurements: SheetLayoutMeasurements(
       contentExtent: contentExtent,
-      viewportExtent: viewportExtent,
+      viewportSize: viewportSize,
       baseline: baseline,
       contentBaseline: contentBaseline,
     ),

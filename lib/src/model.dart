@@ -505,13 +505,13 @@ class SheetMetricsSnapshot implements SheetMetrics {
 @immutable
 class SheetLayoutMeasurements {
   const SheetLayoutMeasurements({
-    required this.viewportExtent,
+    required this.viewportSize,
     required this.contentExtent,
     required this.contentBaseline,
     required this.baseline,
   });
 
-  final double viewportExtent;
+  final Size viewportSize;
 
   final double contentExtent;
 
@@ -523,7 +523,7 @@ class SheetLayoutMeasurements {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is SheetLayoutMeasurements &&
-        other.viewportExtent == viewportExtent &&
+        other.viewportSize == viewportSize &&
         other.contentExtent == contentExtent &&
         other.contentBaseline == contentBaseline &&
         other.baseline == baseline;
@@ -532,20 +532,20 @@ class SheetLayoutMeasurements {
   @override
   int get hashCode => Object.hash(
         contentExtent,
-        viewportExtent,
+        viewportSize,
         contentBaseline,
         baseline,
       );
 
   SheetLayoutMeasurements copyWith({
     double? contentExtent,
-    double? viewportExtent,
+    Size? viewportSize,
     double? contentBaseline,
     double? baseline,
   }) {
     return SheetLayoutMeasurements(
       contentExtent: contentExtent ?? this.contentExtent,
-      viewportExtent: viewportExtent ?? this.viewportExtent,
+      viewportSize: viewportSize ?? this.viewportSize,
       contentBaseline: contentBaseline ?? this.contentBaseline,
       baseline: baseline ?? this.baseline,
     );

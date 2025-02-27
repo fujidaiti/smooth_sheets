@@ -7,7 +7,7 @@ import 'src/flutter_test_x.dart';
 void main() {
   final testMeasurements = SheetLayoutMeasurements(
     contentExtent: 500,
-    viewportExtent: testScreenSize.height,
+    viewportSize: testScreenSize,
     contentBaseline: 0,
     baseline: 0,
   );

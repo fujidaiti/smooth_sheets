@@ -30,7 +30,7 @@ Matcher isMeasurements({
   }
   if (viewportExtent != null) {
     result = result.having(
-      (it) => it.viewportExtent,
+      (it) => it.viewportSize,
       'viewportExtent',
       viewportExtent,
     );

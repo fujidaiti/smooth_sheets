@@ -18,7 +18,7 @@ const _referenceSheetMetrics = SheetMetricsSnapshot(
   maxOffset: 600,
   measurements: SheetLayoutMeasurements(
     contentExtent: 600,
-    viewportExtent: 700,
+    viewportSize: Size(400, 700),
     contentBaseline: 0,
     baseline: 0,
   ),
