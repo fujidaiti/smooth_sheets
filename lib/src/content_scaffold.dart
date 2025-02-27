@@ -395,15 +395,18 @@ class _RenderScaffoldLayout extends RenderBox
         layoutChild(_ScaffoldSlot.bottomBar, childConstraints).height;
 
     // Calculate the visible height of the bottom bar.
-    final bottomInsetOverlap = max(
-      0,
-      _sheetLayoutSpec.viewportSize.height -
-          _sheetLayoutSpec.viewportInsets.bottom -
-          _sheetLayoutSpec.maxSheetRect.bottom,
-    );
-    final visibleBottomBarHeight = ignoreBottomInset
-        ? bottomBarHeight
-        : max(0.0, bottomBarHeight - bottomInsetOverlap);
+    final double visibleBottomBarHeight;
+    if (ignoreBottomInset) {
+      visibleBottomBarHeight = bottomBarHeight;
+    } else {
+      final bottomInsetOverlap = max(
+        0,
+        _sheetLayoutSpec.viewportSize.height -
+            _sheetLayoutSpec.viewportInsets.bottom -
+            _sheetLayoutSpec.maxSheetRect.bottom,
+      );
+      visibleBottomBarHeight = max(bottomBarHeight - bottomInsetOverlap, 0);
+    }
 
     // Layout the body.
     var bodyMaxHeight = childConstraints.maxHeight;

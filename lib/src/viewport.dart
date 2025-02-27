@@ -22,25 +22,28 @@ class SheetLayoutSpec {
   final EdgeInsets viewportInsets;
   final bool resizeContentToAvoidBottomInset;
 
-  double get contentBaseline => resizeContentToAvoidBottomInset
-      ? max(viewportInsets.bottom, sheetBaseline)
-      : sheetBaseline;
-
-  double get sheetBaseline => viewportPadding.bottom;
-
   Rect get maxSheetRect => Rect.fromLTRB(
         viewportPadding.left,
         viewportPadding.top,
         viewportSize.width - viewportPadding.right,
-        viewportSize.height - sheetBaseline,
+        viewportSize.height - viewportPadding.bottom,
       );
 
-  Rect get maxContentRect => Rect.fromLTRB(
-        viewportPadding.left,
-        viewportPadding.top,
-        viewportSize.width - viewportPadding.right,
-        viewportSize.height - contentBaseline,
+  Rect get maxContentRect {
+    final maxSheetRect = this.maxSheetRect;
+    final shrunkRectBottom = viewportSize.height - viewportInsets.bottom;
+    if (resizeContentToAvoidBottomInset &&
+        shrunkRectBottom < maxSheetRect.bottom) {
+      return Rect.fromLTRB(
+        maxSheetRect.left,
+        maxSheetRect.top,
+        maxSheetRect.right,
+        shrunkRectBottom,
       );
+    } else {
+      return maxSheetRect;
+    }
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -510,8 +513,14 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     _model._inner!.measurements = Measurements(
       viewportExtent: _layoutSpec.viewportSize.height,
       contentExtent: child.size.height,
-      contentBaseline: _layoutSpec.contentBaseline,
-      baseline: _layoutSpec.sheetBaseline,
+      contentBaseline: max(
+        _layoutSpec.viewportSize.height - _layoutSpec.maxContentRect.bottom,
+        0,
+      ),
+      baseline: max(
+        _layoutSpec.viewportSize.height - _layoutSpec.maxSheetRect.bottom,
+        0,
+      ),
     );
     assert(_preferredExtent != null);
 

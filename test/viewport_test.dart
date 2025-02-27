@@ -845,70 +845,6 @@ void main() {
 
   group('SheetLayoutSpec', () {
     test(
-      'contentBaseline should be pushed up by the bottom view inset '
-      'if resizeContentToAvoidBottomInset is true',
-      () {
-        final spec = SheetLayoutSpec(
-          viewportSize: Size(800, 600),
-          viewportPadding: EdgeInsets.zero,
-          viewportInsets: EdgeInsets.only(bottom: 30),
-          resizeContentToAvoidBottomInset: true,
-        );
-        expect(spec.contentBaseline, 30);
-      },
-    );
-
-    test(
-      'contentBaseline should not be affected by the bottom view inset '
-      'if resizeContentToAvoidBottomInset is false',
-      () {
-        final spec = SheetLayoutSpec(
-          viewportSize: Size(800, 600),
-          viewportPadding: EdgeInsets.zero,
-          viewportInsets: EdgeInsets.only(bottom: 30),
-          resizeContentToAvoidBottomInset: false,
-        );
-        expect(spec.contentBaseline, 0);
-      },
-    );
-
-    test(
-      'sheetBaseline should always be pushed up '
-      'by the bottom padding of the viewport',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(20),
-            viewportInsets: EdgeInsets.zero,
-            resizeContentToAvoidBottomInset: false,
-          ).sheetBaseline,
-          20,
-        );
-
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(20),
-            viewportInsets: EdgeInsets.only(bottom: 30),
-            resizeContentToAvoidBottomInset: false,
-          ).sheetBaseline,
-          20,
-        );
-
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(20),
-            viewportInsets: EdgeInsets.only(bottom: 30),
-            resizeContentToAvoidBottomInset: true,
-          ).sheetBaseline,
-          20,
-        );
-      },
-    );
-
-    test(
       'maxSheetRect should match the viewport if there is no padding',
       () {
         expect(
@@ -939,12 +875,22 @@ void main() {
     );
 
     test(
-      'maxContentRect should match the maxSheetRect '
-      'if resizeContentToAvoidBottomInset is true',
+      'maxContentRect should always match the maxSheetRect '
+      'when resizeContentToAvoidBottomInset is false, '
+      'regardless of the bottom view-inset',
       () {
-        final spec = SheetLayoutSpec(
+        var spec = SheetLayoutSpec(
           viewportSize: Size(800, 600),
           viewportPadding: EdgeInsets.zero,
+          viewportInsets: EdgeInsets.zero,
+          resizeContentToAvoidBottomInset: false,
+        );
+        expect(spec.maxContentRect, equals(spec.maxSheetRect));
+
+        spec = SheetLayoutSpec(
+          viewportSize: Size(800, 600),
+          viewportPadding: EdgeInsets.zero,
+          // Apply non-zero bottom inset.
           viewportInsets: EdgeInsets.only(bottom: 50),
           resizeContentToAvoidBottomInset: false,
         );
