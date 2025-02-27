@@ -12,14 +12,14 @@ void main() {
     }) {
       final testWidget = MediaQuery(
         data: MediaQueryData(
-          viewInsets: parentLayoutSpec?.viewportInsets ?? EdgeInsets.zero,
+          viewInsets: parentLayoutSpec?.viewportViewInsets ?? EdgeInsets.zero,
         ),
         child: SheetMediaQuery(
           layoutSpec: parentLayoutSpec ??
               SheetLayoutSpec(
                 viewportSize: testScreenSize,
                 viewportPadding: EdgeInsets.zero,
-                viewportInsets: EdgeInsets.zero,
+                viewportViewInsets: EdgeInsets.zero,
                 resizeContentToAvoidBottomInset: false,
               ),
           child: Align(
@@ -550,7 +550,7 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: testScreenSize,
             viewportPadding: EdgeInsets.zero,
-            viewportInsets: viewportInsets,
+            viewportViewInsets: viewportInsets,
             resizeContentToAvoidBottomInset: true,
           ),
           child: SheetContentScaffold(
@@ -596,7 +596,7 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: testScreenSize,
             viewportPadding: EdgeInsets.zero,
-            viewportInsets: EdgeInsets.zero,
+            viewportViewInsets: EdgeInsets.zero,
             resizeContentToAvoidBottomInset: false,
           ),
           child: Center(

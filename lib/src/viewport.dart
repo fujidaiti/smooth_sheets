@@ -13,13 +13,13 @@ class SheetLayoutSpec {
   const SheetLayoutSpec({
     required this.viewportSize,
     required this.viewportPadding,
-    required this.viewportInsets,
+    required this.viewportViewInsets,
     required this.resizeContentToAvoidBottomInset,
   });
 
   final Size viewportSize;
   final EdgeInsets viewportPadding;
-  final EdgeInsets viewportInsets;
+  final EdgeInsets viewportViewInsets;
   final bool resizeContentToAvoidBottomInset;
 
   Rect get maxSheetRect => Rect.fromLTRB(
@@ -31,7 +31,7 @@ class SheetLayoutSpec {
 
   Rect get maxContentRect {
     final maxSheetRect = this.maxSheetRect;
-    final shrunkRectBottom = viewportSize.height - viewportInsets.bottom;
+    final shrunkRectBottom = viewportSize.height - viewportViewInsets.bottom;
     if (resizeContentToAvoidBottomInset &&
         shrunkRectBottom < maxSheetRect.bottom) {
       return Rect.fromLTRB(
@@ -51,7 +51,7 @@ class SheetLayoutSpec {
       other is SheetLayoutSpec &&
           viewportSize == other.viewportSize &&
           viewportPadding == other.viewportPadding &&
-          viewportInsets == other.viewportInsets &&
+          viewportViewInsets == other.viewportViewInsets &&
           resizeContentToAvoidBottomInset ==
               other.resizeContentToAvoidBottomInset;
 
@@ -59,7 +59,7 @@ class SheetLayoutSpec {
   int get hashCode => Object.hash(
         viewportSize,
         viewportPadding,
-        viewportInsets,
+        viewportViewInsets,
         resizeContentToAvoidBottomInset,
       );
 }
@@ -386,7 +386,7 @@ class BareSheet extends StatelessWidget {
         final layoutSpec = SheetLayoutSpec(
           viewportSize: sheetConstraints.viewportSize,
           viewportPadding: sheetConstraints.viewportPadding,
-          viewportInsets: sheetConstraints.viewportInsets,
+          viewportViewInsets: sheetConstraints.viewportInsets,
           resizeContentToAvoidBottomInset: resizeChildToAvoidBottomInsets,
         );
 
