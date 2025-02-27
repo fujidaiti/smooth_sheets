@@ -14,12 +14,14 @@ class SheetLayoutSpec {
     required this.viewportSize,
     required this.viewportPadding,
     required this.viewportViewInsets,
+    required this.viewportViewPadding,
     required this.resizeContentToAvoidBottomInset,
   });
 
   final Size viewportSize;
   final EdgeInsets viewportPadding;
   final EdgeInsets viewportViewInsets;
+  final EdgeInsets viewportViewPadding;
   final bool resizeContentToAvoidBottomInset;
 
   Rect get maxSheetRect => Rect.fromLTRB(
@@ -52,6 +54,7 @@ class SheetLayoutSpec {
           viewportSize == other.viewportSize &&
           viewportPadding == other.viewportPadding &&
           viewportViewInsets == other.viewportViewInsets &&
+          viewportViewPadding == other.viewportViewPadding &&
           resizeContentToAvoidBottomInset ==
               other.resizeContentToAvoidBottomInset;
 
@@ -60,6 +63,7 @@ class SheetLayoutSpec {
         viewportSize,
         viewportPadding,
         viewportViewInsets,
+        viewportViewPadding,
         resizeContentToAvoidBottomInset,
       );
 }
@@ -82,6 +86,7 @@ class SheetMediaQuery extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewportPadding = layoutSpec.viewportPadding;
     final mediaQueryData = MediaQuery.of(context);
+
     final inheritedViewPadding = mediaQueryData.viewPadding;
     final viewPaddingForChild = EdgeInsets.fromLTRB(
       max(inheritedViewPadding.left - viewportPadding.left, 0),
@@ -182,7 +187,6 @@ class SheetViewportState extends State<SheetViewport> {
       state: this,
       child: _SheetTranslate(
         padding: widget.padding,
-        viewInsets: MediaQuery.viewInsetsOf(context),
         child: widget.child,
       ),
     );
@@ -211,18 +215,16 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
   const _SheetTranslate({
     required super.child,
     required this.padding,
-    required this.viewInsets,
   });
 
   final EdgeInsets padding;
-  final EdgeInsets viewInsets;
-
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetTranslate(
       model: SheetViewportState.of(context)!._modelView,
       padding: padding,
-      viewInsets: viewInsets,
+      viewInsets: MediaQuery.viewInsetsOf(context),
+      viewPadding: MediaQuery.viewPaddingOf(context),
     );
   }
 
@@ -231,7 +233,8 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
     (renderObject as _RenderSheetTranslate)
       ..model = SheetViewportState.of(context)!._modelView
       ..padding = padding
-      ..viewInsets = viewInsets;
+      ..viewInsets = MediaQuery.viewInsetsOf(context)
+      ..viewPadding = MediaQuery.viewPaddingOf(context);
   }
 }
 
@@ -240,9 +243,11 @@ class _RenderSheetTranslate extends RenderTransform {
     required SheetModelView model,
     required EdgeInsets padding,
     required EdgeInsets viewInsets,
+    required EdgeInsets viewPadding,
   })  : _model = model,
         _padding = padding,
         _viewInsets = viewInsets,
+        _viewPadding = viewPadding,
         super(
           transform: Matrix4.zero()..setIdentity(),
           transformHitTests: true,
@@ -280,6 +285,15 @@ class _RenderSheetTranslate extends RenderTransform {
     }
   }
 
+  EdgeInsets _viewPadding;
+  // ignore: avoid_setters_without_getters
+  set viewPadding(EdgeInsets value) {
+    if (_viewPadding != value) {
+      _viewPadding = value;
+      _invalidateTransformMatrix();
+    }
+  }
+
   late Size _lastMeasuredSize;
   @override
   set size(Size value) {
@@ -300,6 +314,7 @@ class _RenderSheetTranslate extends RenderTransform {
         viewportSize: size,
         viewportInsets: _viewInsets,
         viewportPadding: _padding,
+        viewportViewPadding: _viewPadding,
       ),
     );
   }
@@ -349,6 +364,7 @@ class _SheetConstraints extends BoxConstraints {
     required this.viewportSize,
     required this.viewportInsets,
     required this.viewportPadding,
+    required this.viewportViewPadding,
   }) : super(
           minWidth: viewportSize.width - viewportPadding.horizontal,
           maxWidth: viewportSize.width - viewportPadding.horizontal,
@@ -358,6 +374,7 @@ class _SheetConstraints extends BoxConstraints {
   final Size viewportSize;
   final EdgeInsets viewportInsets;
   final EdgeInsets viewportPadding;
+  final EdgeInsets viewportViewPadding;
 }
 
 @internal
@@ -387,6 +404,7 @@ class BareSheet extends StatelessWidget {
           viewportSize: sheetConstraints.viewportSize,
           viewportPadding: sheetConstraints.viewportPadding,
           viewportViewInsets: sheetConstraints.viewportInsets,
+          viewportViewPadding: sheetConstraints.viewportViewPadding,
           resizeContentToAvoidBottomInset: resizeChildToAvoidBottomInsets,
         );
 

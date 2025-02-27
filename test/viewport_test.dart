@@ -852,6 +852,7 @@ void main() {
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
             viewportViewInsets: EdgeInsets.zero,
+            viewportViewPadding: EdgeInsets.zero,
             resizeContentToAvoidBottomInset: false,
           ).maxSheetRect,
           Rect.fromLTWH(0, 0, 800, 600),
@@ -867,6 +868,7 @@ void main() {
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportViewInsets: EdgeInsets.zero,
+            viewportViewPadding: EdgeInsets.zero,
             resizeContentToAvoidBottomInset: false,
           ).maxSheetRect,
           Rect.fromLTRB(10, 20, 770, 560),
@@ -883,6 +885,7 @@ void main() {
           viewportSize: Size(800, 600),
           viewportPadding: EdgeInsets.zero,
           viewportViewInsets: EdgeInsets.zero,
+          viewportViewPadding: EdgeInsets.zero,
           resizeContentToAvoidBottomInset: false,
         );
         expect(spec.maxContentRect, equals(spec.maxSheetRect));
@@ -890,6 +893,7 @@ void main() {
         spec = SheetLayoutSpec(
           viewportSize: Size(800, 600),
           viewportPadding: EdgeInsets.zero,
+          viewportViewPadding: EdgeInsets.zero,
           // Apply non-zero bottom inset.
           viewportViewInsets: EdgeInsets.only(bottom: 50),
           resizeContentToAvoidBottomInset: false,
@@ -906,6 +910,7 @@ void main() {
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
+            viewportViewPadding: EdgeInsets.zero,
             viewportViewInsets: EdgeInsets.only(bottom: 50),
             resizeContentToAvoidBottomInset: true,
           ).maxContentRect,
@@ -949,6 +954,7 @@ void main() {
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.all(10),
             viewportViewInsets: EdgeInsets.zero,
+            viewportViewPadding: EdgeInsets.zero,
             resizeContentToAvoidBottomInset: false,
           ),
           child: Builder(
@@ -978,6 +984,7 @@ void main() {
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.all(5),
             viewportViewInsets: EdgeInsets.zero,
+            viewportViewPadding: EdgeInsets.zero,
             resizeContentToAvoidBottomInset: false,
           ),
           child: Builder(
@@ -1005,6 +1012,7 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
+            viewportViewPadding: EdgeInsets.zero,
             viewportViewInsets: EdgeInsets.only(bottom: 50),
             resizeContentToAvoidBottomInset: true,
           ),
@@ -1029,6 +1037,7 @@ void main() {
           viewportSize: Size(800, 600),
           viewportPadding: EdgeInsets.all(10),
           viewportViewInsets: EdgeInsets.zero,
+          viewportViewPadding: EdgeInsets.zero,
           resizeContentToAvoidBottomInset: false,
         );
 

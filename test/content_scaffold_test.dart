@@ -20,6 +20,7 @@ void main() {
                 viewportSize: testScreenSize,
                 viewportPadding: EdgeInsets.zero,
                 viewportViewInsets: EdgeInsets.zero,
+                viewportViewPadding: EdgeInsets.zero,
                 resizeContentToAvoidBottomInset: false,
               ),
           child: Align(
@@ -550,6 +551,7 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: testScreenSize,
             viewportPadding: EdgeInsets.zero,
+            viewportViewPadding: EdgeInsets.zero,
             viewportViewInsets: viewportInsets,
             resizeContentToAvoidBottomInset: true,
           ),
@@ -597,6 +599,7 @@ void main() {
             viewportSize: testScreenSize,
             viewportPadding: EdgeInsets.zero,
             viewportViewInsets: EdgeInsets.zero,
+            viewportViewPadding: EdgeInsets.zero,
             resizeContentToAvoidBottomInset: false,
           ),
           child: Center(
