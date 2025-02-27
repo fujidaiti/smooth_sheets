@@ -33,7 +33,7 @@ abstract interface class SheetOffset {
   const factory SheetOffset.relative(double factor) = RelativeSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
-  double resolve(Measurements measurements);
+  double resolve(SheetLayoutMeasurements measurements);
 }
 
 /// A [SheetOffset] that represents a position proportional
@@ -56,7 +56,7 @@ class RelativeSheetOffset implements SheetOffset {
   final double factor;
 
   @override
-  double resolve(Measurements measurements) =>
+  double resolve(SheetLayoutMeasurements measurements) =>
       measurements.contentExtent * factor + measurements.contentBaseline;
 
   @override
@@ -175,9 +175,9 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   }
 
   @override
-  Measurements get measurements => _measurements!;
-  Measurements? _measurements;
-  set measurements(Measurements value) {
+  SheetLayoutMeasurements get measurements => _measurements!;
+  SheetLayoutMeasurements? _measurements;
+  set measurements(SheetLayoutMeasurements value) {
     if (_measurements == value) {
       return;
     }
@@ -357,7 +357,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Measurements? measurements,
+    SheetLayoutMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -425,14 +425,14 @@ abstract interface class SheetMetrics {
   /// associated with this metrics is drawn into.
   double get devicePixelRatio;
 
-  Measurements get measurements;
+  SheetLayoutMeasurements get measurements;
 
   /// Creates a copy of the metrics with the given fields replaced.
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Measurements? measurements,
+    SheetLayoutMeasurements? measurements,
     double? devicePixelRatio,
   });
 }
@@ -458,7 +458,7 @@ class SheetMetricsSnapshot implements SheetMetrics {
   final double maxOffset;
 
   @override
-  final Measurements measurements;
+  final SheetLayoutMeasurements measurements;
 
   @override
   final double devicePixelRatio;
@@ -468,7 +468,7 @@ class SheetMetricsSnapshot implements SheetMetrics {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Measurements? measurements,
+    SheetLayoutMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -503,8 +503,8 @@ class SheetMetricsSnapshot implements SheetMetrics {
 }
 
 @immutable
-class Measurements {
-  const Measurements({
+class SheetLayoutMeasurements {
+  const SheetLayoutMeasurements({
     required this.viewportExtent,
     required this.contentExtent,
     required this.contentBaseline,
@@ -522,7 +522,7 @@ class Measurements {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is Measurements &&
+    return other is SheetLayoutMeasurements &&
         other.viewportExtent == viewportExtent &&
         other.contentExtent == contentExtent &&
         other.contentBaseline == contentBaseline &&
@@ -537,13 +537,13 @@ class Measurements {
         baseline,
       );
 
-  Measurements copyWith({
+  SheetLayoutMeasurements copyWith({
     double? contentExtent,
     double? viewportExtent,
     double? contentBaseline,
     double? baseline,
   }) {
-    return Measurements(
+    return SheetLayoutMeasurements(
       contentExtent: contentExtent ?? this.contentExtent,
       viewportExtent: viewportExtent ?? this.viewportExtent,
       contentBaseline: contentBaseline ?? this.contentBaseline,

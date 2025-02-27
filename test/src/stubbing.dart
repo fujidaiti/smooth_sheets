@@ -42,14 +42,14 @@ class MutableSheetMetrics implements SheetMetrics {
   double maxOffset;
 
   @override
-  Measurements measurements;
+  SheetLayoutMeasurements measurements;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    Measurements? measurements,
+    SheetLayoutMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -73,7 +73,7 @@ class MutableSheetMetrics implements SheetMetrics {
   SheetPhysics? physics,
   SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {
-  final initialMeasurements = Measurements(
+  final initialMeasurements = SheetLayoutMeasurements(
     contentExtent: contentExtent,
     viewportExtent: viewportExtent,
     baseline: baseline,
@@ -85,7 +85,7 @@ class MutableSheetMetrics implements SheetMetrics {
     offset: offset,
     minOffset: initialMinOffset.resolve(initialMeasurements),
     maxOffset: initialMaxOffset.resolve(initialMeasurements),
-    measurements: Measurements(
+    measurements: SheetLayoutMeasurements(
       contentExtent: contentExtent,
       viewportExtent: viewportExtent,
       baseline: baseline,
@@ -110,7 +110,7 @@ class MutableSheetMetrics implements SheetMetrics {
   });
   when(position.measurements = any).thenAnswer((invocation) {
     metricsRegistry.measurements =
-        invocation.positionalArguments[0] as Measurements;
+        invocation.positionalArguments[0] as SheetLayoutMeasurements;
   });
   when(position.snapGrid).thenReturn(snapGrid);
   when(position.copyWith(
@@ -125,7 +125,8 @@ class MutableSheetMetrics implements SheetMetrics {
       minOffset: invocation.namedArguments[#minOffset] as double?,
       maxOffset: invocation.namedArguments[#maxOffset] as double?,
       devicePixelRatio: invocation.namedArguments[#devicePixelRatio] as double?,
-      measurements: invocation.namedArguments[#measurements] as Measurements?,
+      measurements:
+          invocation.namedArguments[#measurements] as SheetLayoutMeasurements?,
     );
   });
 

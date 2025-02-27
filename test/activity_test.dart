@@ -288,7 +288,7 @@ void main() {
         );
 
         final oldMeasurements = ownerMetrics.measurements;
-        ownerMetrics.measurements = const Measurements(
+        ownerMetrics.measurements = const SheetLayoutMeasurements(
           contentExtent: 850,
           viewportExtent: 900,
           contentBaseline: 50,
