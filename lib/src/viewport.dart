@@ -13,17 +13,35 @@ class SheetLayoutSpec {
   const SheetLayoutSpec({
     required this.viewportSize,
     required this.viewportPadding,
-    required this.viewportViewInsets,
-    required this.viewportViewPadding,
-    required this.resizeContentToAvoidBottomInset,
+    required this.viewportDynamicOverlap,
+    required this.viewportStaticOverlap,
+    required this.resizeContentToAvoidBottomOverlap,
   });
 
+  /// The size of the *viewport*, which is the rectangle
+  /// where the sheet is laid out.
   final Size viewportSize;
-  final EdgeInsets viewportPadding;
-  final EdgeInsets viewportViewInsets;
-  final EdgeInsets viewportViewPadding;
-  final bool resizeContentToAvoidBottomInset;
 
+  /// The parts of the viewport that should be avoided
+  /// when laying out the sheet.
+  final EdgeInsets viewportPadding;
+
+  /// The parts of the viewport that are partially overlapped
+  /// by system UI elements that may dynamically change in size,
+  /// such as the on-screen keyboard.
+  final EdgeInsets viewportDynamicOverlap;
+
+  /// The parts of the viewport that are partially overlapped
+  /// by system UI elements that do not change in size,
+  /// such as hardware display notches or the system status bar.
+  final EdgeInsets viewportStaticOverlap;
+
+  /// Whether to shrink the sheet's content to avoid
+  /// overlapping with the bottom of the viewport,
+  /// as described by [viewportDynamicOverlap].
+  final bool resizeContentToAvoidBottomOverlap;
+
+  /// The maximum rectangle that can be occupied by the sheet.
   Rect get maxSheetRect => Rect.fromLTRB(
         viewportPadding.left,
         viewportPadding.top,
@@ -31,10 +49,17 @@ class SheetLayoutSpec {
         viewportSize.height - viewportPadding.bottom,
       );
 
+  /// The maximum rectangle that can be occupied by the sheet's content.
+  ///
+  /// This area may be reduced due to the bottom inset of the viewport,
+  /// as described by [viewportDynamicOverlap],
+  /// if [resizeContentToAvoidBottomOverlap] is true.
+  /// Otherwise, it matches [maxSheetRect].
   Rect get maxContentRect {
     final maxSheetRect = this.maxSheetRect;
-    final shrunkRectBottom = viewportSize.height - viewportViewInsets.bottom;
-    if (resizeContentToAvoidBottomInset &&
+    final shrunkRectBottom =
+        viewportSize.height - viewportDynamicOverlap.bottom;
+    if (resizeContentToAvoidBottomOverlap &&
         shrunkRectBottom < maxSheetRect.bottom) {
       return Rect.fromLTRB(
         maxSheetRect.left,
@@ -47,38 +72,24 @@ class SheetLayoutSpec {
     }
   }
 
-  /// The area within the viewport that is not overlapped by
-  /// [viewportPadding], [viewportViewPadding], and [viewportViewInsets].
-  Rect get viewportSafeArea => EdgeInsets.fromLTRB(
-        max(
-          viewportPadding.left,
-          max(viewportViewPadding.left, viewportViewInsets.left),
-        ),
-        max(
-          viewportPadding.top,
-          max(viewportViewPadding.top, viewportViewInsets.top),
-        ),
-        max(
-          viewportPadding.right,
-          max(viewportViewPadding.right, viewportViewInsets.right),
-        ),
-        max(
-          viewportPadding.bottom,
-          max(viewportViewPadding.bottom, viewportViewInsets.bottom),
-        ),
-      ).deflateRect(Offset.zero & viewportSize);
+  /// The maximum amounts of overlap that each side of the sheet can have
+  /// with static system UI elements, such as the system status bar or
+  /// hardware display notches.
+  EdgeInsets get maxSheetStaticOverlap => EdgeInsets.fromLTRB(
+        max(viewportPadding.left, viewportStaticOverlap.left),
+        max(viewportPadding.top, viewportStaticOverlap.top),
+        max(viewportPadding.right, viewportStaticOverlap.right),
+        max(viewportPadding.bottom, viewportStaticOverlap.bottom),
+      );
 
-  /// The maximum padding that 
-  EdgeInsets get maxSheetPadding {
-    final safeArea = viewportSafeArea;
-    final maxRect = maxSheetRect;
-    return EdgeInsets.fromLTRB(
-      max(safeArea.left - maxRect.left, 0),
-      max(safeArea.top - maxRect.top, 0),
-      max(maxRect.right - safeArea.right, 0),
-      max(maxRect.bottom - safeArea.bottom, 0),
-    );
-  }
+  /// The maximum amounts of overlap that each side of the sheet can have
+  /// with dynamic system UI elements, such as the on-screen keyboard.
+  EdgeInsets get maxSheetDynamicOverlap => EdgeInsets.fromLTRB(
+        max(viewportPadding.left, viewportDynamicOverlap.left),
+        max(viewportPadding.top, viewportDynamicOverlap.top),
+        max(viewportPadding.right, viewportDynamicOverlap.right),
+        max(viewportPadding.bottom, viewportDynamicOverlap.bottom),
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -86,18 +97,18 @@ class SheetLayoutSpec {
       other is SheetLayoutSpec &&
           viewportSize == other.viewportSize &&
           viewportPadding == other.viewportPadding &&
-          viewportViewInsets == other.viewportViewInsets &&
-          viewportViewPadding == other.viewportViewPadding &&
-          resizeContentToAvoidBottomInset ==
-              other.resizeContentToAvoidBottomInset;
+          viewportDynamicOverlap == other.viewportDynamicOverlap &&
+          viewportStaticOverlap == other.viewportStaticOverlap &&
+          resizeContentToAvoidBottomOverlap ==
+              other.resizeContentToAvoidBottomOverlap;
 
   @override
   int get hashCode => Object.hash(
         viewportSize,
         viewportPadding,
-        viewportViewInsets,
-        viewportViewPadding,
-        resizeContentToAvoidBottomInset,
+        viewportDynamicOverlap,
+        viewportStaticOverlap,
+        resizeContentToAvoidBottomOverlap,
       );
 }
 
@@ -133,7 +144,7 @@ class SheetMediaQuery extends StatelessWidget {
       max(inheritedViewInsets.left - viewportPadding.left, 0),
       max(inheritedViewInsets.top - viewportPadding.top, 0),
       max(inheritedViewInsets.right - viewportPadding.right, 0),
-      layoutSpec.resizeContentToAvoidBottomInset
+      layoutSpec.resizeContentToAvoidBottomOverlap
           ? 0
           : max(inheritedViewInsets.bottom - viewportPadding.bottom, 0),
     );
@@ -414,11 +425,11 @@ class _SheetConstraints extends BoxConstraints {
 class BareSheet extends StatelessWidget {
   const BareSheet({
     super.key,
-    this.resizeChildToAvoidBottomInsets = true,
+    this.resizeChildToAvoidBottomOverlap = true,
     required this.child,
   });
 
-  final bool resizeChildToAvoidBottomInsets;
+  final bool resizeChildToAvoidBottomOverlap;
   final Widget child;
 
   @override
@@ -436,9 +447,9 @@ class BareSheet extends StatelessWidget {
         final layoutSpec = SheetLayoutSpec(
           viewportSize: sheetConstraints.viewportSize,
           viewportPadding: sheetConstraints.viewportPadding,
-          viewportViewInsets: sheetConstraints.viewportInsets,
-          viewportViewPadding: sheetConstraints.viewportViewPadding,
-          resizeContentToAvoidBottomInset: resizeChildToAvoidBottomInsets,
+          viewportDynamicOverlap: sheetConstraints.viewportInsets,
+          viewportStaticOverlap: sheetConstraints.viewportViewPadding,
+          resizeContentToAvoidBottomOverlap: resizeChildToAvoidBottomOverlap,
         );
 
         return _SheetSkelton(

@@ -12,16 +12,17 @@ void main() {
     }) {
       final testWidget = MediaQuery(
         data: MediaQueryData(
-          viewInsets: parentLayoutSpec?.viewportViewInsets ?? EdgeInsets.zero,
+          viewInsets:
+              parentLayoutSpec?.viewportDynamicOverlap ?? EdgeInsets.zero,
         ),
         child: SheetMediaQuery(
           layoutSpec: parentLayoutSpec ??
               SheetLayoutSpec(
                 viewportSize: testScreenSize,
                 viewportPadding: EdgeInsets.zero,
-                viewportViewInsets: EdgeInsets.zero,
-                viewportViewPadding: EdgeInsets.zero,
-                resizeContentToAvoidBottomInset: false,
+                viewportDynamicOverlap: EdgeInsets.zero,
+                viewportStaticOverlap: EdgeInsets.zero,
+                resizeContentToAvoidBottomOverlap: false,
               ),
           child: Align(
             alignment: Alignment.bottomCenter,
@@ -551,9 +552,9 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: testScreenSize,
             viewportPadding: EdgeInsets.zero,
-            viewportViewPadding: EdgeInsets.zero,
-            viewportViewInsets: viewportInsets,
-            resizeContentToAvoidBottomInset: true,
+            viewportStaticOverlap: EdgeInsets.zero,
+            viewportDynamicOverlap: viewportInsets,
+            resizeContentToAvoidBottomOverlap: true,
           ),
           child: SheetContentScaffold(
             key: Key('scaffold'),
@@ -598,9 +599,9 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: testScreenSize,
             viewportPadding: EdgeInsets.zero,
-            viewportViewInsets: EdgeInsets.zero,
-            viewportViewPadding: EdgeInsets.zero,
-            resizeContentToAvoidBottomInset: false,
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
           ),
           child: Center(
             child: SizedBox(

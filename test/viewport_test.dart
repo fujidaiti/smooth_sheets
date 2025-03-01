@@ -194,7 +194,7 @@ void main() {
           viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
             child: BareSheet(
-              resizeChildToAvoidBottomInsets: false,
+              resizeChildToAvoidBottomOverlap: false,
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -221,7 +221,7 @@ void main() {
           viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
             child: BareSheet(
-              resizeChildToAvoidBottomInsets: true,
+              resizeChildToAvoidBottomOverlap: true,
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -251,7 +251,7 @@ void main() {
           viewInsets: EdgeInsets.all(10),
           builder: (child) => SheetViewport(
             child: BareSheet(
-              resizeChildToAvoidBottomInsets: true,
+              resizeChildToAvoidBottomOverlap: true,
               child: Builder(
                 builder: (context) {
                   inheritedViewInsets = MediaQuery.viewInsetsOf(context);
@@ -315,7 +315,7 @@ void main() {
           builder: (child) => SheetViewport(
             padding: EdgeInsets.all(10),
             child: BareSheet(
-              resizeChildToAvoidBottomInsets: true,
+              resizeChildToAvoidBottomOverlap: true,
               child: SizedBox.expand(
                 key: Key('content'),
                 child: child,
@@ -851,9 +851,9 @@ void main() {
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
-            viewportViewInsets: EdgeInsets.zero,
-            viewportViewPadding: EdgeInsets.zero,
-            resizeContentToAvoidBottomInset: false,
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
           ).maxSheetRect,
           Rect.fromLTWH(0, 0, 800, 600),
         );
@@ -867,9 +867,9 @@ void main() {
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportViewInsets: EdgeInsets.zero,
-            viewportViewPadding: EdgeInsets.zero,
-            resizeContentToAvoidBottomInset: false,
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
           ).maxSheetRect,
           Rect.fromLTRB(10, 20, 770, 560),
         );
@@ -884,19 +884,19 @@ void main() {
         var spec = SheetLayoutSpec(
           viewportSize: Size(800, 600),
           viewportPadding: EdgeInsets.zero,
-          viewportViewInsets: EdgeInsets.zero,
-          viewportViewPadding: EdgeInsets.zero,
-          resizeContentToAvoidBottomInset: false,
+          viewportDynamicOverlap: EdgeInsets.zero,
+          viewportStaticOverlap: EdgeInsets.zero,
+          resizeContentToAvoidBottomOverlap: false,
         );
         expect(spec.maxContentRect, equals(spec.maxSheetRect));
 
         spec = SheetLayoutSpec(
           viewportSize: Size(800, 600),
           viewportPadding: EdgeInsets.zero,
-          viewportViewPadding: EdgeInsets.zero,
+          viewportStaticOverlap: EdgeInsets.zero,
           // Apply non-zero bottom inset.
-          viewportViewInsets: EdgeInsets.only(bottom: 50),
-          resizeContentToAvoidBottomInset: false,
+          viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
+          resizeContentToAvoidBottomOverlap: false,
         );
         expect(spec.maxContentRect, equals(spec.maxSheetRect));
       },
@@ -910,9 +910,9 @@ void main() {
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
-            viewportViewPadding: EdgeInsets.zero,
-            viewportViewInsets: EdgeInsets.only(bottom: 50),
-            resizeContentToAvoidBottomInset: true,
+            viewportStaticOverlap: EdgeInsets.zero,
+            viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
+            resizeContentToAvoidBottomOverlap: true,
           ).maxContentRect,
           Rect.fromLTRB(0, 0, 800, 550),
         );
@@ -953,9 +953,9 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.all(10),
-            viewportViewInsets: EdgeInsets.zero,
-            viewportViewPadding: EdgeInsets.zero,
-            resizeContentToAvoidBottomInset: false,
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
           ),
           child: Builder(
             builder: (context) {
@@ -983,9 +983,9 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.all(5),
-            viewportViewInsets: EdgeInsets.zero,
-            viewportViewPadding: EdgeInsets.zero,
-            resizeContentToAvoidBottomInset: false,
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
           ),
           child: Builder(
             builder: (context) {
@@ -1012,9 +1012,9 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
-            viewportViewPadding: EdgeInsets.zero,
-            viewportViewInsets: EdgeInsets.only(bottom: 50),
-            resizeContentToAvoidBottomInset: true,
+            viewportStaticOverlap: EdgeInsets.zero,
+            viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
+            resizeContentToAvoidBottomOverlap: true,
           ),
           child: Builder(
             builder: (context) {
@@ -1036,9 +1036,9 @@ void main() {
         final layoutSpec = SheetLayoutSpec(
           viewportSize: Size(800, 600),
           viewportPadding: EdgeInsets.all(10),
-          viewportViewInsets: EdgeInsets.zero,
-          viewportViewPadding: EdgeInsets.zero,
-          resizeContentToAvoidBottomInset: false,
+          viewportDynamicOverlap: EdgeInsets.zero,
+          viewportStaticOverlap: EdgeInsets.zero,
+          resizeContentToAvoidBottomOverlap: false,
         );
 
         final env = boilerplate(

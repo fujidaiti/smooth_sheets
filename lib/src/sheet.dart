@@ -113,7 +113,7 @@ class Sheet extends StatelessWidget {
         gestureProxy: SheetGestureProxy.maybeOf(context),
       ),
       child: BareSheet(
-        resizeChildToAvoidBottomInsets: resizeChildToAvoidViewInsets,
+        resizeChildToAvoidBottomOverlap: resizeChildToAvoidViewInsets,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,

@@ -221,7 +221,7 @@ class PagedSheet extends StatelessWidget {
         offsetInterpolationCurve: offsetInterpolationCurve,
       ),
       child: BareSheet(
-        resizeChildToAvoidBottomInsets: resizeChildToAvoidViewInsets,
+        resizeChildToAvoidBottomOverlap: resizeChildToAvoidViewInsets,
         child: NavigatorResizable(
           interpolationCurve: Curves.linear,
           child: _NavigatorEventDispatcher(
