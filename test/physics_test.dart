@@ -17,13 +17,14 @@ const _referenceSheetMetrics = SheetMetricsSnapshot(
   minOffset: 0,
   maxOffset: 600,
   measurements: SheetLayoutMeasurements(
+    layoutSpec: SheetLayoutSpec(
+      viewportSize: Size(400, 700),
+      viewportPadding: EdgeInsets.zero,
+      viewportDynamicOverlap: EdgeInsets.zero,
+      viewportStaticOverlap: EdgeInsets.zero,
+      resizeContentToAvoidBottomOverlap: true,
+    ),
     contentExtent: 600,
-    viewportSize: Size(400, 700),
-    viewportPadding: EdgeInsets.zero,
-    viewportDynamicOverlap: EdgeInsets.zero,
-    viewportStaticOverlap: EdgeInsets.zero,
-    contentBaseline: 0,
-    baseline: 0,
   ),
   devicePixelRatio: 1,
 );

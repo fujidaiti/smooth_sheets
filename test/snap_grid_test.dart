@@ -7,13 +7,14 @@ import 'src/flutter_test_x.dart';
 
 void main() {
   final testMeasurements = SheetLayoutMeasurements(
+    layoutSpec: SheetLayoutSpec(
+      viewportSize: testScreenSize,
+      viewportPadding: EdgeInsets.zero,
+      viewportDynamicOverlap: EdgeInsets.zero,
+      viewportStaticOverlap: EdgeInsets.zero,
+      resizeContentToAvoidBottomOverlap: false,
+    ),
     contentExtent: 500,
-    viewportSize: testScreenSize,
-    viewportPadding: EdgeInsets.zero,
-    viewportDynamicOverlap: EdgeInsets.zero,
-    viewportStaticOverlap: EdgeInsets.zero,
-    contentBaseline: 0,
-    baseline: 0,
   );
 
   group('SingleSnapGrid', () {

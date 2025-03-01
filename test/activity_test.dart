@@ -1,12 +1,9 @@
-import 'package:flutter/animation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/activity.dart';
-import 'package:smooth_sheets/src/model.dart';
-import 'package:smooth_sheets/src/physics.dart';
-import 'package:smooth_sheets/src/snap_grid.dart';
 
 import 'src/matchers.dart';
 import 'src/stubbing.dart';
@@ -121,7 +118,13 @@ void main() {
       final oldMeasurements = ownerMetrics.measurements;
       ownerMetrics.measurements = ownerMetrics.measurements.copyWith(
         contentExtent: 850,
-        contentBaseline: 50,
+        layoutSpec: SheetLayoutSpec(
+          viewportSize: const Size(400, 900),
+          viewportPadding: EdgeInsets.zero,
+          viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
+          viewportStaticOverlap: EdgeInsets.zero,
+          resizeContentToAvoidBottomOverlap: true,
+        ),
       );
 
       activity.didChangeMeasurements(oldMeasurements);
@@ -256,7 +259,15 @@ void main() {
 
       final oldMeasurements = ownerMetrics.measurements;
       // Show the on-screen keyboard.
-      ownerMetrics.measurements = oldMeasurements.copyWith(contentBaseline: 30);
+      ownerMetrics.measurements = oldMeasurements.copyWith(
+        layoutSpec: SheetLayoutSpec(
+          viewportSize: const Size(400, 900),
+          viewportPadding: EdgeInsets.zero,
+          viewportDynamicOverlap: EdgeInsets.only(bottom: 30),
+          viewportStaticOverlap: EdgeInsets.zero,
+          resizeContentToAvoidBottomOverlap: true,
+        ),
+      );
       activity.didChangeMeasurements(oldMeasurements);
       expect(ownerMetrics.offset, 350,
           reason: 'Visual position should not change when viewport changes.');
@@ -283,20 +294,21 @@ void main() {
           ),
           contentExtent: 800,
           viewportSize: const Size(400, 900),
-          contentBaseline: 50,
+          viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
         );
 
         final oldMeasurements = ownerMetrics.measurements;
-        ownerMetrics.measurements = const SheetLayoutMeasurements(
+        ownerMetrics.measurements = SheetLayoutMeasurements(
+          layoutSpec: SheetLayoutSpec(
+            viewportSize: const Size(400, 900),
+            viewportPadding: EdgeInsets.zero,
+            viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: true,
+          ),
           contentExtent: 850,
-          viewportSize: Size(400, 900),
-          viewportPadding: EdgeInsets.zero,
-          viewportDynamicOverlap: EdgeInsets.zero,
-          viewportStaticOverlap: EdgeInsets.zero,
-          contentBaseline: 50,
-          baseline: 0,
         );
         IdleSheetActivity()
           ..init(owner)

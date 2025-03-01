@@ -547,10 +547,12 @@ class SheetLayoutSpec {
   /// as described by [viewportDynamicOverlap].
   final bool resizeContentToAvoidBottomOverlap;
 
+  /// {@template SheetLayoutSpec.maxSheetRect}
   /// The maximum rectangle that can be occupied by the sheet.
   ///
   /// The width and the bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraint.
+  /// {@endtemplate}
   Rect get maxSheetRect => Rect.fromLTRB(
         viewportPadding.left,
         viewportPadding.top,
@@ -666,93 +668,72 @@ class SheetLayoutSpec {
 @immutable
 class SheetLayoutMeasurements {
   const SheetLayoutMeasurements({
-    required this.viewportSize,
-    required this.viewportPadding,
-    required this.viewportDynamicOverlap,
-    required this.viewportStaticOverlap,
-    required this.contentExtent,
-    required this.contentBaseline,
-    required this.baseline,
-  });
-
-  factory SheetLayoutMeasurements.from({
     required SheetLayoutSpec layoutSpec,
-    required double contentExtent,
-  }) {
-    return SheetLayoutMeasurements(
-      viewportSize: layoutSpec.viewportSize,
-      viewportPadding: layoutSpec.viewportPadding,
-      viewportDynamicOverlap: layoutSpec.viewportDynamicOverlap,
-      viewportStaticOverlap: layoutSpec.viewportStaticOverlap,
-      contentExtent: contentExtent,
-      contentBaseline:
-          layoutSpec.viewportSize.height - layoutSpec.maxContentRect.bottom,
-      baseline: layoutSpec.viewportSize.height - layoutSpec.maxSheetRect.bottom,
+    required this.contentExtent,
+  }) : _layoutSpec = layoutSpec;
+
+  final SheetLayoutSpec _layoutSpec;
+
+  // TODO: Rename to `contentHeight`.
+  final double contentExtent;
+
+  /// {@macro SheetLayoutSpec.viewportSize}
+  Size get viewportSize => _layoutSpec.viewportSize;
+
+  /// {@macro SheetLayoutSpec.viewportPadding}
+  EdgeInsets get viewportPadding => _layoutSpec.viewportPadding;
+
+  /// {@macro SheetLayoutSpec.viewportDynamicOverlap}
+  EdgeInsets get viewportDynamicOverlap => _layoutSpec.viewportDynamicOverlap;
+
+  /// {@macro SheetLayoutSpec.viewportStaticOverlap}
+  EdgeInsets get viewportStaticOverlap => _layoutSpec.viewportStaticOverlap;
+
+  /// The rectangle that bounds the content of the sheet.
+  Rect get contentRect {
+    final maxContentRect = _layoutSpec.maxContentRect;
+    return Rect.fromLTRB(
+      maxContentRect.left,
+      maxContentRect.bottom - contentExtent,
+      maxContentRect.right,
+      maxContentRect.bottom,
     );
   }
 
-  final double contentExtent;
+  /// The minimum height that the sheet can have.
+  double get minSheetHeight =>
+      max(_layoutSpec.maxSheetRect.bottom - contentRect.top, 0);
 
-  final double contentBaseline;
+  /// The maximum height that the sheet can have.
+  double get maxSheetHeight =>
+      _layoutSpec.maxSheetRect.size.height;
 
   // TODO: Remove this field.
-  final double baseline;
+  double get baseline =>
+      _layoutSpec.viewportSize.height - _layoutSpec.maxSheetRect.bottom;
 
-  /// {@macro SheetLayoutSpec.viewportSize}
-  final Size viewportSize;
-
-  /// {@macro SheetLayoutSpec.viewportPadding}
-  final EdgeInsets viewportPadding;
-
-  /// {@macro SheetLayoutSpec.viewportDynamicOverlap}
-  final EdgeInsets viewportDynamicOverlap;
-
-  /// {@macro SheetLayoutSpec.viewportStaticOverlap}
-  final EdgeInsets viewportStaticOverlap;
+  /// The distance from the bottom of the viewport to the bottom of the content.
+  double get contentBaseline =>
+      viewportSize.height - _layoutSpec.maxContentRect.bottom;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is SheetLayoutMeasurements &&
-        other.viewportSize == viewportSize &&
-        other.viewportPadding == viewportPadding &&
-        other.viewportDynamicOverlap == viewportDynamicOverlap &&
-        other.viewportStaticOverlap == viewportStaticOverlap &&
-        other.contentExtent == contentExtent &&
-        other.contentBaseline == contentBaseline &&
-        other.baseline == baseline;
+        other._layoutSpec == _layoutSpec &&
+        other.contentExtent == contentExtent;
   }
 
   @override
-  int get hashCode => Object.hash(
-        viewportSize,
-        viewportPadding,
-        viewportDynamicOverlap,
-        viewportStaticOverlap,
-        contentExtent,
-        contentBaseline,
-        baseline,
-      );
+  int get hashCode => Object.hash(_layoutSpec, contentExtent);
 
   SheetLayoutMeasurements copyWith({
-    Size? viewportSize,
-    EdgeInsets? viewportPadding,
-    EdgeInsets? viewportDynamicOverlap,
-    EdgeInsets? viewportStaticOverlap,
+    SheetLayoutSpec? layoutSpec,
     double? contentExtent,
-    double? contentBaseline,
-    double? baseline,
   }) {
     return SheetLayoutMeasurements(
-      viewportSize: viewportSize ?? this.viewportSize,
-      viewportPadding: viewportPadding ?? this.viewportPadding,
-      viewportDynamicOverlap:
-          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
-      viewportStaticOverlap:
-          viewportStaticOverlap ?? this.viewportStaticOverlap,
+      layoutSpec: layoutSpec ?? _layoutSpec,
       contentExtent: contentExtent ?? this.contentExtent,
-      contentBaseline: contentBaseline ?? this.contentBaseline,
-      baseline: baseline ?? this.baseline,
     );
   }
 }

@@ -67,20 +67,20 @@ class MutableSheetMetrics implements SheetMetrics {
   required SheetOffset initialPosition,
   required double contentExtent,
   required Size viewportSize,
-  double baseline = 0,
-  double contentBaseline = 0,
+  EdgeInsets viewportDynamicOverlap = EdgeInsets.zero,
   required double devicePixelRatio,
   SheetPhysics? physics,
   SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {
   final initialMeasurements = SheetLayoutMeasurements(
+    layoutSpec: SheetLayoutSpec(
+      viewportSize: viewportSize,
+      viewportPadding: EdgeInsets.zero,
+      viewportDynamicOverlap: viewportDynamicOverlap,
+      viewportStaticOverlap: EdgeInsets.zero,
+      resizeContentToAvoidBottomOverlap: true,
+    ),
     contentExtent: contentExtent,
-    viewportSize: viewportSize,
-    viewportPadding: EdgeInsets.zero,
-    viewportDynamicOverlap: EdgeInsets.zero,
-    viewportStaticOverlap: EdgeInsets.zero,
-    baseline: baseline,
-    contentBaseline: contentBaseline,
   );
   final (initialMinOffset, initialMaxOffset) =
       snapGrid.getBoundaries(initialMeasurements);
@@ -88,15 +88,7 @@ class MutableSheetMetrics implements SheetMetrics {
     offset: offset,
     minOffset: initialMinOffset.resolve(initialMeasurements),
     maxOffset: initialMaxOffset.resolve(initialMeasurements),
-    measurements: SheetLayoutMeasurements(
-      viewportPadding: EdgeInsets.zero,
-      viewportDynamicOverlap: EdgeInsets.zero,
-      viewportStaticOverlap: EdgeInsets.zero,
-      contentExtent: contentExtent,
-      viewportSize: viewportSize,
-      baseline: baseline,
-      contentBaseline: contentBaseline,
-    ),
+    measurements: initialMeasurements,
     devicePixelRatio: devicePixelRatio,
   );
 
