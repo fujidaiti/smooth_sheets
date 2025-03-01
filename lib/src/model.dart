@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -502,28 +504,220 @@ class SheetMetricsSnapshot implements SheetMetrics {
       );
 }
 
+/// Geometry of the viewport and the layout constraints
+/// used to lay out the sheet and its content.
+@immutable
+class SheetLayoutSpec {
+  /// Creates a layout specification for the sheet and its content.
+  const SheetLayoutSpec({
+    required this.viewportSize,
+    required this.viewportPadding,
+    required this.viewportDynamicOverlap,
+    required this.viewportStaticOverlap,
+    required this.resizeContentToAvoidBottomOverlap,
+  });
+
+  /// {@template SheetLayoutSpec.viewportSize}
+  /// The size of the *viewport*, which is the rectangle
+  /// where the sheet is laid out.
+  /// {@endtemplate}
+  final Size viewportSize;
+
+  /// {@template SheetLayoutSpec.viewportPadding}
+  /// The padding by which the viewport insets the sheet.
+  /// {@endtemplate}
+  final EdgeInsets viewportPadding;
+
+  /// {@template SheetLayoutSpec.viewportDynamicOverlap}
+  /// The parts of the viewport that are partially overlapped
+  /// by system UI elements that may dynamically change in size,
+  /// such as the on-screen keyboard.
+  /// {@endtemplate}
+  final EdgeInsets viewportDynamicOverlap;
+
+  /// {@template SheetLayoutSpec.viewportStaticOverlap}
+  /// The parts of the viewport that are partially overlapped
+  /// by system UI elements that do not change in size,
+  /// such as hardware display notches or the system status bar.
+  /// {@endtemplate}
+  final EdgeInsets viewportStaticOverlap;
+
+  /// Whether to shrink the sheet's content to avoid
+  /// overlapping with the bottom of the viewport,
+  /// as described by [viewportDynamicOverlap].
+  final bool resizeContentToAvoidBottomOverlap;
+
+  /// The maximum rectangle that can be occupied by the sheet.
+  ///
+  /// The width and the bottom of the rectangle are fixed, so only
+  /// the height can be adjusted within the constraint.
+  Rect get maxSheetRect => Rect.fromLTRB(
+        viewportPadding.left,
+        viewportPadding.top,
+        viewportSize.width - viewportPadding.right,
+        viewportSize.height - viewportPadding.bottom,
+      );
+
+  /// The maximum rectangle that can be occupied by the sheet's content.
+  ///
+  /// This area may be reduced due to the bottom inset of the viewport,
+  /// as described by [viewportDynamicOverlap],
+  /// if [resizeContentToAvoidBottomOverlap] is true.
+  /// Otherwise, it matches [maxSheetRect].
+  ///
+  /// The width and the bottom of the rectangle are fixed, so only
+  /// the height can be adjusted within the constraint.
+  Rect get maxContentRect {
+    final maxSheetRect = this.maxSheetRect;
+    final shrunkRectBottom =
+        viewportSize.height - viewportDynamicOverlap.bottom;
+    if (resizeContentToAvoidBottomOverlap &&
+        shrunkRectBottom < maxSheetRect.bottom) {
+      return Rect.fromLTRB(
+        maxSheetRect.left,
+        maxSheetRect.top,
+        maxSheetRect.right,
+        shrunkRectBottom,
+      );
+    } else {
+      return maxSheetRect;
+    }
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet can have
+  /// with static system UI elements, such as the system status bar or
+  /// hardware display notches.
+  EdgeInsets get maxSheetStaticOverlap {
+    final maxRect = maxSheetRect;
+    final staticSafeArea =
+        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(staticSafeArea.left - maxRect.left, 0),
+      max(staticSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - staticSafeArea.right, 0),
+      max(maxRect.bottom - staticSafeArea.bottom, 0),
+    );
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet can have
+  /// with dynamic system UI elements, such as the on-screen keyboard.
+  EdgeInsets get maxSheetDynamicOverlap {
+    final maxRect = maxSheetRect;
+    final dynamicSafeArea =
+        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(dynamicSafeArea.left - maxRect.left, 0),
+      max(dynamicSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - dynamicSafeArea.right, 0),
+      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
+    );
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet's content
+  /// can have with dynamic system UI elements, such as the on-screen keyboard.
+  EdgeInsets get maxContentDynamicOverlap {
+    final maxRect = maxContentRect;
+    final dynamicSafeArea =
+        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(dynamicSafeArea.left - maxRect.left, 0),
+      max(dynamicSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - dynamicSafeArea.right, 0),
+      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
+    );
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet's content
+  /// can have with static system UI elements, such as the system status bar or
+  /// hardware display notches.
+  EdgeInsets get maxContentStaticOverlap {
+    final maxRect = maxContentRect;
+    final staticSafeArea =
+        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(staticSafeArea.left - maxRect.left, 0),
+      max(staticSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - staticSafeArea.right, 0),
+      max(maxRect.bottom - staticSafeArea.bottom, 0),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SheetLayoutSpec &&
+          viewportSize == other.viewportSize &&
+          viewportPadding == other.viewportPadding &&
+          viewportDynamicOverlap == other.viewportDynamicOverlap &&
+          viewportStaticOverlap == other.viewportStaticOverlap &&
+          resizeContentToAvoidBottomOverlap ==
+              other.resizeContentToAvoidBottomOverlap;
+
+  @override
+  int get hashCode => Object.hash(
+        viewportSize,
+        viewportPadding,
+        viewportDynamicOverlap,
+        viewportStaticOverlap,
+        resizeContentToAvoidBottomOverlap,
+      );
+}
+
 @immutable
 class SheetLayoutMeasurements {
   const SheetLayoutMeasurements({
     required this.viewportSize,
+    required this.viewportPadding,
+    required this.viewportDynamicOverlap,
+    required this.viewportStaticOverlap,
     required this.contentExtent,
     required this.contentBaseline,
     required this.baseline,
   });
 
-  final Size viewportSize;
+  factory SheetLayoutMeasurements.from({
+    required SheetLayoutSpec layoutSpec,
+    required double contentExtent,
+  }) {
+    return SheetLayoutMeasurements(
+      viewportSize: layoutSpec.viewportSize,
+      viewportPadding: layoutSpec.viewportPadding,
+      viewportDynamicOverlap: layoutSpec.viewportDynamicOverlap,
+      viewportStaticOverlap: layoutSpec.viewportStaticOverlap,
+      contentExtent: contentExtent,
+      contentBaseline:
+          layoutSpec.viewportSize.height - layoutSpec.maxContentRect.bottom,
+      baseline: layoutSpec.viewportSize.height - layoutSpec.maxSheetRect.bottom,
+    );
+  }
 
   final double contentExtent;
 
   final double contentBaseline;
 
+  // TODO: Remove this field.
   final double baseline;
+
+  /// {@macro SheetLayoutSpec.viewportSize}
+  final Size viewportSize;
+
+  /// {@macro SheetLayoutSpec.viewportPadding}
+  final EdgeInsets viewportPadding;
+
+  /// {@macro SheetLayoutSpec.viewportDynamicOverlap}
+  final EdgeInsets viewportDynamicOverlap;
+
+  /// {@macro SheetLayoutSpec.viewportStaticOverlap}
+  final EdgeInsets viewportStaticOverlap;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is SheetLayoutMeasurements &&
         other.viewportSize == viewportSize &&
+        other.viewportPadding == viewportPadding &&
+        other.viewportDynamicOverlap == viewportDynamicOverlap &&
+        other.viewportStaticOverlap == viewportStaticOverlap &&
         other.contentExtent == contentExtent &&
         other.contentBaseline == contentBaseline &&
         other.baseline == baseline;
@@ -531,21 +725,32 @@ class SheetLayoutMeasurements {
 
   @override
   int get hashCode => Object.hash(
-        contentExtent,
         viewportSize,
+        viewportPadding,
+        viewportDynamicOverlap,
+        viewportStaticOverlap,
+        contentExtent,
         contentBaseline,
         baseline,
       );
 
   SheetLayoutMeasurements copyWith({
-    double? contentExtent,
     Size? viewportSize,
+    EdgeInsets? viewportPadding,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportStaticOverlap,
+    double? contentExtent,
     double? contentBaseline,
     double? baseline,
   }) {
     return SheetLayoutMeasurements(
-      contentExtent: contentExtent ?? this.contentExtent,
       viewportSize: viewportSize ?? this.viewportSize,
+      viewportPadding: viewportPadding ?? this.viewportPadding,
+      viewportDynamicOverlap:
+          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
+      viewportStaticOverlap:
+          viewportStaticOverlap ?? this.viewportStaticOverlap,
+      contentExtent: contentExtent ?? this.contentExtent,
       contentBaseline: contentBaseline ?? this.contentBaseline,
       baseline: baseline ?? this.baseline,
     );

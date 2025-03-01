@@ -1,5 +1,6 @@
 import 'package:flutter/animation.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/src/activity.dart';
@@ -291,6 +292,9 @@ void main() {
         ownerMetrics.measurements = const SheetLayoutMeasurements(
           contentExtent: 850,
           viewportSize: Size(400, 900),
+          viewportPadding: EdgeInsets.zero,
+          viewportDynamicOverlap: EdgeInsets.zero,
+          viewportStaticOverlap: EdgeInsets.zero,
           contentBaseline: 50,
           baseline: 0,
         );

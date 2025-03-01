@@ -16,7 +16,6 @@ Matcher get isNotInitialized => throwsError(name: 'LateError');
 
 Matcher isMeasurements({
   double? contentExtent,
-  double? viewportExtent,
   double? contentBaseline,
   double? baseline,
 }) {
@@ -26,13 +25,6 @@ Matcher isMeasurements({
       (it) => it.contentExtent,
       'contentExtent',
       contentExtent,
-    );
-  }
-  if (viewportExtent != null) {
-    result = result.having(
-      (it) => it.viewportSize,
-      'viewportExtent',
-      viewportExtent,
     );
   }
   if (contentBaseline != null) {

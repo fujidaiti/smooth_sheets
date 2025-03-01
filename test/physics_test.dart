@@ -19,6 +19,9 @@ const _referenceSheetMetrics = SheetMetricsSnapshot(
   measurements: SheetLayoutMeasurements(
     contentExtent: 600,
     viewportSize: Size(400, 700),
+    viewportPadding: EdgeInsets.zero,
+    viewportDynamicOverlap: EdgeInsets.zero,
+    viewportStaticOverlap: EdgeInsets.zero,
     contentBaseline: 0,
     baseline: 0,
   ),

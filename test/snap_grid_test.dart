@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/snap_grid.dart';
 
@@ -8,6 +9,9 @@ void main() {
   final testMeasurements = SheetLayoutMeasurements(
     contentExtent: 500,
     viewportSize: testScreenSize,
+    viewportPadding: EdgeInsets.zero,
+    viewportDynamicOverlap: EdgeInsets.zero,
+    viewportStaticOverlap: EdgeInsets.zero,
     contentBaseline: 0,
     baseline: 0,
   );

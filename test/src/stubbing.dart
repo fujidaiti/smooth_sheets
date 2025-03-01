@@ -76,6 +76,9 @@ class MutableSheetMetrics implements SheetMetrics {
   final initialMeasurements = SheetLayoutMeasurements(
     contentExtent: contentExtent,
     viewportSize: viewportSize,
+    viewportPadding: EdgeInsets.zero,
+    viewportDynamicOverlap: EdgeInsets.zero,
+    viewportStaticOverlap: EdgeInsets.zero,
     baseline: baseline,
     contentBaseline: contentBaseline,
   );
@@ -86,6 +89,9 @@ class MutableSheetMetrics implements SheetMetrics {
     minOffset: initialMinOffset.resolve(initialMeasurements),
     maxOffset: initialMaxOffset.resolve(initialMeasurements),
     measurements: SheetLayoutMeasurements(
+      viewportPadding: EdgeInsets.zero,
+      viewportDynamicOverlap: EdgeInsets.zero,
+      viewportStaticOverlap: EdgeInsets.zero,
       contentExtent: contentExtent,
       viewportSize: viewportSize,
       baseline: baseline,
