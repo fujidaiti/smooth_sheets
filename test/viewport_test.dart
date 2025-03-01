@@ -918,6 +918,70 @@ void main() {
         );
       },
     );
+
+    test(
+      'maxSheetStaticOverlap: when static overlap is greater than padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            resizeContentToAvoidBottomOverlap: false,
+          ).maxSheetStaticOverlap,
+          EdgeInsets.fromLTRB(10, 20, 30, 40),
+        );
+      },
+    );
+
+    test(
+      'maxSheetStaticOverlap: when static overlap is less than padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(40),
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            resizeContentToAvoidBottomOverlap: false,
+          ).maxSheetStaticOverlap,
+          EdgeInsets.zero,
+        );
+      },
+    );
+
+    test(
+      'maxSheetDynamicOverlap: when dynamic overlap is greater than padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
+          ).maxSheetDynamicOverlap,
+          EdgeInsets.fromLTRB(10, 20, 30, 40),
+        );
+      },
+    );
+
+    test(
+      'maxSheetDynamicOverlap: when dynamic overlap is less than padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(40),
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
+          ).maxSheetDynamicOverlap,
+          EdgeInsets.zero,
+        );
+      },
+    );
   });
 
   group('SheetMediaQuery', () {

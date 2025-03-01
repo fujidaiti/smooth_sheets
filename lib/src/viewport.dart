@@ -76,19 +76,19 @@ class SheetLayoutSpec {
   /// with static system UI elements, such as the system status bar or
   /// hardware display notches.
   EdgeInsets get maxSheetStaticOverlap => EdgeInsets.fromLTRB(
-        max(viewportPadding.left, viewportStaticOverlap.left),
-        max(viewportPadding.top, viewportStaticOverlap.top),
-        max(viewportPadding.right, viewportStaticOverlap.right),
-        max(viewportPadding.bottom, viewportStaticOverlap.bottom),
+        max(viewportStaticOverlap.left - viewportPadding.left, 0),
+        max(viewportStaticOverlap.top - viewportPadding.top, 0),
+        max(viewportStaticOverlap.right - viewportPadding.right, 0),
+        max(viewportStaticOverlap.bottom - viewportPadding.bottom, 0),
       );
 
   /// The maximum amounts of overlap that each side of the sheet can have
   /// with dynamic system UI elements, such as the on-screen keyboard.
   EdgeInsets get maxSheetDynamicOverlap => EdgeInsets.fromLTRB(
-        max(viewportPadding.left, viewportDynamicOverlap.left),
-        max(viewportPadding.top, viewportDynamicOverlap.top),
-        max(viewportPadding.right, viewportDynamicOverlap.right),
-        max(viewportPadding.bottom, viewportDynamicOverlap.bottom),
+        max(viewportDynamicOverlap.left - viewportPadding.left, 0),
+        max(viewportDynamicOverlap.top - viewportPadding.top, 0),
+        max(viewportDynamicOverlap.right - viewportPadding.right, 0),
+        max(viewportDynamicOverlap.bottom - viewportPadding.bottom, 0),
       );
 
   @override
