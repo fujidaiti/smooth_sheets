@@ -17,7 +17,6 @@ Matcher get isNotInitialized => throwsError(name: 'LateError');
 Matcher isMeasurements({
   double? contentHeight,
   double? contentBaseline,
-  double? baseline,
 }) {
   var result = isA<SheetLayoutMeasurements>();
   if (contentHeight != null) {
@@ -32,13 +31,6 @@ Matcher isMeasurements({
       (it) => it.contentBaseline,
       'contentBaseline',
       contentBaseline,
-    );
-  }
-  if (baseline != null) {
-    result = result.having(
-      (it) => it.baseline,
-      'baseline',
-      baseline,
     );
   }
 

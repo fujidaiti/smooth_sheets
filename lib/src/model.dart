@@ -674,6 +674,7 @@ class SheetLayoutMeasurements {
 
   final SheetLayoutSpec _layoutSpec;
 
+  /// The height of the sheet's content.
   final double contentHeight;
 
   /// {@macro SheetLayoutSpec.viewportSize}
@@ -688,7 +689,7 @@ class SheetLayoutMeasurements {
   /// {@macro SheetLayoutSpec.viewportStaticOverlap}
   EdgeInsets get viewportStaticOverlap => _layoutSpec.viewportStaticOverlap;
 
-  /// The rectangle that bounds the content of the sheet.
+  /// The rectangle that bounds the sheet's content.
   Rect get contentRect {
     final maxContentRect = _layoutSpec.maxContentRect;
     return Rect.fromLTRB(
@@ -706,11 +707,8 @@ class SheetLayoutMeasurements {
   /// The maximum height that the sheet can have.
   double get maxSheetHeight => _layoutSpec.maxSheetRect.size.height;
 
-  // TODO: Remove this field.
-  double get baseline =>
-      _layoutSpec.viewportSize.height - _layoutSpec.maxSheetRect.bottom;
-
-  /// The distance from the bottom of the viewport to the bottom of the content.
+  /// The distance from the bottom of the viewport to the bottom
+  /// of the sheet's content.
   double get contentBaseline =>
       viewportSize.height - _layoutSpec.maxContentRect.bottom;
 
