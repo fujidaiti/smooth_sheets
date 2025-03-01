@@ -399,12 +399,7 @@ class _RenderScaffoldLayout extends RenderBox
     if (ignoreBottomInset) {
       visibleBottomBarHeight = bottomBarHeight;
     } else {
-      final bottomInsetOverlap = max(
-        0,
-        _sheetLayoutSpec.viewportSize.height -
-            _sheetLayoutSpec.viewportDynamicOverlap.bottom -
-            _sheetLayoutSpec.maxSheetRect.bottom,
-      );
+      final bottomInsetOverlap = _sheetLayoutSpec.maxSheetDynamicOverlap.bottom;
       visibleBottomBarHeight = max(bottomBarHeight - bottomInsetOverlap, 0);
     }
 

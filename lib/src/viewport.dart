@@ -22,8 +22,7 @@ class SheetLayoutSpec {
   /// where the sheet is laid out.
   final Size viewportSize;
 
-  /// The parts of the viewport that should be avoided
-  /// when laying out the sheet.
+  /// The padding by which the viewport insets the sheet.
   final EdgeInsets viewportPadding;
 
   /// The parts of the viewport that are partially overlapped
