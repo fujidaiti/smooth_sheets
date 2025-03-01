@@ -15,16 +15,16 @@ Matcher throwsError({required String name}) => throwsA(
 Matcher get isNotInitialized => throwsError(name: 'LateError');
 
 Matcher isMeasurements({
-  double? contentExtent,
+  double? contentHeight,
   double? contentBaseline,
   double? baseline,
 }) {
   var result = isA<SheetLayoutMeasurements>();
-  if (contentExtent != null) {
+  if (contentHeight != null) {
     result = result.having(
-      (it) => it.contentExtent,
-      'contentExtent',
-      contentExtent,
+      (it) => it.contentHeight,
+      'contentHeight',
+      contentHeight,
     );
   }
   if (contentBaseline != null) {

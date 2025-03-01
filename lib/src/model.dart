@@ -59,7 +59,7 @@ class RelativeSheetOffset implements SheetOffset {
 
   @override
   double resolve(SheetLayoutMeasurements measurements) =>
-      measurements.contentExtent * factor + measurements.contentBaseline;
+      measurements.contentHeight * factor + measurements.contentBaseline;
 
   @override
   bool operator ==(Object other) =>
@@ -669,13 +669,12 @@ class SheetLayoutSpec {
 class SheetLayoutMeasurements {
   const SheetLayoutMeasurements({
     required SheetLayoutSpec layoutSpec,
-    required this.contentExtent,
+    required this.contentHeight,
   }) : _layoutSpec = layoutSpec;
 
   final SheetLayoutSpec _layoutSpec;
 
-  // TODO: Rename to `contentHeight`.
-  final double contentExtent;
+  final double contentHeight;
 
   /// {@macro SheetLayoutSpec.viewportSize}
   Size get viewportSize => _layoutSpec.viewportSize;
@@ -694,7 +693,7 @@ class SheetLayoutMeasurements {
     final maxContentRect = _layoutSpec.maxContentRect;
     return Rect.fromLTRB(
       maxContentRect.left,
-      maxContentRect.bottom - contentExtent,
+      maxContentRect.bottom - contentHeight,
       maxContentRect.right,
       maxContentRect.bottom,
     );
@@ -705,8 +704,7 @@ class SheetLayoutMeasurements {
       max(_layoutSpec.maxSheetRect.bottom - contentRect.top, 0);
 
   /// The maximum height that the sheet can have.
-  double get maxSheetHeight =>
-      _layoutSpec.maxSheetRect.size.height;
+  double get maxSheetHeight => _layoutSpec.maxSheetRect.size.height;
 
   // TODO: Remove this field.
   double get baseline =>
@@ -721,19 +719,19 @@ class SheetLayoutMeasurements {
     if (identical(this, other)) return true;
     return other is SheetLayoutMeasurements &&
         other._layoutSpec == _layoutSpec &&
-        other.contentExtent == contentExtent;
+        other.contentHeight == contentHeight;
   }
 
   @override
-  int get hashCode => Object.hash(_layoutSpec, contentExtent);
+  int get hashCode => Object.hash(_layoutSpec, contentHeight);
 
   SheetLayoutMeasurements copyWith({
     SheetLayoutSpec? layoutSpec,
-    double? contentExtent,
+    double? contentHeight,
   }) {
     return SheetLayoutMeasurements(
       layoutSpec: layoutSpec ?? _layoutSpec,
-      contentExtent: contentExtent ?? this.contentExtent,
+      contentHeight: contentHeight ?? this.contentHeight,
     );
   }
 }

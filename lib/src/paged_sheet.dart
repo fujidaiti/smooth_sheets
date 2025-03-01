@@ -123,7 +123,7 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
       return () {
         if (entry._contentSize case final contentSize?) {
           return (entry._targetOffset ?? entry.initialOffset).resolve(
-            measurements.copyWith(contentExtent: contentSize.height),
+            measurements.copyWith(contentHeight: contentSize.height),
           );
         }
         return null;

@@ -43,7 +43,7 @@ sealed class SheetNotification extends Notification {
       ..add('baseline: ${metrics.measurements.baseline}')
       ..add('contentBaseline: ${metrics.measurements.contentBaseline}')
       ..add('viewportSize: ${metrics.measurements.viewportSize}')
-      ..add('contentSize: ${metrics.measurements.contentExtent}');
+      ..add('contentSize: ${metrics.measurements.contentHeight}');
   }
 }
 

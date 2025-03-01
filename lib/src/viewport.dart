@@ -461,7 +461,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     assert(_model._inner != null);
     _model._inner!.measurements = SheetLayoutMeasurements(
       layoutSpec: _layoutSpec,
-      contentExtent: child.size.height,
+      contentHeight: child.size.height,
     );
     assert(_preferredExtent != null);
 
