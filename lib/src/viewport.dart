@@ -47,6 +47,39 @@ class SheetLayoutSpec {
     }
   }
 
+  /// The area within the viewport that is not overlapped by
+  /// [viewportPadding], [viewportViewPadding], and [viewportViewInsets].
+  Rect get viewportSafeArea => EdgeInsets.fromLTRB(
+        max(
+          viewportPadding.left,
+          max(viewportViewPadding.left, viewportViewInsets.left),
+        ),
+        max(
+          viewportPadding.top,
+          max(viewportViewPadding.top, viewportViewInsets.top),
+        ),
+        max(
+          viewportPadding.right,
+          max(viewportViewPadding.right, viewportViewInsets.right),
+        ),
+        max(
+          viewportPadding.bottom,
+          max(viewportViewPadding.bottom, viewportViewInsets.bottom),
+        ),
+      ).deflateRect(Offset.zero & viewportSize);
+
+  /// The maximum padding that 
+  EdgeInsets get maxSheetPadding {
+    final safeArea = viewportSafeArea;
+    final maxRect = maxSheetRect;
+    return EdgeInsets.fromLTRB(
+      max(safeArea.left - maxRect.left, 0),
+      max(safeArea.top - maxRect.top, 0),
+      max(maxRect.right - safeArea.right, 0),
+      max(maxRect.bottom - safeArea.bottom, 0),
+    );
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
