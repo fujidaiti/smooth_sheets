@@ -8,8 +8,11 @@ import 'package:meta/meta.dart';
 
 import 'model.dart';
 
+/// Geometry of the viewport and the layout constraints
+/// used to lay out the sheet and its content.
 @immutable
 class SheetLayoutSpec {
+  /// Creates a layout specification for the sheet and its content.
   const SheetLayoutSpec({
     required this.viewportSize,
     required this.viewportPadding,
@@ -41,6 +44,9 @@ class SheetLayoutSpec {
   final bool resizeContentToAvoidBottomOverlap;
 
   /// The maximum rectangle that can be occupied by the sheet.
+  ///
+  /// The width and the bottom of the rectangle are fixed, so only
+  /// the height can be adjusted within the constraint.
   Rect get maxSheetRect => Rect.fromLTRB(
         viewportPadding.left,
         viewportPadding.top,
@@ -54,6 +60,9 @@ class SheetLayoutSpec {
   /// as described by [viewportDynamicOverlap],
   /// if [resizeContentToAvoidBottomOverlap] is true.
   /// Otherwise, it matches [maxSheetRect].
+  ///
+  /// The width and the bottom of the rectangle are fixed, so only
+  /// the height can be adjusted within the constraint.
   Rect get maxContentRect {
     final maxSheetRect = this.maxSheetRect;
     final shrunkRectBottom =
@@ -74,21 +83,60 @@ class SheetLayoutSpec {
   /// The maximum amounts of overlap that each side of the sheet can have
   /// with static system UI elements, such as the system status bar or
   /// hardware display notches.
-  EdgeInsets get maxSheetStaticOverlap => EdgeInsets.fromLTRB(
-        max(viewportStaticOverlap.left - viewportPadding.left, 0),
-        max(viewportStaticOverlap.top - viewportPadding.top, 0),
-        max(viewportStaticOverlap.right - viewportPadding.right, 0),
-        max(viewportStaticOverlap.bottom - viewportPadding.bottom, 0),
-      );
+  EdgeInsets get maxSheetStaticOverlap {
+    final maxRect = maxSheetRect;
+    final staticSafeArea =
+        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(staticSafeArea.left - maxRect.left, 0),
+      max(staticSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - staticSafeArea.right, 0),
+      max(maxRect.bottom - staticSafeArea.bottom, 0),
+    );
+  }
 
   /// The maximum amounts of overlap that each side of the sheet can have
   /// with dynamic system UI elements, such as the on-screen keyboard.
-  EdgeInsets get maxSheetDynamicOverlap => EdgeInsets.fromLTRB(
-        max(viewportDynamicOverlap.left - viewportPadding.left, 0),
-        max(viewportDynamicOverlap.top - viewportPadding.top, 0),
-        max(viewportDynamicOverlap.right - viewportPadding.right, 0),
-        max(viewportDynamicOverlap.bottom - viewportPadding.bottom, 0),
-      );
+  EdgeInsets get maxSheetDynamicOverlap {
+    final maxRect = maxSheetRect;
+    final dynamicSafeArea =
+        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(dynamicSafeArea.left - maxRect.left, 0),
+      max(dynamicSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - dynamicSafeArea.right, 0),
+      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
+    );
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet's content
+  /// can have with dynamic system UI elements, such as the on-screen keyboard.
+  EdgeInsets get maxContentDynamicOverlap {
+    final maxRect = maxContentRect;
+    final dynamicSafeArea =
+        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(dynamicSafeArea.left - maxRect.left, 0),
+      max(dynamicSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - dynamicSafeArea.right, 0),
+      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
+    );
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet's content
+  /// can have with static system UI elements, such as the system status bar or
+  /// hardware display notches.
+  EdgeInsets get maxContentStaticOverlap {
+    final maxRect = maxContentRect;
+    final staticSafeArea =
+        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(staticSafeArea.left - maxRect.left, 0),
+      max(staticSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - staticSafeArea.right, 0),
+      max(maxRect.bottom - staticSafeArea.bottom, 0),
+    );
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -111,9 +159,17 @@ class SheetLayoutSpec {
       );
 }
 
-/// Stores the layout information of the sheet and the [SheetViewport].
+/// Stores the geometry of the viewport and the layout constraints
+/// used to lay out the sheet and its content.
 ///
-/// Intended to be placed between a sheet and its content in the widget tree.
+/// Also overwrites the inherited [MediaQueryData.viewPadding] and
+/// [MediaQueryData.viewInsets] with [SheetLayoutSpec.maxContentStaticOverlap]
+/// and [SheetLayoutSpec.maxContentDynamicOverlap] specified in the
+/// [layoutSpec], respectively. This enables the descendant widgets to read
+/// that information using [layoutSpecOf] and use it to determine their own
+/// layout.
+///
+/// Intended to be the child of a sheet, and the parent of its content.
 class SheetMediaQuery extends StatelessWidget {
   @visibleForTesting
   const SheetMediaQuery({
@@ -127,27 +183,8 @@ class SheetMediaQuery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewportPadding = layoutSpec.viewportPadding;
-    final mediaQueryData = MediaQuery.of(context);
-
-    final inheritedViewPadding = mediaQueryData.viewPadding;
-    final viewPaddingForChild = EdgeInsets.fromLTRB(
-      max(inheritedViewPadding.left - viewportPadding.left, 0),
-      max(inheritedViewPadding.top - viewportPadding.top, 0),
-      max(inheritedViewPadding.right - viewportPadding.right, 0),
-      max(inheritedViewPadding.bottom - viewportPadding.bottom, 0),
-    );
-
-    final inheritedViewInsets = mediaQueryData.viewInsets;
-    final viewInsetsForChild = EdgeInsets.fromLTRB(
-      max(inheritedViewInsets.left - viewportPadding.left, 0),
-      max(inheritedViewInsets.top - viewportPadding.top, 0),
-      max(inheritedViewInsets.right - viewportPadding.right, 0),
-      layoutSpec.resizeContentToAvoidBottomOverlap
-          ? 0
-          : max(inheritedViewInsets.bottom - viewportPadding.bottom, 0),
-    );
-
+    final viewPaddingForChild = layoutSpec.maxContentStaticOverlap;
+    final viewInsetsForChild = layoutSpec.maxContentDynamicOverlap;
     final paddingForChild = EdgeInsets.fromLTRB(
       max(viewPaddingForChild.left - viewInsetsForChild.left, 0),
       max(viewPaddingForChild.top - viewInsetsForChild.top, 0),
@@ -158,7 +195,7 @@ class SheetMediaQuery extends StatelessWidget {
     return _InheritedSheetMediaQuery(
       layoutSpec: layoutSpec,
       child: MediaQuery(
-        data: mediaQueryData.copyWith(
+        data: MediaQuery.of(context).copyWith(
           viewPadding: viewPaddingForChild,
           viewInsets: viewInsetsForChild,
           padding: paddingForChild,
@@ -168,6 +205,8 @@ class SheetMediaQuery extends StatelessWidget {
     );
   }
 
+  /// Reads the [SheetLayoutSpec] from the closest ancestor
+  /// [SheetMediaQuery].
   static SheetLayoutSpec layoutSpecOf(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<_InheritedSheetMediaQuery>()!

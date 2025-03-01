@@ -982,6 +982,71 @@ void main() {
         );
       },
     );
+
+    test(
+      'maxContentDynamicOverlap: when dynamic overlap is greater than padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(10),
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
+          ).maxContentDynamicOverlap,
+          EdgeInsets.fromLTRB(0, 10, 20, 30),
+        );
+      },
+    );
+
+    test(
+      'maxContentDynamicOverlap: when dynamic overlap is greater than padding '
+      'and the content is shrunk to avoid the bottom inset',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportStaticOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: true,
+          ).maxContentDynamicOverlap,
+          EdgeInsets.fromLTRB(10, 20, 30, 0),
+        );
+      },
+    );
+
+    test(
+      'maxContentStaticOverlap: when static overlap is greater than padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(10),
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            resizeContentToAvoidBottomOverlap: false,
+          ).maxContentStaticOverlap,
+          EdgeInsets.fromLTRB(0, 10, 20, 30),
+        );
+      },
+    );
+
+    test(
+      'maxContentStaticOverlap: when static overlap is less than padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(40),
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            resizeContentToAvoidBottomOverlap: false,
+          ).maxContentStaticOverlap,
+          EdgeInsets.zero,
+        );
+      },
+    );
   });
 
   group('SheetMediaQuery', () {
@@ -989,11 +1054,10 @@ void main() {
       Widget testWidget,
     }) boilerplate({
       required SheetLayoutSpec layoutSpec,
-      MediaQueryData? parentData,
       required Widget child,
     }) {
       final testWidget = MediaQuery(
-        data: parentData ?? MediaQueryData(),
+        data: MediaQueryData(),
         child: SheetMediaQuery(
           layoutSpec: layoutSpec,
           child: child,
@@ -1004,51 +1068,16 @@ void main() {
     }
 
     testWidgets(
-      'should subtract viewport padding from inherited '
-      'view-padding and view-insets',
+      'should calculate the inherited padding as '
+      'max(staticOverlap - dynamicOverlap, 0)',
       (tester) async {
         late MediaQueryData childData;
         final env = boilerplate(
-          parentData: MediaQueryData(
-            viewPadding: EdgeInsets.all(30),
-            viewInsets: EdgeInsets.all(20),
-            padding: EdgeInsets.all(10),
-          ),
-          layoutSpec: SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(10),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            resizeContentToAvoidBottomOverlap: false,
-          ),
-          child: Builder(
-            builder: (context) {
-              childData = MediaQuery.of(context);
-              return Container();
-            },
-          ),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(childData.viewPadding, EdgeInsets.all(20));
-        expect(childData.viewInsets, EdgeInsets.all(10));
-      },
-    );
-
-    testWidgets(
-      'should calculate padding as max(viewPadding - viewInsets, 0)',
-      (tester) async {
-        late MediaQueryData childData;
-        final env = boilerplate(
-          parentData: MediaQueryData(
-            viewPadding: EdgeInsets.fromLTRB(30, 20, 10, 40),
-            viewInsets: EdgeInsets.fromLTRB(10, 5, 15, 25),
-          ),
           layoutSpec: SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.all(5),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 5, 15, 25),
+            viewportStaticOverlap: EdgeInsets.fromLTRB(30, 20, 10, 40),
             resizeContentToAvoidBottomOverlap: false,
           ),
           child: Builder(
@@ -1065,20 +1094,16 @@ void main() {
     );
 
     testWidgets(
-      'should zero out bottom view-inset '
-      'if resizeContentToAvoidBottomInset is true',
+      'should allow descendants to read dynamic overlap as view-inset',
       (tester) async {
         late MediaQueryData childData;
         final env = boilerplate(
-          parentData: MediaQueryData(
-            viewInsets: EdgeInsets.only(bottom: 50),
-          ),
           layoutSpec: SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
-            resizeContentToAvoidBottomOverlap: true,
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            resizeContentToAvoidBottomOverlap: false,
           ),
           child: Builder(
             builder: (context) {
@@ -1089,7 +1114,32 @@ void main() {
         );
 
         await tester.pumpWidget(env.testWidget);
-        expect(childData.viewInsets.bottom, 0);
+        expect(childData.viewInsets, EdgeInsets.fromLTRB(10, 20, 30, 40));
+      },
+    );
+
+    testWidgets(
+      'should allow descendants to read static overlap as view-padding',
+      (tester) async {
+        late MediaQueryData childData;
+        final env = boilerplate(
+          layoutSpec: SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportDynamicOverlap: EdgeInsets.zero,
+            resizeContentToAvoidBottomOverlap: false,
+          ),
+          child: Builder(
+            builder: (context) {
+              childData = MediaQuery.of(context);
+              return Container();
+            },
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(childData.viewPadding, EdgeInsets.fromLTRB(10, 20, 30, 40));
       },
     );
 
