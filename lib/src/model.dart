@@ -35,7 +35,13 @@ abstract interface class SheetOffset {
   const factory SheetOffset.relative(double factor) = RelativeSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
-  double resolve(SheetLayoutMeasurements measurements);
+  double resolve(SheetOffsetInput input);
+}
+
+abstract interface class SheetOffsetInput {
+  double get viewportExtent;
+  double get contentExtent;
+  double get contentBaseline;
 }
 
 /// A [SheetOffset] that represents a position proportional
@@ -58,8 +64,8 @@ class RelativeSheetOffset implements SheetOffset {
   final double factor;
 
   @override
-  double resolve(SheetLayoutMeasurements measurements) =>
-      measurements.contentSize.height * factor + measurements.contentBaseline;
+  double resolve(SheetOffsetInput input) =>
+      input.contentExtent * factor + input.contentBaseline;
 
   @override
   bool operator ==(Object other) =>
@@ -547,6 +553,12 @@ class SheetLayoutSpec {
   /// as described by [viewportDynamicOverlap].
   final bool resizeContentToAvoidBottomOverlap;
 
+  /// The distance from the bottom of the viewport to the bottom
+  /// of the sheet's content.
+  double get contentBaseline => resizeContentToAvoidBottomOverlap
+      ? max(viewportPadding.bottom, viewportDynamicOverlap.bottom)
+      : viewportPadding.bottom;
+
   /// {@template SheetLayoutSpec.maxSheetRect}
   /// The maximum rectangle that can be occupied by the sheet.
   ///
@@ -569,22 +581,12 @@ class SheetLayoutSpec {
   ///
   /// The width and the bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraint.
-  Rect get maxContentRect {
-    final maxSheetRect = this.maxSheetRect;
-    final shrunkRectBottom =
-        viewportSize.height - viewportDynamicOverlap.bottom;
-    if (resizeContentToAvoidBottomOverlap &&
-        shrunkRectBottom < maxSheetRect.bottom) {
-      return Rect.fromLTRB(
-        maxSheetRect.left,
-        maxSheetRect.top,
-        maxSheetRect.right,
-        shrunkRectBottom,
+  Rect get maxContentRect => Rect.fromLTRB(
+        viewportPadding.left,
+        viewportPadding.top,
+        viewportSize.width - viewportPadding.right,
+        viewportSize.height - contentBaseline,
       );
-    } else {
-      return maxSheetRect;
-    }
-  }
 
   /// The maximum amounts of overlap that each side of the sheet can have
   /// with static system UI elements, such as the system status bar or
@@ -666,7 +668,7 @@ class SheetLayoutSpec {
 }
 
 @immutable
-class SheetLayoutMeasurements {
+class SheetLayoutMeasurements implements SheetOffsetInput {
   const SheetLayoutMeasurements({
     required SheetLayoutSpec layoutSpec,
     required this.contentSize,
@@ -689,10 +691,14 @@ class SheetLayoutMeasurements {
   /// {@macro SheetLayoutSpec.viewportStaticOverlap}
   EdgeInsets get viewportStaticOverlap => _layoutSpec.viewportStaticOverlap;
 
-  /// The distance from the bottom of the viewport to the bottom
-  /// of the sheet's content.
-  double get contentBaseline =>
-      viewportSize.height - _layoutSpec.maxContentRect.bottom;
+  @override
+  double get contentBaseline => _layoutSpec.contentBaseline;
+
+  @override
+  double get contentExtent => contentSize.height;
+
+  @override
+  double get viewportExtent => viewportSize.height;
 
   @override
   bool operator ==(Object other) {
