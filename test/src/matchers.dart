@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/model.dart';
 
@@ -15,15 +16,15 @@ Matcher throwsError({required String name}) => throwsA(
 Matcher get isNotInitialized => throwsError(name: 'LateError');
 
 Matcher isMeasurements({
-  double? contentHeight,
+  Size? contentSize,
   double? contentBaseline,
 }) {
   var result = isA<SheetLayoutMeasurements>();
-  if (contentHeight != null) {
+  if (contentSize != null) {
     result = result.having(
-      (it) => it.contentHeight,
-      'contentHeight',
-      contentHeight,
+      (it) => it.contentSize,
+      'contentSize',
+      contentSize,
     );
   }
   if (contentBaseline != null) {

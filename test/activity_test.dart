@@ -46,7 +46,7 @@ void main() {
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(300),
         ),
-        contentHeight: 700,
+        contentSize: const Size(400, 700),
         viewportSize: const Size(400, 900),
         devicePixelRatio: 1,
       );
@@ -86,7 +86,7 @@ void main() {
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(250),
         ),
-        contentHeight: 850,
+        contentSize: const Size(400, 850),
         viewportSize: const Size(400, 900),
         devicePixelRatio: 1,
       );
@@ -117,7 +117,7 @@ void main() {
       // on a sheet that uses SheetContentScaffold.
       final oldMeasurements = ownerMetrics.measurements;
       ownerMetrics.measurements = ownerMetrics.measurements.copyWith(
-        contentHeight: 850,
+        contentSize: const Size(400, 850),
         layoutSpec: SheetLayoutSpec(
           viewportSize: const Size(400, 900),
           viewportPadding: EdgeInsets.zero,
@@ -149,7 +149,7 @@ void main() {
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(300),
         ),
-        contentHeight: 600,
+        contentSize: const Size(400, 600),
         viewportSize: const Size(400, 900),
         devicePixelRatio: 1,
       );
@@ -292,7 +292,7 @@ void main() {
               const SheetOffset.relative(1),
             ],
           ),
-          contentHeight: 800,
+          contentSize: const Size(400, 800),
           viewportSize: const Size(400, 900),
           viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
           devicePixelRatio: 1,
@@ -308,7 +308,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             resizeContentToAvoidBottomOverlap: true,
           ),
-          contentHeight: 850,
+          contentSize: const Size(400, 850),
         );
         IdleSheetActivity()
           ..init(owner)
@@ -329,7 +329,7 @@ void main() {
               const SheetOffset.relative(1),
             ],
           ),
-          contentHeight: 500,
+          contentSize: Size(400, 500),
           viewportSize: const Size(400, 900),
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
@@ -338,7 +338,7 @@ void main() {
 
         final oldMeasurements = owner.measurements;
         owner.measurements = owner.measurements.copyWith(
-          contentHeight: 600,
+          contentSize: const Size(400, 600),
         );
         IdleSheetActivity()
           ..init(owner)

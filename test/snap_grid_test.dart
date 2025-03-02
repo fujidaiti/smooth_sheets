@@ -14,7 +14,7 @@ void main() {
       viewportStaticOverlap: EdgeInsets.zero,
       resizeContentToAvoidBottomOverlap: false,
     ),
-    contentHeight: 500,
+    contentSize: const Size(800, 500),
   );
 
   group('SingleSnapGrid', () {
@@ -51,12 +51,16 @@ void main() {
           .getBoundaries(testMeasurements);
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
-      result = const SingleSnapGrid(snap: SheetOffset.absolute(500))
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 600));
+      result =
+          const SingleSnapGrid(snap: SheetOffset.absolute(500)).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 600)),
+      );
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
-      result = const SingleSnapGrid(snap: SheetOffset.absolute(500))
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 500));
+      result =
+          const SingleSnapGrid(snap: SheetOffset.absolute(500)).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 500)),
+      );
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
     });
   });
@@ -107,16 +111,16 @@ void main() {
       expect(result, (SheetOffset.relative(0), SheetOffset.relative(1)));
 
       result = snap.getBoundaries(
-        testMeasurements.copyWith(contentHeight: 400),
+        testMeasurements.copyWith(contentSize: Size(800, 400)),
       );
       expect(result, (SheetOffset.relative(0), SheetOffset.relative(1)));
 
       result = snap.getBoundaries(
-        testMeasurements.copyWith(contentHeight: 600),
+        testMeasurements.copyWith(contentSize: Size(800, 600)),
       );
       expect(result, (SheetOffset.relative(0), SheetOffset.relative(1)));
       result = snap.getBoundaries(
-        testMeasurements.copyWith(contentHeight: 300),
+        testMeasurements.copyWith(contentSize: Size(800, 300)),
       );
       expect(result, (SheetOffset.relative(0), SheetOffset.relative(1)));
     });
@@ -153,16 +157,22 @@ void main() {
     });
 
     test('getBoundaries', () {
-      var result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 400));
+      var result =
+          const MultiSnapGrid(snaps: [SheetOffset.absolute(500)]).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 400)),
+      );
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 600));
+      result =
+          const MultiSnapGrid(snaps: [SheetOffset.absolute(500)]).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 600)),
+      );
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 500));
+      result =
+          const MultiSnapGrid(snaps: [SheetOffset.absolute(500)]).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 500)),
+      );
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
     });
   });
@@ -259,16 +269,19 @@ void main() {
     });
 
     test('getBoundaries', () {
-      var result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 400));
+      var result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 400)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 600));
+      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 600)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 500));
+      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 500)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
 
@@ -279,7 +292,7 @@ void main() {
           SheetOffset.absolute(0),
         ],
       ).getBoundaries(
-        testMeasurements.copyWith(contentHeight: 400),
+        testMeasurements.copyWith(contentSize: Size(800, 400)),
       );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
@@ -417,16 +430,19 @@ void main() {
     });
 
     test('getBoundaries', () {
-      var result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 400));
+      var result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 400)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 600));
+      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 600)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 500));
+      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 500)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
 
@@ -438,7 +454,7 @@ void main() {
           SheetOffset.absolute(0),
         ],
       ).getBoundaries(
-        testMeasurements.copyWith(contentHeight: 400),
+        testMeasurements.copyWith(contentSize: Size(800, 400)),
       );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
@@ -603,16 +619,19 @@ void main() {
     });
 
     test('getBoundaries', () {
-      var result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 400));
+      var result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 400)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
 
-      result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 600));
+      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 600)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
 
-      result = const MultiSnapGrid(snaps: snaps)
-          .getBoundaries(testMeasurements.copyWith(contentHeight: 500));
+      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
+        testMeasurements.copyWith(contentSize: Size(800, 500)),
+      );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
     });
 
@@ -625,7 +644,7 @@ void main() {
           SheetOffset.absolute(0),
         ],
       ).getBoundaries(
-        testMeasurements.copyWith(contentHeight: 400),
+        testMeasurements.copyWith(contentSize: Size(800, 400)),
       );
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
     });

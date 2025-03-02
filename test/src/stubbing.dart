@@ -65,7 +65,7 @@ class MutableSheetMetrics implements SheetMetrics {
 (MutableSheetMetrics, MockSheetModel) createMockSheetModel({
   required double offset,
   required SheetOffset initialPosition,
-  required double contentHeight,
+  required Size contentSize,
   required Size viewportSize,
   EdgeInsets viewportDynamicOverlap = EdgeInsets.zero,
   required double devicePixelRatio,
@@ -80,7 +80,7 @@ class MutableSheetMetrics implements SheetMetrics {
       viewportStaticOverlap: EdgeInsets.zero,
       resizeContentToAvoidBottomOverlap: true,
     ),
-    contentHeight: contentHeight,
+    contentSize: contentSize,
   );
   final (initialMinOffset, initialMaxOffset) =
       snapGrid.getBoundaries(initialMeasurements);

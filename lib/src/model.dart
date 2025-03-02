@@ -59,7 +59,7 @@ class RelativeSheetOffset implements SheetOffset {
 
   @override
   double resolve(SheetLayoutMeasurements measurements) =>
-      measurements.contentHeight * factor + measurements.contentBaseline;
+      measurements.contentSize.height * factor + measurements.contentBaseline;
 
   @override
   bool operator ==(Object other) =>
@@ -669,13 +669,13 @@ class SheetLayoutSpec {
 class SheetLayoutMeasurements {
   const SheetLayoutMeasurements({
     required SheetLayoutSpec layoutSpec,
-    required this.contentHeight,
+    required this.contentSize,
   }) : _layoutSpec = layoutSpec;
 
   final SheetLayoutSpec _layoutSpec;
 
   /// The height of the sheet's content.
-  final double contentHeight;
+  final Size contentSize;
 
   /// {@macro SheetLayoutSpec.viewportSize}
   Size get viewportSize => _layoutSpec.viewportSize;
@@ -689,24 +689,6 @@ class SheetLayoutMeasurements {
   /// {@macro SheetLayoutSpec.viewportStaticOverlap}
   EdgeInsets get viewportStaticOverlap => _layoutSpec.viewportStaticOverlap;
 
-  /// The rectangle that bounds the sheet's content.
-  Rect get contentRect {
-    final maxContentRect = _layoutSpec.maxContentRect;
-    return Rect.fromLTRB(
-      maxContentRect.left,
-      maxContentRect.bottom - contentHeight,
-      maxContentRect.right,
-      maxContentRect.bottom,
-    );
-  }
-
-  /// The minimum height that the sheet can have.
-  double get minSheetHeight =>
-      max(_layoutSpec.maxSheetRect.bottom - contentRect.top, 0);
-
-  /// The maximum height that the sheet can have.
-  double get maxSheetHeight => _layoutSpec.maxSheetRect.size.height;
-
   /// The distance from the bottom of the viewport to the bottom
   /// of the sheet's content.
   double get contentBaseline =>
@@ -717,19 +699,19 @@ class SheetLayoutMeasurements {
     if (identical(this, other)) return true;
     return other is SheetLayoutMeasurements &&
         other._layoutSpec == _layoutSpec &&
-        other.contentHeight == contentHeight;
+        other.contentSize == contentSize;
   }
 
   @override
-  int get hashCode => Object.hash(_layoutSpec, contentHeight);
+  int get hashCode => Object.hash(_layoutSpec, contentSize);
 
   SheetLayoutMeasurements copyWith({
     SheetLayoutSpec? layoutSpec,
-    double? contentHeight,
+    Size? contentSize,
   }) {
     return SheetLayoutMeasurements(
       layoutSpec: layoutSpec ?? _layoutSpec,
-      contentHeight: contentHeight ?? this.contentHeight,
+      contentSize: contentSize ?? this.contentSize,
     );
   }
 }

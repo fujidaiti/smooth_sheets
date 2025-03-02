@@ -24,7 +24,7 @@ const _referenceSheetMetrics = SheetMetricsSnapshot(
       viewportStaticOverlap: EdgeInsets.zero,
       resizeContentToAvoidBottomOverlap: true,
     ),
-    contentHeight: 600,
+    contentSize: Size(400, 600),
   ),
   devicePixelRatio: 1,
 );
