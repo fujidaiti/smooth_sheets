@@ -38,9 +38,9 @@ class _FakeSheetContext_0 extends _i1.SmartFake implements _i2.SheetContext {
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetLayoutMeasurements_1 extends _i1.SmartFake
-    implements _i2.SheetLayoutMeasurements {
-  _FakeSheetLayoutMeasurements_1(Object parent, Invocation parentInvocation)
+class _FakeSheetMeasurements_1 extends _i1.SmartFake
+    implements _i2.SheetMeasurements {
+  _FakeSheetMeasurements_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -135,18 +135,18 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
           as _i2.SheetContext);
 
   @override
-  _i2.SheetLayoutMeasurements get measurements =>
+  _i2.SheetMeasurements get measurements =>
       (super.noSuchMethod(
             Invocation.getter(#measurements),
-            returnValue: _FakeSheetLayoutMeasurements_1(
+            returnValue: _FakeSheetMeasurements_1(
               this,
               Invocation.getter(#measurements),
             ),
           )
-          as _i2.SheetLayoutMeasurements);
+          as _i2.SheetMeasurements);
 
   @override
-  set measurements(_i2.SheetLayoutMeasurements? value) => super.noSuchMethod(
+  set measurements(_i2.SheetMeasurements? value) => super.noSuchMethod(
     Invocation.setter(#measurements, value),
     returnValueForMissingStub: null,
   );
@@ -334,7 +334,7 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
     double? offset,
     double? minOffset,
     double? maxOffset,
-    _i2.SheetLayoutMeasurements? measurements,
+    _i2.SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) =>
       (super.noSuchMethod(
@@ -481,26 +481,26 @@ class MockSheetMetrics extends _i1.Mock implements _i2.SheetMetrics {
           as double);
 
   @override
-  _i2.SheetLayoutMeasurements get measurements =>
+  _i2.SheetMeasurements get measurements =>
       (super.noSuchMethod(
             Invocation.getter(#measurements),
-            returnValue: _FakeSheetLayoutMeasurements_1(
+            returnValue: _FakeSheetMeasurements_1(
               this,
               Invocation.getter(#measurements),
             ),
-            returnValueForMissingStub: _FakeSheetLayoutMeasurements_1(
+            returnValueForMissingStub: _FakeSheetMeasurements_1(
               this,
               Invocation.getter(#measurements),
             ),
           )
-          as _i2.SheetLayoutMeasurements);
+          as _i2.SheetMeasurements);
 
   @override
   _i2.SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    _i2.SheetLayoutMeasurements? measurements,
+    _i2.SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) =>
       (super.noSuchMethod(

@@ -19,7 +19,7 @@ Matcher isMeasurements({
   Size? contentSize,
   double? contentBaseline,
 }) {
-  var result = isA<SheetLayoutMeasurements>();
+  var result = isA<SheetMeasurements>();
   if (contentSize != null) {
     result = result.having(
       (it) => it.contentSize,

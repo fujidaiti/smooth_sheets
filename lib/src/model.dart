@@ -35,13 +35,7 @@ abstract interface class SheetOffset {
   const factory SheetOffset.relative(double factor) = RelativeSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
-  double resolve(SheetOffsetInput input);
-}
-
-abstract interface class SheetOffsetInput {
-  double get viewportExtent;
-  double get contentExtent;
-  double get contentBaseline;
+  double resolve(SheetMeasurements measurements);
 }
 
 /// A [SheetOffset] that represents a position proportional
@@ -64,8 +58,8 @@ class RelativeSheetOffset implements SheetOffset {
   final double factor;
 
   @override
-  double resolve(SheetOffsetInput input) =>
-      input.contentExtent * factor + input.contentBaseline;
+  double resolve(SheetMeasurements measurements) =>
+      measurements.contentSize.height * factor + measurements.contentBaseline;
 
   @override
   bool operator ==(Object other) =>
@@ -183,9 +177,9 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   }
 
   @override
-  SheetLayoutMeasurements get measurements => _measurements!;
-  SheetLayoutMeasurements? _measurements;
-  set measurements(SheetLayoutMeasurements value) {
+  SheetMeasurements get measurements => _measurements!;
+  SheetMeasurements? _measurements;
+  set measurements(SheetMeasurements value) {
     if (_measurements == value) {
       return;
     }
@@ -365,7 +359,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetLayoutMeasurements? measurements,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -433,14 +427,14 @@ abstract interface class SheetMetrics {
   /// associated with this metrics is drawn into.
   double get devicePixelRatio;
 
-  SheetLayoutMeasurements get measurements;
+  SheetMeasurements get measurements;
 
   /// Creates a copy of the metrics with the given fields replaced.
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetLayoutMeasurements? measurements,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   });
 }
@@ -466,7 +460,7 @@ class SheetMetricsSnapshot implements SheetMetrics {
   final double maxOffset;
 
   @override
-  final SheetLayoutMeasurements measurements;
+  final SheetMeasurements measurements;
 
   @override
   final double devicePixelRatio;
@@ -476,7 +470,7 @@ class SheetMetricsSnapshot implements SheetMetrics {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetLayoutMeasurements? measurements,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -553,8 +547,10 @@ class SheetLayoutSpec {
   /// as described by [viewportDynamicOverlap].
   final bool resizeContentToAvoidBottomOverlap;
 
+  /// {@template SheetLayoutSpec.contentBaseline}
   /// The distance from the bottom of the viewport to the bottom
   /// of the sheet's content.
+  /// {@endtemplate}
   double get contentBaseline => resizeContentToAvoidBottomOverlap
       ? max(viewportPadding.bottom, viewportDynamicOverlap.bottom)
       : viewportPadding.bottom;
@@ -668,8 +664,8 @@ class SheetLayoutSpec {
 }
 
 @immutable
-class SheetLayoutMeasurements implements SheetOffsetInput {
-  const SheetLayoutMeasurements({
+class SheetMeasurements {
+  const SheetMeasurements({
     required SheetLayoutSpec layoutSpec,
     required this.contentSize,
   }) : _layoutSpec = layoutSpec;
@@ -691,19 +687,13 @@ class SheetLayoutMeasurements implements SheetOffsetInput {
   /// {@macro SheetLayoutSpec.viewportStaticOverlap}
   EdgeInsets get viewportStaticOverlap => _layoutSpec.viewportStaticOverlap;
 
-  @override
+  /// {@macro SheetLayoutSpec.contentBaseline}
   double get contentBaseline => _layoutSpec.contentBaseline;
-
-  @override
-  double get contentExtent => contentSize.height;
-
-  @override
-  double get viewportExtent => viewportSize.height;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is SheetLayoutMeasurements &&
+    return other is SheetMeasurements &&
         other._layoutSpec == _layoutSpec &&
         other.contentSize == contentSize;
   }
@@ -711,11 +701,11 @@ class SheetLayoutMeasurements implements SheetOffsetInput {
   @override
   int get hashCode => Object.hash(_layoutSpec, contentSize);
 
-  SheetLayoutMeasurements copyWith({
+  SheetMeasurements copyWith({
     SheetLayoutSpec? layoutSpec,
     Size? contentSize,
   }) {
-    return SheetLayoutMeasurements(
+    return SheetMeasurements(
       layoutSpec: layoutSpec ?? _layoutSpec,
       contentSize: contentSize ?? this.contentSize,
     );

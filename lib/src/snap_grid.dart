@@ -23,14 +23,13 @@ abstract interface class SheetSnapGrid {
   /// Returns an position to which a sheet should eventually settle
   /// based on the current [measurements], [offset] and [velocity] of the sheet.
   SheetOffset getSnapOffset(
-    SheetLayoutMeasurements measurements,
+    SheetMeasurements measurements,
     double offset,
     double velocity,
   );
 
   /// Returns the minimum and maximum offsets.
-  (SheetOffset, SheetOffset) getBoundaries(
-      SheetLayoutMeasurements measurements);
+  (SheetOffset, SheetOffset) getBoundaries(SheetMeasurements measurements);
 }
 
 class SingleSnapGrid implements SheetSnapGrid {
@@ -42,7 +41,7 @@ class SingleSnapGrid implements SheetSnapGrid {
 
   @override
   SheetOffset getSnapOffset(
-    SheetLayoutMeasurements measurements,
+    SheetMeasurements measurements,
     double offset,
     double velocity,
   ) {
@@ -50,8 +49,7 @@ class SingleSnapGrid implements SheetSnapGrid {
   }
 
   @override
-  (SheetOffset, SheetOffset) getBoundaries(
-      SheetLayoutMeasurements measurements) {
+  (SheetOffset, SheetOffset) getBoundaries(SheetMeasurements measurements) {
     return (snap, snap);
   }
 }
@@ -66,14 +64,13 @@ class SteplessSnapGrid implements SheetSnapGrid {
   final SheetOffset maxOffset;
 
   @override
-  (SheetOffset, SheetOffset) getBoundaries(
-      SheetLayoutMeasurements measurements) {
+  (SheetOffset, SheetOffset) getBoundaries(SheetMeasurements measurements) {
     return (minOffset, maxOffset);
   }
 
   @override
   SheetOffset getSnapOffset(
-    SheetLayoutMeasurements measurements,
+    SheetMeasurements measurements,
     double offset,
     double velocity,
   ) {
@@ -103,7 +100,7 @@ class MultiSnapGrid implements SheetSnapGrid {
 
   @override
   SheetOffset getSnapOffset(
-    SheetLayoutMeasurements measurements,
+    SheetMeasurements measurements,
     double offset,
     double velocity,
   ) {
@@ -122,8 +119,7 @@ class MultiSnapGrid implements SheetSnapGrid {
   }
 
   @override
-  (SheetOffset, SheetOffset) getBoundaries(
-      SheetLayoutMeasurements measurements) {
+  (SheetOffset, SheetOffset) getBoundaries(SheetMeasurements measurements) {
     assert(snaps.isNotEmpty);
     if (snaps.length == 1) {
       return (snaps.first, snaps.first);
@@ -171,7 +167,7 @@ class MultiSnapGrid implements SheetSnapGrid {
     SheetOffset nearest,
     SheetOffset leftmost,
     SheetOffset rightmost,
-  }) _scanSnapOffsets(SheetLayoutMeasurements measurements, double offset) {
+  }) _scanSnapOffsets(SheetMeasurements measurements, double offset) {
     assert(snaps.isNotEmpty);
 
     if (snaps.length == 1) {

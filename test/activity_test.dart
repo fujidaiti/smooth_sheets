@@ -300,7 +300,7 @@ void main() {
         );
 
         final oldMeasurements = ownerMetrics.measurements;
-        ownerMetrics.measurements = SheetLayoutMeasurements(
+        ownerMetrics.measurements = SheetMeasurements(
           layoutSpec: SheetLayoutSpec(
             viewportSize: const Size(400, 900),
             viewportPadding: EdgeInsets.zero,

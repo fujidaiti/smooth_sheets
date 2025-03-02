@@ -6,7 +6,7 @@ import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
 
 void main() {
-  final testMeasurements = SheetLayoutMeasurements(
+  final testMeasurements = SheetMeasurements(
     layoutSpec: SheetLayoutSpec(
       viewportSize: testScreenSize,
       viewportPadding: EdgeInsets.zero,

@@ -42,14 +42,14 @@ class MutableSheetMetrics implements SheetMetrics {
   double maxOffset;
 
   @override
-  SheetLayoutMeasurements measurements;
+  SheetMeasurements measurements;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetLayoutMeasurements? measurements,
+    SheetMeasurements? measurements,
     double? devicePixelRatio,
   }) {
     return SheetMetricsSnapshot(
@@ -72,7 +72,7 @@ class MutableSheetMetrics implements SheetMetrics {
   SheetPhysics? physics,
   SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {
-  final initialMeasurements = SheetLayoutMeasurements(
+  final initialMeasurements = SheetMeasurements(
     layoutSpec: SheetLayoutSpec(
       viewportSize: viewportSize,
       viewportPadding: EdgeInsets.zero,
@@ -108,7 +108,7 @@ class MutableSheetMetrics implements SheetMetrics {
   });
   when(position.measurements = any).thenAnswer((invocation) {
     metricsRegistry.measurements =
-        invocation.positionalArguments[0] as SheetLayoutMeasurements;
+        invocation.positionalArguments[0] as SheetMeasurements;
   });
   when(position.snapGrid).thenReturn(snapGrid);
   when(position.copyWith(
@@ -124,7 +124,7 @@ class MutableSheetMetrics implements SheetMetrics {
       maxOffset: invocation.namedArguments[#maxOffset] as double?,
       devicePixelRatio: invocation.namedArguments[#devicePixelRatio] as double?,
       measurements:
-          invocation.namedArguments[#measurements] as SheetLayoutMeasurements?,
+          invocation.namedArguments[#measurements] as SheetMeasurements?,
     );
   });
 
