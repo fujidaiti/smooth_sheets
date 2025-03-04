@@ -459,7 +459,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     );
 
     assert(_model._inner != null);
-    _model._inner!.measurements = ViewportLayoutMetrics(
+    _model._inner!.layout = ViewportLayout(
       layoutSpec: _layoutSpec,
       contentSize: Size.copy(child.size),
     );
@@ -543,22 +543,54 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   double get offset => _inner!.offset;
 
   @override
-  ViewportLayoutMetrics get measurements => _inner!.measurements;
+  double get contentBaseline => _inner!.contentBaseline;
+
+  @override
+  Size get contentSize => _inner!.contentSize;
+
+  @override
+  Size get size => _inner!.size;
+
+  @override
+  EdgeInsets get viewportDynamicOverlap => _inner!.viewportDynamicOverlap;
+
+  @override
+  EdgeInsets get viewportPadding => _inner!.viewportPadding;
+
+  @override
+  Size get viewportSize => _inner!.viewportSize;
+
+  @override
+  EdgeInsets get viewportStaticOverlap => _inner!.viewportStaticOverlap;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    ViewportLayoutMetrics? measurements,
+    Size? size,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportPadding,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportStaticOverlap,
+    double? contentBaseline,
     double? devicePixelRatio,
   }) {
-    return _inner!.copyWith(
-      offset: offset,
-      minOffset: minOffset,
-      maxOffset: maxOffset,
-      measurements: measurements,
-      devicePixelRatio: devicePixelRatio,
+    return ImmutableSheetMetrics(
+      offset: offset ?? _inner!.offset,
+      minOffset: minOffset ?? _inner!.minOffset,
+      maxOffset: maxOffset ?? _inner!.maxOffset,
+      devicePixelRatio: devicePixelRatio ?? _inner!.devicePixelRatio,
+      contentBaseline: contentBaseline ?? _inner!.contentBaseline,
+      contentSize: contentSize ?? _inner!.contentSize,
+      size: size ?? _inner!.size,
+      viewportDynamicOverlap:
+          viewportDynamicOverlap ?? _inner!.viewportDynamicOverlap,
+      viewportPadding: viewportPadding ?? _inner!.viewportPadding,
+      viewportSize: viewportSize ?? _inner!.viewportSize,
+      viewportStaticOverlap:
+          viewportStaticOverlap ?? _inner!.viewportStaticOverlap,
     );
   }
 }

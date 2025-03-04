@@ -62,7 +62,7 @@ abstract class SheetActivity<T extends SheetModel> {
 
   bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
-  void didChangeMeasurements(ViewportLayoutMetrics oldMeasurements) {}
+  void didChangeMeasurements(ViewportLayout oldMeasurements) {}
 
   @protected
   bool debugAssertMounted() {
@@ -128,7 +128,7 @@ class AnimatedSheetActivity extends SheetActivity
   void init(SheetModel delegate) {
     super.init(delegate);
     _startOffset = owner.offset;
-    _endOffset = destination.resolve(owner.measurements);
+    _endOffset = destination.resolve(owner.layout);
   }
 
   @override
@@ -159,8 +159,8 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void didChangeMeasurements(ViewportLayoutMetrics oldMeasurements) {
-    final newEndOffset = destination.resolve(owner.measurements);
+  void didChangeMeasurements(ViewportLayout oldMeasurements) {
+    final newEndOffset = destination.resolve(owner.layout);
     if (newEndOffset != _endOffset) {
       final remainingDuration =
           duration - (controller.lastElapsedDuration ?? Duration.zero);
@@ -203,13 +203,13 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void didChangeMeasurements(ViewportLayoutMetrics oldMeasurements) {
+  void didChangeMeasurements(ViewportLayout oldMeasurements) {
     final destination = owner.snapGrid.getSnapOffset(
       oldMeasurements,
       owner.offset,
       velocity,
     );
-    final endOffset = destination.resolve(owner.measurements);
+    final endOffset = destination.resolve(owner.layout);
     if (endOffset == owner.offset) {
       return;
     }
@@ -302,7 +302,7 @@ class SettlingSheetActivity extends SheetActivity {
     final elapsedFrameTime =
         (elapsedDuration - _elapsedDuration).inMicroseconds /
             Duration.microsecondsPerSecond;
-    final destination = this.destination.resolve(owner.measurements);
+    final destination = this.destination.resolve(owner.layout);
     final offset = owner.offset;
     final newOffset = destination > offset
         ? min(destination, offset + velocity * elapsedFrameTime)
@@ -319,7 +319,7 @@ class SettlingSheetActivity extends SheetActivity {
   }
 
   @override
-  void didChangeMeasurements(ViewportLayoutMetrics oldMeasurements) {
+  void didChangeMeasurements(ViewportLayout oldMeasurements) {
     _invalidateVelocity();
   }
 
@@ -341,7 +341,7 @@ class SettlingSheetActivity extends SheetActivity {
     if (duration case final duration?) {
       final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
           Duration.microsecondsPerSecond;
-      final destination = this.destination.resolve(owner.measurements);
+      final destination = this.destination.resolve(owner.layout);
       final offset = owner.offset;
       _velocity = remainingSeconds > 0
           ? (destination - offset).abs() / remainingSeconds
@@ -359,14 +359,14 @@ class IdleSheetActivity extends SheetActivity {
   void init(SheetModel owner) {
     super.init(owner);
     targetOffset = owner.hasMetrics
-        ? owner.snapGrid.getSnapOffset(owner.measurements, owner.offset, 0)
+        ? owner.snapGrid.getSnapOffset(owner.layout, owner.offset, 0)
         : owner.initialOffset;
   }
 
   /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
-  void didChangeMeasurements(ViewportLayoutMetrics oldMeasurements) {
-    final newOffset = targetOffset.resolve(owner.measurements);
+  void didChangeMeasurements(ViewportLayout oldMeasurements) {
+    final newOffset = targetOffset.resolve(owner.layout);
     if (newOffset != owner.offset) {
       owner
         ..offset = newOffset

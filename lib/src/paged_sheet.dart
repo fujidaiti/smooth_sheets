@@ -122,9 +122,8 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     ValueGetter<double?> targetOffsetResolver(_PagedSheetEntry entry) {
       return () {
         if (entry._contentSize case final contentSize?) {
-          return (entry._targetOffset ?? entry.initialOffset).resolve(
-            measurements.copyWith(contentSize: contentSize),
-          );
+          return (entry._targetOffset ?? entry.initialOffset)
+              .resolve(copyWith(contentSize: contentSize));
         }
         return null;
       };

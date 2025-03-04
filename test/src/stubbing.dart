@@ -25,8 +25,14 @@ class MutableSheetMetrics with SheetMetrics {
     required this.offset,
     required this.minOffset,
     required this.maxOffset,
-    required this.measurements,
     required this.devicePixelRatio,
+    required this.contentBaseline,
+    required this.contentSize,
+    required this.size,
+    required this.viewportDynamicOverlap,
+    required this.viewportPadding,
+    required this.viewportSize,
+    required this.viewportStaticOverlap,
   });
 
   @override
@@ -42,22 +48,54 @@ class MutableSheetMetrics with SheetMetrics {
   double maxOffset;
 
   @override
-  ViewportLayoutMetrics measurements;
+  double contentBaseline;
+
+  @override
+  Size contentSize;
+
+  @override
+  Size size;
+
+  @override
+  EdgeInsets viewportDynamicOverlap;
+
+  @override
+  EdgeInsets viewportPadding;
+
+  @override
+  Size viewportSize;
+
+  @override
+  EdgeInsets viewportStaticOverlap;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    ViewportLayoutMetrics? measurements,
+    Size? size,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportPadding,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportStaticOverlap,
+    double? contentBaseline,
     double? devicePixelRatio,
   }) {
     return ImmutableSheetMetrics(
       offset: offset ?? this.offset,
       minOffset: minOffset ?? this.minOffset,
       maxOffset: maxOffset ?? this.maxOffset,
-      measurements: measurements ?? this.measurements,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
+      contentBaseline: contentBaseline ?? this.contentBaseline,
+      contentSize: contentSize ?? this.contentSize,
+      size: size ?? this.size,
+      viewportDynamicOverlap:
+          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
+      viewportPadding: viewportPadding ?? this.viewportPadding,
+      viewportSize: viewportSize ?? this.viewportSize,
+      viewportStaticOverlap:
+          viewportStaticOverlap ?? this.viewportStaticOverlap,
     );
   }
 }
@@ -72,15 +110,13 @@ class MutableSheetMetrics with SheetMetrics {
   SheetPhysics? physics,
   SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {
-  final initialMeasurements = ViewportLayoutMetrics(
-    layoutSpec: SheetLayoutSpec(
-      viewportSize: viewportSize,
-      viewportPadding: EdgeInsets.zero,
-      viewportDynamicOverlap: viewportDynamicOverlap,
-      viewportStaticOverlap: EdgeInsets.zero,
-      resizeContentToAvoidBottomOverlap: true,
-    ),
+  final initialMeasurements = ImmutableViewportLayout(
+    viewportSize: viewportSize,
+    viewportPadding: EdgeInsets.zero,
+    viewportDynamicOverlap: viewportDynamicOverlap,
+    viewportStaticOverlap: EdgeInsets.zero,
     contentSize: contentSize,
+    contentBaseline: viewportDynamicOverlap.bottom,
   );
   final (initialMinOffset, initialMaxOffset) =
       snapGrid.getBoundaries(initialMeasurements);
@@ -88,7 +124,13 @@ class MutableSheetMetrics with SheetMetrics {
     offset: offset,
     minOffset: initialMinOffset.resolve(initialMeasurements),
     maxOffset: initialMaxOffset.resolve(initialMeasurements),
-    measurements: initialMeasurements,
+    contentBaseline: viewportDynamicOverlap.bottom,
+    contentSize: contentSize,
+    size: viewportSize,
+    viewportDynamicOverlap: viewportDynamicOverlap,
+    viewportPadding: EdgeInsets.zero,
+    viewportSize: viewportSize,
+    viewportStaticOverlap: EdgeInsets.zero,
     devicePixelRatio: devicePixelRatio,
   );
 
@@ -98,7 +140,7 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.initialOffset).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
-  when(position.measurements).thenAnswer((_) => metricsRegistry.measurements);
+  when(position.layout).thenAnswer((_) => metricsRegistry);
   when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);
   when(position.snapshot).thenAnswer((_) => metricsRegistry);
@@ -106,25 +148,44 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.offset = any).thenAnswer((invocation) {
     metricsRegistry.offset = invocation.positionalArguments.first as double;
   });
-  when(position.measurements = any).thenAnswer((invocation) {
-    metricsRegistry.measurements =
-        invocation.positionalArguments[0] as ViewportLayoutMetrics;
+  when(position.layout = any).thenAnswer((invocation) {
+    final layout = invocation.positionalArguments[0] as ViewportLayout;
+    metricsRegistry
+      ..viewportSize = layout.viewportSize
+      ..viewportPadding = layout.viewportPadding
+      ..viewportDynamicOverlap = layout.viewportDynamicOverlap
+      ..viewportStaticOverlap = layout.viewportStaticOverlap
+      ..contentSize = layout.contentSize
+      ..contentBaseline = layout.contentBaseline;
   });
   when(position.snapGrid).thenReturn(snapGrid);
   when(position.copyWith(
     offset: anyNamed('offset'),
     minOffset: anyNamed('minOffset'),
     maxOffset: anyNamed('maxOffset'),
+    size: anyNamed('size'),
     devicePixelRatio: anyNamed('devicePixelRatio'),
-    measurements: anyNamed('measurements'),
+    contentBaseline: anyNamed('contentBaseline'),
+    contentSize: anyNamed('contentSize'),
+    viewportDynamicOverlap: anyNamed('viewportDynamicOverlap'),
+    viewportPadding: anyNamed('viewportPadding'),
+    viewportSize: anyNamed('viewportSize'),
+    viewportStaticOverlap: anyNamed('viewportStaticOverlap'),
   )).thenAnswer((invocation) {
     return metricsRegistry.copyWith(
       offset: invocation.namedArguments[#offset] as double?,
       minOffset: invocation.namedArguments[#minOffset] as double?,
       maxOffset: invocation.namedArguments[#maxOffset] as double?,
       devicePixelRatio: invocation.namedArguments[#devicePixelRatio] as double?,
-      measurements:
-          invocation.namedArguments[#measurements] as ViewportLayoutMetrics?,
+      viewportSize: invocation.namedArguments[#viewportSize] as Size?,
+      viewportPadding:
+          invocation.namedArguments[#viewportPadding] as EdgeInsets?,
+      viewportDynamicOverlap:
+          invocation.namedArguments[#viewportDynamicOverlap] as EdgeInsets?,
+      viewportStaticOverlap:
+          invocation.namedArguments[#viewportStaticOverlap] as EdgeInsets?,
+      contentSize: invocation.namedArguments[#contentSize] as Size?,
+      contentBaseline: invocation.namedArguments[#contentBaseline] as double?,
     );
   });
 

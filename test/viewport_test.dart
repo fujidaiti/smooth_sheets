@@ -530,7 +530,7 @@ void main() {
         await tester.pumpWidget(env.testWidget, phase: EnginePhase.layout);
 
         expect(model.hasMetrics, isTrue);
-        expect(model.measurements, isMeasurements(contentSize: Size(800, 300)));
+        expect(model.layout, isMeasurements(contentSize: Size(800, 300)));
       },
     );
 
@@ -558,11 +558,11 @@ void main() {
           ),
         );
         await tester.pumpWidget(env.testWidget);
-        expect(model.measurements, isMeasurements(contentSize: Size(800, 300)));
+        expect(model.layout, isMeasurements(contentSize: Size(800, 300)));
 
         contentStateKey.currentState!.state = Size.fromHeight(200);
         await tester.pump();
-        expect(model.measurements, isMeasurements(contentSize: Size(800, 200)));
+        expect(model.layout, isMeasurements(contentSize: Size(800, 200)));
       },
     );
 

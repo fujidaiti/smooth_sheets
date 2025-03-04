@@ -115,17 +115,11 @@ void main() {
       //    the keyboard.
       // This scenario mimics the behavior when opening a keyboard
       // on a sheet that uses SheetContentScaffold.
-      final oldMeasurements = ownerMetrics.measurements;
-      ownerMetrics.measurements = ownerMetrics.measurements.copyWith(
-        contentSize: const Size(400, 850),
-        layoutSpec: SheetLayoutSpec(
-          viewportSize: const Size(400, 900),
-          viewportPadding: EdgeInsets.zero,
-          viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
-          viewportStaticOverlap: EdgeInsets.zero,
-          resizeContentToAvoidBottomOverlap: true,
-        ),
-      );
+      final oldMeasurements = ownerMetrics.copyWith();
+      ownerMetrics
+        ..contentSize = const Size(400, 850)
+        ..viewportDynamicOverlap = EdgeInsets.only(bottom: 50)
+        ..contentBaseline = 50;
 
       activity.didChangeMeasurements(oldMeasurements);
       expect(ownerMetrics.offset, 400);
@@ -257,17 +251,13 @@ void main() {
       internalOnTickCallback!(const Duration(milliseconds: 50));
       expect(ownerMetrics.offset, 350); // 1000 * 0.05 = 50 offset in 50ms
 
-      final oldMeasurements = ownerMetrics.measurements;
+      final oldMeasurements = ownerMetrics.copyWith();
       // Show the on-screen keyboard.
-      ownerMetrics.measurements = oldMeasurements.copyWith(
-        layoutSpec: SheetLayoutSpec(
-          viewportSize: const Size(400, 900),
-          viewportPadding: EdgeInsets.zero,
-          viewportDynamicOverlap: EdgeInsets.only(bottom: 30),
-          viewportStaticOverlap: EdgeInsets.zero,
-          resizeContentToAvoidBottomOverlap: true,
-        ),
-      );
+      ownerMetrics
+        ..viewportDynamicOverlap = EdgeInsets.only(bottom: 30)
+        ..contentSize = const Size(400, 850)
+        ..contentBaseline = 30;
+
       activity.didChangeMeasurements(oldMeasurements);
       expect(ownerMetrics.offset, 350,
           reason: 'Visual position should not change when viewport changes.');
@@ -299,17 +289,12 @@ void main() {
           physics: kDefaultSheetPhysics,
         );
 
-        final oldMeasurements = ownerMetrics.measurements;
-        ownerMetrics.measurements = ViewportLayoutMetrics(
-          layoutSpec: SheetLayoutSpec(
-            viewportSize: const Size(400, 900),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
-            viewportStaticOverlap: EdgeInsets.zero,
-            resizeContentToAvoidBottomOverlap: true,
-          ),
-          contentSize: const Size(400, 850),
-        );
+        final oldMeasurements = ownerMetrics.copyWith();
+        ownerMetrics
+          ..viewportDynamicOverlap = EdgeInsets.only(bottom: 50)
+          ..contentSize = const Size(400, 850)
+          ..contentBaseline = 50;
+
         IdleSheetActivity()
           ..init(owner)
           ..didChangeMeasurements(oldMeasurements);
@@ -336,10 +321,8 @@ void main() {
         );
         expect(ownerMetrics.offset, 250);
 
-        final oldMeasurements = owner.measurements;
-        owner.measurements = owner.measurements.copyWith(
-          contentSize: const Size(400, 600),
-        );
+        final oldMeasurements = owner.copyWith();
+        ownerMetrics.contentSize = Size(400, 600);
         IdleSheetActivity()
           ..init(owner)
           ..didChangeMeasurements(oldMeasurements);

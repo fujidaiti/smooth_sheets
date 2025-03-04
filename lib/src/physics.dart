@@ -91,12 +91,8 @@ mixin SheetPhysicsMixin on SheetPhysics {
     // Ensure that this method always uses the default implementation
     // of findSettledPosition.
     final snap = snapGrid
-        .getSnapOffset(
-          metrics.measurements,
-          metrics.offset,
-          velocity,
-        )
-        .resolve(metrics.measurements);
+        .getSnapOffset(metrics, metrics.offset, velocity)
+        .resolve(metrics);
 
     if (FloatComp.distance(metrics.devicePixelRatio)
         .isNotApprox(snap, metrics.offset)) {
@@ -172,7 +168,7 @@ class FixedBouncingBehavior implements BouncingBehavior {
 
   @override
   double computeBounceablePixels(double delta, SheetMetrics metrics) {
-    return range.resolve(metrics.measurements);
+    return range.resolve(metrics);
   }
 }
 
@@ -209,8 +205,8 @@ class DirectionAwareBouncingBehavior implements BouncingBehavior {
   @override
   double computeBounceablePixels(double delta, SheetMetrics metrics) {
     return switch (delta) {
-      > 0.0 => upward.resolve(metrics.measurements),
-      < 0.0 => downward.resolve(metrics.measurements),
+      > 0.0 => upward.resolve(metrics),
+      < 0.0 => downward.resolve(metrics),
       _ => 0.0,
     };
   }

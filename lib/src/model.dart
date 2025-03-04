@@ -6,14 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+import '../smooth_sheets.dart';
 import 'activity.dart';
-import 'controller.dart';
-import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'model_owner.dart';
-import 'notification.dart';
-import 'physics.dart';
-import 'snap_grid.dart';
 
 /// An abstract representation of a sheet's position.
 ///
@@ -35,7 +31,7 @@ abstract interface class SheetOffset {
   const factory SheetOffset.relative(double factor) = RelativeSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
-  double resolve(ViewportLayoutMetrics metrics);
+  double resolve(ViewportLayout metrics);
 }
 
 /// A [SheetOffset] that represents a position proportional
@@ -58,7 +54,7 @@ class RelativeSheetOffset implements SheetOffset {
   final double factor;
 
   @override
-  double resolve(ViewportLayoutMetrics metrics) =>
+  double resolve(ViewportLayout metrics) =>
       metrics.contentSize.height * factor + metrics.contentBaseline;
 
   @override
@@ -176,16 +172,16 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     goIdle();
   }
 
-  @override
-  ViewportLayoutMetrics get measurements => _measurements!;
-  ViewportLayoutMetrics? _measurements;
-  set measurements(ViewportLayoutMetrics value) {
-    if (_measurements == value) {
+  // TODO: Remove this getter.
+  SheetLayout get layout => _layout!;
+  SheetLayout? _layout;
+  set layout(SheetLayout value) {
+    if (_layout == value) {
       return;
     }
 
-    final oldMeasurements = _measurements;
-    _measurements = value;
+    final oldLayout = _layout;
+    _layout = value;
     final (minOffset, maxOffset) = snapGrid.getBoundaries(value);
     _minOffset = minOffset.resolve(value);
     _maxOffset = maxOffset.resolve(value);
@@ -196,10 +192,31 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
     assert(hasMetrics);
 
-    if (oldMeasurements != null) {
-      activity.didChangeMeasurements(oldMeasurements);
+    if (oldLayout != null) {
+      activity.didChangeMeasurements(oldLayout);
     }
   }
+
+  @override
+  Size get viewportSize => _layout!.viewportSize;
+
+  @override
+  EdgeInsets get viewportPadding => _layout!.viewportPadding;
+
+  @override
+  EdgeInsets get viewportDynamicOverlap => _layout!.viewportDynamicOverlap;
+
+  @override
+  EdgeInsets get viewportStaticOverlap => _layout!.viewportStaticOverlap;
+
+  @override
+  Size get contentSize => _layout!.contentSize;
+
+  @override
+  double get contentBaseline => _layout!.contentBaseline;
+
+  @override
+  Size get size => _layout!.size;
 
   @override
   double get maxOffset => _maxOffset!;
@@ -224,7 +241,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   @override
   bool get hasMetrics =>
-      _measurements != null &&
+      _layout != null &&
       _minOffset != null &&
       _maxOffset != null &&
       _offset != null;
@@ -246,10 +263,9 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     _config = value;
 
     if (value.snapGrid != oldConfig.snapGrid && hasMetrics) {
-      final (newMinOffset, newMaxOffset) =
-          value.snapGrid.getBoundaries(measurements);
-      _minOffset = newMinOffset.resolve(measurements);
-      _maxOffset = newMaxOffset.resolve(measurements);
+      final (newMinOffset, newMaxOffset) = value.snapGrid.getBoundaries(this);
+      _minOffset = newMinOffset.resolve(this);
+      _maxOffset = newMaxOffset.resolve(this);
     }
   }
 
@@ -273,14 +289,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
 
-  SheetMetrics get snapshot => ImmutableSheetMetrics(
-        offset: offset,
-        minOffset: minOffset,
-        maxOffset: maxOffset,
-        extent: extent,
-        measurements: measurements,
-        devicePixelRatio: devicePixelRatio,
-      );
+  SheetMetrics get snapshot => copyWith();
 
   @mustCallSuper
   @protected
@@ -341,7 +350,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     Curve curve = Curves.easeInOut,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    if (offset == newPosition.resolve(measurements)) {
+    if (offset == newPosition.resolve(this)) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
@@ -360,17 +369,29 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     double? offset,
     double? minOffset,
     double? maxOffset,
-    double? extent,
-    ViewportLayoutMetrics? measurements,
+    Size? size,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportPadding,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportStaticOverlap,
+    double? contentBaseline,
     double? devicePixelRatio,
   }) {
     return ImmutableSheetMetrics(
       offset: offset ?? this.offset,
       minOffset: minOffset ?? this.minOffset,
       maxOffset: maxOffset ?? this.maxOffset,
-      extent: extent ?? this.extent,
-      measurements: measurements ?? this.measurements,
+      size: size ?? this.size,
+      contentSize: contentSize ?? this.contentSize,
+      contentBaseline: contentBaseline ?? this.contentBaseline,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
+      viewportDynamicOverlap:
+          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
+      viewportPadding: viewportPadding ?? this.viewportPadding,
+      viewportSize: viewportSize ?? this.viewportSize,
+      viewportStaticOverlap:
+          viewportStaticOverlap ?? this.viewportStaticOverlap,
     );
   }
 
@@ -415,7 +436,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   }
 }
 
-abstract interface class ViewportLayoutMetrics {
+abstract interface class ViewportLayout {
   /// The size of the *viewport*, which is the rectangle
   /// where the sheet is laid out.
   Size get viewportSize;
@@ -441,13 +462,13 @@ abstract interface class ViewportLayoutMetrics {
   double get contentBaseline;
 }
 
-abstract interface class SheetLayoutMetrics extends ViewportLayoutMetrics {
+abstract interface class SheetLayout extends ViewportLayout {
   /// The size of the sheet.
   Size get size;
 }
 
 /// The metrics of a sheet.
-mixin SheetMetrics implements SheetLayoutMetrics {
+mixin SheetMetrics implements SheetLayout {
   /// The current position of the sheet in pixels.
   double get offset;
 
@@ -538,87 +559,15 @@ mixin SheetMetrics implements SheetLayoutMetrics {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    double? extent,
+    Size? size,
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportPadding,
     EdgeInsets? viewportDynamicOverlap,
     EdgeInsets? viewportStaticOverlap,
+    double? contentBaseline,
     double? devicePixelRatio,
   });
-}
-
-/// An immutable snapshot of the state of a sheet.
-@immutable
-class ImmutableSheetMetrics with SheetMetrics {
-  const ImmutableSheetMetrics({
-    required this.offset,
-    required this.minOffset,
-    required this.maxOffset,
-    required this.extent,
-    required this.measurements,
-    required this.devicePixelRatio,
-  });
-
-  @override
-  final double offset;
-
-  @override
-  final double minOffset;
-
-  @override
-  final double maxOffset;
-
-  @override
-  final double extent;
-
-  @override
-  final ViewportLayoutMetrics measurements;
-
-  @override
-  final double devicePixelRatio;
-
-  @override
-  SheetMetrics copyWith({
-    double? offset,
-    double? minOffset,
-    double? maxOffset,
-    double? extent,
-    ViewportLayoutMetrics? measurements,
-    double? devicePixelRatio,
-  }) {
-    return ImmutableSheetMetrics(
-      offset: offset ?? this.offset,
-      minOffset: minOffset ?? this.minOffset,
-      maxOffset: maxOffset ?? this.maxOffset,
-      extent: extent ?? this.extent,
-      measurements: measurements ?? this.measurements,
-      devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is SheetMetrics &&
-          runtimeType == other.runtimeType &&
-          offset == other.offset &&
-          minOffset == other.minOffset &&
-          maxOffset == other.maxOffset &&
-          extent == other.extent &&
-          measurements == other.measurements &&
-          devicePixelRatio == other.devicePixelRatio);
-
-  @override
-  int get hashCode => Object.hash(
-        runtimeType,
-        offset,
-        minOffset,
-        maxOffset,
-        extent,
-        measurements,
-        devicePixelRatio,
-      );
 }
 
 /// Geometry of the viewport and the layout constraints
@@ -781,8 +730,91 @@ class SheetLayoutSpec {
 }
 
 @immutable
-class ImmutableViewportLayoutMetrics implements ViewportLayoutMetrics {
-  const ImmutableViewportLayoutMetrics({
+@internal
+class ImmutableSheetMetrics with SheetMetrics {
+  const ImmutableSheetMetrics({
+    required this.offset,
+    required this.minOffset,
+    required this.maxOffset,
+    required this.devicePixelRatio,
+    required this.contentBaseline,
+    required this.contentSize,
+    required this.size,
+    required this.viewportDynamicOverlap,
+    required this.viewportPadding,
+    required this.viewportSize,
+    required this.viewportStaticOverlap,
+  });
+
+  @override
+  final double offset;
+
+  @override
+  final double minOffset;
+
+  @override
+  final double maxOffset;
+
+  @override
+  final double devicePixelRatio;
+
+  @override
+  final Size size;
+
+  @override
+  final double contentBaseline;
+
+  @override
+  final Size contentSize;
+
+  @override
+  final Size viewportSize;
+
+  @override
+  final EdgeInsets viewportPadding;
+
+  @override
+  final EdgeInsets viewportDynamicOverlap;
+
+  @override
+  final EdgeInsets viewportStaticOverlap;
+
+  @override
+  SheetMetrics copyWith({
+    double? offset,
+    double? minOffset,
+    double? maxOffset,
+    Size? size,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportPadding,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportStaticOverlap,
+    double? contentBaseline,
+    double? devicePixelRatio,
+  }) {
+    return ImmutableSheetMetrics(
+      offset: offset ?? this.offset,
+      minOffset: minOffset ?? this.minOffset,
+      maxOffset: maxOffset ?? this.maxOffset,
+      size: size ?? this.size,
+      contentSize: contentSize ?? this.contentSize,
+      contentBaseline: contentBaseline ?? this.contentBaseline,
+      devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
+      viewportDynamicOverlap:
+          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
+      viewportPadding: viewportPadding ?? this.viewportPadding,
+      viewportSize: viewportSize ?? this.viewportSize,
+      viewportStaticOverlap:
+          viewportStaticOverlap ?? this.viewportStaticOverlap,
+    );
+  }
+}
+
+@immutable
+@internal
+class ImmutableViewportLayout implements ViewportLayout {
+  const ImmutableViewportLayout({
     required this.viewportSize,
     required this.contentSize,
     required this.viewportPadding,
@@ -809,7 +841,7 @@ class ImmutableViewportLayoutMetrics implements ViewportLayoutMetrics {
   @override
   final double contentBaseline;
 
-  ImmutableViewportLayoutMetrics copyWith({
+  ImmutableViewportLayout copyWith({
     Size? viewportSize,
     Size? contentSize,
     EdgeInsets? viewportPadding,
@@ -817,7 +849,7 @@ class ImmutableViewportLayoutMetrics implements ViewportLayoutMetrics {
     EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
   }) {
-    return ImmutableViewportLayoutMetrics(
+    return ImmutableViewportLayout(
       viewportSize: viewportSize ?? this.viewportSize,
       contentSize: contentSize ?? this.contentSize,
       viewportPadding: viewportPadding ?? this.viewportPadding,
@@ -832,7 +864,7 @@ class ImmutableViewportLayoutMetrics implements ViewportLayoutMetrics {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ViewportLayoutMetrics &&
+      other is ViewportLayout &&
           viewportSize == other.viewportSize &&
           contentSize == other.contentSize &&
           viewportPadding == other.viewportPadding &&

@@ -19,7 +19,7 @@ Matcher isMeasurements({
   Size? contentSize,
   double? contentBaseline,
 }) {
-  var result = isA<ViewportLayoutMetrics>();
+  var result = isA<ViewportLayout>();
   if (contentSize != null) {
     result = result.having(
       (it) => it.contentSize,

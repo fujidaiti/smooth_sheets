@@ -16,17 +16,14 @@ const _referenceSheetMetrics = ImmutableSheetMetrics(
   offset: 600,
   minOffset: 0,
   maxOffset: 600,
-  measurements: ViewportLayoutMetrics(
-    layoutSpec: SheetLayoutSpec(
-      viewportSize: Size(400, 700),
-      viewportPadding: EdgeInsets.zero,
-      viewportDynamicOverlap: EdgeInsets.zero,
-      viewportStaticOverlap: EdgeInsets.zero,
-      resizeContentToAvoidBottomOverlap: true,
-    ),
-    contentSize: Size(400, 600),
-  ),
+  viewportSize: Size(400, 700),
+  viewportPadding: EdgeInsets.zero,
+  viewportDynamicOverlap: EdgeInsets.zero,
+  viewportStaticOverlap: EdgeInsets.zero,
+  contentSize: Size(400, 600),
+  contentBaseline: 0,
   devicePixelRatio: 1,
+  size: Size(400, 600),
 );
 
 final _metricsAtTopEdge =
