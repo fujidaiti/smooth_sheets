@@ -12,11 +12,11 @@ class _SheetPhysicsWithDefaultConfiguration extends SheetPhysics
   const _SheetPhysicsWithDefaultConfiguration();
 }
 
-const _referenceSheetMetrics = SheetMetricsSnapshot(
+const _referenceSheetMetrics = ImmutableSheetMetrics(
   offset: 600,
   minOffset: 0,
   maxOffset: 600,
-  measurements: SheetMeasurements(
+  measurements: ViewportLayoutMetrics(
     layoutSpec: SheetLayoutSpec(
       viewportSize: Size(400, 700),
       viewportPadding: EdgeInsets.zero,

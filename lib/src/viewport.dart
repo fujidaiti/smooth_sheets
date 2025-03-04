@@ -459,7 +459,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     );
 
     assert(_model._inner != null);
-    _model._inner!.measurements = SheetMeasurements(
+    _model._inner!.measurements = ViewportLayoutMetrics(
       layoutSpec: _layoutSpec,
       contentSize: Size.copy(child.size),
     );
@@ -543,14 +543,14 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   double get offset => _inner!.offset;
 
   @override
-  SheetMeasurements get measurements => _inner!.measurements;
+  ViewportLayoutMetrics get measurements => _inner!.measurements;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    ViewportLayoutMetrics? measurements,
     double? devicePixelRatio,
   }) {
     return _inner!.copyWith(

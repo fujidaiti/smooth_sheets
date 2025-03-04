@@ -35,7 +35,7 @@ abstract interface class SheetOffset {
   const factory SheetOffset.relative(double factor) = RelativeSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
-  double resolve(SheetMeasurements measurements);
+  double resolve(ViewportLayoutMetrics metrics);
 }
 
 /// A [SheetOffset] that represents a position proportional
@@ -58,8 +58,8 @@ class RelativeSheetOffset implements SheetOffset {
   final double factor;
 
   @override
-  double resolve(SheetMeasurements measurements) =>
-      measurements.contentSize.height * factor + measurements.contentBaseline;
+  double resolve(ViewportLayoutMetrics metrics) =>
+      metrics.contentSize.height * factor + metrics.contentBaseline;
 
   @override
   bool operator ==(Object other) =>
@@ -138,7 +138,7 @@ abstract class SheetModelConfig {
 
 /// Read-only view of a [SheetModel].
 @internal
-abstract class SheetModelView implements SheetMetrics, Listenable {
+abstract class SheetModelView with SheetMetrics implements Listenable {
   bool get shouldIgnorePointer;
   bool get hasMetrics;
 }
@@ -177,9 +177,9 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   }
 
   @override
-  SheetMeasurements get measurements => _measurements!;
-  SheetMeasurements? _measurements;
-  set measurements(SheetMeasurements value) {
+  ViewportLayoutMetrics get measurements => _measurements!;
+  ViewportLayoutMetrics? _measurements;
+  set measurements(ViewportLayoutMetrics value) {
     if (_measurements == value) {
       return;
     }
@@ -273,10 +273,11 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
 
-  SheetMetrics get snapshot => SheetMetricsSnapshot(
+  SheetMetrics get snapshot => ImmutableSheetMetrics(
         offset: offset,
         minOffset: minOffset,
         maxOffset: maxOffset,
+        extent: extent,
         measurements: measurements,
         devicePixelRatio: devicePixelRatio,
       );
@@ -359,13 +360,15 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    double? extent,
+    ViewportLayoutMetrics? measurements,
     double? devicePixelRatio,
   }) {
-    return SheetMetricsSnapshot(
+    return ImmutableSheetMetrics(
       offset: offset ?? this.offset,
       minOffset: minOffset ?? this.minOffset,
       maxOffset: maxOffset ?? this.maxOffset,
+      extent: extent ?? this.extent,
       measurements: measurements ?? this.measurements,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
@@ -412,8 +415,39 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   }
 }
 
+abstract interface class ViewportLayoutMetrics {
+  /// The size of the *viewport*, which is the rectangle
+  /// where the sheet is laid out.
+  Size get viewportSize;
+
+  /// The size of the sheet's content.
+  Size get contentSize;
+
+  /// The padding by which the viewport insets the sheet.
+  EdgeInsets get viewportPadding;
+
+  /// The parts of the viewport that are partially overlapped
+  /// by system UI elements that may dynamically change in size,
+  /// such as the on-screen keyboard.
+  EdgeInsets get viewportDynamicOverlap;
+
+  /// The parts of the viewport that are partially overlapped
+  /// by system UI elements that do not change in size,
+  /// such as hardware display notches or the system status bar.
+  EdgeInsets get viewportStaticOverlap;
+
+  /// The distance from the bottom of the viewport to the bottom
+  /// of the sheet's content.
+  double get contentBaseline;
+}
+
+abstract interface class SheetLayoutMetrics extends ViewportLayoutMetrics {
+  /// The size of the sheet.
+  Size get size;
+}
+
 /// The metrics of a sheet.
-abstract interface class SheetMetrics {
+mixin SheetMetrics implements SheetLayoutMetrics {
   /// The current position of the sheet in pixels.
   double get offset;
 
@@ -425,27 +459,103 @@ abstract interface class SheetMetrics {
 
   /// The [FlutterView.devicePixelRatio] of the view that the sheet
   /// associated with this metrics is drawn into.
+  // TODO: Remove this field.
   double get devicePixelRatio;
 
-  SheetMeasurements get measurements;
+  /// The rectangle that bounds the sheet within the viewport.
+  Rect get rect {
+    final size = this.size;
+    return Rect.fromLTWH(
+      viewportPadding.left,
+      viewportSize.height - offset,
+      size.width,
+      size.height,
+    );
+  }
+
+  /// The rectangle that bounds the sheet's content within the viewport.
+  Rect get contentRect => rect.topLeft & contentSize;
+
+  /// The amount of overlap that the sheet has with static system UI elements,
+  /// such as the system status bar or hardware display notches.
+  EdgeInsets get staticOverlap {
+    final safeArea =
+        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    final rect = this.rect;
+    return EdgeInsets.fromLTRB(
+      max(safeArea.left - rect.left, 0),
+      max(safeArea.top - rect.top, 0),
+      max(rect.right - safeArea.right, 0),
+      max(rect.bottom - safeArea.bottom, 0),
+    );
+  }
+
+  /// The amount of overlap that the sheet has with dynamic system UI elements,
+  /// such as the on-screen keyboard.
+  EdgeInsets get dynamicOverlap {
+    final safeArea =
+        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    final rect = this.rect;
+    return EdgeInsets.fromLTRB(
+      max(safeArea.left - rect.left, 0),
+      max(safeArea.top - rect.top, 0),
+      max(rect.right - safeArea.right, 0),
+      max(rect.bottom - safeArea.bottom, 0),
+    );
+  }
+
+  /// The amount of overlap that the sheet's content has with
+  /// dynamic system UI elements, such as the on-screen keyboard.
+  EdgeInsets get contentDynamicOverlap {
+    final safeArea =
+        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    final rect = this.rect;
+    return EdgeInsets.fromLTRB(
+      max(safeArea.left - rect.left, 0),
+      max(safeArea.top - rect.top, 0),
+      max(rect.right - safeArea.right, 0),
+      max(rect.bottom - safeArea.bottom, 0),
+    );
+  }
+
+  /// The amount of overlap that the sheet's content has with
+  /// static system UI elements, such as the system status bar or
+  /// hardware display notches.
+  EdgeInsets get contentStaticOverlap {
+    final safeArea =
+        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    final rect = this.rect;
+    return EdgeInsets.fromLTRB(
+      max(safeArea.left - rect.left, 0),
+      max(safeArea.top - rect.top, 0),
+      max(rect.right - safeArea.right, 0),
+      max(rect.bottom - safeArea.bottom, 0),
+    );
+  }
 
   /// Creates a copy of the metrics with the given fields replaced.
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    double? extent,
+    Size? contentSize,
+    Size? viewportSize,
+    EdgeInsets? viewportPadding,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportStaticOverlap,
     double? devicePixelRatio,
   });
 }
 
 /// An immutable snapshot of the state of a sheet.
 @immutable
-class SheetMetricsSnapshot implements SheetMetrics {
-  const SheetMetricsSnapshot({
+class ImmutableSheetMetrics with SheetMetrics {
+  const ImmutableSheetMetrics({
     required this.offset,
     required this.minOffset,
     required this.maxOffset,
+    required this.extent,
     required this.measurements,
     required this.devicePixelRatio,
   });
@@ -460,7 +570,10 @@ class SheetMetricsSnapshot implements SheetMetrics {
   final double maxOffset;
 
   @override
-  final SheetMeasurements measurements;
+  final double extent;
+
+  @override
+  final ViewportLayoutMetrics measurements;
 
   @override
   final double devicePixelRatio;
@@ -470,13 +583,15 @@ class SheetMetricsSnapshot implements SheetMetrics {
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    double? extent,
+    ViewportLayoutMetrics? measurements,
     double? devicePixelRatio,
   }) {
-    return SheetMetricsSnapshot(
+    return ImmutableSheetMetrics(
       offset: offset ?? this.offset,
       minOffset: minOffset ?? this.minOffset,
       maxOffset: maxOffset ?? this.maxOffset,
+      extent: extent ?? this.extent,
       measurements: measurements ?? this.measurements,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
     );
@@ -490,6 +605,7 @@ class SheetMetricsSnapshot implements SheetMetrics {
           offset == other.offset &&
           minOffset == other.minOffset &&
           maxOffset == other.maxOffset &&
+          extent == other.extent &&
           measurements == other.measurements &&
           devicePixelRatio == other.devicePixelRatio);
 
@@ -499,6 +615,7 @@ class SheetMetricsSnapshot implements SheetMetrics {
         offset,
         minOffset,
         maxOffset,
+        extent,
         measurements,
         devicePixelRatio,
       );
@@ -664,50 +781,72 @@ class SheetLayoutSpec {
 }
 
 @immutable
-class SheetMeasurements {
-  const SheetMeasurements({
-    required SheetLayoutSpec layoutSpec,
+class ImmutableViewportLayoutMetrics implements ViewportLayoutMetrics {
+  const ImmutableViewportLayoutMetrics({
+    required this.viewportSize,
     required this.contentSize,
-  }) : _layoutSpec = layoutSpec;
+    required this.viewportPadding,
+    required this.viewportDynamicOverlap,
+    required this.viewportStaticOverlap,
+    required this.contentBaseline,
+  });
 
-  final SheetLayoutSpec _layoutSpec;
+  @override
+  final Size viewportSize;
 
-  /// The height of the sheet's content.
+  @override
   final Size contentSize;
 
-  /// {@macro SheetLayoutSpec.viewportSize}
-  Size get viewportSize => _layoutSpec.viewportSize;
-
-  /// {@macro SheetLayoutSpec.viewportPadding}
-  EdgeInsets get viewportPadding => _layoutSpec.viewportPadding;
-
-  /// {@macro SheetLayoutSpec.viewportDynamicOverlap}
-  EdgeInsets get viewportDynamicOverlap => _layoutSpec.viewportDynamicOverlap;
-
-  /// {@macro SheetLayoutSpec.viewportStaticOverlap}
-  EdgeInsets get viewportStaticOverlap => _layoutSpec.viewportStaticOverlap;
-
-  /// {@macro SheetLayoutSpec.contentBaseline}
-  double get contentBaseline => _layoutSpec.contentBaseline;
+  @override
+  final EdgeInsets viewportPadding;
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is SheetMeasurements &&
-        other._layoutSpec == _layoutSpec &&
-        other.contentSize == contentSize;
-  }
+  final EdgeInsets viewportDynamicOverlap;
 
   @override
-  int get hashCode => Object.hash(_layoutSpec, contentSize);
+  final EdgeInsets viewportStaticOverlap;
 
-  SheetMeasurements copyWith({
-    SheetLayoutSpec? layoutSpec,
+  @override
+  final double contentBaseline;
+
+  ImmutableViewportLayoutMetrics copyWith({
+    Size? viewportSize,
     Size? contentSize,
+    EdgeInsets? viewportPadding,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportStaticOverlap,
+    double? contentBaseline,
   }) {
-    return SheetMeasurements(
-      layoutSpec: layoutSpec ?? _layoutSpec,
+    return ImmutableViewportLayoutMetrics(
+      viewportSize: viewportSize ?? this.viewportSize,
       contentSize: contentSize ?? this.contentSize,
+      viewportPadding: viewportPadding ?? this.viewportPadding,
+      viewportDynamicOverlap:
+          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
+      viewportStaticOverlap:
+          viewportStaticOverlap ?? this.viewportStaticOverlap,
+      contentBaseline: contentBaseline ?? this.contentBaseline,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ViewportLayoutMetrics &&
+          viewportSize == other.viewportSize &&
+          contentSize == other.contentSize &&
+          viewportPadding == other.viewportPadding &&
+          viewportDynamicOverlap == other.viewportDynamicOverlap &&
+          viewportStaticOverlap == other.viewportStaticOverlap &&
+          contentBaseline == other.contentBaseline;
+
+  @override
+  int get hashCode => Object.hash(
+        viewportSize,
+        contentSize,
+        viewportPadding,
+        viewportDynamicOverlap,
+        viewportStaticOverlap,
+        contentBaseline,
+      );
 }

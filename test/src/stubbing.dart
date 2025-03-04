@@ -20,7 +20,7 @@ import 'stubbing.mocks.dart';
 
 export 'stubbing.mocks.dart';
 
-class MutableSheetMetrics implements SheetMetrics {
+class MutableSheetMetrics with SheetMetrics {
   MutableSheetMetrics({
     required this.offset,
     required this.minOffset,
@@ -42,17 +42,17 @@ class MutableSheetMetrics implements SheetMetrics {
   double maxOffset;
 
   @override
-  SheetMeasurements measurements;
+  ViewportLayoutMetrics measurements;
 
   @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    SheetMeasurements? measurements,
+    ViewportLayoutMetrics? measurements,
     double? devicePixelRatio,
   }) {
-    return SheetMetricsSnapshot(
+    return ImmutableSheetMetrics(
       offset: offset ?? this.offset,
       minOffset: minOffset ?? this.minOffset,
       maxOffset: maxOffset ?? this.maxOffset,
@@ -72,7 +72,7 @@ class MutableSheetMetrics implements SheetMetrics {
   SheetPhysics? physics,
   SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {
-  final initialMeasurements = SheetMeasurements(
+  final initialMeasurements = ViewportLayoutMetrics(
     layoutSpec: SheetLayoutSpec(
       viewportSize: viewportSize,
       viewportPadding: EdgeInsets.zero,
@@ -108,7 +108,7 @@ class MutableSheetMetrics implements SheetMetrics {
   });
   when(position.measurements = any).thenAnswer((invocation) {
     metricsRegistry.measurements =
-        invocation.positionalArguments[0] as SheetMeasurements;
+        invocation.positionalArguments[0] as ViewportLayoutMetrics;
   });
   when(position.snapGrid).thenReturn(snapGrid);
   when(position.copyWith(
@@ -124,7 +124,7 @@ class MutableSheetMetrics implements SheetMetrics {
       maxOffset: invocation.namedArguments[#maxOffset] as double?,
       devicePixelRatio: invocation.namedArguments[#devicePixelRatio] as double?,
       measurements:
-          invocation.namedArguments[#measurements] as SheetMeasurements?,
+          invocation.namedArguments[#measurements] as ViewportLayoutMetrics?,
     );
   });
 
