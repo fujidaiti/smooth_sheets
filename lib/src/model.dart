@@ -300,6 +300,10 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     activity.init(this);
     oldActivity?.dispose();
   }
+  
+  double computeOffset(ViewportLayout layout) {
+    
+  }
 
   void goIdle() {
     beginActivity(IdleSheetActivity());

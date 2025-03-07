@@ -459,10 +459,16 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     );
 
     assert(_model._inner != null);
-    _model._inner!.layout = ViewportLayout(
-      layoutSpec: _layoutSpec,
+    final layout = ImmutableViewportLayout(
+      viewportSize: _layoutSpec.viewportSize,
       contentSize: Size.copy(child.size),
+      viewportPadding: _layoutSpec.viewportPadding,
+      viewportDynamicOverlap: _layoutSpec.viewportDynamicOverlap,
+      viewportStaticOverlap: _layoutSpec.viewportStaticOverlap,
+      contentBaseline: _layoutSpec.contentBaseline,
     );
+    final offset = _model._inner!.computeOffset(layout);
+    _model._inner!.layout = SheetLayout();
     assert(_preferredExtent != null);
 
     final maxRect = _layoutSpec.maxSheetRect;
