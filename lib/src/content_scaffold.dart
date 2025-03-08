@@ -8,20 +8,26 @@ import 'model_owner.dart';
 import 'sheet.dart';
 import 'viewport.dart';
 
-/// Defines how the bottom bar should be displayed in response
-/// to the sheet's offset.
+/// Defines how the [SheetContentScaffold.bottomBar] of [SheetContentScaffold]
+/// should be displayed in response to the bottom inset caused by system UI.
 ///
 /// {@template SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-/// If [ignoreBottomInset] is `true`, the bottom bar will be displayed
-/// even when the `bottom` of [MediaQueryData.viewInsets] is increased
-/// by a system UI, such as the onscreen keyboard.
-/// If `false`, the bottom bar will be partially, or entirely hidden
-/// according to the amount of `bottom` in [MediaQueryData.viewInsets].
-/// For example, if the `bottom` of [MediaQueryData.viewInsets] is
-/// the half of the bottom bar's height, only the half of the bottom bar
-/// will be visible. The default value is `false`.
+/// If [ignoreBottomInset] is `true`, the bottom bar will move up
+/// along with the [SheetContentScaffold.body] when the `bottom` value of
+/// [MediaQueryData.viewInsets] increases due to system UI elements,
+/// such as the on-screen keyboard.
+///
+/// If `false`, the bottom bar will be partially or entirely hidden,
+/// depending on the `bottom` value of [MediaQueryData.viewInsets].
+/// For example, if the `bottom` value of [MediaQueryData.viewInsets]
+/// is half the height of the bottom bar, only half of the bottom bar
+/// will remain visible. The default value is `false`.
 /// {@endtemplate}
 sealed class BottomBarVisibility {
+  /// Creates an object that defines the visibility of
+  /// the [SheetContentScaffold.bottomBar] within a [SheetContentScaffold].
+  ///
+  /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
   const BottomBarVisibility({
     this.ignoreBottomInset = false,
   });
@@ -31,14 +37,14 @@ sealed class BottomBarVisibility {
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
   const factory BottomBarVisibility.natural({
     bool ignoreBottomInset,
-  }) = _NaturalBottomBarVisibility;
+  }) = NaturalBottomBarVisibility;
 
   /// {@macro AlwaysVisibleBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
   const factory BottomBarVisibility.always({
     bool ignoreBottomInset,
-  }) = _AlwaysVisibleBottomBarVisibility;
+  }) = AlwaysVisibleBottomBarVisibility;
 
   /// {@macro ControlledBottomBarVisibility}
   ///
@@ -46,7 +52,7 @@ sealed class BottomBarVisibility {
   const factory BottomBarVisibility.controlled({
     bool ignoreBottomInset,
     required Animation<double> animation,
-  }) = _ControlledBottomBarVisibility;
+  }) = ControlledBottomBarVisibility;
 
   /// {@macro ConditionalBottomBarVisibility}
   ///
@@ -56,26 +62,34 @@ sealed class BottomBarVisibility {
     required bool Function(SheetMetrics) isVisible,
     Duration duration,
     Curve curve,
-  }) = _ConditionalBottomBarVisibility;
+  }) = ConditionalBottomBarVisibility;
 
-  /// Whether the bottom bar should be displayed even when the `bottom`
-  /// of [MediaQueryData.viewInsets] is increased by a system UI, such as
-  /// the onscreen keyboard.
+  /// Whether the bottom bar should be visible when the `bottom`
+  /// of [MediaQueryData.viewInsets] is increased by system UI elements,
+  /// such as the onscreen keyboard.
+  ///
+  /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
+  ///
+  /// Even if this property is `true`, the bottom bar can be hidden
+  /// depending on the [BottomBarVisibility] type. For example,
+  /// when using [ConditionalBottomBarVisibility], the bottom bar is
+  /// always hidden if the [ConditionalBottomBarVisibility.isVisible]
+  /// callback returns `false`.
   final bool ignoreBottomInset;
 }
 
 /// {@template NaturalBottomBarVisibility}
 /// The bottom bar is displayed naturally, based on the sheet's offset.
 /// {@endtemplate}
-class _NaturalBottomBarVisibility extends BottomBarVisibility {
-  const _NaturalBottomBarVisibility({super.ignoreBottomInset});
+class NaturalBottomBarVisibility extends BottomBarVisibility {
+  const NaturalBottomBarVisibility({super.ignoreBottomInset});
 }
 
 /// {@template AlwaysVisibleBottomBarVisibility}
 /// The bottom bar is always visible regardless of the sheet's offset.
 /// {@endtemplate}
-class _AlwaysVisibleBottomBarVisibility extends BottomBarVisibility {
-  const _AlwaysVisibleBottomBarVisibility({super.ignoreBottomInset});
+class AlwaysVisibleBottomBarVisibility extends BottomBarVisibility {
+  const AlwaysVisibleBottomBarVisibility({super.ignoreBottomInset});
 }
 
 /// {@template ControlledBottomBarVisibility}
@@ -84,8 +98,8 @@ class _AlwaysVisibleBottomBarVisibility extends BottomBarVisibility {
 /// The value of the [animation] must be between 0 and 1, where 0 means
 /// the bottom bar is completely invisible and 1 means it's completely visible.
 /// {@endtemplate}
-class _ControlledBottomBarVisibility extends BottomBarVisibility {
-  const _ControlledBottomBarVisibility({
+class ControlledBottomBarVisibility extends BottomBarVisibility {
+  const ControlledBottomBarVisibility({
     super.ignoreBottomInset,
     required this.animation,
   });
@@ -101,8 +115,8 @@ class _ControlledBottomBarVisibility extends BottomBarVisibility {
 /// and `false` hides it with an animation which has the [duration] and
 /// [curve].
 /// {@endtemplate}
-class _ConditionalBottomBarVisibility extends BottomBarVisibility {
-  const _ConditionalBottomBarVisibility({
+class ConditionalBottomBarVisibility extends BottomBarVisibility {
+  const ConditionalBottomBarVisibility({
     super.ignoreBottomInset,
     required this.isVisible,
     this.duration = const Duration(milliseconds: 150),
@@ -220,19 +234,19 @@ class SheetContentScaffold extends StatelessWidget {
         );
       }
       effectiveBottomBar = switch (bottomBarVisibility) {
-        _NaturalBottomBarVisibility() => effectiveBottomBar,
-        _AlwaysVisibleBottomBarVisibility() =>
+        NaturalBottomBarVisibility() => effectiveBottomBar,
+        AlwaysVisibleBottomBarVisibility() =>
           _AlwaysVisibleBottomBarVisibilityWidget(
             model: SheetModelOwner.of(context)!,
             child: effectiveBottomBar,
           ),
-        final _ControlledBottomBarVisibility visibility =>
+        final ControlledBottomBarVisibility visibility =>
           _ControlledBottomBarVisibilityWidget(
             model: SheetModelOwner.of(context)!,
             visibility: visibility.animation,
             child: effectiveBottomBar,
           ),
-        final _ConditionalBottomBarVisibility visibility =>
+        final ConditionalBottomBarVisibility visibility =>
           _ConditionalBottomBarVisibilityWidget(
             model: SheetModelOwner.of(context)!,
             getIsVisible: visibility.isVisible,
@@ -537,7 +551,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
     required SheetModelView model,
   })  : _model = model,
         super(transform: Matrix4.zero(), transformHitTests: true) {
-    _model.addListener(invalidateVisibility);
+    _model.addListener(invalidateTranslationValues);
   }
 
   SheetModelView _model;
@@ -545,15 +559,15 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
   // ignore: avoid_setters_without_getters
   set model(SheetModelView value) {
     if (_model != value) {
-      _model.removeListener(invalidateVisibility);
-      _model = value..addListener(invalidateVisibility);
-      invalidateVisibility();
+      _model.removeListener(invalidateTranslationValues);
+      _model = value..addListener(invalidateTranslationValues);
+      invalidateTranslationValues();
     }
   }
 
   @override
   void dispose() {
-    _model.removeListener(invalidateVisibility);
+    _model.removeListener(invalidateTranslationValues);
     super.dispose();
   }
 
@@ -565,19 +579,29 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
   void performLayout() {
     super.performLayout();
     _bottomBarSize = size;
-    invalidateVisibility();
+    invalidateTranslationValues();
   }
 
-  void invalidateVisibility() {
-    final size = _bottomBarSize;
-    if (size != null && _model.hasMetrics) {
-      final baseTransition = (_model.offset - _model.viewportSize.height)
-          .clamp(size.height - _model.viewportSize.height, 0.0);
-      final visibility = computeVisibility(_model, size);
+  void invalidateTranslationValues() {
+    final bottomBarSize = _bottomBarSize;
+    if (bottomBarSize != null && _model.hasMetrics) {
+      // This translation ensures that the bar is fully visible even when
+      // the sheet's content is partially or fully outside of the viewport.
+      final baseDeltaY =
+          (_model.viewportSize.height - _model.contentRect.bottom).clamp(
+        // Prevent the bar from being moved up
+        // when the content is fully outside of the viewport.
+        bottomBarSize.height - _model.contentSize.height,
+        // We don't need to move the bar up
+        // when the content is fully visible within the viewport.
+        0.0,
+      );
+      final visibility = computeVisibility(_model, bottomBarSize);
       assert(0 <= visibility && visibility <= 1);
-      final invisibleHeight = size.height * (1 - visibility);
-      final transition = baseTransition + invisibleHeight;
-      transform = Matrix4.translationValues(0, transition, 0);
+      final invisibleHeight = bottomBarSize.height * (1 - visibility);
+      // Apply additional translation that is controlled by computeVisibility().
+      final deltaY = baseDeltaY + invisibleHeight;
+      transform = Matrix4.translationValues(0, deltaY, 0);
     }
   }
 
@@ -686,7 +710,7 @@ class _RenderControlledBottomBarVisibility extends _RenderBottomBarVisibility {
     required super.model,
     required Animation<double> visibility,
   }) : _visibility = visibility {
-    _visibility.addListener(invalidateVisibility);
+    _visibility.addListener(invalidateTranslationValues);
   }
 
   Animation<double> _visibility;
@@ -694,14 +718,14 @@ class _RenderControlledBottomBarVisibility extends _RenderBottomBarVisibility {
   // ignore: avoid_setters_without_getters
   set visibility(Animation<double> value) {
     if (_visibility != value) {
-      _visibility.removeListener(invalidateVisibility);
+      _visibility.removeListener(invalidateTranslationValues);
       _visibility = value..addListener(markNeedsLayout);
     }
   }
 
   @override
   void dispose() {
-    _visibility.removeListener(invalidateVisibility);
+    _visibility.removeListener(invalidateTranslationValues);
     super.dispose();
   }
 
