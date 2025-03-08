@@ -68,18 +68,18 @@ class _FakeSheetActivity_6<T extends _i2.SheetModel<_i2.SheetModelConfig>>
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetMetrics_7 extends _i1.SmartFake implements _i5.SheetMetrics {
-  _FakeSheetMetrics_7(Object parent, Invocation parentInvocation)
+class _FakeRect_7 extends _i1.SmartFake implements _i3.Rect {
+  _FakeRect_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeRect_8 extends _i1.SmartFake implements _i3.Rect {
-  _FakeRect_8(Object parent, Invocation parentInvocation)
+class _FakeDrag_8 extends _i1.SmartFake implements _i7.Drag {
+  _FakeDrag_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDrag_9 extends _i1.SmartFake implements _i7.Drag {
-  _FakeDrag_9(Object parent, Invocation parentInvocation)
+class _FakeSheetMetrics_9 extends _i1.SmartFake implements _i5.SheetMetrics {
+  _FakeSheetMetrics_9(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -302,21 +302,10 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
           as _i6.SheetActivity<_i2.SheetModel<_i2.SheetModelConfig>>);
 
   @override
-  _i5.SheetMetrics get snapshot =>
-      (super.noSuchMethod(
-            Invocation.getter(#snapshot),
-            returnValue: _FakeSheetMetrics_7(
-              this,
-              Invocation.getter(#snapshot),
-            ),
-          )
-          as _i5.SheetMetrics);
-
-  @override
   _i3.Rect get rect =>
       (super.noSuchMethod(
             Invocation.getter(#rect),
-            returnValue: _FakeRect_8(this, Invocation.getter(#rect)),
+            returnValue: _FakeRect_7(this, Invocation.getter(#rect)),
           )
           as _i3.Rect);
 
@@ -324,7 +313,7 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
   _i3.Rect get contentRect =>
       (super.noSuchMethod(
             Invocation.getter(#contentRect),
-            returnValue: _FakeRect_8(this, Invocation.getter(#contentRect)),
+            returnValue: _FakeRect_7(this, Invocation.getter(#contentRect)),
           )
           as _i3.Rect);
 
@@ -425,7 +414,7 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
   ) =>
       (super.noSuchMethod(
             Invocation.method(#drag, [details, dragCancelCallback]),
-            returnValue: _FakeDrag_9(
+            returnValue: _FakeDrag_8(
               this,
               Invocation.method(#drag, [details, dragCancelCallback]),
             ),
@@ -483,7 +472,7 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
               #contentBaseline: contentBaseline,
               #devicePixelRatio: devicePixelRatio,
             }),
-            returnValue: _FakeSheetMetrics_7(
+            returnValue: _FakeSheetMetrics_9(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,
@@ -631,8 +620,8 @@ class MockSheetMetrics extends _i1.Mock implements _i5.SheetMetrics {
   _i3.Rect get rect =>
       (super.noSuchMethod(
             Invocation.getter(#rect),
-            returnValue: _FakeRect_8(this, Invocation.getter(#rect)),
-            returnValueForMissingStub: _FakeRect_8(
+            returnValue: _FakeRect_7(this, Invocation.getter(#rect)),
+            returnValueForMissingStub: _FakeRect_7(
               this,
               Invocation.getter(#rect),
             ),
@@ -643,8 +632,8 @@ class MockSheetMetrics extends _i1.Mock implements _i5.SheetMetrics {
   _i3.Rect get contentRect =>
       (super.noSuchMethod(
             Invocation.getter(#contentRect),
-            returnValue: _FakeRect_8(this, Invocation.getter(#contentRect)),
-            returnValueForMissingStub: _FakeRect_8(
+            returnValue: _FakeRect_7(this, Invocation.getter(#contentRect)),
+            returnValueForMissingStub: _FakeRect_7(
               this,
               Invocation.getter(#contentRect),
             ),
@@ -829,7 +818,7 @@ class MockSheetMetrics extends _i1.Mock implements _i5.SheetMetrics {
               #contentBaseline: contentBaseline,
               #devicePixelRatio: devicePixelRatio,
             }),
-            returnValue: _FakeSheetMetrics_7(
+            returnValue: _FakeSheetMetrics_9(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,
@@ -845,7 +834,7 @@ class MockSheetMetrics extends _i1.Mock implements _i5.SheetMetrics {
                 #devicePixelRatio: devicePixelRatio,
               }),
             ),
-            returnValueForMissingStub: _FakeSheetMetrics_7(
+            returnValueForMissingStub: _FakeSheetMetrics_9(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,

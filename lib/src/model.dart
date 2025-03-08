@@ -264,9 +264,6 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
 
-  // TODO: Remove this method.
-  SheetMetrics get snapshot => copyWith();
-
   @mustCallSuper
   @protected
   void beginActivity(SheetActivity activity) {
@@ -426,40 +423,40 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   void didUpdateMetrics() {
     SheetUpdateNotification(
-      metrics: snapshot,
+      metrics: copyWith(),
     ).dispatch(context.notificationContext);
   }
 
   void didDragStart(SheetDragStartDetails details) {
     SheetDragStartNotification(
-      metrics: snapshot,
+      metrics: copyWith(),
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragEnd(SheetDragEndDetails details) {
     SheetDragEndNotification(
-      metrics: snapshot,
+      metrics: copyWith(),
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragUpdateMetrics(SheetDragUpdateDetails details) {
     SheetDragUpdateNotification(
-      metrics: snapshot,
+      metrics: copyWith(),
       dragDetails: details,
     ).dispatch(context.notificationContext);
   }
 
   void didDragCancel() {
     SheetDragCancelNotification(
-      metrics: snapshot,
+      metrics: copyWith(),
     ).dispatch(context.notificationContext);
   }
 
   void didOverflowBy(double overflow) {
     SheetOverflowNotification(
-      metrics: snapshot,
+      metrics: copyWith(),
       overflow: overflow,
     ).dispatch(context.notificationContext);
   }

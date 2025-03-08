@@ -153,7 +153,7 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
   when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);
-  when(position.snapshot).thenAnswer((_) => metricsRegistry);
+  when(position.copyWith()).thenAnswer((_) => metricsRegistry);
 
   when(position.offset = any).thenAnswer((invocation) {
     metricsRegistry.offset = invocation.positionalArguments.first as double;

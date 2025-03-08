@@ -15,11 +15,8 @@ class SheetController extends ChangeNotifier {
   final _immediateListeners = ChangeNotifier();
 
   /// The current metrics of the sheet.
-  ///
-  /// Returns the result of [SheetModel.snapshot]
-  /// on the attached [SheetModel].
   SheetMetrics? get metrics => switch (_client) {
-        final it? when it.hasMetrics => it.snapshot,
+        final it? when it.hasMetrics => it.copyWith(),
         _ => null,
       };
 
