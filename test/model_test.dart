@@ -88,6 +88,76 @@ void main() {
       );
     });
 
+    test('rect - when sheet is outside of viewport', () {
+      expect(
+        _TestSheetMetrics(
+          offset: -100,
+          size: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).rect,
+        Rect.fromLTWH(0, 900, 400, 300),
+      );
+
+      expect(
+        _TestSheetMetrics(
+          offset: 1200,
+          size: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).rect,
+        Rect.fromLTWH(0, -400, 400, 300),
+      );
+    });
+
+    test('visibleRect - when sheet is fully visible', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 300,
+          size: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).visibleRect,
+        Rect.fromLTWH(0, 500, 400, 300),
+      );
+    });
+
+    test('visibleRect - when sheet is partially visible at the top', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 900,
+          size: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).visibleRect,
+        Rect.fromLTWH(0, 0, 400, 200),
+      );
+    });
+
+    test('visibleRect - when sheet is partially visible at the bottom', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 100,
+          size: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).visibleRect,
+        Rect.fromLTWH(0, 700, 400, 100),
+      );
+    });
+
+    test('visibleRect - when sheet is not visible', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 1200,
+          size: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).visibleRect,
+        null,
+      );
+    });
+
     test('contentRect - without padding', () {
       expect(
         _TestSheetMetrics(
@@ -131,6 +201,84 @@ void main() {
           viewportPadding: EdgeInsets.all(20),
         ).contentRect,
         Rect.fromLTWH(20, 450, 360, 300),
+      );
+    });
+
+    test('contentRect - when content is outside of viewport', () {
+      expect(
+        _TestSheetMetrics(
+          offset: -100,
+          size: Size(400, 300),
+          contentSize: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).contentRect,
+        Rect.fromLTWH(0, 900, 400, 300),
+      );
+
+      expect(
+        _TestSheetMetrics(
+          offset: 1200,
+          size: Size(400, 300),
+          contentSize: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).contentRect,
+        Rect.fromLTWH(0, -400, 400, 300),
+      );
+    });
+
+    test('visibleContentRect - when content is fully visible', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 300,
+          size: Size(400, 300),
+          contentSize: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).visibleContentRect,
+        Rect.fromLTWH(0, 500, 400, 300),
+      );
+    });
+
+    test('visibleContentRect - when content is partially visible at the top',
+        () {
+      expect(
+        _TestSheetMetrics(
+          offset: 900,
+          size: Size(400, 300),
+          contentSize: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).visibleContentRect,
+        Rect.fromLTWH(0, 0, 400, 200),
+      );
+    });
+
+    test('visibleContentRect - when content is partially visible at the bottom',
+        () {
+      expect(
+        _TestSheetMetrics(
+          offset: 100,
+          size: Size(400, 300),
+          contentSize: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).visibleContentRect,
+        Rect.fromLTWH(0, 700, 400, 100),
+      );
+    });
+
+    test('visibleContentRect - when content is not visible', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 1200,
+          size: Size(400, 300),
+          contentSize: Size(400, 300),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+        ).visibleContentRect,
+        null,
       );
     });
 

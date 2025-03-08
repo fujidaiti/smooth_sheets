@@ -543,8 +543,28 @@ mixin SheetMetrics implements SheetLayout {
     );
   }
 
+  /// The part of the sheet's [rect] that is visible within the viewport.
+  ///
+  /// Returns `null` if the [rect] is outside of the viewport.
+  Rect? get visibleRect {
+    final viewportRect = Offset.zero & viewportSize;
+    final rect = this.rect;
+    return viewportRect.overlaps(rect) ? viewportRect.intersect(rect) : null;
+  }
+
   /// The rectangle that bounds the sheet's content within the viewport.
   Rect get contentRect => rect.topLeft & contentSize;
+
+  /// The part of the sheet's [contentRect] that is visible within the viewport.
+  ///
+  /// Returns `null` if the [contentRect] is outside of the viewport.
+  Rect? get visibleContentRect {
+    final viewportRect = Offset.zero & viewportSize;
+    final contentRect = this.contentRect;
+    return viewportRect.overlaps(contentRect)
+        ? viewportRect.intersect(contentRect)
+        : null;
+  }
 
   /// The amount of overlap that the sheet has with static system UI elements,
   /// such as the system status bar or hardware display notches.
