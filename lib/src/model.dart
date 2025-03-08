@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -480,13 +479,13 @@ abstract interface class ViewportLayout {
   /// where the sheet is laid out.
   /// {@endtemplate}
   Size get viewportSize;
-  
+
   /// {@template ViewportLayout.contentSize}
   /// The size of the sheet's content.
   /// {@endtemplate}
   Size get contentSize;
 
-  /// {@template ViewportLayout.viewportPadding}  
+  /// {@template ViewportLayout.viewportPadding}
   /// The padding by which the viewport insets the sheet.
   /// {@endtemplate}
   EdgeInsets get viewportPadding;
@@ -550,42 +549,42 @@ mixin SheetMetrics implements SheetLayout {
   /// The amount of overlap that the sheet has with static system UI elements,
   /// such as the system status bar or hardware display notches.
   EdgeInsets get staticOverlap {
-    final safeArea =
-        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    final vpStaticOverlap = viewportStaticOverlap;
+    final safeArea = vpStaticOverlap.deflateRect(Offset.zero & viewportSize);
     final rect = this.rect;
     return EdgeInsets.fromLTRB(
-      max(safeArea.left - rect.left, 0),
-      max(safeArea.top - rect.top, 0),
-      max(rect.right - safeArea.right, 0),
-      max(rect.bottom - safeArea.bottom, 0),
+      clampDouble(safeArea.left - rect.left, 0, vpStaticOverlap.left),
+      clampDouble(safeArea.top - rect.top, 0, vpStaticOverlap.top),
+      clampDouble(rect.right - safeArea.right, 0, vpStaticOverlap.right),
+      clampDouble(rect.bottom - safeArea.bottom, 0, vpStaticOverlap.bottom),
     );
   }
 
   /// The amount of overlap that the sheet has with dynamic system UI elements,
   /// such as the on-screen keyboard.
   EdgeInsets get dynamicOverlap {
-    final safeArea =
-        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    final vpDynamicOverlap = viewportDynamicOverlap;
+    final safeArea = vpDynamicOverlap.deflateRect(Offset.zero & viewportSize);
     final rect = this.rect;
     return EdgeInsets.fromLTRB(
-      max(safeArea.left - rect.left, 0),
-      max(safeArea.top - rect.top, 0),
-      max(rect.right - safeArea.right, 0),
-      max(rect.bottom - safeArea.bottom, 0),
+      clampDouble(safeArea.left - rect.left, 0, vpDynamicOverlap.left),
+      clampDouble(safeArea.top - rect.top, 0, vpDynamicOverlap.top),
+      clampDouble(rect.right - safeArea.right, 0, vpDynamicOverlap.right),
+      clampDouble(rect.bottom - safeArea.bottom, 0, vpDynamicOverlap.bottom),
     );
   }
 
   /// The amount of overlap that the sheet's content has with
   /// dynamic system UI elements, such as the on-screen keyboard.
   EdgeInsets get contentDynamicOverlap {
-    final safeArea =
-        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    final vpDynamicOverlap = viewportDynamicOverlap;
+    final safeArea = vpDynamicOverlap.deflateRect(Offset.zero & viewportSize);
     final rect = this.rect;
     return EdgeInsets.fromLTRB(
-      max(safeArea.left - rect.left, 0),
-      max(safeArea.top - rect.top, 0),
-      max(rect.right - safeArea.right, 0),
-      max(rect.bottom - safeArea.bottom, 0),
+      clampDouble(safeArea.left - rect.left, 0, vpDynamicOverlap.left),
+      clampDouble(safeArea.top - rect.top, 0, vpDynamicOverlap.top),
+      clampDouble(rect.right - safeArea.right, 0, vpDynamicOverlap.right),
+      clampDouble(rect.bottom - safeArea.bottom, 0, vpDynamicOverlap.bottom),
     );
   }
 
@@ -593,14 +592,14 @@ mixin SheetMetrics implements SheetLayout {
   /// static system UI elements, such as the system status bar or
   /// hardware display notches.
   EdgeInsets get contentStaticOverlap {
-    final safeArea =
-        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    final vpStaticOverlap = viewportStaticOverlap;
+    final safeArea = vpStaticOverlap.deflateRect(Offset.zero & viewportSize);
     final rect = this.rect;
     return EdgeInsets.fromLTRB(
-      max(safeArea.left - rect.left, 0),
-      max(safeArea.top - rect.top, 0),
-      max(rect.right - safeArea.right, 0),
-      max(rect.bottom - safeArea.bottom, 0),
+      clampDouble(safeArea.left - rect.left, 0, vpStaticOverlap.left),
+      clampDouble(safeArea.top - rect.top, 0, vpStaticOverlap.top),
+      clampDouble(rect.right - safeArea.right, 0, vpStaticOverlap.right),
+      clampDouble(rect.bottom - safeArea.bottom, 0, vpStaticOverlap.bottom),
     );
   }
 
