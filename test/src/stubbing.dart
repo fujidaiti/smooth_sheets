@@ -136,11 +136,21 @@ class MutableSheetMetrics with SheetMetrics {
 
   final position = MockSheetModel();
   when(position.hasMetrics).thenReturn(true);
+  when(position.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
+  when(position.size).thenAnswer((_) => metricsRegistry.size);
+  when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
+  when(position.viewportPadding)
+      .thenAnswer((_) => metricsRegistry.viewportPadding);
+  when(position.viewportDynamicOverlap)
+      .thenAnswer((_) => metricsRegistry.viewportDynamicOverlap);
+  when(position.viewportStaticOverlap)
+      .thenAnswer((_) => metricsRegistry.viewportStaticOverlap);
+  when(position.contentBaseline)
+      .thenAnswer((_) => metricsRegistry.contentBaseline);
   when(position.offset).thenAnswer((_) => metricsRegistry.offset);
   when(position.initialOffset).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
-  when(position.layout).thenAnswer((_) => metricsRegistry);
   when(position.devicePixelRatio)
       .thenAnswer((_) => metricsRegistry.devicePixelRatio);
   when(position.snapshot).thenAnswer((_) => metricsRegistry);
@@ -148,7 +158,7 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.offset = any).thenAnswer((invocation) {
     metricsRegistry.offset = invocation.positionalArguments.first as double;
   });
-  when(position.layout = any).thenAnswer((invocation) {
+  when(position.applyNewLayout(any)).thenAnswer((invocation) {
     final layout = invocation.positionalArguments[0] as ViewportLayout;
     metricsRegistry
       ..viewportSize = layout.viewportSize

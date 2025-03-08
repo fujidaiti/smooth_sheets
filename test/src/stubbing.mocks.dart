@@ -4,16 +4,16 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i8;
-import 'dart:ui' as _i4;
+import 'dart:ui' as _i3;
 
-import 'package:flutter/cupertino.dart' as _i5;
+import 'package:flutter/cupertino.dart' as _i4;
 import 'package:flutter/gestures.dart' as _i7;
 import 'package:flutter/scheduler.dart' as _i10;
 import 'package:flutter/src/animation/curves.dart' as _i12;
 import 'package:flutter/src/foundation/diagnostics.dart' as _i9;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i11;
-import 'package:smooth_sheets/smooth_sheets.dart' as _i3;
+import 'package:smooth_sheets/smooth_sheets.dart' as _i5;
 import 'package:smooth_sheets/src/activity.dart' as _i6;
 import 'package:smooth_sheets/src/model.dart' as _i2;
 
@@ -36,93 +36,88 @@ class _FakeSheetContext_0 extends _i1.SmartFake implements _i2.SheetContext {
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetLayout_1 extends _i1.SmartFake implements _i3.SheetLayout {
-  _FakeSheetLayout_1(Object parent, Invocation parentInvocation)
+class _FakeSize_1 extends _i1.SmartFake implements _i3.Size {
+  _FakeSize_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSize_2 extends _i1.SmartFake implements _i4.Size {
-  _FakeSize_2(Object parent, Invocation parentInvocation)
+class _FakeEdgeInsets_2 extends _i1.SmartFake implements _i4.EdgeInsets {
+  _FakeEdgeInsets_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeEdgeInsets_3 extends _i1.SmartFake implements _i5.EdgeInsets {
-  _FakeEdgeInsets_3(Object parent, Invocation parentInvocation)
+class _FakeSheetOffset_3 extends _i1.SmartFake implements _i5.SheetOffset {
+  _FakeSheetOffset_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetOffset_4 extends _i1.SmartFake implements _i3.SheetOffset {
-  _FakeSheetOffset_4(Object parent, Invocation parentInvocation)
+class _FakeSheetPhysics_4 extends _i1.SmartFake implements _i5.SheetPhysics {
+  _FakeSheetPhysics_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetPhysics_5 extends _i1.SmartFake implements _i3.SheetPhysics {
-  _FakeSheetPhysics_5(Object parent, Invocation parentInvocation)
+class _FakeSheetSnapGrid_5 extends _i1.SmartFake implements _i5.SheetSnapGrid {
+  _FakeSheetSnapGrid_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetSnapGrid_6 extends _i1.SmartFake implements _i3.SheetSnapGrid {
-  _FakeSheetSnapGrid_6(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeSheetActivity_7<T extends _i2.SheetModel<_i2.SheetModelConfig>>
+class _FakeSheetActivity_6<T extends _i2.SheetModel<_i2.SheetModelConfig>>
     extends _i1.SmartFake
     implements _i6.SheetActivity<T> {
-  _FakeSheetActivity_7(Object parent, Invocation parentInvocation)
+  _FakeSheetActivity_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetMetrics_8 extends _i1.SmartFake implements _i3.SheetMetrics {
-  _FakeSheetMetrics_8(Object parent, Invocation parentInvocation)
+class _FakeSheetMetrics_7 extends _i1.SmartFake implements _i5.SheetMetrics {
+  _FakeSheetMetrics_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeRect_9 extends _i1.SmartFake implements _i4.Rect {
-  _FakeRect_9(Object parent, Invocation parentInvocation)
+class _FakeRect_8 extends _i1.SmartFake implements _i3.Rect {
+  _FakeRect_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDrag_10 extends _i1.SmartFake implements _i7.Drag {
-  _FakeDrag_10(Object parent, Invocation parentInvocation)
+class _FakeDrag_9 extends _i1.SmartFake implements _i7.Drag {
+  _FakeDrag_9(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTickerProvider_11 extends _i1.SmartFake
-    implements _i5.TickerProvider {
-  _FakeTickerProvider_11(Object parent, Invocation parentInvocation)
+class _FakeTickerProvider_10 extends _i1.SmartFake
+    implements _i4.TickerProvider {
+  _FakeTickerProvider_10(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAnimation_12<T> extends _i1.SmartFake implements _i5.Animation<T> {
-  _FakeAnimation_12(Object parent, Invocation parentInvocation)
+class _FakeAnimation_11<T> extends _i1.SmartFake implements _i4.Animation<T> {
+  _FakeAnimation_11(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTickerFuture_13 extends _i1.SmartFake implements _i5.TickerFuture {
-  _FakeTickerFuture_13(Object parent, Invocation parentInvocation)
+class _FakeTickerFuture_12 extends _i1.SmartFake implements _i4.TickerFuture {
+  _FakeTickerFuture_12(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_14<T> extends _i1.SmartFake implements _i8.Future<T> {
-  _FakeFuture_14(Object parent, Invocation parentInvocation)
+class _FakeFuture_13<T> extends _i1.SmartFake implements _i8.Future<T> {
+  _FakeFuture_13(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDiagnosticsNode_15 extends _i1.SmartFake
-    implements _i5.DiagnosticsNode {
-  _FakeDiagnosticsNode_15(Object parent, Invocation parentInvocation)
+class _FakeDiagnosticsNode_14 extends _i1.SmartFake
+    implements _i4.DiagnosticsNode {
+  _FakeDiagnosticsNode_14(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 
   @override
   String toString({
     _i9.TextTreeConfiguration? parentConfiguration,
-    _i5.DiagnosticLevel? minLevel = _i5.DiagnosticLevel.info,
+    _i4.DiagnosticLevel? minLevel = _i4.DiagnosticLevel.info,
   }) => super.toString();
 }
 
-class _FakeTicker_16 extends _i1.SmartFake implements _i10.Ticker {
-  _FakeTicker_16(Object parent, Invocation parentInvocation)
+class _FakeTicker_15 extends _i1.SmartFake implements _i10.Ticker {
+  _FakeTicker_15(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 
   @override
@@ -147,67 +142,53 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
           as _i2.SheetContext);
 
   @override
-  _i3.SheetLayout get layout =>
-      (super.noSuchMethod(
-            Invocation.getter(#layout),
-            returnValue: _FakeSheetLayout_1(this, Invocation.getter(#layout)),
-          )
-          as _i3.SheetLayout);
-
-  @override
-  set layout(_i3.SheetLayout? value) => super.noSuchMethod(
-    Invocation.setter(#layout, value),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  _i4.Size get viewportSize =>
+  _i3.Size get viewportSize =>
       (super.noSuchMethod(
             Invocation.getter(#viewportSize),
-            returnValue: _FakeSize_2(this, Invocation.getter(#viewportSize)),
+            returnValue: _FakeSize_1(this, Invocation.getter(#viewportSize)),
           )
-          as _i4.Size);
+          as _i3.Size);
 
   @override
-  _i5.EdgeInsets get viewportPadding =>
+  _i4.EdgeInsets get viewportPadding =>
       (super.noSuchMethod(
             Invocation.getter(#viewportPadding),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportPadding),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get viewportDynamicOverlap =>
+  _i4.EdgeInsets get viewportDynamicOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#viewportDynamicOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportDynamicOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get viewportStaticOverlap =>
+  _i4.EdgeInsets get viewportStaticOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#viewportStaticOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportStaticOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i4.Size get contentSize =>
+  _i3.Size get contentSize =>
       (super.noSuchMethod(
             Invocation.getter(#contentSize),
-            returnValue: _FakeSize_2(this, Invocation.getter(#contentSize)),
+            returnValue: _FakeSize_1(this, Invocation.getter(#contentSize)),
           )
-          as _i4.Size);
+          as _i3.Size);
 
   @override
   double get contentBaseline =>
@@ -215,12 +196,12 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
           as double);
 
   @override
-  _i4.Size get size =>
+  _i3.Size get size =>
       (super.noSuchMethod(
             Invocation.getter(#size),
-            returnValue: _FakeSize_2(this, Invocation.getter(#size)),
+            returnValue: _FakeSize_1(this, Invocation.getter(#size)),
           )
-          as _i4.Size);
+          as _i3.Size);
 
   @override
   double get maxOffset =>
@@ -265,15 +246,15 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
           as bool);
 
   @override
-  _i3.SheetOffset get initialOffset =>
+  _i5.SheetOffset get initialOffset =>
       (super.noSuchMethod(
             Invocation.getter(#initialOffset),
-            returnValue: _FakeSheetOffset_4(
+            returnValue: _FakeSheetOffset_3(
               this,
               Invocation.getter(#initialOffset),
             ),
           )
-          as _i3.SheetOffset);
+          as _i5.SheetOffset);
 
   @override
   C get config =>
@@ -290,30 +271,30 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  _i3.SheetPhysics get physics =>
+  _i5.SheetPhysics get physics =>
       (super.noSuchMethod(
             Invocation.getter(#physics),
-            returnValue: _FakeSheetPhysics_5(this, Invocation.getter(#physics)),
+            returnValue: _FakeSheetPhysics_4(this, Invocation.getter(#physics)),
           )
-          as _i3.SheetPhysics);
+          as _i5.SheetPhysics);
 
   @override
-  _i3.SheetSnapGrid get snapGrid =>
+  _i5.SheetSnapGrid get snapGrid =>
       (super.noSuchMethod(
             Invocation.getter(#snapGrid),
-            returnValue: _FakeSheetSnapGrid_6(
+            returnValue: _FakeSheetSnapGrid_5(
               this,
               Invocation.getter(#snapGrid),
             ),
           )
-          as _i3.SheetSnapGrid);
+          as _i5.SheetSnapGrid);
 
   @override
   _i6.SheetActivity<_i2.SheetModel<_i2.SheetModelConfig>> get activity =>
       (super.noSuchMethod(
             Invocation.getter(#activity),
             returnValue:
-                _FakeSheetActivity_7<_i2.SheetModel<_i2.SheetModelConfig>>(
+                _FakeSheetActivity_6<_i2.SheetModel<_i2.SheetModelConfig>>(
                   this,
                   Invocation.getter(#activity),
                 ),
@@ -321,75 +302,75 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
           as _i6.SheetActivity<_i2.SheetModel<_i2.SheetModelConfig>>);
 
   @override
-  _i3.SheetMetrics get snapshot =>
+  _i5.SheetMetrics get snapshot =>
       (super.noSuchMethod(
             Invocation.getter(#snapshot),
-            returnValue: _FakeSheetMetrics_8(
+            returnValue: _FakeSheetMetrics_7(
               this,
               Invocation.getter(#snapshot),
             ),
           )
-          as _i3.SheetMetrics);
+          as _i5.SheetMetrics);
 
   @override
-  _i4.Rect get rect =>
+  _i3.Rect get rect =>
       (super.noSuchMethod(
             Invocation.getter(#rect),
-            returnValue: _FakeRect_9(this, Invocation.getter(#rect)),
+            returnValue: _FakeRect_8(this, Invocation.getter(#rect)),
           )
-          as _i4.Rect);
+          as _i3.Rect);
 
   @override
-  _i4.Rect get contentRect =>
+  _i3.Rect get contentRect =>
       (super.noSuchMethod(
             Invocation.getter(#contentRect),
-            returnValue: _FakeRect_9(this, Invocation.getter(#contentRect)),
+            returnValue: _FakeRect_8(this, Invocation.getter(#contentRect)),
           )
-          as _i4.Rect);
+          as _i3.Rect);
 
   @override
-  _i5.EdgeInsets get staticOverlap =>
+  _i4.EdgeInsets get staticOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#staticOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#staticOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get dynamicOverlap =>
+  _i4.EdgeInsets get dynamicOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#dynamicOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#dynamicOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get contentDynamicOverlap =>
+  _i4.EdgeInsets get contentDynamicOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#contentDynamicOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#contentDynamicOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get contentStaticOverlap =>
+  _i4.EdgeInsets get contentStaticOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#contentStaticOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#contentStaticOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
   bool get hasListeners =>
@@ -405,7 +386,13 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  double dryApplyLayout(_i3.ViewportLayout? layout) =>
+  void applyNewLayout(_i5.SheetLayout? newLayout) => super.noSuchMethod(
+    Invocation.method(#applyNewLayout, [newLayout]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  double dryApplyLayout(_i5.ViewportLayout? layout) =>
       (super.noSuchMethod(
             Invocation.method(#dryApplyLayout, [layout]),
             returnValue: 0.0,
@@ -425,7 +412,7 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  void settleTo(_i3.SheetOffset? offset, Duration? duration) =>
+  void settleTo(_i5.SheetOffset? offset, Duration? duration) =>
       super.noSuchMethod(
         Invocation.method(#settleTo, [offset, duration]),
         returnValueForMissingStub: null,
@@ -433,12 +420,12 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
 
   @override
   _i7.Drag drag(
-    _i5.DragStartDetails? details,
-    _i4.VoidCallback? dragCancelCallback,
+    _i4.DragStartDetails? details,
+    _i3.VoidCallback? dragCancelCallback,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#drag, [details, dragCancelCallback]),
-            returnValue: _FakeDrag_10(
+            returnValue: _FakeDrag_9(
               this,
               Invocation.method(#drag, [details, dragCancelCallback]),
             ),
@@ -453,8 +440,8 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
 
   @override
   _i8.Future<void> animateTo(
-    _i3.SheetOffset? newPosition, {
-    _i5.Curve? curve = _i5.Curves.easeInOut,
+    _i5.SheetOffset? newPosition, {
+    _i4.Curve? curve = _i4.Curves.easeInOut,
     Duration? duration = const Duration(milliseconds: 300),
   }) =>
       (super.noSuchMethod(
@@ -469,16 +456,16 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
           as _i8.Future<void>);
 
   @override
-  _i3.SheetMetrics copyWith({
+  _i5.SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    _i4.Size? size,
-    _i4.Size? contentSize,
-    _i4.Size? viewportSize,
-    _i5.EdgeInsets? viewportPadding,
-    _i5.EdgeInsets? viewportDynamicOverlap,
-    _i5.EdgeInsets? viewportStaticOverlap,
+    _i3.Size? size,
+    _i3.Size? contentSize,
+    _i3.Size? viewportSize,
+    _i4.EdgeInsets? viewportPadding,
+    _i4.EdgeInsets? viewportDynamicOverlap,
+    _i4.EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
     double? devicePixelRatio,
   }) =>
@@ -496,7 +483,7 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
               #contentBaseline: contentBaseline,
               #devicePixelRatio: devicePixelRatio,
             }),
-            returnValue: _FakeSheetMetrics_8(
+            returnValue: _FakeSheetMetrics_7(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,
@@ -513,7 +500,7 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
               }),
             ),
           )
-          as _i3.SheetMetrics);
+          as _i5.SheetMetrics);
 
   @override
   void didUpdateMetrics() => super.noSuchMethod(
@@ -522,19 +509,19 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  void didDragStart(_i3.SheetDragStartDetails? details) => super.noSuchMethod(
+  void didDragStart(_i5.SheetDragStartDetails? details) => super.noSuchMethod(
     Invocation.method(#didDragStart, [details]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void didDragEnd(_i3.SheetDragEndDetails? details) => super.noSuchMethod(
+  void didDragEnd(_i5.SheetDragEndDetails? details) => super.noSuchMethod(
     Invocation.method(#didDragEnd, [details]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void didDragUpdateMetrics(_i3.SheetDragUpdateDetails? details) =>
+  void didDragUpdateMetrics(_i5.SheetDragUpdateDetails? details) =>
       super.noSuchMethod(
         Invocation.method(#didDragUpdateMetrics, [details]),
         returnValueForMissingStub: null,
@@ -553,13 +540,13 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i3.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i3.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -576,19 +563,19 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockSheetContext extends _i1.Mock implements _i2.SheetContext {
   @override
-  _i5.TickerProvider get vsync =>
+  _i4.TickerProvider get vsync =>
       (super.noSuchMethod(
             Invocation.getter(#vsync),
-            returnValue: _FakeTickerProvider_11(
+            returnValue: _FakeTickerProvider_10(
               this,
               Invocation.getter(#vsync),
             ),
-            returnValueForMissingStub: _FakeTickerProvider_11(
+            returnValueForMissingStub: _FakeTickerProvider_10(
               this,
               Invocation.getter(#vsync),
             ),
           )
-          as _i5.TickerProvider);
+          as _i4.TickerProvider);
 
   @override
   double get devicePixelRatio =>
@@ -603,7 +590,7 @@ class MockSheetContext extends _i1.Mock implements _i2.SheetContext {
 /// A class which mocks [SheetMetrics].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSheetMetrics extends _i1.Mock implements _i3.SheetMetrics {
+class MockSheetMetrics extends _i1.Mock implements _i5.SheetMetrics {
   @override
   double get offset =>
       (super.noSuchMethod(
@@ -641,169 +628,169 @@ class MockSheetMetrics extends _i1.Mock implements _i3.SheetMetrics {
           as double);
 
   @override
-  _i4.Rect get rect =>
+  _i3.Rect get rect =>
       (super.noSuchMethod(
             Invocation.getter(#rect),
-            returnValue: _FakeRect_9(this, Invocation.getter(#rect)),
-            returnValueForMissingStub: _FakeRect_9(
+            returnValue: _FakeRect_8(this, Invocation.getter(#rect)),
+            returnValueForMissingStub: _FakeRect_8(
               this,
               Invocation.getter(#rect),
             ),
           )
-          as _i4.Rect);
+          as _i3.Rect);
 
   @override
-  _i4.Rect get contentRect =>
+  _i3.Rect get contentRect =>
       (super.noSuchMethod(
             Invocation.getter(#contentRect),
-            returnValue: _FakeRect_9(this, Invocation.getter(#contentRect)),
-            returnValueForMissingStub: _FakeRect_9(
+            returnValue: _FakeRect_8(this, Invocation.getter(#contentRect)),
+            returnValueForMissingStub: _FakeRect_8(
               this,
               Invocation.getter(#contentRect),
             ),
           )
-          as _i4.Rect);
+          as _i3.Rect);
 
   @override
-  _i5.EdgeInsets get staticOverlap =>
+  _i4.EdgeInsets get staticOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#staticOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#staticOverlap),
             ),
-            returnValueForMissingStub: _FakeEdgeInsets_3(
+            returnValueForMissingStub: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#staticOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get dynamicOverlap =>
+  _i4.EdgeInsets get dynamicOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#dynamicOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#dynamicOverlap),
             ),
-            returnValueForMissingStub: _FakeEdgeInsets_3(
+            returnValueForMissingStub: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#dynamicOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get contentDynamicOverlap =>
+  _i4.EdgeInsets get contentDynamicOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#contentDynamicOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#contentDynamicOverlap),
             ),
-            returnValueForMissingStub: _FakeEdgeInsets_3(
+            returnValueForMissingStub: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#contentDynamicOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get contentStaticOverlap =>
+  _i4.EdgeInsets get contentStaticOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#contentStaticOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#contentStaticOverlap),
             ),
-            returnValueForMissingStub: _FakeEdgeInsets_3(
+            returnValueForMissingStub: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#contentStaticOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i4.Size get size =>
+  _i3.Size get size =>
       (super.noSuchMethod(
             Invocation.getter(#size),
-            returnValue: _FakeSize_2(this, Invocation.getter(#size)),
-            returnValueForMissingStub: _FakeSize_2(
+            returnValue: _FakeSize_1(this, Invocation.getter(#size)),
+            returnValueForMissingStub: _FakeSize_1(
               this,
               Invocation.getter(#size),
             ),
           )
-          as _i4.Size);
+          as _i3.Size);
 
   @override
-  _i4.Size get viewportSize =>
+  _i3.Size get viewportSize =>
       (super.noSuchMethod(
             Invocation.getter(#viewportSize),
-            returnValue: _FakeSize_2(this, Invocation.getter(#viewportSize)),
-            returnValueForMissingStub: _FakeSize_2(
+            returnValue: _FakeSize_1(this, Invocation.getter(#viewportSize)),
+            returnValueForMissingStub: _FakeSize_1(
               this,
               Invocation.getter(#viewportSize),
             ),
           )
-          as _i4.Size);
+          as _i3.Size);
 
   @override
-  _i4.Size get contentSize =>
+  _i3.Size get contentSize =>
       (super.noSuchMethod(
             Invocation.getter(#contentSize),
-            returnValue: _FakeSize_2(this, Invocation.getter(#contentSize)),
-            returnValueForMissingStub: _FakeSize_2(
+            returnValue: _FakeSize_1(this, Invocation.getter(#contentSize)),
+            returnValueForMissingStub: _FakeSize_1(
               this,
               Invocation.getter(#contentSize),
             ),
           )
-          as _i4.Size);
+          as _i3.Size);
 
   @override
-  _i5.EdgeInsets get viewportPadding =>
+  _i4.EdgeInsets get viewportPadding =>
       (super.noSuchMethod(
             Invocation.getter(#viewportPadding),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportPadding),
             ),
-            returnValueForMissingStub: _FakeEdgeInsets_3(
+            returnValueForMissingStub: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportPadding),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get viewportDynamicOverlap =>
+  _i4.EdgeInsets get viewportDynamicOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#viewportDynamicOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportDynamicOverlap),
             ),
-            returnValueForMissingStub: _FakeEdgeInsets_3(
+            returnValueForMissingStub: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportDynamicOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
-  _i5.EdgeInsets get viewportStaticOverlap =>
+  _i4.EdgeInsets get viewportStaticOverlap =>
       (super.noSuchMethod(
             Invocation.getter(#viewportStaticOverlap),
-            returnValue: _FakeEdgeInsets_3(
+            returnValue: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportStaticOverlap),
             ),
-            returnValueForMissingStub: _FakeEdgeInsets_3(
+            returnValueForMissingStub: _FakeEdgeInsets_2(
               this,
               Invocation.getter(#viewportStaticOverlap),
             ),
           )
-          as _i5.EdgeInsets);
+          as _i4.EdgeInsets);
 
   @override
   double get contentBaseline =>
@@ -815,16 +802,16 @@ class MockSheetMetrics extends _i1.Mock implements _i3.SheetMetrics {
           as double);
 
   @override
-  _i3.SheetMetrics copyWith({
+  _i5.SheetMetrics copyWith({
     double? offset,
     double? minOffset,
     double? maxOffset,
-    _i4.Size? size,
-    _i4.Size? contentSize,
-    _i4.Size? viewportSize,
-    _i5.EdgeInsets? viewportPadding,
-    _i5.EdgeInsets? viewportDynamicOverlap,
-    _i5.EdgeInsets? viewportStaticOverlap,
+    _i3.Size? size,
+    _i3.Size? contentSize,
+    _i3.Size? viewportSize,
+    _i4.EdgeInsets? viewportPadding,
+    _i4.EdgeInsets? viewportDynamicOverlap,
+    _i4.EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
     double? devicePixelRatio,
   }) =>
@@ -842,7 +829,7 @@ class MockSheetMetrics extends _i1.Mock implements _i3.SheetMetrics {
               #contentBaseline: contentBaseline,
               #devicePixelRatio: devicePixelRatio,
             }),
-            returnValue: _FakeSheetMetrics_8(
+            returnValue: _FakeSheetMetrics_7(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,
@@ -858,7 +845,7 @@ class MockSheetMetrics extends _i1.Mock implements _i3.SheetMetrics {
                 #devicePixelRatio: devicePixelRatio,
               }),
             ),
-            returnValueForMissingStub: _FakeSheetMetrics_8(
+            returnValueForMissingStub: _FakeSheetMetrics_7(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,
@@ -875,14 +862,14 @@ class MockSheetMetrics extends _i1.Mock implements _i3.SheetMetrics {
               }),
             ),
           )
-          as _i3.SheetMetrics);
+          as _i5.SheetMetrics);
 }
 
 /// A class which mocks [AnimationController].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAnimationController extends _i1.Mock
-    implements _i5.AnimationController {
+    implements _i4.AnimationController {
   @override
   double get lowerBound =>
       (super.noSuchMethod(
@@ -902,13 +889,13 @@ class MockAnimationController extends _i1.Mock
           as double);
 
   @override
-  _i5.AnimationBehavior get animationBehavior =>
+  _i4.AnimationBehavior get animationBehavior =>
       (super.noSuchMethod(
             Invocation.getter(#animationBehavior),
-            returnValue: _i5.AnimationBehavior.normal,
-            returnValueForMissingStub: _i5.AnimationBehavior.normal,
+            returnValue: _i4.AnimationBehavior.normal,
+            returnValueForMissingStub: _i4.AnimationBehavior.normal,
           )
-          as _i5.AnimationBehavior);
+          as _i4.AnimationBehavior);
 
   @override
   set duration(Duration? _duration) => super.noSuchMethod(
@@ -923,19 +910,19 @@ class MockAnimationController extends _i1.Mock
   );
 
   @override
-  _i5.Animation<double> get view =>
+  _i4.Animation<double> get view =>
       (super.noSuchMethod(
             Invocation.getter(#view),
-            returnValue: _FakeAnimation_12<double>(
+            returnValue: _FakeAnimation_11<double>(
               this,
               Invocation.getter(#view),
             ),
-            returnValueForMissingStub: _FakeAnimation_12<double>(
+            returnValueForMissingStub: _FakeAnimation_11<double>(
               this,
               Invocation.getter(#view),
             ),
           )
-          as _i5.Animation<double>);
+          as _i4.Animation<double>);
 
   @override
   double get value =>
@@ -971,13 +958,13 @@ class MockAnimationController extends _i1.Mock
           as bool);
 
   @override
-  _i5.AnimationStatus get status =>
+  _i4.AnimationStatus get status =>
       (super.noSuchMethod(
             Invocation.getter(#status),
-            returnValue: _i5.AnimationStatus.dismissed,
-            returnValueForMissingStub: _i5.AnimationStatus.dismissed,
+            returnValue: _i4.AnimationStatus.dismissed,
+            returnValueForMissingStub: _i4.AnimationStatus.dismissed,
           )
-          as _i5.AnimationStatus);
+          as _i4.AnimationStatus);
 
   @override
   bool get isDismissed =>
@@ -1007,7 +994,7 @@ class MockAnimationController extends _i1.Mock
           as bool);
 
   @override
-  void resync(_i5.TickerProvider? vsync) => super.noSuchMethod(
+  void resync(_i4.TickerProvider? vsync) => super.noSuchMethod(
     Invocation.method(#resync, [vsync]),
     returnValueForMissingStub: null,
   );
@@ -1019,55 +1006,55 @@ class MockAnimationController extends _i1.Mock
   );
 
   @override
-  _i5.TickerFuture forward({double? from}) =>
+  _i4.TickerFuture forward({double? from}) =>
       (super.noSuchMethod(
             Invocation.method(#forward, [], {#from: from}),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(#forward, [], {#from: from}),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(#forward, [], {#from: from}),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
-  _i5.TickerFuture reverse({double? from}) =>
+  _i4.TickerFuture reverse({double? from}) =>
       (super.noSuchMethod(
             Invocation.method(#reverse, [], {#from: from}),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(#reverse, [], {#from: from}),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(#reverse, [], {#from: from}),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
-  _i5.TickerFuture toggle({double? from}) =>
+  _i4.TickerFuture toggle({double? from}) =>
       (super.noSuchMethod(
             Invocation.method(#toggle, [], {#from: from}),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(#toggle, [], {#from: from}),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(#toggle, [], {#from: from}),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
-  _i5.TickerFuture animateTo(
+  _i4.TickerFuture animateTo(
     double? target, {
     Duration? duration,
-    _i5.Curve? curve = _i12.Curves.linear,
+    _i4.Curve? curve = _i12.Curves.linear,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -1075,7 +1062,7 @@ class MockAnimationController extends _i1.Mock
               [target],
               {#duration: duration, #curve: curve},
             ),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(
                 #animateTo,
@@ -1083,7 +1070,7 @@ class MockAnimationController extends _i1.Mock
                 {#duration: duration, #curve: curve},
               ),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(
                 #animateTo,
@@ -1092,13 +1079,13 @@ class MockAnimationController extends _i1.Mock
               ),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
-  _i5.TickerFuture animateBack(
+  _i4.TickerFuture animateBack(
     double? target, {
     Duration? duration,
-    _i5.Curve? curve = _i12.Curves.linear,
+    _i4.Curve? curve = _i12.Curves.linear,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -1106,7 +1093,7 @@ class MockAnimationController extends _i1.Mock
               [target],
               {#duration: duration, #curve: curve},
             ),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(
                 #animateBack,
@@ -1114,7 +1101,7 @@ class MockAnimationController extends _i1.Mock
                 {#duration: duration, #curve: curve},
               ),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(
                 #animateBack,
@@ -1123,10 +1110,10 @@ class MockAnimationController extends _i1.Mock
               ),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
-  _i5.TickerFuture repeat({
+  _i4.TickerFuture repeat({
     double? min,
     double? max,
     bool? reverse = false,
@@ -1141,7 +1128,7 @@ class MockAnimationController extends _i1.Mock
               #period: period,
               #count: count,
             }),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(#repeat, [], {
                 #min: min,
@@ -1151,7 +1138,7 @@ class MockAnimationController extends _i1.Mock
                 #count: count,
               }),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(#repeat, [], {
                 #min: min,
@@ -1162,13 +1149,13 @@ class MockAnimationController extends _i1.Mock
               }),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
-  _i5.TickerFuture fling({
+  _i4.TickerFuture fling({
     double? velocity = 1.0,
-    _i5.SpringDescription? springDescription,
-    _i5.AnimationBehavior? animationBehavior,
+    _i4.SpringDescription? springDescription,
+    _i4.AnimationBehavior? animationBehavior,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#fling, [], {
@@ -1176,7 +1163,7 @@ class MockAnimationController extends _i1.Mock
               #springDescription: springDescription,
               #animationBehavior: animationBehavior,
             }),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(#fling, [], {
                 #velocity: velocity,
@@ -1184,7 +1171,7 @@ class MockAnimationController extends _i1.Mock
                 #animationBehavior: animationBehavior,
               }),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(#fling, [], {
                 #velocity: velocity,
@@ -1193,22 +1180,22 @@ class MockAnimationController extends _i1.Mock
               }),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
-  _i5.TickerFuture animateWith(_i5.Simulation? simulation) =>
+  _i4.TickerFuture animateWith(_i4.Simulation? simulation) =>
       (super.noSuchMethod(
             Invocation.method(#animateWith, [simulation]),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(#animateWith, [simulation]),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(#animateWith, [simulation]),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
   void stop({bool? canceled = true}) => super.noSuchMethod(
@@ -1238,45 +1225,45 @@ class MockAnimationController extends _i1.Mock
           as String);
 
   @override
-  void addListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i3.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i3.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void addStatusListener(_i5.AnimationStatusListener? listener) =>
+  void addStatusListener(_i4.AnimationStatusListener? listener) =>
       super.noSuchMethod(
         Invocation.method(#addStatusListener, [listener]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void removeStatusListener(_i5.AnimationStatusListener? listener) =>
+  void removeStatusListener(_i4.AnimationStatusListener? listener) =>
       super.noSuchMethod(
         Invocation.method(#removeStatusListener, [listener]),
         returnValueForMissingStub: null,
       );
 
   @override
-  _i5.Animation<U> drive<U>(_i5.Animatable<U>? child) =>
+  _i4.Animation<U> drive<U>(_i4.Animatable<U>? child) =>
       (super.noSuchMethod(
             Invocation.method(#drive, [child]),
-            returnValue: _FakeAnimation_12<U>(
+            returnValue: _FakeAnimation_11<U>(
               this,
               Invocation.method(#drive, [child]),
             ),
-            returnValueForMissingStub: _FakeAnimation_12<U>(
+            returnValueForMissingStub: _FakeAnimation_11<U>(
               this,
               Invocation.method(#drive, [child]),
             ),
           )
-          as _i5.Animation<U>);
+          as _i4.Animation<U>);
 
   @override
   void didRegisterListener() => super.noSuchMethod(
@@ -1309,7 +1296,7 @@ class MockAnimationController extends _i1.Mock
   );
 
   @override
-  void notifyStatusListeners(_i5.AnimationStatus? status) => super.noSuchMethod(
+  void notifyStatusListeners(_i4.AnimationStatus? status) => super.noSuchMethod(
     Invocation.method(#notifyStatusListeners, [status]),
     returnValueForMissingStub: null,
   );
@@ -1318,7 +1305,7 @@ class MockAnimationController extends _i1.Mock
 /// A class which mocks [TickerFuture].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTickerFuture extends _i1.Mock implements _i5.TickerFuture {
+class MockTickerFuture extends _i1.Mock implements _i4.TickerFuture {
   @override
   _i8.Future<void> get orCancel =>
       (super.noSuchMethod(
@@ -1329,7 +1316,7 @@ class MockTickerFuture extends _i1.Mock implements _i5.TickerFuture {
           as _i8.Future<void>);
 
   @override
-  void whenCompleteOrCancel(_i4.VoidCallback? callback) => super.noSuchMethod(
+  void whenCompleteOrCancel(_i3.VoidCallback? callback) => super.noSuchMethod(
     Invocation.method(#whenCompleteOrCancel, [callback]),
     returnValueForMissingStub: null,
   );
@@ -1370,7 +1357,7 @@ class MockTickerFuture extends _i1.Mock implements _i5.TickerFuture {
                   ),
                   (R v) => _i8.Future<R>.value(v),
                 ) ??
-                _FakeFuture_14<R>(
+                _FakeFuture_13<R>(
                   this,
                   Invocation.method(#then, [onValue], {#onError: onError}),
                 ),
@@ -1382,7 +1369,7 @@ class MockTickerFuture extends _i1.Mock implements _i5.TickerFuture {
                   ),
                   (R v) => _i8.Future<R>.value(v),
                 ) ??
-                _FakeFuture_14<R>(
+                _FakeFuture_13<R>(
                   this,
                   Invocation.method(#then, [onValue], {#onError: onError}),
                 ),
@@ -1467,34 +1454,34 @@ class MockTicker extends _i1.Mock implements _i10.Ticker {
           as bool);
 
   @override
-  _i5.TickerFuture start() =>
+  _i4.TickerFuture start() =>
       (super.noSuchMethod(
             Invocation.method(#start, []),
-            returnValue: _FakeTickerFuture_13(
+            returnValue: _FakeTickerFuture_12(
               this,
               Invocation.method(#start, []),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_13(
+            returnValueForMissingStub: _FakeTickerFuture_12(
               this,
               Invocation.method(#start, []),
             ),
           )
-          as _i5.TickerFuture);
+          as _i4.TickerFuture);
 
   @override
-  _i5.DiagnosticsNode describeForError(String? name) =>
+  _i4.DiagnosticsNode describeForError(String? name) =>
       (super.noSuchMethod(
             Invocation.method(#describeForError, [name]),
-            returnValue: _FakeDiagnosticsNode_15(
+            returnValue: _FakeDiagnosticsNode_14(
               this,
               Invocation.method(#describeForError, [name]),
             ),
-            returnValueForMissingStub: _FakeDiagnosticsNode_15(
+            returnValueForMissingStub: _FakeDiagnosticsNode_14(
               this,
               Invocation.method(#describeForError, [name]),
             ),
           )
-          as _i5.DiagnosticsNode);
+          as _i4.DiagnosticsNode);
 
   @override
   void stop({bool? canceled = false}) => super.noSuchMethod(
@@ -1533,16 +1520,16 @@ class MockTicker extends _i1.Mock implements _i10.Ticker {
 /// A class which mocks [TickerProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTickerProvider extends _i1.Mock implements _i5.TickerProvider {
+class MockTickerProvider extends _i1.Mock implements _i4.TickerProvider {
   @override
   _i10.Ticker createTicker(_i10.TickerCallback? onTick) =>
       (super.noSuchMethod(
             Invocation.method(#createTicker, [onTick]),
-            returnValue: _FakeTicker_16(
+            returnValue: _FakeTicker_15(
               this,
               Invocation.method(#createTicker, [onTick]),
             ),
-            returnValueForMissingStub: _FakeTicker_16(
+            returnValueForMissingStub: _FakeTicker_15(
               this,
               Invocation.method(#createTicker, [onTick]),
             ),

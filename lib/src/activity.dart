@@ -132,7 +132,7 @@ class AnimatedSheetActivity extends SheetActivity
   void init(SheetModel delegate) {
     super.init(delegate);
     _startOffset = owner.offset;
-    _endOffset = destination.resolve(owner.layout);
+    _endOffset = destination.resolve(owner);
   }
 
   @override
@@ -164,7 +164,7 @@ class AnimatedSheetActivity extends SheetActivity
 
   @override
   void didLayoutChange(ViewportLayout oldLayout) {
-    final newEndOffset = destination.resolve(owner.layout);
+    final newEndOffset = destination.resolve(owner);
     if (newEndOffset != _endOffset) {
       final remainingDuration =
           duration - (controller.lastElapsedDuration ?? Duration.zero);
@@ -213,7 +213,7 @@ class BallisticSheetActivity extends SheetActivity
       owner.offset,
       velocity,
     );
-    final endOffset = destination.resolve(owner.layout);
+    final endOffset = destination.resolve(owner);
     if (endOffset == owner.offset) {
       return;
     }
@@ -306,7 +306,7 @@ class SettlingSheetActivity extends SheetActivity {
     final elapsedFrameTime =
         (elapsedDuration - _elapsedDuration).inMicroseconds /
             Duration.microsecondsPerSecond;
-    final destination = this.destination.resolve(owner.layout);
+    final destination = this.destination.resolve(owner);
     final offset = owner.offset;
     final newOffset = destination > offset
         ? min(destination, offset + velocity * elapsedFrameTime)
@@ -345,7 +345,7 @@ class SettlingSheetActivity extends SheetActivity {
     if (duration case final duration?) {
       final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
           Duration.microsecondsPerSecond;
-      final destination = this.destination.resolve(owner.layout);
+      final destination = this.destination.resolve(owner);
       final offset = owner.offset;
       _velocity = remainingSeconds > 0
           ? (destination - offset).abs() / remainingSeconds
@@ -363,7 +363,7 @@ class IdleSheetActivity extends SheetActivity {
   void init(SheetModel owner) {
     super.init(owner);
     targetOffset = owner.hasMetrics
-        ? owner.snapGrid.getSnapOffset(owner.layout, owner.offset, 0)
+        ? owner.snapGrid.getSnapOffset(owner, owner.offset, 0)
         : owner.initialOffset;
   }
 
@@ -374,7 +374,7 @@ class IdleSheetActivity extends SheetActivity {
   /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
   void didLayoutChange(ViewportLayout oldLayout) {
-    final newOffset = dryApplyNewLayout(owner.layout);
+    final newOffset = dryApplyNewLayout(owner);
     if (newOffset != owner.offset) {
       owner
         ..offset = newOffset

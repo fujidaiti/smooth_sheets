@@ -15,7 +15,7 @@ Matcher throwsError({required String name}) => throwsA(
 /// This is useful for verifying that a late field has not been initialized.
 Matcher get isNotInitialized => throwsError(name: 'LateError');
 
-Matcher isMeasurements({
+Matcher isViewportLayout({
   Size? contentSize,
   double? contentBaseline,
 }) {

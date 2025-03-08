@@ -476,9 +476,11 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       minHeight: child.size.height + bottomPadding,
       maxHeight: maxSize.height,
     ).constrain(Size.fromHeight(_preferredExtent!));
-    _model._inner!.layout = ImmutableSheetLayout.from(
-      viewportLayout: viewportLayout,
-      size: Size.copy(size),
+    _model._inner!.applyNewLayout(
+      ImmutableSheetLayout.from(
+        viewportLayout: viewportLayout,
+        size: Size.copy(size),
+      ),
     );
     assert(_model._inner!.hasMetrics);
 

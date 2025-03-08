@@ -172,31 +172,6 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     goIdle();
   }
 
-  // TODO: Change to void didChangeLayout(SheetLayout newLayout).
-  SheetLayout get layout => _layout!;
-  SheetLayout? _layout;
-  set layout(SheetLayout value) {
-    if (_layout == value) {
-      return;
-    }
-
-    final oldLayout = _layout;
-    _layout = value;
-    final (minOffset, maxOffset) = snapGrid.getBoundaries(value);
-    _minOffset = minOffset.resolve(value);
-    _maxOffset = maxOffset.resolve(value);
-
-    if (_offset == null) {
-      offset = initialOffset.resolve(value);
-    }
-
-    assert(hasMetrics);
-
-    if (oldLayout != null) {
-      activity.didLayoutChange(oldLayout);
-    }
-  }
-
   @override
   Size get viewportSize => _layout!.viewportSize;
 
@@ -289,6 +264,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   SheetActivity get activity => _activity!;
   SheetActivity? _activity;
 
+  // TODO: Remove this method.
   SheetMetrics get snapshot => copyWith();
 
   @mustCallSuper
@@ -299,6 +275,36 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     _activity = activity;
     activity.init(this);
     oldActivity?.dispose();
+  }
+
+  SheetLayout? _layout;
+
+  void applyNewLayout(SheetLayout newLayout) {
+    if (_layout == newLayout) {
+      return;
+    }
+
+    final oldLayout = _layout;
+    _layout = newLayout;
+    final (minOffset, maxOffset) = snapGrid.getBoundaries(newLayout);
+    _minOffset = minOffset.resolve(newLayout);
+    _maxOffset = maxOffset.resolve(newLayout);
+
+    if (_offset == null) {
+      offset = initialOffset.resolve(newLayout);
+    }
+
+    assert(hasMetrics);
+
+    if (oldLayout != null) {
+      activity.didLayoutChange(oldLayout);
+    }
+
+    assert(
+      offset == dryApplyLayout(newLayout),
+      'applyNewLayout must update the offset to the value '
+      'that dryApplyLayout would return.',
+    );
   }
 
   @nonVirtual
