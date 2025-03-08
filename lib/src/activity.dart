@@ -62,7 +62,11 @@ abstract class SheetActivity<T extends SheetModel> {
 
   bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
-  void didChangeMeasurements(ViewportLayout oldMeasurements) {}
+  double dryApplyNewLayout(ViewportLayout layout) => owner.offset;
+
+  void didLayoutChange(ViewportLayout oldLayout) {
+    owner.offset = dryApplyNewLayout(oldLayout);
+  }
 
   @protected
   bool debugAssertMounted() {
@@ -159,7 +163,7 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void didChangeMeasurements(ViewportLayout oldMeasurements) {
+  void didLayoutChange(ViewportLayout oldLayout) {
     final newEndOffset = destination.resolve(owner.layout);
     if (newEndOffset != _endOffset) {
       final remainingDuration =
@@ -203,9 +207,9 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void didChangeMeasurements(ViewportLayout oldMeasurements) {
+  void didLayoutChange(ViewportLayout oldLayout) {
     final destination = owner.snapGrid.getSnapOffset(
-      oldMeasurements,
+      oldLayout,
       owner.offset,
       velocity,
     );
@@ -319,7 +323,7 @@ class SettlingSheetActivity extends SheetActivity {
   }
 
   @override
-  void didChangeMeasurements(ViewportLayout oldMeasurements) {
+  void didLayoutChange(ViewportLayout oldLayout) {
     _invalidateVelocity();
   }
 
@@ -363,10 +367,14 @@ class IdleSheetActivity extends SheetActivity {
         : owner.initialOffset;
   }
 
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) =>
+      targetOffset.resolve(layout);
+
   /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
-  void didChangeMeasurements(ViewportLayout oldMeasurements) {
-    final newOffset = targetOffset.resolve(owner.layout);
+  void didLayoutChange(ViewportLayout oldLayout) {
+    final newOffset = dryApplyNewLayout(owner.layout);
     if (newOffset != owner.offset) {
       owner
         ..offset = newOffset

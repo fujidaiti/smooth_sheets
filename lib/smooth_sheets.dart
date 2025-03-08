@@ -10,6 +10,7 @@ export 'src/keyboard_dismissible.dart';
 export 'src/modal_sheet.dart';
 export 'src/model.dart'
     hide
+        ImmutableSheetLayout,
         ImmutableSheetMetrics,
         ImmutableViewportLayout,
         SheetContext,

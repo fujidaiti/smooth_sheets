@@ -410,15 +410,17 @@ class _RenderSheetSkelton extends RenderShiftedBox {
 
   void _invalidatePreferredExtent() {
     if (_model.hasMetrics) {
-      final sheetTop = _layoutSpec.viewportSize.height - _model.offset;
-      final preferredExtent =
-          max(_layoutSpec.maxSheetRect.bottom - sheetTop, 0.0);
       final oldPreferredExtent = _preferredExtent;
-      _preferredExtent = preferredExtent;
-      if (oldPreferredExtent != preferredExtent && !_isPerformingLayout) {
+      _preferredExtent = _computePreferredExtent(_model.offset);
+      if (oldPreferredExtent != _preferredExtent && !_isPerformingLayout) {
         markNeedsLayout();
       }
     }
+  }
+
+  double _computePreferredExtent(double offset) {
+    final sheetTop = _layoutSpec.viewportSize.height - offset;
+    return max(_layoutSpec.maxSheetRect.bottom - sheetTop, 0.0);
   }
 
   @override
@@ -459,18 +461,12 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     );
 
     assert(_model._inner != null);
-    final layout = ImmutableViewportLayout(
-      viewportSize: _layoutSpec.viewportSize,
+    final viewportLayout = ImmutableViewportLayout.from(
+      layoutSpec: _layoutSpec,
       contentSize: Size.copy(child.size),
-      viewportPadding: _layoutSpec.viewportPadding,
-      viewportDynamicOverlap: _layoutSpec.viewportDynamicOverlap,
-      viewportStaticOverlap: _layoutSpec.viewportStaticOverlap,
-      contentBaseline: _layoutSpec.contentBaseline,
     );
-    final offset = _model._inner!.computeOffset(layout);
-    _model._inner!.layout = SheetLayout();
-    assert(_preferredExtent != null);
-
+    final newOffset = _model._inner!.dryApplyLayout(viewportLayout);
+    _preferredExtent = _computePreferredExtent(newOffset);
     final maxRect = _layoutSpec.maxSheetRect;
     final maxSize = maxRect.size;
     final bottomPadding = maxChildRect.bottom - maxRect.bottom;
@@ -480,6 +476,11 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       minHeight: child.size.height + bottomPadding,
       maxHeight: maxSize.height,
     ).constrain(Size.fromHeight(_preferredExtent!));
+    _model._inner!.layout = ImmutableSheetLayout.from(
+      viewportLayout: viewportLayout,
+      size: Size.copy(size),
+    );
+    assert(_model._inner!.hasMetrics);
 
     _isPerformingLayout = false;
   }

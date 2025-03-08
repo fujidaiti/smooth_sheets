@@ -121,7 +121,7 @@ void main() {
         ..viewportDynamicOverlap = EdgeInsets.only(bottom: 50)
         ..contentBaseline = 50;
 
-      activity.didChangeMeasurements(oldMeasurements);
+      activity.didLayoutChange(oldMeasurements);
       expect(ownerMetrics.offset, 400);
       verify(owner.settleTo(
         const SheetOffset.relative(1),
@@ -255,10 +255,9 @@ void main() {
       // Show the on-screen keyboard.
       ownerMetrics
         ..viewportDynamicOverlap = EdgeInsets.only(bottom: 30)
-        ..contentSize = const Size(400, 850)
         ..contentBaseline = 30;
 
-      activity.didChangeMeasurements(oldMeasurements);
+      activity.didLayoutChange(oldMeasurements);
       expect(ownerMetrics.offset, 350,
           reason: 'Visual position should not change when viewport changes.');
       expect(activity.velocity, 1120, // 280 offset / 0.25s = 1120 offset/s
@@ -297,7 +296,7 @@ void main() {
 
         IdleSheetActivity()
           ..init(owner)
-          ..didChangeMeasurements(oldMeasurements);
+          ..didLayoutChange(oldMeasurements);
         expect(ownerMetrics.offset, 220);
       },
     );
@@ -325,7 +324,7 @@ void main() {
         ownerMetrics.contentSize = Size(400, 600);
         IdleSheetActivity()
           ..init(owner)
-          ..didChangeMeasurements(oldMeasurements);
+          ..didLayoutChange(oldMeasurements);
         expect(owner.offset, 300);
         // Still in the idle activity.
         verifyNever(owner.beginActivity(any));

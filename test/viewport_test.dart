@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/gesture_proxy.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/physics.dart';
@@ -966,6 +967,10 @@ void main() {
   });
 }
 
+class _TestIdleSheetActivity extends SheetActivity {
+  /* This activity literally does nothing. */
+}
+
 class _TestSheetModelConfig extends SheetModelConfig {
   const _TestSheetModelConfig()
       : super(
@@ -997,4 +1002,9 @@ class _TestSheetModel extends SheetModel {
   @override
   bool get shouldIgnorePointer =>
       debugShouldIgnorePointerOverride ?? super.shouldIgnorePointer;
+  
+  @override
+  void goIdle() {
+    beginActivity(_TestIdleSheetActivity());
+  }
 }

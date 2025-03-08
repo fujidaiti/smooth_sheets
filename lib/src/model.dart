@@ -172,7 +172,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     goIdle();
   }
 
-  // TODO: Remove this getter.
+  // TODO: Change to void didChangeLayout(SheetLayout newLayout).
   SheetLayout get layout => _layout!;
   SheetLayout? _layout;
   set layout(SheetLayout value) {
@@ -193,7 +193,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     assert(hasMetrics);
 
     if (oldLayout != null) {
-      activity.didChangeMeasurements(oldLayout);
+      activity.didLayoutChange(oldLayout);
     }
   }
 
@@ -300,9 +300,28 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     activity.init(this);
     oldActivity?.dispose();
   }
-  
-  double computeOffset(ViewportLayout layout) {
-    
+
+  @nonVirtual
+  double dryApplyLayout(ViewportLayout layout) {
+    if (!hasMetrics) {
+      return initialOffset.resolve(layout);
+    }
+
+    SheetMetrics? oldMetrics;
+    SheetActivity? oldActivity;
+    assert(() {
+      oldMetrics = copyWith();
+      oldActivity = activity;
+      return true;
+    }());
+
+    final result = activity.dryApplyNewLayout(layout);
+    assert(
+      (oldMetrics == null || oldMetrics == copyWith()) &&
+          (oldActivity == null || identical(oldActivity, activity)),
+      'SheetActivity.dryApplyNewLayout must not change the state of the model.',
+    );
+    return result;
   }
 
   void goIdle() {
@@ -735,6 +754,187 @@ class SheetLayoutSpec {
 
 @immutable
 @internal
+class ImmutableViewportLayout implements ViewportLayout {
+  const ImmutableViewportLayout({
+    required this.viewportSize,
+    required this.contentSize,
+    required this.viewportPadding,
+    required this.viewportDynamicOverlap,
+    required this.viewportStaticOverlap,
+    required this.contentBaseline,
+  });
+
+  factory ImmutableViewportLayout.from({
+    required SheetLayoutSpec layoutSpec,
+    required Size contentSize,
+  }) {
+    return ImmutableViewportLayout(
+      viewportSize: layoutSpec.viewportSize,
+      contentSize: contentSize,
+      viewportPadding: layoutSpec.viewportPadding,
+      viewportDynamicOverlap: layoutSpec.viewportDynamicOverlap,
+      viewportStaticOverlap: layoutSpec.viewportStaticOverlap,
+      contentBaseline: layoutSpec.contentBaseline,
+    );
+  }
+
+  @override
+  final Size viewportSize;
+
+  @override
+  final Size contentSize;
+
+  @override
+  final EdgeInsets viewportPadding;
+
+  @override
+  final EdgeInsets viewportDynamicOverlap;
+
+  @override
+  final EdgeInsets viewportStaticOverlap;
+
+  @override
+  final double contentBaseline;
+
+  ImmutableViewportLayout copyWith({
+    Size? viewportSize,
+    Size? contentSize,
+    EdgeInsets? viewportPadding,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportStaticOverlap,
+    double? contentBaseline,
+  }) {
+    return ImmutableViewportLayout(
+      viewportSize: viewportSize ?? this.viewportSize,
+      contentSize: contentSize ?? this.contentSize,
+      viewportPadding: viewportPadding ?? this.viewportPadding,
+      viewportDynamicOverlap:
+          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
+      viewportStaticOverlap:
+          viewportStaticOverlap ?? this.viewportStaticOverlap,
+      contentBaseline: contentBaseline ?? this.contentBaseline,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ViewportLayout &&
+          viewportSize == other.viewportSize &&
+          contentSize == other.contentSize &&
+          viewportPadding == other.viewportPadding &&
+          viewportDynamicOverlap == other.viewportDynamicOverlap &&
+          viewportStaticOverlap == other.viewportStaticOverlap &&
+          contentBaseline == other.contentBaseline;
+
+  @override
+  int get hashCode => Object.hash(
+        viewportSize,
+        contentSize,
+        viewportPadding,
+        viewportDynamicOverlap,
+        viewportStaticOverlap,
+        contentBaseline,
+      );
+}
+
+@immutable
+@internal
+class ImmutableSheetLayout implements SheetLayout {
+  const ImmutableSheetLayout({
+    required this.size,
+    required this.contentBaseline,
+    required this.contentSize,
+    required this.viewportDynamicOverlap,
+    required this.viewportPadding,
+    required this.viewportSize,
+    required this.viewportStaticOverlap,
+  });
+
+  factory ImmutableSheetLayout.from({
+    required ViewportLayout viewportLayout,
+    required Size size,
+  }) {
+    return ImmutableSheetLayout(
+      size: size,
+      contentBaseline: viewportLayout.contentBaseline,
+      contentSize: viewportLayout.contentSize,
+      viewportDynamicOverlap: viewportLayout.viewportDynamicOverlap,
+      viewportPadding: viewportLayout.viewportPadding,
+      viewportSize: viewportLayout.viewportSize,
+      viewportStaticOverlap: viewportLayout.viewportStaticOverlap,
+    );
+  }
+
+  @override
+  final Size size;
+
+  @override
+  final double contentBaseline;
+
+  @override
+  final Size contentSize;
+
+  @override
+  final EdgeInsets viewportDynamicOverlap;
+
+  @override
+  final EdgeInsets viewportPadding;
+
+  @override
+  final Size viewportSize;
+
+  @override
+  final EdgeInsets viewportStaticOverlap;
+
+  ImmutableSheetLayout copyWith({
+    double? contentBaseline,
+    Size? contentSize,
+    Size? size,
+    EdgeInsets? viewportDynamicOverlap,
+    EdgeInsets? viewportPadding,
+    Size? viewportSize,
+    EdgeInsets? viewportStaticOverlap,
+  }) {
+    return ImmutableSheetLayout(
+      contentBaseline: contentBaseline ?? this.contentBaseline,
+      contentSize: contentSize ?? this.contentSize,
+      size: size ?? this.size,
+      viewportDynamicOverlap:
+          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
+      viewportPadding: viewportPadding ?? this.viewportPadding,
+      viewportSize: viewportSize ?? this.viewportSize,
+      viewportStaticOverlap:
+          viewportStaticOverlap ?? this.viewportStaticOverlap,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ImmutableSheetLayout &&
+          contentBaseline == other.contentBaseline &&
+          contentSize == other.contentSize &&
+          size == other.size &&
+          viewportDynamicOverlap == other.viewportDynamicOverlap &&
+          viewportPadding == other.viewportPadding &&
+          viewportSize == other.viewportSize &&
+          viewportStaticOverlap == other.viewportStaticOverlap;
+
+  @override
+  int get hashCode => Object.hash(
+        contentBaseline,
+        contentSize,
+        size,
+        viewportDynamicOverlap,
+        viewportPadding,
+        viewportSize,
+        viewportStaticOverlap,
+      );
+}
+
+@immutable
+@internal
 class ImmutableSheetMetrics with SheetMetrics {
   const ImmutableSheetMetrics({
     required this.offset,
@@ -813,76 +1013,35 @@ class ImmutableSheetMetrics with SheetMetrics {
           viewportStaticOverlap ?? this.viewportStaticOverlap,
     );
   }
-}
-
-@immutable
-@internal
-class ImmutableViewportLayout implements ViewportLayout {
-  const ImmutableViewportLayout({
-    required this.viewportSize,
-    required this.contentSize,
-    required this.viewportPadding,
-    required this.viewportDynamicOverlap,
-    required this.viewportStaticOverlap,
-    required this.contentBaseline,
-  });
-
-  @override
-  final Size viewportSize;
-
-  @override
-  final Size contentSize;
-
-  @override
-  final EdgeInsets viewportPadding;
-
-  @override
-  final EdgeInsets viewportDynamicOverlap;
-
-  @override
-  final EdgeInsets viewportStaticOverlap;
-
-  @override
-  final double contentBaseline;
-
-  ImmutableViewportLayout copyWith({
-    Size? viewportSize,
-    Size? contentSize,
-    EdgeInsets? viewportPadding,
-    EdgeInsets? viewportDynamicOverlap,
-    EdgeInsets? viewportStaticOverlap,
-    double? contentBaseline,
-  }) {
-    return ImmutableViewportLayout(
-      viewportSize: viewportSize ?? this.viewportSize,
-      contentSize: contentSize ?? this.contentSize,
-      viewportPadding: viewportPadding ?? this.viewportPadding,
-      viewportDynamicOverlap:
-          viewportDynamicOverlap ?? this.viewportDynamicOverlap,
-      viewportStaticOverlap:
-          viewportStaticOverlap ?? this.viewportStaticOverlap,
-      contentBaseline: contentBaseline ?? this.contentBaseline,
-    );
-  }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ViewportLayout &&
-          viewportSize == other.viewportSize &&
+      other is ImmutableSheetMetrics &&
+          offset == other.offset &&
+          minOffset == other.minOffset &&
+          maxOffset == other.maxOffset &&
+          devicePixelRatio == other.devicePixelRatio &&
+          contentBaseline == other.contentBaseline &&
           contentSize == other.contentSize &&
-          viewportPadding == other.viewportPadding &&
+          size == other.size &&
           viewportDynamicOverlap == other.viewportDynamicOverlap &&
-          viewportStaticOverlap == other.viewportStaticOverlap &&
-          contentBaseline == other.contentBaseline;
+          viewportPadding == other.viewportPadding &&
+          viewportSize == other.viewportSize &&
+          viewportStaticOverlap == other.viewportStaticOverlap;
 
   @override
   int get hashCode => Object.hash(
-        viewportSize,
-        contentSize,
-        viewportPadding,
-        viewportDynamicOverlap,
-        viewportStaticOverlap,
+        offset,
+        minOffset,
+        maxOffset,
+        devicePixelRatio,
         contentBaseline,
+        contentSize,
+        size,
+        viewportDynamicOverlap,
+        viewportPadding,
+        viewportSize,
+        viewportStaticOverlap,
       );
 }
