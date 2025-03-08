@@ -8,6 +8,147 @@ import 'package:meta/meta.dart';
 
 import 'model.dart';
 
+/// Geometry of the viewport and the layout constraints
+/// used to lay out the sheet and its content.
+@immutable
+class SheetLayoutSpec {
+  /// Creates a layout specification for the sheet and its content.
+  const SheetLayoutSpec({
+    required this.viewportSize,
+    required this.viewportPadding,
+    required this.viewportDynamicOverlap,
+    required this.viewportStaticOverlap,
+    required this.resizeContentToAvoidBottomOverlap,
+  });
+
+  /// {@macro ViewportLayout.viewportSize}
+  final Size viewportSize;
+
+  /// {@macro ViewportLayout.viewportPadding}
+  final EdgeInsets viewportPadding;
+
+  /// {@macro ViewportLayout.viewportDynamicOverlap}
+  final EdgeInsets viewportDynamicOverlap;
+
+  /// {@macro ViewportLayout.viewportStaticOverlap}
+  final EdgeInsets viewportStaticOverlap;
+
+  /// Whether to shrink the sheet's content to avoid
+  /// overlapping with the bottom of the viewport,
+  /// as described by [viewportDynamicOverlap].
+  final bool resizeContentToAvoidBottomOverlap;
+
+  /// {@macro ViewportLayout.contentBaseline}
+  double get contentBaseline => resizeContentToAvoidBottomOverlap
+      ? max(viewportPadding.bottom, viewportDynamicOverlap.bottom)
+      : viewportPadding.bottom;
+
+  /// The maximum rectangle that can be occupied by the sheet.
+  ///
+  /// The width and the bottom of the rectangle are fixed, so only
+  /// the height can be adjusted within the constraint.
+  Rect get maxSheetRect => Rect.fromLTRB(
+        viewportPadding.left,
+        viewportPadding.top,
+        viewportSize.width - viewportPadding.right,
+        viewportSize.height - viewportPadding.bottom,
+      );
+
+  /// The maximum rectangle that can be occupied by the sheet's content.
+  ///
+  /// This area may be reduced due to the bottom inset of the viewport,
+  /// as described by [viewportDynamicOverlap],
+  /// if [resizeContentToAvoidBottomOverlap] is true.
+  /// Otherwise, it matches [maxSheetRect].
+  ///
+  /// The width and the bottom of the rectangle are fixed, so only
+  /// the height can be adjusted within the constraint.
+  Rect get maxContentRect => Rect.fromLTRB(
+        viewportPadding.left,
+        viewportPadding.top,
+        viewportSize.width - viewportPadding.right,
+        viewportSize.height - contentBaseline,
+      );
+
+  /// The maximum amounts of overlap that each side of the sheet can have
+  /// with static system UI elements, such as the system status bar or
+  /// hardware display notches.
+  EdgeInsets get maxSheetStaticOverlap {
+    final maxRect = maxSheetRect;
+    final staticSafeArea =
+        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(staticSafeArea.left - maxRect.left, 0),
+      max(staticSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - staticSafeArea.right, 0),
+      max(maxRect.bottom - staticSafeArea.bottom, 0),
+    );
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet can have
+  /// with dynamic system UI elements, such as the on-screen keyboard.
+  EdgeInsets get maxSheetDynamicOverlap {
+    final maxRect = maxSheetRect;
+    final dynamicSafeArea =
+        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(dynamicSafeArea.left - maxRect.left, 0),
+      max(dynamicSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - dynamicSafeArea.right, 0),
+      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
+    );
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet's content
+  /// can have with dynamic system UI elements, such as the on-screen keyboard.
+  EdgeInsets get maxContentDynamicOverlap {
+    final maxRect = maxContentRect;
+    final dynamicSafeArea =
+        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(dynamicSafeArea.left - maxRect.left, 0),
+      max(dynamicSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - dynamicSafeArea.right, 0),
+      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
+    );
+  }
+
+  /// The maximum amounts of overlap that each side of the sheet's content
+  /// can have with static system UI elements, such as the system status bar or
+  /// hardware display notches.
+  EdgeInsets get maxContentStaticOverlap {
+    final maxRect = maxContentRect;
+    final staticSafeArea =
+        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
+    return EdgeInsets.fromLTRB(
+      max(staticSafeArea.left - maxRect.left, 0),
+      max(staticSafeArea.top - maxRect.top, 0),
+      max(maxRect.right - staticSafeArea.right, 0),
+      max(maxRect.bottom - staticSafeArea.bottom, 0),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SheetLayoutSpec &&
+          viewportSize == other.viewportSize &&
+          viewportPadding == other.viewportPadding &&
+          viewportDynamicOverlap == other.viewportDynamicOverlap &&
+          viewportStaticOverlap == other.viewportStaticOverlap &&
+          resizeContentToAvoidBottomOverlap ==
+              other.resizeContentToAvoidBottomOverlap;
+
+  @override
+  int get hashCode => Object.hash(
+        viewportSize,
+        viewportPadding,
+        viewportDynamicOverlap,
+        viewportStaticOverlap,
+        resizeContentToAvoidBottomOverlap,
+      );
+}
+
 /// Stores the geometry of the viewport and the layout constraints
 /// used to lay out the sheet and its content.
 ///
@@ -461,11 +602,15 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     );
 
     assert(_model._inner != null);
-    final viewportLayout = ImmutableViewportLayout.from(
-      layoutSpec: _layoutSpec,
+    final viewportLayout = ImmutableViewportLayout(
       contentSize: Size.copy(child.size),
+      viewportSize: _layoutSpec.viewportSize,
+      viewportPadding: _layoutSpec.viewportPadding,
+      viewportDynamicOverlap: _layoutSpec.viewportDynamicOverlap,
+      viewportStaticOverlap: _layoutSpec.viewportStaticOverlap,
+      contentBaseline: _layoutSpec.contentBaseline,
     );
-    final newOffset = _model._inner!.dryApplyLayout(viewportLayout);
+    final newOffset = _model._inner!.dryApplyNewLayout(viewportLayout);
     _preferredExtent = _computePreferredExtent(newOffset);
     final maxRect = _layoutSpec.maxSheetRect;
     final maxSize = maxRect.size;

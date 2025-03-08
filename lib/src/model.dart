@@ -142,22 +142,22 @@ abstract class SheetModelView with SheetMetrics implements Listenable {
 /// Manages the position of a sheet.
 ///
 /// This object is much like [ScrollPosition] for scrollable widgets.
-/// The [SheetModel.offset] value determines the visible height of a sheet.
+/// The [offset] value determines the visible height of a sheet.
 /// As this value changes, the sheet translates its position, which changes the
-/// visible area of the content. The [SheetModel.minOffset] and
-/// [SheetModel.maxOffset] values limit the range of the *offset*, but it can
-/// be outside of the range if the [SheetModel.physics] allows it.
+/// visible area of the content. The [minOffset] and
+/// [maxOffset] values limit the range of the [offset], but it can
+/// be outside of the range if the [physics] allows it.
 ///
-/// The current [activity] is responsible for how the *offset* changes
-/// over time, for example, [AnimatedSheetActivity] animates the *offset* to
-/// a target value, and [IdleSheetActivity] keeps the *offset* unchanged.
+/// The current [activity] is responsible for how the [offset] changes
+/// over time, for example, [AnimatedSheetActivity] animates the [offset] to
+/// a target value, and [IdleSheetActivity] keeps the [offset] unchanged.
 /// [SheetModel] starts with [IdleSheetActivity] as the initial activity,
 /// and it can be changed by calling [beginActivity].
 ///
-/// This object is a [Listenable] that notifies its listeners when the *offset*
+/// This object is a [Listenable] that notifies its listeners when the [offset]
 /// changes, even during build or layout phase. For listeners that can cause
 /// any widget to rebuild, consider using [SheetController], which is also
-/// [Listenable] of the *offset*, but avoids notifying listeners during a build.
+/// [Listenable] of the [offset], but avoids notifying listeners during a build.
 ///
 /// See also:
 /// - [SheetController], which can be attached to a sheet to observe and control
@@ -276,19 +276,19 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   SheetLayout? _layout;
 
-  void applyNewLayout(SheetLayout newLayout) {
-    if (_layout == newLayout) {
+  void applyNewLayout(SheetLayout layout) {
+    if (layout == _layout) {
       return;
     }
 
     final oldLayout = _layout;
-    _layout = newLayout;
-    final (minOffset, maxOffset) = snapGrid.getBoundaries(newLayout);
-    _minOffset = minOffset.resolve(newLayout);
-    _maxOffset = maxOffset.resolve(newLayout);
+    _layout = layout;
+    final (minOffset, maxOffset) = snapGrid.getBoundaries(layout);
+    _minOffset = minOffset.resolve(layout);
+    _maxOffset = maxOffset.resolve(layout);
 
     if (_offset == null) {
-      offset = initialOffset.resolve(newLayout);
+      offset = initialOffset.resolve(layout);
     }
 
     assert(hasMetrics);
@@ -298,14 +298,26 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     }
 
     assert(
-      offset == dryApplyLayout(newLayout),
+      offset == dryApplyNewLayout(layout),
       'applyNewLayout must update the offset to the value '
       'that dryApplyLayout would return.',
     );
   }
 
+  /// Returns an offset that the model would have if
+  /// [applyNewLayout] was called with the given [layout].
+  ///
+  /// This method is "dry" because it does not change the state
+  /// of the model.
+  ///
+  /// Called by the render object of the sheet **before**
+  /// laying out the sheet so that its [size] can depend
+  /// on the model's offset.
+  /// After the sheet is laid out, [applyNewLayout] is called
+  /// with the same [layout] and it must ensure that the model's
+  /// [offset] is updated to the value that this method returns.
   @nonVirtual
-  double dryApplyLayout(ViewportLayout layout) {
+  double dryApplyNewLayout(ViewportLayout layout) {
     if (!hasMetrics) {
       return initialOffset.resolve(layout);
     }
@@ -463,28 +475,40 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 }
 
 abstract interface class ViewportLayout {
+  /// {@template ViewportLayout.viewportSize}
   /// The size of the *viewport*, which is the rectangle
   /// where the sheet is laid out.
+  /// {@endtemplate}
   Size get viewportSize;
-
+  
+  /// {@template ViewportLayout.contentSize}
   /// The size of the sheet's content.
+  /// {@endtemplate}
   Size get contentSize;
 
+  /// {@template ViewportLayout.viewportPadding}  
   /// The padding by which the viewport insets the sheet.
+  /// {@endtemplate}
   EdgeInsets get viewportPadding;
 
+  /// {@template ViewportLayout.viewportDynamicOverlap}
   /// The parts of the viewport that are partially overlapped
   /// by system UI elements that may dynamically change in size,
   /// such as the on-screen keyboard.
+  /// {@endtemplate}
   EdgeInsets get viewportDynamicOverlap;
 
+  /// {@template ViewportLayout.viewportStaticOverlap}
   /// The parts of the viewport that are partially overlapped
   /// by system UI elements that do not change in size,
   /// such as hardware display notches or the system status bar.
+  /// {@endtemplate}
   EdgeInsets get viewportStaticOverlap;
 
+  /// {@template ViewportLayout.contentBaseline}
   /// The distance from the bottom of the viewport to the bottom
   /// of the sheet's content.
+  /// {@endtemplate}
   double get contentBaseline;
 }
 
@@ -596,165 +620,6 @@ mixin SheetMetrics implements SheetLayout {
   });
 }
 
-/// Geometry of the viewport and the layout constraints
-/// used to lay out the sheet and its content.
-@immutable
-class SheetLayoutSpec {
-  /// Creates a layout specification for the sheet and its content.
-  const SheetLayoutSpec({
-    required this.viewportSize,
-    required this.viewportPadding,
-    required this.viewportDynamicOverlap,
-    required this.viewportStaticOverlap,
-    required this.resizeContentToAvoidBottomOverlap,
-  });
-
-  /// {@template SheetLayoutSpec.viewportSize}
-  /// The size of the *viewport*, which is the rectangle
-  /// where the sheet is laid out.
-  /// {@endtemplate}
-  final Size viewportSize;
-
-  /// {@template SheetLayoutSpec.viewportPadding}
-  /// The padding by which the viewport insets the sheet.
-  /// {@endtemplate}
-  final EdgeInsets viewportPadding;
-
-  /// {@template SheetLayoutSpec.viewportDynamicOverlap}
-  /// The parts of the viewport that are partially overlapped
-  /// by system UI elements that may dynamically change in size,
-  /// such as the on-screen keyboard.
-  /// {@endtemplate}
-  final EdgeInsets viewportDynamicOverlap;
-
-  /// {@template SheetLayoutSpec.viewportStaticOverlap}
-  /// The parts of the viewport that are partially overlapped
-  /// by system UI elements that do not change in size,
-  /// such as hardware display notches or the system status bar.
-  /// {@endtemplate}
-  final EdgeInsets viewportStaticOverlap;
-
-  /// Whether to shrink the sheet's content to avoid
-  /// overlapping with the bottom of the viewport,
-  /// as described by [viewportDynamicOverlap].
-  final bool resizeContentToAvoidBottomOverlap;
-
-  /// {@template SheetLayoutSpec.contentBaseline}
-  /// The distance from the bottom of the viewport to the bottom
-  /// of the sheet's content.
-  /// {@endtemplate}
-  double get contentBaseline => resizeContentToAvoidBottomOverlap
-      ? max(viewportPadding.bottom, viewportDynamicOverlap.bottom)
-      : viewportPadding.bottom;
-
-  /// {@template SheetLayoutSpec.maxSheetRect}
-  /// The maximum rectangle that can be occupied by the sheet.
-  ///
-  /// The width and the bottom of the rectangle are fixed, so only
-  /// the height can be adjusted within the constraint.
-  /// {@endtemplate}
-  Rect get maxSheetRect => Rect.fromLTRB(
-        viewportPadding.left,
-        viewportPadding.top,
-        viewportSize.width - viewportPadding.right,
-        viewportSize.height - viewportPadding.bottom,
-      );
-
-  /// The maximum rectangle that can be occupied by the sheet's content.
-  ///
-  /// This area may be reduced due to the bottom inset of the viewport,
-  /// as described by [viewportDynamicOverlap],
-  /// if [resizeContentToAvoidBottomOverlap] is true.
-  /// Otherwise, it matches [maxSheetRect].
-  ///
-  /// The width and the bottom of the rectangle are fixed, so only
-  /// the height can be adjusted within the constraint.
-  Rect get maxContentRect => Rect.fromLTRB(
-        viewportPadding.left,
-        viewportPadding.top,
-        viewportSize.width - viewportPadding.right,
-        viewportSize.height - contentBaseline,
-      );
-
-  /// The maximum amounts of overlap that each side of the sheet can have
-  /// with static system UI elements, such as the system status bar or
-  /// hardware display notches.
-  EdgeInsets get maxSheetStaticOverlap {
-    final maxRect = maxSheetRect;
-    final staticSafeArea =
-        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(staticSafeArea.left - maxRect.left, 0),
-      max(staticSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - staticSafeArea.right, 0),
-      max(maxRect.bottom - staticSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet can have
-  /// with dynamic system UI elements, such as the on-screen keyboard.
-  EdgeInsets get maxSheetDynamicOverlap {
-    final maxRect = maxSheetRect;
-    final dynamicSafeArea =
-        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(dynamicSafeArea.left - maxRect.left, 0),
-      max(dynamicSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - dynamicSafeArea.right, 0),
-      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet's content
-  /// can have with dynamic system UI elements, such as the on-screen keyboard.
-  EdgeInsets get maxContentDynamicOverlap {
-    final maxRect = maxContentRect;
-    final dynamicSafeArea =
-        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(dynamicSafeArea.left - maxRect.left, 0),
-      max(dynamicSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - dynamicSafeArea.right, 0),
-      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet's content
-  /// can have with static system UI elements, such as the system status bar or
-  /// hardware display notches.
-  EdgeInsets get maxContentStaticOverlap {
-    final maxRect = maxContentRect;
-    final staticSafeArea =
-        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(staticSafeArea.left - maxRect.left, 0),
-      max(staticSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - staticSafeArea.right, 0),
-      max(maxRect.bottom - staticSafeArea.bottom, 0),
-    );
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is SheetLayoutSpec &&
-          viewportSize == other.viewportSize &&
-          viewportPadding == other.viewportPadding &&
-          viewportDynamicOverlap == other.viewportDynamicOverlap &&
-          viewportStaticOverlap == other.viewportStaticOverlap &&
-          resizeContentToAvoidBottomOverlap ==
-              other.resizeContentToAvoidBottomOverlap;
-
-  @override
-  int get hashCode => Object.hash(
-        viewportSize,
-        viewportPadding,
-        viewportDynamicOverlap,
-        viewportStaticOverlap,
-        resizeContentToAvoidBottomOverlap,
-      );
-}
-
 @immutable
 @internal
 class ImmutableViewportLayout implements ViewportLayout {
@@ -766,20 +631,6 @@ class ImmutableViewportLayout implements ViewportLayout {
     required this.viewportStaticOverlap,
     required this.contentBaseline,
   });
-
-  factory ImmutableViewportLayout.from({
-    required SheetLayoutSpec layoutSpec,
-    required Size contentSize,
-  }) {
-    return ImmutableViewportLayout(
-      viewportSize: layoutSpec.viewportSize,
-      contentSize: contentSize,
-      viewportPadding: layoutSpec.viewportPadding,
-      viewportDynamicOverlap: layoutSpec.viewportDynamicOverlap,
-      viewportStaticOverlap: layoutSpec.viewportStaticOverlap,
-      contentBaseline: layoutSpec.contentBaseline,
-    );
-  }
 
   @override
   final Size viewportSize;

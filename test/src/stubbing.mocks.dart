@@ -375,15 +375,15 @@ class MockSheetModel<C extends _i2.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  void applyNewLayout(_i5.SheetLayout? newLayout) => super.noSuchMethod(
-    Invocation.method(#applyNewLayout, [newLayout]),
+  void applyNewLayout(_i5.SheetLayout? layout) => super.noSuchMethod(
+    Invocation.method(#applyNewLayout, [layout]),
     returnValueForMissingStub: null,
   );
 
   @override
-  double dryApplyLayout(_i5.ViewportLayout? layout) =>
+  double dryApplyNewLayout(_i5.ViewportLayout? layout) =>
       (super.noSuchMethod(
-            Invocation.method(#dryApplyLayout, [layout]),
+            Invocation.method(#dryApplyNewLayout, [layout]),
             returnValue: 0.0,
           )
           as double);
