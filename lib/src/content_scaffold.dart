@@ -70,7 +70,7 @@ sealed class BottomBarVisibility {
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
   ///
-  /// Even if this property is `true`, the bottom bar can be hidden
+  /// Even if this property is `true`, the bottom bar may be hidden
   /// depending on the [BottomBarVisibility] type. For example,
   /// when using [ConditionalBottomBarVisibility], the bottom bar is
   /// always hidden if the [ConditionalBottomBarVisibility.isVisible]
@@ -87,6 +87,9 @@ class NaturalBottomBarVisibility extends BottomBarVisibility {
 
 /// {@template AlwaysVisibleBottomBarVisibility}
 /// The bottom bar is always visible regardless of the sheet's offset.
+///
+/// Note that, contrary to the name, the bar will be hidden when the
+/// keyboard is open and [ignoreBottomInset] is `false`.
 /// {@endtemplate}
 class AlwaysVisibleBottomBarVisibility extends BottomBarVisibility {
   const AlwaysVisibleBottomBarVisibility({super.ignoreBottomInset});
@@ -97,6 +100,10 @@ class AlwaysVisibleBottomBarVisibility extends BottomBarVisibility {
 ///
 /// The value of the [animation] must be between 0 and 1, where 0 means
 /// the bottom bar is completely invisible and 1 means it's completely visible.
+///
+/// Note that, the [SheetContentScaffold.extendBodyBehindBottomBar]
+/// property must be `true` when using this visibility type,
+/// otherwise an error will be thrown.
 /// {@endtemplate}
 class ControlledBottomBarVisibility extends BottomBarVisibility {
   const ControlledBottomBarVisibility({
@@ -114,16 +121,22 @@ class ControlledBottomBarVisibility extends BottomBarVisibility {
 /// Returning `true` keeps the bottom bar visible regardless of the offset,
 /// and `false` hides it with an animation which has the [duration] and
 /// [curve].
+///
+/// Note that, the [SheetContentScaffold.extendBodyBehindBottomBar]
+/// property must be `true` when using this visibility type,
+/// otherwise an error will be thrown.
 /// {@endtemplate}
 class ConditionalBottomBarVisibility extends BottomBarVisibility {
   const ConditionalBottomBarVisibility({
     super.ignoreBottomInset,
     required this.isVisible,
+    this.initialIsVisible = true,
     this.duration = const Duration(milliseconds: 150),
     this.curve = Curves.easeInOut,
   });
 
   final bool Function(SheetMetrics) isVisible;
+  final bool initialIsVisible;
   final Duration duration;
   final Curve curve;
 }
@@ -233,28 +246,44 @@ class SheetContentScaffold extends StatelessWidget {
           child: bottomBar,
         );
       }
-      effectiveBottomBar = switch (bottomBarVisibility) {
-        NaturalBottomBarVisibility() => effectiveBottomBar,
-        AlwaysVisibleBottomBarVisibility() =>
-          _AlwaysVisibleBottomBarVisibilityWidget(
+      switch (bottomBarVisibility) {
+        case NaturalBottomBarVisibility():
+          // No additional widget is needed.
+          break;
+
+        case AlwaysVisibleBottomBarVisibility():
+          effectiveBottomBar = _AlwaysVisibleBottomBarVisibility(
             model: SheetModelOwner.of(context)!,
             child: effectiveBottomBar,
-          ),
-        final ControlledBottomBarVisibility visibility =>
-          _ControlledBottomBarVisibilityWidget(
+          );
+
+        case ControlledBottomBarVisibility(:final animation):
+          assert(
+            extendBodyBehindBottomBar,
+            'BottomBarVisibility.controlled must be used with '
+            'SheetContentScaffold.extendBodyBehindBottomBar set to true.',
+          );
+          effectiveBottomBar = _ControlledBottomBarVisibility(
             model: SheetModelOwner.of(context)!,
-            visibility: visibility.animation,
+            visibility: animation,
             child: effectiveBottomBar,
-          ),
-        final ConditionalBottomBarVisibility visibility =>
-          _ConditionalBottomBarVisibilityWidget(
+          );
+
+        case final ConditionalBottomBarVisibility it:
+          assert(
+            extendBodyBehindBottomBar,
+            'BottomBarVisibility.conditional must be used with '
+            'SheetContentScaffold.extendBodyBehindBottomBar set to true.',
+          );
+          effectiveBottomBar = _ConditionalBottomBarVisibility(
             model: SheetModelOwner.of(context)!,
-            getIsVisible: visibility.isVisible,
-            duration: visibility.duration,
-            curve: visibility.curve,
+            getIsVisible: it.isVisible,
+            initialIsVisible: it.initialIsVisible,
+            duration: it.duration,
+            curve: it.curve,
             child: effectiveBottomBar,
-          ),
-      };
+          );
+      }
     }
 
     return Material(
@@ -613,7 +642,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 ///
 /// Intended to be used as the [SheetContentScaffold.bottomBar].
 ///
-/// The following example shows the [_AlwaysVisibleBottomBarVisibilityWidget],
+/// The following example shows the [_AlwaysVisibleBottomBarVisibility],
 /// which keeps the enclosed [BottomAppBar] always visible regardless
 /// of the sheet position. You may want to use the
 /// [ResizeScaffoldBehavior.avoidBottomInset] with setting `maintainBottomBar`
@@ -633,11 +662,11 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 /// );
 /// ```
 /// {@endtemplate}
-class _AlwaysVisibleBottomBarVisibilityWidget
+class _AlwaysVisibleBottomBarVisibility
     extends SingleChildRenderObjectWidget {
   /// Creates a widget that keeps the [child] always visible
   /// regardless of the sheet position.
-  const _AlwaysVisibleBottomBarVisibilityWidget({
+  const _AlwaysVisibleBottomBarVisibility({
     required this.model,
     required super.child,
   });
@@ -671,13 +700,13 @@ class _RenderAlwaysVisibleBottomBarVisibility
 /// A widget that animates the visibility of the [child].
 ///
 /// Intended to be used as the [SheetContentScaffold.bottomBar].
-class _ControlledBottomBarVisibilityWidget
+class _ControlledBottomBarVisibility
     extends SingleChildRenderObjectWidget {
   /// Creates a widget that animates the visibility of the [child].
   ///
   /// The [visibility] animation must be between 0 and 1, where 0 means
   /// the [child] is completely invisible and 1 means it's completely visible.
-  const _ControlledBottomBarVisibilityWidget({
+  const _ControlledBottomBarVisibility({
     required this.model,
     required this.visibility,
     required super.child,
@@ -744,7 +773,7 @@ class _RenderControlledBottomBarVisibility extends _RenderBottomBarVisibility {
 /// and false hides it with an animation which has the [duration] and
 /// the [curve].
 ///
-/// The following example shows the [_ConditionalBottomBarVisibilityWidget],
+/// The following example shows the [_ConditionalBottomBarVisibility],
 /// which keeps the enclosed [BottomAppBar] visible as long as the keyboard
 /// is hidden (`insets.bottom == 0`) and at least 50% of the sheet is visible.
 ///
@@ -761,18 +790,22 @@ class _RenderControlledBottomBarVisibility extends _RenderBottomBarVisibility {
 ///   ),
 /// );
 /// ```
-class _ConditionalBottomBarVisibilityWidget extends StatefulWidget {
+class _ConditionalBottomBarVisibility extends StatefulWidget {
   /// Creates a widget that animates the visibility of the [child]
   /// based on a condition.
-  const _ConditionalBottomBarVisibilityWidget({
+  const _ConditionalBottomBarVisibility({
     required this.model,
     required this.getIsVisible,
     this.duration = const Duration(milliseconds: 150),
     this.curve = Curves.easeInOut,
+    this.initialIsVisible = false,
     required this.child,
   });
 
   final SheetModelView model;
+
+  /// Whether the [child] should be visible initially.
+  final bool initialIsVisible;
 
   /// Whether the [child] should be visible.
   ///
@@ -791,12 +824,12 @@ class _ConditionalBottomBarVisibilityWidget extends StatefulWidget {
   final Widget? child;
 
   @override
-  State<_ConditionalBottomBarVisibilityWidget> createState() =>
-      _ConditionalBottomBarVisibilityWidgetState();
+  State<_ConditionalBottomBarVisibility> createState() =>
+      _ConditionalBottomBarVisibilityState();
 }
 
-class _ConditionalBottomBarVisibilityWidgetState
-    extends State<_ConditionalBottomBarVisibilityWidget>
+class _ConditionalBottomBarVisibilityState
+    extends State<_ConditionalBottomBarVisibility>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _curveAnimation;
@@ -806,7 +839,7 @@ class _ConditionalBottomBarVisibilityWidgetState
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      value: 0.0,
+      value: widget.initialIsVisible ? 1.0 : 0.0,
       duration: widget.duration,
     );
 
@@ -822,7 +855,7 @@ class _ConditionalBottomBarVisibilityWidgetState
   }
 
   @override
-  void didUpdateWidget(_ConditionalBottomBarVisibilityWidget oldWidget) {
+  void didUpdateWidget(_ConditionalBottomBarVisibility oldWidget) {
     super.didUpdateWidget(oldWidget);
     _controller.duration = widget.duration;
     if (widget.curve != oldWidget.curve) {
@@ -856,7 +889,7 @@ class _ConditionalBottomBarVisibilityWidgetState
 
   @override
   Widget build(BuildContext context) {
-    return _ControlledBottomBarVisibilityWidget(
+    return _ControlledBottomBarVisibility(
       model: widget.model,
       visibility: _curveAnimation,
       child: widget.child,

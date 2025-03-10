@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:smooth_sheets/src/activity.dart';
+import 'package:smooth_sheets/src/content_scaffold.dart';
+import 'package:smooth_sheets/src/gesture_proxy.dart';
+import 'package:smooth_sheets/src/model.dart';
+import 'package:smooth_sheets/src/model_owner.dart';
+import 'package:smooth_sheets/src/physics.dart';
+import 'package:smooth_sheets/src/snap_grid.dart';
+import 'package:smooth_sheets/src/viewport.dart';
 
 import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
+import 'src/stubbing.dart';
+import 'src/test_stateful_widget.dart';
 
 void main() {
   group('SheetContentScaffold - Core Layout', () {
@@ -540,50 +549,709 @@ void main() {
   });
 
   group('SheetContentScaffold - bottom-bar visibility', () {
-    ({Widget testWidget}) boilerplate({
-      required Widget body,
+    ({
+      Widget testWidget,
+      ValueGetter<SheetModel> getModel,
+      Rect Function(WidgetTesterX) getScaffoldRect,
+      Rect Function(WidgetTesterX) getLocalBodyRect,
+      Rect Function(WidgetTesterX) getLocalBottomBarRect,
+      ValueSetter<double> updateKeyboardHeight,
+    }) boilerplate({
       required BottomBarVisibility visibility,
-      bool extendBodyBehindBottomBar = false,
-      EdgeInsets viewportInsets = EdgeInsets.zero,
+      EdgeInsets viewportPadding = EdgeInsets.zero,
+      double initialKeyboardHeight = 0,
+      bool extendBodyBehindBottomBar = true,
     }) {
-      final testWidget = MediaQuery(
-        data: MediaQueryData(),
-        child: SheetMediaQuery(
-          layoutSpec: SheetLayoutSpec(
-            viewportSize: testScreenSize,
-            viewportPadding: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            viewportDynamicOverlap: viewportInsets,
-            resizeContentToAvoidBottomOverlap: true,
-          ),
-          child: SheetContentScaffold(
-            key: Key('scaffold'),
-            bottomBarVisibility: visibility,
-            extendBodyBehindBottomBar: extendBodyBehindBottomBar,
-            bottomBar: Container(height: 50, color: Colors.red),
-            body: SizedBox.expand(child: body),
-          ),
-        ),
+      SheetLayoutSpec createLayoutSpecFrom(double keyboardHeight) {
+        return SheetLayoutSpec(
+          viewportSize: testScreenSize,
+          viewportPadding: viewportPadding,
+          viewportStaticOverlap: EdgeInsets.zero,
+          viewportDynamicOverlap: EdgeInsets.only(bottom: keyboardHeight),
+          resizeContentToAvoidBottomOverlap: true,
+        );
+      }
+
+      SheetLayout createSheetLayoutFrom(SheetLayoutSpec layoutSpec) {
+        return ImmutableSheetLayout(
+          size: layoutSpec.maxSheetRect.size,
+          contentSize: layoutSpec.maxContentRect.size,
+          viewportSize: layoutSpec.viewportSize,
+          viewportPadding: layoutSpec.viewportPadding,
+          contentBaseline: layoutSpec.contentBaseline,
+          viewportDynamicOverlap: layoutSpec.viewportDynamicOverlap,
+          viewportStaticOverlap: layoutSpec.viewportStaticOverlap,
+        );
+      }
+
+      final initialLayoutSpec = createLayoutSpecFrom(initialKeyboardHeight);
+      final modelOwnerKey = GlobalKey<SheetModelOwnerState>();
+      final statefulKey = GlobalKey<TestStatefulWidgetState<SheetLayoutSpec>>();
+      final testWidget = TestStatefulWidget(
+        key: statefulKey,
+        initialState: initialLayoutSpec,
+        builder: (context, layoutSpec) {
+          return SheetMediaQuery(
+            layoutSpec: layoutSpec,
+            child: SheetModelOwner(
+              key: modelOwnerKey,
+              factory: (_, config) {
+                return _TestSheetModel(
+                  MockSheetContext(),
+                  config,
+                  initialOffset: SheetOffset.relative(1),
+                )..applyNewLayout(createSheetLayoutFrom(layoutSpec));
+              },
+              config: _TestSheetModelConfig(),
+              child: Center(
+                child: SizedBox.fromSize(
+                  size: layoutSpec.maxContentRect.size,
+                  child: SheetContentScaffold(
+                    key: Key('scaffold'),
+                    bottomBarVisibility: visibility,
+                    extendBodyBehindBottomBar: extendBodyBehindBottomBar,
+                    body: Container(
+                      key: Key('body'),
+                      color: Colors.white,
+                      height: double.infinity,
+                    ),
+                    bottomBar: Container(
+                      key: Key('bottomBar'),
+                      color: Colors.white,
+                      height: 50,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       );
 
-      return (testWidget: testWidget);
+      return (
+        testWidget: testWidget,
+        getModel: () => modelOwnerKey.currentState!.model,
+        getLocalBodyRect: (tester) => tester.getLocalRect(
+              find.byKey(Key('body')),
+              ancestor: find.byKey(Key('scaffold')),
+            ),
+        getScaffoldRect: (tester) => tester.getLocalRect(
+              find.byKey(Key('scaffold')),
+            ),
+        getLocalBottomBarRect: (tester) => tester.getLocalRect(
+              find.byKey(Key('bottomBar')),
+              ancestor: find.byKey(Key('scaffold')),
+            ),
+        updateKeyboardHeight: (height) {
+          final layoutSpec = createLayoutSpecFrom(height);
+          statefulKey.currentState!.state = layoutSpec;
+          modelOwnerKey.currentState!.model
+              .applyNewLayout(createSheetLayoutFrom(layoutSpec));
+        },
+      );
     }
 
-    testWidgets('visibility: natural', (tester) async {});
-    testWidgets('visibility: always', (tester) async {});
-    testWidgets('visibility: controlled', (tester) async {});
-    testWidgets('visibility: conditional', (tester) async {});
+    testWidgets('natural - when keyboard is closed', (tester) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.natural(),
+      );
+      await tester.pumpWidget(env.testWidget);
+
+      expect(env.getModel().offset, 600);
+      expect(env.getLocalBodyRect(tester).height, 600);
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 550, 800, 50));
+
+      env.getModel().offset = 700;
+      await tester.pump();
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'The offset should not affect the relative position of the bar',
+      );
+
+      env.getModel().offset = 500;
+      await tester.pump();
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'The offset should not affect the relative position of the bar',
+      );
+    });
 
     testWidgets(
-      'Bottom-Bar should be hidden when the keyboard is open '
-      'if ignoreBottomViewInset is false',
-      (tester) async {},
+      'natural - when keyboard is open, '
+      'extendBodyBehindBottomBar is true, and ignoreBottomInset is false',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.natural(ignoreBottomInset: false),
+          extendBodyBehindBottomBar: true,
+          initialKeyboardHeight: 25,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(env.getLocalBodyRect(tester).height, 575);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'Half of the bar should be outside of the scaffold',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(env.getLocalBodyRect(tester).height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'The entire bar should be outside of the scaffold',
+        );
+      },
     );
 
     testWidgets(
-      'Bottom-Bar should be hidden when the keyboard is open '
-      'if ignoreBottomViewInset is true',
-      (tester) async {},
+      'natural - when keyboard is open, '
+      'extendBodyBehindBottomBar is false, and ignoreBottomInset is false',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.natural(ignoreBottomInset: false),
+          extendBodyBehindBottomBar: false,
+          initialKeyboardHeight: 25,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(env.getLocalBodyRect(tester).height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'Half of the bar should be outside of the scaffold',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(env.getLocalBodyRect(tester).height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'The entire bar should be outside of the scaffold',
+        );
+      },
+    );
+
+    testWidgets(
+      'natural - when keyboard is open and ignoreBottomInset is true',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.natural(ignoreBottomInset: true),
+          initialKeyboardHeight: 0,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 600);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+        );
+
+        env.updateKeyboardHeight(25);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 525, 800, 50),
+          reason: 'The keyboard height should not affect the layout of the bar',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 500, 800, 50),
+          reason: 'The keyboard height should not affect the layout of the bar',
+        );
+      },
+    );
+
+    testWidgets('always - when keyboard is closed', (tester) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.always(),
+      );
+      await tester.pumpWidget(env.testWidget);
+
+      expect(env.getModel().offset, 600);
+      expect(env.getLocalBodyRect(tester).height, 600);
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 550, 800, 50));
+
+      env.getModel().offset = 700;
+      await tester.pump();
+      expect(
+        env.getModel().rect.bottom,
+        lessThan(600),
+        reason: 'The bottom part of the sheet should be visible',
+      );
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'The offset should not affect the relative position of the bar '
+            'when the bottom part of the sheet is within the viewport',
+      );
+
+      env.getModel().offset = 500;
+      await tester.pump();
+      expect(
+        env.getModel().visibleContentRect!.height,
+        500,
+        reason: 'The bottom part of the sheet is outside of the viewport',
+      );
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 450, 800, 50),
+        reason: 'The entire bar should be visible',
+      );
+    });
+
+    testWidgets(
+      'always - when keyboard is open, '
+      'extendBodyBehindBottomBar is true, and ignoreBottomInset is false',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.always(ignoreBottomInset: false),
+          extendBodyBehindBottomBar: true,
+          initialKeyboardHeight: 25,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(env.getLocalBodyRect(tester).height, 575);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'Half of the bar should be outside of the scaffold',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(env.getLocalBodyRect(tester).height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'The entire bar should be outside of the scaffold',
+        );
+      },
+    );
+
+    testWidgets(
+      'always - when keyboard is open, '
+      'extendBodyBehindBottomBar is false, and ignoreBottomInset is false',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.always(ignoreBottomInset: false),
+          extendBodyBehindBottomBar: false,
+          initialKeyboardHeight: 25,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(env.getLocalBodyRect(tester).height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'Half of the bar should be outside of the scaffold',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(env.getLocalBodyRect(tester).height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'The entire bar should be outside of the scaffold',
+        );
+      },
+    );
+
+    testWidgets(
+      'always - when keyboard is open and ignoreBottomInset is true',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.always(ignoreBottomInset: true),
+          initialKeyboardHeight: 0,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 600);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+        );
+
+        env.updateKeyboardHeight(25);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 525, 800, 50),
+          reason: 'The keyboard height should not affect the layout of the bar',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 500, 800, 50),
+          reason: 'The keyboard height should not affect the layout of the bar',
+        );
+      },
+    );
+
+    testWidgets(
+      'controlled - throws when extendBodyBehindBottomBar is false',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.controlled(
+            animation: Animation.fromValueListenable(ValueNotifier(1.0)),
+          ),
+          extendBodyBehindBottomBar: false,
+        );
+
+        final errors = await tester.pumpWidgetAndCaptureErrors(env.testWidget);
+        expect(
+          errors.first.exception,
+          isAssertionError.having(
+            (it) => it.message,
+            'message',
+            'BottomBarVisibility.controlled must be used with '
+                'SheetContentScaffold.extendBodyBehindBottomBar set to true.',
+          ),
+        );
+      },
+    );
+
+    testWidgets('controlled - when keyboard is closed', (tester) async {
+      final visibilityNotifier = ValueNotifier(1.0);
+      final env = boilerplate(
+        visibility: BottomBarVisibility.controlled(
+          animation: Animation.fromValueListenable(visibilityNotifier),
+        ),
+        extendBodyBehindBottomBar: true,
+      );
+      await tester.pumpWidget(env.testWidget);
+
+      expect(env.getModel().offset, 600);
+      expect(env.getLocalBodyRect(tester).height, 600);
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 550, 800, 50));
+
+      visibilityNotifier.value = 0.2;
+      await tester.pump();
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 590, 800, 50),
+        reason: 'Only 20% of the bar should be visible',
+      );
+
+      visibilityNotifier.value = 0.5;
+      await tester.pump();
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 575, 800, 50),
+        reason: 'Only half of the bar should be visible',
+      );
+
+      env.getModel().offset = 700;
+      await tester.pump();
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 575, 800, 50),
+        reason: 'The bar should keep the specified visibility '
+            'regardless of the offset',
+      );
+
+      env.getModel().offset = 500;
+      await tester.pump();
+      expect(env.getModel().visibleContentRect!.height, 500);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 475, 800, 50),
+        reason: 'The bar should keep the specified visibility '
+            'regardless of the offset',
+      );
+    });
+
+    testWidgets(
+      'controlled - when keyboard is open and ignoreBottomInset is false',
+      (tester) async {
+        final visibilityNotifier = ValueNotifier(1.0);
+        final env = boilerplate(
+          visibility: BottomBarVisibility.controlled(
+            ignoreBottomInset: false,
+            animation: Animation.fromValueListenable(visibilityNotifier),
+          ),
+          extendBodyBehindBottomBar: true,
+          initialKeyboardHeight: 25,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(env.getLocalBodyRect(tester).height, 575);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'Half of the bar should be outside of the scaffold',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(env.getLocalBodyRect(tester).height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'The entire bar should be outside of the scaffold',
+        );
+      },
+    );
+    testWidgets(
+      'controlled - when keyboard is open and ignoreBottomInset is true',
+      (tester) async {
+        final visibilityNotifier = ValueNotifier(1.0);
+        final env = boilerplate(
+          visibility: BottomBarVisibility.controlled(
+            ignoreBottomInset: true,
+            animation: Animation.fromValueListenable(visibilityNotifier),
+          ),
+          extendBodyBehindBottomBar: true,
+          initialKeyboardHeight: 0,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 600);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+        );
+
+        env.updateKeyboardHeight(25);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 525, 800, 50),
+          reason: 'The keyboard height should not affect the layout of the bar',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 500, 800, 50),
+          reason: 'The keyboard height should not affect the layout of the bar',
+        );
+      },
+    );
+
+    testWidgets(
+      'conditional - throws when extendBodyBehindBottomBar is false',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.conditional(
+            isVisible: (model) => true,
+          ),
+          extendBodyBehindBottomBar: false,
+        );
+
+        final errors = await tester.pumpWidgetAndCaptureErrors(env.testWidget);
+        expect(
+          errors.first.exception,
+          isAssertionError.having(
+            (it) => it.message,
+            'message',
+            'BottomBarVisibility.conditional must be used with '
+                'SheetContentScaffold.extendBodyBehindBottomBar set to true.',
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      'conditional - when keyboard is closed',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.conditional(
+            isVisible: (model) => model.offset >= 600,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.linear,
+          ),
+          extendBodyBehindBottomBar: true,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getLocalBodyRect(tester).height, 600);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+        );
+
+        env.getModel().offset = 700;
+        await tester.pump();
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'The bar should be visible',
+        );
+
+        env.getModel().offset = 500;
+        await tester.pump();
+        expect(env.getModel().visibleContentRect!.height, 500);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 450, 800, 50),
+        );
+
+        await tester.pump(Duration(milliseconds: 75));
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 462.5, 800, 50),
+        );
+
+        await tester.pump(Duration(milliseconds: 75));
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 475, 800, 50),
+        );
+
+        await tester.pump(Duration(milliseconds: 75));
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 487.5, 800, 50),
+        );
+
+        await tester.pumpAndSettle();
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 500, 800, 50),
+        );
+      },
+    );
+
+    testWidgets(
+      'conditional - when keyboard is open and ignoreBottomInset is false',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.conditional(
+            isVisible: (model) => model.offset >= 600,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.linear,
+            ignoreBottomInset: false,
+          ),
+          extendBodyBehindBottomBar: true,
+          initialKeyboardHeight: 25,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(env.getLocalBodyRect(tester).height, 575);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'Half of the bar should be outside of the scaffold',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(env.getLocalBodyRect(tester).height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+          reason: 'The entire bar should be outside of the scaffold',
+        );
+      },
+    );
+    testWidgets(
+      'conditional - when keyboard is open and ignoreBottomInset is true',
+      (tester) async {
+        final env = boilerplate(
+          visibility: BottomBarVisibility.conditional(
+            isVisible: (model) => model.offset >= 600,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.linear,
+            ignoreBottomInset: true,
+          ),
+          extendBodyBehindBottomBar: true,
+          initialKeyboardHeight: 0,
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 600);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 550, 800, 50),
+        );
+
+        env.updateKeyboardHeight(25);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 575);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 525, 800, 50),
+          reason: 'The keyboard height should not affect the layout of the bar',
+        );
+
+        env.updateKeyboardHeight(50);
+        await tester.pump();
+
+        expect(env.getModel().offset, 600);
+        expect(env.getScaffoldRect(tester).size.height, 550);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 500, 800, 50),
+          reason: 'The keyboard height should not affect the layout of the bar',
+        );
+      },
     );
   });
 
@@ -779,4 +1447,42 @@ void main() {
       expect(tester.takeException(), isNotNull);
     });
   });
+}
+
+class _TestIdleSheetActivity extends SheetActivity {
+  /* This activity literally does nothing. */
+}
+
+class _TestSheetModelConfig extends SheetModelConfig {
+  const _TestSheetModelConfig()
+      : super(
+          physics: const ClampingSheetPhysics(),
+          snapGrid: const SheetSnapGrid.stepless(),
+          gestureProxy: null,
+        );
+
+  @override
+  SheetModelConfig copyWith({
+    SheetPhysics? physics,
+    SheetSnapGrid? snapGrid,
+    SheetGestureProxyMixin? gestureProxy,
+  }) {
+    return _TestSheetModelConfig();
+  }
+}
+
+class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
+  _TestSheetModel(
+    super.context,
+    super.config, {
+    required this.initialOffset,
+  });
+
+  @override
+  final SheetOffset initialOffset;
+
+  @override
+  void goIdle() {
+    beginActivity(_TestIdleSheetActivity());
+  }
 }

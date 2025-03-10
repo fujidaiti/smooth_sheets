@@ -185,11 +185,18 @@ class SheetMediaQuery extends StatelessWidget {
     return _InheritedSheetMediaQuery(
       layoutSpec: layoutSpec,
       child: MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          viewPadding: viewPaddingForChild,
-          viewInsets: viewInsetsForChild,
-          padding: paddingForChild,
-        ),
+        data: switch (MediaQuery.maybeOf(context)) {
+          null => MediaQueryData(
+              viewPadding: viewPaddingForChild,
+              viewInsets: viewInsetsForChild,
+              padding: paddingForChild,
+            ),
+          final data => data.copyWith(
+              viewPadding: viewPaddingForChild,
+              viewInsets: viewInsetsForChild,
+              padding: paddingForChild,
+            ),
+        },
         child: child,
       ),
     );
