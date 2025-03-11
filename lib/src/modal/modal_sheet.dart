@@ -26,6 +26,7 @@ class ModalSheetPage<T> extends Page<T> {
     this.barrierColor = Colors.black54,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.allowTapBehindModalPage = false,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     required this.child,
   });
@@ -49,6 +50,8 @@ class ModalSheetPage<T> extends Page<T> {
   final Duration transitionDuration;
 
   final Curve transitionCurve;
+
+  final bool allowTapBehindModalPage;
 
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
@@ -99,6 +102,9 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
+  bool get allowTapBehindModalPage => _page.allowTapBehindModalPage;
+
+  @override
   Widget buildContent(BuildContext context) => _page.child;
 }
 
@@ -114,6 +120,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.swipeDismissible = false,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.allowTapBehindModalPage = false,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
   });
 
@@ -141,6 +148,9 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final Curve transitionCurve;
 
   @override
+  final bool allowTapBehindModalPage;
+
+  @override
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
@@ -153,6 +163,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   bool get swipeDismissible;
 
   Curve get transitionCurve;
+  bool get allowTapBehindModalPage;
 
   SwipeDismissSensitivity get swipeDismissSensitivity;
 
@@ -217,6 +228,11 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       }
     }
 
+    if (allowTapBehindModalPage) {
+      return GestureDetector(
+        behavior: HitTestBehavior.translucent,
+      );
+    }
     final barrierColor = this.barrierColor;
     if (barrierColor != null && barrierColor.alpha != 0 && !offstage) {
       assert(barrierColor != barrierColor.withOpacity(0.0));

@@ -423,6 +423,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
+    this.allowTapBehindModalPage = false,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     required this.child,
   });
@@ -446,6 +447,8 @@ class CupertinoModalSheetPage<T> extends Page<T> {
   final Duration transitionDuration;
 
   final Curve transitionCurve;
+
+  final bool allowTapBehindModalPage;
 
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
@@ -497,6 +500,9 @@ class _PageBasedCupertinoModalSheetRoute<T>
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
+  bool get allowTapBehindModalPage => _page.allowTapBehindModalPage;
+
+  @override
   Widget buildContent(BuildContext context) => _page.child;
 }
 
@@ -512,6 +518,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.barrierColor = _cupertinoBarrierColor,
     this.transitionDuration = _cupertinoTransitionDuration,
     this.transitionCurve = _cupertinoTransitionCurve,
+    this.allowTapBehindModalPage = false,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
   });
 
@@ -537,6 +544,9 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   final Curve transitionCurve;
+
+  @override
+  final bool allowTapBehindModalPage;
 
   @override
   final SwipeDismissSensitivity swipeDismissSensitivity;
