@@ -77,7 +77,8 @@ class Sheet extends StatelessWidget {
     this.controller,
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
-    this.resizeChildToAvoidViewInsets = true,
+    this.shrinkChildToAvoidDynamicOverlap = true,
+    this.shrinkChildToAvoidStaticOverlap = false,
     required this.child,
   });
 
@@ -96,8 +97,11 @@ class Sheet extends StatelessWidget {
 
   final SheetDragConfiguration? dragConfiguration;
 
-  /// Whether to resize the child to avoid view insets.
-  final bool resizeChildToAvoidViewInsets;
+  /// {@macro BareSheet.shrinkChildToAvoidDynamicOverlap}
+  final bool shrinkChildToAvoidDynamicOverlap;
+
+  /// {@macro BareSheet.shrinkChildToAvoidStaticOverlap}
+  final bool shrinkChildToAvoidStaticOverlap;
 
   /// The content of the sheet.
   final Widget child;
@@ -113,7 +117,8 @@ class Sheet extends StatelessWidget {
         gestureProxy: SheetGestureProxy.maybeOf(context),
       ),
       child: BareSheet(
-        resizeChildToAvoidBottomOverlap: resizeChildToAvoidViewInsets,
+        shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
+        shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,

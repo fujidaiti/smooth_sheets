@@ -662,8 +662,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 /// );
 /// ```
 /// {@endtemplate}
-class _AlwaysVisibleBottomBarVisibility
-    extends SingleChildRenderObjectWidget {
+class _AlwaysVisibleBottomBarVisibility extends SingleChildRenderObjectWidget {
   /// Creates a widget that keeps the [child] always visible
   /// regardless of the sheet position.
   const _AlwaysVisibleBottomBarVisibility({
@@ -700,8 +699,7 @@ class _RenderAlwaysVisibleBottomBarVisibility
 /// A widget that animates the visibility of the [child].
 ///
 /// Intended to be used as the [SheetContentScaffold.bottomBar].
-class _ControlledBottomBarVisibility
-    extends SingleChildRenderObjectWidget {
+class _ControlledBottomBarVisibility extends SingleChildRenderObjectWidget {
   /// Creates a widget that animates the visibility of the [child].
   ///
   /// The [visibility] animation must be between 0 and 1, where 0 means

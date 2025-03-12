@@ -18,7 +18,8 @@ class SheetLayoutSpec {
     required this.viewportPadding,
     required this.viewportDynamicOverlap,
     required this.viewportStaticOverlap,
-    required this.resizeContentToAvoidBottomOverlap,
+    required this.shrinkContentToAvoidDynamicOverlap,
+    required this.shrinkContentToAvoidStaticOverlap,
   });
 
   /// {@macro ViewportLayout.viewportSize}
@@ -34,14 +35,26 @@ class SheetLayoutSpec {
   final EdgeInsets viewportStaticOverlap;
 
   /// Whether to shrink the sheet's content to avoid
-  /// overlapping with the bottom of the viewport,
+  /// overlapping with the dynamic system UI elements,
   /// as described by [viewportDynamicOverlap].
-  final bool resizeContentToAvoidBottomOverlap;
+  final bool shrinkContentToAvoidDynamicOverlap;
+
+  /// Whether to shrink the sheet's content to avoid
+  /// overlapping with the static system UI elements,
+  /// as described by [viewportStaticOverlap].
+  final bool shrinkContentToAvoidStaticOverlap;
 
   /// {@macro ViewportLayout.contentBaseline}
-  double get contentBaseline => resizeContentToAvoidBottomOverlap
-      ? max(viewportPadding.bottom, viewportDynamicOverlap.bottom)
-      : viewportPadding.bottom;
+  double get contentBaseline {
+    var result = viewportPadding.bottom;
+    if (shrinkContentToAvoidDynamicOverlap) {
+      result = max(result, viewportDynamicOverlap.bottom);
+    }
+    if (shrinkContentToAvoidStaticOverlap) {
+      result = max(result, viewportStaticOverlap.bottom);
+    }
+    return result;
+  }
 
   /// The maximum rectangle that can be occupied by the sheet.
   ///
@@ -58,7 +71,7 @@ class SheetLayoutSpec {
   ///
   /// This area may be reduced due to the bottom inset of the viewport,
   /// as described by [viewportDynamicOverlap],
-  /// if [resizeContentToAvoidBottomOverlap] is true.
+  /// if [shrinkContentToAvoidDynamicOverlap] is true.
   /// Otherwise, it matches [maxSheetRect].
   ///
   /// The width and the bottom of the rectangle are fixed, so only
@@ -136,8 +149,8 @@ class SheetLayoutSpec {
           viewportPadding == other.viewportPadding &&
           viewportDynamicOverlap == other.viewportDynamicOverlap &&
           viewportStaticOverlap == other.viewportStaticOverlap &&
-          resizeContentToAvoidBottomOverlap ==
-              other.resizeContentToAvoidBottomOverlap;
+          shrinkContentToAvoidDynamicOverlap ==
+              other.shrinkContentToAvoidDynamicOverlap;
 
   @override
   int get hashCode => Object.hash(
@@ -145,7 +158,7 @@ class SheetLayoutSpec {
         viewportPadding,
         viewportDynamicOverlap,
         viewportStaticOverlap,
-        resizeContentToAvoidBottomOverlap,
+        shrinkContentToAvoidDynamicOverlap,
       );
 }
 
@@ -460,11 +473,24 @@ class _SheetConstraints extends BoxConstraints {
 class BareSheet extends StatelessWidget {
   const BareSheet({
     super.key,
-    this.resizeChildToAvoidBottomOverlap = true,
+    this.shrinkChildToAvoidDynamicOverlap = true,
+    this.shrinkChildToAvoidStaticOverlap = false,
     required this.child,
   });
 
-  final bool resizeChildToAvoidBottomOverlap;
+  /// {@template BareSheet.shrinkChildToAvoidDynamicOverlap}
+  /// Whether to shrink the [child] to avoid overlapping with
+  /// the dynamic system UI elements, such as the on-screen keyboard.
+  /// {@endtemplate}
+  final bool shrinkChildToAvoidDynamicOverlap;
+
+  /// {@template BareSheet.shrinkChildToAvoidStaticOverlap}
+  /// Whether to shrink the [child] to avoid overlapping with
+  /// the static system UI elements, such as hardware display notches
+  /// or the system status bar.
+  /// {@endtemplate}
+  final bool shrinkChildToAvoidStaticOverlap;
+
   final Widget child;
 
   @override
@@ -484,7 +510,8 @@ class BareSheet extends StatelessWidget {
           viewportPadding: sheetConstraints.viewportPadding,
           viewportDynamicOverlap: sheetConstraints.viewportInsets,
           viewportStaticOverlap: sheetConstraints.viewportViewPadding,
-          resizeContentToAvoidBottomOverlap: resizeChildToAvoidBottomOverlap,
+          shrinkContentToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
+          shrinkContentToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
         );
 
         return _SheetSkelton(
