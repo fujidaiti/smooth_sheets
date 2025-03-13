@@ -152,9 +152,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(MediaQuery.viewInsetsOf(viewportKey.currentContext!).bottom, 200,
         reason: 'The keyboard should be fully shown.');
-    expect(controller.metrics!.offset, 600,
-        reason: 'After the keyboard is fully shown, '
-            'the entire sheet should also be visible.');
+    expect(
+      tester.getRect(find.byKey(sheetKey)),
+      Rect.fromLTWH(0, 0, 800, 400),
+      reason: 'After the keyboard is fully shown, '
+          'the entire sheet should also be visible.',
+    );
   });
 
   group('Press-and-hold gesture should stop momentum scrolling', () {

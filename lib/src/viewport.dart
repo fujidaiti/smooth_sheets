@@ -362,7 +362,7 @@ class _RenderSheetTranslate extends RenderTransform {
   set padding(EdgeInsets value) {
     if (_padding != value) {
       _padding = value;
-      _invalidateTransformMatrix();
+      markNeedsLayout();
     }
   }
 
@@ -371,7 +371,7 @@ class _RenderSheetTranslate extends RenderTransform {
   set viewInsets(EdgeInsets value) {
     if (_viewInsets != value) {
       _viewInsets = value;
-      _invalidateTransformMatrix();
+      markNeedsLayout();
     }
   }
 
@@ -380,7 +380,7 @@ class _RenderSheetTranslate extends RenderTransform {
   set viewPadding(EdgeInsets value) {
     if (_viewPadding != value) {
       _viewPadding = value;
-      _invalidateTransformMatrix();
+      markNeedsLayout();
     }
   }
 
@@ -465,6 +465,31 @@ class _SheetConstraints extends BoxConstraints {
   final EdgeInsets viewportInsets;
   final EdgeInsets viewportPadding;
   final EdgeInsets viewportViewPadding;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    return super == other &&
+        other is _SheetConstraints &&
+        viewportSize == other.viewportSize &&
+        viewportInsets == other.viewportInsets &&
+        viewportPadding == other.viewportPadding &&
+        viewportViewPadding == other.viewportViewPadding;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        super.hashCode,
+        viewportSize,
+        viewportInsets,
+        viewportPadding,
+        viewportViewPadding,
+      );
 }
 
 @immutable
@@ -690,6 +715,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       minHeight: child.size.height,
       maxHeight: maxSize.height,
     ).constrain(Size.fromHeight(_preferredExtent!));
+
     _model._inner!.applyNewLayout(
       ImmutableSheetLayout.from(
         viewportLayout: viewportLayout,
