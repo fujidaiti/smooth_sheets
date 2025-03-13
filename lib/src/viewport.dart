@@ -346,8 +346,8 @@ class _RenderSheetTranslate extends RenderTransform {
     _invalidateTransformMatrix();
   }
 
-  // TODO: Change the type to `ValueListenable<double>`
   SheetModelView _model;
+
   // ignore: avoid_setters_without_getters
   set model(_LazySheetModelView value) {
     if (value != _model) {
@@ -467,6 +467,7 @@ class _SheetConstraints extends BoxConstraints {
   final EdgeInsets viewportViewPadding;
 }
 
+@immutable
 abstract interface class SheetShape {
   double preferredExtent(double offset, ViewportLayout layout);
   Widget build(BuildContext context, Widget child);
@@ -476,7 +477,10 @@ class _DefaultSheetShape implements SheetShape {
   const _DefaultSheetShape();
 
   @override
-  double preferredExtent(double offset, ViewportLayout layout) => 0;
+  double preferredExtent(double offset, ViewportLayout layout) {
+    // Returning 0 forces the sheet to size itself to be as small as possible.
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context, Widget child) => child;
