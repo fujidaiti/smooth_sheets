@@ -57,7 +57,7 @@ void main() {
               snapGrid: SheetSnapGrid(
                 snaps: [
                   SheetOffset.absolute(100),
-                  SheetOffset.relative(1),
+                  SheetOffset(1),
                 ],
               ),
               builder: (_) => _TestPage(
@@ -116,7 +116,7 @@ void main() {
           env.getNavigator().push(
                 PagedSheetRoute(
                   snapGrid: SheetSnapGrid.stepless(),
-                  initialOffset: SheetOffset.relative(0.5),
+                  initialOffset: SheetOffset(0.5),
                   builder: (_) => _TestPage(
                     key: Key('b'),
                     height: 500,
@@ -139,7 +139,7 @@ void main() {
               snapGrid: SheetSnapGrid(
                 snaps: [
                   SheetOffset.absolute(100),
-                  SheetOffset.relative(1),
+                  SheetOffset(1),
                 ],
               ),
               builder: (_) => _TestPage(

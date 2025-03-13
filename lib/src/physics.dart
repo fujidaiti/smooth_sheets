@@ -192,8 +192,8 @@ class DirectionAwareBouncingBehavior implements BouncingBehavior {
   /// Creates a [BouncingBehavior] that allows the sheet to bounce by different
   /// amounts based on the direction of a drag gesture.
   const DirectionAwareBouncingBehavior({
-    this.upward = const SheetOffset.absolute(0),
-    this.downward = const SheetOffset.absolute(0),
+    this.upward = const SheetOffset(0),
+    this.downward = const SheetOffset(0),
   });
 
   /// Amount of bounceable pixels when dragged upward.
@@ -214,7 +214,7 @@ class DirectionAwareBouncingBehavior implements BouncingBehavior {
 
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
-    this.behavior = const FixedBouncingBehavior(SheetOffset.relative(0.12)),
+    this.behavior = const FixedBouncingBehavior(SheetOffset(0.12)),
     this.frictionCurve = Curves.easeOutSine,
     this.spring = kDefaultSheetSpring,
   });

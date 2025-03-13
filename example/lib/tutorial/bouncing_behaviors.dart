@@ -27,7 +27,7 @@ class _Home extends StatelessWidget {
                   behavior: FixedBouncingBehavior(
                     // Allows the sheet position to exceed the content bounds
                     // by ±10% of the content height.
-                    SheetOffset.relative(0.1),
+                    SheetOffset(0.1),
                   ),
                 ),
               ),
@@ -54,7 +54,7 @@ class _Home extends StatelessWidget {
                     // when dragging the sheet upwards, and by ±30% of the content height
                     // when dragging it downwards.
                     upward: SheetOffset.absolute(20),
-                    downward: SheetOffset.relative(0.3),
+                    downward: SheetOffset(0.3),
                   ),
                 ),
               ),
@@ -66,8 +66,8 @@ class _Home extends StatelessWidget {
                 const _Sheet(
                   behavior: DirectionAwareBouncingBehavior(
                     // Allows the sheet to bounce only when dragging it downwards.
-                    upward: SheetOffset.absolute(0),
-                    downward: SheetOffset.relative(0.1),
+                    upward: SheetOffset(0),
+                    downward: SheetOffset(0.1),
                   ),
                 ),
               ),

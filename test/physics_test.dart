@@ -41,7 +41,7 @@ void main() {
     const physicsUnderTest = _SheetPhysicsWithDefaultConfiguration();
     const testSnapGrid = SheetSnapGrid.stepless(
       minOffset: SheetOffset.absolute(0),
-      maxOffset: SheetOffset.relative(1),
+      maxOffset: SheetOffset(1),
     );
 
     test('dragStartDistanceMotionThreshold for different platforms', () {
@@ -176,7 +176,7 @@ void main() {
       100,
     );
     expect(
-      const FixedBouncingBehavior(SheetOffset.relative(0.5))
+      const FixedBouncingBehavior(SheetOffset(0.5))
           .computeBounceablePixels(50, _referenceSheetMetrics),
       300,
     );

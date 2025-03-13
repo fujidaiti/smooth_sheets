@@ -46,7 +46,7 @@ class _ExampleSheet extends StatelessWidget {
         getIsVisible: (metrics) {
           return metrics.baseline.bottom == 0 &&
               metrics.offset >
-                  const SheetOffset.relative(0.5).resolve(metrics.measurements);
+                  const SheetOffset(0.5).resolve(metrics.measurements);
         },
         child: buildBottomBar(),
       ),
@@ -56,9 +56,9 @@ class _ExampleSheet extends StatelessWidget {
       parent: SnappingSheetPhysics(
         behavior: SnapToNearest(
           anchors: [
-            SheetOffset.relative(0.2),
-            SheetOffset.relative(0.5),
-            SheetOffset.relative(1),
+            SheetOffset(0.2),
+            SheetOffset(0.5),
+            SheetOffset(1),
           ],
         ),
       ),
@@ -66,7 +66,7 @@ class _ExampleSheet extends StatelessWidget {
 
     return Sheet(
       physics: physics,
-      minPosition: const SheetOffset.absolute(0),
+      minPosition: const SheetOffset(0),
       child: Card(
         clipBehavior: Clip.antiAlias,
         margin: EdgeInsets.zero,

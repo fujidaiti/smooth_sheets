@@ -93,7 +93,7 @@ void main() {
 
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
-        destination: const SheetOffset.relative(1),
+        destination: const SheetOffset(1),
         duration: const Duration(milliseconds: 300),
         curve: Curves.linear,
       )..init(owner);
@@ -124,7 +124,7 @@ void main() {
       activity.didLayoutChange(oldMeasurements);
       expect(ownerMetrics.offset, 400);
       verify(owner.settleTo(
-        const SheetOffset.relative(1),
+        const SheetOffset(1),
         const Duration(milliseconds: 225),
       ));
     });
@@ -139,7 +139,7 @@ void main() {
     setUp(() {
       (ownerMetrics, owner) = createMockSheetModel(
         offset: 300,
-        initialPosition: const SheetOffset.relative(0.5),
+        initialPosition: const SheetOffset(0.5),
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(300),
         ),
@@ -165,11 +165,11 @@ void main() {
 
     test('Create with velocity', () {
       final activity = SettlingSheetActivity(
-        destination: const SheetOffset.absolute(0),
+        destination: const SheetOffset(0),
         velocity: 100,
       );
 
-      expect(activity.destination, const SheetOffset.absolute(0));
+      expect(activity.destination, const SheetOffset(0));
       expect(activity.duration, isNull);
       expect(activity.velocity, 100);
       expect(activity.shouldIgnorePointer, isFalse);
@@ -178,10 +178,10 @@ void main() {
     test('Create with duration', () {
       final activity = SettlingSheetActivity.withDuration(
         const Duration(milliseconds: 300),
-        destination: const SheetOffset.absolute(0),
+        destination: const SheetOffset(0),
       );
 
-      expect(activity.destination, const SheetOffset.absolute(0));
+      expect(activity.destination, const SheetOffset(0));
       expect(activity.duration, const Duration(milliseconds: 300));
       expect(activity.shouldIgnorePointer, isFalse);
       expect(() => activity.velocity, isNotInitialized);
@@ -192,7 +192,7 @@ void main() {
       () {
         final activity = SettlingSheetActivity.withDuration(
           const Duration(milliseconds: 300),
-          destination: const SheetOffset.relative(1),
+          destination: const SheetOffset(1),
         );
         expect(() => activity.velocity, isNotInitialized);
 
@@ -203,7 +203,7 @@ void main() {
 
     test('Progressively updates current position toward destination', () {
       final activity = SettlingSheetActivity(
-        destination: const SheetOffset.relative(1),
+        destination: const SheetOffset(1),
         velocity: 300,
       );
 
@@ -230,7 +230,7 @@ void main() {
       'Should start an idle activity when it reaches destination',
       () {
         final _ = SettlingSheetActivity(
-          destination: const SheetOffset.relative(1),
+          destination: const SheetOffset(1),
           velocity: 300,
         )..init(owner);
 
@@ -243,7 +243,7 @@ void main() {
     test('Should absorb viewport changes', () {
       final activity = SettlingSheetActivity.withDuration(
         const Duration(milliseconds: 300),
-        destination: const SheetOffset.relative(1),
+        destination: const SheetOffset(1),
       )..init(owner);
 
       expect(activity.velocity, 1000); // (300 offset / 0.3s) = 1000 offset/s
@@ -274,11 +274,11 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetModel(
           offset: 160,
-          initialPosition: const SheetOffset.relative(0.2),
+          initialPosition: const SheetOffset(0.2),
           snapGrid: SheetSnapGrid(
             snaps: [
-              const SheetOffset.relative(0.2),
-              const SheetOffset.relative(1),
+              const SheetOffset(0.2),
+              const SheetOffset(1),
             ],
           ),
           contentSize: const Size(400, 800),
@@ -306,11 +306,11 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetModel(
           offset: 250,
-          initialPosition: const SheetOffset.relative(0.5),
+          initialPosition: const SheetOffset(0.5),
           snapGrid: SheetSnapGrid(
             snaps: [
-              const SheetOffset.relative(0.5),
-              const SheetOffset.relative(1),
+              const SheetOffset(0.5),
+              const SheetOffset(1),
             ],
           ),
           contentSize: Size(400, 500),

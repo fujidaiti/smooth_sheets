@@ -29,7 +29,7 @@ void main() {
           child: SheetViewport(
             child: Sheet(
               snapGrid: const SheetSnapGrid.stepless(
-                minOffset: SheetOffset.absolute(0),
+                minOffset: SheetOffset(0),
               ),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
@@ -172,7 +172,7 @@ void main() {
             child: Sheet(
               controller: controller,
               snapGrid: SheetSnapGrid.stepless(
-                minOffset: SheetOffset.absolute(0),
+                minOffset: SheetOffset(0),
               ),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
@@ -188,7 +188,7 @@ void main() {
 
       unawaited(
         controller.animateTo(
-          const SheetOffset.absolute(0),
+          const SheetOffset(0),
           duration: const Duration(milliseconds: 300),
           curve: Curves.linear,
         ),
@@ -248,7 +248,7 @@ void main() {
             child: Sheet(
               // Make sure the sheet can't be dragged
               snapGrid: SheetSnapGrid.single(
-                snap: SheetOffset.relative(1),
+                snap: SheetOffset(1),
               ),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
@@ -322,7 +322,7 @@ void main() {
             return false;
           },
           child: Sheet(
-            minPosition: const SheetOffset.absolute(0),
+            minPosition: const SheetOffset(0),
             // Disable the snapping effect
             physics: const ClampingSheetPhysics(),
             child: Container(

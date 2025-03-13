@@ -69,10 +69,10 @@ class _DraggableScrollableSheetModel
 class Sheet extends StatelessWidget {
   const Sheet({
     super.key,
-    this.initialOffset = const SheetOffset.relative(1),
+    this.initialOffset = const SheetOffset(1),
     this.physics,
     this.snapGrid = const SheetSnapGrid.single(
-      snap: SheetOffset.relative(1),
+      snap: SheetOffset(1),
     ),
     this.controller,
     this.scrollConfiguration,

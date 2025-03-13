@@ -118,7 +118,7 @@ void main() {
               snapGrid: SheetSnapGrid(
                 snaps: [
                   const SheetOffset.absolute(200),
-                  const SheetOffset.relative(1),
+                  const SheetOffset(1),
                 ],
               ),
               initialOffset: const SheetOffset.absolute(200),
@@ -140,7 +140,7 @@ void main() {
     // Start animating the sheet to the max position.
     unawaited(
       controller.animateTo(
-        const SheetOffset.relative(1),
+        const SheetOffset(1),
         duration: const Duration(milliseconds: 250),
       ),
     );

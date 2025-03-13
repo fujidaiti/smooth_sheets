@@ -56,8 +56,8 @@ class SingleSnapGrid implements SheetSnapGrid {
 
 class SteplessSnapGrid implements SheetSnapGrid {
   const SteplessSnapGrid({
-    this.minOffset = const SheetOffset.absolute(0),
-    this.maxOffset = const SheetOffset.relative(1),
+    this.minOffset = const SheetOffset(0),
+    this.maxOffset = const SheetOffset(1),
   });
 
   final SheetOffset minOffset;

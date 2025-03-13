@@ -17,8 +17,8 @@ import 'snap_grid.dart';
 import 'viewport.dart';
 
 const _kDefaultSnapGrid = SteplessSnapGrid(
-  minOffset: SheetOffset.absolute(0),
-  maxOffset: SheetOffset.relative(1),
+  minOffset: SheetOffset(0),
+  maxOffset: SheetOffset(1),
 );
 
 mixin _PagedSheetEntry {
@@ -66,7 +66,7 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
 
   @override
   SheetOffset get initialOffset =>
-      _currentEntry?.initialOffset ?? const SheetOffset.relative(1);
+      _currentEntry?.initialOffset ?? const SheetOffset(1);
 
   @override
   set config(_PagedSheetModelConfig value) {
@@ -458,8 +458,8 @@ class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialOffset = const SheetOffset.relative(1),
-    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset.relative(1)),
+    this.initialOffset = const SheetOffset(1),
+    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset(1)),
     this.transitionsBuilder,
     required this.builder,
   });
@@ -507,8 +507,8 @@ class PagedSheetPage<T> extends Page<T> {
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
     this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialOffset = const SheetOffset.relative(1),
-    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset.relative(1)),
+    this.initialOffset = const SheetOffset(1),
+    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset(1)),
     this.physics = kDefaultSheetPhysics,
     this.transitionsBuilder,
     required this.child,

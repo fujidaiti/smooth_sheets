@@ -65,8 +65,8 @@ void main() {
 
   group('SteplessSnapGrid', () {
     const snap = SteplessSnapGrid(
-      minOffset: SheetOffset.relative(0),
-      maxOffset: SheetOffset.relative(1),
+      minOffset: SheetOffset(0),
+      maxOffset: SheetOffset(1),
     );
 
     test(
@@ -74,7 +74,7 @@ void main() {
       'the current offset is less than minOffset',
       () {
         final result = snap.getSnapOffset(testLayout, -100, 0);
-        expect(result, SheetOffset.relative(0));
+        expect(result, SheetOffset(0));
       },
     );
 
@@ -83,18 +83,18 @@ void main() {
       'when metrics.offset is greater than maxOffset',
       () {
         final result = snap.getSnapOffset(testLayout, 600, 0);
-        expect(result, SheetOffset.relative(1));
+        expect(result, SheetOffset(1));
       },
     );
 
     test('getSnapOffset: returns minOffset when offset is at minOffset', () {
       final result = snap.getSnapOffset(testLayout, 0, 0);
-      expect(result, SheetOffset.relative(0));
+      expect(result, SheetOffset(0));
     });
 
     test('getSnapOffset: returns maxOffset when offset is at maxOffset', () {
       final result = snap.getSnapOffset(testLayout, 500, 0);
-      expect(result, SheetOffset.relative(1));
+      expect(result, SheetOffset(1));
     });
 
     test(
@@ -106,21 +106,21 @@ void main() {
 
     test('getBoundaries: always returns min and max offsets', () {
       var result = snap.getBoundaries(testLayout);
-      expect(result, (SheetOffset.relative(0), SheetOffset.relative(1)));
+      expect(result, (SheetOffset(0), SheetOffset(1)));
 
       result = snap.getBoundaries(
         testLayout.copyWith(contentSize: Size(800, 400)),
       );
-      expect(result, (SheetOffset.relative(0), SheetOffset.relative(1)));
+      expect(result, (SheetOffset(0), SheetOffset(1)));
 
       result = snap.getBoundaries(
         testLayout.copyWith(contentSize: Size(800, 600)),
       );
-      expect(result, (SheetOffset.relative(0), SheetOffset.relative(1)));
+      expect(result, (SheetOffset(0), SheetOffset(1)));
       result = snap.getBoundaries(
         testLayout.copyWith(contentSize: Size(800, 300)),
       );
-      expect(result, (SheetOffset.relative(0), SheetOffset.relative(1)));
+      expect(result, (SheetOffset(0), SheetOffset(1)));
     });
   });
   group('MultiSnapGrid with single snap offset', () {

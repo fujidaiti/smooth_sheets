@@ -534,7 +534,7 @@ void main() {
       'the padded viewport when the content is fully visible',
       (tester) async {
         final model = _TestSheetModel(
-          initialOffset: SheetOffset.relative(1),
+          initialOffset: SheetOffset(1),
         );
         final env = boilerplate(
           model: model,
@@ -1454,7 +1454,7 @@ class _TestSheetModelConfig extends SheetModelConfig {
 
 class _TestSheetModel extends SheetModel {
   _TestSheetModel({
-    this.initialOffset = const SheetOffset.relative(1),
+    this.initialOffset = const SheetOffset(1),
   }) : super(MockSheetContext(), _TestSheetModelConfig());
 
   @override

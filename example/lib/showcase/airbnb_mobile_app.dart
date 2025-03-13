@@ -169,7 +169,7 @@ class _ContentSheet extends StatelessWidget {
             behavior: SnapToNearest(
               anchors: [
                 minSheetPosition,
-                const SheetOffset.relative(1),
+                const SheetOffset(1),
               ],
             ),
           ),

@@ -24,7 +24,7 @@ class MenuSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const halfWayPosition = SheetOffset.relative(0.5);
+    const halfWayPosition = SheetOffset(0.5);
     return Sheet(
       scrollConfiguration: const SheetScrollConfiguration(),
       initialOffset: halfWayPosition,
@@ -155,7 +155,7 @@ class _MenuListItem extends StatelessWidget {
       trailing: Icon(icon, color: CupertinoColors.black),
       onTap: () {
         DefaultSheetController.maybeOf(context)
-            ?.animateTo(const SheetOffset.relative(1));
+            ?.animateTo(const SheetOffset(1));
         showEditBookmarkSheet(context);
       },
     );

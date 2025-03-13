@@ -33,13 +33,13 @@ final router = GoRouter(
             // ScrollableNavigationSheetPage instead.
             return PagedSheetPage(
               key: state.pageKey,
-              minOffset: const SheetOffset.relative(0.8),
+              minOffset: const SheetOffset(0.8),
               physics: const BouncingSheetPhysics(
                 parent: SnappingSheetPhysics(
                   behavior: SnapToNearest(
                     anchors: [
-                      SheetOffset.relative(1),
-                      SheetOffset.relative(0.8),
+                      SheetOffset(1),
+                      SheetOffset(0.8),
                     ],
                   ),
                 ),
@@ -70,15 +70,15 @@ final router = GoRouter(
                   pageBuilder: (context, state) {
                     return PagedSheetPage(
                       key: state.pageKey,
-                      initialOffset: const SheetOffset.relative(0.5),
-                      minOffset: const SheetOffset.relative(0.2),
+                      initialOffset: const SheetOffset(0.5),
+                      minOffset: const SheetOffset(0.2),
                       physics: const BouncingSheetPhysics(
                         parent: SnappingSheetPhysics(
                           behavior: SnapToNearest(
                             anchors: [
-                              SheetOffset.relative(1),
-                              SheetOffset.relative(0.5),
-                              SheetOffset.relative(0.2),
+                              SheetOffset(1),
+                              SheetOffset(0.5),
+                              SheetOffset(0.2),
                             ],
                           ),
                         ),

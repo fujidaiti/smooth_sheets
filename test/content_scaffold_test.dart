@@ -601,7 +601,7 @@ void main() {
                 return _TestSheetModel(
                   MockSheetContext(),
                   config,
-                  initialOffset: SheetOffset.relative(1),
+                  initialOffset: SheetOffset(1),
                 )..applyNewLayout(createSheetLayoutFrom(layoutSpec));
               },
               config: _TestSheetModelConfig(),

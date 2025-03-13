@@ -23,11 +23,11 @@ import 'model_owner.dart';
 ///   using a fixed value in pixels.
 @immutable
 abstract interface class SheetOffset {
+  /// {@macro RelativeSheetOffset}
+  const factory SheetOffset(double factor) = RelativeSheetOffset;
+
   /// {@macro AbsoluteSheetOffset}
   const factory SheetOffset.absolute(double value) = AbsoluteSheetOffset;
-
-  /// {@macro RelativeSheetOffset}
-  const factory SheetOffset.relative(double factor) = RelativeSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
   double resolve(ViewportLayout metrics);
