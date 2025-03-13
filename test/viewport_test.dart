@@ -237,10 +237,6 @@ void main() {
           tester.getRect(find.byKey(Key('content'))),
           Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 10),
         );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height),
-        );
       },
     );
 
@@ -322,10 +318,6 @@ void main() {
         expect(
           tester.getRect(find.byKey(Key('content'))),
           Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 10),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height),
         );
       },
     );
@@ -418,10 +410,6 @@ void main() {
           tester.getSize(find.byKey(Key('content'))),
           EdgeInsets.fromLTRB(10, 10, 10, 100).deflateSize(testScreenSize),
         );
-        expect(
-          tester.getSize(find.byType(BareSheet)),
-          EdgeInsets.all(10).deflateSize(testScreenSize),
-        );
       },
     );
 
@@ -456,145 +444,6 @@ void main() {
         expect(
           tester.getRect(find.byType(BareSheet)).top,
           testScreenSize.height - 200,
-        );
-      },
-    );
-
-    testWidgets(
-      "should stick the sheet's bottom edge at the bottom of the viewport "
-      'when the content is fully visible',
-      (tester) async {
-        final model = _TestSheetModel(
-          initialOffset: SheetOffset.absolute(300),
-        );
-        final env = boilerplate(
-          model: model,
-          builder: (child) => SheetViewport(
-            child: BareSheet(
-              child: SizedBox.fromSize(
-                key: Key('content'),
-                size: Size.fromHeight(300),
-                child: child,
-              ),
-            ),
-          ),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 300,
-            testScreenSize.width,
-            300,
-          ),
-        );
-
-        model.offset = 350;
-        await tester.pump();
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 350,
-            testScreenSize.width,
-            350,
-          ),
-        );
-
-        model.offset = 150;
-        await tester.pump();
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 150,
-            testScreenSize.width,
-            300,
-          ),
-        );
-      },
-    );
-
-    testWidgets(
-      "should stick the sheet's bottom edge at the bottom of "
-      'the padded viewport when the content is fully visible',
-      (tester) async {
-        final model = _TestSheetModel(
-          initialOffset: SheetOffset(1),
-        );
-        final env = boilerplate(
-          model: model,
-          builder: (child) => SheetViewport(
-            padding: EdgeInsets.all(10),
-            child: BareSheet(
-              child: SizedBox.fromSize(
-                key: Key('content'),
-                size: Size.fromHeight(300),
-                child: child,
-              ),
-            ),
-          ),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width - 20, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            10,
-            testScreenSize.height - 310,
-            testScreenSize.width - 20,
-            300,
-          ),
-        );
-
-        model.offset = 360;
-        await tester.pump();
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width - 20, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            10,
-            testScreenSize.height - 360,
-            testScreenSize.width - 20,
-            350,
-          ),
-        );
-
-        model.offset = 160;
-        await tester.pump();
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width - 20, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            10,
-            testScreenSize.height - 160,
-            testScreenSize.width - 20,
-            300,
-          ),
         );
       },
     );

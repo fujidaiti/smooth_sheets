@@ -1,9 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'model.dart';
@@ -469,12 +467,28 @@ class _SheetConstraints extends BoxConstraints {
   final EdgeInsets viewportViewPadding;
 }
 
+abstract interface class SheetShape {
+  double preferredExtent(double offset, ViewportLayout layout);
+  Widget build(BuildContext context, Widget child);
+}
+
+class _DefaultSheetShape implements SheetShape {
+  const _DefaultSheetShape();
+
+  @override
+  double preferredExtent(double offset, ViewportLayout layout) => 0;
+
+  @override
+  Widget build(BuildContext context, Widget child) => child;
+}
+
 @internal
 class BareSheet extends StatelessWidget {
   const BareSheet({
     super.key,
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
+    this.shape = const _DefaultSheetShape(),
     required this.child,
   });
 
@@ -490,6 +504,8 @@ class BareSheet extends StatelessWidget {
   /// or the system status bar.
   /// {@endtemplate}
   final bool shrinkChildToAvoidStaticOverlap;
+
+  final SheetShape shape;
 
   final Widget child;
 
@@ -514,11 +530,15 @@ class BareSheet extends StatelessWidget {
           shrinkContentToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
         );
 
-        return _SheetSkelton(
-          layoutSpec: layoutSpec,
-          child: SheetMediaQuery(
+        return shape.build(
+          context,
+          _SheetSkelton(
             layoutSpec: layoutSpec,
-            child: child,
+            getPreferredExtent: shape.preferredExtent,
+            child: SheetMediaQuery(
+              layoutSpec: layoutSpec,
+              child: child,
+            ),
           ),
         );
       },
@@ -526,18 +546,23 @@ class BareSheet extends StatelessWidget {
   }
 }
 
+typedef _GetPreferredExtent = double Function(double, ViewportLayout);
+
 class _SheetSkelton extends SingleChildRenderObjectWidget {
   const _SheetSkelton({
     required this.layoutSpec,
+    required this.getPreferredExtent,
     required super.child,
   });
 
   final SheetLayoutSpec layoutSpec;
+  final _GetPreferredExtent getPreferredExtent;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetSkelton(
       layoutSpec: layoutSpec,
+      getPreferredExtent: getPreferredExtent,
       model: SheetViewportState.of(context)!._modelView,
     );
   }
@@ -546,6 +571,7 @@ class _SheetSkelton extends SingleChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetSkelton)
       ..sheetMediaQueryData = layoutSpec
+      ..getPreferredExtent = getPreferredExtent
       ..model = SheetViewportState.of(context)!._modelView;
   }
 }
@@ -554,8 +580,10 @@ class _RenderSheetSkelton extends RenderShiftedBox {
   _RenderSheetSkelton({
     required _LazySheetModelView model,
     required SheetLayoutSpec layoutSpec,
+    required _GetPreferredExtent getPreferredExtent,
   })  : _model = model,
         _layoutSpec = layoutSpec,
+        _getPreferredExtent = getPreferredExtent,
         super(null) {
     model.addListener(_invalidatePreferredExtent);
     _invalidatePreferredExtent();
@@ -581,21 +609,25 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     }
   }
 
+  _GetPreferredExtent _getPreferredExtent;
+  // ignore: avoid_setters_without_getters
+  set getPreferredExtent(_GetPreferredExtent value) {
+    if (value != _getPreferredExtent) {
+      _getPreferredExtent = value;
+      markNeedsLayout();
+    }
+  }
+
   double? _preferredExtent;
 
   void _invalidatePreferredExtent() {
     if (_model.hasMetrics) {
       final oldPreferredExtent = _preferredExtent;
-      _preferredExtent = _computePreferredExtent(_model.offset);
+      _preferredExtent = _getPreferredExtent(_model.offset, _model);
       if (oldPreferredExtent != _preferredExtent && !_isPerformingLayout) {
         markNeedsLayout();
       }
     }
-  }
-
-  double _computePreferredExtent(double offset) {
-    final sheetTop = _layoutSpec.viewportSize.height - offset;
-    return max(_layoutSpec.maxSheetRect.bottom - sheetTop, 0.0);
   }
 
   @override
@@ -645,14 +677,13 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       contentBaseline: _layoutSpec.contentBaseline,
     );
     final newOffset = _model._inner!.dryApplyNewLayout(viewportLayout);
-    _preferredExtent = _computePreferredExtent(newOffset);
+    _preferredExtent = _getPreferredExtent(newOffset, viewportLayout);
     final maxRect = _layoutSpec.maxSheetRect;
     final maxSize = maxRect.size;
-    final bottomPadding = maxChildRect.bottom - maxRect.bottom;
     size = BoxConstraints(
       minWidth: maxSize.width,
       maxWidth: maxSize.width,
-      minHeight: child.size.height + bottomPadding,
+      minHeight: child.size.height,
       maxHeight: maxSize.height,
     ).constrain(Size.fromHeight(_preferredExtent!));
     _model._inner!.applyNewLayout(
