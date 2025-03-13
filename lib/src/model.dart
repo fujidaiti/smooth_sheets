@@ -15,12 +15,6 @@ import 'model_owner.dart';
 /// It is used in various contexts by sheets, for example,
 /// to define how much of the sheet is initially visible at the first build
 /// or to limit the range within which the sheet can be dragged.
-///
-/// See also:
-/// - [RelativeSheetOffset], which defines the position
-///   proportionally to the sheet's content height.
-/// - [AbsoluteSheetOffset], which defines the position
-///   using a fixed value in pixels.
 @immutable
 abstract interface class SheetOffset {
   /// {@macro RelativeSheetOffset}
@@ -28,6 +22,10 @@ abstract interface class SheetOffset {
 
   /// {@macro AbsoluteSheetOffset}
   const factory SheetOffset.absolute(double value) = AbsoluteSheetOffset;
+
+  /// {@macro ViewportRelativeSheetOffset}
+  const factory SheetOffset.proportionalToViewport(double factor) =
+      ProportionalToViewportSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
   double resolve(ViewportLayout metrics);
@@ -67,7 +65,7 @@ class RelativeSheetOffset implements SheetOffset {
   int get hashCode => Object.hash(runtimeType, factor);
 
   @override
-  String toString() => '$RelativeSheetOffset(factor: $factor)';
+  String toString() => 'RelativeSheetOffset(factor: $factor)';
 }
 
 /// A [SheetOffset] that represents a position with a fixed value in offset.
@@ -97,7 +95,31 @@ class AbsoluteSheetOffset implements SheetOffset {
   int get hashCode => Object.hash(runtimeType, value);
 
   @override
-  String toString() => '$AbsoluteSheetOffset(value: $value)';
+  String toString() => 'AbsoluteSheetOffset(value: $value)';
+}
+
+/// A [SheetOffset] that is defined by a factor of the viewport size.
+class ProportionalToViewportSheetOffset implements SheetOffset {
+  const ProportionalToViewportSheetOffset(this.factor);
+
+  final double factor;
+
+  @override
+  double resolve(ViewportLayout metrics) =>
+      metrics.viewportSize.height * factor;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProportionalToViewportSheetOffset &&
+          runtimeType == other.runtimeType &&
+          factor == other.factor);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, factor);
+
+  @override
+  String toString() => 'ViewportRelativeSheetOffset(factor: $factor)';
 }
 
 /// An interface that provides a set of dependencies
