@@ -499,8 +499,9 @@ abstract interface class SheetShape {
   Widget build(BuildContext context, Widget child);
 }
 
-class _DefaultSheetShape implements SheetShape {
-  const _DefaultSheetShape();
+@internal
+class DefaultSheetShape implements SheetShape {
+  const DefaultSheetShape();
 
   @override
   double preferredExtent(double offset, ViewportLayout layout) {
@@ -596,7 +597,7 @@ class BareSheet extends StatelessWidget {
     super.key,
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
-    this.shape = const _DefaultSheetShape(),
+    this.shape = const DefaultSheetShape(),
     required this.child,
   });
 

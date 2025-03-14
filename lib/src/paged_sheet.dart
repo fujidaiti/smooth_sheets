@@ -195,6 +195,7 @@ class PagedSheet extends StatelessWidget {
     this.controller,
     this.physics = kDefaultSheetPhysics,
     this.offsetInterpolationCurve = Curves.easeInOutCubic,
+    this.shape = const DefaultSheetShape(),
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
     required this.child,
@@ -205,6 +206,8 @@ class PagedSheet extends StatelessWidget {
   final SheetPhysics physics;
 
   final Curve offsetInterpolationCurve;
+
+  final SheetShape shape;
 
   /// {@macro BareSheet.shrinkChildToAvoidDynamicOverlap}
   final bool shrinkChildToAvoidDynamicOverlap;
@@ -225,7 +228,9 @@ class PagedSheet extends StatelessWidget {
         offsetInterpolationCurve: offsetInterpolationCurve,
       ),
       child: BareSheet(
+        shape: shape,
         shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
+        shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
         child: NavigatorResizable(
           interpolationCurve: Curves.linear,
           child: _NavigatorEventDispatcher(
