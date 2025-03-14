@@ -5,6 +5,7 @@ import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/gesture_proxy.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/physics.dart';
+import 'package:smooth_sheets/src/shapes.dart';
 import 'package:smooth_sheets/src/snap_grid.dart';
 import 'package:smooth_sheets/src/viewport.dart';
 
@@ -775,7 +776,55 @@ void main() {
             'message',
             'This error was likely caused either by the sheet being wrapped '
                 'in a widget that adds extra margin around it (e.g. Padding), '
+                // ignore: lines_longer_than_80_chars
                 'or by there is no SheetViewport in the ancestors of the sheet.',
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      'Throws when the specified SheetShape adds extra padding or margin '
+      'around the sheet',
+      (tester) async {
+        final model = _TestSheetModel();
+        final errors = await tester.pumpWidgetAndCaptureErrors(
+          MediaQuery(
+            data: MediaQueryData(),
+            child: SheetViewport(
+              child: TestStatefulWidget(
+                initialState: null,
+                didChangeDependencies: (context) {
+                  context
+                      .findAncestorStateOfType<SheetViewportState>()!
+                      .setModel(model);
+                },
+                builder: (_, __) => BareSheet(
+                  shape: SheetShapeBuilder(
+                    size: SheetSize.fit,
+                    builder: (context, child) => Padding(
+                      padding: EdgeInsets.all(20),
+                      child: child,
+                    ),
+                  ),
+                  child: Container(),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          errors.first.exception,
+          isAssertionError.having(
+            (e) => e.message,
+            'message',
+            'The available space for laying out the sheet is smaller than '
+                'expected. It is likely that the widget built by the given '
+                'SheetShapeBuilder adds extra padding or margin around the '
+                '"child" widget (e.g., Padding). Make sure that the widget '
+                'returned by the SheetShapeBuilder.build method always has '
+                'the same size as the "child" widget.',
           ),
         );
       },

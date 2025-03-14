@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
@@ -511,6 +512,84 @@ class _DefaultSheetShape implements SheetShape {
   Widget build(BuildContext context, Widget child) => child;
 }
 
+class _DebugAssertSheetShapeUsage extends SingleChildRenderObjectWidget {
+  const _DebugAssertSheetShapeUsage({
+    required this.sheetShapeType,
+    required this.expectedLayoutSpec,
+    required super.child,
+  });
+
+  final Type sheetShapeType;
+  final SheetLayoutSpec expectedLayoutSpec;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderDebugAssertSheetShapeUsage(
+      sheetShapeType: sheetShapeType,
+      expectedLayoutSpec: expectedLayoutSpec,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderObject renderObject,
+  ) {
+    super.updateRenderObject(context, renderObject);
+    (renderObject as _RenderDebugAssertSheetShapeUsage)
+      ..sheetShapeType = sheetShapeType
+      ..expectedLayoutSpec = expectedLayoutSpec;
+  }
+}
+
+class _RenderDebugAssertSheetShapeUsage extends RenderProxyBox {
+  _RenderDebugAssertSheetShapeUsage({
+    required Type sheetShapeType,
+    required SheetLayoutSpec expectedLayoutSpec,
+  })  : _sheetShapeType = sheetShapeType,
+        _expectedLayoutSpec = expectedLayoutSpec;
+
+  Type _sheetShapeType;
+  // ignore: avoid_setters_without_getters
+  set sheetShapeType(Type value) {
+    if (value != _sheetShapeType) {
+      _sheetShapeType = value;
+      markNeedsLayout();
+    }
+  }
+
+  SheetLayoutSpec _expectedLayoutSpec;
+  // ignore: avoid_setters_without_getters
+  set expectedLayoutSpec(SheetLayoutSpec value) {
+    if (value != _expectedLayoutSpec) {
+      _expectedLayoutSpec = value;
+      markNeedsLayout();
+    }
+  }
+
+  @override
+  void performLayout() {
+    if (kReleaseMode) {
+      throw StateError(
+        'Do not use _DebugAssertSheetShapeUsage widget in release mode.',
+      );
+    }
+
+    if (constraints.biggest < _expectedLayoutSpec.maxSheetRect.size) {
+      throw AssertionError(
+        // ignore: lines_longer_than_80_chars
+        'The available space for laying out the sheet is smaller than expected. '
+        'It is likely that the widget built by the given $_sheetShapeType adds '
+        'extra padding or margin around the "child" widget (e.g., Padding). '
+        'Make sure that the widget returned by the $_sheetShapeType.build '
+        'method always has the same size as the "child" widget.',
+      );
+    }
+
+    super.performLayout();
+  }
+}
+
 @internal
 class BareSheet extends StatelessWidget {
   const BareSheet({
@@ -559,17 +638,25 @@ class BareSheet extends StatelessWidget {
           shrinkContentToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
         );
 
-        return shape.build(
-          context,
-          _SheetSkelton(
+        Widget result = _SheetSkelton(
+          layoutSpec: layoutSpec,
+          getPreferredExtent: shape.preferredExtent,
+          child: SheetMediaQuery(
             layoutSpec: layoutSpec,
-            getPreferredExtent: shape.preferredExtent,
-            child: SheetMediaQuery(
-              layoutSpec: layoutSpec,
-              child: child,
-            ),
+            child: child,
           ),
         );
+
+        assert(() {
+          result = _DebugAssertSheetShapeUsage(
+            sheetShapeType: shape.runtimeType,
+            expectedLayoutSpec: layoutSpec,
+            child: result,
+          );
+          return true;
+        }());
+        
+        return shape.build(context, result);
       },
     );
   }
