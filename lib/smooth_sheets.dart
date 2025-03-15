@@ -5,6 +5,7 @@ library;
 
 export 'src/content_scaffold.dart';
 export 'src/controller.dart' hide SheetControllerScope;
+export 'src/cupertino.dart';
 export 'src/drag.dart' hide SheetDragController, SheetDragControllerTarget;
 export 'src/keyboard_dismissible.dart';
 export 'src/modal_sheet.dart';
