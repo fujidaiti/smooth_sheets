@@ -133,6 +133,7 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 /// - [DirectionAwareBouncingBehavior], which allows the sheet position to
 ///  exceed the content bounds by different amounts based on the direction
 ///  of a drag gesture.
+@Deprecated('Will be removed in v1.0.0.')
 abstract class BouncingBehavior {
   /// Returns the number of pixels that the sheet position can go beyond
   /// the content bounds.
@@ -158,9 +159,11 @@ abstract class BouncingBehavior {
 ///   behavior: FixedBouncingBehavior(SheetAnchor.proportional(0.12)),
 /// );
 /// ```
+@Deprecated('Will be removed in v1.0.0.')
 class FixedBouncingBehavior implements BouncingBehavior {
   /// Creates a [BouncingBehavior] that allows the sheet to bounce by a fixed
   /// amount.
+  @Deprecated('Will be removed in v1.0.0.')
   const FixedBouncingBehavior(this.range);
 
   /// How much the sheet can bounce beyond the content bounds.
@@ -188,9 +191,11 @@ class FixedBouncingBehavior implements BouncingBehavior {
 ///   ),
 /// );
 /// ```
+@Deprecated('Will be removed in v1.0.0.')
 class DirectionAwareBouncingBehavior implements BouncingBehavior {
   /// Creates a [BouncingBehavior] that allows the sheet to bounce by different
   /// amounts based on the direction of a drag gesture.
+  @Deprecated('Will be removed in v1.0.0.')
   const DirectionAwareBouncingBehavior({
     this.upward = const SheetOffset(0),
     this.downward = const SheetOffset(0),
