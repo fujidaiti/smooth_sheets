@@ -343,7 +343,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   });
 
   late final SheetController _sheetController;
-  PageRoute<dynamic>? _previousRoute;
+  Route<dynamic>? _previousRoute;
 
   @override
   void install() {
@@ -366,7 +366,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   @override
   void didChangePrevious(Route<dynamic>? previousRoute) {
     super.didChangePrevious(previousRoute);
-    _previousRoute = previousRoute as PageRoute?;
+    _previousRoute = previousRoute as Route?;
   }
 
   void _invalidateTransitionProgress() {
