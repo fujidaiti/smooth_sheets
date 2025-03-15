@@ -17,19 +17,17 @@ class _BottomBarVisibilityExample extends StatelessWidget {
 }
 
 enum _BottomBarVisibilityType {
-  fixed(
-    name: 'FixedBottomBarVisibility',
-    description: 'The bottom bar is fixed at the bottommost of the sheet.',
+  natural(
+    name: '.natural',
+    description: 'The bar is placed at the bottommost of the sheet.',
   ),
-  sticky(
-    name: 'StickyBottomBarVisibility',
-    description:
-        'The bottom bar is always visible regardless of the sheet position.',
+  always(
+    name: '.always',
+    description: 'The bar sticks to the bottom of the screen.',
   ),
-  conditionalSticky(
-    name: 'ConditionalStickyBottomBarVisibility',
-    description:
-        'The bottom bar is visible only when a certain condition is met.',
+  conditional(
+    name: '.conditional',
+    description: 'The bar is visible only when a certain condition is met.',
   );
 
   final String name;
@@ -49,23 +47,15 @@ class _ExampleHome extends StatefulWidget {
 }
 
 class _ExampleHomeState extends State<_ExampleHome> {
-  _BottomBarVisibilityType selectedVisibilityType =
-      _BottomBarVisibilityType.sticky;
-
   @override
   Widget build(BuildContext context) {
     final options = [
       for (final type in _BottomBarVisibilityType.values)
-        RadioListTile(
+        ListTile(
           title: Text(type.name),
           subtitle: Text(type.description),
-          value: type,
-          groupValue: selectedVisibilityType,
           contentPadding: const EdgeInsets.only(left: 24, right: 16),
-          controlAffinity: ListTileControlAffinity.trailing,
-          onChanged: (value) => setState(() {
-            selectedVisibilityType = value!;
-          }),
+          onTap: () => showExampleSheet(context, type),
         ),
     ];
 
@@ -79,7 +69,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
                 title: Text('BottomBarVisibility'),
                 subtitle: Text(
                   'Controls the visibility of the bottom bar based on the sheet position. '
-                  "Intended to be used as the 'SheetContentScaffold.bottomBar'.",
+                  'Intended to be used with SheetContentScaffold.bottomBar.',
                 ),
               ),
               ...options,
@@ -88,22 +78,18 @@ class _ExampleHomeState extends State<_ExampleHome> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        label: const Text('Show sheet'),
-        onPressed: () => showExampleSheet(context),
-      ),
     );
   }
 
-  void showExampleSheet(BuildContext context) {
+  void showExampleSheet(
+      BuildContext context, _BottomBarVisibilityType visibilityType) {
     Navigator.push(
       context,
       ModalSheetRoute(
         builder: (context) => SheetViewport(
           child: SheetViewport(
             child: _ExampleSheet(
-              visibilityType: selectedVisibilityType,
+              visibilityType: visibilityType,
             ),
           ),
         ),
@@ -121,64 +107,64 @@ class _ExampleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomBar = BottomAppBar(
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.menu),
-          ),
-          const Spacer(),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.more_vert),
-          ),
-        ],
-      ),
-    );
+    final bottomBarVisibility = switch (visibilityType) {
+      _BottomBarVisibilityType.natural => const BottomBarVisibility.natural(),
+      _BottomBarVisibilityType.always => const BottomBarVisibility.always(),
+      _BottomBarVisibilityType.conditional => BottomBarVisibility.conditional(
+          // This callback is called whenever the sheet metrics changes,
+          // and returning true keeps the bottom bar visible.
+          isVisible: (metrics) {
+            // The bottom bar is visible when at least 50% of the sheet is visible.
+            return metrics.offset >= const SheetOffset(0.5).resolve(metrics);
+          },
+        ),
+    };
 
-    const minSize = SheetOffset(0.3);
+    const minSize = SheetOffset(0.2);
     const halfSize = SheetOffset(0.5);
     const fullSize = SheetOffset(1);
 
-    const multiStopPhysics = BouncingSheetPhysics(
-      parent: SnappingSheetPhysics(
-        behavior: SnapToNearest(
-          anchors: [minSize, halfSize, fullSize],
-        ),
+    return Sheet(
+      initialOffset: halfSize,
+      snapGrid: const SheetSnapGrid(snaps: [minSize, halfSize, fullSize]),
+      child: SheetContentScaffold(
+        bottomBarVisibility: bottomBarVisibility,
+        extendBodyBehindBottomBar: true,
+        topBar: AppBar(),
+        body: const SizedBox.expand(),
+        bottomBar: const _ExampleBottomBar(),
       ),
     );
+  }
+}
 
-    return SafeArea(
-      bottom: false,
-      child: Sheet(
-        minPosition: minSize,
-        initialOffset: halfSize,
-        physics: multiStopPhysics,
-        child: SheetContentScaffold(
-          topBar: AppBar(),
-          body: const SizedBox.expand(),
-          bottomBar: switch (visibilityType) {
-            _BottomBarVisibilityType.fixed =>
-              _FixedBottomBarVisibility(child: bottomBar),
-            _BottomBarVisibilityType.sticky =>
-              _AlwaysVisibleBottomBarVisibilityWidget(child: bottomBar),
-            _BottomBarVisibilityType.conditionalSticky =>
-              _ConditionalBottomBarVisibilityWidget(
-                // This callback is called whenever the sheet metrics changes,
-                // and returning true keeps the bottom bar visible.
-                getIsVisible: (metrics) {
-                  // The bottom bar is visible when at least 50% of the sheet is visible.
-                  return metrics.offset >=
-                      const SheetOffset(0.5).resolve(metrics.measurements);
-                },
-                child: bottomBar,
+class _ExampleBottomBar extends StatelessWidget {
+  const _ExampleBottomBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      // Use SafeArea to absorb the screen notch.
+      child: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        child: SizedBox.fromSize(
+          size: const Size.fromHeight(kToolbarHeight),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.menu),
               ),
-          },
-          // Add the following 3 lines to keep the bottom bar visible when the keyboard is open.
-          // resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
-          //   maintainBottomBar: true,
-          // ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.more_vert),
+              ),
+            ],
+          ),
         ),
       ),
     );

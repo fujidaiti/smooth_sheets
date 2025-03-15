@@ -166,35 +166,41 @@ class _ExampleSheet extends StatelessWidget {
         ),
       ),
     );
-
     if (isFullScreen) {
       body = SizedBox.expand(child: body);
     }
+
+    final bottomBar = ColoredBox(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.menu),
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.more_vert),
+            ),
+          ],
+        ),
+      ),
+    );
 
     return SheetKeyboardDismissible(
       dismissBehavior: keyboardDismissBehavior,
       child: Sheet(
         scrollConfiguration: const SheetScrollConfiguration(),
+        shape: const MaterialSheetShape(
+          size: SheetSize.sticky,
+          color: Colors.white,
+        ),
         child: SheetContentScaffold(
           topBar: AppBar(),
           body: body,
-          bottomBar: _AlwaysVisibleBottomBarVisibilityWidget(
-            child: BottomAppBar(
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.menu),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.more_vert),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          bottomBar: bottomBar,
         ),
       ),
     );

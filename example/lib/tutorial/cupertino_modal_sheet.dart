@@ -66,20 +66,41 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
   Navigator.push(context, modalRoute);
 }
 
-class _HalfScreenSheet extends StatelessWidget {
+class _HalfScreenSheet extends StatefulWidget {
   const _HalfScreenSheet();
+
+  @override
+  State<_HalfScreenSheet> createState() => _HalfScreenSheetState();
+}
+
+class _HalfScreenSheetState extends State<_HalfScreenSheet> {
+  late final SheetController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = SheetController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     // `CupertinoStackedTransition` won't start the transition animation until
     // the visible height of a modal sheet (the position) exceeds 50% of the screen height.
-    return const Sheet(
-      initialOffset: SheetOffset(0.5),
-      minPosition: SheetOffset(0.5),
-      physics: BouncingSheetPhysics(
-        parent: SnappingSheetPhysics(),
+    return Sheet(
+      controller: _controller,
+      initialOffset: const SheetOffset(0.5),
+      snapGrid: const SheetSnapGrid(
+        snaps: [SheetOffset(0.5), SheetOffset(1)],
       ),
-      child: _SheetContent(),
+      child: _SheetContent(
+        controller: _controller,
+      ),
     );
   }
 }
@@ -98,7 +119,9 @@ class _FullScreenSheet extends StatelessWidget {
 }
 
 class _SheetContent extends StatelessWidget {
-  const _SheetContent();
+  const _SheetContent({this.controller});
+
+  final SheetController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -119,10 +142,7 @@ class _SheetContent extends StatelessWidget {
             children: [
               CupertinoButton.filled(
                 onPressed: () {
-                  // `DefaultSheetController.of` is a handy way to obtain a `SheetController`
-                  // that is exposed by the parent `CupertinoModalSheetRoute`.
-                  DefaultSheetController.maybeOf(context)
-                      ?.animateTo(const SheetOffset(1));
+                  controller?.animateTo(const SheetOffset(1));
                   _showModalSheet(context, isFullScreen: true);
                 },
                 child: const Text('Stack'),

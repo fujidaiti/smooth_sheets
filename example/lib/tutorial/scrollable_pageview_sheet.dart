@@ -44,16 +44,18 @@ class _MySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sheet(
       scrollConfiguration: const SheetScrollConfiguration(),
-      child: Material(
-        child: SizedBox(
-          height: 600,
-          child: PageView(
-            children: const [
-              _PageViewItem(),
-              _PageViewItem(),
-              _PageViewItem(),
-            ],
-          ),
+      shape: const MaterialSheetShape(
+        size: SheetSize.sticky,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      child: SizedBox(
+        height: 600,
+        child: PageView(
+          children: const [
+            _PageViewItem(),
+            _PageViewItem(),
+            _PageViewItem(),
+          ],
         ),
       ),
     );

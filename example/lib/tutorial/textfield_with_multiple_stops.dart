@@ -15,26 +15,26 @@ class TextFieldWithMultipleStops extends StatelessWidget {
         children: [
           const Scaffold(),
           SheetViewport(
+            padding: EdgeInsets.only(
+              // Add the top padding to avoid the status bar.
+              top: MediaQuery.viewPaddingOf(context).top,
+            ),
             child: Sheet(
               scrollConfiguration: const SheetScrollConfiguration(),
               initialOffset: const SheetOffset(0.7),
-              minPosition: const SheetOffset(0.4),
-              physics: const BouncingSheetPhysics(
-                parent: SnappingSheetPhysics(
-                  behavior: SnapToNearest(
-                    anchors: [
-                      SheetOffset(0.4),
-                      SheetOffset(0.7),
-                      SheetOffset(1),
-                    ],
-                  ),
-                ),
+              snapGrid: const SheetSnapGrid(
+                snaps: [SheetOffset(0.4), SheetOffset(0.7), SheetOffset(1)],
+              ),
+              shape: MaterialSheetShape(
+                size: SheetSize.sticky,
+                color: Theme.of(context).colorScheme.secondaryContainer,
               ),
               child: SheetContentScaffold(
-                primary: true,
-                backgroundColor: Colors.grey,
+                backgroundColor:
+                    Theme.of(context).colorScheme.secondaryContainer,
                 topBar: AppBar(
-                  backgroundColor: Colors.grey,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.secondaryContainer,
                   title: const Text('Sheet with a TextField'),
                   leading: IconButton(
                     onPressed: () => primaryFocus?.unfocus(),

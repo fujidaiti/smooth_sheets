@@ -67,17 +67,18 @@ class _ExampleSheet extends StatelessWidget {
         }
       },
       child: Sheet(
-        minPosition: const SheetAnchor.proportional(0.5),
-        child: Card(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const SizedBox(
-            height: 700,
-            width: double.infinity,
-          ),
+        snapGrid: const SheetSnapGrid(
+          snaps: [SheetOffset(0.5), SheetOffset(1)],
+        ),
+        shape: MaterialSheetShape(
+          size: SheetSize.fit,
+          borderRadius: BorderRadius.circular(20),
+          clipBehavior: Clip.antiAlias,
+        ),
+        child: Container(
+          height: 700,
+          width: double.infinity,
+          color: Theme.of(context).colorScheme.surface,
         ),
       ),
     );

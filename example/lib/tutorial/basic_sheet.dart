@@ -11,13 +11,11 @@ class _BasicSheetExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      // Typically, you would use a Stack to place the sheet
-      // on top of another widget.
+      // Use a Stack to place the sheet on top of another widget.
       home: Stack(
         children: [
           Scaffold(),
           SheetViewport(
-            padding: EdgeInsets.all(24),
             child: _MySheet(),
           ),
         ],
@@ -31,36 +29,17 @@ class _MySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The sheet will have the same height as the content.
-    // If you want to the sheet to be as big as the screen,
-    // wrap the content in a widget that fills the free space
-    // such as SizedBox.expand().
-
-    // Then, wrap the content in Sheet.
-    // Note that Sheet does not work with scrollable widgets.
-    // If you want to use a scrollable widget as its content,
-    // use ScrollableSheet instead.
-    return Material(
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      child: const Sheet(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Text(_loremIpsum),
-        ),
+    return Sheet(
+      shape: MaterialSheetShape(
+        size: SheetSize.sticky,
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
       ),
-    );
-  }
-
-  Widget buildSheetBackground(BuildContext context, Widget content) {
-    // Add background color, circular corners and material shadow to the sheet.
-    // This is just an example, you can customize it however you want!
-    return Material(
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      child: content,
+      child: const Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(_loremIpsum),
+      ),
     );
   }
 }

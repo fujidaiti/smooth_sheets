@@ -32,7 +32,6 @@ class _ExampleSheet extends StatelessWidget {
     final nestedNavigator = Navigator(
       onGenerateInitialRoutes: (navigator, initialRoute) {
         return [
-          // Use ScrollableNavigationSheetRoute for a draggable page.
           PagedSheetRoute(
             builder: (context) {
               return const _DraggablePage();
@@ -44,15 +43,13 @@ class _ExampleSheet extends StatelessWidget {
 
     // Wrap the nested navigator in a NavigationSheet.
     return PagedSheet(
-      child: Card(
+      shape: MaterialSheetShape(
+        size: SheetSize.sticky,
+        borderRadius: BorderRadius.circular(20),
         clipBehavior: Clip.antiAlias,
         color: Theme.of(context).colorScheme.primary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        margin: EdgeInsets.zero,
-        child: nestedNavigator,
       ),
+      navigator: nestedNavigator,
     );
   }
 }
@@ -61,8 +58,8 @@ class _DraggablePage extends StatelessWidget {
   const _DraggablePage();
 
   void navigateToScrollablePage(BuildContext context) {
-    // Use ScrollableNavigationSheetRoute for a scrollable page.
     final route = PagedSheetRoute(
+      // Specify a scroll configuration to make the page scrollable.
       scrollConfiguration: const SheetScrollConfiguration(),
       builder: (context) {
         return const _ScrollablePage();

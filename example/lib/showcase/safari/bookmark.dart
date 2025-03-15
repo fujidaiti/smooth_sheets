@@ -7,11 +7,9 @@ void showEditBookmarkSheet(BuildContext context) {
   Navigator.push(
     context,
     CupertinoModalSheetRoute(
-      builder: (context) => const SheetViewport(
-        child: EditBookmarkSheet(
-          pageUrl: 'https://www.apple.com',
-          faviconUrl: 'https://www.apple.com/favicon.ico',
-        ),
+      builder: (context) => const EditBookmarkSheet(
+        pageUrl: 'https://www.apple.com',
+        faviconUrl: 'https://www.apple.com/favicon.ico',
       ),
     ),
   );
@@ -32,31 +30,40 @@ class EditBookmarkSheet extends StatelessWidget {
     return SheetKeyboardDismissible(
       dismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(),
       child: Sheet(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: SheetContentScaffold(
-            backgroundColor: CupertinoColors.systemGroupedBackground,
-            topBar: CupertinoAppBar(
-              title: const Text('Add Bookmark'),
-              leading: CupertinoButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+        shape: SheetShapeBuilder(
+          size: SheetSize.sticky,
+          builder: (context, child) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: ColoredBox(
+                color: CupertinoColors.systemGroupedBackground,
+                child: child,
               ),
-              trailing: CupertinoButton(
-                onPressed: () =>
-                    Navigator.popUntil(context, (route) => route.isFirst),
-                child: const Text('Save'),
-              ),
+            );
+          },
+        ),
+        child: SheetContentScaffold(
+          backgroundColor: Colors.transparent,
+          topBar: CupertinoAppBar(
+            title: const Text('Add Bookmark'),
+            leading: CupertinoButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            body: SizedBox.expand(
-              child: CupertinoListSection.insetGrouped(
-                children: [
-                  _BookmarkEditor(
-                    pageUrl: pageUrl,
-                    faviconUrl: faviconUrl,
-                  ),
-                ],
-              ),
+            trailing: CupertinoButton(
+              onPressed: () =>
+                  Navigator.popUntil(context, (route) => route.isFirst),
+              child: const Text('Save'),
+            ),
+          ),
+          body: SizedBox.expand(
+            child: CupertinoListSection.insetGrouped(
+              children: [
+                _BookmarkEditor(
+                  pageUrl: pageUrl,
+                  faviconUrl: faviconUrl,
+                ),
+              ],
             ),
           ),
         ),

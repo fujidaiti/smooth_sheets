@@ -10,11 +10,7 @@ void showMenuSheet(BuildContext context) {
     context,
     CupertinoModalSheetRoute(
       swipeDismissible: true,
-      builder: (context) {
-        return const SheetViewport(
-          child: MenuSheet(),
-        );
-      },
+      builder: (context) => const MenuSheet(),
     ),
   );
 }
@@ -24,30 +20,35 @@ class MenuSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const halfWayPosition = SheetOffset(0.5);
+    const halfWayOffset = SheetOffset(0.5);
     return Sheet(
       scrollConfiguration: const SheetScrollConfiguration(),
-      initialOffset: halfWayPosition,
-      minPosition: halfWayPosition,
-      physics: const BouncingSheetPhysics(
-        parent: SnappingSheetPhysics(),
+      initialOffset: halfWayOffset,
+      snapGrid: SheetSnapGrid(
+        snaps: [halfWayOffset, SheetOffset(1)],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: const SheetContentScaffold(
-          backgroundColor: CupertinoColors.systemGroupedBackground,
-          body: Column(
-            children: [
-              _TopBar(
-                pageTitle: 'Apple',
-                displayUrl: 'apple.com',
-                faviconUrl: 'https://www.apple.com/favicon.ico',
-              ),
-              Divider(height: 1, color: CupertinoColors.systemGrey5),
-              Expanded(child: _MenuList()),
-            ],
+      shape: SheetShapeBuilder(
+        size: SheetSize.sticky,
+        builder: (context, child) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: ColoredBox(
+              color: CupertinoColors.systemGroupedBackground,
+              child: child,
+            ),
+          );
+        },
+      ),
+      child: Column(
+        children: [
+          _TopBar(
+            pageTitle: 'Apple',
+            displayUrl: 'apple.com',
+            faviconUrl: 'https://www.apple.com/favicon.ico',
           ),
-        ),
+          Divider(height: 1, color: CupertinoColors.systemGrey5),
+          Expanded(child: _MenuList()),
+        ],
       ),
     );
   }
@@ -191,25 +192,28 @@ class _TopBar extends StatelessWidget {
           ?.copyWith(color: CupertinoColors.secondaryLabel),
     );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 16,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SiteIcon(url: faviconUrl),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [pageTitle, displayUrl],
+    return ColoredBox(
+      color: CupertinoColors.systemGroupedBackground,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SiteIcon(url: faviconUrl),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [pageTitle, displayUrl],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          const _CloseButton(),
-        ],
+            const SizedBox(width: 16),
+            const _CloseButton(),
+          ],
+        ),
       ),
     );
   }

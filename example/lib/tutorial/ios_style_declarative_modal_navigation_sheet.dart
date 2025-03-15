@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
-/// Example code of iOS style modal `NavigationSheet` with go_router.
+/// Example code of iOS style modal `PagedSheet` with go_router.
 void main() {
   runApp(const _App());
 }
@@ -78,12 +78,13 @@ class _Modal extends StatelessWidget {
   Widget build(BuildContext context) {
     return SheetViewport(
       child: PagedSheet(
-        child: Material(
-          color: Colors.white,
+        shape: MaterialSheetShape(
+          size: SheetSize.fit,
           borderRadius: BorderRadius.circular(20),
           clipBehavior: Clip.antiAlias,
-          child: nestedNavigator,
+          color: Theme.of(context).colorScheme.primary,
         ),
+        navigator: nestedNavigator,
       ),
     );
   }

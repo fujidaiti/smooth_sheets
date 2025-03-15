@@ -104,10 +104,13 @@ class _MySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PagedSheet(
-      child: ColoredBox(
-        color: Colors.white,
-        child: navigator,
+      shape: const MaterialSheetShape(
+        size: SheetSize.sticky,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
       ),
+      navigator: navigator,
     );
   }
 }
@@ -125,8 +128,7 @@ class _EditablePageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
+    return SheetContentScaffold(
       body: SizedBox(
         height: height,
         child: Padding(

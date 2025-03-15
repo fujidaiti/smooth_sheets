@@ -68,17 +68,10 @@
       "cwd": "./example"
     },
     {
-      "name": "Sheet Physics",
+      "name": "Sheet Physics and Snap Grid",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/sheet_physics.dart",
-      "cwd": "./example"
-    },
-    {
-      "name": "Sheet Content Scaffold",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/tutorial/sheet_content_scaffold.dart",
+      "program": "lib/tutorial/physics_and_snap_grid.dart",
       "cwd": "./example"
     },
     {
@@ -96,10 +89,10 @@
       "cwd": "./example"
     },
     {
-      "name": "Sheet Draggable",
+      "name": "Basic Sheet",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/sheet_draggable.dart",
+      "program": "lib/tutorial/basic_sheet.dart",
       "cwd": "./example"
     },
     {
@@ -124,10 +117,10 @@
       "cwd": "./example"
     },
     {
-      "name": "Extent Driven Animation",
+      "name": "Offset Driven Animation",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/extent_driven_animation.dart",
+      "program": "lib/tutorial/offset_driven_animation.dart",
       "cwd": "./example"
     },
     {

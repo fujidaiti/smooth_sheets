@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
@@ -68,7 +70,11 @@ final _sheetShellRoute = ShellRoute(
 final _introRoute = GoRoute(
   path: 'intro',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(child: _IntroPage());
+    return const PagedSheetPage(
+      // Use a custom transition builder.
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      child: _IntroPage(),
+    );
   },
   routes: [_genreRoute],
 );
@@ -76,7 +82,10 @@ final _introRoute = GoRoute(
 final _genreRoute = GoRoute(
   path: 'genre',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(child: _SelectGenrePage());
+    return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      child: _SelectGenrePage(),
+    );
   },
   routes: [_moodRoute],
 );
@@ -84,7 +93,10 @@ final _genreRoute = GoRoute(
 final _moodRoute = GoRoute(
   path: 'mood',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(child: _SelectMoodPage());
+    return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      child: _SelectMoodPage(),
+    );
   },
   routes: [_seedTrackRoute],
 );
@@ -93,6 +105,7 @@ final _seedTrackRoute = GoRoute(
   path: 'seed-track',
   pageBuilder: (context, state) {
     return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
       scrollConfiguration: SheetScrollConfiguration(),
       child: _SelectSeedTrackPage(),
     );
@@ -104,11 +117,11 @@ final _confirmRoute = GoRoute(
   path: 'confirm',
   pageBuilder: (context, state) {
     return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
       scrollConfiguration: SheetScrollConfiguration(),
       initialOffset: SheetOffset(0.7),
-      minOffset: SheetOffset(0.7),
-      physics: BouncingSheetPhysics(
-        parent: SnappingSheetPhysics(),
+      snapGrid: SheetSnapGrid(
+        snaps: [SheetOffset(0.7), SheetOffset(1)],
       ),
       child: _ConfirmPage(),
     );
@@ -119,7 +132,10 @@ final _confirmRoute = GoRoute(
 final _generateRoute = GoRoute(
   path: 'generate',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(child: _GeneratingPage());
+    return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      child: _GeneratingPage(),
+    );
   },
 );
 
@@ -188,13 +204,13 @@ class _SheetShell extends StatelessWidget {
         },
         child: SheetViewport(
           child: PagedSheet(
-            child: Material(
-              // Add circular corners to the sheet.
+            shape: MaterialSheetShape(
+              size: SheetSize.sticky,
               borderRadius: BorderRadius.circular(16),
               clipBehavior: Clip.antiAlias,
               color: Theme.of(context).colorScheme.surface,
-              child: navigator,
             ),
+            navigator: navigator,
           ),
         ),
       ),
@@ -207,15 +223,13 @@ class _IntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      appBar: _SharedAppBarHero(
-        appbar: AppBar(
-          leading: IconButton(
-            onPressed: () => context.go('/'),
-            icon: const Icon(Icons.close),
-          ),
+    return SheetContentScaffold(
+      extendBodyBehindBottomBar: true,
+      extendBodyBehindTopBar: true,
+      topBar: AppBar(
+        leading: IconButton(
+          onPressed: () => context.go('/'),
+          icon: const Icon(Icons.close),
         ),
       ),
       body: SafeArea(
@@ -259,44 +273,39 @@ class _SelectGenrePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      appBar: _SharedAppBarHero(appbar: AppBar()),
+    return SheetContentScaffold(
+      bottomBarVisibility: const BottomBarVisibility.always(),
+      topBar: AppBar(),
       // Wrap the body in a SingleChildScrollView to prevent
       // the content from overflowing on small screens.
-      body: Builder(
-        builder: (context) {
-          return SingleChildScrollView(
-            padding: EdgeInsets.only(
-              top: MediaQuery.paddingOf(context).top + 8,
-              bottom: MediaQuery.paddingOf(context).bottom + 8,
-              left: 32,
-              right: 32,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          top: MediaQuery.paddingOf(context).top + 8,
+          bottom: MediaQuery.paddingOf(context).bottom + 8,
+          left: 32,
+          right: 32,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'What genre do you like? (1/3)',
+              style: Theme.of(context).textTheme.headlineMediumBold,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 10,
               children: [
-                Text(
-                  'What genre do you like? (1/3)',
-                  style: Theme.of(context).textTheme.headlineMediumBold,
-                ),
-                const SizedBox(height: 24),
-                Wrap(
-                  spacing: 10,
-                  children: [
-                    for (final genre in _genres)
-                      _SelectableChip(
-                        label: Text(genre),
-                      ),
-                  ],
-                ),
+                for (final genre in _genres)
+                  _SelectableChip(
+                    label: Text(genre),
+                  ),
               ],
             ),
-          );
-        },
+          ],
+        ),
       ),
-      bottomNavigationBar: _BottomActionBar(
+      bottomBar: _BottomActionBar(
         label: 'Next',
         onPressed: () => context.go('/intro/genre/mood'),
       ),
@@ -309,10 +318,9 @@ class _SelectMoodPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      appBar: _SharedAppBarHero(appbar: AppBar()),
+    return SheetContentScaffold(
+      bottomBarVisibility: const BottomBarVisibility.always(),
+      topBar: AppBar(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 24),
@@ -335,7 +343,7 @@ class _SelectMoodPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _BottomActionBar(
+      bottomBar: _BottomActionBar(
         label: 'Next',
         onPressed: () => context.go('/intro/genre/mood/seed-track'),
       ),
@@ -348,10 +356,11 @@ class _SelectSeedTrackPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      appBar: _SharedAppBarHero(appbar: AppBar()),
+    return SheetContentScaffold(
+      extendBodyBehindBottomBar: true,
+      extendBodyBehindTopBar: true,
+      bottomBarVisibility: const BottomBarVisibility.always(),
+      topBar: AppBar(),
       body: ListView.builder(
         itemCount: _seedTracks.length + 1,
         itemBuilder: (context, index) {
@@ -371,7 +380,7 @@ class _SelectSeedTrackPage extends StatelessWidget {
           };
         },
       ),
-      bottomNavigationBar: _BottomActionBar(
+      bottomBar: _BottomActionBar(
         label: 'Next',
         showDivider: true,
         onPressed: () => context.go('/intro/genre/mood/seed-track/confirm'),
@@ -385,10 +394,11 @@ class _ConfirmPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      appBar: _SharedAppBarHero(appbar: AppBar()),
+    return SheetContentScaffold(
+      extendBodyBehindBottomBar: true,
+      extendBodyBehindTopBar: true,
+      bottomBarVisibility: const BottomBarVisibility.always(),
+      topBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.only(left: 32),
         child: CustomScrollView(
@@ -470,7 +480,7 @@ class _ConfirmPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _BottomActionBar(
+      bottomBar: _BottomActionBar(
         label: "OK, let's go!",
         showDivider: true,
         onPressed: () async {
@@ -490,10 +500,10 @@ class _GeneratingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      appBar: _SharedAppBarHero(appbar: AppBar()),
+    return SheetContentScaffold(
+      extendBodyBehindBottomBar: true,
+      extendBodyBehindTopBar: true,
+      topBar: AppBar(),
       body: SafeArea(
         child: SizedBox(
           width: double.infinity,
@@ -644,56 +654,52 @@ class _BottomActionBar extends StatelessWidget {
     const horizontalPadding = 32.0;
     const verticalPadding = 16.0;
 
-    // Insert bottom padding only if there's no system viewport bottom inset.
-    final systemBottomInset = MediaQuery.of(context).padding.bottom;
-
-    return _AlwaysVisibleBottomBarVisibilityWidget(
-      child: ColoredBox(
-        color: Theme.of(context).colorScheme.surface,
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showDivider) const Divider(height: 1),
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  horizontalPadding,
-                  verticalPadding,
-                  horizontalPadding,
-                  systemBottomInset == 0 ? verticalPadding : 0,
-                ),
-                child: FilledButton(
-                  onPressed: onPressed,
-                  style: _largeFilledButtonStyle,
-                  child: Text(label),
-                ),
-              ),
-            ],
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showDivider) const Divider(height: 1),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              verticalPadding,
+              horizontalPadding,
+              max(MediaQuery.viewPaddingOf(context).bottom, verticalPadding),
+            ),
+            child: FilledButton(
+              onPressed: onPressed,
+              style: _largeFilledButtonStyle,
+              child: Text(label),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-/// This widget makes it possible to create a (visually) shared appbar across the pages.
-///
-/// For better maintainability, it is recommended to create a page-specific app bar for each page
-/// instead of a single 'super' shared app bar that includes all the functionality for every page.
-class _SharedAppBarHero extends StatelessWidget implements PreferredSizeWidget {
-  const _SharedAppBarHero({
-    required this.appbar,
-  });
-
-  final AppBar appbar;
-
-  @override
-  Size get preferredSize => appbar.preferredSize;
-
-  @override
-  Widget build(BuildContext context) {
-    return Hero(tag: 'HeroAppBar', child: appbar);
-  }
+Widget _fadeAndSlideTransitionWithIOSBackGesture(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  return FadeTransition(
+    opacity: CurveTween(curve: Curves.easeInExpo).animate(animation),
+    child: FadeTransition(
+      opacity: Tween(begin: 1.0, end: 0.0)
+          .chain(CurveTween(curve: Curves.easeOutExpo))
+          .animate(secondaryAnimation),
+      child: CupertinoRouteTransitionMixin.buildPageTransitions(
+        ModalRoute.of(context) as PageRoute,
+        context,
+        animation,
+        secondaryAnimation,
+        child,
+      ),
+    ),
+  );
 }
 
 // ----------------------------------------------------------

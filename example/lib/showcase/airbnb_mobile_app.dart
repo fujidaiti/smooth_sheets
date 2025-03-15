@@ -80,11 +80,10 @@ class _MapButton extends StatelessWidget {
     final sheetController = DefaultSheetController.of(context);
 
     void onPressed() {
-      final metrics = sheetController.metrics;
-      if (metrics.hasDimensions) {
+      if (sheetController.metrics case final it?) {
         // Collapse the sheet to reveal the map behind.
         sheetController.animateTo(
-          SheetOffset.absolute(metrics.minOffset),
+          SheetOffset.absolute(it.minOffset),
           curve: Curves.fastOutSlowIn,
         );
       }
@@ -155,43 +154,30 @@ class _ContentSheet extends StatelessWidget {
         final appbarHeight = MediaQuery.of(context).padding.top;
         final handleHeight = const _ContentSheetHandle().preferredSize.height;
         final sheetHeight = parentHeight - appbarHeight + handleHeight;
-        final minSheetPosition =
+        final minSheetOffset =
             SheetOffset.absolute(handleHeight + systemUiInsets.bottom);
-
-        const sheetShape = RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(20),
-          ),
-        );
-
-        final sheetPhysics = BouncingSheetPhysics(
-          parent: SnappingSheetPhysics(
-            behavior: SnapToNearest(
-              anchors: [
-                minSheetPosition,
-                const SheetOffset(1),
-              ],
-            ),
-          ),
-        );
 
         return SheetViewport(
           child: Sheet(
             scrollConfiguration: const SheetScrollConfiguration(),
-            physics: sheetPhysics,
-            minPosition: minSheetPosition,
+            snapGrid: SheetSnapGrid(
+              snaps: [minSheetOffset, const SheetOffset(1)],
+            ),
+            shape: const MaterialSheetShape(
+              size: SheetSize.fit,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
+            ),
             child: SizedBox(
               height: sheetHeight,
-              child: const Card(
-                margin: EdgeInsets.zero,
-                clipBehavior: Clip.antiAlias,
-                shape: sheetShape,
-                child: Column(
-                  children: [
-                    _ContentSheetHandle(),
-                    Expanded(child: _HouseList()),
-                  ],
-                ),
+              child: const Column(
+                children: [
+                  _ContentSheetHandle(),
+                  Expanded(child: _HouseList()),
+                ],
               ),
             ),
           ),
@@ -210,8 +196,12 @@ class _ContentSheetHandle extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: preferredSize.height,
+      width: double.infinity,
+      // Specifing the background color explicitly
+      // is required to make the Container touchable.
+      color: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Column(

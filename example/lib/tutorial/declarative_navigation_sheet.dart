@@ -5,9 +5,8 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 // The code may seem verbose, but the core principle is straightforward.
 // In this tutorial, you only need to learn the following:
 //
-// 1. Create a Navigator and wrap it in a NavigationSheet.
-// 2. Use *NavigationSheetPage to create a page that belongs to the navigator.
-// 3. Do not forget to register a NavigationSheetTransitionObserver to the navigator.
+// 1. Create a Navigator and wrap it in a PagedSheet.
+// 2. Use *PagedSheetPage to create a page that belongs to the navigator.
 void main() {
   runApp(const _DeclarativeNavigationSheetExample());
 }
@@ -28,25 +27,14 @@ final router = GoRouter(
         GoRoute(
           path: '/a',
           pageBuilder: (context, state) {
-            // Use ScrollableNavigationSheetPage for a draggable page.
-            // If the page contains scrollable widget(s), consider using
-            // ScrollableNavigationSheetPage instead.
             return PagedSheetPage(
               key: state.pageKey,
-              minOffset: const SheetOffset(0.8),
-              physics: const BouncingSheetPhysics(
-                parent: SnappingSheetPhysics(
-                  behavior: SnapToNearest(
-                    anchors: [
-                      SheetOffset(1),
-                      SheetOffset(0.8),
-                    ],
-                  ),
-                ),
+              snapGrid: const SheetSnapGrid(
+                snaps: [SheetOffset(0.8), SheetOffset(1)],
               ),
               child: const _ExampleSheetContent(
                 title: '/a',
-                size: 0.5,
+                heightFactor: 0.5,
                 destinations: ['/a/details', '/b'],
               ),
             );
@@ -59,7 +47,7 @@ final router = GoRouter(
                   key: state.pageKey,
                   child: const _ExampleSheetContent(
                     title: '/a/details',
-                    size: 0.75,
+                    heightFactor: 0.75,
                     destinations: ['/a/details/info'],
                   ),
                 );
@@ -71,21 +59,16 @@ final router = GoRouter(
                     return PagedSheetPage(
                       key: state.pageKey,
                       initialOffset: const SheetOffset(0.5),
-                      minOffset: const SheetOffset(0.2),
-                      physics: const BouncingSheetPhysics(
-                        parent: SnappingSheetPhysics(
-                          behavior: SnapToNearest(
-                            anchors: [
-                              SheetOffset(1),
-                              SheetOffset(0.5),
-                              SheetOffset(0.2),
-                            ],
-                          ),
-                        ),
+                      snapGrid: const SheetSnapGrid(
+                        snaps: [
+                          SheetOffset(0.2),
+                          SheetOffset(0.5),
+                          SheetOffset(1),
+                        ],
                       ),
                       child: const _ExampleSheetContent(
                         title: '/a/details/info',
-                        size: 1.0,
+                        heightFactor: 1.0,
                         destinations: ['/a', '/b', '/b/details'],
                       ),
                     );
@@ -102,7 +85,7 @@ final router = GoRouter(
               key: state.pageKey,
               child: const _ExampleSheetContent(
                 title: 'B',
-                size: 0.6,
+                heightFactor: 0.6,
                 destinations: ['/b/details', '/a'],
               ),
             );
@@ -115,7 +98,7 @@ final router = GoRouter(
                   key: state.pageKey,
                   child: const _ExampleSheetContent(
                     title: 'B Details',
-                    size: 0.5,
+                    heightFactor: 0.5,
                     destinations: ['/a'],
                   ),
                 );
@@ -169,12 +152,13 @@ class _ExampleSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PagedSheet(
-      child: Material(
+      shape: MaterialSheetShape(
+        size: SheetSize.fit,
         color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
-        child: nestedNavigator,
       ),
+      navigator: nestedNavigator,
     );
   }
 }
@@ -182,12 +166,12 @@ class _ExampleSheet extends StatelessWidget {
 class _ExampleSheetContent extends StatelessWidget {
   const _ExampleSheetContent({
     required this.title,
-    required this.size,
+    required this.heightFactor,
     required this.destinations,
   });
 
   final String title;
-  final double size;
+  final double heightFactor;
   final List<String> destinations;
 
   @override
@@ -198,38 +182,38 @@ class _ExampleSheetContent extends StatelessWidget {
           color: textColor,
         );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Container(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          width: constraints.maxWidth,
-          height: constraints.maxHeight * size,
-          child: SafeArea(
-            child: Column(
+    // Tips: You can use SheetMediaQuery to get the layout information of the sheet
+    // in the build method, such as the size of the viewport where the sheet is rendered.
+    final sheetLayoutSpec = SheetMediaQuery.layoutSpecOf(context);
+
+    return Container(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      width: double.infinity,
+      height: sheetLayoutSpec.viewportSize.height * heightFactor,
+      child: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: Text(title, style: textStyle),
+              ),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Center(
-                    child: Text(title, style: textStyle),
+                for (final dest in destinations)
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: textColor,
+                    ),
+                    onPressed: () => context.go(dest),
+                    child: Text('Go To $dest'),
                   ),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final dest in destinations)
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          foregroundColor: textColor,
-                        ),
-                        onPressed: () => context.go(dest),
-                        child: Text('Go To $dest'),
-                      ),
-                  ],
-                ),
               ],
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }

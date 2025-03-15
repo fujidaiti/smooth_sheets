@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 void main() {
-  runApp(const _SheetPhysicsExample());
+  runApp(const _PhysicsAndSnapGridExample());
 }
 
-class _SheetPhysicsExample extends StatelessWidget {
-  const _SheetPhysicsExample();
+class _PhysicsAndSnapGridExample extends StatelessWidget {
+  const _PhysicsAndSnapGridExample();
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +17,22 @@ class _SheetPhysicsExample extends StatelessWidget {
 }
 
 enum _PhysicsKind {
-  clamping('Clamping'),
-  bouncing('Bouncing'),
-  clampingSnapping('Clamping + Snapping'),
-  bouncingSnapping('Bouncing + Snapping');
+  clamping('ClampingSheetPhysics'),
+  bouncing('BouncingSheetPhysics');
 
   final String name;
 
   const _PhysicsKind(this.name);
+}
+
+enum _SnapGridKind {
+  stepless('SteplessSnapGrid'),
+  single('SingleSnapGrid'),
+  multi('MultiSnapGrid');
+
+  final String name;
+
+  const _SnapGridKind(this.name);
 }
 
 class _ExampleHome extends StatefulWidget {
@@ -35,28 +43,37 @@ class _ExampleHome extends StatefulWidget {
 }
 
 class _ExampleHomeState extends State<_ExampleHome> {
-  _PhysicsKind selectedPhysics = _PhysicsKind.bouncingSnapping;
+  _PhysicsKind selectedPhysics = _PhysicsKind.bouncing;
+  _SnapGridKind selectedSnapGrid = _SnapGridKind.multi;
 
   @override
   Widget build(BuildContext context) {
+    void showSheet(_SnapGridKind snapGridKind) {
+      Navigator.push(
+        context,
+        ModalSheetRoute(
+          builder: (context) => _MySheet(
+            physicsKind: selectedPhysics,
+            snapGridKind: snapGridKind,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
-      body: Stack(
+      appBar: AppBar(
+        title: const Text('Physics and Snap Grid'),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildOptions(),
-          SheetViewport(
-            child: _MySheet(
-              physicsKind: selectedPhysics,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Physics',
+              style: Theme.of(context).textTheme.labelLarge,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildOptions() {
-    return SafeArea(
-      child: Column(
-        children: [
           for (final physics in _PhysicsKind.values)
             RadioListTile(
               title: Text(physics.name),
@@ -66,7 +83,29 @@ class _ExampleHomeState extends State<_ExampleHome> {
                 selectedPhysics = value!;
               }),
             ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Snap Grid',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+          ),
+          for (final snapGrid in _SnapGridKind.values)
+            RadioListTile(
+              title: Text(snapGrid.name),
+              value: snapGrid,
+              groupValue: selectedSnapGrid,
+              onChanged: (value) => setState(() {
+                selectedSnapGrid = value!;
+              }),
+            ),
         ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => showSheet(selectedSnapGrid),
+        label: const Text('Show Sheet'),
       ),
     );
   }
@@ -82,55 +121,36 @@ const _halfwayFraction = 0.6;
 class _MySheet extends StatelessWidget {
   const _MySheet({
     required this.physicsKind,
+    required this.snapGridKind,
   });
 
   final _PhysicsKind physicsKind;
+  final _SnapGridKind snapGridKind;
 
   SheetPhysics createPhysics(_PhysicsKind kind) {
-    // With this configuration, the sheet will snap to:
-    // - the position at which ony (_halfwayFraction * 100)% of the content is visible, or
-    // - the position at which the entire content is visible.
-    // Note that the "position" is the visible height of the sheet.
-    const snappingPhysics = SnappingSheetPhysics(
-      behavior: SnapToNearest(
-        anchors: [
-          SheetOffset(_halfwayFraction),
-          SheetOffset(1),
-        ],
-      ),
-      // Tips: The above configuration can be replaced with a 'SnapToNearestEdge',
-      // which will snap to either the 'minPosition' or 'maxPosition' of the sheet:
-      // snappingBehavior: const SnapToNearestEdge(),
-    );
-
     return switch (kind) {
       _PhysicsKind.clamping => const ClampingSheetPhysics(),
       _PhysicsKind.bouncing => const BouncingSheetPhysics(),
-      _PhysicsKind.clampingSnapping =>
-        // Use 'parent' to combine multiple physics behaviors.
-        const ClampingSheetPhysics(parent: snappingPhysics),
-      _PhysicsKind.bouncingSnapping =>
-        const BouncingSheetPhysics(parent: snappingPhysics),
+    };
+  }
+
+  SheetSnapGrid createSnapGrid() {
+    return switch (snapGridKind) {
+      _SnapGridKind.stepless =>
+        const SteplessSnapGrid(minOffset: SheetOffset(_halfwayFraction)),
+      _SnapGridKind.single => const SingleSnapGrid(snap: SheetOffset(1)),
+      _SnapGridKind.multi => const MultiSnapGrid(
+          snaps: [SheetOffset(_halfwayFraction), SheetOffset(1)],
+        ),
     };
   }
 
   @override
   Widget build(BuildContext context) {
     return Sheet(
-      // The 'minPosition' and 'maxPosition' properties determine
-      // how far the sheet can be dragged.  Note that "position"
-      // refers to the visible height of the sheet. For example,
-      // the configuration below ensures that the sheet is fully visible
-      // at first and can then be dragged down to (_halfwayFraction * 100)%
-      // of the sheet height at minimum.
-      minPosition: const SheetOffset(_halfwayFraction),
-      maxPosition: const SheetOffset(1),
-      // Default
       initialOffset: const SheetOffset(1),
-      // Default
-      // 'physics' determines how the sheet will behave when the user reaches
-      // the maximum or minimum position, or when the user stops dragging.
       physics: createPhysics(physicsKind),
+      snapGrid: createSnapGrid(),
       child: buildContent(context),
     );
   }
