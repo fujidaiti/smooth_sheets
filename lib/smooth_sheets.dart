@@ -28,6 +28,7 @@ export 'src/scrollable.dart'
         HoldScrollDrivenSheetActivity,
         ScrollAwareSheetModelMixin,
         SheetScrollPosition;
+export 'src/shapes.dart';
 export 'src/sheet.dart' hide DraggableScrollableSheetContent;
 export 'src/snap_grid.dart';
 export 'src/viewport.dart'
