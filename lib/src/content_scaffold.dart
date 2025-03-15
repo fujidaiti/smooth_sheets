@@ -411,6 +411,76 @@ class _RenderScaffoldLayout extends RenderBox
   }
 
   @override
+  double computeMinIntrinsicWidth(double height) {
+    assert(_debugThrowIfNotCheckingIntrinsics());
+    return 0.0;
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    assert(_debugThrowIfNotCheckingIntrinsics());
+    return 0.0;
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    assert(_debugThrowIfNotCheckingIntrinsics());
+    return 0.0;
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    assert(_debugThrowIfNotCheckingIntrinsics());
+    return 0.0;
+  }
+
+  bool _debugThrowIfNotCheckingIntrinsics() {
+    assert(() {
+      if (!RenderObject.debugCheckingIntrinsics) {
+        throw FlutterError(
+          // ignore: lines_longer_than_80_chars
+          'SheetContentScaffold does not support returning intrinsic dimensions.\n'
+          // ignore: lines_longer_than_80_chars
+          'Calculating the dry layout would require running the layout callback '
+          'speculatively, which might mutate the live render object tree.',
+        );
+      }
+      return true;
+    }());
+
+    return true;
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    assert(
+      debugCannotComputeDryLayout(
+        reason:
+            // ignore: lines_longer_than_80_chars
+            'Calculating the dry layout would require running the layout callback '
+            'speculatively, which might mutate the live render object tree.',
+      ),
+    );
+    return Size.zero;
+  }
+
+  @override
+  double? computeDryBaseline(
+    BoxConstraints constraints,
+    TextBaseline baseline,
+  ) {
+    assert(
+      debugCannotComputeDryLayout(
+        reason:
+            // ignore: lines_longer_than_80_chars
+            'Calculating the dry baseline would require running the layout callback speculatively, '
+            'which might mutate the live render object tree.',
+      ),
+    );
+    return null;
+  }
+
+  @override
   void performLayout() {
     Size layoutChild(_ScaffoldSlot slot, BoxConstraints constraints) {
       return switch (childForSlot(slot)) {
