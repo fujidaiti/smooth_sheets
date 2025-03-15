@@ -285,7 +285,7 @@ void main() {
             child: Sheet(
               child: PopScope(
                 canPop: false,
-                onPopInvokedWithResult: (didPop, _) async {
+                onPopInvokedWithResult: (didPop, _) {
                   if (!didPop) {
                     popInvoked = true;
                     Navigator.pop(context);

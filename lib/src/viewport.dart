@@ -656,7 +656,7 @@ class BareSheet extends StatelessWidget {
           );
           return true;
         }());
-        
+
         return shape.build(context, result);
       },
     );

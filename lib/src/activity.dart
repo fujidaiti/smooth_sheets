@@ -129,6 +129,7 @@ class AnimatedSheetActivity extends SheetActivity
   late final double _endOffset;
 
   @override
+  // ignore: avoid_renaming_method_parameters
   void init(SheetModel delegate) {
     super.init(delegate);
     _startOffset = owner.offset;
@@ -283,7 +284,7 @@ class SettlingSheetActivity extends SheetActivity {
 
   /// The amount of time that has passed between the time the animation
   /// started and the most recent tick of the animation.
-  var _elapsedDuration = Duration.zero;
+  Duration _elapsedDuration = Duration.zero;
 
   @override
   double get velocity => _velocity;
@@ -504,8 +505,8 @@ mixin ControlledSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
   double get velocity => controller.velocity;
 
   @override
-  void init(T delegate) {
-    super.init(delegate);
+  void init(T owner) {
+    super.init(owner);
     controller = createAnimationController()..addListener(onAnimationTick);
     // Won't trigger if we dispose 'animation' first.
     onAnimationStart().whenComplete(onAnimationEnd);
