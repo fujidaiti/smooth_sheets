@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
+import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
@@ -183,13 +184,15 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    return switch (swipeDismissible) {
-      true => SheetGestureProxy(
-          proxy: _swipeDismissibleController,
-          child: buildContent(context),
-        ),
-      false => buildContent(context),
-    };
+    return SheetViewport(
+      child: switch (swipeDismissible) {
+        true => SheetGestureProxy(
+            proxy: _swipeDismissibleController,
+            child: buildContent(context),
+          ),
+        false => buildContent(context),
+      },
+    );
   }
 
   @override
