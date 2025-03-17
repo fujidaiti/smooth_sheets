@@ -198,7 +198,8 @@ class PagedSheet extends StatelessWidget {
     this.shape = const DefaultSheetShape(),
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
-    required this.child,
+    this.builder,
+    required this.navigator,
   });
 
   final SheetController? controller;
@@ -215,13 +216,25 @@ class PagedSheet extends StatelessWidget {
   /// {@macro Sheet.shrinkChildToAvoidStaticOverlap}
   final bool shrinkChildToAvoidStaticOverlap;
 
-  final Widget child;
+  final TransitionBuilder? builder;
+
+  final Widget navigator;
 
   @override
   Widget build(BuildContext context) {
+    Widget content = NavigatorResizable(
+      interpolationCurve: Curves.linear,
+      child: _NavigatorEventDispatcher(
+        child: navigator,
+      ),
+    );
+    if (builder case final builder?) {
+      content = builder(context, content);
+    }
+
     return SheetModelOwner(
       factory: _PagedSheetModel.new,
-      controller: controller ?? SheetControllerScope.maybeOf(context),
+      controller: controller ?? DefaultSheetController.maybeOf(context),
       config: _PagedSheetModelConfig(
         physics: physics,
         gestureProxy: SheetGestureProxy.maybeOf(context),
@@ -231,12 +244,7 @@ class PagedSheet extends StatelessWidget {
         shape: shape,
         shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
         shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
-        child: NavigatorResizable(
-          interpolationCurve: Curves.linear,
-          child: _NavigatorEventDispatcher(
-            child: child,
-          ),
-        ),
+        child: content,
       ),
     );
   }

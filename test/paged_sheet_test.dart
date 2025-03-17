@@ -25,7 +25,7 @@ void main() {
         child: SheetViewport(
           child: PagedSheet(
             key: sheetKey,
-            child: Navigator(
+            navigator: Navigator(
               key: navigatorKey,
               onGenerateRoute: (_) {
                 return initialRoute();
@@ -331,7 +331,7 @@ void main() {
             key: sheetKey,
             offsetInterpolationCurve: Curves.linear,
             physics: const ClampingSheetPhysics(),
-            child: Navigator(
+            navigator: Navigator(
               key: navigatorKey,
               initialRoute: initialRoute,
               onGenerateRoute: (_) {
@@ -705,7 +705,7 @@ void main() {
             key: sheetKey,
             offsetInterpolationCurve: Curves.linear,
             physics: const ClampingSheetPhysics(),
-            child: TestStatefulWidget(
+            navigator: TestStatefulWidget(
               key: statefulKey,
               initialState: initialPages,
               builder: (context, pages) {
