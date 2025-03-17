@@ -517,18 +517,18 @@ class _RenderScaffoldLayout extends RenderBox
     }
 
     // Layout the body.
-    var bodyMaxHeight = childConstraints.maxHeight;
-    if (!extendBodyBehindTopBar) {
-      bodyMaxHeight = max(bodyMaxHeight - topBarHeight, 0);
-    }
-    if (!extendBodyBehindBottomBar) {
-      bodyMaxHeight = max(bodyMaxHeight - visibleBottomBarHeight, 0);
-    }
+    final bodyMargin = EdgeInsets.only(
+      top: extendBodyBehindTopBar ? 0 : topBarHeight,
+      bottom: extendBodyBehindBottomBar ? 0 : visibleBottomBarHeight,
+    );
+    final bodyMaxHeight =
+        max(childConstraints.maxHeight - bodyMargin.vertical, 0.0);
     final bodyHeight = layoutChild(
       _ScaffoldSlot.body,
       _ScaffoldBodyConstraints(
-        topInset: topBarHeight,
-        bottomInset: visibleBottomBarHeight,
+        topBarOverlap: extendBodyBehindTopBar ? topBarHeight : 0,
+        bottomBarOverlap:
+            extendBodyBehindBottomBar ? visibleBottomBarHeight : 0,
         minWidth: childConstraints.minWidth,
         maxWidth: childConstraints.maxWidth,
         minHeight: constraints.isTight ? bodyMaxHeight : 0,
@@ -538,34 +538,17 @@ class _RenderScaffoldLayout extends RenderBox
 
     // Position the top bar.
     positionChild(_ScaffoldSlot.topBar, Offset.zero);
-
     // Position the body
-    final double bodyBottom;
-    if (extendBodyBehindTopBar) {
-      positionChild(_ScaffoldSlot.body, Offset.zero);
-      bodyBottom = bodyHeight;
-    } else {
-      positionChild(_ScaffoldSlot.body, Offset(0, topBarHeight));
-      bodyBottom = topBarHeight + bodyHeight;
-    }
-
+    positionChild(_ScaffoldSlot.body, Offset(0, bodyMargin.top));
     // Position the bottom bar.
-    if (extendBodyBehindBottomBar) {
-      final bottomBarTop = max(bodyBottom - visibleBottomBarHeight, 0.0);
-      positionChild(_ScaffoldSlot.bottomBar, Offset(0, bottomBarTop));
-    } else {
-      positionChild(_ScaffoldSlot.bottomBar, Offset(0, bodyBottom));
-    }
+    final bodyBottom = bodyMargin.top + bodyHeight;
+    final bottomBarTop = extendBodyBehindBottomBar
+        ? bodyBottom - visibleBottomBarHeight
+        : bodyBottom;
+    positionChild(_ScaffoldSlot.bottomBar, Offset(0, bottomBarTop));
 
     // Finally, lay out the scaffold itself.
-    var height = bodyHeight;
-    if (!extendBodyBehindTopBar) {
-      height += topBarHeight;
-    }
-    if (!extendBodyBehindBottomBar) {
-      height += visibleBottomBarHeight;
-    }
-    size = Size(constraints.maxWidth, height);
+    size = Size(constraints.maxWidth, bodyMargin.vertical + bodyHeight);
   }
 
   @override
@@ -606,16 +589,16 @@ class _RenderScaffoldLayout extends RenderBox
 
 class _ScaffoldBodyConstraints extends BoxConstraints {
   const _ScaffoldBodyConstraints({
-    required this.topInset,
-    required this.bottomInset,
+    required this.topBarOverlap,
+    required this.bottomBarOverlap,
     super.minWidth,
     super.maxWidth,
     super.minHeight,
     super.maxHeight,
   });
 
-  final double topInset;
-  final double bottomInset;
+  final double topBarOverlap;
+  final double bottomBarOverlap;
 }
 
 class _ScaffoldBodyContainer extends StatelessWidget {
@@ -634,8 +617,8 @@ class _ScaffoldBodyContainer extends StatelessWidget {
         return MediaQuery(
           data: mediaQuery.copyWith(
             padding: mediaQuery.padding.copyWith(
-              top: bodyConstraints.topInset,
-              bottom: bodyConstraints.bottomInset,
+              top: bodyConstraints.topBarOverlap,
+              bottom: bodyConstraints.bottomBarOverlap,
             ),
           ),
           child: child,

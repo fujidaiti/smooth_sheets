@@ -525,16 +525,13 @@ void main() {
     });
 
     testWidgets(
-        'Exposes heights of top and bottom bars as MediaQueryData.padding',
-        (tester) async {
-      final topBarKey = UniqueKey();
-      final bottomBarKey = UniqueKey();
+        'Exposes height of top-bar as MediaQueryData.padding.top '
+        'if extendBodyBehindTopBar is true', (tester) async {
       late EdgeInsets inheritedPadding;
       final env = boilerplate(
         builder: (context) => SheetContentScaffold(
-          topBar: Container(key: topBarKey, height: 50, color: Colors.blue),
-          bottomBar:
-              Container(key: bottomBarKey, height: 60, color: Colors.red),
+          topBar: Container(height: 50, color: Colors.blue),
+          extendBodyBehindTopBar: true,
           body: Builder(
             builder: (context) {
               inheritedPadding = MediaQuery.of(context).padding;
@@ -545,8 +542,74 @@ void main() {
       );
 
       await tester.pumpWidget(env.testWidget);
-      expect(inheritedPadding, EdgeInsets.only(top: 50, bottom: 60));
+      expect(inheritedPadding, EdgeInsets.only(top: 50));
     });
+
+    testWidgets(
+      'Removes MediaQueryData.padding.top if extendBodyBehindTopBar is false',
+      (tester) async {
+        late EdgeInsets inheritedPadding;
+        final env = boilerplate(
+          builder: (context) => SheetContentScaffold(
+            topBar: Container(height: 50, color: Colors.blue),
+            extendBodyBehindTopBar: false,
+            body: Builder(
+              builder: (context) {
+                inheritedPadding = MediaQuery.of(context).padding;
+                return SizedBox.expand();
+              },
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(inheritedPadding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+        'Exposes height of bottom-bar as MediaQueryData.padding.bottom '
+        'if extendBodyBehindBottomBar is true', (tester) async {
+      late EdgeInsets inheritedPadding;
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          bottomBar: Container(height: 50, color: Colors.blue),
+          extendBodyBehindBottomBar: true,
+          body: Builder(
+            builder: (context) {
+              inheritedPadding = MediaQuery.of(context).padding;
+              return SizedBox.expand();
+            },
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(env.testWidget);
+      expect(inheritedPadding, EdgeInsets.only(bottom: 50));
+    });
+
+    testWidgets(
+      'Removes MediaQueryData.padding.bottom '
+      'if extendBodyBehindBottomBar is false',
+      (tester) async {
+        late EdgeInsets inheritedPadding;
+        final env = boilerplate(
+          builder: (context) => SheetContentScaffold(
+            extendBodyBehindBottomBar: false,
+            bottomBar: Container(height: 50, color: Colors.blue),
+            body: Builder(
+              builder: (context) {
+                inheritedPadding = MediaQuery.of(context).padding;
+                return SizedBox.expand();
+              },
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(inheritedPadding, EdgeInsets.zero);
+      },
+    );
   });
 
   group('SheetContentScaffold - bottom-bar visibility', () {
