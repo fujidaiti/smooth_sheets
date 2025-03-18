@@ -274,6 +274,20 @@ class SheetViewportState extends State<SheetViewport> {
 
   @override
   Widget build(BuildContext context) {
+    assert(() {
+      final ancestorViewport = of(context);
+      if (ancestorViewport == null) {
+        return true;
+      }
+      final routeForAncestorViewport = ModalRoute.of(ancestorViewport.context);
+      if (ModalRoute.of(context) != routeForAncestorViewport) {
+        return true;
+      }
+      throw AssertionError(
+        'Only one SheetViewport widget can exist in the same route.',
+      );
+    }());
+
     return _InheritedSheetViewport(
       state: this,
       child: _SheetTranslate(

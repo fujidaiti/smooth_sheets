@@ -829,6 +829,40 @@ void main() {
         );
       },
     );
+
+    testWidgets('throws when multiple viewports exist in the same route',
+        (tester) async {
+      final model = _TestSheetModel();
+      final errors = await tester.pumpWidgetAndCaptureErrors(
+        MediaQuery(
+          data: MediaQueryData(),
+          child: SheetViewport(
+            child: SheetViewport(
+              child: TestStatefulWidget(
+                initialState: null,
+                didChangeDependencies: (context) {
+                  context
+                      .findAncestorStateOfType<SheetViewportState>()!
+                      .setModel(model);
+                },
+                builder: (_, __) => BareSheet(
+                  child: Container(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        errors.first.exception,
+        isAssertionError.having(
+          (e) => e.message,
+          'message',
+          'Only one SheetViewport widget can exist in the same route.',
+        ),
+      );
+    });
   });
 
   group('SheetLayoutSpec', () {
