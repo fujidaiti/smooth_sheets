@@ -44,7 +44,7 @@ class _MySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sheet(
       scrollConfiguration: const SheetScrollConfiguration(),
-      shape: const MaterialSheetShape(
+      decoration: const MaterialSheetDecoration(
         size: SheetSize.sticky,
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),

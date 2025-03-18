@@ -494,14 +494,14 @@ class _SheetConstraints extends BoxConstraints {
 }
 
 @immutable
-abstract interface class SheetShape {
+abstract interface class SheetDecoration {
   double preferredExtent(double offset, ViewportLayout layout);
   Widget build(BuildContext context, Widget child);
 }
 
 @internal
-class DefaultSheetShape implements SheetShape {
-  const DefaultSheetShape();
+class DefaultSheetDecoration implements SheetDecoration {
+  const DefaultSheetDecoration();
 
   @override
   double preferredExtent(double offset, ViewportLayout layout) {
@@ -513,20 +513,20 @@ class DefaultSheetShape implements SheetShape {
   Widget build(BuildContext context, Widget child) => child;
 }
 
-class _DebugAssertSheetShapeUsage extends SingleChildRenderObjectWidget {
-  const _DebugAssertSheetShapeUsage({
-    required this.sheetShapeType,
+class _DebugAssertSheetDecorationUsage extends SingleChildRenderObjectWidget {
+  const _DebugAssertSheetDecorationUsage({
+    required this.sheetDecorationType,
     required this.expectedLayoutSpec,
     required super.child,
   });
 
-  final Type sheetShapeType;
+  final Type sheetDecorationType;
   final SheetLayoutSpec expectedLayoutSpec;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderDebugAssertSheetShapeUsage(
-      sheetShapeType: sheetShapeType,
+    return _RenderDebugAssertSheetDecorationUsage(
+      sheetDecorationType: sheetDecorationType,
       expectedLayoutSpec: expectedLayoutSpec,
     );
   }
@@ -537,24 +537,24 @@ class _DebugAssertSheetShapeUsage extends SingleChildRenderObjectWidget {
     covariant RenderObject renderObject,
   ) {
     super.updateRenderObject(context, renderObject);
-    (renderObject as _RenderDebugAssertSheetShapeUsage)
-      ..sheetShapeType = sheetShapeType
+    (renderObject as _RenderDebugAssertSheetDecorationUsage)
+      ..sheetDecorationType = sheetDecorationType
       ..expectedLayoutSpec = expectedLayoutSpec;
   }
 }
 
-class _RenderDebugAssertSheetShapeUsage extends RenderProxyBox {
-  _RenderDebugAssertSheetShapeUsage({
-    required Type sheetShapeType,
+class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
+  _RenderDebugAssertSheetDecorationUsage({
+    required Type sheetDecorationType,
     required SheetLayoutSpec expectedLayoutSpec,
-  })  : _sheetShapeType = sheetShapeType,
+  })  : _sheetDecorationType = sheetDecorationType,
         _expectedLayoutSpec = expectedLayoutSpec;
 
-  Type _sheetShapeType;
+  Type _sheetDecorationType;
   // ignore: avoid_setters_without_getters
-  set sheetShapeType(Type value) {
-    if (value != _sheetShapeType) {
-      _sheetShapeType = value;
+  set sheetDecorationType(Type value) {
+    if (value != _sheetDecorationType) {
+      _sheetDecorationType = value;
       markNeedsLayout();
     }
   }
@@ -580,9 +580,10 @@ class _RenderDebugAssertSheetShapeUsage extends RenderProxyBox {
       throw AssertionError(
         // ignore: lines_longer_than_80_chars
         'The available space for laying out the sheet is smaller than expected. '
-        'It is likely that the widget built by the given $_sheetShapeType adds '
-        'extra padding or margin around the "child" widget (e.g., Padding). '
-        'Make sure that the widget returned by the $_sheetShapeType.build '
+        'It is likely that the widget built by the given $_sheetDecorationType '
+        // ignore: lines_longer_than_80_chars
+        'adds extra padding or margin around the "child" widget (e.g., Padding). '
+        'Make sure that the widget returned by the $_sheetDecorationType.build '
         'method always has the same size as the "child" widget.',
       );
     }
@@ -597,7 +598,7 @@ class BareSheet extends StatelessWidget {
     super.key,
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
-    this.shape = const DefaultSheetShape(),
+    this.decoration = const DefaultSheetDecoration(),
     required this.child,
   });
 
@@ -614,7 +615,7 @@ class BareSheet extends StatelessWidget {
   /// {@endtemplate}
   final bool shrinkChildToAvoidStaticOverlap;
 
-  final SheetShape shape;
+  final SheetDecoration decoration;
 
   final Widget child;
 
@@ -641,7 +642,7 @@ class BareSheet extends StatelessWidget {
 
         Widget result = _SheetSkelton(
           layoutSpec: layoutSpec,
-          getPreferredExtent: shape.preferredExtent,
+          getPreferredExtent: decoration.preferredExtent,
           child: SheetMediaQuery(
             layoutSpec: layoutSpec,
             child: child,
@@ -649,15 +650,15 @@ class BareSheet extends StatelessWidget {
         );
 
         assert(() {
-          result = _DebugAssertSheetShapeUsage(
-            sheetShapeType: shape.runtimeType,
+          result = _DebugAssertSheetDecorationUsage(
+            sheetDecorationType: decoration.runtimeType,
             expectedLayoutSpec: layoutSpec,
             child: result,
           );
           return true;
         }());
 
-        return shape.build(context, result);
+        return decoration.build(context, result);
       },
     );
   }

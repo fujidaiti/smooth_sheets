@@ -84,7 +84,7 @@ class _ExampleSheet extends StatelessWidget {
         }
       },
       child: Sheet(
-        shape: MaterialSheetShape(
+        decoration: MaterialSheetDecoration(
           size: SheetSize.sticky,
           color: Colors.red,
           clipBehavior: Clip.antiAlias,

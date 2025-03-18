@@ -2,11 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/activity.dart';
+import 'package:smooth_sheets/src/decorations.dart';
 import 'package:smooth_sheets/src/gesture_proxy.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/model_owner.dart';
 import 'package:smooth_sheets/src/physics.dart';
-import 'package:smooth_sheets/src/shapes.dart';
 import 'package:smooth_sheets/src/snap_grid.dart';
 import 'package:smooth_sheets/src/viewport.dart';
 
@@ -65,7 +65,7 @@ void main() {
         final env = boilerplate(
           initialOffset: SheetOffset.absolute(300),
           sheet: BareSheet(
-            shape: _PlaneSheetShape(
+            decoration: _PlaneSheetDecoration(
               size: SheetSize.sticky,
             ),
             child: Container(
@@ -133,7 +133,7 @@ void main() {
         final env = boilerplate(
           viewportPadding: EdgeInsets.all(10),
           sheet: BareSheet(
-            shape: _PlaneSheetShape(
+            decoration: _PlaneSheetDecoration(
               size: SheetSize.sticky,
             ),
             child: Container(
@@ -201,7 +201,7 @@ void main() {
           initialOffset: SheetOffset(1),
           viewportPadding: EdgeInsets.all(10),
           sheet: BareSheet(
-            shape: _PlaneSheetShape(
+            decoration: _PlaneSheetDecoration(
               size: SheetSize.fit,
             ),
             child: Container(
@@ -293,8 +293,8 @@ class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
   }
 }
 
-class _PlaneSheetShape extends SizedSheetShape {
-  const _PlaneSheetShape({required super.size});
+class _PlaneSheetDecoration extends SizedSheetDecoration {
+  const _PlaneSheetDecoration({required super.size});
 
   @override
   Widget build(BuildContext context, Widget child) => child;

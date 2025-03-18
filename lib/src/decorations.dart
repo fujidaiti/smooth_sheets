@@ -5,8 +5,8 @@ import 'viewport.dart';
 
 enum SheetSize { fit, sticky }
 
-abstract class SizedSheetShape implements SheetShape {
-  const SizedSheetShape({required this.size});
+abstract class SizedSheetDecoration implements SheetDecoration {
+  const SizedSheetDecoration({required this.size});
 
   final SheetSize size;
 
@@ -21,8 +21,8 @@ abstract class SizedSheetShape implements SheetShape {
   }
 }
 
-class MaterialSheetShape extends SizedSheetShape {
-  const MaterialSheetShape({
+class MaterialSheetDecoration extends SizedSheetDecoration {
+  const MaterialSheetDecoration({
     required super.size,
     this.type = MaterialType.canvas,
     this.elevation = 0,
@@ -65,8 +65,8 @@ class MaterialSheetShape extends SizedSheetShape {
   }
 }
 
-class DecoratedSheetShape extends SizedSheetShape {
-  const DecoratedSheetShape({
+class BoxSheetDecoration extends SizedSheetDecoration {
+  const BoxSheetDecoration({
     required super.size,
     required this.decoration,
     this.position = DecorationPosition.background,
@@ -85,8 +85,8 @@ class DecoratedSheetShape extends SizedSheetShape {
   }
 }
 
-class SheetShapeBuilder extends SizedSheetShape {
-  const SheetShapeBuilder({
+class SheetDecorationBuilder extends SizedSheetDecoration {
+  const SheetDecorationBuilder({
     required super.size,
     required this.builder,
   });
@@ -101,8 +101,8 @@ class SheetShapeBuilder extends SizedSheetShape {
 
 // TODO: Implement this
 /*
-class StretchingSheetShape extends BaseSheetShape {
-  const StretchingSheetShape({required super.size});
+class StretchingSheetDecoration extends BaseSheetDecoration {
+  const StretchingSheetDecoration() : super(size: SheetSize.stretch);
 
   @override
   Widget build(BuildContext context, Widget child) {

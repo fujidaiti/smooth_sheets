@@ -6,6 +6,7 @@ library;
 export 'src/content_scaffold.dart';
 export 'src/controller.dart' hide SheetControllerScope;
 export 'src/cupertino.dart';
+export 'src/decorations.dart';
 export 'src/drag.dart' hide SheetDragController, SheetDragControllerTarget;
 export 'src/keyboard_dismissible.dart';
 export 'src/modal_sheet.dart';
@@ -29,8 +30,7 @@ export 'src/scrollable.dart'
         HoldScrollDrivenSheetActivity,
         ScrollAwareSheetModelMixin,
         SheetScrollPosition;
-export 'src/shapes.dart';
 export 'src/sheet.dart' hide DraggableScrollableSheetContent;
 export 'src/snap_grid.dart';
 export 'src/viewport.dart'
-    hide BareSheet, DefaultSheetShape, SheetViewportState;
+    hide BareSheet, DefaultSheetDecoration, SheetViewportState;

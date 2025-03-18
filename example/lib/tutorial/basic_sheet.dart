@@ -30,7 +30,7 @@ class _MySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Sheet(
-      shape: MaterialSheetShape(
+      decoration: MaterialSheetDecoration(
         size: SheetSize.sticky,
         color: Theme.of(context).colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(16),

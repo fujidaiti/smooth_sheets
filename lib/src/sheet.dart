@@ -77,7 +77,7 @@ class Sheet extends StatelessWidget {
     this.controller,
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
-    this.shape = const DefaultSheetShape(),
+    this.decoration = const DefaultSheetDecoration(),
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
     required this.child,
@@ -98,7 +98,7 @@ class Sheet extends StatelessWidget {
 
   final SheetDragConfiguration? dragConfiguration;
 
-  final SheetShape shape;
+  final SheetDecoration decoration;
 
   /// {@macro BareSheet.shrinkChildToAvoidDynamicOverlap}
   final bool shrinkChildToAvoidDynamicOverlap;
@@ -120,7 +120,7 @@ class Sheet extends StatelessWidget {
         gestureProxy: SheetGestureProxy.maybeOf(context),
       ),
       child: BareSheet(
-        shape: shape,
+        decoration: decoration,
         shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
         shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
         child: DraggableScrollableSheetContent(

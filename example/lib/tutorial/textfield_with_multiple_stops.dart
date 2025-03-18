@@ -25,7 +25,7 @@ class TextFieldWithMultipleStops extends StatelessWidget {
               snapGrid: const SheetSnapGrid(
                 snaps: [SheetOffset(0.4), SheetOffset(0.7), SheetOffset(1)],
               ),
-              shape: MaterialSheetShape(
+              decoration: MaterialSheetDecoration(
                 size: SheetSize.sticky,
                 color: Theme.of(context).colorScheme.secondaryContainer,
               ),

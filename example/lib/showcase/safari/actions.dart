@@ -22,7 +22,7 @@ class EditActionsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sheet(
       scrollConfiguration: const SheetScrollConfiguration(),
-      shape: SheetShapeBuilder(
+      decoration: SheetDecorationBuilder(
         size: SheetSize.sticky,
         builder: (context, child) {
           return ClipRRect(

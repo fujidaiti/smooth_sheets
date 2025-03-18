@@ -36,7 +36,7 @@ class _MySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Sheet(
-      shape: MaterialSheetShape(
+      decoration: MaterialSheetDecoration(
         size: SheetSize.sticky,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(20),

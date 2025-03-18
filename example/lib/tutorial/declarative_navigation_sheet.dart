@@ -152,7 +152,7 @@ class _ExampleSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PagedSheet(
-      shape: MaterialSheetShape(
+      decoration: MaterialSheetDecoration(
         size: SheetSize.fit,
         color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(16),

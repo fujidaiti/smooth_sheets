@@ -27,7 +27,7 @@ class MenuSheet extends StatelessWidget {
       snapGrid: SheetSnapGrid(
         snaps: [halfWayOffset, SheetOffset(1)],
       ),
-      shape: SheetShapeBuilder(
+      decoration: SheetDecorationBuilder(
         size: SheetSize.sticky,
         builder: (context, child) {
           return ClipRRect(

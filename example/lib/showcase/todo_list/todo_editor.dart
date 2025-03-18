@@ -151,7 +151,7 @@ class _TodoEditorState extends State<TodoEditor> {
         ),
         child: Sheet(
           scrollConfiguration: const SheetScrollConfiguration(),
-          shape: MaterialSheetShape(
+          decoration: MaterialSheetDecoration(
             size: SheetSize.sticky,
             color: Theme.of(context).colorScheme.secondaryContainer,
             clipBehavior: Clip.antiAlias,

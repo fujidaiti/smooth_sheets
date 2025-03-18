@@ -104,7 +104,7 @@ class _MySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PagedSheet(
-      shape: const MaterialSheetShape(
+      decoration: const MaterialSheetDecoration(
         size: SheetSize.sticky,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),

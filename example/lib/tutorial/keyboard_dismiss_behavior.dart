@@ -193,7 +193,7 @@ class _ExampleSheet extends StatelessWidget {
       dismissBehavior: keyboardDismissBehavior,
       child: Sheet(
         scrollConfiguration: const SheetScrollConfiguration(),
-        shape: const MaterialSheetShape(
+        decoration: const MaterialSheetDecoration(
           size: SheetSize.sticky,
           color: Colors.white,
         ),

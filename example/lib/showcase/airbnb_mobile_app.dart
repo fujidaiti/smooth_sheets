@@ -163,7 +163,7 @@ class _ContentSheet extends StatelessWidget {
             snapGrid: SheetSnapGrid(
               snaps: [minSheetOffset, const SheetOffset(1)],
             ),
-            shape: const MaterialSheetShape(
+            decoration: const MaterialSheetDecoration(
               size: SheetSize.fit,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(

@@ -78,7 +78,7 @@ class _Modal extends StatelessWidget {
   Widget build(BuildContext context) {
     return SheetViewport(
       child: PagedSheet(
-        shape: MaterialSheetShape(
+        decoration: MaterialSheetDecoration(
           size: SheetSize.fit,
           borderRadius: BorderRadius.circular(20),
           clipBehavior: Clip.antiAlias,

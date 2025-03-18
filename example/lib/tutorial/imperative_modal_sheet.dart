@@ -70,7 +70,7 @@ class _ExampleSheet extends StatelessWidget {
         snapGrid: const SheetSnapGrid(
           snaps: [SheetOffset(0.5), SheetOffset(1)],
         ),
-        shape: MaterialSheetShape(
+        decoration: MaterialSheetDecoration(
           size: SheetSize.fit,
           borderRadius: BorderRadius.circular(20),
           clipBehavior: Clip.antiAlias,
