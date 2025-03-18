@@ -28,7 +28,7 @@ class MenuSheet extends StatelessWidget {
         snaps: [halfWayOffset, SheetOffset(1)],
       ),
       decoration: SheetDecorationBuilder(
-        size: SheetSize.sticky,
+        size: SheetSize.stretch,
         builder: (context, child) {
           return ClipRRect(
             borderRadius: BorderRadius.circular(16),

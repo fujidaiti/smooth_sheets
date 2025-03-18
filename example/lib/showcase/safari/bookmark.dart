@@ -31,7 +31,7 @@ class EditBookmarkSheet extends StatelessWidget {
       dismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(),
       child: Sheet(
         decoration: SheetDecorationBuilder(
-          size: SheetSize.sticky,
+          size: SheetSize.stretch,
           builder: (context, child) {
             return ClipRRect(
               borderRadius: BorderRadius.circular(16),

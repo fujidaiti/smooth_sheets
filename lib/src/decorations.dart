@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'model.dart';
 import 'viewport.dart';
 
-enum SheetSize { fit, sticky }
+enum SheetSize { fit, stretch }
 
 abstract class SizedSheetDecoration implements SheetDecoration {
   const SizedSheetDecoration({required this.size});
@@ -15,7 +15,7 @@ abstract class SizedSheetDecoration implements SheetDecoration {
     switch (size) {
       case SheetSize.fit:
         return layout.contentSize.height;
-      case SheetSize.sticky:
+      case SheetSize.stretch:
         return offset - layout.viewportPadding.bottom;
     }
   }

@@ -194,7 +194,7 @@ class _ExampleSheet extends StatelessWidget {
       child: Sheet(
         scrollConfiguration: const SheetScrollConfiguration(),
         decoration: const MaterialSheetDecoration(
-          size: SheetSize.sticky,
+          size: SheetSize.stretch,
           color: Colors.white,
         ),
         child: SheetContentScaffold(

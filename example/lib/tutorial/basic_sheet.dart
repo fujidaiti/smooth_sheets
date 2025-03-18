@@ -31,7 +31,7 @@ class _MySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sheet(
       decoration: MaterialSheetDecoration(
-        size: SheetSize.sticky,
+        size: SheetSize.stretch,
         color: Theme.of(context).colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,

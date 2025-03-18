@@ -44,7 +44,7 @@ class _ExampleSheet extends StatelessWidget {
     // Wrap the nested navigator in a NavigationSheet.
     return PagedSheet(
       decoration: MaterialSheetDecoration(
-        size: SheetSize.sticky,
+        size: SheetSize.stretch,
         borderRadius: BorderRadius.circular(20),
         clipBehavior: Clip.antiAlias,
         color: Theme.of(context).colorScheme.primary,

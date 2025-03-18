@@ -205,7 +205,7 @@ class _SheetShell extends StatelessWidget {
         child: SheetViewport(
           child: PagedSheet(
             decoration: MaterialSheetDecoration(
-              size: SheetSize.sticky,
+              size: SheetSize.stretch,
               borderRadius: BorderRadius.circular(16),
               clipBehavior: Clip.antiAlias,
               color: Theme.of(context).colorScheme.surface,

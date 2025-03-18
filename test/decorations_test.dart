@@ -59,14 +59,14 @@ void main() {
 
   group('SheetSize', () {
     testWidgets(
-      "sticky - should stick the sheet's bottom edge "
+      "stretch - should stick the sheet's bottom edge "
       'at the bottom of the viewport when the content is fully visible',
       (tester) async {
         final env = boilerplate(
           initialOffset: SheetOffset.absolute(300),
           sheet: BareSheet(
             decoration: _PlaneSheetDecoration(
-              size: SheetSize.sticky,
+              size: SheetSize.stretch,
             ),
             child: Container(
               key: Key('content'),
@@ -127,14 +127,14 @@ void main() {
     );
 
     testWidgets(
-      "sticky - should stick the sheet's bottom edge at the bottom of "
+      "stretch - should stick the sheet's bottom edge at the bottom of "
       'the padded viewport when the content is fully visible',
       (tester) async {
         final env = boilerplate(
           viewportPadding: EdgeInsets.all(10),
           sheet: BareSheet(
             decoration: _PlaneSheetDecoration(
-              size: SheetSize.sticky,
+              size: SheetSize.stretch,
             ),
             child: Container(
               key: Key('content'),
