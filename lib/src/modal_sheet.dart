@@ -27,6 +27,7 @@ class ModalSheetPage<T> extends Page<T> {
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
+    this.viewportPadding = EdgeInsets.zero,
     required this.child,
   });
 
@@ -51,6 +52,8 @@ class ModalSheetPage<T> extends Page<T> {
   final Curve transitionCurve;
 
   final SwipeDismissSensitivity swipeDismissSensitivity;
+
+  final EdgeInsets viewportPadding;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -96,6 +99,9 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
       _page.swipeDismissSensitivity;
 
   @override
+  EdgeInsets get viewportPadding => _page.viewportPadding;
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -115,6 +121,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
+    this.viewportPadding = EdgeInsets.zero,
   });
 
   final WidgetBuilder builder;
@@ -144,6 +151,9 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
+  final EdgeInsets viewportPadding;
+
+  @override
   Widget buildContent(BuildContext context) {
     return builder(context);
   }
@@ -155,6 +165,8 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   Curve get transitionCurve;
 
   SwipeDismissSensitivity get swipeDismissSensitivity;
+
+  EdgeInsets get viewportPadding;
 
   @override
   bool get opaque => false;
@@ -185,6 +197,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Animation<double> secondaryAnimation,
   ) {
     return SheetViewport(
+      padding: viewportPadding,
       child: switch (swipeDismissible) {
         true => SheetGestureProxy(
             proxy: _swipeDismissibleController,

@@ -498,6 +498,10 @@ class _PageBasedCupertinoModalSheetRoute<T>
       _page.swipeDismissSensitivity;
 
   @override
+  // TODO: Support viewport padding.
+  EdgeInsets get viewportPadding => EdgeInsets.zero;
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -544,6 +548,10 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   final SwipeDismissSensitivity swipeDismissSensitivity;
+
+  @override
+  // TODO: Support viewport padding.
+  EdgeInsets get viewportPadding => EdgeInsets.zero;
 
   @override
   Widget buildContent(BuildContext context) {

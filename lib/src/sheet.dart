@@ -112,7 +112,7 @@ class Sheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SheetModelOwner(
-      controller: controller ?? SheetControllerScope.maybeOf(context),
+      controller: controller ?? DefaultSheetController.maybeOf(context),
       factory: _createModel,
       config: _DraggableScrollableSheetModelConfig(
         physics: physics ?? kDefaultSheetPhysics,

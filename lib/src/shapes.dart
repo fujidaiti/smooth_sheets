@@ -52,7 +52,7 @@ class MaterialSheetShape extends SizedSheetShape {
     return Material(
       type: type,
       elevation: elevation,
-      color: color,
+      color: color ?? Theme.of(context).colorScheme.surface,
       shadowColor: shadowColor,
       textStyle: textStyle,
       borderRadius: borderRadius,

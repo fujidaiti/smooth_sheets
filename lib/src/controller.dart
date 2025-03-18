@@ -1,10 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'model.dart';
 
-class SheetController extends ChangeNotifier {
+class SheetController extends ChangeNotifier
+    implements ValueListenable<double?> {
   SheetModel? _client;
 
   /// A notifier which notifies listeners immediately when the [_client] fires.
@@ -13,6 +15,9 @@ class SheetController extends ChangeNotifier {
   /// notified immediately when the [_client] fires, and the ones that should
   /// not be notified during the middle of a frame.
   final _immediateListeners = ChangeNotifier();
+
+  @override
+  double? get value => _client?.offset;
 
   /// The current metrics of the sheet.
   SheetMetrics? get metrics => switch (_client) {
@@ -89,17 +94,16 @@ class SheetController extends ChangeNotifier {
   }
 }
 
-@Deprecated('Will be removed in the first stable release.')
-@internal
-class SheetControllerScope extends InheritedWidget {
-  @Deprecated('Will be removed in the first stable release.')
-  const SheetControllerScope({
+class DefaultSheetController extends StatefulWidget {
+  const DefaultSheetController({
     super.key,
-    required this.controller,
-    required super.child,
+    required this.child,
   });
 
-  final SheetController controller;
+  final Widget child;
+
+  @override
+  State<DefaultSheetController> createState() => _DefaultSheetControllerState();
 
   static SheetController? maybeOf(BuildContext context) {
     return context
@@ -113,8 +117,8 @@ class SheetControllerScope extends InheritedWidget {
     assert((() {
       if (controller == null) {
         throw FlutterError(
-          'No $SheetControllerScope ancestor could be found starting '
-          'from the context that was passed to $SheetControllerScope.of(). '
+          'No SheetControllerScope ancestor could be found starting '
+          'from the context that was passed to DefaultSheetController.of(). '
           'The context used was:\n'
           '$context',
         );
@@ -124,6 +128,41 @@ class SheetControllerScope extends InheritedWidget {
 
     return controller!;
   }
+}
+
+class _DefaultSheetControllerState extends State<DefaultSheetController> {
+  late final SheetController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = SheetController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SheetControllerScope(
+      controller: _controller,
+      child: widget.child,
+    );
+  }
+}
+
+@internal
+class SheetControllerScope extends InheritedWidget {
+  const SheetControllerScope({
+    super.key,
+    required this.controller,
+    required super.child,
+  });
+
+  final SheetController controller;
 
   @override
   bool updateShouldNotify(SheetControllerScope oldWidget) {
