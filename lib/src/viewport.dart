@@ -55,18 +55,23 @@ class SheetLayoutSpec {
     return result;
   }
 
-  /// The maximum rectangle that can be occupied by the sheet.
+  /// The maximum rectangle that the sheet can occupy.
   ///
-  /// The width and the bottom of the rectangle are fixed, so only
-  /// the height can be adjusted within the constraint.
-  Rect get maxSheetRect => Rect.fromLTRB(
+  /// The width and bottom of the rectangle are fixed, so only
+  /// the height can be adjusted within the constraints.
+  ///
+  /// The rectangle may extend into the area defined by [viewportPadding] along
+  /// the vertical axis, depending on the [SheetDecoration.preferredExtent]
+  /// returned by [BareSheet.decoration]. This allows the sheet to
+  /// stretch vertically in response to user gestures.
+  Rect get maxSheetRect => Rect.fromLTWH(
         viewportPadding.left,
-        viewportPadding.top,
-        viewportSize.width - viewportPadding.right,
-        viewportSize.height - viewportPadding.bottom,
+        0,
+        viewportSize.width - viewportPadding.horizontal,
+        viewportSize.height,
       );
 
-  /// The maximum rectangle that can be occupied by the sheet's content.
+  /// The maximum rectangle that the sheet's content can occupy.
   ///
   /// This area may be reduced due to the bottom inset of the viewport,
   /// as described by [viewportDynamicOverlap],
@@ -471,9 +476,8 @@ class _SheetConstraints extends BoxConstraints {
     required this.viewportPadding,
     required this.viewportViewPadding,
   }) : super(
-          minWidth: viewportSize.width - viewportPadding.horizontal,
-          maxWidth: viewportSize.width - viewportPadding.horizontal,
-          maxHeight: viewportSize.height - viewportPadding.vertical,
+          maxWidth: viewportSize.width,
+          maxHeight: viewportSize.height,
         );
 
   final Size viewportSize;

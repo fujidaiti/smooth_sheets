@@ -884,7 +884,8 @@ void main() {
     );
 
     test(
-      'maxSheetRect should be reduced by the viewport padding',
+      'maxSheetRect should be reduced by the viewport padding horizontally, '
+      'but remain unaffected vertically',
       () {
         expect(
           SheetLayoutSpec(
@@ -895,7 +896,7 @@ void main() {
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
           ).maxSheetRect,
-          Rect.fromLTRB(10, 20, 770, 560),
+          Rect.fromLTRB(10, 0, 770, 600),
         );
       },
     );
@@ -975,7 +976,7 @@ void main() {
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
           ).maxSheetStaticOverlap,
-          EdgeInsets.zero,
+          EdgeInsets.fromLTRB(0, 20, 0, 40),
         );
       },
     );
@@ -1009,7 +1010,7 @@ void main() {
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
           ).maxSheetDynamicOverlap,
-          EdgeInsets.zero,
+          EdgeInsets.fromLTRB(0, 20, 0, 40),
         );
       },
     );
