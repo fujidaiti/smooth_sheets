@@ -64,7 +64,7 @@ abstract class SheetActivity<T extends SheetModel> {
 
   double dryApplyNewLayout(ViewportLayout layout) => owner.offset;
 
-  void didLayoutChange(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout oldLayout) {
     owner.offset = dryApplyNewLayout(oldLayout);
   }
 
@@ -164,7 +164,7 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void didLayoutChange(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout oldLayout) {
     final newEndOffset = destination.resolve(owner);
     if (newEndOffset != _endOffset) {
       final remainingDuration =
@@ -208,7 +208,7 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void didLayoutChange(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout oldLayout) {
     final destination = owner.snapGrid.getSnapOffset(
       oldLayout,
       owner.offset,
@@ -324,7 +324,7 @@ class SettlingSheetActivity extends SheetActivity {
   }
 
   @override
-  void didLayoutChange(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout oldLayout) {
     _invalidateVelocity();
   }
 
@@ -374,7 +374,7 @@ class IdleSheetActivity extends SheetActivity {
 
   /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
-  void didLayoutChange(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout oldLayout) {
     final newOffset = dryApplyNewLayout(owner);
     if (newOffset != owner.offset) {
       owner

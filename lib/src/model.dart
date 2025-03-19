@@ -315,7 +315,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     assert(hasMetrics);
 
     if (oldLayout != null) {
-      activity.didLayoutChange(oldLayout);
+      activity.applyNewLayout(oldLayout);
     }
 
     assert(
