@@ -15,10 +15,8 @@ final _router = GoRouter(
         ShellRoute(
           pageBuilder: (context, state, child) {
             return ModalSheetPage(
-              child: SheetViewport(
-                child: _MySheet(
-                  navigator: child,
-                ),
+              child: _MySheet(
+                navigator: child,
               ),
             );
           },

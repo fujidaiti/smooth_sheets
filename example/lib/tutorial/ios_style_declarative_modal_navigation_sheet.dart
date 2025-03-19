@@ -76,16 +76,14 @@ class _Modal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetViewport(
-      child: PagedSheet(
-        decoration: MaterialSheetDecoration(
-          size: SheetSize.fit,
-          borderRadius: BorderRadius.circular(20),
-          clipBehavior: Clip.antiAlias,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        navigator: nestedNavigator,
+    return PagedSheet(
+      decoration: MaterialSheetDecoration(
+        size: SheetSize.fit,
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.antiAlias,
+        color: Theme.of(context).colorScheme.primary,
       ),
+      navigator: nestedNavigator,
     );
   }
 }

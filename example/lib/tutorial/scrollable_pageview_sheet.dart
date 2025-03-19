@@ -21,9 +21,7 @@ class _ScrollablePageViewSheetExample extends StatelessWidget {
                   Navigator.push(
                     context,
                     ModalSheetRoute(
-                      builder: (_) => const SheetViewport(
-                        child: _MySheet(),
-                      ),
+                      builder: (_) => const _MySheet(),
                     ),
                   );
                 },
@@ -48,14 +46,18 @@ class _MySheet extends StatelessWidget {
         size: SheetSize.stretch,
         borderRadius: BorderRadius.all(Radius.circular(20)),
       ),
-      child: SizedBox(
-        height: 600,
-        child: PageView(
-          children: const [
-            _PageViewItem(),
-            _PageViewItem(),
-            _PageViewItem(),
-          ],
+      child: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: SizedBox(
+          height: 600,
+          child: PageView(
+            children: const [
+              _PageViewItem(),
+              _PageViewItem(),
+              _PageViewItem(),
+            ],
+          ),
         ),
       ),
     );

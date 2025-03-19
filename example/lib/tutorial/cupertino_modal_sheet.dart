@@ -55,12 +55,10 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
       minFlingVelocityRatio: 2.0,
       minDragDistance: 300.0,
     ),
-    builder: (context) => SheetViewport(
-      child: switch (isFullScreen) {
-        true => const _FullScreenSheet(),
-        false => const _HalfScreenSheet(),
-      },
-    ),
+    builder: (context) => switch (isFullScreen) {
+      true => const _FullScreenSheet(),
+      false => const _HalfScreenSheet(),
+    },
   );
 
   Navigator.push(context, modalRoute);

@@ -82,16 +82,18 @@ class _ExampleHomeState extends State<_ExampleHome> {
   }
 
   void showExampleSheet(
-      BuildContext context, _BottomBarVisibilityType visibilityType) {
+    BuildContext context,
+    _BottomBarVisibilityType visibilityType,
+  ) {
     Navigator.push(
       context,
       ModalSheetRoute(
-        builder: (context) => SheetViewport(
-          child: SheetViewport(
-            child: _ExampleSheet(
-              visibilityType: visibilityType,
-            ),
-          ),
+        viewportPadding: EdgeInsets.only(
+          // Add the top padding to avoid the status bar.
+          top: MediaQuery.viewPaddingOf(context).top,
+        ),
+        builder: (context) => _ExampleSheet(
+          visibilityType: visibilityType,
         ),
       ),
     );

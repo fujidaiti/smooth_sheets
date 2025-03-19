@@ -59,6 +59,10 @@ final _sheetShellRoute = ShellRoute(
     // Use ModalSheetPage to show a modal sheet.
     return ModalSheetPage(
       swipeDismissible: true,
+      viewportPadding: EdgeInsets.only(
+        // Add the top padding to avoid the status bar.
+        top: MediaQuery.viewPaddingOf(context).top,
+      ),
       child: _SheetShell(
         navigator: navigator,
       ),
@@ -190,29 +194,24 @@ class _SheetShell extends StatelessWidget {
       );
     }
 
-    return SafeArea(
-      bottom: false,
-      child: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, _) async {
-          if (!didPop) {
-            final shouldPop = await showCancelDialog() ?? false;
-            if (shouldPop && context.mounted) {
-              context.go('/');
-            }
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (!didPop) {
+          final shouldPop = await showCancelDialog() ?? false;
+          if (shouldPop && context.mounted) {
+            context.go('/');
           }
-        },
-        child: SheetViewport(
-          child: PagedSheet(
-            decoration: MaterialSheetDecoration(
-              size: SheetSize.stretch,
-              borderRadius: BorderRadius.circular(16),
-              clipBehavior: Clip.antiAlias,
-              color: Theme.of(context).colorScheme.surface,
-            ),
-            navigator: navigator,
-          ),
+        }
+      },
+      child: PagedSheet(
+        decoration: MaterialSheetDecoration(
+          size: SheetSize.stretch,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          color: Theme.of(context).colorScheme.surface,
         ),
+        navigator: navigator,
       ),
     );
   }

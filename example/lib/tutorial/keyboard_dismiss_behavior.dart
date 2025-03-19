@@ -133,14 +133,13 @@ class _ExampleHomeState extends State<_ExampleHome> {
       context,
       ModalSheetRoute(
         swipeDismissible: true, // Enable the swipe-to-dismiss behavior.
-        builder: (context) => SafeArea(
-          bottom: false,
-          child: SheetViewport(
-            child: _ExampleSheet(
-              isFullScreen: isFullScreen,
-              keyboardDismissBehavior: keyboardDismissBehavior,
-            ),
-          ),
+        viewportPadding: EdgeInsets.only(
+          // Add the top padding to avoid the status bar.
+          top: MediaQuery.viewPaddingOf(context).top,
+        ),
+        builder: (context) => _ExampleSheet(
+          isFullScreen: isFullScreen,
+          keyboardDismissBehavior: keyboardDismissBehavior,
         ),
       ),
     );
@@ -193,9 +192,9 @@ class _ExampleSheet extends StatelessWidget {
       dismissBehavior: keyboardDismissBehavior,
       child: Sheet(
         scrollConfiguration: const SheetScrollConfiguration(),
-        decoration: const MaterialSheetDecoration(
+        decoration: MaterialSheetDecoration(
           size: SheetSize.stretch,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.secondaryContainer,
         ),
         child: SheetContentScaffold(
           topBar: AppBar(),

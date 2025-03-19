@@ -153,7 +153,7 @@ class _ExampleSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return PagedSheet(
       decoration: MaterialSheetDecoration(
-        size: SheetSize.fit,
+        size: SheetSize.stretch,
         color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
