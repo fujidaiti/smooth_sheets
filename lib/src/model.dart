@@ -527,8 +527,8 @@ abstract interface class ViewportLayout {
   EdgeInsets get viewportStaticOverlap;
 
   /// {@template ViewportLayout.contentBaseline}
-  /// The distance from the bottom of the viewport to the bottom
-  /// of the sheet's content.
+  /// The minimum distance from the bottom of the viewport
+  /// to the bottom of the content area.
   /// {@endtemplate}
   double get contentBaseline;
 }
