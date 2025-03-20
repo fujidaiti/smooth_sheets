@@ -21,7 +21,10 @@ abstract class SizedSheetDecoration implements SheetDecoration {
   }
 }
 
+/// [SheetDecoration] that uses a [Material] widget to decorate the sheet.
 class MaterialSheetDecoration extends SizedSheetDecoration {
+  /// Creates a [SheetDecoration] that uses a [Material] widget
+  /// to decorate the sheet.
   const MaterialSheetDecoration({
     required super.size,
     this.type = MaterialType.canvas,
@@ -36,15 +39,34 @@ class MaterialSheetDecoration extends SizedSheetDecoration {
     this.animationDuration = kThemeChangeDuration,
   });
 
+  /// See [Material.type].
   final MaterialType type;
+
+  /// See [Material.elevation].
   final double elevation;
+
+  /// See [Material.color].
   final Color? color;
+
+  /// See [Material.shadowColor].
   final Color? shadowColor;
+
+  /// See [Material.textStyle].
   final TextStyle? textStyle;
+
+  /// See [Material.borderRadius].
   final BorderRadiusGeometry? borderRadius;
+
+  /// See [Material.shape].
   final ShapeBorder? shape;
+
+  /// See [Material.borderOnForeground].
   final bool borderOnForeground;
+
+  /// See [Material.clipBehavior].
   final Clip clipBehavior;
+
+  /// See [Material.animationDuration].
   final Duration animationDuration;
 
   @override
@@ -65,21 +87,64 @@ class MaterialSheetDecoration extends SizedSheetDecoration {
   }
 }
 
+/// [SheetDecoration] that uses a [DecoratedBox] to decorate the sheet.
 class BoxSheetDecoration extends SizedSheetDecoration {
+  /// Creates a [SheetDecoration] that uses a [DecoratedBox]
+  /// to decorate the sheet.
   const BoxSheetDecoration({
     required super.size,
-    required this.decoration,
+    this.color,
+    this.image,
+    this.border,
+    this.borderRadius,
+    this.boxShadow,
+    this.gradient,
+    this.backgroundBlendMode,
+    this.shape = BoxShape.rectangle,
     this.position = DecorationPosition.background,
   });
 
-  final Decoration decoration;
+  /// See [BoxDecoration.color].
+  final Color? color;
+
+  /// See [BoxDecoration.image].
+  final DecorationImage? image;
+
+  /// See [BoxDecoration.border].
+  final BoxBorder? border;
+
+  /// See [BoxDecoration.borderRadius].
+  final BorderRadiusGeometry? borderRadius;
+
+  /// See [BoxDecoration.boxShadow].
+  final List<BoxShadow>? boxShadow;
+
+  /// See [BoxDecoration.gradient].
+  final Gradient? gradient;
+
+  /// See [BoxDecoration.backgroundBlendMode].
+  final BlendMode? backgroundBlendMode;
+
+  /// See [BoxDecoration.shape].
+  final BoxShape shape;
+
+  /// See [DecoratedBox.position].
   final DecorationPosition position;
 
   @override
   Widget build(BuildContext context, Widget child) {
     return DecoratedBox(
-      decoration: decoration,
       position: position,
+      decoration: BoxDecoration(
+        color: color,
+        image: image,
+        border: border,
+        borderRadius: borderRadius,
+        boxShadow: boxShadow,
+        gradient: gradient,
+        backgroundBlendMode: backgroundBlendMode,
+        shape: shape,
+      ),
       child: child,
     );
   }
