@@ -150,6 +150,13 @@
       "type": "dart",
       "program": "lib/tutorial/textfield_with_multiple_stops.dart",
       "cwd": "./example"
+    },
+    {
+      "name": "Sheet Decorations",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/decorations.dart",
+      "cwd": "./example"
     }
   ]
 }
