@@ -507,59 +507,26 @@ void main() {
     );
 
     testWidgets(
-      'The sheet should be able to be decorated by a widget '
-      'that does not add any padding around it, e.g. Material',
+      'Sheet height should not be restricted by the viewport padding',
       (tester) async {
         final model = _TestSheetModel();
         final env = boilerplate(
           model: model,
           builder: (child) => SheetViewport(
-            child: Material(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              clipBehavior: Clip.antiAlias,
-              elevation: 2,
-              child: BareSheet(
-                child: SizedBox(
-                  key: Key('content'),
-                  width: double.infinity,
-                  height: 300,
-                  child: child,
-                ),
+            padding: EdgeInsets.all(20),
+            child: BareSheet(
+              key: Key('sheet'),
+              decoration: _TestSheetDecoration(
+                preferredExtent: double.infinity,
+              ),
+              child: SizedBox.expand(
+                child: child,
               ),
             ),
           ),
         );
-
         await tester.pumpWidget(env.testWidget);
-
-        expect(
-          tester.getRect(find.byType(Material)),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 300,
-            testScreenSize.width,
-            300,
-          ),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 300,
-            testScreenSize.width,
-            300,
-          ),
-        );
-        expect(
-          tester.getRect(find.byKey(Key('content'))),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 300,
-            testScreenSize.width,
-            300,
-          ),
-        );
+        expect(tester.getSize(find.byKey(Key('sheet'))), Size(760, 600));
       },
     );
   });
@@ -1402,5 +1369,23 @@ class _TestSheetModel extends SheetModel {
   @override
   void goIdle() {
     beginActivity(_TestIdleSheetActivity());
+  }
+}
+
+class _TestSheetDecoration implements SheetDecoration {
+  const _TestSheetDecoration({
+    required double preferredExtent,
+  }) : _preferredExtent = preferredExtent;
+
+  final double _preferredExtent;
+
+  @override
+  double preferredExtent(double offset, ViewportLayout layout) {
+    return _preferredExtent;
+  }
+
+  @override
+  Widget build(BuildContext context, Widget child) {
+    return child;
   }
 }
