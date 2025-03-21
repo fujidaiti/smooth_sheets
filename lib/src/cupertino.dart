@@ -14,43 +14,18 @@ const _cupertinoTransitionDuration = Duration(milliseconds: 300);
 const _cupertinoTransitionCurve = Curves.fastEaseInToSlowEaseOut;
 const _cupertinoStackedTransitionCurve = Curves.easeIn;
 
-class _TransitionController extends ValueNotifier<double> {
-  _TransitionController(super._value);
-
-  @override
-  set value(double newValue) {
-    super.value = newValue.clamp(0, 1);
-  }
-}
-
-/// Animates the corner radius of the [child] widget.
-///
-/// The associated render object ([_RenderCornerRadiusTransition]) observes
-/// the [animation] and updates the [RenderClipRRect.borderRadius] property
-/// when the animation value changes, which in turn updates the corner radius
-/// of the [child] widget.
-///
-/// Although we can achieve the same effect by simply rebuilding a [ClipRRect]
-/// when the [animation] value changes, this class is necessary because,
-/// in our usecase, the [animation] may be updated during a layout phase
-/// (e.g. when a [MediaQueryData.viewInsets] is changed), which is too late
-/// to rebuild the widget tree.
+/// Similar to [ClipRRect], but allows to be updated during the layout phase.
 class _CornerRadiusTransition extends SingleChildRenderObjectWidget {
   const _CornerRadiusTransition({
-    required this.animation,
-    required this.cornerRadius,
+    required this.radius,
     required super.child,
   });
 
-  final Animation<double> animation;
-  final Tween<double> cornerRadius;
+  final Animation<double> radius;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderCornerRadiusTransition(
-      animation: animation,
-      cornerRadius: cornerRadius,
-    );
+    return _RenderCornerRadiusTransition(radius: radius);
   }
 
   @override
@@ -59,74 +34,59 @@ class _CornerRadiusTransition extends SingleChildRenderObjectWidget {
     _RenderCornerRadiusTransition renderObject,
   ) {
     super.updateRenderObject(context, renderObject);
-    renderObject
-      ..animation = animation
-      ..cornerRadius = cornerRadius;
+    renderObject.radius = radius;
   }
 }
 
 class _RenderCornerRadiusTransition extends RenderClipRRect {
   _RenderCornerRadiusTransition({
-    required Animation<double> animation,
-    required Tween<double> cornerRadius,
-  })  : _animation = animation,
-        _cornerRadius = cornerRadius,
+    required Animation<double> radius,
+  })  : _radius = radius,
         super(clipBehavior: Clip.antiAlias) {
-    _animation.addListener(_invalidateBorderRadius);
+    _radius.addListener(_invalidateBorderRadius);
   }
 
-  Animation<double> _animation;
+  Animation<double> _radius;
 
   // ignore: avoid_setters_without_getters
-  set animation(Animation<double> value) {
-    if (_animation != value) {
-      _animation.removeListener(_invalidateBorderRadius);
-      _animation = value..addListener(_invalidateBorderRadius);
-      _invalidateBorderRadius();
-    }
-  }
-
-  Tween<double> _cornerRadius;
-
-  // ignore: avoid_setters_without_getters
-  set cornerRadius(Tween<double> value) {
-    if (_cornerRadius != value) {
-      _cornerRadius = value;
+  set radius(Animation<double> value) {
+    if (_radius != value) {
+      _radius.removeListener(_invalidateBorderRadius);
+      _radius = value..addListener(_invalidateBorderRadius);
       _invalidateBorderRadius();
     }
   }
 
   @override
   void dispose() {
-    _animation.removeListener(_invalidateBorderRadius);
+    _radius.removeListener(_invalidateBorderRadius);
     super.dispose();
   }
 
   void _invalidateBorderRadius() {
-    borderRadius = BorderRadius.circular(
-      _cornerRadius.transform(_animation.value),
-    );
+    borderRadius = BorderRadius.circular(_radius.value);
   }
 }
 
+/// Similar to [Transform], but allows to be updated during the layout phase.
 class _TransformTransition extends SingleChildRenderObjectWidget {
   const _TransformTransition({
     required this.animation,
-    required this.offset,
-    required this.scaleFactor,
+    required this.offsetTween,
+    required this.scaleTween,
     required super.child,
   });
 
   final Animation<double> animation;
-  final Tween<double> offset;
-  final Tween<double> scaleFactor;
+  final Tween<double> offsetTween;
+  final Tween<double> scaleTween;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderTransformTransition(
       animation: animation,
-      scaleTween: scaleFactor,
-      translateTween: offset,
+      scaleTween: scaleTween,
+      offsetTween: offsetTween,
     );
   }
 
@@ -138,8 +98,8 @@ class _TransformTransition extends SingleChildRenderObjectWidget {
     super.updateRenderObject(context, renderObject);
     renderObject
       ..animation = animation
-      ..scaleFactor = scaleFactor
-      ..offset = offset;
+      ..scaleTween = scaleTween
+      ..offsetTween = offsetTween;
   }
 }
 
@@ -147,10 +107,10 @@ class _RenderTransformTransition extends RenderTransform {
   _RenderTransformTransition({
     required Animation<double> animation,
     required Tween<double> scaleTween,
-    required Tween<double> translateTween,
+    required Tween<double> offsetTween,
   })  : _animation = animation,
-        _scaleFactor = scaleTween,
-        _offset = translateTween,
+        _scaleTween = scaleTween,
+        _offsetTween = offsetTween,
         super(
           transform: Matrix4.identity(),
           alignment: Alignment.topCenter,
@@ -170,22 +130,22 @@ class _RenderTransformTransition extends RenderTransform {
     }
   }
 
-  Tween<double> _scaleFactor;
+  Tween<double> _scaleTween;
 
   // ignore: avoid_setters_without_getters
-  set scaleFactor(Tween<double> value) {
-    if (_scaleFactor != value) {
-      _scaleFactor = value;
+  set scaleTween(Tween<double> value) {
+    if (_scaleTween != value) {
+      _scaleTween = value;
       _invalidateMatrix();
     }
   }
 
-  Tween<double> _offset;
+  Tween<double> _offsetTween;
 
   // ignore: avoid_setters_without_getters
-  set offset(Tween<double> value) {
-    if (_offset != value) {
-      _offset = value;
+  set offsetTween(Tween<double> value) {
+    if (_offsetTween != value) {
+      _offsetTween = value;
       _invalidateMatrix();
     }
   }
@@ -197,144 +157,80 @@ class _RenderTransformTransition extends RenderTransform {
   }
 
   void _invalidateMatrix() {
-    final scaleFactor = _scaleFactor.transform(_animation.value);
-    final offset = _offset.transform(_animation.value);
+    final scaleFactor = _scaleTween.transform(_animation.value);
+    final offset = _offsetTween.transform(_animation.value);
     transform = Matrix4.translationValues(0.0, offset, 0.0)
       ..scale(scaleFactor, scaleFactor, 1.0);
   }
 }
 
-/// A mapping of [PageRoute] to its associated [_TransitionController].
-///
-/// This is used to modify the transition progress of the previous route
-/// from the current [_BaseCupertinoModalSheetRoute].
-final _cupertinoTransitionControllerOf =
-    <PageRoute<dynamic>, _TransitionController>{};
-
-mixin _CupertinoStackedTransitionStateMixin<T extends StatefulWidget>
-    on State<T> {
-  late final _TransitionController _controller;
-  PageRoute<dynamic>? _parentRoute;
+class _OutgoingSheetTransitionAnimation extends Animation<double>
+    with ChangeNotifier {
+  @override
+  void addStatusListener(AnimationStatusListener listener) {
+    // TODO: implement addStatusListener
+  }
 
   @override
-  void initState() {
-    super.initState();
-    _controller = _TransitionController(0.0);
+  void removeStatusListener(AnimationStatusListener listener) {
+    // TODO: implement removeStatusListener
   }
+
+  @override
+  // TODO: implement status
+  AnimationStatus get status => throw UnimplementedError();
+
+  @override
+  // TODO: implement value
+  double get value => throw UnimplementedError();
+}
+
+class _InheritedOutgoingSheetTransitionAnimation extends InheritedWidget {
+  const _InheritedOutgoingSheetTransitionAnimation({
+    required this.animation,
+    required super.child,
+  });
+
+  final _OutgoingSheetTransitionAnimation animation;
+
+  @override
+  bool updateShouldNotify(
+    _InheritedOutgoingSheetTransitionAnimation oldWidget,
+  ) =>
+      animation != oldWidget.animation;
+}
+
+class _OutgoingSheetTransition extends StatefulWidget {
+  const _OutgoingSheetTransition({
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  State<_OutgoingSheetTransition> createState() =>
+      _OutgoingSheetTransitionState();
+}
+
+class _OutgoingSheetTransitionState extends State<_OutgoingSheetTransition> {
+  late _OutgoingSheetTransitionAnimation? _animation;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final parentRoute = ModalRoute.of(context);
-
-    assert(
-      parentRoute is PageRoute<dynamic>,
-      '$CupertinoModalStackedTransition can only be used with PageRoutes.',
-    );
-    assert(
-      _cupertinoTransitionControllerOf[parentRoute] == null ||
-          _cupertinoTransitionControllerOf[parentRoute] == _controller,
-      'Only one $CupertinoModalStackedTransition can be used per route.',
-    );
-
-    _cupertinoTransitionControllerOf.remove(_parentRoute);
-    _parentRoute = parentRoute! as PageRoute<dynamic>;
-    _cupertinoTransitionControllerOf[_parentRoute!] = _controller;
+    _animation = context
+        .dependOnInheritedWidgetOfExactType<
+            _InheritedOutgoingSheetTransitionAnimation>()
+        ?.animation;
   }
 
-  @override
-  void dispose() {
-    _cupertinoTransitionControllerOf.remove(_parentRoute);
-    _controller.dispose();
-    super.dispose();
-  }
-}
-
-class CupertinoModalStackedTransition extends StatefulWidget {
-  const CupertinoModalStackedTransition({
-    super.key,
-    required this.child,
-  });
-
-  final Widget child;
-
-  @override
-  State<CupertinoModalStackedTransition> createState() =>
-      _CupertinoModalStackedTransitionState();
-}
-
-class _CupertinoModalStackedTransitionState
-    extends State<CupertinoModalStackedTransition>
-    with
-        _CupertinoStackedTransitionStateMixin<CupertinoModalStackedTransition> {
   @override
   Widget build(BuildContext context) {
-    const extraMargin = 12.0;
-
-    return Padding(
-      padding: EdgeInsets.only(
-        top: MediaQuery.viewPaddingOf(context).top + extraMargin,
-      ),
-      child: MediaQuery.removeViewPadding(
-        context: context,
-        removeTop: true,
-        child: _TransformTransition(
-          animation: Animation.fromValueListenable(_controller)
-              .drive(CurveTween(curve: _cupertinoStackedTransitionCurve)),
-          offset: Tween(begin: 0.0, end: -extraMargin),
-          scaleFactor: Tween(begin: 1.0, end: _minimizedViewportScale),
-          child: widget.child,
-        ),
-      ),
-    );
-  }
-}
-
-class CupertinoStackedTransition extends StatefulWidget {
-  const CupertinoStackedTransition({
-    super.key,
-    this.cornerRadius,
-    required this.child,
-  });
-
-  final Tween<double>? cornerRadius;
-  final Widget child;
-
-  @override
-  State<CupertinoStackedTransition> createState() =>
-      _CupertinoStackedTransitionState();
-}
-
-class _CupertinoStackedTransitionState extends State<CupertinoStackedTransition>
-    with _CupertinoStackedTransitionStateMixin<CupertinoStackedTransition> {
-  @override
-  Widget build(BuildContext context) {
-    final topViewPadding = MediaQuery.viewPaddingOf(context).top;
-    final animation = Animation.fromValueListenable(_controller)
-        .drive(CurveTween(curve: _cupertinoStackedTransitionCurve));
-
-    final result = switch (widget.cornerRadius) {
-      // Some optimizations to avoid unnecessary animations.
-      null => widget.child,
-      Tween(begin: null, end: null) => widget.child,
-      Tween(begin: 0.0, end: 0.0) => widget.child,
-      Tween(:final begin, :final end) when begin == end => ClipRRect(
-          borderRadius: BorderRadius.circular(begin ?? 0.0),
-          clipBehavior: Clip.antiAlias,
-          child: widget.child,
-        ),
-      final cornerRadius => _CornerRadiusTransition(
-          animation: animation,
-          cornerRadius: cornerRadius,
-          child: widget.child,
-        ),
-    };
-
     return _TransformTransition(
-      animation: animation,
-      offset: Tween(begin: 0.0, end: topViewPadding),
-      scaleFactor: Tween(begin: 1.0, end: _minimizedViewportScale),
-      child: result,
+      animation: _animation,
+      offsetTween: Tween<double>(begin: 0.0, end: 1.0),
+      scaleTween: Tween<double>(begin: 0.0, end: 1.0),
+      child: widget.child,
     );
   }
 }
