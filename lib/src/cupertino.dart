@@ -505,7 +505,7 @@ class _PageBasedCupertinoModalSheetRoute<T>
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
-  Widget buildContent(BuildContext context) => _page.child;
+  Widget buildSheet(BuildContext context) => _page.child;
 }
 
 class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
@@ -554,7 +554,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   EdgeInsets get viewportPadding => EdgeInsets.zero;
 
   @override
-  Widget buildContent(BuildContext context) {
+  Widget buildSheet(BuildContext context) {
     return builder(context);
   }
 }

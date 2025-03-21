@@ -105,7 +105,7 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
-  Widget buildContent(BuildContext context) => _page.child;
+  Widget buildSheet(BuildContext context) => _page.child;
 }
 
 class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
@@ -154,7 +154,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final EdgeInsets viewportPadding;
 
   @override
-  Widget buildContent(BuildContext context) {
+  Widget buildSheet(BuildContext context) {
     return builder(context);
   }
 }
@@ -188,7 +188,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     sensitivity: swipeDismissSensitivity,
   );
 
-  Widget buildContent(BuildContext context);
+  Widget buildSheet(BuildContext context);
 
   @override
   Widget buildPage(
@@ -201,9 +201,9 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       child: switch (swipeDismissible) {
         true => SheetGestureProxy(
             proxy: _swipeDismissibleController,
-            child: buildContent(context),
+            child: buildSheet(context),
           ),
-        false => buildContent(context),
+        false => buildSheet(context),
       },
     );
   }
