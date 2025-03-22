@@ -21,7 +21,10 @@ abstract class SizedSheetDecoration implements SheetDecoration {
   }
 }
 
+/// [SheetDecoration] that uses a [Material] widget to decorate the sheet.
 class MaterialSheetDecoration extends SizedSheetDecoration {
+  /// Creates a [SheetDecoration] that uses a [Material] widget
+  /// to decorate the sheet.
   const MaterialSheetDecoration({
     required super.size,
     this.type = MaterialType.canvas,
@@ -36,15 +39,34 @@ class MaterialSheetDecoration extends SizedSheetDecoration {
     this.animationDuration = kThemeChangeDuration,
   });
 
+  /// See [Material.type].
   final MaterialType type;
+
+  /// See [Material.elevation].
   final double elevation;
+
+  /// See [Material.color].
   final Color? color;
+
+  /// See [Material.shadowColor].
   final Color? shadowColor;
+
+  /// See [Material.textStyle].
   final TextStyle? textStyle;
+
+  /// See [Material.borderRadius].
   final BorderRadiusGeometry? borderRadius;
+
+  /// See [Material.shape].
   final ShapeBorder? shape;
+
+  /// See [Material.borderOnForeground].
   final bool borderOnForeground;
+
+  /// See [Material.clipBehavior].
   final Clip clipBehavior;
+
+  /// See [Material.animationDuration].
   final Duration animationDuration;
 
   @override
@@ -65,14 +87,20 @@ class MaterialSheetDecoration extends SizedSheetDecoration {
   }
 }
 
+/// [SheetDecoration] that uses a [DecoratedBox] widget to decorate the sheet.
 class BoxSheetDecoration extends SizedSheetDecoration {
+  /// Creates a [SheetDecoration] that uses a [DecoratedBox] widget
+  /// to decorate the sheet.
   const BoxSheetDecoration({
     required super.size,
     required this.decoration,
     this.position = DecorationPosition.background,
   });
 
+  /// See [DecoratedBox.decoration].
   final Decoration decoration;
+
+  /// See [DecoratedBox.position].
   final DecorationPosition position;
 
   @override
