@@ -53,14 +53,11 @@ class _Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoStackedTransition(
-      cornerRadius: Tween(begin: 0, end: 20),
-      child: Scaffold(
-        body: Center(
-          child: TextButton(
-            onPressed: () => context.go('/modal'),
-            child: const Text('Show Sheet'),
-          ),
+    return Scaffold(
+      body: Center(
+        child: TextButton(
+          onPressed: () => context.go('/modal'),
+          child: const Text('Show Sheet'),
         ),
       ),
     );

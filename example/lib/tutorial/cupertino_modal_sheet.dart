@@ -23,21 +23,11 @@ class _ExampleHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // It is recommended to wrap the top most non-modal page within a navigator
-    // with `CupertinoStackedTransition` to create more accurate ios 15 style
-    // transition animation; that is, while the first modal sheet goes to fullscreen,
-    // a non-modal page behind it will gradually reduce its size and the corner radius.
-    return CupertinoStackedTransition(
-      // The start and end values of the corner radius animation can be specified
-      // as the `cornerRadius` property. If `null` is specified (the default value),
-      // no corner radius animation is performed.
-      cornerRadius: Tween(begin: 0.0, end: 16.0),
-      child: CupertinoPageScaffold(
-        child: Center(
-          child: CupertinoButton.filled(
-            onPressed: () => _showModalSheet(context, isFullScreen: false),
-            child: const Text('Show Modal Sheet'),
-          ),
+    return CupertinoPageScaffold(
+      child: Center(
+        child: CupertinoButton.filled(
+          onPressed: () => _showModalSheet(context, isFullScreen: false),
+          child: const Text('Show Modal Sheet'),
         ),
       ),
     );
@@ -129,7 +119,7 @@ class _SheetContent extends StatelessWidget {
         color: CupertinoColors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
-            Radius.circular(16),
+            Radius.circular(0),
           ),
         ),
       ),
@@ -143,7 +133,25 @@ class _SheetContent extends StatelessWidget {
                   controller?.animateTo(const SheetOffset(1));
                   _showModalSheet(context, isFullScreen: true);
                 },
-                child: const Text('Stack'),
+                child: const Text('Stack modal sheet'),
+              ),
+              const SizedBox(height: 16),
+              CupertinoButton.tinted(
+                onPressed: () {
+                  showCupertinoDialog(
+                    context: context,
+                    builder: (context) => CupertinoAlertDialog(
+                      title: const Text('Hello'),
+                      actions: [
+                        CupertinoDialogAction(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: const Text('Open dialog'),
               ),
               const SizedBox(height: 16),
               CupertinoButton(

@@ -1,31 +1,27 @@
 import 'package:cookbook/showcase/safari/menu.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoStackedTransition(
-      cornerRadius: Tween(begin: 0.0, end: 16.0),
-      child: CupertinoPageScaffold(
-        child: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Image.asset(
-                    'assets/apple_website.png',
-                    fit: BoxFit.fitWidth,
-                  ),
+    return CupertinoPageScaffold(
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Image.asset(
+                  'assets/apple_website.png',
+                  fit: BoxFit.fitWidth,
                 ),
               ),
-              const _BottomBar(),
-            ],
-          ),
+            ),
+            const _BottomBar(),
+          ],
         ),
       ),
     );

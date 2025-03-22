@@ -21,34 +21,36 @@ class MenuSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const halfWayOffset = SheetOffset(0.5);
-    return Sheet(
-      scrollConfiguration: const SheetScrollConfiguration(),
-      initialOffset: halfWayOffset,
-      snapGrid: SheetSnapGrid(
-        snaps: [halfWayOffset, SheetOffset(1)],
-      ),
-      decoration: SheetDecorationBuilder(
-        size: SheetSize.stretch,
-        builder: (context, child) {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: ColoredBox(
-              color: CupertinoColors.systemGroupedBackground,
-              child: child,
+    return DefaultSheetController(
+      child: Sheet(
+        scrollConfiguration: const SheetScrollConfiguration(),
+        initialOffset: halfWayOffset,
+        snapGrid: SheetSnapGrid(
+          snaps: [halfWayOffset, SheetOffset(1)],
+        ),
+        decoration: SheetDecorationBuilder(
+          size: SheetSize.stretch,
+          builder: (context, child) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: ColoredBox(
+                color: CupertinoColors.systemGroupedBackground,
+                child: child,
+              ),
+            );
+          },
+        ),
+        child: Column(
+          children: [
+            _TopBar(
+              pageTitle: 'Apple',
+              displayUrl: 'apple.com',
+              faviconUrl: 'https://www.apple.com/favicon.ico',
             ),
-          );
-        },
-      ),
-      child: Column(
-        children: [
-          _TopBar(
-            pageTitle: 'Apple',
-            displayUrl: 'apple.com',
-            faviconUrl: 'https://www.apple.com/favicon.ico',
-          ),
-          Divider(height: 1, color: CupertinoColors.systemGrey5),
-          Expanded(child: _MenuList()),
-        ],
+            Divider(height: 1, color: CupertinoColors.systemGrey5),
+            Expanded(child: _MenuList()),
+          ],
+        ),
       ),
     );
   }
@@ -155,8 +157,7 @@ class _MenuListItem extends StatelessWidget {
       title: Text(title),
       trailing: Icon(icon, color: CupertinoColors.black),
       onTap: () {
-        DefaultSheetController.maybeOf(context)
-            ?.animateTo(const SheetOffset(1));
+        DefaultSheetController.of(context).animateTo(const SheetOffset(1));
         showEditBookmarkSheet(context);
       },
     );
