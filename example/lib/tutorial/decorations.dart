@@ -126,13 +126,15 @@ class _ExampleSheetState extends State<_ExampleSheet> {
         ),
       _DecorationType.box => BoxSheetDecoration(
           size: widget.size,
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              sheetBackgroundColor,
-              sheetBackgroundColor.shade100,
-            ],
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                sheetBackgroundColor,
+                sheetBackgroundColor.shade100,
+              ],
+            ),
           ),
         ),
       _DecorationType.builder => SheetDecorationBuilder(
