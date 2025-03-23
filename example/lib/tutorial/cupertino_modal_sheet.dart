@@ -125,7 +125,7 @@ class _SheetContent extends StatelessWidget {
   Widget build(BuildContext context) {
     // Nothing special here, just a simple modal sheet content.
     return ColoredBox(
-      color: CupertinoColors.systemBackground,
+      color: CupertinoColors.transparent,
       child: SizedBox.expand(
         child: Center(
           child: Column(

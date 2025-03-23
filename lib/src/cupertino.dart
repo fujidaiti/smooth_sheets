@@ -178,77 +178,61 @@ class _RenderTransformTransition extends RenderTransform {
 
 /// A transition for a route that is just below an incoming cupertino-style
 /// modal sheet route in the navigation stack.
-class _OutgoingTransition extends StatelessWidget {
+class _OutgoingTransition extends StatefulWidget {
   const _OutgoingTransition({
-    required this.animation,
     required this.endOffset,
     required this.child,
   });
 
-  final Animation<double> animation;
   final Offset endOffset;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    final curvedAnimation = CurvedAnimation(
-      parent: animation,
-      curve: _outgoingTransitionCurve,
-    );
+  State<_OutgoingTransition> createState() => _OutgoingTransitionState();
+}
 
+class _OutgoingTransitionState extends State<_OutgoingTransition> {
+  _OutgoingTransitionController? _controller;
+  late final Animation<double> _animation;
+  late final PageRoute<dynamic> _parentRoute;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_controller == null) {
+      _parentRoute = ModalRoute.of(context)! as PageRoute<dynamic>;
+      _controller = _OutgoingTransitionController(route: _parentRoute);
+      _animation = CurvedAnimation(
+        parent: _controller!,
+        curve: _outgoingTransitionCurve,
+      );
+    } else {
+      assert(ModalRoute.of(context) == _parentRoute);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller!.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return _TransformTransition(
-      animation: curvedAnimation,
+      animation: _animation,
       offsetTween: Tween(
         begin: Offset.zero,
-        end: endOffset,
+        end: widget.endOffset,
       ),
       scaleTween: Tween(begin: 1, end: _minimizedSheetScale),
       child: _ClipRRectTransition(
         radius: Tween(
           begin: 0.0,
           end: _minimizedSheetCornerRadius,
-        ).animate(curvedAnimation),
-        child: child,
+        ).animate(_animation),
+        child: widget.child,
       ),
-    );
-  }
-}
-
-class _OutgoingTransitionWithInheritedController extends StatefulWidget {
-  const _OutgoingTransitionWithInheritedController({
-    required this.endOffset,
-    required this.child,
-  });
-
-  final Offset endOffset;
-  final Widget child;
-
-  @override
-  State<_OutgoingTransitionWithInheritedController> createState() =>
-      _OutgoingTransitionWithInheritedControllerState();
-}
-
-class _OutgoingTransitionWithInheritedControllerState
-    extends State<_OutgoingTransitionWithInheritedController> {
-  final _childKey = GlobalKey();
-
-  @override
-  Widget build(BuildContext context) {
-    // This maintains the child's state regardless of the existence of the
-    // inherited controller.
-    final keyedChild = KeyedSubtree(key: _childKey, child: widget.child);
-
-    final controller = _InheritedOutgoingTransitionController.maybeOf(context);
-    if (controller == null) {
-      // There is no inherited animation,
-      // so we don't need to perform any transition.
-      return keyedChild;
-    }
-
-    return _OutgoingTransition(
-      animation: controller,
-      endOffset: widget.endOffset,
-      child: keyedChild,
     );
   }
 }
@@ -259,33 +243,45 @@ class _OutgoingTransitionWithInheritedControllerState
 class _OutgoingTransitionController extends Animation<double>
     with ChangeNotifier {
   _OutgoingTransitionController({
-    required this.incomingRoute,
-  }) {
-    incomingRoute.animation!.addListener(_invalidateValue);
+    required this.route,
+  }) : assert(!_routeToControllerMap.containsKey(route)) {
+    _routeToControllerMap[route] = this;
+    route.secondaryAnimation!.addListener(_invalidateValue);
     _invalidateValue();
   }
 
-  final PageRoute<dynamic> incomingRoute;
+  static final _routeToControllerMap =
+      <Route<dynamic>, _OutgoingTransitionController>{};
 
-  SheetModelView? get incomingSheet => _incomingSheet;
-  SheetModelView? _incomingSheet;
-  set incomingSheet(SheetModelView? value) {
-    if (_incomingSheet != value) {
-      _incomingSheet?.removeListener(_invalidateValue);
-      _incomingSheet = value?..addListener(_invalidateValue);
-      _invalidateValue();
-    }
-  }
+  /// Returns the [_OutgoingTransitionController] associated with the
+  /// [route], if any.
+  ///
+  /// Used by the incoming [_BaseCupertinoModalSheetRoute] to synchronize
+  /// its own animation with the outgoing transition of the previous route.
+  static _OutgoingTransitionController? of(Route<dynamic>? route) =>
+      _routeToControllerMap[route];
+
+  final PageRoute<dynamic> route;
 
   /// The progress of the outgoing transition.
   ///
   /// Must be between 0 and 1.
   @override
-  double get value => _value!;
-  double? _value;
+  double get value => _value;
+  double _value = 0;
+
+  /// The latest metrics of the incoming modal sheet above the [route].
+  SheetMetrics? _lastReportedSheetMetrics;
+
+  /// Updates the animation [value] of the transition based on the latest
+  /// [metrics] of the sheet in the incoming [_BaseCupertinoModalSheetRoute].
+  void applyNewIncomingSheetMetrics(SheetMetrics metrics) {
+    _lastReportedSheetMetrics = metrics;
+    _invalidateValue();
+  }
 
   void _invalidateValue() {
-    if (incomingRoute.offstage) {
+    if (route.offstage) {
       // On the first build of the incoming route, its animation value
       // is set to 1, allowing the navigator to measure the final size
       // of the route before starting the transition.
@@ -299,14 +295,14 @@ class _OutgoingTransitionController extends Animation<double>
     }
 
     final oldValue = _value;
-    final incomingSheet = this.incomingSheet;
-    if (incomingSheet == null || !incomingSheet.hasMetrics) {
-      _value = incomingRoute.animation!.value;
+    final sheetMetrics = _lastReportedSheetMetrics;
+    if (sheetMetrics == null) {
+      _value = route.secondaryAnimation!.value;
     } else {
       _value = min(
-        incomingRoute.animation!.value,
-        incomingSheet.offset
-            .inverseLerp(incomingSheet.minOffset, incomingSheet.maxOffset)
+        route.secondaryAnimation!.value,
+        sheetMetrics.offset
+            .inverseLerp(sheetMetrics.minOffset, sheetMetrics.maxOffset)
             .clamp(0, 1),
       );
     }
@@ -318,8 +314,8 @@ class _OutgoingTransitionController extends Animation<double>
 
   @override
   void dispose() {
-    incomingRoute.animation!.removeListener(_invalidateValue);
-    incomingSheet?.removeListener(_invalidateValue);
+    _routeToControllerMap.remove(route);
+    route.secondaryAnimation!.removeListener(_invalidateValue);
     super.dispose();
   }
 
@@ -337,33 +333,13 @@ class _OutgoingTransitionController extends Animation<double>
   }
 }
 
-class _InheritedOutgoingTransitionController extends InheritedWidget {
-  const _InheritedOutgoingTransitionController({
-    required this.controller,
-    required super.child,
-  });
-
-  final _OutgoingTransitionController controller;
-
-  @override
-  bool updateShouldNotify(_InheritedOutgoingTransitionController oldWidget) =>
-      controller != oldWidget.controller;
-
-  static _OutgoingTransitionController? maybeOf(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<
-            _InheritedOutgoingTransitionController>()
-        ?.controller;
-  }
-}
-
 class _SheetModelObserver extends StatefulWidget {
   const _SheetModelObserver({
-    required this.onModelChanged,
+    required this.onMetricsChanged,
     required this.child,
   });
 
-  final ValueSetter<SheetModelView> onModelChanged;
+  final ValueChanged<SheetMetrics> onMetricsChanged;
   final Widget child;
 
   @override
@@ -371,11 +347,19 @@ class _SheetModelObserver extends StatefulWidget {
 }
 
 class _SheetModelObserverState extends State<_SheetModelObserver> {
+  SheetModelView? _model;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    widget.onModelChanged(SheetViewportState.of(context)!.model);
+    final model = SheetViewportState.of(context)?.model;
+    if (model != _model) {
+      _model?.removeListener(_invokeCallback);
+      _model = model?..addListener(_invokeCallback);
+    }
   }
+
+  void _invokeCallback() => widget.onMetricsChanged(_model!.copyWith());
 
   @override
   Widget build(BuildContext context) {
@@ -389,16 +373,6 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
 
   Route<dynamic>? _previousRoute;
 
-  late final _OutgoingTransitionController
-      _outgoingTransitionControllerForPreviousRoute;
-
-  bool get _shouldControlPreviousRouteTransition {
-    final previousRoute = _previousRoute;
-    return previousRoute != null &&
-        previousRoute is PageRoute &&
-        !previousRoute.fullscreenDialog;
-  }
-
   @override
   // TODO: Support custom viewport padding.
   EdgeInsets get viewportPadding => EdgeInsets.only(
@@ -406,15 +380,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
       );
 
   @override
-  void install() {
-    super.install();
-    _outgoingTransitionControllerForPreviousRoute =
-        _OutgoingTransitionController(incomingRoute: this);
-  }
-
-  @override
   void dispose() {
-    _outgoingTransitionControllerForPreviousRoute.dispose();
     _previousRoute = null;
     super.dispose();
   }
@@ -432,19 +398,15 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
 
   @override
   DelegatedTransitionBuilder? get delegatedTransition {
-    if (!_shouldControlPreviousRouteTransition) {
-      return null;
-    } else if (_previousRoute is _BaseCupertinoModalSheetRoute) {
-      // As the previous route already has an _OutgoingTransition
-      // in its subtree, all we need to do here is to expose the
-      // _outgoingTransitionControllerForPreviousRoute to the
-      // _OutgoingTransitionWithInheritedController in the subtree
-      // of the previous route.
-      return _buildInheritedController;
-    } else {
-      assert(_previousRoute is PageRoute);
+    final previousRoute = _previousRoute;
+    if (previousRoute != null &&
+        previousRoute is PageRoute &&
+        previousRoute is! _BaseCupertinoModalSheetRoute &&
+        !previousRoute.fullscreenDialog) {
       return _buildOutgoingTransitionForNonCupertinoModalSheetRoute;
     }
+
+    return null;
   }
 
   Widget? _buildOutgoingTransitionForNonCupertinoModalSheetRoute(
@@ -455,21 +417,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     Widget? child,
   ) {
     return _OutgoingTransition(
-      animation: _outgoingTransitionControllerForPreviousRoute,
       endOffset: Offset(0, MediaQuery.viewPaddingOf(context).top),
-      child: child!,
-    );
-  }
-
-  Widget? _buildInheritedController(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    bool allowSnapshotting,
-    Widget? child,
-  ) {
-    return _InheritedOutgoingTransitionController(
-      controller: _outgoingTransitionControllerForPreviousRoute,
       child: child!,
     );
   }
@@ -478,21 +426,11 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   @override
   Widget buildSheet(BuildContext context) {
     return _SheetModelObserver(
-      onModelChanged: (model) {
-        // Obtain the SheetModel from the ancestor SheetViewport
-        // and attach it to the controller.
-        _outgoingTransitionControllerForPreviousRoute.incomingSheet = model;
+      onMetricsChanged: (metrics) {
+        _OutgoingTransitionController.of(_previousRoute)
+            ?.applyNewIncomingSheetMetrics(metrics);
       },
-      // If a _BaseCupertinoModalSheetRoute is pushed on top of this route
-      // in the navigation stack, the incoming route inserts an
-      // _InheritedOutgoingTransitionController above the
-      // _OutgoingTransitionWithInheritedController in the subtree of this
-      // route via ModalRoute.delegatedTransition.
-      //
-      // Then, the _OutgoingTransitionWithInheritedController can read the
-      // controller from the ancestor and use it to synchronize its own
-      // animation with the incoming route's animation.
-      child: _OutgoingTransitionWithInheritedController(
+      child: _OutgoingTransition(
         endOffset: const Offset(0, -1 * _sheetTopInset),
         child: _buildSheetInternal(context),
       ),
