@@ -222,17 +222,15 @@ class _IntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
-      extendBodyBehindBottomBar: true,
-      extendBodyBehindTopBar: true,
-      topBar: AppBar(
-        leading: IconButton(
-          onPressed: () => context.go('/'),
-          icon: const Icon(Icons.close),
+    return SafeArea(
+      child: SheetContentScaffold(
+        topBar: AppBar(
+          leading: IconButton(
+            onPressed: () => context.go('/'),
+            icon: const Icon(Icons.close),
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
+        body: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: 32,
             vertical: 8,

@@ -40,13 +40,6 @@
       "cwd": "./example"
     },
     {
-      "name": "Draggable Sheet",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/tutorial/draggable_sheet.dart",
-      "cwd": "./example"
-    },
-    {
       "name": "iOS-Style Modal Navigation Sheet (with go_router)",
       "request": "launch",
       "type": "dart",
