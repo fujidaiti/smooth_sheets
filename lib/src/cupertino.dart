@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'internal/double_utils.dart';
-import 'modal_sheet.dart';
+import 'modal.dart';
 import 'model.dart';
 import 'viewport.dart';
 
