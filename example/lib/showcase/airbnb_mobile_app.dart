@@ -196,12 +196,8 @@ class _ContentSheetHandle extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: preferredSize.height,
-      width: double.infinity,
-      // Specifing the background color explicitly
-      // is required to make the Container touchable.
-      color: Colors.transparent,
+    return SizedBox.fromSize(
+      size: preferredSize,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Column(

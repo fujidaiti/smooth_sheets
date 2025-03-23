@@ -57,7 +57,7 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
 const _sheetDecoration = BoxSheetDecoration(
   size: SheetSize.stretch,
   decoration: ShapeDecoration(
-    color: CupertinoColors.white,
+    color: CupertinoColors.systemBackground,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(
         Radius.circular(8),
@@ -124,45 +124,42 @@ class _SheetContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Nothing special here, just a simple modal sheet content.
-    return ColoredBox(
-      color: CupertinoColors.transparent,
-      child: SizedBox.expand(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CupertinoButton.filled(
-                onPressed: () {
-                  controller?.animateTo(const SheetOffset(1));
-                  _showModalSheet(context, isFullScreen: true);
-                },
-                child: const Text('Stack modal sheet'),
-              ),
-              const SizedBox(height: 16),
-              CupertinoButton.tinted(
-                onPressed: () {
-                  showCupertinoDialog(
-                    context: context,
-                    builder: (context) => CupertinoAlertDialog(
-                      title: const Text('Hello'),
-                      actions: [
-                        CupertinoDialogAction(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: const Text('Open dialog'),
-              ),
-              const SizedBox(height: 16),
-              CupertinoButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Close'),
-              ),
-            ],
-          ),
+    return SizedBox.expand(
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton.filled(
+              onPressed: () {
+                controller?.animateTo(const SheetOffset(1));
+                _showModalSheet(context, isFullScreen: true);
+              },
+              child: const Text('Stack modal sheet'),
+            ),
+            const SizedBox(height: 16),
+            CupertinoButton.tinted(
+              onPressed: () {
+                showCupertinoDialog(
+                  context: context,
+                  builder: (context) => CupertinoAlertDialog(
+                    title: const Text('Hello'),
+                    actions: [
+                      CupertinoDialogAction(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Close'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: const Text('Open dialog'),
+            ),
+            const SizedBox(height: 16),
+            CupertinoButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
         ),
       ),
     );

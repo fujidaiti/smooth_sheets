@@ -114,7 +114,6 @@ class _ExampleSheetState extends State<_ExampleSheet> {
 
   @override
   Widget build(BuildContext context) {
-    const contentBackgroundColor = Colors.transparent;
     const sheetBackgroundColor = Colors.blue;
 
     final decoration = switch (widget.type) {
@@ -131,8 +130,8 @@ class _ExampleSheetState extends State<_ExampleSheet> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                sheetBackgroundColor,
                 sheetBackgroundColor.shade100,
+                sheetBackgroundColor,
               ],
             ),
           ),
@@ -159,8 +158,7 @@ class _ExampleSheetState extends State<_ExampleSheet> {
       controller: _controller,
       decoration: decoration,
       shrinkChildToAvoidStaticOverlap: true,
-      child: Container(
-        color: contentBackgroundColor,
+      child: SizedBox(
         height: 500,
         width: double.infinity,
         child: const Placeholder(),
