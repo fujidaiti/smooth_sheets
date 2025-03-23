@@ -150,13 +150,13 @@ class MultiSnapGrid implements SheetSnapGrid {
     return (minimum, maximum);
   }
 
-  /// Given a [metrics], finds the minimum, maximum, nearest, leftmost,
-  /// and rightmost offsets in the [snaps] list.
+  /// Given a [layout] and an [offset], finds the minimum, maximum, nearest,
+  /// leftmost, and rightmost offsets in the [snaps] list.
   ///
   /// Where:
   /// - `min` is the smallest offset.
   /// - `max` is the largest offset.
-  /// - `nearest` is the offset that is closest to the `metrics.offset`.
+  /// - `nearest` is the offset that is closest to the `offset`.
   /// - `leftmost` is the offset that is the maximum offset that is less than
   ///   or equal to the `nearest`.
   /// - `rightmost` is the offset that is the minimum offset that is greater

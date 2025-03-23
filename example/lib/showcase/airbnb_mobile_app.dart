@@ -274,12 +274,7 @@ class _House {
       rating: faker.randomGenerator.decimal(scale: 1.5, min: 3.5),
       distance: faker.randomGenerator.integer(300, min: 50),
       charge: faker.randomGenerator.integer(2000, min: 500),
-      image: faker.image.image(
-        width: 300,
-        height: 300,
-        random: true,
-        keywords: ['cottage'],
-      ),
+      image: faker.image.loremPicsum(width: 300, height: 300),
     );
   }
 

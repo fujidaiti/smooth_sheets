@@ -690,34 +690,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
   double computeVisibility(SheetMetrics sheetMetrics, Size bottomBarSize);
 }
 
-/// A widget that keeps the [child] always visible regardless of
-/// the sheet position.
-///
-/// Intended to be used as the [SheetContentScaffold.bottomBar].
-///
-/// The following example shows the [_AlwaysVisibleBottomBarVisibility],
-/// which keeps the enclosed [BottomAppBar] always visible regardless
-/// of the sheet position. You may want to use the
-/// [ResizeScaffoldBehavior.avoidBottomInset] with setting `maintainBottomBar`
-/// to true to keep the bottom bar visible even when the onscreen keyboard
-/// is open.
-///
-/// {@template StickyBottomBarVisibility:example}
-/// ```dart
-/// final scaffold = SheetContentScaffold(
-///   resizeBehavior: const ResizeScaffoldBehavior.avoidBottomInset(
-///     maintainBottomBar: true,
-///   ),
-///   body: SizedBox.expand(),
-///   bottomBar: StickyBottomBarVisibility(
-///     child: BottomAppBar(),
-///   ),
-/// );
-/// ```
-/// {@endtemplate}
 class _AlwaysVisibleBottomBarVisibility extends SingleChildRenderObjectWidget {
-  /// Creates a widget that keeps the [child] always visible
-  /// regardless of the sheet position.
   const _AlwaysVisibleBottomBarVisibility({
     required this.model,
     required super.child,
@@ -749,14 +722,7 @@ class _RenderAlwaysVisibleBottomBarVisibility
   }
 }
 
-/// A widget that animates the visibility of the [child].
-///
-/// Intended to be used as the [SheetContentScaffold.bottomBar].
 class _ControlledBottomBarVisibility extends SingleChildRenderObjectWidget {
-  /// Creates a widget that animates the visibility of the [child].
-  ///
-  /// The [visibility] animation must be between 0 and 1, where 0 means
-  /// the [child] is completely invisible and 1 means it's completely visible.
   const _ControlledBottomBarVisibility({
     required this.model,
     required this.visibility,
@@ -764,8 +730,6 @@ class _ControlledBottomBarVisibility extends SingleChildRenderObjectWidget {
   });
 
   final SheetModelView model;
-
-  /// The animation driving the visibility of the [child].
   final Animation<double> visibility;
 
   @override
@@ -815,35 +779,7 @@ class _RenderControlledBottomBarVisibility extends _RenderBottomBarVisibility {
   }
 }
 
-/// A widget that animates the visibility of the [child] based on a condition.
-///
-/// Intended to be used as the [SheetContentScaffold.bottomBar].
-///
-/// The [getIsVisible] callback is called whenever the sheet metrics changes.
-/// Returning true keeps the [child] visible regardless of the sheet position,
-/// and false hides it with an animation which has the [duration] and
-/// the [curve].
-///
-/// The following example shows the [_ConditionalBottomBarVisibility],
-/// which keeps the enclosed [BottomAppBar] visible as long as the keyboard
-/// is hidden (`insets.bottom == 0`) and at least 50% of the sheet is visible.
-///
-/// ```dart
-/// final scaffold = SheetContentScaffold(
-///   body: SizedBox.expand(),
-///   bottomBar: ConditionalStickyBottomBarVisibility(
-///     getIsVisible: (metrics) =>
-///         metrics.baseline.bottom == 0 &&
-///         metrics.offset >
-///             const SheetAnchor.proportional(0.5)
-///                 .resolve(metrics.contentSize),
-///     child: BottomAppBar(),
-///   ),
-/// );
-/// ```
 class _ConditionalBottomBarVisibility extends StatefulWidget {
-  /// Creates a widget that animates the visibility of the [child]
-  /// based on a condition.
   const _ConditionalBottomBarVisibility({
     required this.model,
     required this.getIsVisible,
@@ -854,24 +790,10 @@ class _ConditionalBottomBarVisibility extends StatefulWidget {
   });
 
   final SheetModelView model;
-
-  /// Whether the [child] should be visible initially.
   final bool initialIsVisible;
-
-  /// Whether the [child] should be visible.
-  ///
-  /// Called whenever the sheet metrics changes.
-  /// Returning true keeps the [child] visible regardless of the sheet position,
-  /// and false hides it with an animation which has the [duration] and
-  /// the [curve].
   final bool Function(SheetMetrics) getIsVisible;
-
-  /// The duration of the visibility animation.
   final Duration duration;
-
-  /// The curve of the visibility animation.
   final Curve curve;
-
   final Widget? child;
 
   @override
