@@ -288,7 +288,7 @@ class _SwipeDismissibleController with SheetGestureProxyMixin {
   ) {
     final dragDelta = switch (details.axisDirection) {
       VerticalDirection.up => details.delta.dy,
-      // We flip the sign of the delta here because all of the following
+      // Flip the sign of the delta here because all of the following
       // logic assumes that the axis direction is upwards.
       VerticalDirection.down => -1 * details.delta.dy,
     };
