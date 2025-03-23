@@ -215,7 +215,7 @@ class DirectionAwareBouncingBehavior implements BouncingBehavior {
 
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
-    this.behavior = const FixedBouncingBehavior(SheetOffset(0.12)),
+    this.behavior = const FixedBouncingBehavior(SheetOffset(0.05)),
     this.frictionCurve = Curves.easeOutSine,
     this.spring = kDefaultSheetSpring,
   });
