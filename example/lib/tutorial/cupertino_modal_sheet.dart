@@ -35,7 +35,7 @@ class _ExampleHome extends StatelessWidget {
 }
 
 void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
-  // Use `CupertinoModalSheetRoute` to show an ios 15 style modal sheet.
+  // Use `CupertinoModalSheetRoute` to show an ios style modal sheet.
   // For declarative navigation (Navigator 2.0), use `CupertinoModalSheetPage` instead.
   final modalRoute = CupertinoModalSheetRoute(
     // Enable the swipe-to-dismiss behavior.
@@ -53,6 +53,18 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
 
   Navigator.push(context, modalRoute);
 }
+
+const _sheetDecoration = BoxSheetDecoration(
+  size: SheetSize.stretch,
+  decoration: ShapeDecoration(
+    color: CupertinoColors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(
+        Radius.circular(8),
+      ),
+    ),
+  ),
+);
 
 class _HalfScreenSheet extends StatefulWidget {
   const _HalfScreenSheet();
@@ -78,10 +90,9 @@ class _HalfScreenSheetState extends State<_HalfScreenSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // `CupertinoStackedTransition` won't start the transition animation until
-    // the visible height of a modal sheet (the position) exceeds 50% of the screen height.
     return Sheet(
       controller: _controller,
+      decoration: _sheetDecoration,
       initialOffset: const SheetOffset(0.5),
       snapGrid: const SheetSnapGrid(
         snaps: [SheetOffset(0.5), SheetOffset(1)],
@@ -98,9 +109,8 @@ class _FullScreenSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap the sheet with `SheetDismissible` to
-    // enable the pull-to-dismiss action.
     return const Sheet(
+      decoration: _sheetDecoration,
       child: _SheetContent(),
     );
   }
@@ -114,15 +124,8 @@ class _SheetContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Nothing special here, just a simple modal sheet content.
-    return DecoratedBox(
-      decoration: const ShapeDecoration(
-        color: CupertinoColors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(0),
-          ),
-        ),
-      ),
+    return ColoredBox(
+      color: CupertinoColors.systemBackground,
       child: SizedBox.expand(
         child: Center(
           child: Column(
