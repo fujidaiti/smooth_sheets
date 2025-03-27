@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 void main() {
-  runApp(const _ImperativeNavigationSheetExample());
+  runApp(const _ImperativePagedSheetExample());
 }
 
-class _ImperativeNavigationSheetExample extends StatelessWidget {
-  const _ImperativeNavigationSheetExample();
+class _ImperativePagedSheetExample extends StatelessWidget {
+  const _ImperativePagedSheetExample();
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class _ExampleSheet extends StatelessWidget {
       },
     );
 
-    // Wrap the nested navigator in a NavigationSheet.
+    // Wrap the nested navigator in a PagedSheet.
     return PagedSheet(
       decoration: MaterialSheetDecoration(
         size: SheetSize.stretch,

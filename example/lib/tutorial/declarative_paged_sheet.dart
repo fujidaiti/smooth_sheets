@@ -8,7 +8,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 // 1. Create a Navigator and wrap it in a PagedSheet.
 // 2. Use *PagedSheetPage to create a page that belongs to the navigator.
 void main() {
-  runApp(const _DeclarativeNavigationSheetExample());
+  runApp(const _DeclarativePagedSheetExample());
 }
 
 // To use declarative navigation, we utilize the 'go_router' package.
@@ -111,8 +111,8 @@ final router = GoRouter(
   ],
 );
 
-class _DeclarativeNavigationSheetExample extends StatelessWidget {
-  const _DeclarativeNavigationSheetExample();
+class _DeclarativePagedSheetExample extends StatelessWidget {
+  const _DeclarativePagedSheetExample();
 
   @override
   Widget build(BuildContext context) {

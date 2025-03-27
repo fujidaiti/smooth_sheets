@@ -550,12 +550,12 @@ class PagedSheetPage<T> extends Page<T> {
 
   @override
   Route<T> createRoute(BuildContext context) {
-    return _PageBasedNavigationSheetRoute(page: this);
+    return _PageBasedPagedSheetRoute(page: this);
   }
 }
 
-class _PageBasedNavigationSheetRoute<T> extends _BasePagedSheetRoute<T> {
-  _PageBasedNavigationSheetRoute({
+class _PageBasedPagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
+  _PageBasedPagedSheetRoute({
     required PagedSheetPage<T> page,
   }) : super(settings: page);
 
