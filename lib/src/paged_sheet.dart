@@ -194,7 +194,7 @@ class PagedSheet extends StatelessWidget {
     super.key,
     this.controller,
     this.physics = kDefaultSheetPhysics,
-    this.offsetInterpolationCurve = Curves.easeInOutCubic,
+    this.transitionCurve = Curves.easeInOutCubic,
     this.decoration = const DefaultSheetDecoration(),
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
@@ -206,7 +206,9 @@ class PagedSheet extends StatelessWidget {
 
   final SheetPhysics physics;
 
-  final Curve offsetInterpolationCurve;
+  /// The [Curve] used for both the offset and size transition animations
+  /// when navigating to a new route within the [navigator].
+  final Curve transitionCurve;
 
   final SheetDecoration decoration;
 
@@ -223,7 +225,7 @@ class PagedSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget content = NavigatorResizable(
-      interpolationCurve: offsetInterpolationCurve,
+      interpolationCurve: transitionCurve,
       child: _NavigatorEventDispatcher(
         child: navigator,
       ),
@@ -238,7 +240,7 @@ class PagedSheet extends StatelessWidget {
       config: _PagedSheetModelConfig(
         physics: physics,
         gestureProxy: SheetGestureProxy.maybeOf(context),
-        offsetInterpolationCurve: offsetInterpolationCurve,
+        offsetInterpolationCurve: transitionCurve,
       ),
       child: BareSheet(
         decoration: decoration,

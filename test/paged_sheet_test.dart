@@ -330,7 +330,7 @@ void main() {
         child: SheetViewport(
           child: PagedSheet(
             key: sheetKey,
-            offsetInterpolationCurve: offsetInterpolationCurve,
+            transitionCurve: offsetInterpolationCurve,
             physics: const ClampingSheetPhysics(),
             navigator: Navigator(
               key: navigatorKey,
@@ -735,7 +735,7 @@ void main() {
         child: SheetViewport(
           child: PagedSheet(
             key: sheetKey,
-            offsetInterpolationCurve: Curves.linear,
+            transitionCurve: Curves.linear,
             physics: const ClampingSheetPhysics(),
             navigator: TestStatefulWidget(
               key: statefulKey,
