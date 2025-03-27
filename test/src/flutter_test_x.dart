@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart' as t;
 import 'package:meta/meta.dart';
 
-export 'package:flutter_test/flutter_test.dart';
+export 'package:flutter_test/flutter_test.dart' hide find;
 
 /// [WidgetTesterX] version of `testWidgets` from package:flutter_test.
 @isTest
@@ -13,6 +13,15 @@ void testWidgets(
   Future<void> Function(WidgetTesterX) callback,
 ) {
   t.testWidgets(description, (t) => callback(WidgetTesterX(t)));
+}
+
+final find = FinderX(t.find);
+
+extension type FinderX(t.CommonFinders self) implements t.CommonFinders {
+  /// Finds a widget by its identifier.
+  ///
+  /// Equivalent to `find.byKey(ValueKey(id))`.
+  t.Finder byId(String id) => self.byKey(ValueKey(id));
 }
 
 extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
