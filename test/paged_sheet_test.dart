@@ -321,6 +321,7 @@ void main() {
     }) boilerplate({
       required String initialRoute,
       required double initialRouteHeight,
+      Curve offsetInterpolationCurve = Curves.linear,
     }) {
       final navigatorKey = GlobalKey<NavigatorState>();
       const sheetKey = Key('sheet');
@@ -329,7 +330,7 @@ void main() {
         child: SheetViewport(
           child: PagedSheet(
             key: sheetKey,
-            offsetInterpolationCurve: Curves.linear,
+            offsetInterpolationCurve: offsetInterpolationCurve,
             physics: const ClampingSheetPhysics(),
             navigator: Navigator(
               key: navigatorKey,
@@ -683,6 +684,37 @@ void main() {
       expect(find.byKey(Key('b')), findsOneWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
     });
+
+    testWidgets(
+      'Should use the same curve for offset and size transition animations',
+      (tester) async {
+        const nonLinearCurve = Curves.easeIn;
+        final env = boilerplate(
+          initialRoute: 'a',
+          initialRouteHeight: 300,
+          offsetInterpolationCurve: nonLinearCurve,
+        );
+        await tester.pumpWidget(env.testWidget);
+        env.pushRoute('b', 500);
+
+        Rect rectAt(double t) => Rect.lerp(
+              Rect.fromLTWH(0, 300, 800, 300),
+              Rect.fromLTWH(0, 100, 800, 500),
+              nonLinearCurve.transform(t),
+            )!;
+
+        await tester.pump();
+        expect(env.getSheetRect(tester), rectAt(0));
+        await tester.pump(Duration(milliseconds: 75));
+        expect(env.getSheetRect(tester), rectAt(0.25));
+        await tester.pump(Duration(milliseconds: 75));
+        expect(env.getSheetRect(tester), rectAt(0.5));
+        await tester.pump(Duration(milliseconds: 75));
+        expect(env.getSheetRect(tester), rectAt(0.75));
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester), rectAt(1));
+      },
+    );
   });
 
   group('PagedSheet transition test with Pages API', () {

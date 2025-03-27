@@ -223,7 +223,7 @@ class PagedSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget content = NavigatorResizable(
-      interpolationCurve: Curves.linear,
+      interpolationCurve: offsetInterpolationCurve,
       child: _NavigatorEventDispatcher(
         child: navigator,
       ),
