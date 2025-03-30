@@ -14,7 +14,7 @@ import 'model.dart';
 import 'model_owner.dart';
 
 // TODO: Expose this from the ScrollableSheet's constructor
-const _kMaxScrollSpeedToInterrupt = double.infinity;
+const double _kMaxScrollSpeedToInterrupt = double.infinity;
 
 @internal
 mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>

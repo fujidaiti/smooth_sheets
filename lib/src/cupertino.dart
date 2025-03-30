@@ -15,8 +15,8 @@ const _minimizedSheetScale = 0.92;
 const _minimizedSheetCornerRadius = 12.0;
 const _barrierColor = Color(0x18000000);
 const _transitionDuration = Duration(milliseconds: 300);
-const _outgoingTransitionCurve = Curves.easeIn;
-const _incomingTransitionCurve = Curves.fastEaseInToSlowEaseOut;
+const Cubic _outgoingTransitionCurve = Curves.easeIn;
+const ThreePointCubic _incomingTransitionCurve = Curves.fastEaseInToSlowEaseOut;
 
 /// Animated version of [ClipRRect].
 ///

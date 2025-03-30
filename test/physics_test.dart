@@ -26,13 +26,13 @@ const _referenceSheetMetrics = ImmutableSheetMetrics(
   size: Size(400, 600),
 );
 
-final _metricsAtTopEdge =
+final SheetMetrics _metricsAtTopEdge =
     _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.maxOffset);
 
-final _metricsAtBottomEdge =
+final SheetMetrics _metricsAtBottomEdge =
     _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.minOffset);
 
-final _metricsAtMiddle = _referenceSheetMetrics.copyWith(
+final SheetMetrics _metricsAtMiddle = _referenceSheetMetrics.copyWith(
   offset: (_metricsAtTopEdge.offset + _metricsAtBottomEdge.offset) / 2,
 );
 

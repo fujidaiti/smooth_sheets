@@ -10,7 +10,7 @@ import 'internal/float_comp.dart';
 import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
-const _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
+const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 
 class ModalSheetPage<T> extends Page<T> {
   const ModalSheetPage({
