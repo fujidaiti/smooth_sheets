@@ -25,6 +25,7 @@ void main() {
               parentLayoutSpec?.viewportDynamicOverlap ?? EdgeInsets.zero,
         ),
         child: SheetMediaQuery(
+          layoutNotifier: ValueNotifier(null),
           layoutSpec: parentLayoutSpec ??
               SheetLayoutSpec(
                 viewportSize: testScreenSize,
@@ -657,6 +658,7 @@ void main() {
         initialState: initialLayoutSpec,
         builder: (context, layoutSpec) {
           return SheetMediaQuery(
+            layoutNotifier: ValueNotifier(null),
             layoutSpec: layoutSpec,
             child: SheetModelOwner(
               key: modelOwnerKey,
@@ -1329,6 +1331,7 @@ void main() {
       final testWidget = MediaQuery(
         data: MediaQueryData(),
         child: SheetMediaQuery(
+          layoutNotifier: ValueNotifier(null),
           layoutSpec: SheetLayoutSpec(
             viewportSize: testScreenSize,
             viewportPadding: EdgeInsets.zero,

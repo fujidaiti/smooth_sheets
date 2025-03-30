@@ -166,6 +166,8 @@ class SheetLayoutSpec {
       );
 }
 
+typedef SheetLayoutListenable = ValueListenable<SheetLayout?>;
+
 /// Stores the geometry of the viewport and the layout constraints
 /// used to lay out the sheet and its content.
 ///
@@ -182,10 +184,12 @@ class SheetMediaQuery extends StatelessWidget {
   const SheetMediaQuery({
     super.key,
     required this.layoutSpec,
+    required this.layoutNotifier,
     required this.child,
   });
 
   final SheetLayoutSpec layoutSpec;
+  final SheetLayoutListenable layoutNotifier;
   final Widget child;
 
   @override
@@ -201,6 +205,7 @@ class SheetMediaQuery extends StatelessWidget {
 
     return _InheritedSheetMediaQuery(
       layoutSpec: layoutSpec,
+      layoutNotifier: layoutNotifier,
       child: MediaQuery(
         data: switch (MediaQuery.maybeOf(context)) {
           null => MediaQueryData(
@@ -226,19 +231,30 @@ class SheetMediaQuery extends StatelessWidget {
         .dependOnInheritedWidgetOfExactType<_InheritedSheetMediaQuery>()!
         .layoutSpec;
   }
+
+  /// Reads a [ValueListenable] of [SheetLayout] from the closest ancestor
+  /// [SheetMediaQuery].
+  static SheetLayoutListenable layoutNotifierOf(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_InheritedSheetMediaQuery>()!
+        .layoutNotifier;
+  }
 }
 
 class _InheritedSheetMediaQuery extends InheritedWidget {
   const _InheritedSheetMediaQuery({
     required this.layoutSpec,
+    required this.layoutNotifier,
     required super.child,
   });
 
   final SheetLayoutSpec layoutSpec;
+  final SheetLayoutListenable layoutNotifier;
 
   @override
   bool updateShouldNotify(_InheritedSheetMediaQuery oldWidget) =>
-      layoutSpec != oldWidget.layoutSpec;
+      layoutSpec != oldWidget.layoutSpec ||
+      layoutNotifier != oldWidget.layoutNotifier;
 }
 
 class SheetViewport extends StatefulWidget {
@@ -611,7 +627,7 @@ class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
 }
 
 @internal
-class BareSheet extends StatelessWidget {
+class BareSheet extends StatefulWidget {
   const BareSheet({
     super.key,
     this.shrinkChildToAvoidDynamicOverlap = true,
@@ -638,6 +654,25 @@ class BareSheet extends StatelessWidget {
   final Widget child;
 
   @override
+  State<BareSheet> createState() => _BareSheetState();
+}
+
+class _BareSheetState extends State<BareSheet> {
+  late final ValueNotifier<SheetLayout?> _layoutNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _layoutNotifier = ValueNotifier(null);
+  }
+
+  @override
+  void dispose() {
+    _layoutNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (_, constraints) {
@@ -654,29 +689,33 @@ class BareSheet extends StatelessWidget {
           viewportPadding: sheetConstraints.viewportPadding,
           viewportDynamicOverlap: sheetConstraints.viewportInsets,
           viewportStaticOverlap: sheetConstraints.viewportViewPadding,
-          shrinkContentToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
-          shrinkContentToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
+          shrinkContentToAvoidDynamicOverlap:
+              widget.shrinkChildToAvoidDynamicOverlap,
+          shrinkContentToAvoidStaticOverlap:
+              widget.shrinkChildToAvoidStaticOverlap,
         );
 
         Widget result = _SheetSkelton(
+          layoutNotifier: _layoutNotifier,
           layoutSpec: layoutSpec,
-          getPreferredExtent: decoration.preferredExtent,
+          getPreferredExtent: widget.decoration.preferredExtent,
           child: SheetMediaQuery(
             layoutSpec: layoutSpec,
-            child: child,
+            layoutNotifier: _layoutNotifier,
+            child: widget.child,
           ),
         );
 
         assert(() {
           result = _DebugAssertSheetDecorationUsage(
-            sheetDecorationType: decoration.runtimeType,
+            sheetDecorationType: widget.decoration.runtimeType,
             expectedLayoutSpec: layoutSpec,
             child: result,
           );
           return true;
         }());
 
-        return decoration.build(context, result);
+        return widget.decoration.build(context, result);
       },
     );
   }
@@ -687,16 +726,19 @@ typedef _GetPreferredExtent = double Function(double, ViewportLayout);
 class _SheetSkelton extends SingleChildRenderObjectWidget {
   const _SheetSkelton({
     required this.layoutSpec,
+    required this.layoutNotifier,
     required this.getPreferredExtent,
     required super.child,
   });
 
   final SheetLayoutSpec layoutSpec;
+  final ValueNotifier<SheetLayout?> layoutNotifier;
   final _GetPreferredExtent getPreferredExtent;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderSheetSkelton(
+      layoutNotifier: layoutNotifier,
       layoutSpec: layoutSpec,
       getPreferredExtent: getPreferredExtent,
       model: SheetViewportState.of(context)!._modelView,
@@ -706,6 +748,7 @@ class _SheetSkelton extends SingleChildRenderObjectWidget {
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderSheetSkelton)
+      ..layoutNotifier = layoutNotifier
       ..sheetMediaQueryData = layoutSpec
       ..getPreferredExtent = getPreferredExtent
       ..model = SheetViewportState.of(context)!._modelView;
@@ -714,6 +757,7 @@ class _SheetSkelton extends SingleChildRenderObjectWidget {
 
 class _RenderSheetSkelton extends RenderShiftedBox {
   _RenderSheetSkelton({
+    required this.layoutNotifier,
     required _LazySheetModelView model,
     required SheetLayoutSpec layoutSpec,
     required _GetPreferredExtent getPreferredExtent,
@@ -724,6 +768,8 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     model.addListener(_invalidatePreferredExtent);
     _invalidatePreferredExtent();
   }
+
+  ValueNotifier<SheetLayout?> layoutNotifier;
 
   _LazySheetModelView _model;
   // ignore: avoid_setters_without_getters
@@ -823,13 +869,13 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       maxHeight: maxSize.height,
     ).constrain(Size.fromHeight(_preferredExtent!));
 
-    _model._inner!.applyNewLayout(
-      ImmutableSheetLayout.from(
-        viewportLayout: viewportLayout,
-        size: Size.copy(size),
-      ),
+    final newLayout = ImmutableSheetLayout.from(
+      viewportLayout: viewportLayout,
+      size: Size.copy(size),
     );
+    _model._inner!.applyNewLayout(newLayout);
     assert(_model._inner!.hasMetrics);
+    layoutNotifier.value = newLayout;
 
     _isPerformingLayout = false;
   }

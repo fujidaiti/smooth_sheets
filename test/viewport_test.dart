@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/decorations.dart';
@@ -527,6 +528,60 @@ void main() {
         );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getSize(find.byKey(Key('sheet'))), Size(760, 600));
+      },
+    );
+
+    testWidgets(
+      'should notify listeners when sheet layout changes',
+      (tester) async {
+        final model = _TestSheetModel();
+        final contentStateKey = GlobalKey<TestStatefulWidgetState<Size>>();
+        SheetLayoutListenable? inheritedLayoutNotifier;
+        final receivedLayouts = <SheetLayout?>[];
+
+        void onLayoutChange() {
+          receivedLayouts.add(inheritedLayoutNotifier!.value);
+        }
+
+        final env = boilerplate(
+          model: model,
+          builder: (child) => SheetViewport(
+            child: BareSheet(
+              child: TestStatefulWidget(
+                key: contentStateKey,
+                initialState: Size.fromHeight(300),
+                didChangeDependencies: (context) {
+                  inheritedLayoutNotifier?.removeListener(onLayoutChange);
+                  inheritedLayoutNotifier =
+                      SheetMediaQuery.layoutNotifierOf(context)
+                        ..addListener(onLayoutChange);
+                },
+                builder: (_, size) => SizedBox.fromSize(
+                  size: size,
+                  child: child,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          receivedLayouts.single,
+          isA<SheetLayout>()
+              .having((it) => it.size, 'size', Size(800, 300))
+              .having((it) => it.contentSize, 'contentSize', Size(800, 300)),
+        );
+
+        receivedLayouts.clear();
+        contentStateKey.currentState!.state = Size.fromHeight(400);
+        await tester.pump();
+        expect(
+          receivedLayouts.single,
+          isA<SheetLayout>()
+              .having((it) => it.size, 'size', Size(800, 400))
+              .having((it) => it.contentSize, 'contentSize', Size(800, 400)),
+        );
       },
     );
   });
@@ -1213,6 +1268,7 @@ void main() {
       final testWidget = MediaQuery(
         data: MediaQueryData(),
         child: SheetMediaQuery(
+          layoutNotifier: ValueNotifier(null),
           layoutSpec: layoutSpec,
           child: child,
         ),
