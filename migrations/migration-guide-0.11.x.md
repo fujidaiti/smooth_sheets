@@ -392,13 +392,13 @@ NavigationSheet(
     color: Theme.of(context).colorScheme.surface,
     child: navigator, // Containing Draggable/ScrollableNavigationSheetPage
   ),
-)
+);
 
 // Page used built-in transition
 DraggableNavigationSheetPage(
   key: state.pageKey,
   child: const YourPageContent(),
-)
+);
 
 // Scrollable page required specific class and position configuration
 ScrollableNavigationSheetPage(
@@ -408,7 +408,7 @@ ScrollableNavigationSheetPage(
     parent: SnappingSheetPhysics(),
   ),
   child: const YourScrollablePageContent(),
-)
+);
 ```
 
 **AFTER (v0.11.x):**
@@ -449,7 +449,7 @@ PagedSheetPage(
 >
 > ```dart
 > // Example implementation of a fade-and-slide transition:
-> Widget _fadeAndSlideTransitionWithIOSBackGesture
+> Widget platformAdaptiveFadeAndSlideTransition(
 >   BuildContext context,
 >   Animation<double> animation,
 >   Animation<double> secondaryAnimation,
@@ -474,6 +474,29 @@ PagedSheetPage(
 > }
 > ```
 
+### ✨ Cupertino Modal Sheet Changes
+
+In v0.10.x, the content of the previous route of a `CupertinoModalSheetRoute` must be wrapped in a `CupertinoStackedTransition` to create iOS style transition animations for modal sheets. In v0.11.x, this is no longer needed as the transition effects are now handled internally by the modal sheet route.
+
+**BEFORE (v0.10.x):**
+
+```dart
+CupertinoStackedTransition(
+  cornerRadius: Tween(begin: 0.0, end: 16.0),
+  child: CupertinoPageScaffold(...),
+)
+```
+
+**AFTER (v0.11.x):**
+
+```dart
+// No need for CupertinoStackedTransition
+CupertinoPageScaffold(...)
+```
+
+> [!NOTE]
+> See example: [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/tutorial/cupertino_modal_sheet.dart)
+
 ## 💥 Terminology Changes
 
 In v0.10.x, the API used inconsistent terminology with concepts like "extent," "position," and "anchor." The v0.11.x API establishes consistent terminology centered around the concept of "offset."
@@ -482,4 +505,3 @@ In v0.10.x, the API used inconsistent terminology with concepts like "extent," "
 - `extent-driven` animations are now `offset-driven`
 - `SheetAnchor` has been renamed to `SheetOffset`
 - `minPosition` and `maxPosition` have been replaced by `snapGrid` or can be controlled via `SheetOffset`
-
