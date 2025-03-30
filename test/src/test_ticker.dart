@@ -21,7 +21,7 @@ class TestTicker implements Ticker {
   bool get isTicking => isActive && !muted;
 
   @override
-  bool muted = false;
+  var muted = false;
 
   /// Manually advances the ticker by the specified duration.
   void tick(Duration duration) {

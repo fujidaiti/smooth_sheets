@@ -827,7 +827,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
   ///
   /// To avoid this, we need to track whether it is in the middle
   /// of layout phase, and check the flag before invoking markNeedsLayout().
-  bool _isPerformingLayout = false;
+  var _isPerformingLayout = false;
 
   @override
   void performLayout() {

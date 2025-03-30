@@ -13,14 +13,14 @@ import 'physics.dart';
 @internal
 @optionalTypeArgs
 abstract class SheetActivity<T extends SheetModel> {
-  bool _disposed = false;
+  var _disposed = false;
 
   bool get disposed {
     assert(!_mounted || !_disposed);
     return _disposed;
   }
 
-  bool _mounted = false;
+  var _mounted = false;
 
   bool get mounted {
     assert(!_mounted || !_disposed);
