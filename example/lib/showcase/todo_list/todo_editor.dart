@@ -242,7 +242,7 @@ class _PrioritySelector extends StatelessWidget {
       alignmentOffset: const Offset(0, -_prioritySelectorPopupMenuHeight),
       style: MenuStyle(
         alignment: Alignment.bottomLeft,
-        maximumSize: MaterialStateProperty.all(
+        maximumSize: WidgetStateProperty.all(
           const Size.fromHeight(_prioritySelectorPopupMenuHeight),
         ),
       ),

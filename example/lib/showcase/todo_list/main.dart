@@ -93,10 +93,9 @@ class _TodoListView extends StatelessWidget {
 
 class _TodoListViewItem extends StatelessWidget {
   const _TodoListViewItem({
-    Key? key,
     required this.todo,
     required this.checkboxCallback,
-  }) : super(key: key);
+  });
 
   final Todo todo;
   final ValueChanged<bool?> checkboxCallback;
