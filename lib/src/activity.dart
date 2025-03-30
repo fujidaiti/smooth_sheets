@@ -65,7 +65,7 @@ abstract class SheetActivity<T extends SheetModel> {
   double dryApplyNewLayout(ViewportLayout layout) => owner.offset;
 
   void applyNewLayout(ViewportLayout oldLayout) {
-    owner.offset = dryApplyNewLayout(oldLayout);
+    owner.offset = dryApplyNewLayout(owner);
   }
 
   @protected

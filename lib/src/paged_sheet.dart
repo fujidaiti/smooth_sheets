@@ -218,7 +218,7 @@ class PagedSheet extends StatelessWidget {
   /// {@macro Sheet.shrinkChildToAvoidStaticOverlap}
   final bool shrinkChildToAvoidStaticOverlap;
 
-  final TransitionBuilder? builder;
+  final Widget Function(BuildContext, Widget)? builder;
 
   final Widget navigator;
 
