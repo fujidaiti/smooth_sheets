@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/decorations.dart';

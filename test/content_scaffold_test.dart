@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/content_scaffold.dart';
 import 'package:smooth_sheets/src/gesture_proxy.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/model_owner.dart';
+import 'package:smooth_sheets/src/paged_sheet.dart';
 import 'package:smooth_sheets/src/physics.dart';
 import 'package:smooth_sheets/src/snap_grid.dart';
 import 'package:smooth_sheets/src/viewport.dart';
@@ -1515,6 +1518,93 @@ void main() {
       tester.hitTestAt(centerOfBottomBar, target: find.byKey(bodyKey));
       expect(tester.takeException(), isNotNull);
     });
+  });
+
+  group('Intergration Test', () {
+    testWidgets(
+      'Always visible shared bottom-bar in PagedSheet',
+      (tester) async {
+        final firstRoute = PagedSheetRoute<dynamic>(
+          initialOffset: SheetOffset(0.5),
+          snapGrid: SheetSnapGrid(
+            snaps: [SheetOffset(0.5), SheetOffset(1)],
+          ),
+          builder: (context) => SizedBox(key: Key('first'), height: 300),
+        );
+        final secondRoute = PagedSheetRoute<dynamic>(
+          transitionDuration: Duration(milliseconds: 300),
+          builder: (context) => SizedBox(key: Key('second'), height: 600),
+        );
+        final thirdRoute = PagedSheetRoute<dynamic>(
+          transitionDuration: Duration(milliseconds: 300),
+          builder: (context) => SizedBox(key: Key('third'), height: 300),
+        );
+
+        final navigatorKey = GlobalKey<NavigatorState>();
+        final testWidget = Directionality(
+          textDirection: TextDirection.ltr,
+          child: SheetViewport(
+            child: PagedSheet(
+              builder: (context, child) {
+                return SheetContentScaffold(
+                  extendBodyBehindBottomBar: true,
+                  bottomBarVisibility: BottomBarVisibility.always(),
+                  body: child,
+                  bottomBar: Container(
+                    key: Key('bottomBar'),
+                    height: 50,
+                    color: Colors.white,
+                  ),
+                );
+              },
+              navigator: Navigator(
+                key: navigatorKey,
+                onGenerateRoute: (_) {
+                  return firstRoute;
+                },
+              ),
+            ),
+          ),
+        );
+
+        final expectedBottomBarRect = Rect.fromLTRB(0, 550, 800, 600);
+        Rect bottomBarRect() => tester.getRect(find.byId('bottomBar'));
+
+        await tester.pumpWidget(testWidget);
+        expect(bottomBarRect(), expectedBottomBarRect);
+        expect(find.byId('first'), findsOneWidget);
+
+        unawaited(navigatorKey.currentState!.push(secondRoute));
+        await tester.pump();
+        expect(bottomBarRect(), expectedBottomBarRect);
+
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(bottomBarRect(), expectedBottomBarRect);
+
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(bottomBarRect(), expectedBottomBarRect);
+
+        await tester.pumpAndSettle();
+        expect(bottomBarRect(), expectedBottomBarRect);
+        expect(find.byId('first'), findsNothing);
+        expect(find.byId('second'), findsOneWidget);
+
+        unawaited(navigatorKey.currentState!.push(thirdRoute));
+        await tester.pump();
+        expect(bottomBarRect(), expectedBottomBarRect);
+
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(bottomBarRect(), expectedBottomBarRect);
+
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(bottomBarRect(), expectedBottomBarRect);
+
+        await tester.pumpAndSettle();
+        expect(bottomBarRect(), expectedBottomBarRect);
+        expect(find.byId('second'), findsNothing);
+        expect(find.byId('third'), findsOneWidget);
+      },
+    );
   });
 }
 
