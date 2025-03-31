@@ -149,11 +149,12 @@ See also:
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/3367d3bc-a895-42be-8154-2f6fc83b30b5"/>
 </div>
 
-`PagedSheet` manages a stack of pages within a single sheet, enabling navigation between them with transitions. It works seamlessly with Flutter's Navigator API (both imperative and declarative, e.g., go_router). Each page is defined using `PagedSheetPage`, which can have its own specific configuration like `initialOffset`, `snapGrid`, or `scrollConfiguration`. Transitions between pages default to the application's theme but can be customized per-page.
+`PagedSheet` manages a stack of pages within a single sheet, enabling navigation between them with transitions. It works seamlessly with Flutter's Navigator API (both imperative and declarative, e.g., go_router and auto_route). Each page is defined using `PagedSheetPage`, which can have its own specific configuration like `initialOffset`, `snapGrid`, or `scrollConfiguration`. Transitions between pages default to the application's theme but can be customized per-page.
 
 See also:
 - [declarative_paged_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_paged_sheet.dart), tutorial using go_router.
 - [imperative_paged_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_paged_sheet.dart), tutorial using imperative Navigator API.
+- [paged_sheet_with_auto_route.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/paged_sheet_with_auto_route.dart), tutorial using auto_route.
 
 <br/>
 
