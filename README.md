@@ -1,6 +1,6 @@
 # smooth_sheets
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/fujidaiti/smooth_sheets)](https://github.com/fujidaiti/smooth_sheets) [![GitHub last commit (branch)](https://img.shields.io/github/last-commit/fujidaiti/smooth_sheets/main?logo=git)](https://github.com/fujidaiti/smooth_sheets/commits/main/) [![Pub Version](https://img.shields.io/pub/v/smooth_sheets)](https://pub.dev/packages/smooth_sheets) ![Pub Likes](https://img.shields.io/pub/likes/smooth_sheets) ![Pub Points](https://img.shields.io/pub/points/smooth_sheets) 
+[![GitHub Repo stars](https://img.shields.io/github/stars/fujidaiti/smooth_sheets)](https://github.com/fujidaiti/smooth_sheets) [![Pub Version](https://img.shields.io/pub/v/smooth_sheets)](https://pub.dev/packages/smooth_sheets) ![Pub Likes](https://img.shields.io/pub/likes/smooth_sheets) ![Pub Points](https://img.shields.io/pub/points/smooth_sheets) 
 
 **smooth_sheets** offers modal and persistent sheet widgets for Flutter apps. The key features are:
 
@@ -87,7 +87,7 @@ See [here](https://github.com/fujidaiti/smooth_sheets/tree/main/migrations) for 
 
 ## Why use this?
 
-There are few packages on pub.dev that supports nested navigation with motion animation for page transitions. One of the great choices for this usecase is [wolt_modal_sheet](https://github.com/woltapp/wolt_modal_sheet), which this package is inspired by. Although smooth_sheet has similar features with wolt_modal_sheet, it does not intended to be a replacement of that package. Here is some differences between those 2 packages:
+There are few packages on pub.dev that supports nested navigation with motion animation for page transitions. One of the great choices for this usecase is [wolt_modal_sheet](https://github.com/woltapp/wolt_modal_sheet), which this package is inspired by. Although smooth_sheet has similar features with wolt_modal_sheet, it is not intended to be a replacement of that package. Here is some differences between those 2 packages:
 
 |                        |                                                             wolt_modal_sheet                                                              |                             smooth_sheets                              |
 |:----------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------:|
@@ -117,7 +117,7 @@ This section provides descriptions for each core component and links to related 
 
 ### SheetOffset
 
-`SheetOffset` represents the visible height (or offset) of the sheet relative to the `SheetViewport`. It's used in various situations, such as specifying the initial visible area of a sheet or defining snap points in a `SheetSnapGrid`. It replaces the older `SheetAnchor` concept.
+`SheetOffset` represents a position of the sheet within the `SheetViewport` where the sheet is rendered. It's used in various situations, e.g., specifing the initial position of the sheet or defining a set of positions to which the sheet should snap.
 
 <br/>
 
@@ -128,13 +128,7 @@ This section provides descriptions for each core component and links to related 
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/28cf4760-de78-425b-a64e-c2ac6fb6817c"/> <!-- Scrollable -->
 </div>
 
-The primary widget for building sheets. It can be dragged and sized based on its content or stretched to fill available space, configured via `SheetDecoration`.
-- **Non-scrollable content:** By default, `Sheet` works with non-scrollable content. The sheet's height typically matches the content unless constrained.
-- **Scrollable content:** To integrate with scrollable widgets (like `ListView`, `GridView`), provide a `SheetScrollConfiguration` to the `scrollConfiguration` property. The sheet will then drag when the content is over-scrolled or under-scrolled.
-
-The sheet's physics (how it behaves when over/under dragged) are controlled by `SheetPhysics`, and snapping behavior is defined by `SheetSnapGrid`. Styling (like background, shape, borders) is handled by `SheetDecoration`.
-
-For non-modal sheets, `Sheet` must be placed inside a `SheetViewport`.
+The basic sheet widget that can be dragged and scrollled. It can also size itself based on its content or stretched to fill available space.
 
 See also:
 - [basic_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/basic_sheet.dart) for basic usage.
@@ -148,8 +142,7 @@ See also:
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/3367d3bc-a895-42be-8154-2f6fc83b30b5"/>
 </div>
-
-`PagedSheet` manages a stack of pages within a single sheet, enabling navigation between them with transitions. It works seamlessly with Flutter's Navigator API (both imperative and declarative, e.g., go_router and auto_route). Each page is defined using `PagedSheetPage`, which can have its own specific configuration like `initialOffset`, `snapGrid`, or `scrollConfiguration`. Transitions between pages default to the application's theme but can be customized per-page.
+`PagedSheet` manages a stack of pages within a single sheet, enabling navigation between them with transitions. It works seamlessly with Flutter's Navigator API, both imperative (`Navigator.push`) and declarative (go_router, auto_route, etc...). Each page is defined using `PagedSheetPage`, which can have its own specific configuration like `initialOffset`, `snapGrid`, or `scrollConfiguration`. Transitions between pages default to the application's theme but can be customized per-page.
 
 See also:
 - [declarative_paged_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_paged_sheet.dart), tutorial using go_router.
@@ -158,19 +151,19 @@ See also:
 
 <br/>
 
-### ModalSheets
+### Modal Sheets
 
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/f2212362-e193-4dab-8f8b-f24942051775"/>
 </div>
 
-A sheet can be displayed as a modal sheet using ModalSheetRoute for imperative navigation, or ModalSheetPage for declarative navigation. To enable the *swipe-to-dismiss* action, which allows the user to dismiss the sheet by a swiping-down gesture, set `swipeDismissible` to true.
+A sheet can be displayed as a modal sheet using `ModalSheetRoute` for imperative navigation, or `ModalSheetPage` for declarative navigation.
 
 <div align="center">
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/242a8d32-a355-4d4a-8248-4572a03c64eb"/>
 </div>
 
-Furthermore, [the modal sheets in the style of iOS 15](https://medium.com/surf-dev/bottomsheet-in-ios-15-uisheetpresentationcontroller-and-its-capabilities-5e913661c9f) are also supported. For imperative navigation, use CupertinoModalSheetRoute, and for declarative navigation, use CupertinoModalSheetPage, respectively.
+Furthermore, [the modal sheets in the style of iOS 15](https://medium.com/surf-dev/bottomsheet-in-ios-15-uisheetpresentationcontroller-and-its-capabilities-5e913661c9f) are also supported. For imperative navigation, use `CupertinoModalSheetRoute`, and for declarative navigation, use `CupertinoModalSheetPage`, respectively.
 
 See also:
 
@@ -190,29 +183,19 @@ See also:
 </div>
 
 
-A physics determines how the sheet will behave when over-dragged or under-dragged, or when the user stops dragging. This is independent of snapping behavior, which is configured via [SheetSnapGrid](#sheetsnapgrid). There are 2 predefined physics:
-
-- ClampingSheetPhysics: Prevents the sheet from reaching beyond the draggable bounds.
-- BouncingSheetPhysics: Allows the sheet to go beyond the draggable bounds, but then bounce the sheet back to the edge of those bounds.
-
-These physics can be combined to create more complex behavior.
+A physics determines how the sheet will behave when over-dragged or under-dragged, or when the user stops dragging. This is independent of the snapping behavior, which is configured via [SheetSnapGrid](#sheetsnapgrid). There are 2 predefined physics:
 
 See also:
 
 - [physics_and_snap_grid.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/physics_and_snap_grid.dart) for basic usage.
-- [BouncingBehavior](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingBehavior-class.html), which can be used to tweak the bouncing behavior of BouncingSheetPhysics.
 
 <br/>
 
 ### SheetSnapGrid
 
-This determines how the sheet snaps to certain offsets when the user stops dragging or when an animation completes. It is configured separately from `SheetPhysics`. Offsets are defined using `SheetOffset`.
+Determines how the sheet snaps to certain offsets when the user stops dragging or when an animation completes. 
 
 There are several predefined snap grid types:
-
-- `SingleSnapGrid`: Snaps to a single offset.
-- `MultiSnapGrid`: Snaps to the nearest offset from a predefined list.
-- `SteplessSnapGrid`: Allows snapping anywhere above a minimum offset, effectively creating a continuous drag area above that minimum.
 
 See also:
 
@@ -242,7 +225,7 @@ See also:
 </div>
 
 
-A special kind of [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html) designed for use within a sheet's content. It provides slots for a `topBar` (like `AppBar`) and a `bottomBar` (like `BottomNavigationBar`). It sizes itself to fit the `body` content. Use `extendBodyBehindTopBar` and `extendBodyBehindBottomBar` to allow the body to extend behind these bars. The visibility of the `bottomBar` can be controlled based on the sheet's offset using the `bottomBarVisibility` property with `BottomBarVisibility` options (e.g., `BottomBarVisibility.always()`, `BottomBarVisibility.conditional(...)`).
+Simillar to the [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html), it offers the slots for a `topBar` (like `AppBar`) and a `bottomBar` (like `BottomNavigationBar`). 
 
 See also:
 
@@ -306,23 +289,9 @@ See also:
 
 Although it is easy to create custom behaviors by implementing the `SheetKeyboardDismissBehavior` interface, there are predefined behaviors available as static constants for convenience:
 
-- `SheetKeyboardDismissBehavior.onDrag` (formerly `DragSheetKeyboardDismissBehavior`)
-- `SheetKeyboardDismissBehavior.onDragDown` (formerly `DragDownSheetKeyboardDismissBehavior`)
-- `SheetKeyboardDismissBehavior.onDragUp` (formerly `DragUpSheetKeyboardDismissBehavior`)
-- `SheetKeyboardDismissBehavior.never`
-
 See also:
 
 - [tutorial/keyboard_dismiss_behavior.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/keyboard_dismiss_behavior.dart) for basic usage.
-
-<br/>
-
-### SheetViewport
-
-This widget defines the area within which a `Sheet` exists and moves. It's required as an ancestor for non-modal sheets (`Sheet`, `PagedSheet`). You can use its `padding` property to create space around the sheet, preventing it from overlapping with status bars or other UI elements. Modal sheets (like those created with `ModalSheetRoute`) create their own viewport internally, but offer a `viewportPadding` property for similar control.
-
-See also:
-- [basic_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/basic_sheet.dart) for basic usage.
 
 <br/>
 
