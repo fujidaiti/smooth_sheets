@@ -14,7 +14,7 @@ part of 'paged_sheet_with_auto_route.dart';
 /// [_FirstSheetPage]
 class _FirstSheetRoute extends PageRouteInfo<void> {
   const _FirstSheetRoute({List<PageRouteInfo>? children})
-    : super(_FirstSheetRoute.name, initialChildren: children);
+      : super(_FirstSheetRoute.name, initialChildren: children);
 
   static const String name = '_FirstSheetRoute';
 
@@ -30,7 +30,7 @@ class _FirstSheetRoute extends PageRouteInfo<void> {
 /// [_HomePage]
 class _HomeRoute extends PageRouteInfo<void> {
   const _HomeRoute({List<PageRouteInfo>? children})
-    : super(_HomeRoute.name, initialChildren: children);
+      : super(_HomeRoute.name, initialChildren: children);
 
   static const String name = '_HomeRoute';
 
@@ -46,7 +46,7 @@ class _HomeRoute extends PageRouteInfo<void> {
 /// [_ModalSheetPage]
 class _ModalSheetRoute extends PageRouteInfo<void> {
   const _ModalSheetRoute({List<PageRouteInfo>? children})
-    : super(_ModalSheetRoute.name, initialChildren: children);
+      : super(_ModalSheetRoute.name, initialChildren: children);
 
   static const String name = '_ModalSheetRoute';
 
@@ -62,7 +62,7 @@ class _ModalSheetRoute extends PageRouteInfo<void> {
 /// [_SecondSheetPage]
 class _SecondSheetRoute extends PageRouteInfo<void> {
   const _SecondSheetRoute({List<PageRouteInfo>? children})
-    : super(_SecondSheetRoute.name, initialChildren: children);
+      : super(_SecondSheetRoute.name, initialChildren: children);
 
   static const String name = '_SecondSheetRoute';
 
