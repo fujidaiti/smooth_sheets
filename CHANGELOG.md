@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.11.0 Apr 5, 2025
+
+**This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.11.x.md) for more details.
+
+### Bug fixes
+
+- Question about sheet draggable [#300](https://github.com/fujidaiti/smooth_sheets/issues/300)  
+- `StickyBottomBarVisibility` positioned incorrectly for constrained sheets [#297](https://github.com/fujidaiti/smooth_sheets/issues/297)  
+- StickyBottomBarVisibility bottom bar hidden when used in navigation [#292](https://github.com/fujidaiti/smooth_sheets/issues/292)  
+- Using `go_router.go()` method to close a sheet don't seems to reset animation state [#211](https://github.com/fujidaiti/smooth_sheets/issues/211)  
+
+### New features
+
+- Add option to stretch actual sheet height when overdragging [#286](https://github.com/fujidaiti/smooth_sheets/issues/286)  
+- Add `margin` property to sheet widget [#282](https://github.com/fujidaiti/smooth_sheets/issues/282)  
+- Support iOS native modal sheet stretching behavior [#169](https://github.com/fujidaiti/smooth_sheets/issues/169)  
+- Support transparent space around sheet [#76](https://github.com/fujidaiti/smooth_sheets/issues/76)  
+
+## Improvements
+
+- Reimplement `CupertinoModalSheetRoute` and `Page` with `ModalRoute.delegatedTransition` [#293](https://github.com/fujidaiti/smooth_sheets/issues/293)  
+- Merge `ScrollableSheet` and `DraggableSheet` into a single widget to simplify the API and codebase [#285](https://github.com/fujidaiti/smooth_sheets/issues/285)  
+- Support shared bottom & top bars in `NavigationSheet` [#280](https://github.com/fujidaiti/smooth_sheets/issues/280)  
+- Make sheet size independent of its child size [#278](https://github.com/fujidaiti/smooth_sheets/issues/278)  
+- Refine sheet structure and public APIs [#276](https://github.com/fujidaiti/smooth_sheets/issues/276)  
+- Make `NavigationSheet` independent of `NavigatorObserver` [#172](https://github.com/fujidaiti/smooth_sheets/issues/172)  
+
 ## 0.10.0 Sep 28, 2024
 
 **This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md) for more details.

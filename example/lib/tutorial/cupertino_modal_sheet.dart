@@ -23,21 +23,11 @@ class _ExampleHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // It is recommended to wrap the top most non-modal page within a navigator
-    // with `CupertinoStackedTransition` to create more accurate ios 15 style
-    // transition animation; that is, while the first modal sheet goes to fullscreen,
-    // a non-modal page behind it will gradually reduce its size and the corner radius.
-    return CupertinoStackedTransition(
-      // The start and end values of the corner radius animation can be specified
-      // as the `cornerRadius` property. If `null` is specified (the default value),
-      // no corner radius animation is performed.
-      cornerRadius: Tween(begin: 0.0, end: 16.0),
-      child: CupertinoPageScaffold(
-        child: Center(
-          child: CupertinoButton.filled(
-            onPressed: () => _showModalSheet(context, isFullScreen: false),
-            child: const Text('Show Modal Sheet'),
-          ),
+    return CupertinoPageScaffold(
+      child: Center(
+        child: CupertinoButton.filled(
+          onPressed: () => _showModalSheet(context, isFullScreen: false),
+          child: const Text('Show Modal Sheet'),
         ),
       ),
     );
@@ -45,7 +35,7 @@ class _ExampleHome extends StatelessWidget {
 }
 
 void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
-  // Use `CupertinoModalSheetRoute` to show an ios 15 style modal sheet.
+  // Use `CupertinoModalSheetRoute` to show an ios style modal sheet.
   // For declarative navigation (Navigator 2.0), use `CupertinoModalSheetPage` instead.
   final modalRoute = CupertinoModalSheetRoute(
     // Enable the swipe-to-dismiss behavior.
@@ -55,31 +45,61 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
       minFlingVelocityRatio: 2.0,
       minDragDistance: 300.0,
     ),
-    builder: (context) => SheetViewport(
-      child: switch (isFullScreen) {
-        true => const _FullScreenSheet(),
-        false => const _HalfScreenSheet(),
-      },
-    ),
+    builder: (context) => switch (isFullScreen) {
+      true => const _FullScreenSheet(),
+      false => const _HalfScreenSheet(),
+    },
   );
 
   Navigator.push(context, modalRoute);
 }
 
-class _HalfScreenSheet extends StatelessWidget {
+const _sheetDecoration = BoxSheetDecoration(
+  size: SheetSize.stretch,
+  decoration: ShapeDecoration(
+    color: CupertinoColors.systemBackground,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(
+        Radius.circular(8),
+      ),
+    ),
+  ),
+);
+
+class _HalfScreenSheet extends StatefulWidget {
   const _HalfScreenSheet();
 
   @override
+  State<_HalfScreenSheet> createState() => _HalfScreenSheetState();
+}
+
+class _HalfScreenSheetState extends State<_HalfScreenSheet> {
+  late final SheetController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = SheetController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // `CupertinoStackedTransition` won't start the transition animation until
-    // the visible height of a modal sheet (the position) exceeds 50% of the screen height.
-    return const DraggableSheet(
-      initialPosition: SheetAnchor.proportional(0.5),
-      minPosition: SheetAnchor.proportional(0.5),
-      physics: BouncingSheetPhysics(
-        parent: SnappingSheetPhysics(),
+    return Sheet(
+      controller: _controller,
+      decoration: _sheetDecoration,
+      initialOffset: const SheetOffset(0.5),
+      snapGrid: const SheetSnapGrid(
+        snaps: [SheetOffset(0.5), SheetOffset(1)],
       ),
-      child: _SheetContent(),
+      child: _SheetContent(
+        controller: _controller,
+      ),
     );
   }
 }
@@ -89,51 +109,57 @@ class _FullScreenSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap the sheet with `SheetDismissible` to
-    // enable the pull-to-dismiss action.
-    return const DraggableSheet(
+    return const Sheet(
+      decoration: _sheetDecoration,
       child: _SheetContent(),
     );
   }
 }
 
 class _SheetContent extends StatelessWidget {
-  const _SheetContent();
+  const _SheetContent({this.controller});
+
+  final SheetController? controller;
 
   @override
   Widget build(BuildContext context) {
     // Nothing special here, just a simple modal sheet content.
-    return DecoratedBox(
-      decoration: const ShapeDecoration(
-        color: CupertinoColors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(16),
-          ),
-        ),
-      ),
-      child: SizedBox.expand(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CupertinoButton.filled(
-                onPressed: () {
-                  // `DefaultSheetController.of` is a handy way to obtain a `SheetController`
-                  // that is exposed by the parent `CupertinoModalSheetRoute`.
-                  DefaultSheetController.maybeOf(context)
-                      ?.animateTo(const SheetAnchor.proportional(1));
-                  _showModalSheet(context, isFullScreen: true);
-                },
-                child: const Text('Stack'),
-              ),
-              const SizedBox(height: 16),
-              CupertinoButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Close'),
-              ),
-            ],
-          ),
+    return SizedBox.expand(
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton.filled(
+              onPressed: () {
+                controller?.animateTo(const SheetOffset(1));
+                _showModalSheet(context, isFullScreen: true);
+              },
+              child: const Text('Stack modal sheet'),
+            ),
+            const SizedBox(height: 16),
+            CupertinoButton.tinted(
+              onPressed: () {
+                showCupertinoDialog(
+                  context: context,
+                  builder: (context) => CupertinoAlertDialog(
+                    title: const Text('Hello'),
+                    actions: [
+                      CupertinoDialogAction(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Close'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: const Text('Open dialog'),
+            ),
+            const SizedBox(height: 16),
+            CupertinoButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
         ),
       ),
     );

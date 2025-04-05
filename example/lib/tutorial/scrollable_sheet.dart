@@ -10,18 +10,20 @@ class _BasicScrollableSheetExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      // Typically, you would use a Stack to place the sheet
-      // on top of another widget.
+    return MaterialApp(
+      // Use a Stack to place the sheet on top of another widget.
       home: Stack(
         children: [
-          Scaffold(),
-          SafeArea(
-            bottom: false,
-            child: SheetViewport(
-              child: _MySheet(),
-            ),
-          ),
+          const Scaffold(),
+          Builder(builder: (context) {
+            return SheetViewport(
+              padding: EdgeInsets.only(
+                // Add top padding to avoid the status bar.
+                top: MediaQuery.viewPaddingOf(context).top,
+              ),
+              child: const _MySheet(),
+            );
+          }),
         ],
       ),
     );
@@ -33,48 +35,30 @@ class _MySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Create a content whatever you want.
-    // ScrollableSheet works with any scrollable widget such as
-    // ListView, GridView, CustomScrollView, etc.
-    final content = ListView.builder(
-      itemCount: 50,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('Item $index'),
-        );
-      },
-    );
-
-    // Just wrap the content in a ScrollableSheet!
-    final sheet = ScrollableSheet(
-      child: buildSheetBackground(context, content),
-      // Optional: Comment out the following lines to add multiple stop positions.
-      //
-      // minPosition: const SheetAnchor.proportional(0.2),
-      // physics: BouncingSheetPhysics(
-      //   parent: SnappingSheetPhysics(
-      //     snappingBehavior: SnapToNearest(
-      //       snapTo: [
-      //         const SheetAnchor.proportional(0.2),
-      //         const SheetAnchor.proportional(0.5),
-      //         const SheetAnchor.proportional(1),
-      //       ],
-      //     ),
-      //   ),
-      // ),
-    );
-
-    return sheet;
-  }
-
-  Widget buildSheetBackground(BuildContext context, Widget content) {
-    // Add background color, circular corners and material shadow to the sheet.
-    // This is just an example, you can customize it however you want.
-    return Material(
-      color: Theme.of(context).colorScheme.secondaryContainer,
-      borderRadius: BorderRadius.circular(16),
-      clipBehavior: Clip.antiAlias,
-      child: content,
+    return Sheet(
+      decoration: MaterialSheetDecoration(
+        size: SheetSize.stretch,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        elevation: 4,
+      ),
+      snapGrid: const SheetSnapGrid(
+        snaps: [SheetOffset(0.5), SheetOffset(1)],
+      ),
+      // Specify a scroll configuration to make the sheet scrollable.
+      scrollConfiguration: const SheetScrollConfiguration(),
+      // Sheet widget works with any scrollable widget such as
+      // ListView, GridView, CustomScrollView, etc.
+      child: ListView.builder(
+        itemCount: 50,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text('Item $index'),
+          );
+        },
+      ),
     );
   }
 }

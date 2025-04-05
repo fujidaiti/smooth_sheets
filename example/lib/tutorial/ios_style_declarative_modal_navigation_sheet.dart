@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
-/// Example code of iOS style modal `NavigationSheet` with go_router.
+/// Example code of iOS style modal `PagedSheet` with go_router.
 void main() {
   runApp(const _App());
 }
-
-final transitionObserver = NavigationSheetTransitionObserver();
 
 final router = GoRouter(
   initialLocation: '/',
@@ -19,7 +17,6 @@ final router = GoRouter(
         },
         routes: [
           ShellRoute(
-            observers: [transitionObserver],
             pageBuilder: (context, state, child) {
               return CupertinoModalSheetPage(
                 key: state.pageKey,
@@ -30,7 +27,7 @@ final router = GoRouter(
               GoRoute(
                 path: 'modal',
                 pageBuilder: (context, state) {
-                  return DraggableNavigationSheetPage(
+                  return PagedSheetPage(
                     key: state.pageKey,
                     child: Container(color: Colors.white),
                   );
@@ -56,14 +53,11 @@ class _Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoStackedTransition(
-      cornerRadius: Tween(begin: 0, end: 20),
-      child: Scaffold(
-        body: Center(
-          child: TextButton(
-            onPressed: () => context.go('/modal'),
-            child: const Text('Show Sheet'),
-          ),
+    return Scaffold(
+      body: Center(
+        child: TextButton(
+          onPressed: () => context.go('/modal'),
+          child: const Text('Show Sheet'),
         ),
       ),
     );
@@ -79,16 +73,14 @@ class _Modal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetViewport(
-      child: NavigationSheet(
-        transitionObserver: transitionObserver,
-        child: Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          clipBehavior: Clip.antiAlias,
-          child: nestedNavigator,
-        ),
+    return PagedSheet(
+      decoration: MaterialSheetDecoration(
+        size: SheetSize.fit,
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.antiAlias,
+        color: Theme.of(context).colorScheme.primary,
       ),
+      navigator: nestedNavigator,
     );
   }
 }

@@ -6,8 +6,6 @@ void main() {
   runApp(MaterialApp.router(routerConfig: _router));
 }
 
-final _transitionObserver = NavigationSheetTransitionObserver();
-
 final _router = GoRouter(
   routes: [
     GoRoute(
@@ -15,14 +13,10 @@ final _router = GoRouter(
       builder: (context, state) => const _Home(),
       routes: [
         ShellRoute(
-          observers: [_transitionObserver],
           pageBuilder: (context, state, child) {
             return ModalSheetPage(
-              child: SheetViewport(
-                child: _MySheet(
-                  transitionObserver: _transitionObserver,
-                  navigator: child,
-                ),
+              child: _MySheet(
+                navigator: child,
               ),
             );
           },
@@ -30,7 +24,7 @@ final _router = GoRouter(
             GoRoute(
               path: 'a',
               pageBuilder: (context, state) {
-                return DraggableNavigationSheetPage(
+                return PagedSheetPage(
                   key: state.pageKey,
                   child: const _EditablePageContent(
                     height: 600,
@@ -43,7 +37,7 @@ final _router = GoRouter(
                 GoRoute(
                   path: 'b',
                   pageBuilder: (context, state) {
-                    return DraggableNavigationSheetPage(
+                    return PagedSheetPage(
                       key: state.pageKey,
                       child: const _EditablePageContent(
                         height: 300,
@@ -56,7 +50,7 @@ final _router = GoRouter(
                     GoRoute(
                       path: 'c',
                       pageBuilder: (context, state) {
-                        return DraggableNavigationSheetPage(
+                        return PagedSheetPage(
                           key: state.pageKey,
                           child: const _EditablePageContent(
                             nextLocation: '/',
@@ -100,21 +94,21 @@ class _Home extends StatelessWidget {
 
 class _MySheet extends StatelessWidget {
   const _MySheet({
-    required this.transitionObserver,
     required this.navigator,
   });
 
-  final NavigationSheetTransitionObserver transitionObserver;
   final Widget navigator;
 
   @override
   Widget build(BuildContext context) {
-    return NavigationSheet(
-      transitionObserver: transitionObserver,
-      child: ColoredBox(
-        color: Colors.white,
-        child: navigator,
+    return PagedSheet(
+      decoration: const MaterialSheetDecoration(
+        size: SheetSize.stretch,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
       ),
+      navigator: navigator,
     );
   }
 }
@@ -135,20 +129,23 @@ class _EditablePageContent extends StatelessWidget {
     return SheetContentScaffold(
       body: SizedBox(
         height: height,
-        child: Column(
-          children: [
-            TextField(
-              autofocus: autofocus,
-            ),
-            ElevatedButton(
-              onPressed: () => context.go(nextLocation),
-              child: const Text('Next'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Back'),
-            ),
-          ],
+        child: Padding(
+          padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+          child: Column(
+            children: [
+              TextField(
+                autofocus: autofocus,
+              ),
+              ElevatedButton(
+                onPressed: () => context.go(nextLocation),
+                child: const Text('Next'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Back'),
+              ),
+            ],
+          ),
         ),
       ),
     );

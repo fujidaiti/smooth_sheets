@@ -31,6 +31,7 @@ final _router = GoRouter(
                 minFlingVelocityRatio: 2.0,
                 minDragDistance: 200.0,
               ),
+              // You don't need a SheetViewport for the modal sheet.
               child: const _ExampleSheet(),
             );
           },
@@ -74,7 +75,7 @@ class _ExampleSheet extends StatelessWidget {
     // the system back gestures and tapping on the barrier, all in one place.
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, _) async {
         if (!didPop) {
           final shouldPop = await showConfirmationDialog(context);
           if (shouldPop == true && context.mounted) {
@@ -82,17 +83,19 @@ class _ExampleSheet extends StatelessWidget {
           }
         }
       },
-      child: DraggableSheet(
-        child: Card(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          margin: EdgeInsets.zero,
+      child: Sheet(
+        decoration: MaterialSheetDecoration(
+          size: SheetSize.stretch,
+          color: Colors.red,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const SizedBox(
-            height: 500,
-            width: double.infinity,
-          ),
+        ),
+        child: Container(
+          height: 500,
+          width: double.infinity,
+          color: Theme.of(context).colorScheme.secondaryContainer,
         ),
       ),
     );

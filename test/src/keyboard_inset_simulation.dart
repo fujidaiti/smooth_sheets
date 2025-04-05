@@ -31,7 +31,7 @@ class KeyboardInsetSimulationState extends State<KeyboardInsetSimulation>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
-  Future<void> showKeyboard(Duration duration) async {
+  Future<void> showKeyboard(Duration duration) {
     assert(_controller.isDismissed);
     return _controller.animateTo(widget.keyboardHeight, duration: duration);
   }

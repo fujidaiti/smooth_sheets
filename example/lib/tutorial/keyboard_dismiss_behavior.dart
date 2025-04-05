@@ -133,14 +133,13 @@ class _ExampleHomeState extends State<_ExampleHome> {
       context,
       ModalSheetRoute(
         swipeDismissible: true, // Enable the swipe-to-dismiss behavior.
-        builder: (context) => SafeArea(
-          bottom: false,
-          child: SheetViewport(
-            child: _ExampleSheet(
-              isFullScreen: isFullScreen,
-              keyboardDismissBehavior: keyboardDismissBehavior,
-            ),
-          ),
+        viewportPadding: EdgeInsets.only(
+          // Add the top padding to avoid the status bar.
+          top: MediaQuery.viewPaddingOf(context).top,
+        ),
+        builder: (context) => _ExampleSheet(
+          isFullScreen: isFullScreen,
+          keyboardDismissBehavior: keyboardDismissBehavior,
         ),
       ),
     );
@@ -166,34 +165,41 @@ class _ExampleSheet extends StatelessWidget {
         ),
       ),
     );
-
     if (isFullScreen) {
       body = SizedBox.expand(child: body);
     }
 
+    final bottomBar = ColoredBox(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.menu),
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.more_vert),
+            ),
+          ],
+        ),
+      ),
+    );
+
     return SheetKeyboardDismissible(
       dismissBehavior: keyboardDismissBehavior,
-      child: ScrollableSheet(
+      child: Sheet(
+        scrollConfiguration: const SheetScrollConfiguration(),
+        decoration: MaterialSheetDecoration(
+          size: SheetSize.stretch,
+          color: Theme.of(context).colorScheme.secondaryContainer,
+        ),
         child: SheetContentScaffold(
-          appBar: AppBar(),
+          topBar: AppBar(),
           body: body,
-          bottomBar: StickyBottomBarVisibility(
-            child: BottomAppBar(
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.menu),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.more_vert),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          bottomBar: bottomBar,
         ),
       ),
     );

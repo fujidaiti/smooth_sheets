@@ -40,45 +40,31 @@
       "cwd": "./example"
     },
     {
-      "name": "Draggable Sheet",
+      "name": "iOS-Style Modal Paged Sheet (with go_router)",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/draggable_sheet.dart",
+      "program": "lib/tutorial/ios_style_declarative_modal_paged_sheet.dart",
       "cwd": "./example"
     },
     {
-      "name": "iOS-Style Modal Navigation Sheet (with go_router)",
+      "name": "Declarative Paged Sheet",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart",
+      "program": "lib/tutorial/declarative_paged_sheet.dart",
       "cwd": "./example"
     },
     {
-      "name": "Declarative Navigation Sheet",
+      "name": "Imperative Paged Sheet",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/declarative_navigation_sheet.dart",
+      "program": "lib/tutorial/imperative_paged_sheet.dart",
       "cwd": "./example"
     },
     {
-      "name": "Imperative Navigation Sheet",
+      "name": "Sheet Physics and Snap Grid",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/imperative_navigation_sheet.dart",
-      "cwd": "./example"
-    },
-    {
-      "name": "Sheet Physics",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/tutorial/sheet_physics.dart",
-      "cwd": "./example"
-    },
-    {
-      "name": "Sheet Content Scaffold",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/tutorial/sheet_content_scaffold.dart",
+      "program": "lib/tutorial/physics_and_snap_grid.dart",
       "cwd": "./example"
     },
     {
@@ -96,10 +82,10 @@
       "cwd": "./example"
     },
     {
-      "name": "Sheet Draggable",
+      "name": "Basic Sheet",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/sheet_draggable.dart",
+      "program": "lib/tutorial/basic_sheet.dart",
       "cwd": "./example"
     },
     {
@@ -124,10 +110,10 @@
       "cwd": "./example"
     },
     {
-      "name": "Extent Driven Animation",
+      "name": "Offset Driven Animation",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/extent_driven_animation.dart",
+      "program": "lib/tutorial/offset_driven_animation.dart",
       "cwd": "./example"
     },
     {
@@ -138,10 +124,10 @@
       "cwd": "./example"
     },
     {
-      "name": "Navigation Sheet and Keyboard",
+      "name": "Paged Sheet and Keyboard",
       "request": "launch",
       "type": "dart",
-      "program": "lib/tutorial/navigation_sheet_and_keyboard.dart",
+      "program": "lib/tutorial/paged_sheet_and_keyboard.dart",
       "cwd": "./example"
     },
     {
@@ -156,6 +142,13 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/tutorial/textfield_with_multiple_stops.dart",
+      "cwd": "./example"
+    },
+    {
+      "name": "Sheet Decorations",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/decorations.dart",
       "cwd": "./example"
     }
   ]

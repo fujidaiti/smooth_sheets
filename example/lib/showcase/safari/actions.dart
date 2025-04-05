@@ -1,5 +1,6 @@
 import 'package:cookbook/showcase/safari/common.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 void showEditActionsSheet(BuildContext context) {
@@ -8,9 +9,7 @@ void showEditActionsSheet(BuildContext context) {
     CupertinoModalSheetRoute(
       swipeDismissible: true,
       builder: (context) {
-        return const SheetViewport(
-          child: EditActionsSheet(),
-        );
+        return const EditActionsSheet();
       },
     ),
   );
@@ -21,20 +20,30 @@ class EditActionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollableSheet(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SheetContentScaffold(
-          backgroundColor: CupertinoColors.systemGroupedBackground,
-          appBar: CupertinoAppBar(
-            title: const Text('Edit Actions'),
-            trailing: CupertinoButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Done'),
+    return Sheet(
+      scrollConfiguration: const SheetScrollConfiguration(),
+      decoration: SheetDecorationBuilder(
+        size: SheetSize.stretch,
+        builder: (context, child) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: ColoredBox(
+              color: CupertinoColors.systemGroupedBackground,
+              child: child,
             ),
+          );
+        },
+      ),
+      child: SheetContentScaffold(
+        backgroundColor: Colors.transparent,
+        topBar: CupertinoAppBar(
+          title: const Text('Edit Actions'),
+          trailing: CupertinoButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Done'),
           ),
-          body: const _ActionList(),
         ),
+        body: const _ActionList(),
       ),
     );
   }

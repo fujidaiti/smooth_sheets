@@ -1,4 +1,4 @@
-import 'package:faker/faker.dart';
+import 'package:faker/faker.dart' hide Image, Color;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -80,11 +80,10 @@ class _MapButton extends StatelessWidget {
     final sheetController = DefaultSheetController.of(context);
 
     void onPressed() {
-      final metrics = sheetController.metrics;
-      if (metrics.hasDimensions) {
+      if (sheetController.metrics case final it?) {
         // Collapse the sheet to reveal the map behind.
         sheetController.animateTo(
-          SheetAnchor.pixels(metrics.minPixels),
+          SheetOffset.absolute(it.minOffset),
           curve: Curves.fastOutSlowIn,
         );
       }
@@ -101,15 +100,15 @@ class _MapButton extends StatelessWidget {
     // by using 'PositionDrivenAnimation', a special kind of
     // 'Animation<double>' whose value changes from 0 to 1 as
     // the sheet position changes from 'startPosition' to 'endPosition'.
-    final animation = SheetPositionDrivenAnimation(
+    final animation = SheetOffsetDrivenAnimation(
       controller: DefaultSheetController.of(context),
       // The initial value of the animation is required
       // since the sheet position is not available at the first build.
       initialValue: 1,
       // If null, the minimum position will be used. (Default)
-      startPosition: null,
+      startOffset: null,
       // If null, the maximum position will be used. (Default)
-      endPosition: null,
+      endOffset: null,
     ).drive(CurveTween(curve: Curves.easeInExpo));
 
     // Hide the button when the sheet is dragged down.
@@ -155,42 +154,30 @@ class _ContentSheet extends StatelessWidget {
         final appbarHeight = MediaQuery.of(context).padding.top;
         final handleHeight = const _ContentSheetHandle().preferredSize.height;
         final sheetHeight = parentHeight - appbarHeight + handleHeight;
-        final minSheetPosition =
-            SheetAnchor.pixels(handleHeight + systemUiInsets.bottom);
-
-        const sheetShape = RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(20),
-          ),
-        );
-
-        final sheetPhysics = BouncingSheetPhysics(
-          parent: SnappingSheetPhysics(
-            behavior: SnapToNearest(
-              anchors: [
-                minSheetPosition,
-                const SheetAnchor.proportional(1),
-              ],
-            ),
-          ),
-        );
+        final minSheetOffset =
+            SheetOffset.absolute(handleHeight + systemUiInsets.bottom);
 
         return SheetViewport(
-          child: ScrollableSheet(
-            physics: sheetPhysics,
-            minPosition: minSheetPosition,
+          child: Sheet(
+            scrollConfiguration: const SheetScrollConfiguration(),
+            snapGrid: SheetSnapGrid(
+              snaps: [minSheetOffset, const SheetOffset(1)],
+            ),
+            decoration: const MaterialSheetDecoration(
+              size: SheetSize.fit,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+              ),
+            ),
             child: SizedBox(
               height: sheetHeight,
-              child: const Card(
-                margin: EdgeInsets.zero,
-                clipBehavior: Clip.antiAlias,
-                shape: sheetShape,
-                child: Column(
-                  children: [
-                    _ContentSheetHandle(),
-                    Expanded(child: _HouseList()),
-                  ],
-                ),
+              child: const Column(
+                children: [
+                  _ContentSheetHandle(),
+                  Expanded(child: _HouseList()),
+                ],
               ),
             ),
           ),
@@ -209,26 +196,24 @@ class _ContentSheetHandle extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return SheetDraggable(
-      child: SizedBox(
-        height: preferredSize.height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              buildIndicator(),
-              const SizedBox(height: 16),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    '646 national park homes',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
+    return SizedBox.fromSize(
+      size: preferredSize,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            buildIndicator(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Center(
+                child: Text(
+                  '646 national park homes',
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -263,7 +248,7 @@ class _HouseList extends StatelessWidget {
 
     // Hide the list when the sheet is dragged down.
     return FadeTransition(
-      opacity: SheetPositionDrivenAnimation(
+      opacity: SheetOffsetDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ).drive(
@@ -289,12 +274,7 @@ class _House {
       rating: faker.randomGenerator.decimal(scale: 1.5, min: 3.5),
       distance: faker.randomGenerator.integer(300, min: 50),
       charge: faker.randomGenerator.integer(2000, min: 500),
-      image: faker.image.image(
-        width: 300,
-        height: 300,
-        random: true,
-        keywords: ['cottage'],
-      ),
+      image: faker.image.loremPicsum(width: 300, height: 300),
     );
   }
 
@@ -455,7 +435,7 @@ class _BottomNavigationBar extends StatelessWidget {
 
     // Hide the navigation bar when the sheet is dragged down.
     return SlideTransition(
-      position: SheetPositionDrivenAnimation(
+      position: SheetOffsetDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
       ).drive(

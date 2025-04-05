@@ -10,11 +10,7 @@ void showMenuSheet(BuildContext context) {
     context,
     CupertinoModalSheetRoute(
       swipeDismissible: true,
-      builder: (context) {
-        return const SheetViewport(
-          child: MenuSheet(),
-        );
-      },
+      builder: (context) => const MenuSheet(),
     ),
   );
 }
@@ -24,28 +20,36 @@ class MenuSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const halfWayPosition = SheetAnchor.proportional(0.5);
-    return ScrollableSheet(
-      initialPosition: halfWayPosition,
-      minPosition: halfWayPosition,
-      physics: const BouncingSheetPhysics(
-        parent: SnappingSheetPhysics(),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: const SheetContentScaffold(
-          backgroundColor: CupertinoColors.systemGroupedBackground,
-          body: Column(
-            children: [
-              _TopBar(
-                pageTitle: 'Apple',
-                displayUrl: 'apple.com',
-                faviconUrl: 'https://www.apple.com/favicon.ico',
+    const halfWayOffset = SheetOffset(0.5);
+    return DefaultSheetController(
+      child: Sheet(
+        scrollConfiguration: const SheetScrollConfiguration(),
+        initialOffset: halfWayOffset,
+        snapGrid: SheetSnapGrid(
+          snaps: [halfWayOffset, SheetOffset(1)],
+        ),
+        decoration: SheetDecorationBuilder(
+          size: SheetSize.stretch,
+          builder: (context, child) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: ColoredBox(
+                color: CupertinoColors.systemGroupedBackground,
+                child: child,
               ),
-              Divider(height: 1, color: CupertinoColors.systemGrey5),
-              Expanded(child: _MenuList()),
-            ],
-          ),
+            );
+          },
+        ),
+        child: Column(
+          children: [
+            _TopBar(
+              pageTitle: 'Apple',
+              displayUrl: 'apple.com',
+              faviconUrl: 'https://www.apple.com/favicon.ico',
+            ),
+            Divider(height: 1, color: CupertinoColors.systemGrey5),
+            Expanded(child: _MenuList()),
+          ],
         ),
       ),
     );
@@ -153,8 +157,7 @@ class _MenuListItem extends StatelessWidget {
       title: Text(title),
       trailing: Icon(icon, color: CupertinoColors.black),
       onTap: () {
-        DefaultSheetController.maybeOf(context)
-            ?.animateTo(const SheetAnchor.proportional(1));
+        DefaultSheetController.of(context).animateTo(const SheetOffset(1));
         showEditBookmarkSheet(context);
       },
     );
@@ -190,7 +193,8 @@ class _TopBar extends StatelessWidget {
           ?.copyWith(color: CupertinoColors.secondaryLabel),
     );
 
-    return SheetDraggable(
+    return ColoredBox(
+      color: CupertinoColors.systemGroupedBackground,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,

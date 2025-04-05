@@ -3,4 +3,4 @@ targets:
     builders:
       mockito|mockBuilder:
         generate_for:
-          - test/src/*.dart
+          - test/**/*.dart

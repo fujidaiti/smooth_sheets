@@ -58,7 +58,7 @@ class _ExampleSheet extends StatelessWidget {
     // the system back gestures and tapping on the barrier, all in one place.
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, _) async {
         if (!didPop) {
           final shouldPop = await showConfirmationDialog(context);
           if (shouldPop == true && context.mounted) {
@@ -66,18 +66,19 @@ class _ExampleSheet extends StatelessWidget {
           }
         }
       },
-      child: DraggableSheet(
-        minPosition: const SheetAnchor.proportional(0.5),
-        child: Card(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const SizedBox(
-            height: 700,
-            width: double.infinity,
-          ),
+      child: Sheet(
+        snapGrid: const SheetSnapGrid(
+          snaps: [SheetOffset(0.5), SheetOffset(1)],
+        ),
+        decoration: MaterialSheetDecoration(
+          size: SheetSize.fit,
+          borderRadius: BorderRadius.circular(20),
+          clipBehavior: Clip.antiAlias,
+        ),
+        child: Container(
+          height: 700,
+          width: double.infinity,
+          color: Theme.of(context).colorScheme.surface,
         ),
       ),
     );

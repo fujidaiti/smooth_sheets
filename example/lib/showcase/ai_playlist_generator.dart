@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
@@ -41,8 +42,6 @@ class _AiPlaylistGeneratorExample extends StatelessWidget {
 // Routes
 // ----------------------------------------------------------
 
-final sheetTransitionObserver = NavigationSheetTransitionObserver();
-
 final router = GoRouter(
   routes: [
     GoRoute(
@@ -53,16 +52,21 @@ final router = GoRouter(
   ],
 );
 
+final _nestedNavigatorKey = GlobalKey<NavigatorState>();
+
 // A ShellRoute is used to create a new Navigator for nested navigation in the sheet.
 final _sheetShellRoute = ShellRoute(
-  observers: [sheetTransitionObserver],
+  navigatorKey: _nestedNavigatorKey,
   pageBuilder: (context, state, navigator) {
     // Use ModalSheetPage to show a modal sheet.
     return ModalSheetPage(
       swipeDismissible: true,
+      viewportPadding: EdgeInsets.only(
+        // Add the top padding to avoid the status bar.
+        top: MediaQuery.viewPaddingOf(context).top,
+      ),
       child: _SheetShell(
         navigator: navigator,
-        transitionObserver: sheetTransitionObserver,
       ),
     );
   },
@@ -72,7 +76,11 @@ final _sheetShellRoute = ShellRoute(
 final _introRoute = GoRoute(
   path: 'intro',
   pageBuilder: (context, state) {
-    return const DraggableNavigationSheetPage(child: _IntroPage());
+    return const PagedSheetPage(
+      // Use a custom transition builder.
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      child: _IntroPage(),
+    );
   },
   routes: [_genreRoute],
 );
@@ -80,7 +88,10 @@ final _introRoute = GoRoute(
 final _genreRoute = GoRoute(
   path: 'genre',
   pageBuilder: (context, state) {
-    return const DraggableNavigationSheetPage(child: _SelectGenrePage());
+    return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      child: _SelectGenrePage(),
+    );
   },
   routes: [_moodRoute],
 );
@@ -88,7 +99,10 @@ final _genreRoute = GoRoute(
 final _moodRoute = GoRoute(
   path: 'mood',
   pageBuilder: (context, state) {
-    return const DraggableNavigationSheetPage(child: _SelectMoodPage());
+    return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      child: _SelectMoodPage(),
+    );
   },
   routes: [_seedTrackRoute],
 );
@@ -96,7 +110,11 @@ final _moodRoute = GoRoute(
 final _seedTrackRoute = GoRoute(
   path: 'seed-track',
   pageBuilder: (context, state) {
-    return const ScrollableNavigationSheetPage(child: _SelectSeedTrackPage());
+    return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      scrollConfiguration: SheetScrollConfiguration(),
+      child: _SelectSeedTrackPage(),
+    );
   },
   routes: [_confirmRoute],
 );
@@ -104,11 +122,12 @@ final _seedTrackRoute = GoRoute(
 final _confirmRoute = GoRoute(
   path: 'confirm',
   pageBuilder: (context, state) {
-    return const ScrollableNavigationSheetPage(
-      initialPosition: SheetAnchor.proportional(0.7),
-      minPosition: SheetAnchor.proportional(0.7),
-      physics: BouncingSheetPhysics(
-        parent: SnappingSheetPhysics(),
+    return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      scrollConfiguration: SheetScrollConfiguration(),
+      initialOffset: SheetOffset(0.7),
+      snapGrid: SheetSnapGrid(
+        snaps: [SheetOffset(0.7), SheetOffset(1)],
       ),
       child: _ConfirmPage(),
     );
@@ -119,7 +138,10 @@ final _confirmRoute = GoRoute(
 final _generateRoute = GoRoute(
   path: 'generate',
   pageBuilder: (context, state) {
-    return const DraggableNavigationSheetPage(child: _GeneratingPage());
+    return const PagedSheetPage(
+      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      child: _GeneratingPage(),
+    );
   },
 );
 
@@ -144,11 +166,9 @@ class _Root extends StatelessWidget {
 
 class _SheetShell extends StatelessWidget {
   const _SheetShell({
-    required this.transitionObserver,
     required this.navigator,
   });
 
-  final NavigationSheetTransitionObserver transitionObserver;
   final Widget navigator;
 
   @override
@@ -176,30 +196,34 @@ class _SheetShell extends StatelessWidget {
       );
     }
 
-    return SafeArea(
-      bottom: false,
-      child: PopScope(
-        canPop: false,
-        onPopInvoked: (didPop) async {
-          if (!didPop) {
-            final shouldPop = await showCancelDialog() ?? false;
-            if (shouldPop && context.mounted) {
-              context.go('/');
-            }
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (!didPop) {
+          final shouldPop = await showCancelDialog() ?? false;
+          if (shouldPop && context.mounted) {
+            context.go('/');
           }
-        },
-        child: SheetViewport(
-          child: NavigationSheet(
-            transitionObserver: sheetTransitionObserver,
-            child: Material(
-              // Add circular corners to the sheet.
-              borderRadius: BorderRadius.circular(16),
-              clipBehavior: Clip.antiAlias,
-              color: Theme.of(context).colorScheme.surface,
-              child: navigator,
-            ),
-          ),
+        }
+      },
+      child: PagedSheet(
+        decoration: MaterialSheetDecoration(
+          size: SheetSize.stretch,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          color: Theme.of(context).colorScheme.surface,
         ),
+        builder: (context, child) {
+          return SheetContentScaffold(
+            bottomBarVisibility: const BottomBarVisibility.always(),
+            extendBodyBehindTopBar: true,
+            extendBodyBehindBottomBar: true,
+            topBar: const _SharedSheetTopBar(),
+            body: child,
+            bottomBar: const _SharedSheetBottomBar(),
+          );
+        },
+        navigator: navigator,
       ),
     );
   }
@@ -210,45 +234,20 @@ class _IntroPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
-      appBar: _SharedAppBarHero(
-        appbar: AppBar(
-          leading: IconButton(
-            onPressed: () => context.go('/'),
-            icon: const Icon(Icons.close),
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 32,
-            vertical: 8,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Hello there!\n"
-                "I'm your AI music assistant. "
-                "Ready to create the perfect playlist for you. 😊",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineMediumBold,
-              ),
-              const SizedBox(height: 64),
-              FilledButton(
-                onPressed: () => context.go('/intro/genre'),
-                style: _largeFilledButtonStyle,
-                child: const Text('Continue'),
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => context.go('/'),
-                style: _largeTextButtonStyle,
-                child: const Text('No, thanks'),
-              ),
-            ],
-          ),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(32, 8, 32, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Hello there!\n"
+              "I'm your AI music assistant. "
+              "Ready to create the perfect playlist for you. 😊",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineMediumBold,
+            ),
+          ],
         ),
       ),
     );
@@ -260,38 +259,31 @@ class _SelectGenrePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
-      appBar: _SharedAppBarHero(appbar: AppBar()),
-      // Wrap the body in a SingleChildScrollView to prevent
-      // the content from overflowing on small screens.
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          vertical: 8,
-          horizontal: 32,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'What genre do you like? (1/3)',
-              style: Theme.of(context).textTheme.headlineMediumBold,
-            ),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 10,
-              children: [
-                for (final genre in _genres)
-                  _SelectableChip(
-                    label: Text(genre),
-                  ),
-              ],
-            ),
-          ],
-        ),
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        top: MediaQuery.paddingOf(context).top + 8,
+        bottom: MediaQuery.paddingOf(context).bottom + 8,
+        left: 32,
+        right: 32,
       ),
-      bottomBar: _BottomActionBar(
-        label: 'Next',
-        onPressed: () => context.go('/intro/genre/mood'),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'What genre do you like? (1/3)',
+            style: Theme.of(context).textTheme.headlineMediumBold,
+          ),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 10,
+            children: [
+              for (final genre in _genres)
+                _SelectableChip(
+                  label: Text(genre),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -302,9 +294,8 @@ class _SelectMoodPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
-      appBar: _SharedAppBarHero(appbar: AppBar()),
-      body: SingleChildScrollView(
+    return SafeArea(
+      child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 24),
           child: Column(
@@ -326,10 +317,6 @@ class _SelectMoodPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomBar: _BottomActionBar(
-        label: 'Next',
-        onPressed: () => context.go('/intro/genre/mood/seed-track'),
-      ),
     );
   }
 }
@@ -339,32 +326,23 @@ class _SelectSeedTrackPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
-      appBar: _SharedAppBarHero(appbar: AppBar()),
-      body: ListView.builder(
-        itemCount: _seedTracks.length + 1,
-        itemBuilder: (context, index) {
-          return switch (index) {
-            0 => Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
-                child: Text(
-                  'Select seed tracks to get started (3/3)',
-                  style: Theme.of(context).textTheme.headlineMediumBold,
-                ),
+    return ListView.builder(
+      itemCount: _seedTracks.length + 1,
+      itemBuilder: (context, index) {
+        return switch (index) {
+          0 => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+              child: Text(
+                'Select seed tracks to get started (3/3)',
+                style: Theme.of(context).textTheme.headlineMediumBold,
               ),
-            _ => _SelectableListTile(
-                padding: const EdgeInsets.only(left: 16),
-                title: _seedTracks[index - 1],
-              ),
-          };
-        },
-      ),
-      bottomBar: _BottomActionBar(
-        label: 'Next',
-        showDivider: true,
-        onPressed: () => context.go('/intro/genre/mood/seed-track/confirm'),
-      ),
+            ),
+          _ => _SelectableListTile(
+              padding: const EdgeInsets.only(left: 16),
+              title: _seedTracks[index - 1],
+            ),
+        };
+      },
     );
   }
 }
@@ -374,99 +352,84 @@ class _ConfirmPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
-      appBar: _SharedAppBarHero(appbar: AppBar()),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 32),
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 32),
-                    child: Text(
-                      'Confirm your choices',
-                      style: Theme.of(context).textTheme.headlineMediumBold,
-                    ),
+    return Padding(
+      padding: const EdgeInsets.only(left: 32),
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 32),
+                  child: Text(
+                    'Confirm your choices',
+                    style: Theme.of(context).textTheme.headlineMediumBold,
                   ),
-                  const SizedBox(height: 24),
-                  ListTile(
-                    title: const Text('Genres'),
-                    trailing: IconButton(
-                      onPressed: () => context.go('/intro/genre'),
-                      icon: const Icon(Icons.edit_outlined),
-                    ),
+                ),
+                const SizedBox(height: 24),
+                ListTile(
+                  title: const Text('Genres'),
+                  trailing: IconButton(
+                    onPressed: () => context.go('/intro/genre'),
+                    icon: const Icon(Icons.edit_outlined),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 32),
-                    child: Wrap(
-                      spacing: 10,
-                      children: [
-                        for (final genre in _genres.take(5))
-                          FilterChip(
-                            selected: true,
-                            label: Text(genre),
-                            onSelected: (_) {},
-                          ),
-                      ],
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 32),
+                  child: Wrap(
+                    spacing: 10,
+                    children: [
+                      for (final genre in _genres.take(5))
+                        FilterChip(
+                          selected: true,
+                          label: Text(genre),
+                          onSelected: (_) {},
+                        ),
+                    ],
                   ),
-                  const Divider(height: 32),
-                  ListTile(
-                    title: const Text('Mood'),
-                    trailing: IconButton(
-                      onPressed: () => context.go('/intro/genre/mood'),
-                      icon: const Icon(Icons.edit_outlined),
-                    ),
+                ),
+                const Divider(height: 32),
+                ListTile(
+                  title: const Text('Mood'),
+                  trailing: IconButton(
+                    onPressed: () => context.go('/intro/genre/mood'),
+                    icon: const Icon(Icons.edit_outlined),
                   ),
-                  RadioListTile(
-                    title: Text(_moods.first.label),
-                    secondary: Text(
-                      _moods.first.emoji,
-                      style: const TextStyle(fontSize: 24),
-                    ),
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    value: '',
-                    groupValue: '',
-                    onChanged: (_) {},
+                ),
+                RadioListTile(
+                  title: Text(_moods.first.label),
+                  secondary: Text(
+                    _moods.first.emoji,
+                    style: const TextStyle(fontSize: 24),
                   ),
-                  const Divider(height: 32),
-                  ListTile(
-                    title: const Text('Seed tracks'),
-                    trailing: IconButton(
-                      onPressed: () =>
-                          context.go('/intro/genre/mood/seed-track'),
-                      icon: const Icon(Icons.edit_outlined),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SliverList.builder(
-              itemCount: (_seedTracks.length * 0.4).floor(),
-              itemBuilder: (context, index) {
-                return CheckboxListTile(
-                  title: Text(_seedTracks[index]),
-                  value: true,
+                  controlAffinity: ListTileControlAffinity.trailing,
+                  value: '',
+                  groupValue: '',
                   onChanged: (_) {},
-                );
-              },
+                ),
+                const Divider(height: 32),
+                ListTile(
+                  title: const Text('Seed tracks'),
+                  trailing: IconButton(
+                    onPressed: () => context.go('/intro/genre/mood/seed-track'),
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      bottomBar: _BottomActionBar(
-        label: "OK, let's go!",
-        showDivider: true,
-        onPressed: () async {
-          context.go('/intro/genre/mood/seed-track/confirm/generate');
-          await Future<void>.delayed(const Duration(seconds: 2));
-          if (context.mounted) {
-            context.go('/');
-          }
-        },
+          ),
+          SliverList.builder(
+            itemCount: (_seedTracks.length * 0.4).floor(),
+            itemBuilder: (context, index) {
+              return CheckboxListTile(
+                title: Text(_seedTracks[index]),
+                value: true,
+                onChanged: (_) {},
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -477,26 +440,23 @@ class _GeneratingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SheetContentScaffold(
-      appBar: _SharedAppBarHero(appbar: AppBar()),
-      body: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Generating your playlist...',
-                  style: Theme.of(context).textTheme.headlineMediumBold,
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 64),
-                  child: CircularProgressIndicator(strokeWidth: 6),
-                ),
-              ],
-            ),
+    return SafeArea(
+      child: SizedBox(
+        width: double.infinity,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Generating your playlist...',
+                style: Theme.of(context).textTheme.headlineMediumBold,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 64),
+                child: CircularProgressIndicator(strokeWidth: 6),
+              ),
+            ],
           ),
         ),
       ),
@@ -512,14 +472,6 @@ extension on TextTheme {
   TextStyle? get headlineMediumBold =>
       headlineMedium?.copyWith(fontWeight: FontWeight.bold);
 }
-
-final _largeFilledButtonStyle = FilledButton.styleFrom(
-  minimumSize: const Size.fromHeight(56),
-);
-
-final _largeTextButtonStyle = TextButton.styleFrom(
-  minimumSize: const Size.fromHeight(56),
-);
 
 class _SelectableChip extends StatefulWidget {
   const _SelectableChip({
@@ -613,72 +565,124 @@ class _SelectableMoodListState extends State<_SelectableMoodList> {
   }
 }
 
-class _BottomActionBar extends StatelessWidget {
-  const _BottomActionBar({
-    required this.label,
-    required this.onPressed,
-    this.showDivider = false,
-  });
+class _SharedSheetTopBar extends StatelessWidget
+    implements PreferredSizeWidget {
+  const _SharedSheetTopBar();
 
-  final String label;
-  final VoidCallback? onPressed;
-  final bool showDivider;
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context) {
-    const horizontalPadding = 32.0;
-    const verticalPadding = 16.0;
+    void onTap() {
+      final nestedNavigator = _nestedNavigatorKey.currentState!;
+      if (nestedNavigator.canPop()) {
+        nestedNavigator.pop();
+      } else {
+        context.go('/');
+      }
+    }
 
-    // Insert bottom padding only if there's no system viewport bottom inset.
-    final systemBottomInset = MediaQuery.of(context).padding.bottom;
+    final location = GoRouterState.of(context).fullPath!.split('/').last;
+    final (icon, enabled) = switch (location) {
+      'intro' => (const Icon(Icons.close), true),
+      'generate' => (Icon(Icons.arrow_back_ios_new_outlined), false),
+      _ => (const Icon(Icons.arrow_back_ios_new_outlined), true),
+    };
 
-    return StickyBottomBarVisibility(
-      child: ColoredBox(
-        color: Theme.of(context).colorScheme.surface,
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showDivider) const Divider(height: 1),
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  horizontalPadding,
-                  verticalPadding,
-                  horizontalPadding,
-                  systemBottomInset == 0 ? verticalPadding : 0,
-                ),
-                child: FilledButton(
-                  onPressed: onPressed,
-                  style: _largeFilledButtonStyle,
-                  child: Text(label),
-                ),
-              ),
-            ],
-          ),
-        ),
+    return AppBar(
+      leading: IconButton(
+        onPressed: enabled ? onTap : null,
+        icon: icon,
       ),
     );
   }
 }
 
-/// This widget makes it possible to create a (visually) shared appbar across the pages.
-///
-/// For better maintainability, it is recommended to create a page-specific app bar for each page
-/// instead of a single 'super' shared app bar that includes all the functionality for every page.
-class _SharedAppBarHero extends StatelessWidget implements PreferredSizeWidget {
-  const _SharedAppBarHero({
-    required this.appbar,
-  });
-
-  final AppBar appbar;
-
-  @override
-  Size get preferredSize => appbar.preferredSize;
+class _SharedSheetBottomBar extends StatelessWidget {
+  const _SharedSheetBottomBar();
 
   @override
   Widget build(BuildContext context) {
-    return Hero(tag: 'HeroAppBar', child: appbar);
+    final router = GoRouterState.of(context);
+
+    Future<void> onTap() async {
+      switch (router.fullPath?.split('/').last) {
+        case 'intro':
+          context.go('/intro/genre');
+        case 'genre':
+          context.go('/intro/genre/mood');
+        case 'mood':
+          context.go('/intro/genre/mood/seed-track');
+        case 'seed-track':
+          context.go('/intro/genre/mood/seed-track/confirm');
+        case 'confirm':
+          context.go('/intro/genre/mood/seed-track/confirm/generate');
+          await Future.delayed(Duration(seconds: 1));
+          if (context.mounted) {
+            context.go('/');
+          }
+      }
+    }
+
+    final (label, isEnabled) = switch (router.fullPath?.split('/').last) {
+      'confirm' => (const Text('Generate'), true),
+      'generate' => (const Text('Generate'), false),
+      _ => (const Text('Next'), true),
+    };
+
+    const horizontalPadding = 32.0;
+    const verticalPadding = 16.0;
+
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Divider(height: 1),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              verticalPadding,
+              horizontalPadding,
+              max(MediaQuery.viewPaddingOf(context).bottom, verticalPadding),
+            ),
+            child: FilledButton(
+              onPressed: isEnabled ? onTap : null,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(56),
+              ),
+              child: label,
+            ),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+Widget _fadeAndSlideTransitionWithIOSBackGesture(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  final PageTransitionsTheme theme = Theme.of(context).pageTransitionsTheme;
+  return FadeTransition(
+    opacity: CurveTween(curve: Curves.easeInExpo).animate(animation),
+    child: FadeTransition(
+      opacity: Tween(begin: 1.0, end: 0.0)
+          .chain(CurveTween(curve: Curves.easeOutExpo))
+          .animate(secondaryAnimation),
+      child: theme.buildTransitions(
+        ModalRoute.of(context) as PageRoute,
+        context,
+        animation,
+        secondaryAnimation,
+        child,
+      ),
+    ),
+  );
 }
 
 // ----------------------------------------------------------
@@ -718,6 +722,7 @@ const _moods = [
   (label: 'Uplifting and Positive', emoji: '💪'),
 ];
 
+/* cSpell: disable */
 const _seedTracks = [
   "Groove Odyssey",
   "Funky Fusion Fiesta",
@@ -740,3 +745,4 @@ const _seedTracks = [
   "Brass Bliss Bouquet",
   "Funky Cosmic Carnival",
 ];
+/* cSpell: enable */

@@ -5,7 +5,7 @@ void main() {
   runApp(const _ScrollablePageViewSheetExample());
 }
 
-/// An example of [ScrollableSheet] + [PageView].
+/// An example of [Sheet] + [PageView].
 class _ScrollablePageViewSheetExample extends StatelessWidget {
   const _ScrollablePageViewSheetExample();
 
@@ -21,9 +21,7 @@ class _ScrollablePageViewSheetExample extends StatelessWidget {
                   Navigator.push(
                     context,
                     ModalSheetRoute(
-                      builder: (_) => const SheetViewport(
-                        child: _MySheet(),
-                      ),
+                      builder: (_) => const _MySheet(),
                     ),
                   );
                 },
@@ -42,8 +40,15 @@ class _MySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollableSheet(
-      child: Material(
+    return Sheet(
+      scrollConfiguration: const SheetScrollConfiguration(),
+      decoration: const MaterialSheetDecoration(
+        size: SheetSize.stretch,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      child: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
         child: SizedBox(
           height: 600,
           child: PageView(

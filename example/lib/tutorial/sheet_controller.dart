@@ -47,13 +47,13 @@ class _ExampleHomeState extends State<_ExampleHome> {
             child: Align(
               alignment: Alignment.topCenter,
               // Like ScrollController for scrollable widgets,
-              // SheetController can be used to observe changes in the sheet position.
+              // SheetController can be used to observe changes in the sheet offset.
               child: ValueListenableBuilder(
                 valueListenable: controller,
-                builder: (context, pixels, child) {
+                builder: (context, offset, child) {
                   return Text(
-                    'Position: ${pixels?.toStringAsFixed(1)}',
-                    style: Theme.of(context).textTheme.displaySmall,
+                    'SheetController.value: ${offset?.toStringAsFixed(1)}',
+                    style: Theme.of(context).textTheme.titleLarge,
                   );
                 },
               ),
@@ -71,8 +71,8 @@ class _ExampleHomeState extends State<_ExampleHome> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         child: const Icon(Icons.arrow_downward_rounded),
         onPressed: () {
-          // SheetController can also be used to animate the sheet position.
-          controller.animateTo(const SheetAnchor.proportional(0.5));
+          // SheetController can also be used to animate the sheet offset.
+          controller.animateTo(const SheetOffset(0.5));
         },
       ),
     );
@@ -88,19 +88,15 @@ class _ExampleSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableSheet(
+    return Sheet(
       controller: controller,
-      minPosition: const SheetAnchor.proportional(0.5),
-      physics: const BouncingSheetPhysics(
-        parent: SnappingSheetPhysics(),
+      snapGrid: const SheetSnapGrid(
+        snaps: [SheetOffset(0.5), SheetOffset(1)],
       ),
-      child: Card(
-        margin: EdgeInsets.zero,
+      child: Container(
         color: Theme.of(context).colorScheme.secondaryContainer,
-        child: const SizedBox(
-          height: 500,
-          width: double.infinity,
-        ),
+        width: double.infinity,
+        height: 500,
       ),
     );
   }
