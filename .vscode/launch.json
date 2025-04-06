@@ -40,17 +40,24 @@
       "cwd": "./example"
     },
     {
-      "name": "iOS-Style Modal Paged Sheet (with go_router)",
+      "name": "iOS-Style Modal Paged Sheet (using go_router)",
       "request": "launch",
       "type": "dart",
       "program": "lib/tutorial/ios_style_declarative_modal_paged_sheet.dart",
       "cwd": "./example"
     },
     {
-      "name": "Declarative Paged Sheet",
+      "name": "Declarative Paged Sheet (using go_router)",
       "request": "launch",
       "type": "dart",
       "program": "lib/tutorial/declarative_paged_sheet.dart",
+      "cwd": "./example"
+    },
+    {
+      "name": "Declarative Paged Sheet (using auto_route)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/paged_sheet_with_auto_route.dart",
       "cwd": "./example"
     },
     {
