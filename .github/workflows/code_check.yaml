@@ -6,6 +6,7 @@ on:
 
 env:
   FLUTTER_TEST_REPORT: ${{github.workspace}}/flutter-test-report.json
+  FLUTTER_INTEGRATION_TEST_REPORT: ${{github.workspace}}/flutter-integration-test-report.json
   PATTERN_CHECKER: ${{github.workspace}}/scripts/pattern_checker.sh
 
 jobs:
@@ -98,13 +99,25 @@ jobs:
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
 
+      - name: Run integration tests
+        run: flutter test --file-reporter="json:${{ env.FLUTTER_INTEGRATION_TEST_REPORT }}"
+        working-directory: example
+
       - name: Write test report
         uses: dorny/test-reporter@v1
-        # PRs from forks have no write permissions.
+        # PRs from forks have no write permissions, so we skip this step in that case.
         if: github.event.pull_request.head.repo.fork == false && (success() || failure())
         with:
           name: Test Report (with Flutter ${{ matrix.flutter-version }})
           path: ${{ env.FLUTTER_TEST_REPORT }}
+          reporter: flutter-json
+
+      - name: Write integration test report
+        uses: dorny/test-reporter@v1
+        if: github.event.pull_request.head.repo.fork == false && (success() || failure())
+        with:
+          name: Integration Test Report (with Flutter ${{ matrix.flutter-version }})
+          path: ${{ env.FLUTTER_INTEGRATION_TEST_REPORT }}
           reporter: flutter-json
 
   # Final results (Used for status checks)
