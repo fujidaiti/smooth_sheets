@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.1 Apr 14, 2025
+
+- Fix: PagedSheetRoute's initialOffset is ignored when using auto_route: Sheet displays full screen on startup [#308](https://github.com/fujidaiti/smooth_sheets/issues/308)
+
 ## 0.11.0 Apr 5, 2025
 
 **This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.11.x.md) for more details.
