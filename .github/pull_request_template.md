@@ -1,7 +1,8 @@
-## Related issues (optional)
+## Problem / Issue
 
-None.
+<!-- What is the problem this PR addresses? Link the issue if available. -->
+<!-- 例: Closes #123 -->
 
-## Description
+## Solution
 
-Blah blah blah.
+<!-- Briefly describe how the problem is solved in this PR. -->
