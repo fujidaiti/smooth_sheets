@@ -5,7 +5,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 part 'paged_sheet_with_auto_route.gr.dart';
 
 void main() {
-  runApp(const _PagedSheetWithAutoRouteExample());
+  runApp(const PagedSheetWithAutoRouteExample());
 }
 
 @AutoRouterConfig(replaceInRouteName: 'Page,Route')
@@ -35,6 +35,10 @@ class _ExampleRouter extends RootStackRouter {
                 // Each route in the PagedSheet must be a PagedSheetRoute.
                 return PagedSheetRoute(
                   settings: page, // required
+                  initialOffset: const SheetOffset(0.5),
+                  snapGrid: const SheetSnapGrid(
+                    snaps: [SheetOffset(0.5), SheetOffset(1)],
+                  ),
                   builder: (_) => child,
                 );
               },
@@ -54,15 +58,15 @@ class _ExampleRouter extends RootStackRouter {
       ];
 }
 
-class _PagedSheetWithAutoRouteExample extends StatefulWidget {
-  const _PagedSheetWithAutoRouteExample();
+class PagedSheetWithAutoRouteExample extends StatefulWidget {
+  const PagedSheetWithAutoRouteExample({super.key});
   @override
-  State<_PagedSheetWithAutoRouteExample> createState() =>
+  State<PagedSheetWithAutoRouteExample> createState() =>
       _PagedSheetWithAutoRouteExampleState();
 }
 
 class _PagedSheetWithAutoRouteExampleState
-    extends State<_PagedSheetWithAutoRouteExample> {
+    extends State<PagedSheetWithAutoRouteExample> {
   late final _router = _ExampleRouter();
 
   @override
@@ -103,6 +107,7 @@ class _ModalSheetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PagedSheet(
+      key: const ValueKey('modal-sheet'),
       decoration: MaterialSheetDecoration(
         size: SheetSize.stretch,
         color: Colors.white,
@@ -121,6 +126,7 @@ class _FirstSheetPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final layoutSpec = SheetMediaQuery.layoutSpecOf(context);
     return SizedBox.fromSize(
+      key: const ValueKey('first-sheet-page'),
       size: Size.fromHeight(layoutSpec.viewportSize.height * 0.5),
       child: Container(
         color: Colors.blue.shade200,
@@ -141,6 +147,7 @@ class _SecondSheetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(
+      key: const ValueKey('second-sheet-page'),
       child: ColoredBox(
         color: Colors.purple.shade200,
         child: Column(
