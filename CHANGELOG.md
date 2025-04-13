@@ -1,8 +1,15 @@
 # Changelog
 
+## 0.11.1 Apr 14, 2025
+
+- Fix: PagedSheetRoute's initialOffset is ignored when using auto_route: Sheet displays full screen on startup [#308](https://github.com/fujidaiti/smooth_sheets/issues/308)
+
 ## 0.11.0 Apr 5, 2025
 
 **This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.11.x.md) for more details.
+
+> [!IMPORTANT]
+> Version 0.11.x requires Flutter SDK version **3.27.0** or higher.
 
 ### Bug fixes
 
@@ -18,7 +25,7 @@
 - Support iOS native modal sheet stretching behavior [#169](https://github.com/fujidaiti/smooth_sheets/issues/169)  
 - Support transparent space around sheet [#76](https://github.com/fujidaiti/smooth_sheets/issues/76)  
 
-## Improvements
+### Improvements
 
 - Reimplement `CupertinoModalSheetRoute` and `Page` with `ModalRoute.delegatedTransition` [#293](https://github.com/fujidaiti/smooth_sheets/issues/293)  
 - Merge `ScrollableSheet` and `DraggableSheet` into a single widget to simplify the API and codebase [#285](https://github.com/fujidaiti/smooth_sheets/issues/285)  

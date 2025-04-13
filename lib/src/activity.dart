@@ -357,11 +357,11 @@ class SettlingSheetActivity extends SheetActivity {
 
 // TODO: Rename to `StableSheetActivity` or similar.
 @internal
-class IdleSheetActivity extends SheetActivity {
-  late final SheetOffset targetOffset;
+class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
+  late SheetOffset targetOffset;
 
   @override
-  void init(SheetModel owner) {
+  void init(T owner) {
     super.init(owner);
     targetOffset = owner.hasMetrics
         ? owner.snapGrid.getSnapOffset(owner, owner.offset, 0)

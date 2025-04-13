@@ -9,7 +9,7 @@ import 'src/matchers.dart';
 import 'src/test_stateful_widget.dart';
 
 void main() {
-  group('PagedSheet', () {
+  group('PagedSheet Basic Test - Imperative API', () {
     ({
       Widget testWidget,
       Key sheetKey,
@@ -307,6 +307,74 @@ void main() {
         await tester.pumpAndSettle();
         expect(env.getSheetRect(tester).top, testScreenSize.height - 300,
             reason: 'The second page should not be draggable.');
+      },
+    );
+  });
+
+  group('PagedSheet Basic Test - Declarative API', () {
+    ({
+      Widget testWidget,
+      ValueNotifier<List<Page<dynamic>>> pagesNotifier,
+    }) boilerplate({
+      required Page<dynamic> initialPage,
+    }) {
+      final pagesNotifier = ValueNotifier([initialPage]);
+      final testWidget = Directionality(
+        textDirection: TextDirection.ltr,
+        child: SheetViewport(
+          child: PagedSheet(
+            key: Key('sheet'),
+            navigator: ValueListenableBuilder(
+              valueListenable: pagesNotifier,
+              builder: (context, pages, child) {
+                return Navigator(
+                  pages: pages,
+                  onDidRemovePage: (page) {
+                    pagesNotifier.value = [...pages]..remove(page);
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        pagesNotifier: pagesNotifier,
+      );
+    }
+
+    testWidgets(
+      'Each route should be able to have different initial offset',
+      (tester) async {
+        final env = boilerplate(
+          initialPage: PagedSheetPage(
+            snapGrid: SheetSnapGrid.stepless(),
+            initialOffset: SheetOffset.absolute(100),
+            child: _TestPage(
+              key: Key('a'),
+              height: 300,
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 500);
+
+        env.pagesNotifier.value = [
+          ...env.pagesNotifier.value,
+          PagedSheetPage(
+            snapGrid: SheetSnapGrid.stepless(),
+            initialOffset: SheetOffset(0.5),
+            child: _TestPage(
+              key: Key('b'),
+              height: 500,
+            ),
+          ),
+        ];
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 350);
       },
     );
   });

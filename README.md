@@ -14,6 +14,9 @@
 
 ## Migration guide
 
+> [!IMPORTANT]
+> Version 0.11.x requires Flutter SDK version **3.27.0** or higher.
+
 - [0.10.x to 0.11.x](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.11.x.md) 🆕
 - [0.9.x to 0.10.x](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md)
 
