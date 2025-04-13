@@ -245,6 +245,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
 
+  // TODO: Remote this field. The initial offset should be determined by the activity.
   SheetOffset get initialOffset;
 
   /// A handle to the owner of this object.

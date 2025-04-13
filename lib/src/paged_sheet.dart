@@ -144,6 +144,24 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     didChangeInternalStateOfEntry(entry);
     goIdle();
   }
+
+  @override
+  void goIdle() {
+    beginActivity(_PagedSheetIdleActivity());
+  }
+}
+
+class _PagedSheetIdleActivity extends IdleSheetActivity<_PagedSheetModel> {
+  _PagedSheetIdleActivity();
+
+  @override
+  void init(_PagedSheetModel owner) {
+    super.init(owner);
+    if (owner._currentEntry
+        case _PagedSheetEntry(_contentSize: null, :final initialOffset)) {
+      targetOffset = initialOffset;
+    }
+  }
 }
 
 class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
