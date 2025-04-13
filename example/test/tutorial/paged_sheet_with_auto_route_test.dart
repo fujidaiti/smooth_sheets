@@ -54,7 +54,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Close sheet'));
     await tester.pumpAndSettle();
-    expect(find.byKey(sheetKey), findsNothing,
+    expect(
+      find.byKey(sheetKey),
+      findsNothing,
       reason: 'The modal sheet should be closed',
     );
   });
