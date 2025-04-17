@@ -999,6 +999,16 @@ void main() {
           Rect.fromLTWH(0, 500, 800, 50),
           reason: 'The keyboard height should not affect the layout of the bar',
         );
+
+        env.getModel().offset = 500;
+        await tester.pump();
+        expect(env.getModel().visibleContentRect!.height, 500);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 400, 800, 50),
+          reason: 'The bar should be visible even if '
+              'the scaffold is partially outside of the viewport',
+        );
       },
     );
 
@@ -1152,6 +1162,24 @@ void main() {
           env.getLocalBottomBarRect(tester),
           Rect.fromLTWH(0, 500, 800, 50),
           reason: 'The keyboard height should not affect the layout of the bar',
+        );
+
+        env.getModel().offset = 500;
+        await tester.pump();
+        expect(env.getModel().visibleContentRect!.height, 500);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 400, 800, 50),
+          reason: 'The bar should be visible even if '
+              'the scaffold is partially outside of the viewport',
+        );
+
+        visibilityNotifier.value = 0.0;
+        await tester.pump();
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 450, 800, 50),
+          reason: 'The bar should be fully hidden',
         );
       },
     );
@@ -1320,6 +1348,15 @@ void main() {
           env.getLocalBottomBarRect(tester),
           Rect.fromLTWH(0, 500, 800, 50),
           reason: 'The keyboard height should not affect the layout of the bar',
+        );
+
+        env.getModel().offset = 500;
+        await tester.pumpAndSettle();
+        expect(env.getModel().visibleContentRect!.height, 500);
+        expect(
+          env.getLocalBottomBarRect(tester),
+          Rect.fromLTWH(0, 450, 800, 50),
+          reason: 'The bar should be fully hidden',
         );
       },
     );

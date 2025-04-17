@@ -683,8 +683,10 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
     if (bottomBarSize != null && _model.hasMetrics) {
       // This translation ensures that the bar is fully visible even when
       // the sheet's content is partially or fully outside of the viewport.
-      final baseDeltaY =
-          (_model.viewportSize.height - _model.contentRect.bottom).clamp(
+      final baseDeltaY = (_model.viewportSize.height -
+              _model.contentBaseline -
+              _model.contentRect.bottom)
+          .clamp(
         // Prevent the bar from being moved up
         // when the content is fully outside of the viewport.
         bottomBarSize.height - _model.contentSize.height,
