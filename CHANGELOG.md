@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.2 Apr 17, 2025
+
+- Fix: bottom bar is hidden despite `BottomBarVisibility.always(ignoreBottomInset: true)` [#312](https://github.com/fujidaiti/smooth_sheets/issues/312)
+
 ## 0.11.1 Apr 14, 2025
 
 - Fix: PagedSheetRoute's initialOffset is ignored when using auto_route: Sheet displays full screen on startup [#308](https://github.com/fujidaiti/smooth_sheets/issues/308)
