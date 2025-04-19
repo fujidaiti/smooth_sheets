@@ -1194,6 +1194,84 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
     });
   });
+
+  group('Regression test', () {
+    // https://github.com/fujidaiti/smooth_sheets/issues/309
+    testWidgets(
+      'Unstable route transition when pop a route during snapping animation',
+      (tester) async {
+        final controller = SheetController();
+        final navigatorKey = GlobalKey<NavigatorState>();
+        const sheetKey = Key('sheet');
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: SheetViewport(
+              child: PagedSheet(
+                key: sheetKey,
+                controller: controller,
+                navigator: Navigator(
+                  key: navigatorKey,
+                  onGenerateRoute: (_) {
+                    return PagedSheetRoute(
+                      builder: (_) => _TestPage(
+                        key: Key('a'),
+                        height: 300,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+
+        unawaited(
+          navigatorKey.currentState!.push(
+            PagedSheetRoute(
+              snapGrid: SheetSnapGrid(
+                minFlingSpeed: 50,
+                snaps: [SheetOffset(0.5), SheetOffset(1)],
+              ),
+              builder: (_) => _TestPage(
+                key: Key('b'),
+                height: 600,
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+        expect(find.byId('b'), findsOneWidget);
+        expect(tester.getRect(find.byId('b')).top, 0);
+
+        final offsetHistory = <double>[];
+        controller.addListener(() {
+          offsetHistory.add(controller.value!);
+        });
+
+        await tester.fling(find.byId('b'), Offset(0, 100), 200);
+        await tester.pump(Duration(milliseconds: 500));
+        final sheetTopBeforePop = tester.getRect(find.byId('b')).top;
+        expect(
+          sheetTopBeforePop,
+          allOf(greaterThan(0), lessThan(300)),
+          reason: 'The sheet is in the middle of the snapping animation',
+        );
+
+        navigatorKey.currentState!.pop();
+        await tester.pump();
+        expect(
+          tester.getRect(find.byId('b')).top,
+          sheetTopBeforePop,
+          reason: 'The sheet position should be preserved',
+        );
+
+        await tester.pumpAndSettle();
+        expect(offsetHistory, isMonotonicallyDecreasing);
+      },
+    );
+  });
 }
 
 class _TestPage extends StatelessWidget {

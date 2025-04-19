@@ -171,7 +171,6 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
 
     beginActivity(
       _RouteTransitionSheetActivity(
-        originRouteOffset: targetOffsetResolver(currentEntry),
         destinationRouteOffset: targetOffsetResolver(nextEntry),
         animation: effectiveAnimation,
         animationCurve: effectiveCurve,
@@ -206,16 +205,15 @@ class _PagedSheetIdleActivity extends IdleSheetActivity<_PagedSheetModel> {
 
 class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
   _RouteTransitionSheetActivity({
-    required this.originRouteOffset,
     required this.destinationRouteOffset,
     required this.animation,
     required this.animationCurve,
   });
 
-  final ValueGetter<double?> originRouteOffset;
   final ValueGetter<double?> destinationRouteOffset;
   final Animation<double> animation;
   final Curve animationCurve;
+  late final double _startPixelOffset;
   late final Animation<double> _effectiveAnimation;
 
   @override
@@ -224,6 +222,7 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
   @override
   void init(_PagedSheetModel owner) {
     super.init(owner);
+    _startPixelOffset = owner.offset;
     owner.config = owner.config.copyWith(snapGrid: _kDefaultSnapGrid);
     _effectiveAnimation = animation.drive(
       CurveTween(curve: animationCurve),
@@ -238,11 +237,10 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
 
   void _onAnimationTick() {
     final fraction = _effectiveAnimation.value;
-    final originOffset = originRouteOffset();
     final destOffset = destinationRouteOffset();
 
-    if (originOffset != null && destOffset != null) {
-      owner.offset = lerpDouble(originOffset, destOffset, fraction)!;
+    if (destOffset != null) {
+      owner.offset = lerpDouble(_startPixelOffset, destOffset, fraction)!;
     }
   }
 }
