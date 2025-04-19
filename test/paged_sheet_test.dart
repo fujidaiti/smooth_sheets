@@ -1271,6 +1271,76 @@ void main() {
         expect(offsetHistory, isMonotonicallyDecreasing);
       },
     );
+
+    // https://github.com/fujidaiti/smooth_sheets/issues/305
+    testWidgets(
+      'Sheet cannot be dragged when the drag starts at shared top/bottom bar '
+      'built in PagedSheet.builder',
+      (tester) async {
+        final controller = SheetController();
+        final navigatorKey = GlobalKey<NavigatorState>();
+        const topBarKey = Key('topBar');
+        const bottomBarKey = Key('bottomBar');
+        const pageKey = Key('page');
+
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: SheetViewport(
+              child: PagedSheet(
+                controller: controller,
+                builder: (context, child) {
+                  return SheetContentScaffold(
+                    extendBodyBehindTopBar: true,
+                    extendBodyBehindBottomBar: true,
+                    topBar: Container(
+                      key: topBarKey,
+                      height: 50,
+                      color: Colors.blue,
+                    ),
+                    body: child,
+                    bottomBar: Container(
+                      key: bottomBarKey,
+                      height: 50,
+                      color: Colors.green,
+                    ),
+                  );
+                },
+                navigator: Navigator(
+                  key: navigatorKey,
+                  onGenerateRoute: (_) {
+                    return PagedSheetRoute(
+                      snapGrid: SheetSnapGrid.stepless(),
+                      builder: (_) => _TestPage(key: pageKey, height: 300),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+        expect(controller.value, 300);
+
+        // Drag from top bar
+        final initialOffsetBeforeTopDrag = controller.value!;
+        await tester.drag(find.byKey(topBarKey), const Offset(0, 50));
+        await tester.pumpAndSettle();
+        expect(controller.value, lessThan(initialOffsetBeforeTopDrag));
+
+        // Reset to full offset
+        unawaited(controller.animateTo(SheetOffset.absolute(300)));
+        await tester.pumpAndSettle();
+        expect(controller.value, 300);
+
+        // Drag from bottom bar
+        final initialOffsetBeforeBottomDrag = controller.value!;
+        await tester.drag(find.byKey(bottomBarKey), const Offset(0, 50));
+        await tester.pumpAndSettle();
+        expect(controller.value, lessThan(initialOffsetBeforeBottomDrag));
+      },
+    );
   });
 }
 
