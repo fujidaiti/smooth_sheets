@@ -1196,6 +1196,7 @@ void main() {
   });
 
   group('Regression test', () {
+    // https://github.com/fujidaiti/smooth_sheets/issues/309
     testWidgets(
       'Unstable route transition when pop a route during snapping animation',
       (tester) async {
