@@ -22,6 +22,7 @@ dependencies:
   navigator_resizable: ^1.0.2
 
 dev_dependencies:
+  auto_route: ^10.0.1
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter
