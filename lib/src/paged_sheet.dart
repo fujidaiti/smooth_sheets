@@ -7,6 +7,7 @@ import 'package:navigator_resizable/navigator_resizable.dart';
 
 import 'activity.dart';
 import 'controller.dart';
+import 'draggable.dart';
 import 'gesture_proxy.dart';
 import 'model.dart';
 import 'model_owner.dart';
@@ -288,6 +289,11 @@ class PagedSheet extends StatelessWidget {
     );
     if (builder case final builder?) {
       content = builder(context, content);
+      // Ensure the widget built by the builder is also draggable.
+      content = SheetDraggable(
+        behavior: HitTestBehavior.translucent,
+        child: content,
+      );
     }
 
     return SheetModelOwner(
