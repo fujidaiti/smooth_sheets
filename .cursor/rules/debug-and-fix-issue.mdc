@@ -1,0 +1,75 @@
+---
+description: Systematic Approach to Debugging UI Components
+globs: 
+alwaysApply: false
+---
+# Generalized Debugging Manual for Widget/UI Interaction Issues
+
+This manual outlines a systematic approach to diagnosing and fixing issues related to widget behavior, layout, or interactions within a component-based UI framework.
+
+## 1. Understand the Problem: Objective Observation
+
+- **Goal:** Clearly define the incorrect behavior without prematurely guessing the cause.
+- **Action:**
+  - Carefully review the bug report, description, and any provided context (screenshots, videos, code snippets).
+  - Identify the *specific* conditions under which the bug occurs (e.g., "Component X fails to respond to input *only when* state Y is active and rendered within Component Z").
+  - Describe the *symptom* precisely: What is happening vs. what is expected?
+
+## 2. Reproduce the Bug: Test-Driven Development (TDD)
+
+- **Goal:** Create an automated test case that reliably demonstrates the failure.
+- **Action:**
+  - Write a minimal test that sets up the specific conditions identified in Step 1.
+  - Simulate the user interaction or trigger the scenario that causes the bug.
+  - Add assertions that check for the *incorrect* behavior (this test should initially fail).
+  - Refine the test setup and assertions as needed based on framework specifics or testing library constraints.
+
+## 3. Investigate the Root Cause: Code Analysis & Hypothesis
+
+- **Goal:** Identify the underlying reason for the failure.
+- **Action:**
+  - **Form Hypotheses:** Based on the symptom and framework knowledge, form educated guesses about potential causes (e.g., incorrect state handling, event propagation issues, layout conflicts, incorrect component integration).
+  - **Analyze Code:** Examine the source code of the relevant components involved. Pay attention to:
+    - State management and lifecycle.
+    - Event handling and propagation (e.g., gesture detection, hit-testing).
+    - Layout logic and constraints.
+    - Data flow between components.
+  - **Compare Scenarios:** If the component works correctly in other contexts, compare the working implementation/usage with the failing one to spot differences.
+  - **Trace Execution:** Use debugging tools or logging to trace the flow of events or data leading up to the failure point.
+  - **Validate/Refute Hypotheses:** Use the findings from code analysis and tracing to confirm or reject your initial hypotheses until the root cause is pinpointed.
+
+## 4. Design the Solution: Targeted Fix
+
+- **Goal:** Determine the most appropriate way and location to fix the bug.
+- **Action:**
+  - Based on the root cause, identify the component(s) or logic that needs modification.
+  - Consider the framework's architecture and component responsibilities. Aim for a fix at the source, not just masking the symptom.
+  - Evaluate potential solutions if multiple options exist, considering maintainability, side effects, and adherence to design patterns.
+  - Plan the specific code changes required.
+
+## 5. Implement the Fix
+
+- **Goal:** Apply the planned code changes correctly.
+- **Action:**
+  - Modify the source code according to the solution design.
+  - Ensure necessary imports or dependencies are handled.
+
+## 6. Verify the Fix
+
+- **Goal:** Confirm that the bug is resolved and no regressions were introduced.
+- **Action:**
+  - Run the specific regression test created in Step 2. It should now pass.
+  - Consider running broader related tests to check for unintended side effects.
+
+## 7. Document and Communicate
+
+- **Goal:** Record the fix and communicate the changes effectively.
+- **Action:**
+  - Commit the changes using a clear and descriptive message, referencing the original issue identifier if applicable (e.g., `fix(#123): ...`).
+  - If creating a pull request, write a detailed description explaining:
+    - The problem that was fixed.
+    - The root cause analysis process and findings.
+    - The implemented solution and *why* it works.
+
+This structured approach helps ensure that bugs are not only fixed but also understood, preventing recurrence and improving code quality over time.
+
