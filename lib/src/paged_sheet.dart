@@ -92,6 +92,46 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     }
   }
 
+  @override
+  void applyNewLayout(SheetLayout layout) {
+    // Workaround for https://github.com/fujidaiti/smooth_sheets/issues/315:
+    //
+    // When using auto_route and the sheet is fullscreen, the initialOffset is
+    // ignored on the first build. The root cause is that AutoRouter,
+    // which internally builds a Navigator, does not construct the Navigator
+    // during the first frame in which the sheet is built.
+    //
+    // In that first frame, the initialOffset is ignored because _currentEntry
+    // is not yet set. However, AutoRouter sizes itself to match the viewport,
+    // so the 'layout' argument's contentSize equals the viewportSize.
+    // In the following frame, AutoRouter builds the internal Navigator.
+    // If the first route in the Navigator is fullscreen, the 'layout' will
+    // have the exact same values as in the previous frame.
+    // As a result, super.applyNewLayout() returns immediately,
+    // and the initialOffset is not applied.
+    //
+    // This workaround applies a zero-sized layout to the sheet when it is first
+    // built and _currentEntry is still null (implying that the Navigator has
+    // not yet been built). This ensures that super.applyNewLayout updates the
+    // offset to respect the initialOffset once the Navigator is built in the
+    // next frame.
+    if (!hasMetrics && _currentEntry == null) {
+      super.applyNewLayout(
+        ImmutableSheetLayout(
+          contentBaseline: 0,
+          size: Size.zero,
+          contentSize: Size.zero,
+          viewportDynamicOverlap: layout.viewportDynamicOverlap,
+          viewportPadding: layout.viewportPadding,
+          viewportSize: layout.viewportSize,
+          viewportStaticOverlap: layout.viewportStaticOverlap,
+        ),
+      );
+    } else {
+      super.applyNewLayout(layout);
+    }
+  }
+
   void didChangeInternalStateOfEntry(_PagedSheetEntry entry) {
     if (_currentEntry == entry) {
       config = config.copyWith(snapGrid: entry.snapGrid);
