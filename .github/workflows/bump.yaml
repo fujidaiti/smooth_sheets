@@ -104,7 +104,7 @@ jobs:
       - name: Bump package version
         uses: mikefarah/yq@v4
         with:
-          cmd: yq -iy '.version = "${{ needs.check.outputs.next_version }}"' pubspec.yaml
+          cmd: yq -i '.version = "${{ needs.check.outputs.next_version }}"' pubspec.yaml
 
       - name: Configure Git
         run: |
