@@ -3,40 +3,34 @@ description: Instruction of creating a GitHub pull request from CLI
 globs: 
 alwaysApply: false
 ---
-# Create a GitHub Pull Request from the CLI
+## Creating a GitHub Pull Request from the CLI
 
 First, after reviewing this file, please confirm by saying: "I have reviewed the pull request creation procedure file!"
 
-## Review the Working Tree
+### Checking Differences
+- If the target branch (`{{target branch}}`) is not specified, make sure to confirm which branch the pull request should be created against.
+- Use the following command to check the differences from the target branch:  
+  `git diff origin/{{target branch}}...HEAD | cat`
 
-- Check the current branch. If it is `main`, create a new branch for your changes.
-  - You can use `git branch` command to see the current branch.
-- If there are uncomitted changes, DO ask the user how to handle them before commiting.
-- Ensure that the commit message follows the Conventional Commits fomrat.
-- Use the following command to view the differences from the `main` branch:  
-  - `git diff origin/main...HEAD | cat`
-
-## Create and Open a Pull Request in the Browser
-
+### Creating and Opening the Pull Request in a Browser
 - Use the command below to create a pull request and automatically open it in your browser.
-- Set the PR title and body appropriately, based on the differences from the target branch.
+- Set the PR title and body content appropriately based on the differences with the target branch.
 - Unless otherwise instructed, create the pull request as a draft.
 - Create a temporary file to compose the PR body.
 
-```bash
-# Create a PR
-git push origin HEAD && \
-gh pr create --draft --title "{{PR Title}}" --body-file pr_body.txt && \
-gh pr view --web
-```
+  --- bash
+  # Create the PR
+  git push origin HEAD && \
+  gh pr create --draft --title "{{PR Title}}" --body-file pr_body.txt && \
+  gh pr view --web
+  ---
 
 - Clearly separate each section.
 - Include all necessary information without omissions.
 
-### PR Template
-
+#### PR Template
 Ensure that the pull request description follows the format defined in @.github/pull_request_template.md.
-Below is an example of a well-structured pull request description. Please use it as a reference.
+Below is an example of a desirable pull request description. Please use it as a reference.
 
 ```
 ## Problem / Issue

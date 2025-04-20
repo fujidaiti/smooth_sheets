@@ -4,6 +4,7 @@ on:
 
 env:
   FLUTTER_TEST_REPORT: ${{github.workspace}}/flutter-test-report.json
+  PATTERN_CHECKER: ${{github.workspace}}/scripts/pattern_checker.sh
 
 jobs:
   setup:
@@ -66,6 +67,9 @@ jobs:
 
       - name: Analyze
         run: dart analyze
+
+      - name: Disallowed patterns check
+        run: bash ${{ env.PATTERN_CHECKER }} "*.dart" "--" "debugPrint"
 
   testing:
     needs: setup
