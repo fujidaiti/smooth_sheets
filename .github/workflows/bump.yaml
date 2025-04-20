@@ -89,7 +89,6 @@ jobs:
           fetch-depth: 0
           
       - name: Generate CHANGELOG using git-cliff
-        id: git-cliff
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
@@ -119,6 +118,14 @@ jobs:
           git add pubspec.yaml CHANGELOG.md
           git commit -m "Bump package version to ${NEXT_VERSION}"
           git push origin $BRANCH_NAME
+          
+      - name: Generate PR description
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --strip=all
+        env:
+          OUTPUT: pr-description.txt
       
       - name: Create Pull Request
         env:
@@ -127,7 +134,6 @@ jobs:
           LATEST_TAG: ${{ needs.check.outputs.latest_tag }}
         run: |
           PR_TITLE="chore(pkg): Bump package version to ${NEXT_VERSION} [bot]"
-          git cliff --unreleased --strip=all --output=pr-description.txt
           gh pr create \
             --base main \
             --head "release/${NEXT_VERSION}" \
