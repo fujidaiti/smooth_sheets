@@ -20,12 +20,12 @@ dependencies:
     sdk: flutter
   meta: ^1.9.1
   navigator_resizable: ^1.0.2
-
 dev_dependencies:
   auto_route: ^10.0.1
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter
   go_router: ^14.2.3
+  grinder: ^0.9.5
   mockito: ^5.4.4
   pedantic_mono: ^1.23.0
