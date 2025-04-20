@@ -1,12 +1,15 @@
 # Changelog
 
-## 0.11.2 Apr 17, 2025
+## 0.11.3 - 2025-04-20
+- fix: PagedSheet cannot be dragged when the drag starts at shared top/bottom bar built in builder callback ([#323](https://github.com/fujidaiti/smooth_sheets/pull/323)) - [2ba8d35](https://github.com/fujidaiti/smooth_sheets/commit/2ba8d35268f1dbce899804d8ce0fe7aa4cb8acbe)
+- fix: Unstable route transition in PagedSheet when pop a route during snapping animation ([#322](https://github.com/fujidaiti/smooth_sheets/pull/322)) - [62e96ee](https://github.com/fujidaiti/smooth_sheets/commit/62e96ee481b5421c87308274dc2047d5e0b8021d)
+- fix: PagedSheet ignores initialOffset when using auto_route and the first page is fullscreen ([#321](https://github.com/fujidaiti/smooth_sheets/pull/321)) - [cdecf41](https://github.com/fujidaiti/smooth_sheets/commit/cdecf417f9532d84951154cecff1dc64fb721fc6)
 
-- Fix: bottom bar is hidden despite `BottomBarVisibility.always(ignoreBottomInset: true)` [#312](https://github.com/fujidaiti/smooth_sheets/issues/312)
+## 0.11.2 - 2025-04-17
+- fix: Bottom bar is hidden despite `BottomBarVisibility.always(ignoreBottomInset: true)` ([#313](https://github.com/fujidaiti/smooth_sheets/pull/313)) - [faa7883](https://github.com/fujidaiti/smooth_sheets/commit/faa78833f442c35b8f12ef4afb6da382f2c7439f)
 
-## 0.11.1 Apr 14, 2025
-
-- Fix: PagedSheetRoute's initialOffset is ignored when using auto_route: Sheet displays full screen on startup [#308](https://github.com/fujidaiti/smooth_sheets/issues/308)
+## 0.11.1 - 2025-04-13
+- fix: Initial offset of PagedSheet is ignored when using auto_route ([#310](https://github.com/fujidaiti/smooth_sheets/pull/310)) - [fd83555](https://github.com/fujidaiti/smooth_sheets/commit/fd83555ad54ea8774f91dcad55ed545fa5ea6dd1)
 
 ## 0.11.0 Apr 5, 2025
 
