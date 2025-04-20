@@ -1,0 +1,137 @@
+name: Prepare Release PR
+
+on:
+  pull_request:
+  # schedule:
+  #   # Runs every Monday at 6:00 AM JST (Sunday 21:00 UTC)
+  #   - cron: '0 21 * * 0'
+  # workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      # "true" if a version bump is needed, "false" otherwise
+      should_bump: ${{ steps.determine.outputs.should_bump }}
+      # The calculated next version string (e.g., "v1.0.2")
+      next_version: ${{ steps.determine.outputs.next_version }}
+      # The latest git tag found (e.g., "v1.0.1", empty if no tags)
+      latest_tag: ${{ steps.determine.outputs.latest_tag }} 
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history and tags for git-cliff and version calculation
+          fetch-depth: 0
+
+      - name: Get bumped version
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --bump
+
+      - name: Determine bump necessity
+        id: determine
+        run: |
+          # Exit immediately if a command exits with a non-zero status.
+          set -e
+
+          LATEST_TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo "")"
+          NEXT_VERSION=${{ steps.git-cliff.outputs.version }}
+
+          SHOULD_BUMP="false"
+
+          if [ -n "$LATEST_TAG" ]; then
+            # If a latest tag exists, bump only if the calculated version differs
+            if [ "$NEXT_VERSION" != "$LATEST_TAG" ]; then
+              echo "Next version ($NEXT_VERSION) differs from latest tag ($LATEST_TAG). Bump needed."
+              SHOULD_BUMP="true"
+            else
+              echo "Next version ($NEXT_VERSION) matches latest tag ($LATEST_TAG). No bump needed."
+              SHOULD_BUMP="false"
+            fi
+          else
+            # No latest tag. Bump if git-cliff determined a version (meaning there are initial commits)
+            if [ -n "$NEXT_VERSION" ]; then
+              echo "No previous tags found. Initial version ($NEXT_VERSION) determined. Bump needed."
+              SHOULD_BUMP="true"
+            else
+              echo "No previous tags found and no initial version determined. No bump needed."
+              SHOULD_BUMP="false"
+            fi
+          fi
+
+          echo "Latest tag: $LATEST_TAG"
+          echo "Next version: $NEXT_VERSION"
+          echo "Should bump: $SHOULD_BUMP"
+
+          # Export outputs
+          echo "should_bump=$SHOULD_BUMP" >> $GITHUB_OUTPUT
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+        shell: bash
+
+  bump:
+    runs-on: ubuntu-latest
+    needs: check
+    if: needs.check.outputs.should_bump == 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history and tags for git-cliff and version calculation
+          fetch-depth: 0
+          
+      - name: Generate CHANGELOG using git-cliff
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --bump
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Append old CHANGELOG
+        run: cat .old/CHANGELOG.md >> CHANGELOG.md
+
+      - name: Bump package version
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq -iy '.version = "${{ needs.check.outputs.next_version }}"' pubspec.yaml
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and Push Branch
+        env:
+          NEXT_VERSION: ${{ needs.check.outputs.next_version }}
+        run: |
+          BRANCH_NAME="release/${NEXT_VERSION}"
+          # git checkout -b $BRANCH_NAME
+          git add pubspec.yaml CHANGELOG.md
+          git commit -m "Bump package version to ${NEXT_VERSION}"
+          git push origin $BRANCH_NAME
+      
+
+      # - name: Create Pull Request
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NEXT_VERSION: ${{ needs.check.outputs.next_version }}
+      #     LATEST_TAG: ${{ needs.check.outputs.latest_tag }}
+      #   run: |
+      #     PR_TITLE="chore: Bump package version to ${NEXT_VERSION} [bot]"
+      #     dart run grinder unreleased-commits --output=tmp-pr-description.txt
+      #     gh pr create \
+      #       --base main \
+      #       --head "release/${NEXT_VERSION}" \
+      #       --title "${PR_TITLE}" \
+      #       --body-file tmp-pr-description.txt
