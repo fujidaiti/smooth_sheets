@@ -1,11 +1,10 @@
 name: Prepare Release PR
 
 on:
-  pull_request:
-  # schedule:
-  #   # Runs every Monday at 6:00 AM JST (Sunday 21:00 UTC)
-  #   - cron: '0 21 * * 0'
-  # workflow_dispatch:
+  schedule:
+    # Runs every Monday at 6:00 AM JST (Sunday 21:00 UTC)
+    - cron: '0 21 * * 0'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -115,24 +114,22 @@ jobs:
         env:
           NEXT_VERSION: ${{ needs.check.outputs.next_version }}
         run: |
-          # BRANCH_NAME="release/${NEXT_VERSION}"
-          BRANCH_NAME="test-331"
+          BRANCH_NAME="release/${NEXT_VERSION}"
           git checkout -b $BRANCH_NAME
           git add pubspec.yaml CHANGELOG.md
           git commit -m "Bump package version to ${NEXT_VERSION}"
-          git push --force origin $BRANCH_NAME
+          git push origin $BRANCH_NAME
       
-
-      # - name: Create Pull Request
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     NEXT_VERSION: ${{ needs.check.outputs.next_version }}
-      #     LATEST_TAG: ${{ needs.check.outputs.latest_tag }}
-      #   run: |
-      #     PR_TITLE="chore: Bump package version to ${NEXT_VERSION} [bot]"
-      #     dart run grinder unreleased-commits --output=tmp-pr-description.txt
-      #     gh pr create \
-      #       --base main \
-      #       --head "release/${NEXT_VERSION}" \
-      #       --title "${PR_TITLE}" \
-      #       --body-file tmp-pr-description.txt
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_VERSION: ${{ needs.check.outputs.next_version }}
+          LATEST_TAG: ${{ needs.check.outputs.latest_tag }}
+        run: |
+          PR_TITLE="chore(pkg): Bump package version to ${NEXT_VERSION} [bot]"
+          git cliff --unreleased --strip=all --output=pr-description.txt
+          gh pr create \
+            --base main \
+            --head "release/${NEXT_VERSION}" \
+            --title "${PR_TITLE}" \
+            --body-file pr-description.txt
