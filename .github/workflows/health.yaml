@@ -118,3 +118,35 @@ jobs:
                contains(needs.*.result, 'failure')
             || contains(needs.*.result, 'cancelled')
           }}
+
+  dry-publish:
+    needs: setup
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: ./.github/actions/setup_flutter
+
+      - name: Install pana
+        run: dart pub global activate pana
+
+      - name: Run pana
+        id: analysis
+        run: |
+          pana --json . 2>&1 | grep -v '^{"logName"' > pana-report.json
+          JSON_OUTPUT=$(cat pana-report.json | jq -c .)
+          echo "::set-output name=json_output::$JSON_OUTPUT"
+
+      - uses: fujidaiti/dart-package-inspector@v2
+        with:
+          report: ${{ steps.analysis.outputs.json_output }}
+          min-convention-points: 30
+          min-platform-points: 20
+          min-analysis-points: 40
+          min-dependency-points: 20
+          supported-platforms: ios, android
+
+      - run: flutter pub publish --dry-run
