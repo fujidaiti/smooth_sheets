@@ -26,12 +26,7 @@ void unreleasedCommits() {
     fail('Specify an output file with --output.');
   }
 
-  _runGitCliff(
-    output: getFile(output),
-    unreleased: true,
-    bump: true,
-    stripAll: true,
-  );
+  _runGitCliff(output: getFile(output), unreleased: true, stripAll: true);
 }
 
 void _runGitCliff({
