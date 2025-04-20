@@ -115,12 +115,12 @@ jobs:
         env:
           NEXT_VERSION: ${{ needs.check.outputs.next_version }}
         run: |
-          BRANCH_NAME="release/${NEXT_VERSION}"
-          # git checkout -b $BRANCH_NAME
+          # BRANCH_NAME="release/${NEXT_VERSION}"
+          BRANCH_NAME="test-331"
+          git checkout -b $BRANCH_NAME
           git add pubspec.yaml CHANGELOG.md
           git commit -m "Bump package version to ${NEXT_VERSION}"
-          # git push origin $BRANCH_NAME
-          git push origin auto-bump
+          git push origin $BRANCH_NAME
       
 
       # - name: Create Pull Request
