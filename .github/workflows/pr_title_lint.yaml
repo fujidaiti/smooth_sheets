@@ -29,5 +29,11 @@ jobs:
             revert
             build
             chore
-          requireScope: false
+          requireScope: true
+          scopes: |
+            ci
+            pkg
+            example
+            env
+
 
