@@ -28,5 +28,12 @@ jobs:
             test
             revert
             build
-          requireScope: false
+            chore
+          requireScope: true
+          scopes: |
+            ci
+            pkg
+            example
+            env
+
 
