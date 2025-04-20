@@ -8,7 +8,7 @@ on:
       - reopened
 
 jobs:
-  lint_pr_title:
+  pr-title-lint:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
