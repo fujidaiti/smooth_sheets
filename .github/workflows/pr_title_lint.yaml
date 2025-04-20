@@ -28,5 +28,6 @@ jobs:
             test
             revert
             build
+            chore
           requireScope: false
 
