@@ -122,6 +122,7 @@ jobs:
           git add pubspec.yaml CHANGELOG.md
           git commit -m "Bump package version to ${NEXT_VERSION}"
           git push origin $BRANCH_NAME
+      
 
       - name: Create Pull Request
         env:
@@ -130,7 +131,9 @@ jobs:
           LATEST_TAG: ${{ needs.check.outputs.latest_tag }}
         run: |
           PR_TITLE="chore: Bump package version to ${NEXT_VERSION} [bot]"
+          dart run grinder unreleased-commits --output=tmp-pr-description.txt
           gh pr create \
             --base main \
             --head "release/${NEXT_VERSION}" \
-            --title "${PR_TITLE}"
+            --title "${PR_TITLE}" \
+            --body-file tmp-pr-description.txt
