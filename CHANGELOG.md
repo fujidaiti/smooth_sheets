@@ -193,3 +193,4 @@ This version contains some breaking changes. See the [migration guide](https://g
 ## 0.1.0
 
 - Initial release
+
