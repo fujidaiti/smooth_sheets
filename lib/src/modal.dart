@@ -195,13 +195,11 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   ) {
     return SheetViewport(
       padding: viewportPadding,
-      child: switch (swipeDismissible) {
-        true => _SheetDismissible(
-            sensitivity: swipeDismissSensitivity,
-            child: buildSheet(context),
-          ),
-        false => buildSheet(context),
-      },
+      child: _SheetDismissible(
+        enabled: swipeDismissible,
+        sensitivity: swipeDismissSensitivity,
+        child: buildSheet(context),
+      ),
     );
   }
 
@@ -257,14 +255,16 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
 
 /// Enables swipe-to-dismiss functionality for a modal sheet route.
 ///
-/// Must be used as the content of a modal that implements
+/// Must be used as the content of a route that implements
 /// [ModalSheetRouteMixin], and must be an ancestor of the sheet.
 class _SheetDismissible extends StatefulWidget {
   const _SheetDismissible({
-    required this.child,
+    this.enabled = true,
     this.sensitivity = const SwipeDismissSensitivity(),
+    required this.child,
   });
 
+  final bool enabled;
   final SwipeDismissSensitivity sensitivity;
   final Widget child;
 
@@ -274,6 +274,12 @@ class _SheetDismissible extends StatefulWidget {
 
 class _SheetDismissibleState extends State<_SheetDismissible>
     with SheetGestureProxyMixin {
+  /// The global key for the [_SheetDismissible.child].
+  ///
+  /// Used to prevent the state of the [_SheetDismissible.child] from being
+  /// discarded when the [_SheetDismissible.enabled] is dynamically changed.
+  final _childGlobalKey = GlobalKey();
+
   late ModalSheetRouteMixin<dynamic> _route;
 
   AnimationController get _transitionController => _route._controller;
@@ -495,7 +501,13 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
   @override
   Widget build(BuildContext context) {
-    return SheetGestureProxy(proxy: this, child: widget.child);
+    final child = KeyedSubtree(
+      key: _childGlobalKey,
+      child: widget.child,
+    );
+    return widget.enabled
+        ? SheetGestureProxy(proxy: this, child: child)
+        : child;
   }
 }
 
