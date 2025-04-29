@@ -236,53 +236,6 @@ void main() {
         expect(find.byKey(const Key('sheet')), findsOneWidget);
       },
     );
-
-    testWidgets(
-      'existance of SheetDismissible should take precedence '
-      'over swipeDismissible flag',
-      (tester) async {
-        await tester.pumpWidget(
-          boilerplate(
-            swipeDismissible: false,
-            builder: (sheet) => SheetDismissible(
-              sensitivity: SwipeDismissSensitivity(minFlingVelocityRatio: 1),
-              child: sheet,
-            ),
-          ),
-        );
-
-        await tester.tap(find.text('Open modal'));
-        await tester.pumpAndSettle();
-        expect(find.byKey(const Key('sheet')), findsOneWidget);
-
-        await tester.fling(
-          find.byKey(const Key('sheet')),
-          const Offset(0, 200),
-          1000,
-        );
-        await tester.pumpAndSettle();
-        expect(find.byKey(const Key('sheet')), findsNothing);
-      },
-    );
-
-    testWidgets(
-      'Should warn if SheetDismissible is used with isSwipeDismissible=true',
-      (tester) async {
-        await tester.pumpWidget(
-          boilerplate(
-            swipeDismissible: true,
-            builder: (sheet) => SheetDismissible(
-              sensitivity: SwipeDismissSensitivity(minFlingVelocityRatio: 1),
-              child: sheet,
-            ),
-          ),
-        );
-
-        await tester.tap(find.text('Open modal'));
-        final errors = await tester.pumpAndSettleAndCaptureErrors();
-        expect(errors.first.exception, isAssertionError);
-      },
-    );
   });
 
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/233
@@ -314,6 +267,22 @@ void main() {
         ),
       );
     });
+
+    testWidgets(
+      'existance of PopScope should take precedence over swipeDismissible flag',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 200),
+          2000,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byId('sheet'), findsOneWidget);
+      },
+    );
 
     testWidgets(
       'PopScope.onPopInvoked should be called when tap on barrier',

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
 import 'drag.dart';
 import 'gesture_proxy.dart';
@@ -196,7 +196,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     return SheetViewport(
       padding: viewportPadding,
       child: switch (swipeDismissible) {
-        true => SheetDismissible(
+        true => _SheetDismissible(
             sensitivity: swipeDismissSensitivity,
             child: buildSheet(context),
           ),
@@ -259,28 +259,8 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
 ///
 /// Must be used as the content of a modal that implements
 /// [ModalSheetRouteMixin], and must be an ancestor of the sheet.
-///
-/// It is rarely used directly, as setting [ModalSheetRoute.swipeDismissible]
-/// to `true` implicitly wraps the sheet in a [SheetDismissible].
-/// However, it can be useful for conditionally enabling or disabling
-/// the swipe-to-dismiss gesture based on some logic.
-///
-/// ```dart
-/// ModalSheetRoute(
-///   swipeDismissible: false,
-///   builder: (context) {
-///     bool isDismissible = ...;
-///     Widget sheet = Sheet(...);
-///     return isDismissible ? SheetDismissible(child: sheet) : sheet;
-///   },
-/// );
-/// ```
-///
-/// The sensitivity of the swipe-to-dismiss gesture can be configured using
-/// the [sensitivity] property.
-class SheetDismissible extends StatefulWidget {
-  const SheetDismissible({
-    super.key,
+class _SheetDismissible extends StatefulWidget {
+  const _SheetDismissible({
     required this.child,
     this.sensitivity = const SwipeDismissSensitivity(),
   });
@@ -289,10 +269,10 @@ class SheetDismissible extends StatefulWidget {
   final Widget child;
 
   @override
-  State<SheetDismissible> createState() => _SheetDismissibleState();
+  State<_SheetDismissible> createState() => _SheetDismissibleState();
 }
 
-class _SheetDismissibleState extends State<SheetDismissible>
+class _SheetDismissibleState extends State<_SheetDismissible>
     with SheetGestureProxyMixin {
   late ModalSheetRouteMixin<dynamic> _route;
 

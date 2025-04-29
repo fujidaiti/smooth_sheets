@@ -1,0 +1,7 @@
+# Git-cliff ignores the following commits when generating CHANGELOG.
+# See https://git-cliff.org/docs/usage/skipping-commits for more details.
+
+# COMMIT: feat(pkg): Reintroduce SheetDismissible (#341)
+# REASON: SheetDismissible was excluded from the public API in the immediately following commit.
+#         It's fine to skip this commit since SheetDismissible was hidden before it was published.
+6b976a1c9b64d1b6ca6f996358a1636ae9c6b41b
