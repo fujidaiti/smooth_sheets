@@ -331,4 +331,57 @@ void main() {
       },
     );
   });
+
+  group('WidgetTesterX.pumpAndSettleAndCaptureErrors', () {
+    testWidgets('should return empty list when no errors occur',
+        (tester) async {
+      await tester.pumpWidget(Container());
+      final errors = await tester.pumpAndSettleAndCaptureErrors();
+      expect(errors, isEmpty);
+    });
+
+    testWidgets('should capture multiple errors', (tester) async {
+      final error1 = FlutterError('Error on first build');
+      final error2 = FlutterError('Error on second build');
+      var buildCount = 0;
+
+      await tester.pumpWidget(
+        Builder(
+          builder: (context) {
+            switch (++buildCount) {
+              case 1:
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  (context as Element).markNeedsBuild();
+                });
+
+              case 2:
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  (context as Element).markNeedsBuild();
+                });
+                throw error1;
+
+              case 3:
+                throw error2;
+            }
+
+            return Container();
+          },
+        ),
+      );
+
+      // Trigger the build phases that throw errors
+      final errors = await tester.pumpAndSettleAndCaptureErrors();
+
+      expect(errors, hasLength(2));
+      expect(errors[0].exception, error1);
+      expect(errors[1].exception, error2);
+    });
+
+    testWidgets('should restore original FlutterError.onError', (tester) async {
+      final originalOnError = FlutterError.onError;
+      await tester.pumpWidget(Container());
+      await tester.pumpAndSettleAndCaptureErrors();
+      expect(FlutterError.onError, same(originalOnError));
+    });
+  });
 }
