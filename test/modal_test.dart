@@ -239,11 +239,11 @@ void main() {
 
     testWidgets(
       'existance of SheetDismissible should take precedence '
-      'over swpeDismissible flag',
+      'over swipeDismissible flag',
       (tester) async {
         await tester.pumpWidget(
           boilerplate(
-            swipeDismissible: true,
+            swipeDismissible: false,
             builder: (sheet) => SheetDismissible(
               sensitivity: SwipeDismissSensitivity(minFlingVelocityRatio: 1),
               child: sheet,
