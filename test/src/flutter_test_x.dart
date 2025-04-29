@@ -45,6 +45,28 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
     return errors;
   }
 
+  /// Captures all errors thrown during the execution of [pumpAndSettle].
+  ///
+  /// This method covers the cases that [takeException] does not work,
+  /// such as when multiple errors are thrown during [pumpAndSettle].
+  Future<List<FlutterErrorDetails>> pumpAndSettleAndCaptureErrors([
+    Duration duration = const Duration(milliseconds: 100),
+    t.EnginePhase phase = t.EnginePhase.sendSemanticsUpdate,
+    Duration timeout = const Duration(minutes: 10),
+  ]) async {
+    final errors = <FlutterErrorDetails>[];
+    final oldHandler = FlutterError.onError;
+    FlutterError.onError = errors.add;
+
+    try {
+      await pumpAndSettle(duration, phase, timeout);
+    } finally {
+      FlutterError.onError = oldHandler;
+    }
+
+    return errors;
+  }
+
   /// A strict version of WidgetTester.tap that throws an error
   /// when a tap is missed.
   ///

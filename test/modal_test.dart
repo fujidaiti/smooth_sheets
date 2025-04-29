@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+
+import 'src/flutter_test_x.dart';
 
 class _Boilerplate extends StatelessWidget {
   const _Boilerplate({
@@ -77,13 +78,17 @@ class _BoilerplateWithGoRouter extends StatelessWidget {
 
 void main() {
   group('Swipe-to-dismiss action test', () {
-    Widget boilerplate(SwipeDismissSensitivity sensitivity) {
+    Widget boilerplate({
+      SwipeDismissSensitivity sensitivity = const SwipeDismissSensitivity(),
+      bool swipeDismissible = true,
+      Widget Function(Widget sheet)? builder,
+    }) {
       return _Boilerplate(
         modalRoute: ModalSheetRoute<dynamic>(
-          swipeDismissible: true,
+          swipeDismissible: swipeDismissible,
           swipeDismissSensitivity: sensitivity,
           builder: (context) {
-            return Sheet(
+            final result = Sheet(
               child: Container(
                 key: const Key('sheet'),
                 color: Colors.white,
@@ -91,6 +96,7 @@ void main() {
                 height: 600,
               ),
             );
+            return builder?.call(result) ?? result;
           },
         ),
       );
@@ -104,7 +110,7 @@ void main() {
 
         await tester.pumpWidget(
           boilerplate(
-            const SwipeDismissSensitivity(
+            sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 1.0,
               minDragDistance: 1000,
             ),
@@ -133,7 +139,7 @@ void main() {
 
         await tester.pumpWidget(
           boilerplate(
-            const SwipeDismissSensitivity(
+            sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 1.0,
               minDragDistance: 1000,
             ),
@@ -159,7 +165,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           boilerplate(
-            const SwipeDismissSensitivity(
+            sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 5.0,
               minDragDistance: 100,
             ),
@@ -184,7 +190,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           boilerplate(
-            const SwipeDismissSensitivity(
+            sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 5.0,
               minDragDistance: 100,
             ),
@@ -201,6 +207,80 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('sheet')), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'modal should not be dismissed if swipe-to-dismiss is disabled',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            swipeDismissible: false,
+            sensitivity: const SwipeDismissSensitivity(
+              minFlingVelocityRatio: 1.0,
+              minDragDistance: 1000,
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 200),
+          1000,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'existance of SheetDismissible should take precedence '
+      'over swipeDismissible flag',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            swipeDismissible: false,
+            builder: (sheet) => SheetDismissible(
+              sensitivity: SwipeDismissSensitivity(minFlingVelocityRatio: 1),
+              child: sheet,
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 200),
+          1000,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'Should warn if SheetDismissible is used with isSwipeDismissible=true',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            swipeDismissible: true,
+            builder: (sheet) => SheetDismissible(
+              sensitivity: SwipeDismissSensitivity(minFlingVelocityRatio: 1),
+              child: sheet,
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        final errors = await tester.pumpAndSettleAndCaptureErrors();
+        expect(errors.first.exception, isAssertionError);
       },
     );
   });
