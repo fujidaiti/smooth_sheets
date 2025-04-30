@@ -245,6 +245,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
 
+  // ignore: lines_longer_than_80_chars
   // TODO: Remote this field. The initial offset should be determined by the activity.
   SheetOffset get initialOffset;
 

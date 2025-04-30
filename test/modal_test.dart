@@ -34,6 +34,62 @@ class _Boilerplate extends StatelessWidget {
   }
 }
 
+class _BoilerplateWithPagesApi extends StatefulWidget {
+  const _BoilerplateWithPagesApi({
+    super.key,
+    required this.initialPages,
+  });
+
+  final List<Page<dynamic>> initialPages;
+
+  static Page<dynamic> createHomePage({
+    VoidCallback? onPressOpenModalButton,
+  }) {
+    return MaterialPage(
+      key: ObjectKey('home'),
+      child: Scaffold(
+        body: Center(
+          child: ElevatedButton(
+            onPressed: onPressOpenModalButton,
+            child: const Text('Open modal'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  State<_BoilerplateWithPagesApi> createState() =>
+      _BoilerplateWithPagesApiState();
+}
+
+class _BoilerplateWithPagesApiState extends State<_BoilerplateWithPagesApi> {
+  List<Page<dynamic>> get pages => _pages;
+  late List<Page<dynamic>> _pages;
+  set pages(List<Page<dynamic>> value) {
+    setState(() => _pages = value);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [...widget.initialPages];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Navigator(
+        pages: _pages,
+        onDidRemovePage: (page) {
+          setState(() => _pages.remove(page));
+        },
+      ),
+    );
+  }
+}
+
 class _BoilerplateWithGoRouter extends StatelessWidget {
   const _BoilerplateWithGoRouter({
     required this.modalPage,
@@ -234,6 +290,71 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('sheet')), findsOneWidget);
+      },
+    );
+
+    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/170
+    testWidgets(
+      'swipeDismissible should be able to be changed dynamically',
+      (tester) async {
+        Page<dynamic> createModalPage({required bool swipeDismissible}) {
+          return ModalSheetPage(
+            key: const ValueKey('modal'),
+            swipeDismissible: swipeDismissible,
+            swipeDismissSensitivity: SwipeDismissSensitivity(
+              minFlingVelocityRatio: 1.0,
+            ),
+            child: Sheet(
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                width: double.infinity,
+                height: 600,
+              ),
+            ),
+          );
+        }
+
+        Future<void> performDismissingFling() async {
+          await tester.fling(
+            find.byKey(const Key('sheet')),
+            const Offset(0, 200),
+            1000, // Sufficient velocity to dismiss
+          );
+          await tester.pumpAndSettle();
+        }
+
+        final boilerplateKey = GlobalKey<_BoilerplateWithPagesApiState>();
+        await tester.pumpWidget(
+          _BoilerplateWithPagesApi(
+            key: boilerplateKey,
+            initialPages: [
+              _BoilerplateWithPagesApi.createHomePage(),
+              createModalPage(swipeDismissible: false),
+            ],
+          ),
+        );
+        expect(find.byId('sheet'), findsOneWidget);
+        await performDismissingFling();
+        expect(
+          find.byId('sheet'),
+          findsOneWidget,
+          reason: 'Should not be dismissible when swipeDismissible is false',
+        );
+
+        // Update the page to make the modal dismissible.
+        boilerplateKey.currentState!.pages = [
+          _BoilerplateWithPagesApi.createHomePage(),
+          createModalPage(swipeDismissible: true),
+        ];
+        await tester.pumpAndSettle();
+        expect(find.byId('sheet'), findsOneWidget);
+        await performDismissingFling();
+        expect(
+          find.byId('sheet'),
+          findsNothing,
+          reason: 'Should be dismissible when swipeDismissible is true',
+        );
       },
     );
   });
