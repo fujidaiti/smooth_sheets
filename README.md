@@ -17,6 +17,10 @@
 > [!IMPORTANT]
 > Version 0.11.x requires Flutter SDK version **3.27.0** or higher.
 
+> [!CAUTION]
+> The pre-release versions (1.0.0-f324.x) have been deprecated and are no longer maintained.
+> We recommend using the non–pre-release versions (0.11.x or higher) for all developers.
+
 - [0.10.x to 0.11.x](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.11.x.md) 🆕
 - [0.9.x to 0.10.x](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md)
 
