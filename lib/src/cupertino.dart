@@ -176,15 +176,25 @@ class _RenderTransformTransition extends RenderTransform {
   }
 }
 
-/// A transition for a route that is just below an incoming cupertino-style
-/// modal sheet route in the navigation stack.
+/// A transition widget for a route that is immediately below an incoming
+/// Cupertino-style modal sheet route in the navigation stack.
+///
+/// The outgoing transition is triggered when a [_BaseCupertinoModalSheetRoute]
+/// is pushed onto the navigation stack above the parent route of this widget,
+/// or when the sheet in a [_BaseCupertinoModalSheetRoute] above the parent
+/// route is expanded from a minimized state via a swipe gesture.
+///
+/// See [_BaseCupertinoModalSheetRoute.delegatedTransition] and
+/// [_BaseCupertinoModalSheetRoute.buildSheet] for more details.
 class _OutgoingTransition extends StatefulWidget {
   const _OutgoingTransition({
     required this.endOffset,
+    required this.animation,
     required this.child,
   });
 
   final Offset endOffset;
+  final Animation<double> animation;
   final Widget child;
 
   @override
@@ -192,29 +202,26 @@ class _OutgoingTransition extends StatefulWidget {
 }
 
 class _OutgoingTransitionState extends State<_OutgoingTransition> {
-  _OutgoingTransitionController? _controller;
-  late final Animation<double> _animation;
-  late final PageRoute<dynamic> _parentRoute;
+  late Animation<double> _animation;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_controller == null) {
-      _parentRoute = ModalRoute.of(context)! as PageRoute<dynamic>;
-      _controller = _OutgoingTransitionController(route: _parentRoute);
-      _animation = CurvedAnimation(
-        parent: _controller!,
-        curve: _outgoingTransitionCurve,
-      );
-    } else {
-      assert(ModalRoute.of(context) == _parentRoute);
-    }
+  void initState() {
+    super.initState();
+    _animation = CurvedAnimation(
+      parent: widget.animation,
+      curve: _outgoingTransitionCurve,
+    );
   }
 
   @override
-  void dispose() {
-    _controller!.dispose();
-    super.dispose();
+  void didUpdateWidget(_OutgoingTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.animation != widget.animation) {
+      _animation = CurvedAnimation(
+        parent: widget.animation,
+        curve: _outgoingTransitionCurve,
+      );
+    }
   }
 
   @override
@@ -242,24 +249,10 @@ class _OutgoingTransitionState extends State<_OutgoingTransition> {
 /// in the navigation stack.
 class _OutgoingTransitionController extends Animation<double>
     with ChangeNotifier {
-  _OutgoingTransitionController({
-    required this.route,
-  }) : assert(!_routeToControllerMap.containsKey(route)) {
-    _routeToControllerMap[route] = this;
+  _OutgoingTransitionController({required this.route}) {
     route.secondaryAnimation!.addListener(_invalidateValue);
     _invalidateValue();
   }
-
-  static final _routeToControllerMap =
-      <Route<dynamic>, _OutgoingTransitionController>{};
-
-  /// Returns the [_OutgoingTransitionController] associated with the
-  /// [route], if any.
-  ///
-  /// Used by the incoming [_BaseCupertinoModalSheetRoute] to synchronize
-  /// its own animation with the outgoing transition of the previous route.
-  static _OutgoingTransitionController? of(Route<dynamic>? route) =>
-      _routeToControllerMap[route];
 
   final PageRoute<dynamic> route;
 
@@ -314,7 +307,6 @@ class _OutgoingTransitionController extends Animation<double>
 
   @override
   void dispose() {
-    _routeToControllerMap.remove(route);
     route.secondaryAnimation!.removeListener(_invalidateValue);
     super.dispose();
   }
@@ -367,11 +359,70 @@ class _SheetModelObserverState extends State<_SheetModelObserver> {
   }
 }
 
+/// Represents the previous route of a [_BaseCupertinoModalSheetRoute].
+///
+/// See [_BaseCupertinoModalSheetRoute._previousRouteEntry] for more details.
+sealed class _PreviousRouteEntry {
+  const _PreviousRouteEntry(this.value);
+
+  final PageRoute<dynamic> value;
+
+  _OutgoingTransitionController get outgoingTransitionController;
+
+  void dispose() {}
+}
+
+class _NonCupertinoModalEntry extends _PreviousRouteEntry {
+  _NonCupertinoModalEntry(super.value)
+      : outgoingTransitionController =
+            _OutgoingTransitionController(route: value);
+
+  @override
+  final _OutgoingTransitionController outgoingTransitionController;
+
+  @override
+  void dispose() {
+    outgoingTransitionController.dispose();
+  }
+}
+
+class _CupertinoModalEntry extends _PreviousRouteEntry {
+  // ignore: use_super_parameters
+  const _CupertinoModalEntry(_BaseCupertinoModalSheetRoute<dynamic> value)
+      : super(value);
+
+  @override
+  _OutgoingTransitionController get outgoingTransitionController =>
+      (value as _BaseCupertinoModalSheetRoute<dynamic>)
+          ._outgoingTransitionController;
+}
+
+/// The base class for all Cupertino-style modal sheet routes.
 abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     with ModalSheetRouteMixin<T> {
   _BaseCupertinoModalSheetRoute({super.settings});
 
-  Route<dynamic>? _previousRoute;
+  /// The animation controller that drives the outgoing transition
+  /// of this route.
+  ///
+  /// See [_OutgoingTransition] for more details.
+  late final _OutgoingTransitionController _outgoingTransitionController;
+
+  /// Represents the route immediately below this one in the navigation stack.
+  ///
+  /// Used to communicate the sheet’s offset within this route
+  /// to the [_OutgoingTransitionController] associated with the
+  /// previous route. This is relevant when a sheet is expanded
+  /// from a minimized state via a swipe gesture, triggering the
+  /// outgoing transition of the previous route.
+  ///
+  /// If the previous route is another [_BaseCupertinoModalSheetRoute],
+  /// this is a [_CupertinoModalEntry]. Otherwise, it's a
+  /// [_NonCupertinoModalEntry], which manages its own
+  /// [_OutgoingTransitionController]. This is necessary because
+  /// there is no way to attach a controller to an existing
+  /// non-[_BaseCupertinoModalSheetRoute] route.
+  _PreviousRouteEntry? _previousRouteEntry;
 
   @override
   // TODO: Support custom viewport padding.
@@ -380,15 +431,28 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
       );
 
   @override
+  void install() {
+    super.install();
+    _outgoingTransitionController = _OutgoingTransitionController(route: this);
+  }
+
+  @override
   void dispose() {
-    _previousRoute = null;
+    _previousRouteEntry?.dispose();
+    _outgoingTransitionController.dispose();
     super.dispose();
   }
 
   @override
   void didChangePrevious(Route<dynamic>? previousRoute) {
-    _previousRoute = previousRoute;
     super.didChangePrevious(previousRoute);
+    _previousRouteEntry = switch (previousRoute) {
+      final _BaseCupertinoModalSheetRoute<dynamic> it =>
+        _CupertinoModalEntry(it),
+      final PageRoute<dynamic> it when !it.fullscreenDialog =>
+        _NonCupertinoModalEntry(it),
+      _ => null,
+    };
   }
 
   @override
@@ -396,30 +460,28 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     return nextRoute is _BaseCupertinoModalSheetRoute;
   }
 
+  /// Creates a transition builder for the non cupertino-style modal route
+  /// that is below this route.
   @override
   DelegatedTransitionBuilder? get delegatedTransition {
-    final previousRoute = _previousRoute;
-    if (previousRoute != null &&
-        previousRoute is PageRoute &&
-        previousRoute is! _BaseCupertinoModalSheetRoute &&
-        !previousRoute.fullscreenDialog) {
-      return _buildOutgoingTransitionForNonCupertinoModalSheetRoute;
+    final previousRouteEntry = _previousRouteEntry;
+    if (previousRouteEntry is! _NonCupertinoModalEntry) {
+      return null;
     }
 
-    return null;
-  }
-
-  Widget? _buildOutgoingTransitionForNonCupertinoModalSheetRoute(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    bool allowSnapshotting,
-    Widget? child,
-  ) {
-    return _OutgoingTransition(
-      endOffset: Offset(0, MediaQuery.viewPaddingOf(context).top),
-      child: child!,
-    );
+    return (
+      BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      bool allowSnapshotting,
+      Widget? child,
+    ) {
+      return _OutgoingTransition(
+        animation: previousRouteEntry.outgoingTransitionController,
+        endOffset: Offset(0, MediaQuery.viewPaddingOf(context).top),
+        child: child!,
+      );
+    };
   }
 
   @nonVirtual
@@ -427,10 +489,11 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   Widget buildSheet(BuildContext context) {
     return _SheetModelObserver(
       onMetricsChanged: (metrics) {
-        _OutgoingTransitionController.of(_previousRoute)
-            ?.applyNewIncomingSheetMetrics(metrics);
+        _previousRouteEntry?.outgoingTransitionController
+            .applyNewIncomingSheetMetrics(metrics);
       },
       child: _OutgoingTransition(
+        animation: _outgoingTransitionController,
         endOffset: const Offset(0, -1 * _sheetTopInset),
         child: _buildSheetInternal(context),
       ),
