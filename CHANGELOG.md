@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.11.3 - 2025-04-20
+## 0.11.4 - 2025-05-05
+- fix: Assertion error when push CupertinoModalSheetRoute during closing animation ([#347](https://github.com/fujidaiti/smooth_sheets/pull/347)) - [0dbf6ee](https://github.com/fujidaiti/smooth_sheets/commit/0dbf6ee4f103525f58fca2c1b4eff009486d9ef5)
+- fix: Changing swipeDismissible dynamically causes a layout error ([#344](https://github.com/fujidaiti/smooth_sheets/pull/344)) - [3aeb05b](https://github.com/fujidaiti/smooth_sheets/commit/3aeb05be63b55c3d182a52fdf90305748ab73bf0)
+
+## 0.11.3 - 2025-04-21
 - fix: PagedSheet cannot be dragged when the drag starts at shared top/bottom bar built in builder callback ([#323](https://github.com/fujidaiti/smooth_sheets/pull/323)) - [2ba8d35](https://github.com/fujidaiti/smooth_sheets/commit/2ba8d35268f1dbce899804d8ce0fe7aa4cb8acbe)
 - fix: Unstable route transition in PagedSheet when pop a route during snapping animation ([#322](https://github.com/fujidaiti/smooth_sheets/pull/322)) - [62e96ee](https://github.com/fujidaiti/smooth_sheets/commit/62e96ee481b5421c87308274dc2047d5e0b8021d)
 - fix: PagedSheet ignores initialOffset when using auto_route and the first page is fullscreen ([#321](https://github.com/fujidaiti/smooth_sheets/pull/321)) - [cdecf41](https://github.com/fujidaiti/smooth_sheets/commit/cdecf417f9532d84951154cecff1dc64fb721fc6)
@@ -193,4 +197,3 @@ This version contains some breaking changes. See the [migration guide](https://g
 ## 0.1.0
 
 - Initial release
-
