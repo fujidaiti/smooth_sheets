@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.11.4 - 2025-05-04
+## 0.11.4 - 2025-05-05
 - fix: Assertion error when push CupertinoModalSheetRoute during closing animation ([#347](https://github.com/fujidaiti/smooth_sheets/pull/347)) - [0dbf6ee](https://github.com/fujidaiti/smooth_sheets/commit/0dbf6ee4f103525f58fca2c1b4eff009486d9ef5)
 - fix: Changing swipeDismissible dynamically causes a layout error ([#344](https://github.com/fujidaiti/smooth_sheets/pull/344)) - [3aeb05b](https://github.com/fujidaiti/smooth_sheets/commit/3aeb05be63b55c3d182a52fdf90305748ab73bf0)
 
