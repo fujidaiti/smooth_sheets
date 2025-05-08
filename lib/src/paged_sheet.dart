@@ -242,6 +242,7 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
 
     if (destOffset != null) {
       owner.offset = lerpDouble(_startPixelOffset, destOffset, fraction)!;
+      owner.didUpdateMetrics();
     }
   }
 }

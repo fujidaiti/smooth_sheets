@@ -366,9 +366,11 @@ void main() {
     (tester) async {
       final reportedNotifications = <SheetNotification>[];
       final pageA = PagedSheetPage<dynamic>(
+        key: const ValueKey('pageA'),
         child: const SizedBox(height: 300),
       );
       final pageB = PagedSheetPage<dynamic>(
+        key: const ValueKey('pageB'),
         child: const SizedBox(height: 400),
       );
       final pagesNotifier = ValueNotifier([pageA]);
@@ -390,9 +392,7 @@ void main() {
                   builder: (context, pages, _) {
                     return Navigator(
                       pages: pages,
-                      onDidRemovePage: (page) {
-                        pagesNotifier.value = [...pages]..remove(page);
-                      },
+                      onDidRemovePage: (_) {},
                     );
                   },
                 ),
@@ -411,6 +411,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.getRect(find.byId('sheet')).top, 200);
       expect(reportedNotifications.length, greaterThan(3));
+      expect(reportedNotifications.last.metrics.offset, 400);
       expect(
         reportedNotifications.map((it) => it.metrics.offset),
         isMonotonicallyIncreasing,
@@ -422,6 +423,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.getRect(find.byId('sheet')).top, 300);
       expect(reportedNotifications.length, greaterThan(3));
+      expect(reportedNotifications.last.metrics.offset, 300);
       expect(
         reportedNotifications.map((it) => it.metrics.offset),
         isMonotonicallyDecreasing,
