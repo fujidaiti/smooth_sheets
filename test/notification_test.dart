@@ -4,14 +4,10 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:smooth_sheets/src/controller.dart';
-import 'package:smooth_sheets/src/model.dart';
-import 'package:smooth_sheets/src/notification.dart';
-import 'package:smooth_sheets/src/physics.dart';
-import 'package:smooth_sheets/src/sheet.dart';
-import 'package:smooth_sheets/src/snap_grid.dart';
-import 'package:smooth_sheets/src/viewport.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
+
+import 'src/flutter_test_x.dart';
+import 'src/matchers.dart';
 
 void main() {
   testWidgets(
@@ -362,4 +358,76 @@ void main() {
     },
   );
   */
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/345
+  testWidgets(
+    'PagedSheet should dispatch SheetUpdateNotification on page change '
+    'with different initialOffset via Pages API',
+    (tester) async {
+      final reportedNotifications = <SheetNotification>[];
+      final pageA = PagedSheetPage<dynamic>(
+        key: const ValueKey('pageA'),
+        child: const SizedBox(height: 300),
+      );
+      final pageB = PagedSheetPage<dynamic>(
+        key: const ValueKey('pageB'),
+        child: const SizedBox(height: 400),
+      );
+      final pagesNotifier = ValueNotifier([pageA]);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: NotificationListener<SheetNotification>(
+            onNotification: (notification) {
+              if (notification is SheetUpdateNotification) {
+                reportedNotifications.add(notification);
+              }
+              return false;
+            },
+            child: SheetViewport(
+              child: PagedSheet(
+                key: Key('sheet'),
+                navigator: ValueListenableBuilder(
+                  valueListenable: pagesNotifier,
+                  builder: (context, pages, _) {
+                    return Navigator(
+                      pages: pages,
+                      onDidRemovePage: (_) {},
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byId('sheet')).top, 300);
+      reportedNotifications.clear();
+
+      // Navigate to Page B
+      pagesNotifier.value = [pageA, pageB];
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byId('sheet')).top, 200);
+      expect(reportedNotifications.length, greaterThan(3));
+      expect(reportedNotifications.last.metrics.offset, 400);
+      expect(
+        reportedNotifications.map((it) => it.metrics.offset),
+        isMonotonicallyIncreasing,
+      );
+      reportedNotifications.clear();
+
+      // Pop Page B, returning to Page A
+      pagesNotifier.value = [pageA];
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byId('sheet')).top, 300);
+      expect(reportedNotifications.length, greaterThan(3));
+      expect(reportedNotifications.last.metrics.offset, 300);
+      expect(
+        reportedNotifications.map((it) => it.metrics.offset),
+        isMonotonicallyDecreasing,
+      );
+    },
+  );
 }
