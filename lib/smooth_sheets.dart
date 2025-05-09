@@ -8,6 +8,7 @@ export 'src/controller.dart' hide SheetControllerScope;
 export 'src/cupertino.dart';
 export 'src/decorations.dart';
 export 'src/drag.dart' hide SheetDragController, SheetDragControllerTarget;
+export 'src/draggable.dart';
 export 'src/keyboard_dismissible.dart';
 export 'src/modal.dart';
 export 'src/model.dart'
