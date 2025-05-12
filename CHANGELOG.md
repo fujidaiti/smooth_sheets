@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.11.5 - 2025-05-11
+## 0.11.5 - 2025-05-12
 - fix: SheetNotification not dispatched during PagedSheet route transitions ([#352](https://github.com/fujidaiti/smooth_sheets/pull/352)) - [609ac4b](https://github.com/fujidaiti/smooth_sheets/commit/609ac4b6c68b208586efdc8c4102f68c119a7005)
 
 ## 0.11.4 - 2025-05-05
