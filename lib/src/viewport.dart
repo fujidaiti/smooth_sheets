@@ -909,11 +909,13 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
 
   void setModel(SheetModel? newModel) {
     if (newModel != _inner) {
-      final oldValue = _inner?.offset;
+      final oldValue =
+          _inner != null && _inner!.hasMetrics ? _inner!.offset : null;
       _inner?.removeListener(notifyListeners);
       _inner = newModel?..addListener(notifyListeners);
-      if (newModel case SheetModel(hasMetrics: true, :final offset)
-          when offset != oldValue) {
+      if (newModel != null &&
+          newModel.hasMetrics &&
+          newModel.offset != oldValue) {
         notifyListeners();
       }
     }
