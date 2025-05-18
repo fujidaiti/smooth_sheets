@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/cupertino.dart';
 import 'package:smooth_sheets/src/gesture_proxy.dart';
@@ -384,6 +385,95 @@ void main() {
         final errors = await tester.pumpAndSettleAndCaptureErrors();
         expect(errors, isEmpty);
         expect(find.byId('sheet'), findsOneWidget);
+      },
+    );
+
+    // https://github.com/fujidaiti/smooth_sheets/issues/355
+    testWidgets(
+      'Crashes when popping a route just below the modal sheet',
+      (tester) async {
+        Widget buildSheet(BuildContext context) {
+          return Sheet(
+            key: const ValueKey('sheet'),
+            child: Container(
+              color: CupertinoColors.systemBackground.resolveFrom(context),
+              height: 300,
+              alignment: Alignment.center,
+              child: CupertinoButton(
+                child: const Text('Close Sheet'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          );
+        }
+
+        Widget buildDetailPage(BuildContext context) {
+          return CupertinoPageScaffold(
+            key: const ValueKey('detail-page'),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CupertinoButton(
+                    child: const Text('Show Modal Sheet'),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        CupertinoModalSheetRoute<dynamic>(
+                          builder: buildSheet,
+                        ),
+                      );
+                    },
+                  ),
+                  CupertinoButton(
+                    child: const Text('Go to Home'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        Widget buildHomePage(BuildContext context) {
+          return CupertinoPageScaffold(
+            key: const ValueKey('home-page'),
+            child: Center(
+              child: CupertinoButton(
+                child: const Text('Go to Detail'),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<dynamic>(
+                      builder: buildDetailPage,
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        }
+
+        await tester.pumpWidget(
+          CupertinoApp(home: Builder(builder: buildHomePage)),
+        );
+        expect(find.byId('home-page'), findsOneWidget);
+
+        await tester.tap(find.text('Go to Detail'));
+        await tester.pumpAndSettle();
+        expect(find.byId('detail-page'), findsOneWidget);
+
+        await tester.tap(find.text('Show Modal Sheet'));
+        await tester.pumpAndSettle();
+        expect(find.byId('sheet'), findsOneWidget);
+
+        await tester.tap(find.text('Close Sheet'));
+        await tester.pumpAndSettle();
+        expect(find.byId('detail-page'), findsOneWidget);
+
+        await tester.tap(find.text('Go to Home'));
+        await tester.pumpAndSettle();
+        final errors = await tester.pumpAndSettleAndCaptureErrors();
+        expect(errors, isEmpty);
+        expect(find.byId('detail-page'), findsNothing);
       },
     );
   });

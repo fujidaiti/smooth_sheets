@@ -368,22 +368,25 @@ sealed class _PreviousRouteEntry {
   final PageRoute<dynamic> value;
 
   _OutgoingTransitionController get outgoingTransitionController;
-
-  void dispose() {}
 }
 
 class _NonCupertinoModalEntry extends _PreviousRouteEntry {
-  _NonCupertinoModalEntry(super.value)
-      : outgoingTransitionController =
-            _OutgoingTransitionController(route: value);
-
-  @override
-  final _OutgoingTransitionController outgoingTransitionController;
-
-  @override
-  void dispose() {
-    outgoingTransitionController.dispose();
+  _NonCupertinoModalEntry(super.value) {
+    _controllers[value]?.dispose();
+    _controllers[value] = _OutgoingTransitionController(route: value);
   }
+
+  /// Stores animation controllers for routes that are not of type
+  /// [_BaseCupertinoModalSheetRoute].
+  ///
+  /// An [Expando] is used intentionally to tie the controller's lifecycle
+  /// to that of the route. While this means the controllers may not be
+  /// explicitly disposed, this is unlikely to cause any issues.
+  static final _controllers = Expando<_OutgoingTransitionController>();
+
+  @override
+  _OutgoingTransitionController get outgoingTransitionController =>
+      _controllers[value]!;
 }
 
 class _CupertinoModalEntry extends _PreviousRouteEntry {
@@ -438,7 +441,6 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
 
   @override
   void dispose() {
-    _previousRouteEntry?.dispose();
     _outgoingTransitionController.dispose();
     super.dispose();
   }
