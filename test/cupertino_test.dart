@@ -386,6 +386,122 @@ void main() {
         expect(find.byId('sheet'), findsOneWidget);
       },
     );
+
+    testWidgets(
+      '#355: Pop after closing a sheet from a pushed page causes exception (Navigator)',
+      (tester) async {
+        const homeToDetailButtonKey = ValueKey('home_to_detail_button');
+        const detailShowSheetButtonKey = ValueKey('detail_show_sheet_button');
+        const detailGoHomeButtonKey = ValueKey('detail_go_home_button');
+        const sheetCloseButtonKey = ValueKey('sheet_close_button');
+
+        await tester.pumpWidget(
+          CupertinoApp(
+            home: Builder(builder: (homeContext) {
+              // Home Page
+              return CupertinoPageScaffold(
+                child: Center(
+                  child: CupertinoButton(
+                    key: homeToDetailButtonKey,
+                    child: const Text('Go to Detail'),
+                    onPressed: () {
+                      Navigator.of(homeContext).push(
+                        CupertinoPageRoute(builder: (detailContext) {
+                          // Detail Page
+                          return CupertinoPageScaffold(
+                            navigationBar: const CupertinoNavigationBar(
+                                middle: Text('Detail Page')),
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CupertinoButton(
+                                    key: detailShowSheetButtonKey,
+                                    child: const Text('Show Modal Sheet'),
+                                    onPressed: () {
+                                      Navigator.of(detailContext).push(
+                                        CupertinoModalSheetRoute(
+                                          builder: (sheetContext) {
+                                            // Sheet Content
+                                            return Sheet(
+                                              child: Container(
+                                                color: CupertinoColors
+                                                    .systemBackground
+                                                    .resolveFrom(sheetContext),
+                                                height: 300,
+                                                alignment: Alignment.center,
+                                                child: CupertinoButton(
+                                                  key: sheetCloseButtonKey,
+                                                  child:
+                                                      const Text('Close Sheet'),
+                                                  onPressed: () =>
+                                                      Navigator.of(sheetContext)
+                                                          .pop(),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  CupertinoButton(
+                                    key: detailGoHomeButtonKey,
+                                    child: const Text('Go to Home'),
+                                    onPressed: () => Navigator.of(detailContext)
+                                        .pop(), // This pops DetailPage
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      );
+                    },
+                  ),
+                ),
+              );
+            }),
+          ),
+        );
+
+        // 1. Initial state: Home page
+        expect(find.byKey(homeToDetailButtonKey), findsOneWidget);
+
+        // 2. Navigate to Detail page
+        await tester.tap(find.byKey(homeToDetailButtonKey));
+        await tester.pumpAndSettle();
+        expect(find.text('Detail Page'), findsOneWidget);
+        expect(find.byKey(detailShowSheetButtonKey), findsOneWidget);
+        expect(find.byKey(detailGoHomeButtonKey), findsOneWidget);
+
+        // 3. Show Modal Sheet
+        await tester.tap(find.byKey(detailShowSheetButtonKey));
+        await tester.pumpAndSettle();
+        expect(find.byKey(sheetCloseButtonKey), findsOneWidget);
+
+        // 4. Close Modal Sheet
+        await tester.tap(find.byKey(sheetCloseButtonKey));
+        await tester.pumpAndSettle();
+        // We should be back on the Detail page
+        expect(find.text('Detail Page'), findsOneWidget);
+        expect(find.byKey(sheetCloseButtonKey), findsNothing);
+        expect(find.byKey(detailShowSheetButtonKey), findsOneWidget);
+
+        // 5. Go to Home from Detail page (Pop DetailPage)
+        // This is the step that was causing an exception.
+        await tester.tap(find.byKey(detailGoHomeButtonKey));
+        final errors = await tester.pumpAndSettleAndCaptureErrors();
+
+        // Assert no errors
+        expect(errors, isEmpty,
+            reason:
+                'Expected no errors after popping DetailPage, but got: $errors');
+        // Assert we are on the Home page
+        expect(find.byKey(homeToDetailButtonKey), findsOneWidget);
+        expect(find.text('Detail Page'), findsNothing);
+      },
+    );
   });
 }
 
