@@ -288,6 +288,55 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
   Size get _navigatorSize => _route.navigator!.context.size!;
 
+  final List<_SheetPopScopeState<dynamic>> _popScopes = [];
+
+  /// Whether the modal can be dismissed by the swipe gesture.
+  ///
+  /// The gesture is still available if [_isGestureEnabled] is true,
+  /// even if this returns false.
+  bool get _canPopByGesture =>
+      widget.enabled && _route.popDisposition == RoutePopDisposition.pop;
+
+  /// Whether the gesture is available.
+  ///
+  /// The modal cannot be dismissed if [_canPopByGesture] is false,
+  /// even if this returns true.
+  bool get _isGestureEnabled =>
+      widget.enabled && _popScopes.every((it) => it.isGestureEnabled.value);
+
+  void registerPopScope(_SheetPopScopeState<dynamic> popScope) {
+    assert(!_popScopes.contains(popScope));
+    popScope.isGestureEnabled.addListener(_onIsGestureEnabledMayChanged);
+    _popScopes.add(popScope);
+    _onIsGestureEnabledMayChanged();
+  }
+
+  void unregisterPopScope(_SheetPopScopeState<dynamic> popScope) {
+    assert(_popScopes.contains(popScope));
+    popScope.isGestureEnabled.removeListener(_onIsGestureEnabledMayChanged);
+    _popScopes.remove(popScope);
+    _onIsGestureEnabledMayChanged();
+  }
+
+  void _onIsGestureEnabledMayChanged() {
+    // Since this method is invoked during the build phase due to changes
+    // in the configuration of a descendant SheetPopScope, we need to
+    // schedule another frame to ensure that the updated _isGestureEnabled
+    // is also reflected in the state of this widget.
+    WidgetsBinding.instance.scheduleFrameCallback((_) {
+      if (!_isDisposed) setState(() {});
+    });
+  }
+
+  var _isDisposed = false;
+
+  @override
+  void dispose() {
+    _popScopes.clear();
+    super.dispose();
+    _isDisposed = true;
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -430,8 +479,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       invokePop = false;
     }
 
-    final didPop =
-        invokePop && _route.popDisposition == RoutePopDisposition.pop;
+    final didPop = invokePop && _canPopByGesture;
 
     if (didPop) {
       _route.navigator!.pop();
@@ -505,7 +553,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       key: _childGlobalKey,
       child: widget.child,
     );
-    return widget.enabled
+    return _isGestureEnabled
         ? SheetGestureProxy(proxy: this, child: child)
         : child;
   }
@@ -548,4 +596,155 @@ class SwipeDismissSensitivity {
   // ignore: lines_longer_than_80_chars
   // TODO: Use the sheet position as the threshold instead of the absolute dragging distance.
   final double minDragDistance;
+}
+
+/// Manages the back navigation gesture for the current modal sheet.
+///
+/// This widget is a wrapper around [PopScope], providing additional control
+/// over the swipe-to-dismiss gesture in a modal sheet.
+/// The behavior of the modal sheet is determined by the [canPop] property and
+/// whether [onPopInvokedWithResult] is provided. The table below describes
+/// how the sheet behaves based on these properties:
+///
+/// | Behavior                        | Implementation |
+/// |:------------------------------:|:--------------:|
+/// | Can pop; Gesture is enabled    | `SheetPopScope(canPop: true)` |
+// ignore: lines_longer_than_80_chars
+/// | Cannot pop; Gesture is enabled | `SheetPopScope(canPop: false, onPopInvokedWithResult: nonNullCallback)` |
+// ignore: lines_longer_than_80_chars
+/// | Cannot pop; Gesture is disabled| `SheetPopScope(canPop: false, onPopInvokedWithResult: null)` |
+///
+/// Note that the gesture is always disabled if
+/// [ModalSheetRouteMixin.swipeDismissible] on the parent route is false.
+///
+/// Typically, this widget is placed above a sheet widget:
+///
+/// ```dart
+/// ModalSheetRoute(
+///   swipeDismissible: true,
+///   builder: (context) => SheetPopScope(
+///     canPop: false,
+///     onPopInvokedWithResult: (didPop, result) {...},
+///     child: Sheet(child: Container()),
+///   ),
+/// );
+/// ```
+///
+/// However, it can also be placed deeper within the sheet's widget tree.
+/// This is useful when you want to dynamically control gesture availability
+/// in a widget's build method:
+///
+/// ```dart
+/// class SheetContent extends StatelessWidget {
+///   @override
+///   Widget build(BuildContext context) {
+///     // If false, the modal cannot be popped, and the gesture is also disabled
+///     // (and vice versa).
+///     final canPopByGesture = ...;
+///     return SheetPopScope(
+///       canPop: canPopByGesture,
+///       onPopInvokedWithResult: canPopByGesture
+///         ? (didPop, result) {...}
+///         : null,
+///       child: Sheet(child: Container()),
+///     );
+///   }
+/// }
+/// ```
+///
+/// ## Compatibility with PopScope
+///
+/// While [SheetPopScope] offers fine-grained control, the standard [PopScope]
+/// widget can also manage a modal sheet's dismissibility. However, [PopScope]
+/// lacks the ability to control the swipe-to-dismiss gesture.
+///
+/// Assuming [ModalSheetRouteMixin.swipeDismissible] is `true`, [PopScope]
+/// behaves similarly to [SheetPopScope] in the following cases:
+///
+/// | Behavior                        | Implementation             |
+/// |:------------------------------:|:--------------------------:|
+/// | Can pop; Gesture is enabled    | `PopScope(canPop: true)`   |
+/// | Cannot pop; Gesture is enabled | `PopScope(canPop: false)`  |
+/// | Cannot pop; Gesture is disabled| ❌ Not possible             |
+///
+/// Note that the first two cases are equivalent to [SheetPopScope],
+/// but the third is not possible with [PopScope].
+class SheetPopScope<T> extends StatefulWidget {
+  /// Creates a widget that controls the pop behavior of a modal sheet.
+  const SheetPopScope({
+    super.key,
+    this.canPop = true,
+    this.onPopInvokedWithResult,
+    required this.child,
+  });
+
+  /// When false, blocks the current route from being popped.
+  ///
+  /// Even if this is false, the swipe gesture is enabled, if
+  /// [onPopInvokedWithResult] is not null and the parent
+  /// [ModalSheetRouteMixin.swipeDismissible] is true.
+  ///
+  /// See [PopScope.canPop] for more details.
+  final bool canPop;
+
+  /// A callback that is called when a pop is attempted on the current route,
+  /// including when the swipe gesture is performed.
+  ///
+  /// If this is not null and the parent [ModalSheetRouteMixin.swipeDismissible]
+  /// is true, the swipe gesture is enabled even if [canPop] is false.
+  ///
+  /// See [PopScope.onPopInvokedWithResult] for more details.
+  final PopInvokedWithResultCallback<T>? onPopInvokedWithResult;
+
+  /// The widget below this widget in the tree.
+  final Widget child;
+
+  bool get _isGestureEnabled => canPop || onPopInvokedWithResult != null;
+
+  @override
+  State<SheetPopScope<T>> createState() => _SheetPopScopeState<T>();
+}
+
+class _SheetPopScopeState<T> extends State<SheetPopScope<T>> {
+  late final ValueNotifier<bool> isGestureEnabled;
+  _SheetDismissibleState? _sheetDismissible;
+
+  @override
+  void initState() {
+    super.initState();
+    isGestureEnabled = ValueNotifier(widget._isGestureEnabled);
+  }
+
+  @override
+  void dispose() {
+    _sheetDismissible?.unregisterPopScope(this);
+    isGestureEnabled.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final sheetDismissible =
+        context.findAncestorStateOfType<_SheetDismissibleState>();
+    if (sheetDismissible != _sheetDismissible) {
+      _sheetDismissible?.unregisterPopScope(this);
+      _sheetDismissible = sheetDismissible?..registerPopScope(this);
+    }
+  }
+
+  @override
+  void didUpdateWidget(SheetPopScope<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    isGestureEnabled.value = widget._isGestureEnabled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: widget.canPop,
+      onPopInvokedWithResult: widget.onPopInvokedWithResult,
+      child: widget.child,
+    );
+  }
 }

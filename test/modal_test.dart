@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 import 'src/flutter_test_x.dart';
+import 'src/test_stateful_widget.dart';
 
 class _Boilerplate extends StatelessWidget {
   const _Boilerplate({
@@ -430,6 +431,197 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(isOnPopInvokedCalled, isTrue);
+      },
+    );
+  });
+
+  group('SheetPopScope test', () {
+    Widget boilerplate({
+      required Widget Function(Widget sheet) popScopeBuilder,
+      required bool swipeDismissible,
+    }) {
+      return _Boilerplate(
+        modalRoute: ModalSheetRoute(
+          swipeDismissible: swipeDismissible,
+          swipeDismissSensitivity: const SwipeDismissSensitivity(
+            minDragDistance: 100,
+          ),
+          builder: (context) {
+            return Sheet(
+              physics: const ClampingSheetPhysics(),
+              child: popScopeBuilder(
+                Container(
+                  key: const Key('sheet'),
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: 400,
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    Future<void> openModal(WidgetTesterX tester) async {
+      await tester.tap(find.text('Open modal'));
+      await tester.pumpAndSettle();
+      expect(find.byId('sheet'), findsOneWidget);
+      expect(tester.getRect(find.byId('sheet')).top, 200);
+    }
+
+    Future<TestGesture> performSwipeGesture(
+      WidgetTesterX tester, {
+      required bool shouldGestureEnabled,
+    }) async {
+      final gesture = await tester.startDrag(
+        tester.getCenter(find.byId('sheet')),
+        AxisDirection.down,
+      );
+      await gesture.moveBy(Offset(0, 100));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byId('sheet')).top,
+        shouldGestureEnabled ? greaterThan(200) : 200,
+        reason: shouldGestureEnabled
+            ? 'Swipe gesture should be enabled.'
+            : 'Swipe gesture should be disabled.',
+      );
+      await gesture.up();
+      await tester.pumpAndSettle();
+      return gesture;
+    }
+
+    testWidgets(
+      'Can pop; Gesture is enabled',
+      (tester) async {
+        var isOnPopInvokedCalled = false;
+        final testWidget = boilerplate(
+          swipeDismissible: true,
+          popScopeBuilder: (sheet) => SheetPopScope(
+            canPop: true,
+            onPopInvokedWithResult: (didPop, _) {
+              isOnPopInvokedCalled = true;
+            },
+            child: sheet,
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+        await openModal(tester);
+        await performSwipeGesture(tester, shouldGestureEnabled: true);
+        expect(isOnPopInvokedCalled, isTrue);
+        expect(find.byId('sheet'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'Cannot pop; Gesture is enabled',
+      (tester) async {
+        var isOnPopInvokedCalled = false;
+        final testWidget = boilerplate(
+          swipeDismissible: true,
+          popScopeBuilder: (sheet) => SheetPopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, _) {
+              isOnPopInvokedCalled = true;
+            },
+            child: sheet,
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+        await openModal(tester);
+        await performSwipeGesture(tester, shouldGestureEnabled: true);
+        expect(isOnPopInvokedCalled, isTrue);
+        expect(find.byId('sheet'), findsOneWidget);
+      },
+    );
+
+    testWidgets('Cannot pop; Gesture is disabled', (tester) async {
+      final testWidget = boilerplate(
+        swipeDismissible: true,
+        popScopeBuilder: (sheet) => SheetPopScope<dynamic>(
+          canPop: false,
+          onPopInvokedWithResult: null,
+          child: sheet,
+        ),
+      );
+      await tester.pumpWidget(testWidget);
+      await openModal(tester);
+      await performSwipeGesture(tester, shouldGestureEnabled: false);
+      expect(find.byId('sheet'), findsOneWidget);
+    });
+
+    testWidgets(
+      'Dynamically enable/disable the swipe gesture',
+      (tester) async {
+        const ({
+          bool canPop,
+          PopInvokedWithResultCallback<dynamic>? callback,
+        }) initialPopScopeConfig = (canPop: false, callback: null);
+
+        final popScopeStateKey = GlobalKey<
+            TestStatefulWidgetState<
+                ({
+                  bool canPop,
+                  PopInvokedWithResultCallback<dynamic>? callback,
+                })>>();
+
+        final testWidget = boilerplate(
+          swipeDismissible: true,
+          popScopeBuilder: (sheet) => TestStatefulWidget(
+            key: popScopeStateKey,
+            initialState: initialPopScopeConfig,
+            builder: (context, config) => SheetPopScope(
+              canPop: config.canPop,
+              onPopInvokedWithResult: config.callback,
+              child: sheet,
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+        await openModal(tester);
+
+        // 1. Cannot pop; Gesture is also disabled.
+        await performSwipeGesture(tester, shouldGestureEnabled: false);
+        expect(find.byId('sheet'), findsOneWidget);
+
+        // 2. Cannot pop; Gesture is enabled.
+        popScopeStateKey.currentState!.state =
+            (canPop: false, callback: (_, __) {});
+        await tester.pumpAndSettle();
+        await performSwipeGesture(tester, shouldGestureEnabled: true);
+        expect(find.byId('sheet'), findsOneWidget);
+
+        // 3. Can pop; Gesture is enabled.
+        popScopeStateKey.currentState!.state =
+            (canPop: true, callback: (_, __) {});
+        await tester.pumpAndSettle();
+        await performSwipeGesture(tester, shouldGestureEnabled: true);
+        expect(find.byId('sheet'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'If ModalSheetRoute.swipeDismissible is false, the modal should never '
+      'be popped and the gesture should always be disabled, regardless of '
+      'the existence of SheetPopScope',
+      (tester) async {
+        final testWidget = boilerplate(
+          swipeDismissible: false,
+          popScopeBuilder: (sheet) => SheetPopScope(
+            canPop: true,
+            onPopInvokedWithResult: (_, __) {},
+            child: sheet,
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+        await openModal(tester);
+        await performSwipeGesture(tester, shouldGestureEnabled: false);
+        expect(find.byId('sheet'), findsOneWidget);
       },
     );
   });
