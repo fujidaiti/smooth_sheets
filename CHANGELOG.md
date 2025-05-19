@@ -2,7 +2,6 @@
 
 ## 0.12.0 - 2025-05-19
 - feat: Add SheetPopScope to enable/disable the swipe gesture in modals from within build method ([#359](https://github.com/fujidaiti/smooth_sheets/pull/359)) - [6766534](https://github.com/fujidaiti/smooth_sheets/commit/6766534f7b2daca7d48f449bd155373fe800fa25)
-
 - fix: Crashes when popping a non-modal sheet route just below a modal sheet route ([#357](https://github.com/fujidaiti/smooth_sheets/pull/357)) - [cb9a174](https://github.com/fujidaiti/smooth_sheets/commit/cb9a174e58f7cd03bc4ef808d036d12e06a8f7cb)
 
 ## 0.11.5 - 2025-05-12
