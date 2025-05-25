@@ -12,6 +12,7 @@ jobs:
       pull-requests: read
     outputs:
       flutter-file-changed: ${{ steps.filter.outputs.flutter-file-changed }}
+      dev-sdk-version-changed: ${{ steps.filter.outputs.dev-sdk-version-changed }}
       flutter-lower-bound: ${{ steps.flutter-version-constraint.outputs.lower-bound }}
       flutter-upper-bound: ${{ steps.flutter-version-constraint.outputs.upper-bound }}
     steps:
@@ -26,6 +27,8 @@ jobs:
               - '**.dart'
               - 'pubspec.yaml'
               - 'pubspec.lock'
+            dev-sdk-version-changed:
+              - '.fvmrc'
 
       - name: Get Flutter SDK version constraint
         id: flutter-version-constraint
@@ -45,7 +48,7 @@ jobs:
 
   analysis:
     needs: setup
-    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' || needs.setup.outputs.dev-sdk-version-changed == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -69,7 +72,7 @@ jobs:
 
   testing:
     needs: setup
-    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' || needs.setup.outputs.dev-sdk-version-changed == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -117,7 +120,7 @@ jobs:
 
   dry-publish:
     needs: setup
-    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' }}
+    if: ${{ needs.setup.outputs.flutter-file-changed == 'true' || needs.setup.outputs.dev-sdk-version-changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
