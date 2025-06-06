@@ -3,6 +3,7 @@
 /// the iOS flavor), and more.
 library;
 
+export 'modal_utils.dart';
 export 'src/content_scaffold.dart';
 export 'src/controller.dart' hide SheetControllerScope;
 export 'src/cupertino.dart';
