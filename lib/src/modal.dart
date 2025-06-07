@@ -210,7 +210,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    final transitionTween = Tween(begin: const Offset(0, 1), end: Offset.zero);
+    var transitionTween = Tween(begin: const Offset(0, 1), end: Offset.zero);
     return SlideTransition(
       position: animation.drive(
         transitionTween.chain(CurveTween(curve: effectiveCurve)),
