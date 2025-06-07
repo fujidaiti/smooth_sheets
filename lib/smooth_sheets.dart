@@ -10,6 +10,7 @@ export 'src/decorations.dart';
 export 'src/drag.dart' hide SheetDragController, SheetDragControllerTarget;
 export 'src/keyboard_dismissible.dart';
 export 'src/modal.dart';
+export 'src/modal_utils.dart';
 export 'src/model.dart'
     hide
         ImmutableSheetLayout,
