@@ -29,14 +29,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - New features require tests
    - Bug fixes require regression tests
 
-## Pull Requests
-
-- Use `.github/pull_request_template.md` as a template
-- Create a detailed message of what changed. Focus on the high level description of the problem it tries to solve, and how it is solved. Don't go into the specifics of the code unless it adds clarity
-- Always add `fujidaiti` and as reviewer
-- NEVER ever mention a `co-authored-by` or similar aspects. In particular, never
-  mention the tool used to create the commit message or PR
-
 ## Pre-commit workflow
 
 1. Static Analysis
@@ -46,3 +38,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
    - Find error type IDs in `dart analyze` output (e.g., `specify_nonobvious_property_types`)
 2. Format dart files using `dart format .`
 3. Make sure all tests pass
+
+## Create a Pull Request
+
+When all tasks are completed and ready for review, let's create a pull request.
+
+- PR titles should follow conventional commits format (e.g., `feat(pkg): Add awesome feature`)
+  - For available types and scopes, refer to `.github/workflows/pr_title_lint.yaml`
+- Create a detailed message of what changed. Focus on the high level description of the problem it tries to solve, and how it is solved. Don't go into the specifics of the code unless it adds clarity
+- NEVER ever mention a `co-authored-by` or similar aspects. In particular, never
+  mention the tool used to create the commit message or PR
+- Ensure that the pull request description follows the format defined in `.github/pull_request_template.md`
+
+Use the following command to create a PR:
+
+```bash
+# pr_body.txt is a temporary file
+gh pr create \
+  --title <PR title> \
+  --body-file pr_body.txt \
+  --assignee @me \
+  --reviewer "$(gh repo view --json owner --jq '.owner.login')" \
+```

@@ -62,5 +62,5 @@ jobs:
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          allowed_tools: "Bash(flutter:*),Bash(dart:*),Bash(git:*)"
+          allowed_tools: "Bash(flutter:*),Bash(dart:*),mcp__github__create_pull_request"
 
