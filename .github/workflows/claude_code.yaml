@@ -1,0 +1,66 @@
+name: Claude Code
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  check-trigger:
+    if: |
+      (github.event_name == 'issue_comment' && github.event.comment.user.login == github.repository_owner) ||
+      (github.event_name == 'pull_request_review_comment' && github.event.comment.user.login == github.repository_owner) ||
+      (github.event_name == 'pull_request_review' && github.event.review.user.login == github.repository_owner) ||
+      (github.event_name == 'issues' && github.event.issue.user.login == github.repository_owner)
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Check if should trigger Claude
+        id: check
+        run: |
+          if [[ \
+            ("${{ github.event_name }}" == "issue_comment" && "${{ contains(github.event.comment.body, '@claude') }}" == "true") || \
+            ("${{ github.event_name }}" == "pull_request_review_comment" && "${{ contains(github.event.comment.body, '@claude') }}" == "true") || \
+            ("${{ github.event_name }}" == "pull_request_review" && "${{ contains(github.event.review.body, '@claude') }}" == "true") || \
+            ("${{ github.event_name }}" == "issues" && "${{ contains(github.event.issue.body, '@claude') }}" == "true") \
+          ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  claude-code-action:
+    needs: check-trigger
+    if: needs.check-trigger.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Read Flutter version from .fvmrc
+        id: flutter-version
+        run: |
+          version=$(jq -r '.flutter' .fvmrc)
+          echo "version=$version" >> $GITHUB_OUTPUT
+      - name: Setup Flutter
+        uses: ./.github/actions/setup_flutter
+        with:
+          version: ${{ steps.flutter-version.outputs.version }}
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          allowed_tools: "Bash(flutter:*),Bash(dart:*),Bash(git:*)"
+
