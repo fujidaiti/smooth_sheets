@@ -49,18 +49,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
       - name: Read Flutter version from .fvmrc
         id: flutter-version
         run: |
           version=$(jq -r '.flutter' .fvmrc)
           echo "version=$version" >> $GITHUB_OUTPUT
+
       - name: Setup Flutter
         uses: ./.github/actions/setup_flutter
         with:
           version: ${{ steps.flutter-version.outputs.version }}
+
+      - name: Generate GitHub App Token
+        uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.NORELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.NORELEASE_BOT_PRIVATE_KEY }}
+
       - name: Run Claude Code
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          allowed_tools: "Bash(flutter:*),Bash(dart:*),Bash(git:*)"
+          allowed_tools: "Bash(flutter:*),Bash(dart:*),Bash(git:*),Bash(gh pr create)"
+          github_token: ${{ steps.app-token.outputs.token }}
 
