@@ -72,6 +72,7 @@ jobs:
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          allowed_tools: "Bash(flutter:*),Bash(dart:*),Bash(git:*),Bash(gh pr create)"
+          allowed_tools: "Bash(flutter:*),Bash(dart:*),Bash(git:*),Bash(gh pr create),Bash(gh repo view),Bash(jq)"
           github_token: ${{ steps.app-token.outputs.token }}
+          timeout_minutes: 60
 
