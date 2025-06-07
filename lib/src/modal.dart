@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
@@ -278,7 +277,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
   ///
   /// Used to prevent the state of the [_SheetDismissible.child] from being
   /// discarded when the [_SheetDismissible.enabled] is dynamically changed.
-  final _childGlobalKey = GlobalKey();
+  final GlobalKey<State<StatefulWidget>> _childGlobalKey = GlobalKey();
 
   late ModalSheetRouteMixin<dynamic> _route;
 
