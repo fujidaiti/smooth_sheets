@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 
 import 'cupertino.dart';
 import 'modal.dart';
+import 'viewport.dart';
 
 /// Pushes a platform-appropriate modal sheet onto the navigator's stack.
 ///
 /// Automatically chooses between [showModalSheet] and [showCupertinoModalSheet]
 /// based on the current platform.
+///
+/// * On iOS and macOS: Uses [CupertinoModalSheetRoute]
+/// * On Android, Fuchsia, Linux, and Windows: Uses [ModalSheetRoute]
+///
+/// The [builder] function should not return a [SheetViewport] as
+/// the modal route will automatically insert it above the sheet.
 ///
 /// ```dart
 /// showAdaptiveModalSheet(
@@ -68,6 +75,18 @@ Future<T?> showAdaptiveModalSheet<T>({
 }
 
 /// Pushes a [ModalSheetRoute] onto the navigator's stack.
+///
+/// The [builder] function should not return a [SheetViewport] as
+/// the modal route will automatically insert it above the sheet.
+///
+/// ```dart
+/// showModalSheet(
+///   context: context,
+///   builder: (context) => Sheet(
+///     child: Container(height: 300),
+///   ),
+/// );
+/// ```
 Future<T?> showModalSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -104,6 +123,18 @@ Future<T?> showModalSheet<T>({
 }
 
 /// Pushes a [CupertinoModalSheetRoute] onto the navigator's stack.
+///
+/// The [builder] function should not return a [SheetViewport] as
+/// the modal route will automatically insert it above the sheet.
+///
+/// ```dart
+/// showCupertinoModalSheet(
+///   context: context,
+///   builder: (context) => Sheet(
+///     child: Container(height: 300),
+///   ),
+/// );
+/// ```
 Future<T?> showCupertinoModalSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
