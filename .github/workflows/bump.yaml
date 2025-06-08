@@ -131,10 +131,17 @@ jobs:
           args: --unreleased --strip=all
         env:
           OUTPUT: pr-description.txt
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.NORELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.NORELEASE_BOT_PRIVATE_KEY }}
       
       - name: Create Pull Request
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEXT_VERSION: ${{ needs.check.outputs.next_version }}
           LATEST_TAG: ${{ needs.check.outputs.latest_tag }}
         run: |
