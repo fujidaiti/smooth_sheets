@@ -18,6 +18,16 @@ const _transitionDuration = Duration(milliseconds: 300);
 const Cubic _outgoingTransitionCurve = Curves.easeIn;
 const ThreePointCubic _incomingTransitionCurve = Curves.fastEaseInToSlowEaseOut;
 
+/// Returns the default viewport padding for Cupertino modal sheets.
+///
+/// This includes the system's top view padding plus an additional top inset
+/// to match the traditional Cupertino modal sheet appearance.
+EdgeInsets _defaultCupertinoViewportPadding(BuildContext context) {
+  return EdgeInsets.only(
+    top: MediaQuery.viewPaddingOf(context).top + _sheetTopInset,
+  );
+}
+
 /// Animated version of [ClipRRect].
 ///
 /// The [radius] animation can be updated during the layout phase,
@@ -428,12 +438,6 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   _PreviousRouteEntry? _previousRouteEntry;
 
   @override
-  // TODO: Support custom viewport padding.
-  EdgeInsets get viewportPadding => EdgeInsets.only(
-        top: MediaQuery.viewPaddingOf(navigator!.context).top + _sheetTopInset,
-      );
-
-  @override
   void install() {
     super.install();
     _outgoingTransitionController = _OutgoingTransitionController(route: this);
@@ -519,6 +523,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.transitionDuration = _transitionDuration,
     this.transitionCurve = _incomingTransitionCurve,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
+    this.viewportPadding,
     required this.child,
   });
 
@@ -541,6 +546,8 @@ class CupertinoModalSheetPage<T> extends Page<T> {
   final Curve transitionCurve;
 
   final SwipeDismissSensitivity swipeDismissSensitivity;
+
+  final EdgeInsets? viewportPadding;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -585,6 +592,11 @@ class _PageBasedCupertinoModalSheetRoute<T>
       _page.swipeDismissSensitivity;
 
   @override
+  EdgeInsets get viewportPadding =>
+      _page.viewportPadding ??
+      _defaultCupertinoViewportPadding(navigator!.context);
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -603,7 +615,8 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.transitionDuration = _transitionDuration,
     this.transitionCurve = _incomingTransitionCurve,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
-  });
+    EdgeInsets? viewportPadding,
+  }) : _viewportPadding = viewportPadding;
 
   final WidgetBuilder builder;
 
@@ -630,6 +643,12 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   final SwipeDismissSensitivity swipeDismissSensitivity;
+
+  final EdgeInsets? _viewportPadding;
+
+  @override
+  EdgeInsets get viewportPadding =>
+      _viewportPadding ?? _defaultCupertinoViewportPadding(navigator!.context);
 
   @override
   Widget _buildSheetInternal(BuildContext context) => builder(context);
