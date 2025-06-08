@@ -63,4 +63,8 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_tools: "Bash(flutter:*),Bash(dart:*),mcp__github__create_pull_request"
+          custom_instructions: >-
+            When all tasks are completed and ready for review, please add the following sentence at the end of your issue comment:
+            '@norelease-bot Can you create a PR for this changes? (branch: <branch_name>)'
+            If you are unable to complete the task, please report the failure without mentioning anyone.
 
