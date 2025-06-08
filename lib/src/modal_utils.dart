@@ -3,27 +3,19 @@ import 'package:flutter/material.dart';
 import 'cupertino.dart';
 import 'modal.dart';
 
-/// Pushes a ModalSheetRoute or a CupertinoModalSheetRoute onto the current
-/// navigator's stack, depending on the current platform ("cupertino" for iOS
-/// and macOS, "material" for the others).
+/// Pushes a platform-appropriate modal sheet onto the navigator's stack.
 ///
-/// This function automatically chooses between [showModalSheet] and
-/// [showCupertinoModalSheet] based on the platform detected from the current
-/// theme.
+/// Automatically chooses between [showModalSheet] and [showCupertinoModalSheet]
+/// based on the current platform.
 ///
-/// The [context] argument is used to look up the [Navigator] for the sheet.
-/// It is only used when the method is called. Its corresponding widget can
-/// be safely removed from the tree before the sheet is closed.
-///
-/// The [builder] argument is typically used to return a Sheet widget.
-///
-/// The [useRootNavigator] argument is used to determine whether to push the
-/// sheet to the [Navigator] furthest from or nearest to the given [context].
-/// By default, `useRootNavigator` is `true` and the sheet route created by
-/// this method is pushed to the root navigator.
-///
-/// Returns a [Future] that resolves to the value (if any) that was passed to
-/// [Navigator.pop] when the sheet was closed.
+/// ```dart
+/// showAdaptiveModalSheet(
+///   context: context,
+///   builder: (context) => Sheet(
+///     child: Container(height: 300),
+///   ),
+/// );
+/// ```
 Future<T?> showAdaptiveModalSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -75,21 +67,7 @@ Future<T?> showAdaptiveModalSheet<T>({
   }
 }
 
-/// Pushes a [ModalSheetRoute] onto the current navigator's stack.
-///
-/// The [context] argument is used to look up the [Navigator] for the sheet.
-/// It is only used when the method is called. Its corresponding widget can
-/// be safely removed from the tree before the sheet is closed.
-///
-/// The [builder] argument is typically used to return a Sheet widget.
-///
-/// The [useRootNavigator] argument is used to determine whether to push the
-/// sheet to the [Navigator] furthest from or nearest to the given [context].
-/// By default, `useRootNavigator` is `true` and the sheet route created by
-/// this method is pushed to the root navigator.
-///
-/// Returns a [Future] that resolves to the value (if any) that was passed to
-/// [Navigator.pop] when the sheet was closed.
+/// Pushes a [ModalSheetRoute] onto the navigator's stack.
 Future<T?> showModalSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -125,21 +103,7 @@ Future<T?> showModalSheet<T>({
   return Navigator.of(context, rootNavigator: useRootNavigator).push(route);
 }
 
-/// Pushes a [CupertinoModalSheetRoute] onto the current navigator's stack.
-///
-/// The [context] argument is used to look up the [Navigator] for the sheet.
-/// It is only used when the method is called. Its corresponding widget can
-/// be safely removed from the tree before the sheet is closed.
-///
-/// The [builder] argument is typically used to return a Sheet widget.
-///
-/// The [useRootNavigator] argument is used to determine whether to push the
-/// sheet to the [Navigator] furthest from or nearest to the given [context].
-/// By default, `useRootNavigator` is `true` and the sheet route created by
-/// this method is pushed to the root navigator.
-///
-/// Returns a [Future] that resolves to the value (if any) that was passed to
-/// [Navigator.pop] when the sheet was closed.
+/// Pushes a [CupertinoModalSheetRoute] onto the navigator's stack.
 Future<T?> showCupertinoModalSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -163,8 +127,7 @@ Future<T?> showCupertinoModalSheet<T>({
     barrierLabel: barrierLabel,
     barrierColor: barrierColor,
     swipeDismissible: swipeDismissible,
-    transitionDuration:
-        transitionDuration ?? const Duration(milliseconds: 300),
+    transitionDuration: transitionDuration ?? const Duration(milliseconds: 300),
     transitionCurve: transitionCurve ?? Curves.fastEaseInToSlowEaseOut,
     swipeDismissSensitivity: swipeDismissSensitivity,
   );

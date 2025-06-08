@@ -123,41 +123,42 @@ void main() {
       },
     );
 
-    for (final platform in [
-      TargetPlatform.android,
-      TargetPlatform.fuchsia,
-      TargetPlatform.linux,
-      TargetPlatform.windows,
-    ]) {
-      testWidgets(
-        'should show ModalSheet on $platform platform',
-        (tester) async {
-          Future<String?>? result;
+    void testMaterialPlatform(String description, TargetPlatform platform) {
+      testWidgets(description, (tester) async {
+        Future<String?>? result;
 
-          await tester.pumpWidget(
-            _MaterialBoilerplate(
-              platform: platform,
-              onPressed: () {
-                result = showAdaptiveModalSheet<String>(
-                  context: tester.element(find.byType(Scaffold)),
-                  builder: (context) => _testSheet(),
-                );
-              },
-            ),
-          );
+        await tester.pumpWidget(
+          _MaterialBoilerplate(
+            platform: platform,
+            onPressed: () {
+              result = showAdaptiveModalSheet<String>(
+                context: tester.element(find.byType(Scaffold)),
+                builder: (context) => _testSheet(),
+              );
+            },
+          ),
+        );
 
-          await tester.tap(find.text('Open modal'));
-          await tester.pumpAndSettle();
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
 
-          expect(find.byKey(const Key('sheet')), findsOneWidget);
-          expect(result, isA<Future<String?>>());
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+        expect(result, isA<Future<String?>>());
 
-          final route =
-              ModalRoute.of(tester.element(find.byKey(const Key('sheet'))))!;
-          expect(route, isA<ModalSheetRoute<dynamic>>());
-        },
-      );
+        final route =
+            ModalRoute.of(tester.element(find.byKey(const Key('sheet'))))!;
+        expect(route, isA<ModalSheetRoute<dynamic>>());
+      });
     }
+
+    testMaterialPlatform(
+        'should show ModalSheet on Android platform', TargetPlatform.android);
+    testMaterialPlatform(
+        'should show ModalSheet on Fuchsia platform', TargetPlatform.fuchsia);
+    testMaterialPlatform(
+        'should show ModalSheet on Linux platform', TargetPlatform.linux);
+    testMaterialPlatform(
+        'should show ModalSheet on Windows platform', TargetPlatform.windows);
 
     testWidgets(
       'should pass through all parameters correctly',
