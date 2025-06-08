@@ -278,7 +278,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
   ///
   /// Used to prevent the state of the [_SheetDismissible.child] from being
   /// discarded when the [_SheetDismissible.enabled] is dynamically changed.
-  final _childGlobalKey = GlobalKey();
+  final GlobalKey<State<StatefulWidget>> _childGlobalKey = GlobalKey();
 
   late ModalSheetRouteMixin<dynamic> _route;
 
