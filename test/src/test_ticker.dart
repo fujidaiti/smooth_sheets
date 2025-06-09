@@ -20,6 +20,7 @@ class TestTicker implements Ticker {
   @override
   bool get isTicking => isActive && !muted;
 
+  // ignore: lines_longer_than_80_chars
   // TODO: Remove the following ignore-rule once the minimum SDK is bumped to 3.29
   @override
   // ignore: omit_obvious_property_types
