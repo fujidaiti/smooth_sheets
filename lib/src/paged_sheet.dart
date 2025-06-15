@@ -27,6 +27,8 @@ mixin _PagedSheetEntry {
 
   SheetOffset get initialOffset;
 
+  SheetScrollConfiguration? get scrollConfiguration;
+
   SheetOffset? _targetOffset;
 
   Size? _contentSize;
@@ -68,6 +70,10 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
   @override
   SheetOffset get initialOffset =>
       _currentEntry?.initialOffset ?? const SheetOffset(1);
+
+  @override
+  SheetScrollConfiguration get scrollConfiguration =>
+      _currentEntry?.scrollConfiguration ?? const SheetScrollConfiguration();
 
   @override
   set config(_PagedSheetModelConfig value) {
@@ -435,9 +441,6 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   RouteTransitionsBuilder? get transitionsBuilder;
 
   SheetDragConfiguration? get dragConfiguration;
-
-  // TODO: Apply new configuration when the current route changes.
-  SheetScrollConfiguration? get scrollConfiguration;
 
   @override
   Color? get barrierColor => null;

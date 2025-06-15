@@ -12,13 +12,59 @@ import 'drag.dart';
 import 'internal/float_comp.dart';
 import 'model.dart';
 import 'model_owner.dart';
+import 'physics.dart';
 
 // TODO: Expose this from the ScrollableSheet's constructor
 const double _kMaxScrollSpeedToInterrupt = double.infinity;
 
+/// {@template smooth_sheets.scrollable.SheetScrollSyncMode}
+/// Defines how the sheet position is synced with the scroll gesture
+/// performed on a scrollable content.
+/// {@endtemplate}
+enum SheetScrollSyncMode {
+  /// The sheet may move downward or upward when the gesture attempts to
+  /// overscroll the scrollable content.
+  ///
+  /// How the sheet moves in response to the overscroll is determined by
+  /// the [SheetPhysics]. On the other hand, the [ScrollPhysics] of the
+  /// scrollable doesn not affect it.
+  always,
+
+  /// The sheet behaves the same as [always] mode only when the scroll
+  /// starts from the top of the scrollable content.
+  ///
+  /// More precisely, the sheet may move downward or upward in response to
+  /// the overscroll gesture if the [ScrollPosition.pixels] of the scrollable
+  /// content is 0 when the scroll starts.
+  onlyFromTop,
+}
+
+@immutable
+class SheetScrollConfiguration {
+  const SheetScrollConfiguration({
+    this.thresholdVelocityToInterruptBallisticScroll = double.infinity,
+    this.scrollSyncMode = SheetScrollSyncMode.always,
+  });
+
+  // TODO: Come up with a better name.
+  // TODO: Apply this value to the model.
+  final double thresholdVelocityToInterruptBallisticScroll;
+
+  /// {@macro smooth_sheets.scrollable.SheetScrollSyncMode}
+  final SheetScrollSyncMode scrollSyncMode;
+}
+
+mixin ScrollAwareSheetModelConfigMixin on SheetModelConfig {
+  /// {@macro smooth_sheets.scrollable.SheetScrollConfiguration}
+  SheetScrollConfiguration get scrollConfiguration;
+}
+
 @internal
 mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     implements _SheetScrollPositionDelegate {
+  /// {@macro smooth_sheets.scrollable.SheetScrollConfiguration}
+  SheetScrollConfiguration get scrollConfiguration;
+
   // TODO: Stop scroll animations when a non-scrollable activity starts.
   final _scrollPositions = HashSet<SheetScrollPosition>();
 
@@ -82,6 +128,15 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     required VoidCallback holdCancelCallback,
     required SheetScrollPosition scrollPosition,
   }) {
+    if (!_shouldHandleScroll(scrollPosition)) {
+      final controller = scrollPosition.hold(
+        holdCancelCallback,
+        calledByDelegate: true,
+      );
+      goIdle();
+      return controller;
+    }
+
     final holdActivity = HoldScrollDrivenSheetActivity(
       scrollPosition,
       onHoldCanceled: holdCancelCallback,
@@ -100,6 +155,16 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     required VoidCallback dragCancelCallback,
     required SheetScrollPosition scrollPosition,
   }) {
+    if (!_shouldHandleScroll(scrollPosition)) {
+      final drag = scrollPosition.drag(
+        details,
+        dragCancelCallback,
+        calledByDelegate: true,
+      );
+      goIdle();
+      return drag;
+    }
+
     final heldPreviousVelocity = switch (activity) {
       final HoldScrollDrivenSheetActivity holdActivity =>
         holdActivity.heldPreviousVelocity,
@@ -193,6 +258,12 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
       goIdle();
     }
   }
+
+  bool _shouldHandleScroll(ScrollPosition scrollPosition) =>
+      switch (scrollConfiguration.scrollSyncMode) {
+        SheetScrollSyncMode.always => true,
+        SheetScrollSyncMode.onlyFromTop => scrollPosition.pixels == 0,
+      };
 }
 
 /// A mixin for [SheetActivity]s that is associated with
@@ -713,27 +784,38 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
   }
 
   @override
-  ScrollHoldController hold(VoidCallback holdCancelCallback) {
-    return switch (_delegate?.call()) {
-      null => super.hold(holdCancelCallback),
-      final it => it.holdWithScrollPosition(
-          scrollPosition: this,
-          holdCancelCallback: holdCancelCallback,
-          heldPreviousVelocity: activity!.velocity,
-        ),
-    };
+  ScrollHoldController hold(
+    VoidCallback holdCancelCallback, {
+    bool calledByDelegate = false,
+  }) {
+    final delegate = _delegate?.call();
+    if (!calledByDelegate && delegate != null) {
+      return delegate.holdWithScrollPosition(
+        scrollPosition: this,
+        holdCancelCallback: holdCancelCallback,
+        heldPreviousVelocity: activity!.velocity,
+      );
+    } else {
+      return super.hold(holdCancelCallback);
+    }
   }
 
   @override
-  Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-    return switch (_delegate?.call()) {
-      null => super.drag(details, dragCancelCallback),
-      final it => it.dragWithScrollPosition(
-          scrollPosition: this,
-          dragCancelCallback: dragCancelCallback,
-          details: details,
-        ),
-    };
+  Drag drag(
+    DragStartDetails details,
+    VoidCallback dragCancelCallback, {
+    bool calledByDelegate = false,
+  }) {
+    final delegate = _delegate?.call();
+    if (!calledByDelegate && delegate != null) {
+      return delegate.dragWithScrollPosition(
+        scrollPosition: this,
+        dragCancelCallback: dragCancelCallback,
+        details: details,
+      );
+    } else {
+      return super.drag(details, dragCancelCallback);
+    }
   }
 
   @override

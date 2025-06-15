@@ -12,17 +12,6 @@ import 'snap_grid.dart';
 import 'viewport.dart';
 
 @immutable
-class SheetScrollConfiguration {
-  const SheetScrollConfiguration({
-    this.thresholdVelocityToInterruptBallisticScroll = double.infinity,
-  });
-
-  // TODO: Come up with a better name.
-  // TODO: Apply this value to the model.
-  final double thresholdVelocityToInterruptBallisticScroll;
-}
-
-@immutable
 class SheetDragConfiguration {
   const SheetDragConfiguration({
     this.hitTestBehavior = HitTestBehavior.translucent,
@@ -36,18 +25,24 @@ class _DraggableScrollableSheetModelConfig extends SheetModelConfig {
     required super.physics,
     required super.snapGrid,
     required super.gestureProxy,
+    required this.scrollConfiguration,
   });
+
+  /// {@macro smooth_sheets.scrollable.SheetScrollConfiguration}
+  final SheetScrollConfiguration scrollConfiguration;
 
   @override
   _DraggableScrollableSheetModelConfig copyWith({
     SheetPhysics? physics,
     SheetSnapGrid? snapGrid,
     SheetGestureProxyMixin? gestureProxy,
+    SheetScrollConfiguration? scrollConfiguration,
   }) {
     return _DraggableScrollableSheetModelConfig(
       physics: physics ?? this.physics,
       snapGrid: snapGrid ?? this.snapGrid,
       gestureProxy: gestureProxy ?? this.gestureProxy,
+      scrollConfiguration: scrollConfiguration ?? this.scrollConfiguration,
     );
   }
 }
@@ -63,6 +58,10 @@ class _DraggableScrollableSheetModel
 
   @override
   final SheetOffset initialOffset;
+
+  @override
+  SheetScrollConfiguration get scrollConfiguration =>
+      config.scrollConfiguration;
 }
 
 class Sheet extends StatelessWidget {
@@ -117,6 +116,8 @@ class Sheet extends StatelessWidget {
         physics: physics ?? kDefaultSheetPhysics,
         snapGrid: snapGrid,
         gestureProxy: SheetGestureProxy.maybeOf(context),
+        scrollConfiguration:
+            scrollConfiguration ?? const SheetScrollConfiguration(),
       ),
       child: BareSheet(
         decoration: decoration,
