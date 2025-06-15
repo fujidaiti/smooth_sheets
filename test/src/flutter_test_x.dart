@@ -204,6 +204,22 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
     return gesture;
   }
 
+  /// Attempts to drag the given widget upward by the given [deltaY],
+  /// by starting a drag in the middle of the widget.
+  Future<void> dragUpward(
+    t.FinderBase<Element> finder, {
+    required double deltaY,
+  }) =>
+      drag(finder, Offset(0, -deltaY));
+
+  /// Attempts to drag the given widget downward by the given [deltaY],
+  /// by starting a drag in the middle of the widget.
+  Future<void> dragDownward(
+    t.FinderBase<Element> finder, {
+    required double deltaY,
+  }) =>
+      drag(finder, Offset(0, deltaY));
+
   /// Returns the local rectangle of the widget specified by the [finder].
   ///
   /// If [ancestor] is specified, the rectangle is relative to the ancestor.
@@ -222,5 +238,19 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
     } else {
       return Offset.zero & box.size;
     }
+  }
+}
+
+extension TestGestureX on t.TestGesture {
+  /// Send a move event moving the pointer upward by the given [deltaY].
+  Future<void> moveUpwardBy(double deltaY) async {
+    assert(deltaY >= 0);
+    await moveBy(Offset(0, -deltaY));
+  }
+
+  /// Send a move event moving the pointer downward by the given [deltaY].
+  Future<void> moveDownwardBy(double deltaY) async {
+    assert(deltaY >= 0);
+    await moveBy(Offset(0, deltaY));
   }
 }
