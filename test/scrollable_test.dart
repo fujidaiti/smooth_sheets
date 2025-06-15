@@ -133,8 +133,7 @@ void main() {
   });
 }
 
-class _TestModelConfig extends SheetModelConfig
-    with ScrollAwareSheetModelConfigMixin {
+class _TestModelConfig extends SheetModelConfig {
   const _TestModelConfig({
     required super.physics,
     required super.snapGrid,
@@ -142,7 +141,6 @@ class _TestModelConfig extends SheetModelConfig
     required this.scrollConfiguration,
   });
 
-  @override
   final SheetScrollConfiguration scrollConfiguration;
 
   @override

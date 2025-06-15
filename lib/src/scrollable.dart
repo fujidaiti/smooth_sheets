@@ -54,11 +54,6 @@ class SheetScrollConfiguration {
   final SheetScrollSyncMode scrollSyncMode;
 }
 
-mixin ScrollAwareSheetModelConfigMixin on SheetModelConfig {
-  /// {@macro smooth_sheets.scrollable.SheetScrollConfiguration}
-  SheetScrollConfiguration get scrollConfiguration;
-}
-
 @internal
 mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     implements _SheetScrollPositionDelegate {
