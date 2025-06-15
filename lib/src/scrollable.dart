@@ -16,11 +16,11 @@ import 'model_owner.dart';
 // TODO: Expose this from the ScrollableSheet's constructor
 const double _kMaxScrollSpeedToInterrupt = double.infinity;
 
-/// {@template smooth_sheets.scrollable.SheetScrollSyncMode}
+/// {@template smooth_sheets.scrollable.SheetScrollHandlingBehavior}
 /// Defines how the sheet position is synced with scroll gestures
 /// performed on a scrollable content.
 /// {@endtemplate}
-enum SheetScrollSyncMode {
+enum SheetScrollHandlingBehavior {
   /// The sheet always takes precedence over the scrollable content
   /// when handling scroll gestures.
   ///
@@ -48,15 +48,15 @@ enum SheetScrollSyncMode {
 class SheetScrollConfiguration {
   const SheetScrollConfiguration({
     this.thresholdVelocityToInterruptBallisticScroll = double.infinity,
-    this.scrollSyncMode = SheetScrollSyncMode.always,
+    this.scrollSyncMode = SheetScrollHandlingBehavior.always,
   });
 
   // TODO: Come up with a better name.
   // TODO: Apply this value to the model.
   final double thresholdVelocityToInterruptBallisticScroll;
 
-  /// {@macro smooth_sheets.scrollable.SheetScrollSyncMode}
-  final SheetScrollSyncMode scrollSyncMode;
+  /// {@macro smooth_sheets.scrollable.SheetScrollHandlingBehavior}
+  final SheetScrollHandlingBehavior scrollSyncMode;
 }
 
 @internal
@@ -261,8 +261,8 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
 
   bool _shouldHandleScroll(ScrollPosition scrollPosition) =>
       switch (scrollConfiguration.scrollSyncMode) {
-        SheetScrollSyncMode.always => true,
-        SheetScrollSyncMode.onlyFromTop => scrollPosition.pixels == 0,
+        SheetScrollHandlingBehavior.always => true,
+        SheetScrollHandlingBehavior.onlyFromTop => scrollPosition.pixels == 0,
       };
 }
 

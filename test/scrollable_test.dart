@@ -11,7 +11,7 @@ import 'src/flutter_test_x.dart';
 import 'src/object_ref.dart';
 
 void main() {
-  group('SheetScrollSyncMode', () {
+  group('SheetScrollHandlingBehavior', () {
     ({
       Widget testWidget,
       ObjectRef<ScrollController> scrollControllerRef,
@@ -52,7 +52,7 @@ void main() {
       (tester) async {
         final env = boilerplate(
           scrollConfiguration: SheetScrollConfiguration(
-            scrollSyncMode: SheetScrollSyncMode.always,
+            scrollSyncMode: SheetScrollHandlingBehavior.always,
           ),
         );
         await tester.pumpWidget(env.testWidget);
@@ -80,7 +80,7 @@ void main() {
       (tester) async {
         final env = boilerplate(
           scrollConfiguration: SheetScrollConfiguration(
-            scrollSyncMode: SheetScrollSyncMode.onlyFromTop,
+            scrollSyncMode: SheetScrollHandlingBehavior.onlyFromTop,
           ),
         );
         await tester.pumpWidget(env.testWidget);
@@ -108,7 +108,7 @@ void main() {
       (tester) async {
         final env = boilerplate(
           scrollConfiguration: SheetScrollConfiguration(
-            scrollSyncMode: SheetScrollSyncMode.onlyFromTop,
+            scrollSyncMode: SheetScrollHandlingBehavior.onlyFromTop,
           ),
         );
         await tester.pumpWidget(env.testWidget);
