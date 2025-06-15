@@ -12,30 +12,35 @@ import 'drag.dart';
 import 'internal/float_comp.dart';
 import 'model.dart';
 import 'model_owner.dart';
-import 'physics.dart';
 
 // TODO: Expose this from the ScrollableSheet's constructor
 const double _kMaxScrollSpeedToInterrupt = double.infinity;
 
 /// {@template smooth_sheets.scrollable.SheetScrollSyncMode}
-/// Defines how the sheet position is synced with the scroll gesture
+/// Defines how the sheet position is synced with scroll gestures
 /// performed on a scrollable content.
 /// {@endtemplate}
 enum SheetScrollSyncMode {
-  /// The sheet may move downward or upward when the gesture attempts to
-  /// overscroll the scrollable content.
+  /// The sheet always takes precedence over the scrollable content
+  /// when handling scroll gestures.
   ///
-  /// How the sheet moves in response to the overscroll is determined by
-  /// the [SheetPhysics]. On the other hand, the [ScrollPhysics] of the
-  /// scrollable doesn not affect it.
+  /// For example, when the user attempts to overscroll the list view,
+  /// the sheet may move downward or upward in response to the overscroll
+  /// gesture. In this case, the list view will not perform any overscroll-
+  /// driven animations such as the bouncing effect for [BouncingScrollPhysics].
   always,
 
-  /// The sheet behaves the same as [always] mode only when the scroll
-  /// starts from the top of the scrollable content.
+  /// The sheet behaves the same as [always] mode only when scrolling
+  /// starts from the top of the scrollable content; otherwise, the scrollable
+  /// content handles scroll gestures exclusively.
   ///
-  /// More precisely, the sheet may move downward or upward in response to
-  /// the overscroll gesture if the [ScrollPosition.pixels] of the scrollable
-  /// content is 0 when the scroll starts.
+  /// For example, when the user attempts to overscroll the list view,
+  /// the sheet may move downward or upward in response to the overscroll
+  /// gesture **only if** [ScrollPosition.pixels] of the list view
+  /// is 0 when scrolling starts.
+  /// Otherwise, the sheet will not handle the scroll gesture, and the list
+  /// view may perform overscroll-driven animations such as the bouncing effect
+  /// for [BouncingScrollPhysics] as usual.
   onlyFromTop,
 }
 
