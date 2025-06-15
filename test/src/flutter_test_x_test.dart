@@ -384,4 +384,91 @@ void main() {
       expect(FlutterError.onError, same(originalOnError));
     });
   });
+
+  group('TestGestureX', () {
+    late Widget testWidget;
+    DragUpdateDetails? dragUpdateDetails;
+
+    setUp(() {
+      dragUpdateDetails = null;
+      testWidget = GestureDetector(
+        onPanUpdate: (details) {
+          dragUpdateDetails = details;
+        },
+        child: Container(
+          width: 200,
+          height: 200,
+          color: Colors.white,
+        ),
+      );
+    });
+
+    testWidgets('moveUpwardBy should move pointer upward by deltaY',
+        (tester) async {
+      await tester.pumpWidget(testWidget);
+      final center = tester.getCenter(find.byType(Container));
+
+      final gesture = await tester.startGesture(center);
+      await gesture.moveUpwardBy(50.0);
+
+      expect(dragUpdateDetails?.delta.dx, 0.0);
+      expect(dragUpdateDetails?.delta.dy, -50.0);
+
+      await gesture.up();
+    });
+
+    testWidgets('moveDownwardBy should move pointer downward by deltaY',
+        (tester) async {
+      await tester.pumpWidget(testWidget);
+      final center = tester.getCenter(find.byType(Container));
+
+      final gesture = await tester.startGesture(center);
+      await gesture.moveDownwardBy(30.0);
+
+      expect(dragUpdateDetails?.delta.dx, 0.0);
+      expect(dragUpdateDetails?.delta.dy, 30.0);
+
+      await gesture.up();
+    });
+  });
+
+  group('WidgetTesterX.dragUpward and dragDownward', () {
+    late Widget testWidget;
+    DragUpdateDetails? dragUpdateDetails;
+
+    setUp(() {
+      dragUpdateDetails = null;
+      testWidget = MaterialApp(
+        home: GestureDetector(
+          onPanUpdate: (details) {
+            dragUpdateDetails = details;
+          },
+          child: Container(
+            key: Key('draggable'),
+            width: 200,
+            height: 200,
+            color: Colors.blue,
+          ),
+        ),
+      );
+    });
+
+    testWidgets(
+      'dragUpward should drag widget upward by deltaY',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        await tester.dragUpward(find.byKey(Key('draggable')), deltaY: 20);
+        expect(dragUpdateDetails?.delta, Offset(0, -20));
+      },
+    );
+
+    testWidgets(
+      'dragDownward should drag widget downward by deltaY',
+      (tester) async {
+        await tester.pumpWidget(testWidget);
+        await tester.dragDownward(find.byKey(Key('draggable')), deltaY: 20);
+        expect(dragUpdateDetails?.delta, Offset(0, 20));
+      },
+    );
+  });
 }
