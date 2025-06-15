@@ -20,7 +20,9 @@ body = """
         {% raw %}  {% endraw %}- {{commit.breaking_description}}
         {% endif -%}
     {% endfor %}\
-{% endfor %}\n
+{% endfor %}
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/{{ version }}) for more details.\n
 """
 
 [git]
