@@ -158,6 +158,14 @@ abstract class SheetModelConfig {
 abstract class SheetModelView with SheetMetrics implements Listenable {
   bool get shouldIgnorePointer;
   bool get hasMetrics;
+
+  /// Registers a [listener] that will be called every time
+  /// the [rect] may have changed.
+  void addRectListener(VoidCallback listener);
+
+  /// Unregisters a [listener] that was previously registered
+  /// with [addRectListener].
+  void removeRectListener(VoidCallback listener);
 }
 
 /// Manages the position of a sheet.
@@ -229,6 +237,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     if (value != _offset) {
       _offset = value;
       notifyListeners();
+      _rectNotifier.notifyListeners();
     }
   }
 
@@ -309,22 +318,27 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     final (minOffset, maxOffset) = snapGrid.getBoundaries(layout);
     _minOffset = minOffset.resolve(layout);
     _maxOffset = maxOffset.resolve(layout);
-
     if (_offset == null) {
       offset = initialOffset.resolve(layout);
     }
-
     assert(hasMetrics);
 
+    final oldOffset = offset;
     if (oldLayout != null) {
       activity.applyNewLayout(oldLayout);
     }
-
     assert(
       offset == dryApplyNewLayout(layout),
       'applyNewLayout must update the offset to the value '
       'that dryApplyLayout would return.',
     );
+
+    // Notify the rect listeners only when the layout has changed
+    // without changing the offset to avoid duplicate notifications,
+    // because otherwise the listeners would already be notified.
+    if (layout != oldLayout && oldOffset == offset) {
+      _rectNotifier.notifyListeners();
+    }
   }
 
   /// Returns an offset that the model would have if
@@ -362,6 +376,18 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     return result;
   }
 
+  final _rectNotifier = ChangeNotifier();
+
+  @override
+  void addRectListener(VoidCallback listener) {
+    _rectNotifier.addListener(listener);
+  }
+
+  @override
+  void removeRectListener(VoidCallback listener) {
+    _rectNotifier.removeListener(listener);
+  }
+
   void goIdle() {
     beginActivity(IdleSheetActivity());
   }
@@ -396,6 +422,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   @override
   void dispose() {
+    _rectNotifier.dispose();
     _activity?.dispose();
     _activity = null;
     super.dispose();
