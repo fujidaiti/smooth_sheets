@@ -378,7 +378,7 @@ class _RenderSheetTranslate extends RenderTransform {
           transform: Matrix4.zero()..setIdentity(),
           transformHitTests: true,
         ) {
-    model.addListener(_invalidateTransformMatrix);
+    model.addRectListener(_invalidateTransformMatrix);
     _invalidateTransformMatrix();
   }
 
@@ -387,8 +387,8 @@ class _RenderSheetTranslate extends RenderTransform {
   // ignore: avoid_setters_without_getters
   set model(_LazySheetModelView value) {
     if (value != _model) {
-      _model.removeListener(_invalidateTransformMatrix);
-      _model = value..addListener(_invalidateTransformMatrix);
+      _model.removeRectListener(_invalidateTransformMatrix);
+      _model = value..addRectListener(_invalidateTransformMatrix);
       _invalidateTransformMatrix();
     }
   }
@@ -479,7 +479,7 @@ class _RenderSheetTranslate extends RenderTransform {
 
   @override
   void dispose() {
-    _model.removeListener(_invalidateTransformMatrix);
+    _model.removeRectListener(_invalidateTransformMatrix);
     super.dispose();
   }
 }
@@ -906,15 +906,31 @@ class _RenderSheetSkelton extends RenderShiftedBox {
 
 class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   SheetModel? _inner;
+  final _rectNotifier = ChangeNotifier();
 
   void setModel(SheetModel? newModel) {
     if (newModel != _inner) {
-      final oldValue = _inner?.offset;
-      _inner?.removeListener(notifyListeners);
-      _inner = newModel?..addListener(notifyListeners);
-      if (newModel case SheetModel(hasMetrics: true, :final offset)
-          when offset != oldValue) {
-        notifyListeners();
+      final oldOffset = _inner?.offset;
+      final oldRect = _inner?.rect;
+      _inner
+        ?..removeListener(notifyListeners)
+        ..removeRectListener(_rectNotifier.notifyListeners);
+      _inner = newModel
+        ?..addListener(notifyListeners)
+        ..addRectListener(_rectNotifier.notifyListeners);
+
+      if (newModel
+          case SheetModel(
+            hasMetrics: true,
+            :final offset,
+            :final rect,
+          )) {
+        if (offset != oldOffset) {
+          notifyListeners();
+        }
+        if (rect != oldRect) {
+          _rectNotifier.notifyListeners();
+        }
       }
     }
   }
@@ -923,7 +939,18 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   void dispose() {
     _inner?.removeListener(notifyListeners);
     _inner = null;
+    _rectNotifier.dispose();
     super.dispose();
+  }
+
+  @override
+  void addRectListener(VoidCallback listener) {
+    _rectNotifier.addListener(listener);
+  }
+
+  @override
+  void removeRectListener(VoidCallback listener) {
+    _rectNotifier.removeListener(listener);
   }
 
   @override

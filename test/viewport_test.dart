@@ -449,6 +449,72 @@ void main() {
       },
     );
 
+    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/399
+    testWidgets(
+      "should maintain the child's visual position "
+      'when the viewport height changes',
+      (tester) async {
+        final model = _TestSheetModel(initialOffset: SheetOffset(1));
+        final viewportHeightKey = GlobalKey<TestStatefulWidgetState<double>>();
+        final env = boilerplate(
+          model: model,
+          builder: (child) => TestStatefulWidget(
+            key: viewportHeightKey,
+            initialState: 500.0,
+            builder: (_, viewportHeight) {
+              return ConstrainedBox(
+                constraints:
+                    BoxConstraints.tight(Size.fromHeight(viewportHeight)),
+                child: SheetViewport(
+                  child: BareSheet(
+                    child: SizedBox.fromSize(
+                      key: Key('content'),
+                      size: Size.fromHeight(300),
+                      child: child,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byType(SheetViewport)),
+          Rect.fromLTWH(0, 50, 800, 500),
+        );
+        expect(
+          tester.getLocalRect(find.byType(BareSheet)),
+          Rect.fromLTWH(0, 200, 800, 300),
+        );
+
+        // Extend the viewport height
+        viewportHeightKey.currentState!.state = 600;
+        await tester.pump();
+        expect(
+          tester.getRect(find.byType(SheetViewport)),
+          Rect.fromLTWH(0, 0, 800, 600),
+        );
+        expect(
+          tester.getLocalRect(find.byType(BareSheet)),
+          Rect.fromLTWH(0, 300, 800, 300),
+        );
+
+        // Shrink the viewport height
+        viewportHeightKey.currentState!.state = 400;
+        await tester.pump();
+        expect(
+          tester.getRect(find.byType(SheetViewport)),
+          Rect.fromLTWH(0, 100, 800, 400),
+        );
+        expect(
+          tester.getLocalRect(find.byType(BareSheet)),
+          Rect.fromLTWH(0, 100, 800, 300),
+        );
+      },
+    );
+
     testWidgets(
       "should update the model's 'measurements' on the first build",
       (tester) async {
