@@ -49,6 +49,7 @@ class SheetScrollConfiguration {
   const SheetScrollConfiguration({
     this.thresholdVelocityToInterruptBallisticScroll = double.infinity,
     this.scrollSyncMode = SheetScrollHandlingBehavior.always,
+    this.delegateUnhandledOverscrollToChild = false,
   });
 
   // TODO: Come up with a better name.
@@ -57,6 +58,8 @@ class SheetScrollConfiguration {
 
   /// {@macro smooth_sheets.scrollable.SheetScrollHandlingBehavior}
   final SheetScrollHandlingBehavior scrollSyncMode;
+
+  final bool delegateUnhandledOverscrollToChild;
 }
 
 @internal
