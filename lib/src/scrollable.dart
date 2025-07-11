@@ -1,10 +1,13 @@
+/// @docImport 'physics.dart';
+library;
+
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'activity.dart';
@@ -49,6 +52,7 @@ class SheetScrollConfiguration {
   const SheetScrollConfiguration({
     this.thresholdVelocityToInterruptBallisticScroll = double.infinity,
     this.scrollSyncMode = SheetScrollHandlingBehavior.always,
+    this.delegateUnhandledOverscrollToChild = false,
   });
 
   // TODO: Come up with a better name.
@@ -57,6 +61,28 @@ class SheetScrollConfiguration {
 
   /// {@macro smooth_sheets.scrollable.SheetScrollHandlingBehavior}
   final SheetScrollHandlingBehavior scrollSyncMode;
+
+  /// Whether to delegate unhandled overscroll to the child scrollable.
+  ///
+  /// If `true`, the scrollable will receive scroll delta that is produced
+  /// by overscroll gestures but is not handled by the sheet's [SheetPhysics].
+  /// This enables the scrollable to perform overscroll-driven animations
+  /// such as the bouncing effect for [BouncingScrollPhysics] and
+  /// pull-to-refresh using [RefreshIndicator].
+  ///
+  /// Note that the above argument is only effective when the sheet's physics
+  /// does NOT handle overscroll. For example, [BouncingScrollPhysics] handles
+  /// overscroll, but [ClampingScrollPhysics] does not.
+  ///
+  /// If `false`, the scrollable will never receive overscroll-driven scroll
+  /// deltas. The part of such deltas that is not handled by the sheet's physics
+  /// will be ignored.
+  ///
+  /// See also:
+  /// - [tutorial/pull_to_refresh_in_sheet](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/pull_to_refresh_in_sheet.dart),
+  ///   which shows how to use this flag to implement pull-to-refresh
+  ///   in a sheet.
+  final bool delegateUnhandledOverscrollToChild;
 }
 
 @internal
@@ -302,6 +328,12 @@ mixin _ScrollAwareSheetActivityMixin
     var delta = offset;
 
     if (offset > 0) {
+      if (scrollPosition.pixels < minScrollPixels) {
+        scrollPosition.correctPixels(
+          min(scrollPosition.pixels + delta, minScrollPixels),
+        );
+        delta -= scrollPosition.pixels - oldScrollPixels;
+      }
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxOffset'.
       if (cmp.isLessThanOrApprox(newOffset, maxOffset)) {
@@ -313,6 +345,7 @@ mixin _ScrollAwareSheetActivityMixin
       // If the sheet is at the top, scroll the content up as much as possible.
       if (cmp.isGreaterThanOrApprox(newOffset, maxOffset) &&
           scrollPosition.extentAfter > 0) {
+        final oldScrollPixels = scrollPosition.pixels;
         scrollPosition
             .correctPixels(min(scrollPosition.pixels + delta, maxScrollPixels));
         delta -= scrollPosition.pixels - oldScrollPixels;
@@ -352,21 +385,41 @@ mixin _ScrollAwareSheetActivityMixin
       }
     }
 
+    owner.offset = newOffset;
+    final unhandledOverscroll = owner.physics.computeOverflow(delta, owner);
+
+    final double childOverScroll;
+    if (owner.scrollConfiguration.delegateUnhandledOverscrollToChild &&
+        unhandledOverscroll.abs() > precisionErrorTolerance) {
+      final preferredScrollOffset = scrollPosition.pixels -
+          scrollPosition.physics.applyPhysicsToUserOffset(
+            scrollPosition,
+            -1 * unhandledOverscroll,
+          );
+      childOverScroll = scrollPosition.physics
+          .applyBoundaryConditions(scrollPosition, preferredScrollOffset);
+      scrollPosition.correctPixels(preferredScrollOffset - childOverScroll);
+    } else {
+      childOverScroll = 0;
+    }
+
+    // Do the work that otherwise the ScrollPosition.setPixels would do.
     if (scrollPosition.pixels != oldScrollPixels) {
+      if (scrollPosition.outOfRange) {
+        scrollPosition.context.setIgnorePointer(false);
+      }
       scrollPosition
         ..notifyListeners()
         ..didUpdateScrollPositionBy(scrollPosition.pixels - oldScrollPixels);
     }
-
-    owner.offset = newOffset;
-
-    final overflow = owner.physics.computeOverflow(delta, owner);
-    if (overflow.abs() > 0) {
-      scrollPosition.didOverscrollBy(overflow);
-      return overflow;
+    if (childOverScroll.abs() > precisionErrorTolerance) {
+      scrollPosition.didOverscrollBy(childOverScroll);
     }
 
-    return 0;
+    return owner.scrollConfiguration.delegateUnhandledOverscrollToChild ||
+            unhandledOverscroll.abs() < precisionErrorTolerance
+        ? 0
+        : unhandledOverscroll;
   }
 }
 
