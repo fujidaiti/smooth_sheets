@@ -43,10 +43,11 @@ class _MySheet extends StatelessWidget {
         color: Colors.white,
       ),
       snapGrid: const SheetSnapGrid(
-        snaps: [SheetOffset(1)],
+        snaps: [SheetOffset(0.5), SheetOffset(1)],
       ),
       physics: const ClampingSheetPhysics(),
       scrollConfiguration: const SheetScrollConfiguration(
+        // 1. Enable this flag
         delegateUnhandledOverscrollToChild: true,
       ),
       child: MediaQuery.removePadding(
@@ -54,6 +55,7 @@ class _MySheet extends StatelessWidget {
         removeTop: true,
         child: SizedBox.fromSize(
           size: const Size.fromHeight(700),
+          // 2. Wrap the scrollable with a RefreshIndicator
           child: RefreshIndicator(
             onRefresh: () async {
               await Future.delayed(const Duration(seconds: 2));

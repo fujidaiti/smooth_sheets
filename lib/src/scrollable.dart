@@ -323,6 +323,12 @@ mixin _ScrollAwareSheetActivityMixin
     var delta = offset;
 
     if (offset > 0) {
+      if (scrollPosition.pixels < minScrollPixels) {
+        scrollPosition.correctPixels(
+          min(scrollPosition.pixels + delta, minScrollPixels),
+        );
+        delta -= scrollPosition.pixels - oldScrollPixels;
+      }
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxOffset'.
       if (cmp.isLessThanOrApprox(newOffset, maxOffset)) {
