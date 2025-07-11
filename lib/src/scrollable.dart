@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -355,21 +356,39 @@ mixin _ScrollAwareSheetActivityMixin
       }
     }
 
+    owner.offset = newOffset;
+    final unhandledOverscroll = owner.physics.computeOverflow(delta, owner);
+
+    final double childOverScroll;
+    if (owner.scrollConfiguration.delegateUnhandledOverscrollToChild) {
+      final preferredScrollOffset = scrollPosition.pixels -
+          scrollPosition.physics
+              .applyPhysicsToUserOffset(scrollPosition, unhandledOverscroll);
+      childOverScroll = scrollPosition.physics
+          .applyBoundaryConditions(scrollPosition, preferredScrollOffset);
+      debugPrint(
+          'childOverScroll: $childOverScroll, unhandledOverscroll: $unhandledOverscroll, physicsType: ${scrollPosition.physics.runtimeType}');
+      scrollPosition.correctPixels(preferredScrollOffset - childOverScroll);
+    } else {
+      childOverScroll = 0;
+    }
+
     if (scrollPosition.pixels != oldScrollPixels) {
+      if (scrollPosition.outOfRange) {
+        scrollPosition.context.setIgnorePointer(false);
+      }
       scrollPosition
         ..notifyListeners()
         ..didUpdateScrollPositionBy(scrollPosition.pixels - oldScrollPixels);
     }
-
-    owner.offset = newOffset;
-
-    final overflow = owner.physics.computeOverflow(delta, owner);
-    if (overflow.abs() > 0) {
-      scrollPosition.didOverscrollBy(overflow);
-      return overflow;
+    if (childOverScroll.abs() > precisionErrorTolerance) {
+      scrollPosition.didOverscrollBy(childOverScroll);
     }
 
-    return 0;
+    return owner.scrollConfiguration.delegateUnhandledOverscrollToChild ||
+            unhandledOverscroll.abs() < precisionErrorTolerance
+        ? 0
+        : unhandledOverscroll;
   }
 }
 
