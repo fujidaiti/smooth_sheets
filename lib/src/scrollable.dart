@@ -360,19 +360,21 @@ mixin _ScrollAwareSheetActivityMixin
     final unhandledOverscroll = owner.physics.computeOverflow(delta, owner);
 
     final double childOverScroll;
-    if (owner.scrollConfiguration.delegateUnhandledOverscrollToChild) {
+    if (owner.scrollConfiguration.delegateUnhandledOverscrollToChild &&
+        unhandledOverscroll.abs() > precisionErrorTolerance) {
       final preferredScrollOffset = scrollPosition.pixels -
-          scrollPosition.physics
-              .applyPhysicsToUserOffset(scrollPosition, unhandledOverscroll);
+          scrollPosition.physics.applyPhysicsToUserOffset(
+            scrollPosition,
+            -1 * unhandledOverscroll,
+          );
       childOverScroll = scrollPosition.physics
           .applyBoundaryConditions(scrollPosition, preferredScrollOffset);
-      debugPrint(
-          'childOverScroll: $childOverScroll, unhandledOverscroll: $unhandledOverscroll, physicsType: ${scrollPosition.physics.runtimeType}');
       scrollPosition.correctPixels(preferredScrollOffset - childOverScroll);
     } else {
       childOverScroll = 0;
     }
 
+    // Do the work that otherwise the ScrollPosition.setPixels would do.
     if (scrollPosition.pixels != oldScrollPixels) {
       if (scrollPosition.outOfRange) {
         scrollPosition.context.setIgnorePointer(false);
