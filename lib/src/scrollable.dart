@@ -345,6 +345,7 @@ mixin _ScrollAwareSheetActivityMixin
       // If the sheet is at the top, scroll the content up as much as possible.
       if (cmp.isGreaterThanOrApprox(newOffset, maxOffset) &&
           scrollPosition.extentAfter > 0) {
+        final oldScrollPixels = scrollPosition.pixels;
         scrollPosition
             .correctPixels(min(scrollPosition.pixels + delta, maxScrollPixels));
         delta -= scrollPosition.pixels - oldScrollPixels;
