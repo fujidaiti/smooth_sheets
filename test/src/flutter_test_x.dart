@@ -176,11 +176,12 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
     );
   }
 
-  /// Initiates a drag gesture at the specified [downLocation].
+  /// Initiates a drag gesture at the specified [downLocation],
+  /// moving the pointer by [t.kDragSlopDefault] pixels in the
+  /// direction of [axisDirection].
   ///
-  /// The [axisDirection] determines the initial direction of the drag gesture.
   /// For example, if [axisDirection] is [AxisDirection.down],
-  /// the gesture moves downward.
+  /// the gesture moves the pointer downward by [t.kDragSlopDefault] pixels.
   ///
   /// This method emits a pointer-down event and a drag-start event but
   /// does not generate drag-update events.

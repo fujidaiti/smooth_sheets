@@ -181,14 +181,13 @@ void main() {
     testWidgets(
       'when true: ClampingSheetPhysics with BouncingScrollPhsics',
       (tester) async {
-        final scrollPhysics = BouncingScrollPhysics();
         final env = boilerplate(
           tester: tester,
           scrollConfiguration: SheetScrollConfiguration(
             delegateUnhandledOverscrollToChild: true,
           ),
           sheetPhysics: ClampingSheetPhysics(),
-          scrollPhysics: scrollPhysics,
+          scrollPhysics: BouncingScrollPhysics(),
         );
 
         await tester.pumpWidget(env.testWidget);
@@ -197,16 +196,22 @@ void main() {
 
         final startOffset = tester.getCenter(find.byId('sheet'));
         final gesture = await tester.startDrag(startOffset, AxisDirection.down);
-        await gesture.moveDownwardBy(100);
         await tester.pump();
-        final expectedOverscroll = scrollPhysics.applyBoundaryConditions(
-          env.getScrollPosition()!,
-          -100,
-        );
-        debugPrint('expectedOverscroll: $expectedOverscroll');
+        expect(env.getScrollOffset(), -1 * kDragSlopDefault);
+
+        const dragDelta = 100.0;
+        final expectedScrollOffsetAfterDrag = env.getScrollOffset()! -
+            BouncingScrollPhysics().applyPhysicsToUserOffset(
+              env.getScrollPosition()!,
+              dragDelta,
+            );
+        await gesture.moveDownwardBy(dragDelta);
         expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
-        expect(env.getScrollOffset(), -100 + expectedOverscroll,
-            reason: 'Scrollable should overscroll');
+        expect(
+          env.getScrollOffset(),
+          allOf(lessThan(0), equals(expectedScrollOffsetAfterDrag)),
+          reason: 'Scrollable should overscroll',
+        );
 
         await gesture.up();
         await tester.pumpAndSettle();
