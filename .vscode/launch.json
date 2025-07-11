@@ -157,6 +157,13 @@
       "type": "dart",
       "program": "lib/tutorial/decorations.dart",
       "cwd": "./example"
+    },
+    {
+      "name": "Pull-to-Refresh in Sheet",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/pull_to_refresh_in_sheet.dart",
+      "cwd": "./example"
     }
   ]
 }
