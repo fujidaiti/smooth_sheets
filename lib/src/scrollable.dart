@@ -77,6 +77,11 @@ class SheetScrollConfiguration {
   /// If `false`, the scrollable will never receive overscroll-driven scroll
   /// deltas. The part of such deltas that is not handled by the sheet's physics
   /// will be ignored.
+  ///
+  /// See also:
+  /// - [tutorial/pull_to_refresh_in_sheet](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/pull_to_refresh_in_sheet.dart),
+  ///   which shows how to use this flag to implement pull-to-refresh
+  ///   in a sheet.
   final bool delegateUnhandledOverscrollToChild;
 }
 
