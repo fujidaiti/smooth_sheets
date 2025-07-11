@@ -1,3 +1,6 @@
+/// @docImport 'physics.dart';
+library;
+
 import 'dart:collection';
 import 'dart:math';
 
@@ -5,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'activity.dart';
@@ -60,6 +62,21 @@ class SheetScrollConfiguration {
   /// {@macro smooth_sheets.scrollable.SheetScrollHandlingBehavior}
   final SheetScrollHandlingBehavior scrollSyncMode;
 
+  /// Whether to delegate unhandled overscroll to the child scrollable.
+  ///
+  /// If `true`, the scrollable will receive scroll delta that is produced
+  /// by overscroll gestures but is not handled by the sheet's [SheetPhysics].
+  /// This enables the scrollable to perform overscroll-driven animations
+  /// such as the bouncing effect for [BouncingScrollPhysics] and
+  /// pull-to-refresh using [RefreshIndicator].
+  ///
+  /// Note that the above argument is only effective when the sheet's physics
+  /// does NOT handle overscroll. For example, [BouncingScrollPhysics] handles
+  /// overscroll, but [ClampingScrollPhysics] does not.
+  ///
+  /// If `false`, the scrollable will never receive overscroll-driven scroll
+  /// deltas. The part of such deltas that is not handled by the sheet's physics
+  /// will be ignored.
   final bool delegateUnhandledOverscrollToChild;
 }
 
