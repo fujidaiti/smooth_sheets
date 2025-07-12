@@ -1,6 +1,6 @@
 ## 0.11.0 Apr 5, 2025
 
-**This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.11.x.md) for more details.
+**This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/notes/migration-guide-0.11.x.md) for more details.
 
 > [!IMPORTANT]
 > Version 0.11.x requires Flutter SDK version **3.27.0** or higher.
@@ -30,7 +30,7 @@
 
 ## 0.10.0 Sep 28, 2024
 
-**This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md) for more details.
+**This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/notes/migration-guide-0.10.x.md) for more details.
 
 - Fix: Touch is ignored issue not fixed for top edge (#212)
 - Fix: Closing keyboard slows down snapping animation (#193)

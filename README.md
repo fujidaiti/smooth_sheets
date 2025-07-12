@@ -1,6 +1,6 @@
 # smooth_sheets
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/fujidaiti/smooth_sheets)](https://github.com/fujidaiti/smooth_sheets) [![Pub Version](https://img.shields.io/pub/v/smooth_sheets)](https://pub.dev/packages/smooth_sheets) ![Pub Likes](https://img.shields.io/pub/likes/smooth_sheets) ![Pub Points](https://img.shields.io/pub/points/smooth_sheets) 
+[![GitHub Repo stars](https://img.shields.io/github/stars/fujidaiti/smooth_sheets)](https://github.com/fujidaiti/smooth_sheets) [![Pub Version](https://img.shields.io/pub/v/smooth_sheets)](https://pub.dev/packages/smooth_sheets) ![Pub Likes](https://img.shields.io/pub/likes/smooth_sheets) ![Pub Points](https://img.shields.io/pub/points/smooth_sheets)
 
 **smooth_sheets** offers modal and persistent sheet widgets for Flutter apps. The key features are:
 
@@ -21,8 +21,8 @@
 > The pre-release versions (1.0.0-f324.x) have been deprecated and are no longer maintained.
 > We recommend using the non–pre-release versions (0.11.x or higher) for all developers.
 
-- [0.10.x to 0.11.x](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.11.x.md) 🆕
-- [0.9.x to 0.10.x](https://github.com/fujidaiti/smooth_sheets/blob/main/migrations/migration-guide-0.10.x.md)
+- [0.10.x to 0.11.x](https://github.com/fujidaiti/smooth_sheets/blob/main/notes/migration-guide-0.11.x.md) 🆕
+- [0.9.x to 0.10.x](https://github.com/fujidaiti/smooth_sheets/blob/main/notes/migration-guide-0.10.x.md)
 
 See [here](https://github.com/fujidaiti/smooth_sheets/tree/main/migrations) for older versions.
 
@@ -138,6 +138,7 @@ This section provides descriptions for each core component and links to related 
 The basic sheet widget that can be dragged and scrollled. It can also size itself based on its content or stretched to fill available space.
 
 See also:
+
 - [basic_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/basic_sheet.dart) for basic usage.
 - [scrollable_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/scrollable_sheet.dart) for usage with scrollable content.
 - [decorations.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/decorations.dart) for styling examples.
@@ -152,6 +153,7 @@ See also:
 `PagedSheet` manages a stack of pages within a single sheet, enabling navigation between them with transitions. It works seamlessly with Flutter's Navigator API, both imperative (`Navigator.push`) and declarative (go_router, auto_route, etc...). Each page is defined using `PagedSheetPage`, which can have its own specific configuration like `initialOffset`, `snapGrid`, or `scrollConfiguration`. Transitions between pages default to the application's theme but can be customized per-page.
 
 See also:
+
 - [declarative_paged_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_paged_sheet.dart), tutorial using go_router.
 - [imperative_paged_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_paged_sheet.dart), tutorial using imperative Navigator API.
 - [paged_sheet_with_auto_route.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/paged_sheet_with_auto_route.dart), tutorial using auto_route.
@@ -189,7 +191,6 @@ See also:
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/e08e3f58-cc98-4858-8b76-6e84a7e9e416"/>
 </div>
 
-
 A physics determines how the sheet will behave when over-dragged or under-dragged, or when the user stops dragging. This is independent of the snapping behavior, which is configured via [SheetSnapGrid](#sheetsnapgrid). There are 2 predefined physics:
 
 See also:
@@ -200,7 +201,7 @@ See also:
 
 ### SheetSnapGrid
 
-Determines how the sheet snaps to certain offsets when the user stops dragging or when an animation completes. 
+Determines how the sheet snaps to certain offsets when the user stops dragging or when an animation completes.
 
 There are several predefined snap grid types:
 
@@ -216,7 +217,6 @@ See also:
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/40f3fba5-9fec-40e8-a5cf-8f0312b57288"/>
 </div>
 
-
 Like [ScrollController](https://api.flutter.dev/flutter/widgets/ScrollController-class.html) for scrollable widget, the SheetController can be used to animate or observe the offset (position) of a sheet.
 
 See also:
@@ -231,8 +231,7 @@ See also:
   <img width="160" src="https://github.com/fujidaiti/smooth_sheets/assets/68946713/52a0de82-b85c-4b2f-b10a-eb882b849900"/>
 </div>
 
-
-Simillar to the [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html), it offers the slots for a `topBar` (like `AppBar`) and a `bottomBar` (like `BottomNavigationBar`). 
+Simillar to the [Scaffold](https://api.flutter.dev/flutter/material/Scaffold-class.html), it offers the slots for a `topBar` (like `AppBar`) and a `bottomBar` (like `BottomNavigationBar`).
 
 See also:
 
@@ -252,6 +251,7 @@ See also:
 Formerly `SheetPositionDrivenAnimation`, this allows creating animations driven by the sheet's offset. It's a special kind of [Animation](https://api.flutter.dev/flutter/animation/Animation-class.html) whose value changes (typically from 0 to 1) as the sheet's offset moves between specified `startOffset` and `endOffset` values (defined using `SheetOffset`). This is useful for synchronizing UI changes (like fades, slides, or color changes) with the sheet's movement.
 
 See also:
+
 - [sheet_offset_driven_animation.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_offset_driven_animation.dart) for basic usage.
 - [airbnb_mobile_app.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/airbnb_mobile_app.dart), which shows how `SheetOffsetDrivenAnimation` can be used to hide/show UI elements based on the sheet's drag position.
 
