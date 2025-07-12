@@ -13,6 +13,7 @@ class _CupertinoModalSheetExample extends StatelessWidget {
     // Cupertino widgets are used in this example,
     // but of course you can use material widgets as well.
     return const CupertinoApp(
+      theme: CupertinoThemeData(brightness: Brightness.dark),
       home: _ExampleHome(),
     );
   }
@@ -45,6 +46,10 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
       minFlingVelocityRatio: 2.0,
       minDragDistance: 300.0,
     ),
+    // The overlay color applied to the sheet when another sheet is being pushed.
+    // Especially useful when stacking multiple modal sheets in dark mode,
+    // so that the user can distinguish between the stacked sheets.
+    overlayColor: const Color(0x33ffffff),
     builder: (context) => switch (isFullScreen) {
       true => const _FullScreenSheet(),
       false => const _HalfScreenSheet(),
@@ -57,7 +62,7 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
 const _sheetDecoration = BoxSheetDecoration(
   size: SheetSize.stretch,
   decoration: ShapeDecoration(
-    color: CupertinoColors.systemBackground,
+    color: CupertinoColors.darkBackgroundGray,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(
         Radius.circular(8),
