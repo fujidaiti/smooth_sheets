@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -16,6 +15,7 @@ const _minimizedSheetCornerRadius = 12.0;
 const _barrierColor = Color(0x18000000);
 const _transitionDuration = Duration(milliseconds: 300);
 const Cubic _outgoingTransitionCurve = Curves.easeIn;
+const Cubic _outgoingTransitionOverlayCurve = Curves.easeIn;
 const ThreePointCubic _incomingTransitionCurve = Curves.fastEaseInToSlowEaseOut;
 
 /// Animated version of [ClipRRect].
@@ -81,6 +81,95 @@ class _RenderClipRRectTransition extends RenderClipRRect {
 /// The [animation] can be updated during the layout phase,
 /// allowing the transform to depend on the sheet position and
 /// reflect the new value in the subsequent painting phase.
+class _ToningOverlay extends SingleChildRenderObjectWidget {
+  const _ToningOverlay({
+    required this.animation,
+    required this.color,
+    required super.child,
+  });
+
+  final Animation<double> animation;
+  final Color color;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderToningOverlay(
+      animation: animation,
+      color: color,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderToningOverlay renderObject,
+  ) {
+    super.updateRenderObject(context, renderObject);
+    renderObject
+      ..animation = animation
+      ..color = color;
+  }
+}
+
+class _RenderToningOverlay extends RenderProxyBox {
+  _RenderToningOverlay({
+    required Animation<double> animation,
+    required Color color,
+  })  : _animation = animation,
+        _color = color {
+    _animation.addListener(markNeedsPaint);
+  }
+
+  Animation<double> _animation;
+
+  // ignore: avoid_setters_without_getters
+  set animation(Animation<double> value) {
+    if (_animation != value) {
+      _animation.removeListener(markNeedsPaint);
+      _animation = value..addListener(markNeedsPaint);
+      markNeedsPaint();
+    }
+  }
+
+  Color _color;
+
+  // ignore: avoid_setters_without_getters
+  set color(Color value) {
+    if (_color != value) {
+      _color = value;
+      markNeedsPaint();
+    }
+  }
+
+  @override
+  void dispose() {
+    _animation.removeListener(markNeedsPaint);
+    super.dispose();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    // Paint the child first
+    super.paint(context, offset);
+
+    final effectiveToneColor = Color.lerp(
+      const Color(0x00000000),
+      _color,
+      _outgoingTransitionOverlayCurve.transform(_animation.value),
+    )!;
+
+    if (_animation.value > 0) {
+      final paint = Paint()
+        ..color = effectiveToneColor
+        ..style = PaintingStyle.fill;
+      context.canvas.drawRect(
+        Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
+        paint,
+      );
+    }
+  }
+}
+
 class _TransformTransition extends SingleChildRenderObjectWidget {
   const _TransformTransition({
     required this.animation,
@@ -191,11 +280,13 @@ class _OutgoingTransition extends StatefulWidget {
     required this.endOffset,
     required this.animation,
     required this.child,
+    this.overlayColor,
   });
 
   final Offset endOffset;
   final Animation<double> animation;
   final Widget child;
+  final Color? overlayColor;
 
   @override
   State<_OutgoingTransition> createState() => _OutgoingTransitionState();
@@ -238,7 +329,13 @@ class _OutgoingTransitionState extends State<_OutgoingTransition> {
           begin: 0.0,
           end: _minimizedSheetCornerRadius,
         ).animate(_animation),
-        child: widget.child,
+        child: widget.overlayColor != null
+            ? _ToningOverlay(
+                animation: _animation,
+                color: widget.overlayColor!,
+                child: widget.child,
+              )
+            : widget.child,
       ),
     );
   }
@@ -405,6 +502,17 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     with ModalSheetRouteMixin<T> {
   _BaseCupertinoModalSheetRoute({super.settings});
 
+  /// {@template cupertino._BaseCupertinoModalSheetRoute.overlayColor}
+  /// The color of the overlay applied to the outgoing transition.
+  ///
+  /// This color is applied to the sheet when another sheet is being pushed,
+  /// especially useful when stacking multiple modal sheets in dark mode,
+  /// so that the user can distinguish between the stacked sheets.
+  ///
+  /// If `null`, the overlay color is not applied at all.
+  /// {@endtemplate}
+  Color? get overlayColor;
+
   /// The animation controller that drives the outgoing transition
   /// of this route.
   ///
@@ -481,6 +589,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
       return _OutgoingTransition(
         animation: previousRouteEntry.outgoingTransitionController,
         endOffset: Offset(0, MediaQuery.viewPaddingOf(context).top),
+        overlayColor: overlayColor,
         child: child!,
       );
     };
@@ -497,6 +606,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
       child: _OutgoingTransition(
         animation: _outgoingTransitionController,
         endOffset: const Offset(0, -1 * _sheetTopInset),
+        overlayColor: overlayColor,
         child: _buildSheetInternal(context),
       ),
     );
@@ -519,6 +629,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.transitionDuration = _transitionDuration,
     this.transitionCurve = _incomingTransitionCurve,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
+    this.overlayColor,
     required this.child,
   });
 
@@ -541,6 +652,9 @@ class CupertinoModalSheetPage<T> extends Page<T> {
   final Curve transitionCurve;
 
   final SwipeDismissSensitivity swipeDismissSensitivity;
+
+  /// {@macro cupertino._BaseCupertinoModalSheetRoute.overlayColor}
+  final Color? overlayColor;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -585,6 +699,9 @@ class _PageBasedCupertinoModalSheetRoute<T>
       _page.swipeDismissSensitivity;
 
   @override
+  Color? get overlayColor => _page.overlayColor;
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -603,6 +720,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.transitionDuration = _transitionDuration,
     this.transitionCurve = _incomingTransitionCurve,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
+    this.overlayColor,
   });
 
   final WidgetBuilder builder;
@@ -630,6 +748,9 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   final SwipeDismissSensitivity swipeDismissSensitivity;
+
+  @override
+  final Color? overlayColor;
 
   @override
   Widget _buildSheetInternal(BuildContext context) => builder(context);
