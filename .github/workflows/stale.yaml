@@ -1,0 +1,49 @@
+name: Close stale issues and PRs
+
+on:
+  schedule:
+    # Run every Monday at 0:00 JST (Sunday 15:00 UTC)
+    - cron: '0 15 * * 0'
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Target both issues and PRs with the specific label
+          only-labels: 'waiting for customer response'
+          
+          # Days before marking as stale (we skip this step and go directly to close)
+          days-before-stale: -1
+          
+          # Days before closing after marked stale
+          days-before-close: 30
+          
+          # Close message for issues
+          close-issue-message: |
+            Without additional information, we are unfortunately not sure how to resolve this issue. 
+            We are therefore reluctantly going to close this bug for now.
+            
+            If you find this problem please file a new issue with the same description, what happens, 
+            logs and the output of 'flutter doctor -v'. All system setups can be slightly different 
+            so it's always better to open new issues and reference the related ones.
+            
+            Thanks for your contribution.
+          
+          # Close message for PRs
+          close-pr-message: |
+            Without additional information, we are unfortunately not sure how to proceed with this 
+            pull request. We are therefore reluctantly going to close this PR for now.
+            
+            If you would like to continue with this contribution, please feel free to reopen this PR 
+            with additional details or create a new one. Please make sure to include a clear 
+            description of the changes and any relevant context.
+            
+            Thanks for your contribution.
