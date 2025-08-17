@@ -37,21 +37,25 @@ class _ExampleHomeState extends State<_ExampleHome> {
               children: [
                 RadioListTile(
                   value: SheetSize.fit,
+                  // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
                   groupValue: _selectedSheetSize,
                   title: Text('SheetSize.fit'),
                   subtitle:
                       Text('The sheet size is always the same as the content.'),
+                  // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
                   onChanged: (value) =>
                       setState(() => _selectedSheetSize = value!),
                 ),
                 RadioListTile(
                   value: SheetSize.stretch,
+                  // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
                   groupValue: _selectedSheetSize,
                   title: Text('SheetSize.stretch'),
                   subtitle: Text(
                     'The sheet stretches to the bottom of the screen '
                     'when it is over-dragged.',
                   ),
+                  // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
                   onChanged: (value) =>
                       setState(() => _selectedSheetSize = value!),
                 ),

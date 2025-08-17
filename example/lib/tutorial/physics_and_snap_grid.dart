@@ -78,7 +78,9 @@ class _ExampleHomeState extends State<_ExampleHome> {
             RadioListTile(
               title: Text(physics.name),
               value: physics,
+              // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
               groupValue: selectedPhysics,
+              // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
               onChanged: (value) => setState(() {
                 selectedPhysics = value!;
               }),
@@ -95,7 +97,9 @@ class _ExampleHomeState extends State<_ExampleHome> {
             RadioListTile(
               title: Text(snapGrid.name),
               value: snapGrid,
+              // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
               groupValue: selectedSnapGrid,
+              // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
               onChanged: (value) => setState(() {
                 selectedSnapGrid = value!;
               }),
