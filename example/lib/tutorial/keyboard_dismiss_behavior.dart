@@ -57,9 +57,11 @@ class _ExampleHomeState extends State<_ExampleHome> {
           title: Text(behavior.name),
           subtitle: Text(behavior.description),
           value: behavior,
+          // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
           groupValue: selectedBehavior,
           contentPadding: const EdgeInsets.only(left: 32, right: 16),
           controlAffinity: ListTileControlAffinity.trailing,
+          // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
           onChanged: (value) => setState(() {
             selectedBehavior = value!;
           }),

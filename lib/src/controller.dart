@@ -1,6 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+// TODO: Remove this import after the minimum sdk version is bumped to 3.35.0
+//
+// @internal annotation has been included in flutter/foundation.dart since 3.35.0.
+// See: https://github.com/flutter/flutter/commit/5706259791de29a27cb68e9b95d6319ba863e366
+// ignore: unnecessary_import
 import 'package:meta/meta.dart';
 
 import 'model.dart';
