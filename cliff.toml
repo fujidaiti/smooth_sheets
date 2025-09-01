@@ -16,13 +16,16 @@ body = """
     {% for commit in commits %}\
         - {% if group != "none" %}{{ group }}: {% endif %}{% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message | upper_first }} \
         - [{{ commit.id | truncate(length=7, end="") }}](https://github.com/fujidaiti/smooth_sheets/commit/{{ commit.id }})
-        {% if commit.breaking and commit.breaking_description != commit.message -%}
-        {% raw %}  {% endraw %}- {{commit.breaking_description}}
-        {% endif -%}
+        {% for footer in commit.footers %}\
+        {% if footer.breaking %}\
+        {% raw %}  {% endraw %}- 💥 {{footer.value}}
+        {% endif %}\
+        {% endfor %}\
     {% endfor %}\
-{% endfor %}
-
-See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/{{ version }}) for more details.\n
+{% endfor %}\
+\n
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/{{ version }}) for more details.
+\n
 """
 
 [git]
