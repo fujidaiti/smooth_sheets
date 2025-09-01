@@ -253,6 +253,35 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   }
 }
 
+/// Enabled late configuration of DismissSensitivity for dynamic. configuration
+///
+/// Must be used after [ModalSheetPage]
+class SheetDismissSensitivity extends StatefulWidget {
+  const SheetDismissSensitivity({
+    super.key,
+    required this.child,
+    this.sensitivity,
+  });
+
+  final Widget child;
+  final SwipeDismissSensitivity? sensitivity;
+
+  @override
+  State<SheetDismissSensitivity> createState() =>
+      SheetDismissSensitivityState();
+
+  static SheetDismissSensitivityState? maybeOf(BuildContext context) {
+    return context.findAncestorStateOfType<SheetDismissSensitivityState>();
+  }
+}
+
+class SheetDismissSensitivityState extends State<SheetDismissSensitivity> {
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
 /// Enables swipe-to-dismiss functionality for a modal sheet route.
 ///
 /// Must be used as the content of a route that implements
@@ -473,7 +502,10 @@ class _SheetDismissibleState extends State<_SheetDismissible>
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
-      invokePop = draggedDistance > widget.sensitivity.minDragDistance;
+      final sensitivity =
+          SheetDismissSensitivity.maybeOf(context)?.widget.sensitivity ??
+              widget.sensitivity;
+      invokePop = draggedDistance > sensitivity.minDragDistance;
     } else {
       // Flings up.
       invokePop = false;
