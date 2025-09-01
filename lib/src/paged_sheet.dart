@@ -146,8 +146,7 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
   }
 
   void didStartTransition(
-    _PagedSheetEntry currentEntry,
-    _PagedSheetEntry nextEntry,
+    _PagedSheetEntry targetEntry,
     Animation<double> animation,
     bool isUserGestureInProgress,
   ) {
@@ -178,7 +177,7 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
 
     beginActivity(
       _RouteTransitionSheetActivity(
-        destinationRouteOffset: targetOffsetResolver(nextEntry),
+        destinationRouteOffset: targetOffsetResolver(targetEntry),
         animation: effectiveAnimation,
         animationCurve: effectiveCurve,
       ),
@@ -359,22 +358,12 @@ class _NavigatorEventDispatcherState extends State<_NavigatorEventDispatcher>
 
   @override
   void didStartTransition(
-    Route<dynamic> currentRoute,
-    Route<dynamic> nextRoute,
+    Route<dynamic> targetRoute,
     Animation<double> animation, {
     bool isUserGestureInProgress = false,
   }) {
-    if ((currentRoute, nextRoute)
-        case (
-          final _PagedSheetEntry currentEntry,
-          final _PagedSheetEntry nextEntry
-        )) {
-      _model!.didStartTransition(
-        currentEntry,
-        nextEntry,
-        animation,
-        isUserGestureInProgress,
-      );
+    if (targetRoute case final _PagedSheetEntry entry) {
+      _model!.didStartTransition(entry, animation, isUserGestureInProgress);
     }
   }
 
