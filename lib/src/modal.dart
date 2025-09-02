@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
+import 'model.dart' show SheetOffset;
 import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
@@ -64,8 +65,7 @@ class ModalSheetPage<T> extends Page<T> {
   }
 }
 
-class _PageBasedModalSheetRoute<T> extends PageRoute<T>
-    with ModalSheetRouteMixin<T> {
+class _PageBasedModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   _PageBasedModalSheetRoute({
     required ModalSheetPage<T> page,
     super.fullscreenDialog,
@@ -95,8 +95,7 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   Duration get transitionDuration => _page.transitionDuration;
 
   @override
-  SwipeDismissSensitivity get swipeDismissSensitivity =>
-      _page.swipeDismissSensitivity;
+  SwipeDismissSensitivity get swipeDismissSensitivity => _page.swipeDismissSensitivity;
 
   @override
   EdgeInsets get viewportPadding => _page.viewportPadding;
@@ -181,9 +180,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   /// this returns [Curves.linear] to match the finger motion.
   @nonVirtual
   @visibleForTesting
-  Curve get effectiveCurve => (navigator?.userGestureInProgress ?? false)
-      ? Curves.linear
-      : transitionCurve;
+  Curve get effectiveCurve => (navigator?.userGestureInProgress ?? false) ? Curves.linear : transitionCurve;
 
   Widget buildSheet(BuildContext context);
 
@@ -253,35 +250,6 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   }
 }
 
-/// Enabled late configuration of DismissSensitivity for dynamic. configuration
-///
-/// Must be used after [ModalSheetPage]
-class SheetDismissSensitivity extends StatefulWidget {
-  const SheetDismissSensitivity({
-    super.key,
-    required this.child,
-    this.sensitivity,
-  });
-
-  final Widget child;
-  final SwipeDismissSensitivity? sensitivity;
-
-  @override
-  State<SheetDismissSensitivity> createState() =>
-      SheetDismissSensitivityState();
-
-  static SheetDismissSensitivityState? maybeOf(BuildContext context) {
-    return context.findAncestorStateOfType<SheetDismissSensitivityState>();
-  }
-}
-
-class SheetDismissSensitivityState extends State<SheetDismissSensitivity> {
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
-}
-
 /// Enables swipe-to-dismiss functionality for a modal sheet route.
 ///
 /// Must be used as the content of a route that implements
@@ -301,8 +269,7 @@ class _SheetDismissible extends StatefulWidget {
   State<_SheetDismissible> createState() => _SheetDismissibleState();
 }
 
-class _SheetDismissibleState extends State<_SheetDismissible>
-    with SheetGestureProxyMixin {
+class _SheetDismissibleState extends State<_SheetDismissible> with SheetGestureProxyMixin {
   /// The global key for the [_SheetDismissible.child].
   ///
   /// Used to prevent the state of the [_SheetDismissible.child] from being
@@ -323,15 +290,13 @@ class _SheetDismissibleState extends State<_SheetDismissible>
   ///
   /// The gesture is still available if [_isGestureEnabled] is true,
   /// even if this returns false.
-  bool get _canPopByGesture =>
-      widget.enabled && _route.popDisposition == RoutePopDisposition.pop;
+  bool get _canPopByGesture => widget.enabled && _route.popDisposition == RoutePopDisposition.pop;
 
   /// Whether the gesture is available.
   ///
   /// The modal cannot be dismissed if [_canPopByGesture] is false,
   /// even if this returns true.
-  bool get _isGestureEnabled =>
-      widget.enabled && _popScopes.every((it) => it.isGestureEnabled.value);
+  bool get _isGestureEnabled => widget.enabled && _popScopes.every((it) => it.isGestureEnabled.value);
 
   void registerPopScope(_SheetPopScopeState<dynamic> popScope) {
     assert(!_popScopes.contains(popScope));
@@ -414,8 +379,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       // Dominantly use the full pixels if it is in the middle of a transition.
       effectiveDragDelta = dragDelta;
     } else if (dragDelta < 0 &&
-        FloatComp.distance(MediaQuery.devicePixelRatioOf(context))
-            .isNotApprox(dragDelta, minPDC) &&
+        FloatComp.distance(MediaQuery.devicePixelRatioOf(context)).isNotApprox(dragDelta, minPDC) &&
         MediaQuery.viewInsetsOf(context).bottom == 0) {
       // If the drag is downwards and the sheet may not consume the full pixels,
       // then use the remaining pixels as the effective drag delta.
@@ -432,8 +396,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     final viewport = _navigatorSize.height;
     final visibleViewport = viewport * _transitionController.value;
     assert(0 <= visibleViewport && visibleViewport <= viewport);
-    final newVisibleViewport =
-        (visibleViewport + effectiveDragDelta).clamp(0, viewport);
+    final newVisibleViewport = (visibleViewport + effectiveDragDelta).clamp(0, viewport);
 
     assert(viewport > 0);
     final transitionProgress = newVisibleViewport / viewport;
@@ -459,9 +422,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       velocity: details.velocity,
       axisDirection: details.axisDirection,
     );
-    return wasHandled
-        ? super.onDragEnd(details.copyWith(velocityX: 0, velocityY: 0))
-        : super.onDragEnd(details);
+    return wasHandled ? super.onDragEnd(details.copyWith(velocityX: 0, velocityY: 0)) : super.onDragEnd(details);
   }
 
   @override
@@ -486,8 +447,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
     final effectiveVelocity = switch (axisDirection) {
       VerticalDirection.up => velocity.pixelsPerSecond.dy / viewportHeight,
-      VerticalDirection.down =>
-        -1 * velocity.pixelsPerSecond.dy / viewportHeight,
+      VerticalDirection.down => -1 * velocity.pixelsPerSecond.dy / viewportHeight,
     };
 
     final bool invokePop;
@@ -496,16 +456,14 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       invokePop = false;
     } else if (effectiveVelocity < 0) {
       // Flings down.
-      invokePop =
-          effectiveVelocity.abs() > widget.sensitivity.minFlingVelocityRatio;
-    } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(context))
-        .isApprox(effectiveVelocity, 0)) {
+      invokePop = effectiveVelocity.abs() > widget.sensitivity.minFlingVelocityRatio;
+    } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(context)).isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
-      final sensitivity =
-          SheetDismissSensitivity.maybeOf(context)?.widget.sensitivity ??
-              widget.sensitivity;
-      invokePop = draggedDistance > sensitivity.minDragDistance;
+      final m = SheetViewportState.of(context);
+      final minDragDistance = widget.sensitivity.minDragOffset.resolve(m!.model);
+
+      invokePop = draggedDistance > minDragDistance;
     } else {
       // Flings up.
       invokePop = false;
@@ -557,14 +515,12 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     // 3. The modal route is removed from the Navigator's subtree.
     // 4. Route.didPop() is called, initiating the pop transition animation
     //    by calling AnimationController.reverse().
-    if (_transitionController.isCompleted ||
-        _transitionController.isDismissed) {
+    if (_transitionController.isCompleted || _transitionController.isDismissed) {
       _isUserGestureInProgress = false;
     } else {
       late final AnimationStatusListener animationStatusCallback;
       animationStatusCallback = (status) {
-        if (status == AnimationStatus.completed ||
-            status == AnimationStatus.dismissed) {
+        if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
           _isUserGestureInProgress = false;
           _transitionController.removeStatusListener(animationStatusCallback);
         }
@@ -585,9 +541,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       key: _childGlobalKey,
       child: widget.child,
     );
-    return _isGestureEnabled
-        ? SheetGestureProxy(proxy: this, child: child)
-        : child;
+    return _isGestureEnabled ? SheetGestureProxy(proxy: this, child: child) : child;
   }
 }
 
@@ -603,7 +557,7 @@ class SwipeDismissSensitivity {
   /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
     this.minFlingVelocityRatio = 2.0,
-    this.minDragDistance = 200.0,
+    this.minDragOffset = const SheetOffset.absolute(200),
   });
 
   /// Minimum ratio of gesture velocity to viewport height required to
@@ -622,12 +576,7 @@ class SwipeDismissSensitivity {
 
   /// Minimum downward drag distance required for dismissal when the
   /// gesture ends with zero velocity.
-  ///
-  /// If the drag gesture ends with a non-zero velocity, it's treated as
-  /// a fling gesture, and this value is not used.
-  // ignore: lines_longer_than_80_chars
-  // TODO: Use the sheet position as the threshold instead of the absolute dragging distance.
-  final double minDragDistance;
+  final SheetOffset minDragOffset;
 }
 
 /// Manages the back navigation gesture for the current modal sheet.
@@ -757,8 +706,7 @@ class _SheetPopScopeState<T> extends State<SheetPopScope<T>> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final sheetDismissible =
-        context.findAncestorStateOfType<_SheetDismissibleState>();
+    final sheetDismissible = context.findAncestorStateOfType<_SheetDismissibleState>();
     if (sheetDismissible != _sheetDismissible) {
       _sheetDismissible?.unregisterPopScope(this);
       _sheetDismissible = sheetDismissible?..registerPopScope(this);

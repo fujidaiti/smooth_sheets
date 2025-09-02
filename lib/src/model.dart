@@ -32,6 +32,10 @@ abstract interface class SheetOffset {
   const factory SheetOffset.proportionalToViewport(double factor) =
       ProportionalToViewportSheetOffset;
 
+  /// {@macro ExpressionSheetOffset}
+  const factory SheetOffset.expression(double Function(ViewportLayout metrics) expression) =
+      ExpressionSheetOffset;
+
   /// Resolves the position to an actual value in pixels.
   double resolve(ViewportLayout metrics);
 }
@@ -125,6 +129,29 @@ class ProportionalToViewportSheetOffset implements SheetOffset {
 
   @override
   String toString() => 'ViewportRelativeSheetOffset(factor: $factor)';
+}
+
+/// A [SheetOffset] that evaluates an expression against [ViewportLayout].
+class ExpressionSheetOffset implements SheetOffset {
+  const ExpressionSheetOffset(this.expression);
+
+  final double Function(ViewportLayout metrics) expression;
+
+  @override
+  double resolve(ViewportLayout metrics) =>  expression(metrics);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExpressionSheetOffset &&
+          runtimeType == other.runtimeType &&
+          expression == other.expression);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, expression);
+
+  @override
+  String toString() => 'ExpressionSheetOffset(expression: $expression)';
 }
 
 /// An interface that provides a set of dependencies

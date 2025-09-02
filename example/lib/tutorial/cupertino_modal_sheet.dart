@@ -44,7 +44,7 @@ void _showModalSheet(BuildContext context, {required bool isFullScreen}) {
     // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
     swipeDismissSensitivity: const SwipeDismissSensitivity(
       minFlingVelocityRatio: 2.0,
-      minDragDistance: 300.0,
+      minDragOffset: SheetOffset.absolute(300.0),
     ),
     // The overlay color applied to the sheet when another sheet is being pushed.
     // Especially useful when stacking multiple modal sheets in dark mode,
