@@ -595,6 +595,9 @@ class SwipeDismissSensitivity {
 
   /// Minimum downward drag distance required for dismissal when the
   /// gesture ends with zero velocity.
+  ///
+  /// If the drag gesture ends with a non-zero velocity, it's treated as
+  /// a fling gesture, and this value is not used.
   final SheetOffset minDragOffset;
 }
 
