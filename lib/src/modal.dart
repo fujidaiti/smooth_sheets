@@ -571,7 +571,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 /// - A downward fling gesture with the ratio of the velocity to the viewport
 ///   height that exceeds [minFlingVelocityRatio].
 /// - A drag gesture ending with zero velocity, where the downward distance
-///   exceeds [minDragDistance].
+///   exceeds the resolved [minDragOffset].
 class SwipeDismissSensitivity {
   /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
