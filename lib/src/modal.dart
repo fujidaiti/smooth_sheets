@@ -474,9 +474,9 @@ class _SheetDismissibleState extends State<_SheetDismissible>
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
-      final m = SheetViewportState.of(context);
+      final viewPortState = SheetViewportState.of(context);
       final minDragDistance =
-          widget.sensitivity.minDragOffset.resolve(m!.model);
+          widget.sensitivity.minDragOffset.resolve(viewPortState!.model);
 
       invokePop = draggedDistance > minDragDistance;
     } else {
