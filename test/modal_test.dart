@@ -269,7 +269,6 @@ void main() {
       },
     );
 
-
     testWidgets(
       'modal should not be dismissed if drag distance is not enough',
       (tester) async {

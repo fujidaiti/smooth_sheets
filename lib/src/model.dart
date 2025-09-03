@@ -33,7 +33,8 @@ abstract interface class SheetOffset {
       ProportionalToViewportSheetOffset;
 
   /// {@macro ExpressionSheetOffset}
-  const factory SheetOffset.expression(double Function(ViewportLayout metrics) expression) =
+  const factory SheetOffset.expression(
+          double Function(ViewportLayout metrics) expression) =
       ExpressionSheetOffset;
 
   /// Resolves the position to an actual value in pixels.
@@ -138,7 +139,7 @@ class ExpressionSheetOffset implements SheetOffset {
   final double Function(ViewportLayout metrics) expression;
 
   @override
-  double resolve(ViewportLayout metrics) =>  expression(metrics);
+  double resolve(ViewportLayout metrics) => expression(metrics);
 
   @override
   bool operator ==(Object other) =>
