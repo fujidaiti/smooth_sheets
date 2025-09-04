@@ -406,8 +406,10 @@ class _ConfirmPage extends StatelessWidget {
                   controlAffinity: ListTileControlAffinity.trailing,
                   value: '',
                   // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+                  // ignore: deprecated_member_use
                   groupValue: '',
                   // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+                  // ignore: deprecated_member_use
                   onChanged: (_) {},
                 ),
                 const Divider(height: 32),
@@ -558,8 +560,10 @@ class _SelectableMoodListState extends State<_SelectableMoodList> {
             selected: mood.label == selectedMood,
             value: mood.label,
             // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+            // ignore: deprecated_member_use
             groupValue: selectedMood,
             // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+            // ignore: deprecated_member_use
             onChanged: (newMooed) => setState(() {
               selectedMood = newMooed;
             }),

@@ -79,8 +79,10 @@ class _ExampleHomeState extends State<_ExampleHome> {
               title: Text(physics.name),
               value: physics,
               // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+              // ignore: deprecated_member_use
               groupValue: selectedPhysics,
               // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+              // ignore: deprecated_member_use
               onChanged: (value) => setState(() {
                 selectedPhysics = value!;
               }),
@@ -98,8 +100,10 @@ class _ExampleHomeState extends State<_ExampleHome> {
               title: Text(snapGrid.name),
               value: snapGrid,
               // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+              // ignore: deprecated_member_use
               groupValue: selectedSnapGrid,
               // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+              // ignore: deprecated_member_use
               onChanged: (value) => setState(() {
                 selectedSnapGrid = value!;
               }),

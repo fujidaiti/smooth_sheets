@@ -38,17 +38,20 @@ class _ExampleHomeState extends State<_ExampleHome> {
                 RadioListTile(
                   value: SheetSize.fit,
                   // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+                  // ignore: deprecated_member_use
                   groupValue: _selectedSheetSize,
                   title: Text('SheetSize.fit'),
                   subtitle:
                       Text('The sheet size is always the same as the content.'),
                   // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+                  // ignore: deprecated_member_use
                   onChanged: (value) =>
                       setState(() => _selectedSheetSize = value!),
                 ),
                 RadioListTile(
                   value: SheetSize.stretch,
                   // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+                  // ignore: deprecated_member_use
                   groupValue: _selectedSheetSize,
                   title: Text('SheetSize.stretch'),
                   subtitle: Text(
@@ -56,6 +59,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
                     'when it is over-dragged.',
                   ),
                   // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
+                  // ignore: deprecated_member_use
                   onChanged: (value) =>
                       setState(() => _selectedSheetSize = value!),
                 ),
