@@ -27,6 +27,8 @@ jobs:
               - '**.dart'
               - 'pubspec.yaml'
               - 'pubspec.lock'
+              - 'example/pubspec.yaml'
+              - 'example/pubspec.lock'
             dev-sdk-version-changed:
               - '.fvmrc'
 
