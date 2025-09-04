@@ -267,6 +267,7 @@ class _RenderTransformTransition extends RenderTransform {
       // vector_math package has been upgraded to 2.2.0 in Flutter 3.35.0,
       // in which the `scale` method has been deprecated.
       // See: https://github.com/flutter/flutter/commit/c08e9dff6865b91a3c20bb39980053951a6cae34
+      // ignore: deprecated_member_use
       ..scale(scaleFactor, scaleFactor, 1.0);
   }
 }
