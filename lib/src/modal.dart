@@ -475,10 +475,13 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
       final viewPortState = SheetViewportState.of(context);
-      final minDragDistance =
-          widget.sensitivity.minDragOffset.resolve(viewPortState!.model);
+      final currentOffset = viewPortState!.model.offset;
 
-      invokePop = draggedDistance > minDragDistance;
+      final resolvedDismissalOffset =
+          widget.sensitivity.dismissalOffset.resolve(viewPortState.model);
+
+      final apparentOffset = currentOffset - draggedDistance;
+      invokePop = resolvedDismissalOffset > apparentOffset;
     } else {
       // Flings up.
       invokePop = false;
@@ -571,12 +574,12 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 /// - A downward fling gesture with the ratio of the velocity to the viewport
 ///   height that exceeds [minFlingVelocityRatio].
 /// - A drag gesture ending with zero velocity, where the downward distance
-///   exceeds the resolved [minDragOffset].
+///   exceeds the resolved [dismissalOffset].
 class SwipeDismissSensitivity {
   /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
     this.minFlingVelocityRatio = 2.0,
-    this.minDragOffset = const SheetOffset.absolute(200),
+    this.dismissalOffset = const SheetOffset.absolute(200),
   });
 
   /// Minimum ratio of gesture velocity to viewport height required to
@@ -593,12 +596,12 @@ class SwipeDismissSensitivity {
   /// in exactly 1 second.
   final double minFlingVelocityRatio;
 
-  /// Minimum downward drag distance required for dismissal when the
-  /// gesture ends with zero velocity.
+  /// Defines the threshold in terms of SheetOffset, below which the sheet
+  /// will be dismissed when the drag ends.
   ///
   /// If the drag gesture ends with a non-zero velocity, it's treated as
   /// a fling gesture, and this value is not used.
-  final SheetOffset minDragOffset;
+  final SheetOffset dismissalOffset;
 }
 
 /// Manages the back navigation gesture for the current modal sheet.

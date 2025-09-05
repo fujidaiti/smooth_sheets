@@ -29,7 +29,7 @@ final _router = GoRouter(
               // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
               swipeDismissSensitivity: const SwipeDismissSensitivity(
                 minFlingVelocityRatio: 2.0,
-                minDragOffset: SheetOffset.absolute(200.0),
+                dismissalOffset: SheetOffset.proportionalToViewport(0.4),
               ),
               // You don't need a SheetViewport for the modal sheet.
               child: const _ExampleSheet(),

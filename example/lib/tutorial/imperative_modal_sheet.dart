@@ -41,7 +41,7 @@ void _showModalSheet(BuildContext context) {
     // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
     swipeDismissSensitivity: const SwipeDismissSensitivity(
       minFlingVelocityRatio: 2.0,
-      minDragOffset: SheetOffset.absolute(200.0),
+      dismissalOffset: SheetOffset.proportionalToViewport(0.4),
     ),
     builder: (context) => const _ExampleSheet(),
   );
