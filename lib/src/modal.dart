@@ -597,10 +597,16 @@ class SwipeDismissSensitivity {
   final double minFlingVelocityRatio;
 
   /// Defines the threshold in terms of SheetOffset, below which the sheet
-  /// will be dismissed when the drag ends. E.g. we want the sheet to be
-  /// dismissed with only 40% or less visible surface area we can set
-  /// [dismissalOffset] to `SheetOffset(0.4)`.
+  /// will be dismissed when the drag ends.
   ///
+  // ignore: lines_longer_than_80_chars
+  /// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset(0.4))`, the sheet
+  /// will dismiss if 40% or less of the sheet is visible when the drag ends.
+  ///
+  // ignore: lines_longer_than_80_chars
+  ///// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset.absolute(200))`,
+  /// the sheet will dismiss if 200 pixels or less of the sheet is
+  /// visible when the drag ends.
   ///
   /// If the drag gesture ends with a non-zero velocity, it's treated as
   /// a fling gesture, and this value is not used.
