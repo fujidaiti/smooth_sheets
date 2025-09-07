@@ -169,7 +169,7 @@ void main() {
           boilerplate(
             sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 1.0,
-              dismissalOffset: SheetOffset.absolute(1000),
+              dismissalOffset: SheetOffset.absolute(0),
             ),
           ),
         );
@@ -198,7 +198,7 @@ void main() {
           boilerplate(
             sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 1.0,
-              dismissalOffset: SheetOffset.absolute(1000),
+              dismissalOffset: SheetOffset.absolute(0),
             ),
           ),
         );
@@ -249,9 +249,7 @@ void main() {
           boilerplate(
             sensitivity: SwipeDismissSensitivity(
               minFlingVelocityRatio: 5.0,
-              dismissalOffset: SheetOffset.expression((metrics) {
-                return metrics.viewportSize.height * 0.4;
-              }),
+              dismissalOffset: SheetOffset(0.4),
             ),
           ),
         );
@@ -274,7 +272,7 @@ void main() {
           boilerplate(
             sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 5.0,
-              dismissalOffset: SheetOffset.absolute(100),
+              dismissalOffset: SheetOffset.absolute(500),
             ),
           ),
         );
@@ -285,7 +283,7 @@ void main() {
 
         await tester.drag(
           find.byKey(const Key('sheet')),
-          const Offset(0, 99),
+          const Offset(0, 100),
         );
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('sheet')), findsOneWidget);

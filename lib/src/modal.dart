@@ -579,7 +579,7 @@ class SwipeDismissSensitivity {
   /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
     this.minFlingVelocityRatio = 2.0,
-    this.dismissalOffset = const SheetOffset.absolute(200),
+    this.dismissalOffset = const SheetOffset(0.3),
   });
 
   /// Minimum ratio of gesture velocity to viewport height required to
@@ -597,7 +597,10 @@ class SwipeDismissSensitivity {
   final double minFlingVelocityRatio;
 
   /// Defines the threshold in terms of SheetOffset, below which the sheet
-  /// will be dismissed when the drag ends.
+  /// will be dismissed when the drag ends. E.g. we want the sheet to be
+  /// dismissed with only 40% or less visible surface area we can set
+  /// [dismissalOffset] to `SheetOffset(0.4)`.
+  ///
   ///
   /// If the drag gesture ends with a non-zero velocity, it's treated as
   /// a fling gesture, and this value is not used.
