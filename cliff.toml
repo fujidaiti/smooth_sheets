@@ -13,7 +13,8 @@ body = """
     ## Unreleased\
 {% endif %}
 {% for commit in commits | sort(attribute="group") %}\
-        - {% if commit.group != "none" %}{{ commit.group }}: {% endif %}{{ commit.message | upper_first }}
+        - {% if commit.group != "none" %}{{ commit.group }}: {% endif %}{{ commit.message | upper_first }} \
+        - [{{ commit.id | truncate(length=7, end="") }}](https://github.com/fujidaiti/smooth_sheets/commit/{{ commit.id }})
 {% endfor %}\
 {% set breaking_commits = commits | filter(attribute="breaking", value=true) %}\
 {% if breaking_commits | length > 0 %}\
