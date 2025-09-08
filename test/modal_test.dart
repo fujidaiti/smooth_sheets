@@ -169,7 +169,7 @@ void main() {
           boilerplate(
             sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 1.0,
-              minDragDistance: 1000,
+              dismissalOffset: SheetOffset.absolute(0),
             ),
           ),
         );
@@ -198,7 +198,7 @@ void main() {
           boilerplate(
             sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 1.0,
-              minDragDistance: 1000,
+              dismissalOffset: SheetOffset.absolute(0),
             ),
           ),
         );
@@ -224,7 +224,7 @@ void main() {
           boilerplate(
             sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 5.0,
-              minDragDistance: 100,
+              dismissalOffset: SheetOffset.absolute(500),
             ),
           ),
         );
@@ -243,13 +243,36 @@ void main() {
     );
 
     testWidgets(
+      'modal should be dismissed if drag distance is enough by expression',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            sensitivity: SwipeDismissSensitivity(
+              minFlingVelocityRatio: 5.0,
+              dismissalOffset: SheetOffset(0.4),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        await tester.drag(
+            find.byKey(const Key('sheet')), const Offset(0, (600 * 0.6) + 1));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsNothing);
+      },
+    );
+
+    testWidgets(
       'modal should not be dismissed if drag distance is not enough',
       (tester) async {
         await tester.pumpWidget(
           boilerplate(
             sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 5.0,
-              minDragDistance: 100,
+              dismissalOffset: SheetOffset.absolute(500),
             ),
           ),
         );
@@ -260,7 +283,7 @@ void main() {
 
         await tester.drag(
           find.byKey(const Key('sheet')),
-          const Offset(0, 99),
+          const Offset(0, 100),
         );
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('sheet')), findsOneWidget);
@@ -275,7 +298,7 @@ void main() {
             swipeDismissible: false,
             sensitivity: const SwipeDismissSensitivity(
               minFlingVelocityRatio: 1.0,
-              minDragDistance: 1000,
+              dismissalOffset: SheetOffset.absolute(1000),
             ),
           ),
         );
@@ -444,7 +467,7 @@ void main() {
         modalRoute: ModalSheetRoute(
           swipeDismissible: swipeDismissible,
           swipeDismissSensitivity: const SwipeDismissSensitivity(
-            minDragDistance: 100,
+            dismissalOffset: SheetOffset.absolute(500),
           ),
           builder: (context) {
             return Sheet(
@@ -638,6 +661,9 @@ void main() {
       final modalRoute = ModalSheetRoute<dynamic>(
         swipeDismissible: true,
         transitionCurve: Curves.easeInOut,
+        swipeDismissSensitivity: SwipeDismissSensitivity(
+          dismissalOffset: SheetOffset.absolute(250),
+        ),
         builder: (context) {
           return Sheet(
             child: PopScope(
@@ -778,6 +804,9 @@ void main() {
           modalPage: ModalSheetPage(
             swipeDismissible: true,
             transitionCurve: Curves.easeInOut,
+            swipeDismissSensitivity: SwipeDismissSensitivity(
+              dismissalOffset: SheetOffset.absolute(250),
+            ),
             child: Builder(
               builder: (context) {
                 modalRoute =

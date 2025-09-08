@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
+import 'model.dart' show SheetOffset;
 import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
@@ -473,7 +474,14 @@ class _SheetDismissibleState extends State<_SheetDismissible>
         .isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
-      invokePop = draggedDistance > widget.sensitivity.minDragDistance;
+      final viewPortState = SheetViewportState.of(context);
+      final currentOffset = viewPortState!.model.offset;
+
+      final resolvedDismissalOffset =
+          widget.sensitivity.dismissalOffset.resolve(viewPortState.model);
+
+      final apparentOffset = currentOffset - draggedDistance;
+      invokePop = resolvedDismissalOffset > apparentOffset;
     } else {
       // Flings up.
       invokePop = false;
@@ -566,12 +574,12 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 /// - A downward fling gesture with the ratio of the velocity to the viewport
 ///   height that exceeds [minFlingVelocityRatio].
 /// - A drag gesture ending with zero velocity, where the downward distance
-///   exceeds [minDragDistance].
+///   exceeds the resolved [dismissalOffset].
 class SwipeDismissSensitivity {
   /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
     this.minFlingVelocityRatio = 2.0,
-    this.minDragDistance = 200.0,
+    this.dismissalOffset = const SheetOffset(0.3),
   });
 
   /// Minimum ratio of gesture velocity to viewport height required to
@@ -588,14 +596,21 @@ class SwipeDismissSensitivity {
   /// in exactly 1 second.
   final double minFlingVelocityRatio;
 
-  /// Minimum downward drag distance required for dismissal when the
-  /// gesture ends with zero velocity.
+  /// Defines the threshold in terms of SheetOffset, below which the sheet
+  /// will be dismissed when the drag ends.
+  ///
+  // ignore: lines_longer_than_80_chars
+  /// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset(0.4))`, the sheet
+  /// will dismiss if 40% or less of the sheet is visible when the drag ends.
+  ///
+  // ignore: lines_longer_than_80_chars
+  ///// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset.absolute(200))`,
+  /// the sheet will dismiss if 200 pixels or less of the sheet is
+  /// visible when the drag ends.
   ///
   /// If the drag gesture ends with a non-zero velocity, it's treated as
   /// a fling gesture, and this value is not used.
-  // ignore: lines_longer_than_80_chars
-  // TODO: Use the sheet position as the threshold instead of the absolute dragging distance.
-  final double minDragDistance;
+  final SheetOffset dismissalOffset;
 }
 
 /// Manages the back navigation gesture for the current modal sheet.
