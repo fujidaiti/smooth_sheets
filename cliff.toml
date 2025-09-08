@@ -46,19 +46,11 @@ commit_preprocessors = [
   { pattern = "\\(#([0-9]+)\\)", replace = "([#${1}](https://github.com/fujidaiti/smooth_sheets/pull/${1}))" },
 ]
 commit_parsers = [
+  { message = '^feat\(pkg\)', group = "feat" },
   { message = '^fix\(ci|example|env\)', skip = true },
   { message = '^[fF]ix', group = "fix" },
-  { message = '^feat\(ci|example|env\)', skip = true },
-  { message = '^feat\(pkg\)', group = "feat" },
-  { message = '^build\(ci|example|env\)', skip = true },
   { message = '^build\(pkg\)', group = "build" },
-  { message = '^revert\(ci|example|env\)', skip = true },
   { message = '^revert\(pkg\)', group = "revert" },
-  { message = "^docs", skip = true },
-  { message = "^style", skip = true },
-  { message = "^chore", skip = true },
-  { message = "^test", skip = true },
-  { message = "^refactor", skip = true },
   { message = ".*", skip = true },
 ]
 
