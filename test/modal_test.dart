@@ -661,6 +661,9 @@ void main() {
       final modalRoute = ModalSheetRoute<dynamic>(
         swipeDismissible: true,
         transitionCurve: Curves.easeInOut,
+        swipeDismissSensitivity: SwipeDismissSensitivity(
+          dismissalOffset: SheetOffset.absolute(250),
+        ),
         builder: (context) {
           return Sheet(
             child: PopScope(
@@ -801,6 +804,9 @@ void main() {
           modalPage: ModalSheetPage(
             swipeDismissible: true,
             transitionCurve: Curves.easeInOut,
+            swipeDismissSensitivity: SwipeDismissSensitivity(
+              dismissalOffset: SheetOffset.absolute(250),
+            ),
             child: Builder(
               builder: (context) {
                 modalRoute =
