@@ -19,12 +19,25 @@ jobs:
           
           # Target both issues and PRs with the specific label
           only-labels: 'waiting for customer response'
-          
-          # Days before marking as stale (we skip this step and go directly to close)
-          days-before-stale: -1
-          
+
+          # Days before marking as stale
+          days-before-stale: 30
+
           # Days before closing after marked stale
-          days-before-close: 30
+          days-before-close: 7
+
+          # Label to apply when marked stale
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+
+          # Message when marking as stale
+          stale-issue-message: |
+            This issue has been automatically marked as stale because it has not had
+            recent activity. It will be closed if no further activity occurs within 7 days.
+
+          stale-pr-message: |
+            This pull request has been automatically marked as stale because it has not had
+            recent activity. It will be closed if no further activity occurs within 7 days.
           
           # Close message for issues
           close-issue-message: |
