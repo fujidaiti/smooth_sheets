@@ -13,6 +13,11 @@ import 'viewport.dart';
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 
+typedef ModalSheetBarrierBuilder = Widget Function(
+  PageRoute route,
+  VoidCallback onDismissCallback,
+);
+
 class ModalSheetPage<T> extends Page<T> {
   const ModalSheetPage({
     super.key,
@@ -29,6 +34,7 @@ class ModalSheetPage<T> extends Page<T> {
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.viewportPadding = EdgeInsets.zero,
+    this.barrierBuilder,
     required this.child,
   });
 
@@ -55,6 +61,8 @@ class ModalSheetPage<T> extends Page<T> {
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
   final EdgeInsets viewportPadding;
+
+  final ModalSheetBarrierBuilder? barrierBuilder;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -103,6 +111,9 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   EdgeInsets get viewportPadding => _page.viewportPadding;
 
   @override
+  ModalSheetBarrierBuilder? get barrierBuilder => _page.barrierBuilder;
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -123,6 +134,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.viewportPadding = EdgeInsets.zero,
+    this.barrierBuilder,
   });
 
   final WidgetBuilder builder;
@@ -155,6 +167,9 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final EdgeInsets viewportPadding;
 
   @override
+  final ModalSheetBarrierBuilder? barrierBuilder;
+
+  @override
   Widget buildSheet(BuildContext context) {
     return builder(context);
   }
@@ -171,6 +186,8 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
 
   @override
   bool get opaque => false;
+
+  ModalSheetBarrierBuilder? get barrierBuilder;
 
   // Provides access to the AnimationController of this route that is
   // marked as protected, allowing it to be used by SheetDismissible.
@@ -226,6 +243,10 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       if (animation!.isCompleted && !navigator!.userGestureInProgress) {
         navigator?.maybePop();
       }
+    }
+
+    if (barrierBuilder != null) {
+      return barrierBuilder!(this as PageRoute, onDismiss);
     }
 
     final barrierColor = this.barrierColor;

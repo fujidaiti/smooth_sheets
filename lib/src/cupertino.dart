@@ -675,6 +675,7 @@ class _PageBasedCupertinoModalSheetRoute<T>
     extends _BaseCupertinoModalSheetRoute<T> {
   _PageBasedCupertinoModalSheetRoute({
     required CupertinoModalSheetPage<T> page,
+    this.barrierBuilder,
   }) : super(settings: page);
 
   CupertinoModalSheetPage<T> get _page =>
@@ -712,6 +713,9 @@ class _PageBasedCupertinoModalSheetRoute<T>
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
+  final ModalSheetBarrierBuilder? barrierBuilder;
+
+  @override
   Widget _buildSheetInternal(BuildContext context) => _page.child;
 }
 
@@ -728,6 +732,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.transitionCurve = _incomingTransitionCurve,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.overlayColor,
+    this.barrierBuilder,
   });
 
   final WidgetBuilder builder;
@@ -758,6 +763,9 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   final Color? overlayColor;
+
+  @override
+  final ModalSheetBarrierBuilder? barrierBuilder;
 
   @override
   Widget _buildSheetInternal(BuildContext context) => builder(context);
