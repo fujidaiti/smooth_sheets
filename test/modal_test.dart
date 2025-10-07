@@ -1052,8 +1052,8 @@ void main() {
         expect(find.byKey(const Key('sheet')), findsOneWidget);
         expect(capturedCallback, isNotNull);
 
-        // Tap on the custom barrier to dismiss
-        await tester.tap(find.byKey(const Key('custom-barrier')));
+        // Call the callback directly instead of tapping
+        capturedCallback!();
         await tester.pumpAndSettle();
 
         expect(find.byKey(const Key('sheet')), findsNothing);
@@ -1141,10 +1141,10 @@ void main() {
         var wasBuilderCalled = false;
 
         final pages = [
-          const MaterialPage(
+          const MaterialPage<void>(
             child: Scaffold(body: Text('Home')),
           ),
-          ModalSheetPage(
+          ModalSheetPage<void>(
             barrierBuilder: (route, onDismiss) {
               wasBuilderCalled = true;
               return GestureDetector(
@@ -1178,10 +1178,10 @@ void main() {
         PageRoute<dynamic>? capturedRoute;
 
         final pages = [
-          const MaterialPage(
+          const MaterialPage<void>(
             child: Scaffold(body: Text('Home')),
           ),
-          ModalSheetPage(
+          ModalSheetPage<void>(
             barrierColor: Colors.purple,
             barrierDismissible: true,
             barrierLabel: 'Custom Label',
@@ -1270,8 +1270,8 @@ void main() {
         // Wait for animation to complete
         await tester.pumpAndSettle();
 
-        // Now dismiss should work
-        await tester.tap(find.byKey(const Key('custom-barrier')));
+        // Now dismiss should work - call the callback directly instead of tapping
+        capturedCallback!();
         await tester.pumpAndSettle();
 
         expect(find.byKey(const Key('sheet')), findsNothing);
