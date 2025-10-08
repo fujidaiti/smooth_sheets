@@ -1052,7 +1052,6 @@ void main() {
         expect(find.byKey(const Key('sheet')), findsOneWidget);
         expect(capturedCallback, isNotNull);
 
-        // Call the callback directly instead of tapping
         capturedCallback!();
         await tester.pumpAndSettle();
 
@@ -1260,17 +1259,13 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
-        // Try to dismiss while animation is still running
         capturedCallback!();
         await tester.pump();
 
-        // Sheet should still be visible during transition
         expect(find.byKey(const Key('sheet')), findsOneWidget);
 
-        // Wait for animation to complete
         await tester.pumpAndSettle();
 
-        // Now dismiss should work - call the callback directly instead of tapping
         capturedCallback!();
         await tester.pumpAndSettle();
 

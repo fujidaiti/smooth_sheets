@@ -713,7 +713,7 @@ class _PageBasedCupertinoModalSheetRoute<T>
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
-  final ModalSheetBarrierBuilder? barrierBuilder;
+  final ModalSheetBarrierBuilder<T>? barrierBuilder;
 
   @override
   Widget _buildSheetInternal(BuildContext context) => _page.child;
@@ -765,7 +765,7 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   final Color? overlayColor;
 
   @override
-  final ModalSheetBarrierBuilder? barrierBuilder;
+  final ModalSheetBarrierBuilder<T>? barrierBuilder;
 
   @override
   Widget _buildSheetInternal(BuildContext context) => builder(context);
