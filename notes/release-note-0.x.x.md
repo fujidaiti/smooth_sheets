@@ -4,4 +4,4 @@
 
 This release includes several improvements to sheet behaviors in response to user drag and fling gestures:
 
-- Fixed unexpected bouncing animation with ClampingScrollPhysics [#363](https://github.com/fujidaiti/smooth_sheets/issues/363)
+- fix: Unexpected bouncing animation with ClampingScrollPhysics [#363](https://github.com/fujidaiti/smooth_sheets/issues/363)
