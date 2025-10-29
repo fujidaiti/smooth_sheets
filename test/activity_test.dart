@@ -1,10 +1,10 @@
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/activity.dart';
 
+import 'src/flutter_test_x.dart';
 import 'src/matchers.dart';
 import 'src/stubbing.dart';
 
@@ -128,6 +128,55 @@ void main() {
         const Duration(milliseconds: 225),
       ));
     });
+  });
+
+  group('BallisticSheetActivity', () {
+    testWithVsync(
+      'should stop when a physics detects overflow',
+      (tester) async {
+        const frameTime = Duration(milliseconds: 17);
+
+        final mockSheetContext = MockSheetContext();
+        when(mockSheetContext.vsync).thenReturn(const TestVSync());
+
+        final mockSheetModel = MockSheetModel();
+        final mockPhysics = MockSheetPhysics();
+        final mockSimulation = MockSimulation();
+        when(mockSheetModel.context).thenReturn(mockSheetContext);
+        when(mockSheetModel.physics).thenReturn(mockPhysics);
+        when(mockSheetModel.offset).thenReturn(350);
+
+        final activity = BallisticSheetActivity(simulation: mockSimulation);
+        tester.addTearDown(activity.dispose);
+
+        activity.init(mockSheetModel);
+        await tester.flushMicrotasks();
+
+        when(mockSimulation.x(any)).thenReturn(365);
+        when(mockSimulation.isDone(any)).thenReturn(false);
+        when(mockPhysics.computeOverflow(any, any)).thenReturn(0);
+        await tester.elapse(frameTime);
+        verify(mockSheetModel.offset = 365);
+
+        when(mockSimulation.x(any)).thenReturn(380);
+        when(mockSheetModel.offset).thenReturn(365);
+        await tester.elapse(frameTime);
+        verify(mockSheetModel.offset = 380);
+
+        when(mockSheetModel.offset).thenReturn(380);
+        when(mockSimulation.x(any)).thenReturn(395);
+        await tester.elapse(frameTime);
+        verify(mockSheetModel.offset = 395);
+
+        when(mockSheetModel.offset).thenReturn(395);
+        when(mockSimulation.x(any)).thenReturn(410);
+        when(mockSimulation.isDone(any)).thenReturn(true);
+        when(mockPhysics.computeOverflow(any, any)).thenReturn(10);
+        await tester.elapse(frameTime);
+        verify(mockSheetModel.offset = 400);
+        verify(mockSheetModel.goBallistic(0));
+      },
+    );
   });
 
   group('SettlingSheetActivity', () {

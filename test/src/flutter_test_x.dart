@@ -1,3 +1,6 @@
+/// @docImport 'package:flutter/scheduler.dart';
+library;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -13,6 +16,65 @@ void testWidgets(
   Future<void> Function(WidgetTesterX) callback,
 ) {
   t.testWidgets(description, (t) => callback(WidgetTesterX(t)));
+}
+
+/// Runs a test with a clock that can be programmatically advanced.
+///
+/// Use this method for testing objects that depend on the vsync such as
+/// [AnimationController]s.
+///
+/// ```dart
+/// testWithVsync('should animate the sheet position', (tester) async {
+///   final animationController = AnimationController(vsync: tester.vsync);
+///   await tester.elapse(const Duration(milliseconds: 100));
+///   expect(animationController.value, 0.5);
+/// });
+/// ```
+@isTest
+void testWithVsync(
+  String description,
+  Future<void> Function(VsyncTester) callback,
+) {
+  t.testWidgets(description, (tester) async {
+    final vsyncTester = VsyncTester(WidgetTesterX(tester));
+    try {
+      await tester.pump();
+      await callback(vsyncTester);
+    } finally {
+      vsyncTester._tearDown();
+    }
+  });
+}
+
+class VsyncTester {
+  VsyncTester(this._widgetTester);
+
+  final WidgetTesterX _widgetTester;
+  final List<VoidCallback> _tearDownCallbacks = [];
+
+  /// A [TickerProvider] whose [Ticker]s are advanced by [elapse] method.
+  final TickerProvider vsync = t.TestVSync();
+
+  /// Adds a callback to be executed at the end of the current test.
+  ///
+  /// Perefer this method over `addTearDown` from package:flutter_test
+  /// when you clean up resources that depend on the vsync such as
+  /// [AnimationController]s.
+  void addTearDown(VoidCallback callback) {
+    _tearDownCallbacks.add(callback);
+  }
+
+  void _tearDown() {
+    for (final callback in _tearDownCallbacks) {
+      callback();
+    }
+  }
+
+  /// Forwards the simulated clock by the given [duration].
+  Future<void> elapse(Duration duration) => _widgetTester.pump(duration);
+
+  /// Flushes microtasks without advancing the clock.
+  Future<void> flushMicrotasks() => _widgetTester.pump(null);
 }
 
 final find = FinderX(t.find);
