@@ -1,6 +1,6 @@
 name: smooth_sheets
 description: Sheet widgets with smooth motion and great flexibility. Also supports nested navigation in both imperative and declarative ways.
-version: 0.15.0
+version: 0.15.1
 repository: https://github.com/fujidaiti/smooth_sheets
 screenshots:
   - description: Practical examples of smooth_sheets.
@@ -18,14 +18,12 @@ dependencies:
     sdk: flutter
   meta: ^1.9.1
   navigator_resizable: ^3.0.0
-
 # Dependencies for testing
 dev_dependencies:
   # Since v10.2.0 introduced a breaking change incompatible with
   # Flutter 3.29.0 (our minimum supported version), CI failed.
   # Adding this upper bound as a workaround.
   auto_route: <10.2.0
-
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter
