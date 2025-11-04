@@ -24,6 +24,7 @@ class SheetLayoutSpec {
     required this.viewportStaticOverlap,
     required this.shrinkContentToAvoidDynamicOverlap,
     required this.shrinkContentToAvoidStaticOverlap,
+    required this.maintainBottomViewportPaddingWhenKeyboardOpen,
   });
 
   /// {@macro ViewportLayout.viewportSize}
@@ -48,11 +49,29 @@ class SheetLayoutSpec {
   /// as described by [viewportStaticOverlap].
   final bool shrinkContentToAvoidStaticOverlap;
 
+  /// Whether to maintain the bottom viewport padding even when
+  /// the keyboard (or other dynamic overlaps) appear.
+  ///
+  /// When false (the default behavior), [contentBaseline] uses the maximum
+  /// of [viewportPadding.bottom] and [viewportDynamicOverlap.bottom], which
+  /// effectively replaces the viewport padding with the keyboard height when
+  /// the keyboard is taller than the padding.
+  ///
+  /// When true, [contentBaseline] adds [viewportPadding.bottom] to
+  /// [viewportDynamicOverlap.bottom], maintaining the specified padding
+  /// even when the keyboard is open. This is useful when you want to ensure
+  /// a consistent spacing between the content and the keyboard.
+  final bool maintainBottomViewportPaddingWhenKeyboardOpen;
+
   /// {@macro ViewportLayout.contentBaseline}
   double get contentBaseline {
     var result = viewportPadding.bottom;
     if (shrinkContentToAvoidDynamicOverlap) {
-      result = max(result, viewportDynamicOverlap.bottom);
+      if (maintainBottomViewportPaddingWhenKeyboardOpen) {
+        result += viewportDynamicOverlap.bottom;
+      } else {
+        result = max(result, viewportDynamicOverlap.bottom);
+      }
     }
     if (shrinkContentToAvoidStaticOverlap) {
       result = max(result, viewportStaticOverlap.bottom);
@@ -159,7 +178,11 @@ class SheetLayoutSpec {
           viewportDynamicOverlap == other.viewportDynamicOverlap &&
           viewportStaticOverlap == other.viewportStaticOverlap &&
           shrinkContentToAvoidDynamicOverlap ==
-              other.shrinkContentToAvoidDynamicOverlap;
+              other.shrinkContentToAvoidDynamicOverlap &&
+          shrinkContentToAvoidStaticOverlap ==
+              other.shrinkContentToAvoidStaticOverlap &&
+          maintainBottomViewportPaddingWhenKeyboardOpen ==
+              other.maintainBottomViewportPaddingWhenKeyboardOpen;
 
   @override
   int get hashCode => Object.hash(
@@ -168,6 +191,8 @@ class SheetLayoutSpec {
         viewportDynamicOverlap,
         viewportStaticOverlap,
         shrinkContentToAvoidDynamicOverlap,
+        shrinkContentToAvoidStaticOverlap,
+        maintainBottomViewportPaddingWhenKeyboardOpen,
       );
 }
 
@@ -637,6 +662,7 @@ class BareSheet extends StatefulWidget {
     super.key,
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
+    this.maintainBottomViewportPaddingWhenKeyboardOpen = false,
     this.decoration = const DefaultSheetDecoration(),
     required this.child,
   });
@@ -653,6 +679,25 @@ class BareSheet extends StatefulWidget {
   /// or the system status bar.
   /// {@endtemplate}
   final bool shrinkChildToAvoidStaticOverlap;
+
+  /// {@template BareSheet.maintainBottomViewportPaddingWhenKeyboardOpen}
+  /// Whether to maintain the bottom viewport padding even when
+  /// the keyboard (or other dynamic overlaps) appear.
+  ///
+  /// When false (the default), the content baseline uses the maximum
+  /// of the viewport padding and the keyboard height, which effectively
+  /// replaces the viewport padding with the keyboard height when
+  /// the keyboard is taller than the padding.
+  ///
+  /// When true, the content baseline adds the viewport padding to
+  /// the keyboard height, maintaining the specified padding even when
+  /// the keyboard is open. This is useful when you want to ensure
+  /// a consistent spacing between the content and the keyboard.
+  ///
+  /// This option only has an effect when [shrinkChildToAvoidDynamicOverlap]
+  /// is true.
+  /// {@endtemplate}
+  final bool maintainBottomViewportPaddingWhenKeyboardOpen;
 
   final SheetDecoration decoration;
 
@@ -698,6 +743,8 @@ class _BareSheetState extends State<BareSheet> {
               widget.shrinkChildToAvoidDynamicOverlap,
           shrinkContentToAvoidStaticOverlap:
               widget.shrinkChildToAvoidStaticOverlap,
+          maintainBottomViewportPaddingWhenKeyboardOpen:
+              widget.maintainBottomViewportPaddingWhenKeyboardOpen,
         );
 
         Widget result = _SheetSkelton(

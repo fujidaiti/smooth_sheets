@@ -78,6 +78,7 @@ class Sheet extends StatelessWidget {
     this.decoration = const DefaultSheetDecoration(),
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
+    this.maintainBottomViewportPaddingWhenKeyboardOpen = false,
     required this.child,
   });
 
@@ -104,6 +105,9 @@ class Sheet extends StatelessWidget {
   /// {@macro BareSheet.shrinkChildToAvoidStaticOverlap}
   final bool shrinkChildToAvoidStaticOverlap;
 
+  /// {@macro BareSheet.maintainBottomViewportPaddingWhenKeyboardOpen}
+  final bool maintainBottomViewportPaddingWhenKeyboardOpen;
+
   /// The content of the sheet.
   final Widget child;
 
@@ -123,6 +127,8 @@ class Sheet extends StatelessWidget {
         decoration: decoration,
         shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
         shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
+        maintainBottomViewportPaddingWhenKeyboardOpen:
+            maintainBottomViewportPaddingWhenKeyboardOpen,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,

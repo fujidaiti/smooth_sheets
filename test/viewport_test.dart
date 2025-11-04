@@ -415,6 +415,59 @@ void main() {
     );
 
     testWidgets(
+      'should add viewport padding to keyboard height '
+      'when maintainBottomViewportPaddingWhenKeyboardOpen is true',
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          viewInsets: EdgeInsets.only(bottom: 300),
+          builder: (child) => SheetViewport(
+            padding: EdgeInsets.only(bottom: 16),
+            child: BareSheet(
+              shrinkChildToAvoidDynamicOverlap: true,
+              maintainBottomViewportPaddingWhenKeyboardOpen: true,
+              child: SizedBox.expand(
+                key: Key('content'),
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, testScreenSize.height - 316),
+        );
+      },
+    );
+
+    testWidgets(
+      'should use max behavior when maintainBottomViewportPaddingWhenKeyboardOpen is false',
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          viewInsets: EdgeInsets.only(bottom: 300),
+          builder: (child) => SheetViewport(
+            padding: EdgeInsets.only(bottom: 16),
+            child: BareSheet(
+              shrinkChildToAvoidDynamicOverlap: true,
+              maintainBottomViewportPaddingWhenKeyboardOpen: false,
+              child: SizedBox.expand(
+                key: Key('content'),
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, testScreenSize.height - 300),
+        );
+      },
+    );
+
+    testWidgets(
       "should translate the child's visual position "
       'according to the current sheet metrics',
       (tester) async {
@@ -964,6 +1017,8 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxSheetRect,
           Rect.fromLTWH(0, 0, 800, 600),
         );
@@ -982,6 +1037,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxSheetRect,
           Rect.fromLTRB(10, 0, 770, 600),
         );
@@ -1000,6 +1056,7 @@ void main() {
           viewportStaticOverlap: EdgeInsets.zero,
           shrinkContentToAvoidDynamicOverlap: false,
           shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
         );
         expect(spec.maxContentRect, equals(spec.maxSheetRect));
 
@@ -1011,6 +1068,7 @@ void main() {
           viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
           shrinkContentToAvoidDynamicOverlap: false,
           shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
         );
         expect(spec.maxContentRect, equals(spec.maxSheetRect));
       },
@@ -1028,6 +1086,7 @@ void main() {
             viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
             shrinkContentToAvoidDynamicOverlap: true,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxContentRect,
           Rect.fromLTRB(0, 0, 800, 550),
         );
@@ -1045,6 +1104,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxSheetStaticOverlap,
           EdgeInsets.fromLTRB(10, 20, 30, 40),
         );
@@ -1062,6 +1122,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxSheetStaticOverlap,
           EdgeInsets.fromLTRB(0, 20, 0, 40),
         );
@@ -1079,6 +1140,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxSheetDynamicOverlap,
           EdgeInsets.fromLTRB(10, 20, 30, 40),
         );
@@ -1096,6 +1158,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxSheetDynamicOverlap,
           EdgeInsets.fromLTRB(0, 20, 0, 40),
         );
@@ -1113,6 +1176,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxContentDynamicOverlap,
           EdgeInsets.fromLTRB(0, 10, 20, 30),
         );
@@ -1131,6 +1195,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: true,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxContentDynamicOverlap,
           EdgeInsets.fromLTRB(10, 20, 30, 0),
         );
@@ -1148,6 +1213,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxContentStaticOverlap,
           EdgeInsets.fromLTRB(0, 10, 20, 30),
         );
@@ -1165,6 +1231,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).maxContentStaticOverlap,
           EdgeInsets.zero,
         );
@@ -1183,6 +1250,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           40,
         );
@@ -1201,6 +1269,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 20),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           40,
         );
@@ -1220,6 +1289,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 20),
             shrinkContentToAvoidDynamicOverlap: true,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           60,
         );
@@ -1239,6 +1309,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: true,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           60,
         );
@@ -1257,6 +1328,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 80),
             shrinkContentToAvoidDynamicOverlap: true,
             shrinkContentToAvoidStaticOverlap: true,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           80,
           reason: 'should equal to the static overlap',
@@ -1270,6 +1342,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
             shrinkContentToAvoidDynamicOverlap: true,
             shrinkContentToAvoidStaticOverlap: true,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           80,
           reason: 'should equal to the dynamic overlap',
@@ -1283,6 +1356,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 80),
             shrinkContentToAvoidDynamicOverlap: true,
             shrinkContentToAvoidStaticOverlap: true,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           90,
           reason: 'should equal to the padding',
@@ -1302,6 +1376,8 @@ void main() {
             viewportStaticOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           40,
           reason: 'should ignore the dynamic overlap',
@@ -1315,9 +1391,138 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ).contentBaseline,
           40,
           reason: 'should ignore the static overlap',
+        );
+      },
+    );
+
+    test(
+      'contentBaseline: should add viewport padding to dynamic overlap '
+      'when maintainBottomViewportPaddingWhenKeyboardOpen is true',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 300),
+            viewportStaticOverlap: EdgeInsets.zero,
+            shrinkContentToAvoidDynamicOverlap: true,
+            shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: true,
+          ).contentBaseline,
+          340,
+          reason: 'should add padding (40) to dynamic overlap (300)',
+        );
+      },
+    );
+
+    test(
+      'contentBaseline: should use max behavior '
+      'when maintainBottomViewportPaddingWhenKeyboardOpen is false',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 300),
+            viewportStaticOverlap: EdgeInsets.zero,
+            shrinkContentToAvoidDynamicOverlap: true,
+            shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+          ).contentBaseline,
+          300,
+          reason:
+              'should use max(padding, overlap) = max(40, 300) = 300 (default behavior)',
+        );
+      },
+    );
+
+    test(
+      'contentBaseline: should still use max for padding when keyboard is smaller',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 100),
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 50),
+            viewportStaticOverlap: EdgeInsets.zero,
+            shrinkContentToAvoidDynamicOverlap: true,
+            shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: true,
+          ).contentBaseline,
+          150,
+          reason:
+              'should add padding (100) to dynamic overlap (50) even when padding is larger',
+        );
+      },
+    );
+
+    test(
+      'contentBaseline: maintainBottomViewportPaddingWhenKeyboardOpen should only affect dynamic overlap',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
+            shrinkContentToAvoidDynamicOverlap: false,
+            shrinkContentToAvoidStaticOverlap: true,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: true,
+          ).contentBaseline,
+          60,
+          reason:
+              'should still use max() for static overlap regardless of maintainBottomViewportPaddingWhenKeyboardOpen',
+        );
+      },
+    );
+
+    test(
+      'contentBaseline: should work correctly with both dynamic and static overlaps',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 300),
+            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
+            shrinkContentToAvoidDynamicOverlap: true,
+            shrinkContentToAvoidStaticOverlap: true,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: true,
+          ).contentBaseline,
+          340,
+          reason:
+              'should add padding to dynamic overlap (40 + 300 = 340), then use max with static overlap max(340, 60) = 340',
+        );
+      },
+    );
+
+    test(
+      'contentBaseline: should have no effect when shrinkContentToAvoidDynamicOverlap is false',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 300),
+            viewportStaticOverlap: EdgeInsets.zero,
+            shrinkContentToAvoidDynamicOverlap: false,
+            shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: true,
+          ).contentBaseline,
+          40,
+          reason:
+              'maintainBottomViewportPaddingWhenKeyboardOpen should have no effect when shrinkContentToAvoidDynamicOverlap is false',
         );
       },
     );
@@ -1355,6 +1560,7 @@ void main() {
             viewportStaticOverlap: EdgeInsets.fromLTRB(30, 20, 10, 40),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ),
           child: Builder(
             builder: (context) {
@@ -1381,6 +1587,7 @@ void main() {
             viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ),
           child: Builder(
             builder: (context) {
@@ -1407,6 +1614,7 @@ void main() {
             viewportDynamicOverlap: EdgeInsets.zero,
             shrinkContentToAvoidDynamicOverlap: false,
             shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
           ),
           child: Builder(
             builder: (context) {
@@ -1432,6 +1640,7 @@ void main() {
           viewportStaticOverlap: EdgeInsets.zero,
           shrinkContentToAvoidDynamicOverlap: false,
           shrinkContentToAvoidStaticOverlap: false,
+            maintainBottomViewportPaddingWhenKeyboardOpen: false,
         );
 
         final env = boilerplate(

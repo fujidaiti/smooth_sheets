@@ -261,6 +261,7 @@ class PagedSheet extends StatelessWidget {
     this.decoration = const DefaultSheetDecoration(),
     this.shrinkChildToAvoidDynamicOverlap = true,
     this.shrinkChildToAvoidStaticOverlap = false,
+    this.maintainBottomViewportPaddingWhenKeyboardOpen = false,
     this.builder,
     required this.navigator,
   });
@@ -280,6 +281,9 @@ class PagedSheet extends StatelessWidget {
 
   /// {@macro Sheet.shrinkChildToAvoidStaticOverlap}
   final bool shrinkChildToAvoidStaticOverlap;
+
+  /// {@macro BareSheet.maintainBottomViewportPaddingWhenKeyboardOpen}
+  final bool maintainBottomViewportPaddingWhenKeyboardOpen;
 
   final Widget Function(BuildContext, Widget)? builder;
 
@@ -314,6 +318,8 @@ class PagedSheet extends StatelessWidget {
         decoration: decoration,
         shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
         shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
+        maintainBottomViewportPaddingWhenKeyboardOpen:
+            maintainBottomViewportPaddingWhenKeyboardOpen,
         child: content,
       ),
     );
