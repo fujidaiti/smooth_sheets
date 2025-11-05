@@ -1,0 +1,101 @@
+name: Create Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # Only run when a release PR is merged
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.title, 'chore(pkg): Bump package version to v') &&
+      endsWith(github.event.pull_request.title, '[bot]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history and tags for git-cliff
+          fetch-depth: 0
+          ref: main
+
+      - name: Extract version from PR title
+        id: extract-version
+        run: |
+          # PR title format: "chore(pkg): Bump package version to v1.0.2 [bot]"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+
+          # Extract version using parameter expansion and sed
+          VERSION=$(echo "$PR_TITLE" | sed -n 's/.*Bump package version to \(v[0-9]\+\.[0-9]\+\.[0-9]\+[^ ]*\).*/\1/p')
+          RAW_VERSION="${VERSION#v}" # Remove 'v' prefix
+
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not extract version from PR title: $PR_TITLE"
+            exit 1
+          fi
+
+          echo "Extracted version: $VERSION"
+          echo "Raw version: $RAW_VERSION"
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "raw_version=$RAW_VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Check for manual release notes
+        id: check-notes
+        run: |
+          VERSION="${{ steps.extract-version.outputs.raw_version }}"
+          NOTE_FILE="note/release-note-${VERSION}.md"
+
+          if [ -f "$NOTE_FILE" ]; then
+            echo "Manual release notes found at: $NOTE_FILE"
+            echo "has_manual_notes=true" >> $GITHUB_OUTPUT
+            echo "note_file=$NOTE_FILE" >> $GITHUB_OUTPUT
+          else
+            echo "No manual release notes found. Will use auto-generated changelog."
+            echo "has_manual_notes=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Generate auto-generated changelog
+        if: steps.check-notes.outputs.has_manual_notes != 'true'
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --tag ${{ steps.extract-version.outputs.version }} --strip=all
+        env:
+          OUTPUT: auto-release-notes.md
+
+      - name: Prepare release notes
+        id: prepare-notes
+        run: |
+          if [ "${{ steps.check-notes.outputs.has_manual_notes }}" = "true" ]; then
+            # Use manual release notes
+            cp "${{ steps.check-notes.outputs.note_file }}" release-notes.md
+          else
+            # Use auto-generated changelog
+            cp auto-release-notes.md release-notes.md
+          fi
+
+          echo "Release notes prepared successfully"
+        shell: bash
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.extract-version.outputs.version }}
+        run: |
+          # Create the release with the tag
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --notes-file release-notes.md \
+            --target main
+
+          echo "GitHub Release created successfully: $VERSION"
