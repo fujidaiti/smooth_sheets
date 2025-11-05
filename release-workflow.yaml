@@ -6,9 +6,6 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-
 jobs:
   release:
     # Only run when a release PR is merged
@@ -25,6 +22,13 @@ jobs:
           # Fetch all history and tags for git-cliff
           fetch-depth: 0
           ref: main
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.NORELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.NORELEASE_BOT_PRIVATE_KEY }}
 
       - name: Extract version from PR title
         id: extract-version
@@ -89,7 +93,7 @@ jobs:
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           VERSION: ${{ steps.extract-version.outputs.version }}
         run: |
           # Create the release with the tag
