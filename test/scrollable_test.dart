@@ -1,4 +1,6 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
+import 'package:smooth_sheets/src/controller.dart';
 import 'package:smooth_sheets/src/gesture_proxy.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/model_owner.dart';
@@ -8,9 +10,233 @@ import 'package:smooth_sheets/src/snap_grid.dart';
 import 'package:smooth_sheets/src/viewport.dart';
 
 import 'src/flutter_test_x.dart';
+import 'src/matchers.dart';
 import 'src/object_ref.dart';
 
 void main() {
+  group('Scroll sync test', () {
+    ({
+      Widget testWidget,
+      SheetController controller,
+      ValueGetter<ScrollController> getScrollController
+    }) boilerplate({
+      required SheetOffset initialOffset,
+    }) {
+      final controller = SheetController();
+      late ScrollController scrollController;
+      final testWidget = SheetViewport(
+        child: _TestSheet(
+          key: Key('sheet'),
+          controller: controller,
+          initialOffset: initialOffset,
+          snapGrid: SheetSnapGrid(snaps: [
+            SheetOffset.absolute(300),
+            SheetOffset.absolute(600),
+          ]),
+          scrollConfiguration: SheetScrollConfiguration(
+            scrollSyncMode: SheetScrollHandlingBehavior.always,
+          ),
+          physics: BouncingSheetPhysics(),
+          builder: (context, controller) {
+            scrollController = controller;
+            return SizedBox.fromSize(
+              size: Size.fromHeight(600),
+              child: SingleChildScrollView(
+                key: Key('scrollable'),
+                physics: BouncingScrollPhysics(),
+                controller: controller,
+                child: SizedBox.fromSize(
+                  size: Size.fromHeight(1000),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        controller: controller,
+        getScrollController: () => scrollController
+      );
+    }
+
+    testWidgets(
+      'Drag sheet upward, then start scrolling content upward',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(300));
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 300);
+
+        final gesture = await tester.startDrag(
+          tester.getCenter(find.byId('sheet')),
+          AxisDirection.up,
+        );
+        await gesture.moveUpwardBy(150 - kDragSlopDefault);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 150);
+        expect(env.getScrollController().offset, 0);
+
+        await gesture.moveUpwardBy(150);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 0);
+
+        await gesture.moveUpwardBy(50);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 50);
+
+        await gesture.moveUpwardBy(100);
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 150);
+      },
+    );
+
+    testWidgets(
+      'Scroll content upward, then start over-dragging sheet upward',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 0);
+
+        env.getScrollController().jumpTo(100);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 100);
+
+        final gesture = await tester.startDrag(
+          tester.getCenter(find.byKey(Key('sheet'))),
+          AxisDirection.down,
+        );
+        await gesture.moveDownwardBy(50 - kDragSlopDefault);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 50);
+
+        await gesture.moveDownwardBy(50);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 0);
+
+        await gesture.moveDownwardBy(50);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 50);
+        expect(env.getScrollController().offset, 0);
+
+        await gesture.moveDownwardBy(100);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 150);
+        expect(env.getScrollController().offset, 0);
+      },
+    );
+
+    testWidgets(
+      'Scroll content upward, then start over-dragging sheet upward',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 0);
+
+        env.getScrollController().jumpTo(300);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 300);
+
+        final gesture = await tester.startDrag(
+          tester.getCenter(find.byKey(Key('sheet'))),
+          AxisDirection.up,
+        );
+        await gesture.moveUpwardBy(100 - kDragSlopDefault);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 400);
+
+        await gesture.moveUpwardBy(50);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, lessThan(-20));
+        expect(env.getScrollController().offset, 400);
+
+        await gesture.moveUpwardBy(50);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, lessThan(-30));
+        expect(env.getScrollController().offset, 400);
+      },
+    );
+
+    testWidgets(
+      'Smooth transition from momentum scrolling (downward) to sheet bouncing',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 0);
+
+        await tester.dragUpward(find.byKey(Key('sheet')), deltaY: 100);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().position.extentBefore, 100);
+
+        final sheetTopHistory = <double>[];
+        env.controller.addListener(() {
+          sheetTopHistory.add(tester.getRect(find.byKey(Key('sheet'))).top);
+        });
+        final scrollOffsetHistory = <double>[];
+        env.getScrollController().addListener(() {
+          scrollOffsetHistory.add(env.getScrollController().offset);
+        });
+
+        await tester.fling(find.byKey(Key('sheet')), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(env.getScrollController().position.extentBefore, 0);
+        expect(scrollOffsetHistory, isMonotonicallyDecreasing);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(sheetTopHistory.min, 0);
+        expect(sheetTopHistory.max, closeTo(40, 1.0));
+        // The sheet should bounce only once.
+        expect(sheetTopHistory, fluctuationEquals([1, -1]));
+      },
+    );
+
+    testWidgets(
+      'Smooth transition from momentum scrolling (upward) to sheet bouncing',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().offset, 0);
+
+        env.getScrollController().jumpTo(300);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(env.getScrollController().position.extentAfter, 100);
+
+        final sheetTopHistory = <double>[];
+        env.controller.addListener(() {
+          sheetTopHistory.add(tester.getRect(find.byKey(Key('sheet'))).top);
+        });
+        final scrollOffsetHistory = <double>[];
+        env.getScrollController().addListener(() {
+          scrollOffsetHistory.add(env.getScrollController().offset);
+        });
+
+        await tester.fling(find.byKey(Key('sheet')), Offset(0, -50), 1000);
+        await tester.pumpAndSettle();
+        expect(env.getScrollController().position.extentAfter, 0);
+        expect(scrollOffsetHistory, isMonotonicallyIncreasing);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(sheetTopHistory.min, closeTo(-13, 1.0));
+        expect(sheetTopHistory.max, 0);
+        // The sheet should bounce only once.
+        expect(sheetTopHistory, fluctuationEquals([-1, 1]));
+      },
+    );
+  });
+
   group('SheetScrollHandlingBehavior', () {
     ({
       Widget testWidget,
@@ -375,6 +601,7 @@ class _TestModel extends SheetModel<_TestModelConfig>
 class _TestSheet extends StatelessWidget {
   const _TestSheet({
     super.key,
+    this.controller,
     required this.scrollConfiguration,
     required this.initialOffset,
     required this.snapGrid,
@@ -382,6 +609,7 @@ class _TestSheet extends StatelessWidget {
     required this.builder,
   });
 
+  final SheetController? controller;
   final SheetOffset initialOffset;
   final SheetScrollConfiguration scrollConfiguration;
   final SheetPhysics physics;
@@ -391,6 +619,7 @@ class _TestSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SheetModelOwner(
+      controller: controller,
       factory: (context, config) => _TestModel(context, config, initialOffset),
       config: _TestModelConfig(
         gestureProxy: null,
