@@ -14,6 +14,98 @@ import 'src/matchers.dart';
 import 'src/object_ref.dart';
 
 void main() {
+  group('Edge behaviors should not depend on scroll physics', () {
+    ({
+      Widget testWidget,
+      SheetController controller,
+    }) boilerplate({
+      required SheetPhysics sheetPhysics,
+      required ScrollPhysics scrollPhysics,
+    }) {
+      final controller = SheetController();
+      final testWidget = SheetViewport(
+        child: _TestSheet(
+          key: Key('sheet'),
+          controller: controller,
+          initialOffset: SheetOffset(1),
+          snapGrid: SheetSnapGrid.single(snap: SheetOffset(1)),
+          scrollConfiguration: SheetScrollConfiguration(
+            scrollSyncMode: SheetScrollHandlingBehavior.always,
+          ),
+          physics: sheetPhysics,
+          builder: (context, controller) {
+            return SizedBox.fromSize(
+              size: Size.fromHeight(600),
+              child: SingleChildScrollView(
+                physics: scrollPhysics,
+                controller: controller,
+                child: SizedBox.fromSize(
+                  size: Size.fromHeight(1000),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+
+      return (testWidget: testWidget, controller: controller);
+    }
+
+    testWidgets(
+      'BouncingSheetPhysics with ClampingScrollPhysics',
+      (tester) async {
+        final env = boilerplate(
+          sheetPhysics: BouncingSheetPhysics(),
+          scrollPhysics: ClampingScrollPhysics(),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 0);
+
+        final sheetTopHistory = <double>[];
+        env.controller.addListener(() {
+          sheetTopHistory.add(tester.getRect(find.byId('sheet')).top);
+        });
+
+        await tester.dragDownward(find.byId('sheet'), deltaY: 100);
+        await tester.pumpAndSettle();
+        expect(sheetTopHistory.min, 0);
+        expect(sheetTopHistory.max, greaterThan(0));
+        expect(
+          sheetTopHistory,
+          fluctuationEquals([1, -1]),
+          reason: 'Sheet should move downward even if '
+              'scroll physics does not allow it',
+        );
+      },
+    );
+
+    testWidgets(
+      'ClampingSheetPhysics with BouncingScrollPhysics',
+      (tester) async {
+        final env = boilerplate(
+          sheetPhysics: ClampingSheetPhysics(),
+          scrollPhysics: BouncingScrollPhysics(),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 0);
+
+        final sheetTopHistory = <double>[];
+        env.controller.addListener(() {
+          sheetTopHistory.add(tester.getRect(find.byId('sheet')).top);
+        });
+
+        await tester.dragDownward(find.byId('sheet'), deltaY: 100);
+        await tester.pumpAndSettle();
+        expect(
+          sheetTopHistory,
+          everyElement(isZero),
+          reason: 'Sheet should not move even if '
+              'scroll physics allows it',
+        );
+      },
+    );
+  });
+
   group('Scroll sync test', () {
     ({
       Widget testWidget,
