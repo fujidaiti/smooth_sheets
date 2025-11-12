@@ -159,12 +159,18 @@ void main() {
 
         await gesture.moveUpwardBy(50);
         await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, lessThan(-20));
+        expect(
+          tester.getRect(find.byKey(Key('sheet'))).top,
+          closeTo(-22.7, 0.1),
+        );
         expect(env.getScrollController().offset, 400);
 
         await gesture.moveUpwardBy(50);
         await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, lessThan(-30));
+        expect(
+          tester.getRect(find.byKey(Key('sheet'))).top,
+          closeTo(-31.2, 0.1),
+        );
         expect(env.getScrollController().offset, 400);
       },
     );
@@ -196,7 +202,7 @@ void main() {
         expect(scrollOffsetHistory, isMonotonicallyDecreasing);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
         expect(sheetTopHistory.min, 0);
-        expect(sheetTopHistory.max, closeTo(40, 1.0));
+        expect(sheetTopHistory.max, closeTo(40.6, 0.1));
         // The sheet should bounce only once.
         expect(sheetTopHistory, fluctuationEquals([1, -1]));
       },
@@ -229,7 +235,7 @@ void main() {
         expect(env.getScrollController().position.extentAfter, 0);
         expect(scrollOffsetHistory, isMonotonicallyIncreasing);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(sheetTopHistory.min, closeTo(-13, 1.0));
+        expect(sheetTopHistory.min, closeTo(-13, 0.1));
         expect(sheetTopHistory.max, 0);
         // The sheet should bounce only once.
         expect(sheetTopHistory, fluctuationEquals([-1, 1]));
