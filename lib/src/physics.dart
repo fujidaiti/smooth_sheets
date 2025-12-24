@@ -230,12 +230,7 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   double computeOverflow(double delta, SheetMetrics metrics) {
-    final bounceableRange = behavior.computeBounceablePixels(delta, metrics);
-    if (bounceableRange != 0) {
-      return const ClampingSheetPhysics().applyPhysicsToOffset(delta, metrics);
-    }
-
-    return super.computeOverflow(delta, metrics);
+    return 0;
   }
 
   @override

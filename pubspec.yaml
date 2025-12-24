@@ -18,11 +18,17 @@ dependencies:
     sdk: flutter
   meta: ^1.9.1
   navigator_resizable: ^3.0.0
+
+# Dependencies for testing
 dev_dependencies:
-  auto_route: ^10.0.1
+  # Since v10.2.0 introduced a breaking change incompatible with
+  # Flutter 3.29.0 (our minimum supported version), CI failed.
+  # Adding this upper bound as a workaround.
+  auto_route: <10.2.0
+
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter
-  go_router: ^16.2.1
+  go_router: ">=16.2.1 <18.0.0"
   mockito: ^5.4.4
   pedantic_mono: ^1.23.0

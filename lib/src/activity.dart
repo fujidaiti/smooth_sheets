@@ -196,9 +196,15 @@ class BallisticSheetActivity extends SheetActivity
   @override
   void onAnimationTick() {
     if (mounted) {
+      final delta = controller.value - owner.offset;
+      final overflow = owner.physics.computeOverflow(delta, owner);
       owner
-        ..offset = controller.value
+        ..offset = controller.value - overflow
         ..didUpdateMetrics();
+
+      if (overflow != 0) {
+        onAnimationEnd();
+      }
     }
   }
 

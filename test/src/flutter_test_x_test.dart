@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'flutter_test_x.dart';
@@ -470,5 +472,42 @@ void main() {
         expect(dragUpdateDetails?.delta, Offset(0, 20));
       },
     );
+  });
+
+  group('testWithVsync', () {
+    testWithVsync('should advance animation', (tester) async {
+      final controller = AnimationController(
+        vsync: tester.vsync,
+        duration: Duration(milliseconds: 500),
+        lowerBound: 0,
+        upperBound: 1,
+      );
+      tester.addTearDown(controller.dispose);
+      expect(controller.status, AnimationStatus.dismissed);
+
+      unawaited(controller.forward());
+      await tester.flushMicrotasks();
+      expect(controller.status, AnimationStatus.forward);
+
+      await tester.elapse(const Duration(milliseconds: 100));
+      expect(controller.status, AnimationStatus.forward);
+      expect(controller.value, 0.2);
+
+      await tester.elapse(const Duration(milliseconds: 100));
+      expect(controller.status, AnimationStatus.forward);
+      expect(controller.value, 0.4);
+
+      await tester.elapse(const Duration(milliseconds: 100));
+      expect(controller.status, AnimationStatus.forward);
+      expect(controller.value, 0.6);
+
+      await tester.elapse(const Duration(milliseconds: 100));
+      expect(controller.status, AnimationStatus.forward);
+      expect(controller.value, 0.8);
+
+      await tester.elapse(const Duration(milliseconds: 101));
+      expect(controller.status, AnimationStatus.completed);
+      expect(controller.value, 1.0);
+    });
   });
 }
