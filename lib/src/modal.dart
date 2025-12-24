@@ -13,8 +13,24 @@ import 'viewport.dart';
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 
+/// {@template modal_sheet_barrier_builder}
+/// A builder for creating a custom modal barrier.
+///
+/// If provided, this builder is called instead of creating the default
+/// [AnimatedModalBarrier]. The builder receives the route instance and
+/// a dismiss callback, allowing customization of the barrier's
+/// appearance and behavior.
+///
+/// The dismiss callback should be invoked when the user interacts with
+/// the barrier to dismiss the modal (e.g., by tapping). The callback
+/// will only dismiss the modal if [ModalSheetPage.barrierDismissible] is
+/// `true` and the route animation is completed.
+///
+/// If `null`, the default [AnimatedModalBarrier] is used with the
+/// configured [ModalSheetPage.barrierColor]. The default value is `null`.
+/// {@endtemplate}
 typedef ModalSheetBarrierBuilder<T> = Widget Function(
-  PageRoute<T> route,
+  ModalRoute<T> route,
   VoidCallback onDismissCallback,
 );
 
@@ -62,6 +78,7 @@ class ModalSheetPage<T> extends Page<T> {
 
   final EdgeInsets viewportPadding;
 
+  /// {@macro modal_sheet_barrier_builder}
   final ModalSheetBarrierBuilder<T>? barrierBuilder;
 
   @override
@@ -187,6 +204,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   @override
   bool get opaque => false;
 
+  /// {@macro modal_sheet_barrier_builder}
   ModalSheetBarrierBuilder<T>? get barrierBuilder;
 
   // Provides access to the AnimationController of this route that is
@@ -246,7 +264,11 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     }
 
     if (barrierBuilder != null) {
-      return barrierBuilder!(this as PageRoute<T>, onDismiss);
+      return GestureDetector(
+        onTap: barrierDismissible ? onDismiss : null,
+        behavior: HitTestBehavior.translucent,
+        child: barrierBuilder!(this as ModalRoute<T>, onDismiss),
+      );
     }
 
     final barrierColor = this.barrierColor;

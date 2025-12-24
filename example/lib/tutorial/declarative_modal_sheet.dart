@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -28,18 +26,6 @@ final _router = GoRouter(
               key: state.pageKey,
               // Enable the swipe-to-dismiss behavior.
               swipeDismissible: true,
-              barrierBuilder: (route, onDismissCallback) => BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
-                child: Container(
-                  width: 200.0,
-                  height: 200.0,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade200.withValues(alpha: 0.2)),
-                  child: Center(
-                    child: SizedBox.expand(),
-                  ),
-                ),
-              ),
               // Use `SwipeDismissSensitivity` to tweak the sensitivity of the swipe-to-dismiss behavior.
               swipeDismissSensitivity: const SwipeDismissSensitivity(
                 minFlingVelocityRatio: 2.0,

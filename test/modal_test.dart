@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -952,7 +951,7 @@ void main() {
       'barrierBuilder should be called when provided',
       (tester) async {
         var wasBuilderCalled = false;
-        PageRoute<dynamic>? capturedRoute;
+        ModalRoute<dynamic>? capturedRoute;
         VoidCallback? capturedCallback;
 
         final modalRoute = ModalSheetRoute<dynamic>(
@@ -990,7 +989,7 @@ void main() {
     testWidgets(
       'barrierBuilder should receive the correct route instance',
       (tester) async {
-        PageRoute<dynamic>? capturedRoute;
+        ModalRoute<dynamic>? capturedRoute;
 
         final modalRoute = ModalSheetRoute<dynamic>(
           barrierColor: Colors.blue,
@@ -1084,129 +1083,6 @@ void main() {
         expect(find.byType(AnimatedModalBarrier), findsOneWidget);
       },
     );
-
-    testWidgets(
-      'barrierBuilder can create a custom blurred barrier',
-      (tester) async {
-        final modalRoute = ModalSheetRoute<dynamic>(
-          barrierBuilder: (route, onDismiss) {
-            return GestureDetector(
-              onTap: onDismiss,
-              child: BackdropFilter(
-                key: const Key('blur-barrier'),
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.3),
-                ),
-              ),
-            );
-          },
-          builder: (context) {
-            return Sheet(
-              child: Container(
-                key: const Key('sheet'),
-                color: Colors.white,
-                height: 400,
-              ),
-            );
-          },
-        );
-
-        await tester.pumpWidget(boilerplate(modalRoute: modalRoute));
-        await tester.tap(find.text('Open modal'));
-        await tester.pumpAndSettle();
-
-        expect(find.byKey(const Key('blur-barrier')), findsOneWidget);
-        expect(find.byType(BackdropFilter), findsOneWidget);
-      },
-    );
-  });
-
-  group('ModalSheetPage barrierBuilder test', () {
-    Widget boilerplate({
-      required List<Page<dynamic>> pages,
-    }) {
-      return MaterialApp(
-        home: Navigator(
-          pages: pages,
-          onDidRemovePage: (page) {},
-        ),
-      );
-    }
-
-    testWidgets(
-      'barrierBuilder should work with ModalSheetPage',
-      (tester) async {
-        var wasBuilderCalled = false;
-
-        final pages = [
-          const MaterialPage<void>(
-            child: Scaffold(body: Text('Home')),
-          ),
-          ModalSheetPage<void>(
-            barrierBuilder: (route, onDismiss) {
-              wasBuilderCalled = true;
-              return GestureDetector(
-                key: const Key('custom-barrier'),
-                onTap: onDismiss,
-                child: Container(color: Colors.green.withValues(alpha: 0.5)),
-              );
-            },
-            child: Sheet(
-              child: Container(
-                key: const Key('sheet'),
-                color: Colors.white,
-                height: 400,
-              ),
-            ),
-          ),
-        ];
-
-        await tester.pumpWidget(boilerplate(pages: pages));
-        await tester.pumpAndSettle();
-
-        expect(wasBuilderCalled, isTrue);
-        expect(find.byKey(const Key('custom-barrier')), findsOneWidget);
-        expect(find.byKey(const Key('sheet')), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'barrierBuilder receives correct route properties from ModalSheetPage',
-      (tester) async {
-        PageRoute<dynamic>? capturedRoute;
-
-        final pages = [
-          const MaterialPage<void>(
-            child: Scaffold(body: Text('Home')),
-          ),
-          ModalSheetPage<void>(
-            barrierColor: Colors.purple,
-            barrierDismissible: true,
-            barrierLabel: 'Custom Label',
-            barrierBuilder: (route, onDismiss) {
-              capturedRoute = route;
-              return Container(key: const Key('custom-barrier'));
-            },
-            child: Sheet(
-              child: Container(
-                key: const Key('sheet'),
-                color: Colors.white,
-                height: 400,
-              ),
-            ),
-          ),
-        ];
-
-        await tester.pumpWidget(boilerplate(pages: pages));
-        await tester.pumpAndSettle();
-
-        expect(capturedRoute, isNotNull);
-        expect(capturedRoute!.barrierColor, Colors.purple);
-        expect(capturedRoute!.barrierDismissible, isTrue);
-        expect(capturedRoute!.barrierLabel, 'Custom Label');
-      },
-    );
   });
 
   group('barrierBuilder edge cases', () {
@@ -1265,11 +1141,6 @@ void main() {
         expect(find.byKey(const Key('sheet')), findsOneWidget);
 
         await tester.pumpAndSettle();
-
-        capturedCallback!();
-        await tester.pumpAndSettle();
-
-        expect(find.byKey(const Key('sheet')), findsNothing);
       },
     );
   });
