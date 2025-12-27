@@ -646,7 +646,8 @@ class SwipeDismissSensitivity {
   /// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset(0.4))`, the sheet
   /// will dismiss if 40% or less of the sheet is visible when the drag ends.
   ///
-  ///// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset.absolute(200))`,
+  // ignore: lines_longer_than_80_chars
+  /// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset.absolute(200))`,
   /// the sheet will dismiss if 200 pixels or less of the sheet is
   /// visible when the drag ends.
   ///

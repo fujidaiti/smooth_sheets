@@ -21,9 +21,6 @@ import 'internal/float_comp.dart';
 import 'model.dart';
 import 'model_owner.dart';
 
-// TODO: Expose this from the ScrollableSheet's constructor
-const double _kMaxScrollSpeedToInterrupt = double.infinity;
-
 /// {@template smooth_sheets.scrollable.SheetScrollHandlingBehavior}
 /// Defines how the sheet position is synced with scroll gestures
 /// performed on a scrollable content.
@@ -55,14 +52,9 @@ enum SheetScrollHandlingBehavior {
 @immutable
 class SheetScrollConfiguration {
   const SheetScrollConfiguration({
-    this.thresholdVelocityToInterruptBallisticScroll = double.infinity,
     this.scrollSyncMode = SheetScrollHandlingBehavior.always,
     this.delegateUnhandledOverscrollToChild = false,
   });
-
-  // TODO: Come up with a better name.
-  // TODO: Apply this value to the model.
-  final double thresholdVelocityToInterruptBallisticScroll;
 
   /// {@macro smooth_sheets.scrollable.SheetScrollHandlingBehavior}
   final SheetScrollHandlingBehavior scrollSyncMode;
@@ -76,8 +68,8 @@ class SheetScrollConfiguration {
   /// pull-to-refresh using [RefreshIndicator].
   ///
   /// Note that the above argument is only effective when the sheet's physics
-  /// does NOT handle overscroll. For example, [BouncingScrollPhysics] handles
-  /// overscroll, but [ClampingScrollPhysics] does not.
+  /// does NOT handle overscroll. For example, [BouncingSheetPhysics] handles
+  /// overscroll, but [ClampingSheetPhysics] does not.
   ///
   /// If `false`, the scrollable will never receive overscroll-driven scroll
   /// deltas. The part of such deltas that is not handled by the sheet's physics
@@ -272,9 +264,6 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
           scrollPosition,
           simulation: scrollSimulation,
           initialOffset: scrollPixelsForScrollPhysics,
-          // TODO: Make this configurable.
-          shouldInterrupt: (velocity) =>
-              velocity.abs() < _kMaxScrollSpeedToInterrupt,
         ),
       );
       scrollPosition.beginActivity(
@@ -341,7 +330,7 @@ mixin _ScrollAwareSheetActivityMixin
       }
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxOffset'.
-      if (cmp.isLessThanOrApprox(newOffset, maxOffset)) {
+      if (cmp.isLessThan(newOffset, maxOffset)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
         newOffset = min(newOffset + physicsAppliedDelta, maxOffset);
@@ -366,7 +355,7 @@ mixin _ScrollAwareSheetActivityMixin
     } else if (offset < 0) {
       // If the sheet is beyond 'maxOffset', drag it down as much
       // as possible until it reaches at 'maxOffset'.
-      if (cmp.isGreaterThanOrApprox(newOffset, maxOffset)) {
+      if (cmp.isGreaterThan(newOffset, maxOffset)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newOffset = max(newOffset + physicsAppliedDelta, maxOffset);
@@ -552,13 +541,11 @@ class BallisticScrollDrivenSheetActivity
   BallisticScrollDrivenSheetActivity(
     SheetScrollPosition scrollPosition, {
     required this.simulation,
-    required this.shouldInterrupt,
     required double initialOffset,
   })  : _scrollPosition = scrollPosition,
         _oldOffset = initialOffset;
 
   final Simulation simulation;
-  final bool Function(double velocity) shouldInterrupt;
 
   double _oldOffset;
 
@@ -604,9 +591,8 @@ class BallisticScrollDrivenSheetActivity
     final scrollExtentBefore = scrollPosition.extentBefore;
     final scrollExtentAfter = scrollPosition.extentAfter;
     final shouldInterruptBallisticScroll =
-        ((cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
-                (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0)) &&
-            shouldInterrupt(velocity);
+        (cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
+            (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0);
     if (shouldInterruptBallisticScroll) {
       _end();
     }
