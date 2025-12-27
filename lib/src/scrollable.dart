@@ -330,7 +330,7 @@ mixin _ScrollAwareSheetActivityMixin
       }
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxOffset'.
-      if (cmp.isLessThanOrApprox(newOffset, maxOffset)) {
+      if (cmp.isLessThan(newOffset, maxOffset)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
         newOffset = min(newOffset + physicsAppliedDelta, maxOffset);
@@ -355,7 +355,7 @@ mixin _ScrollAwareSheetActivityMixin
     } else if (offset < 0) {
       // If the sheet is beyond 'maxOffset', drag it down as much
       // as possible until it reaches at 'maxOffset'.
-      if (cmp.isGreaterThanOrApprox(newOffset, maxOffset)) {
+      if (cmp.isGreaterThan(newOffset, maxOffset)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newOffset = max(newOffset + physicsAppliedDelta, maxOffset);
