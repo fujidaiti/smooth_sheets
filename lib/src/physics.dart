@@ -127,8 +127,8 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
     this.spring = kDefaultSheetSpring,
-    this.bounceExtent = 50,
-    this.resistance = 10,
+    this.bounceExtent = 120,
+    this.resistance = 6,
   }) : assert(bounceExtent >= 0);
 
   /// Factor that controls how easy/hard it is to overdrag the sheet.
