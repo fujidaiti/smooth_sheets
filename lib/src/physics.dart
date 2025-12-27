@@ -1,10 +1,10 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-import 'internal/double_utils.dart';
 import 'internal/float_comp.dart';
 import 'model.dart';
 import 'snap_grid.dart';
@@ -60,9 +60,9 @@ mixin SheetPhysicsMixin on SheetPhysics {
   double computeOverflow(double delta, SheetMetrics metrics) {
     final newOffset = metrics.offset + delta;
     if (newOffset > metrics.maxOffset) {
-      return min(newOffset - metrics.maxOffset, delta);
+      return math.min(newOffset - metrics.maxOffset, delta);
     } else if (newOffset < metrics.minOffset) {
-      return max(newOffset - metrics.minOffset, delta);
+      return math.max(newOffset - metrics.minOffset, delta);
     } else {
       return 0;
     }
@@ -73,10 +73,12 @@ mixin SheetPhysicsMixin on SheetPhysics {
     // TODO: Use computeOverflow() to calculate the overflowed offset.
     if (delta > 0 && metrics.offset < metrics.maxOffset) {
       // Prevent the offset from going beyond the maximum value.
-      return min(metrics.maxOffset, metrics.offset + delta) - metrics.offset;
+      return math.min(metrics.maxOffset, metrics.offset + delta) -
+          metrics.offset;
     } else if (delta < 0 && metrics.offset > metrics.minOffset) {
       // Prevent the offset from going beyond the minimum value.
-      return max(metrics.minOffset, metrics.offset + delta) - metrics.offset;
+      return math.max(metrics.minOffset, metrics.offset + delta) -
+          metrics.offset;
     } else {
       return 0;
     }
@@ -122,108 +124,27 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   final SpringDescription spring;
 }
 
-/// {@template BouncingBehavior}
-/// An object that determines the behavior of a bounceable sheet
-/// when it is out of the content bounds.
-/// {@endtemplate}
-///
-/// See also:
-/// - [FixedBouncingBehavior], which allows the sheet position to exceed the
-///   content bounds by a fixed amount.
-/// - [DirectionAwareBouncingBehavior], which allows the sheet position to
-///  exceed the content bounds by different amounts based on the direction
-///  of a drag gesture.
-// TODO: Remove this API.
-abstract class BouncingBehavior {
-  /// Returns the number of pixels that the sheet position can go beyond
-  /// the content bounds.
-  ///
-  /// [BouncingSheetPhysics.applyPhysicsToOffset] calls this method to calculate
-  /// the amount of friction that should be applied to the given drag [delta].
-  ///
-  /// The returned value must be non-negative. Since this method may be called
-  /// every frame, and even multiple times per frame, it is not recommended to
-  /// return different values for each call, as it may cause unstable motion.
-  double computeBounceablePixels(double delta, SheetMetrics metrics);
-}
-
-/// A [BouncingBehavior] that allows the sheet position to exceed the content
-/// bounds by a fixed amount.
-///
-/// The following is an example of a [BouncingSheetPhysics] that allows the
-/// sheet position to go beyond the [SheetMetrics.maxOffset] or
-/// [SheetMetrics.minOffset] by 12% of the content size.
-///
-/// ```dart
-/// const physics = BouncingSheetPhysics(
-///   behavior: FixedBouncingBehavior(SheetAnchor.proportional(0.12)),
-/// );
-/// ```
-class FixedBouncingBehavior implements BouncingBehavior {
-  /// Creates a [BouncingBehavior] that allows the sheet to bounce by a fixed
-  /// amount.
-  const FixedBouncingBehavior(this.range);
-
-  /// How much the sheet can bounce beyond the content bounds.
-  final SheetOffset range;
-
-  @override
-  double computeBounceablePixels(double delta, SheetMetrics metrics) {
-    return range.resolve(metrics);
-  }
-}
-
-/// A [BouncingBehavior] that allows the sheet position to exceed the content
-/// bounds by different amounts based on the direction of a drag gesture.
-///
-/// Different bounceable amounts can be specified for upward and downward
-/// directions. For example, the following [BouncingSheetPhysics] allows the
-/// sheet to bounce by 12% of the content size when dragged downward, and by
-/// 8 pixels when dragged upward.
-///
-/// ```dart
-/// const physics = BouncingSheetPhysics(
-///   behavior: DirectionAwareBouncingBehavior(
-///     upward: SheetAnchor.pixels(8),
-///     downward: SheetAnchor.proportional(0.12),
-///   ),
-/// );
-/// ```
-class DirectionAwareBouncingBehavior implements BouncingBehavior {
-  /// Creates a [BouncingBehavior] that allows the sheet to bounce by different
-  /// amounts based on the direction of a drag gesture.
-  const DirectionAwareBouncingBehavior({
-    this.upward = const SheetOffset(0),
-    this.downward = const SheetOffset(0),
-  });
-
-  /// Amount of bounceable pixels when dragged upward.
-  final SheetOffset upward;
-
-  /// Amount of bounceable pixels when dragged downward.
-  final SheetOffset downward;
-
-  @override
-  double computeBounceablePixels(double delta, SheetMetrics metrics) {
-    return switch (delta) {
-      > 0.0 => upward.resolve(metrics),
-      < 0.0 => downward.resolve(metrics),
-      _ => 0.0,
-    };
-  }
-}
-
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
-    this.behavior = const FixedBouncingBehavior(SheetOffset(0.12)),
-    this.frictionCurve = Curves.easeOutSine,
     this.spring = kDefaultSheetSpring,
-  });
+    this.bounceExtent = 50,
+    this.resistance = 10,
+  }) : assert(bounceExtent >= 0);
 
-  /// {@macro BouncingBehavior}
-  final BouncingBehavior behavior;
+  /// Factor that controls how easy/hard it is to overdrag the sheet.
+  ///
+  /// The higher this value, the harder it is to reach the offset
+  /// of [SheetMetrics.maxOffset] plus [bounceExtent] pixels if dragged upwards,
+  /// or the offset of [SheetMetrics.minOffset] minus [bounceExtent] pixels
+  /// if dragged downwards.
+  ///
+  /// This value can be negative.
+  final double resistance;
 
-  final Curve frictionCurve;
+  /// The amount of pixels that the sheet can be overdragged at maximum.
+  ///
+  /// See also [resistance], which controls how easy/hard it is to overdrag the sheet.
+  final double bounceExtent;
 
   @override
   final SpringDescription spring;
@@ -235,27 +156,30 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 
   @override
   double applyPhysicsToOffset(double delta, SheetMetrics metrics) {
-    final bounceablePixels = behavior.computeBounceablePixels(delta, metrics);
-    if (bounceablePixels == 0) {
-      return const ClampingSheetPhysics().applyPhysicsToOffset(delta, metrics);
-    }
-
-    final currentOffset = metrics.offset;
     final minOffset = metrics.minOffset;
     final maxOffset = metrics.maxOffset;
+    final currentOffset = metrics.offset;
+    final unconstrainedNewOffset = currentOffset + delta;
 
-    // A part of or the entire offset that is not affected by friction.
-    // If the current 'pixels' plus the offset exceeds the content bounds,
+    // A part of or the entire delta that is not affected by friction.
+    // If the current offset plus the delta exceeds the content bounds,
     // only the exceeding part is affected by friction. Otherwise, friction
     // is not applied to the offset at all.
-    final zeroFrictionOffset = switch (delta) {
-      > 0 => max(min(currentOffset + delta, maxOffset) - currentOffset, 0.0),
-      < 0 => min(max(currentOffset + delta, minOffset) - currentOffset, 0.0),
-      _ => 0.0,
-    };
+    final double zeroFrictionDelta;
+    if (delta < 0 &&
+        currentOffset > minOffset &&
+        unconstrainedNewOffset < minOffset) {
+      zeroFrictionDelta = minOffset - currentOffset;
+    } else if (delta > 0 &&
+        currentOffset < maxOffset &&
+        unconstrainedNewOffset > maxOffset) {
+      zeroFrictionDelta = maxOffset - currentOffset;
+    } else {
+      zeroFrictionDelta = 0.0;
+    }
 
-    if (FloatComp.distance(metrics.devicePixelRatio)
-            .isApprox(zeroFrictionOffset, delta) ||
+    final cmp = FloatComp.distance(metrics.devicePixelRatio);
+    if (cmp.isApprox(zeroFrictionDelta, delta) ||
         // The friction is also not applied if the motion
         // direction is towards the content bounds.
         (currentOffset > maxOffset && delta < 0) ||
@@ -263,23 +187,33 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       return delta;
     }
 
-    // We divide the delta into smaller fragments and apply friction to each
-    // fragment in sequence. This ensures that the friction is not too small
-    // if the delta is too large relative to the exceeding pixels, preventing
-    // the sheet from slipping too far.
-    const offsetSlop = 18.0;
-    var newOffset = currentOffset;
-    var consumedOffset = zeroFrictionOffset;
-    while (consumedOffset.abs() < delta.abs()) {
-      final fragment = (delta - consumedOffset).clampAbs(offsetSlop);
-      final overflowPastStart = max(minOffset - (newOffset + fragment), 0.0);
-      final overflowPastEnd = max(newOffset + fragment - maxOffset, 0.0);
-      final overflowPast = max(overflowPastStart, overflowPastEnd);
-      final overflowFraction = (overflowPast / bounceablePixels).clampAbs(1);
-      final frictionFactor = frictionCurve.transform(overflowFraction);
+    var newOffset = currentOffset + zeroFrictionDelta;
+    var consumedDelta = zeroFrictionDelta;
+    while (consumedDelta.abs() < delta.abs()) {
+      // We divide the delta into smaller fragments and apply friction to each
+      // fragment in sequence. This ensures that the friction is not too small
+      // if the delta is too large relative to the exceeding pixels, preventing
+      // the sheet from slipping too far.
+      final fragment = (delta - consumedDelta).clamp(-kTouchSlop, kTouchSlop);
+      final overflowPastStart =
+          math.max(minOffset - (newOffset + fragment), 0.0);
+      final overflowPastEnd = math.max(newOffset + fragment - maxOffset, 0.0);
+      final overflowPast = math.max(overflowPastStart, overflowPastEnd);
+      assert(overflowPast >= 0);
+      final overflowFraction = (overflowPast / bounceExtent).clamp(0.0, 1.0);
+
+      // The more the sheet is overdragged, the harder it is to drag further.
+      final double frictionFactor;
+      if (cmp.isNotApprox(resistance, 0)) {
+        frictionFactor = (1.0 - math.exp(-1 * resistance * overflowFraction)) /
+            (1.0 - math.exp(-1 * resistance));
+      } else {
+        // Linear map
+        frictionFactor = overflowFraction;
+      }
 
       newOffset += fragment * (1.0 - frictionFactor);
-      consumedOffset += fragment;
+      consumedDelta += fragment;
     }
 
     return newOffset - currentOffset;
