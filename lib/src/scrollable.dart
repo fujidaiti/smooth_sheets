@@ -68,8 +68,8 @@ class SheetScrollConfiguration {
   /// pull-to-refresh using [RefreshIndicator].
   ///
   /// Note that the above argument is only effective when the sheet's physics
-  /// does NOT handle overscroll. For example, [BouncingScrollPhysics] handles
-  /// overscroll, but [ClampingScrollPhysics] does not.
+  /// does NOT handle overscroll. For example, [BouncingSheetPhysics] handles
+  /// overscroll, but [ClampingSheetPhysics] does not.
   ///
   /// If `false`, the scrollable will never receive overscroll-driven scroll
   /// deltas. The part of such deltas that is not handled by the sheet's physics
