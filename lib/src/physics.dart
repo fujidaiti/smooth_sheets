@@ -124,6 +124,15 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   final SpringDescription spring;
 }
 
+/// A [SheetPhysics] that allows the sheet to go beyond the offset bounds
+/// defined by [SheetMetrics.minOffset] and [SheetMetrics.maxOffset].
+///
+/// See also:
+/// - [Physics and SnapGrid example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/physics_and_snap_grid.dart),
+///   which shows how this physics works with a [SheetSnapGrid].
+/// - [Tweak bouncing effect example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/tweak_bouncing_effect.dart),
+///   which shows how [bounceExtent] and [resistance] affect the bouncing
+///   behavior.
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
     this.spring = kDefaultSheetSpring,
