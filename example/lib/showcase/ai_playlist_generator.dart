@@ -61,10 +61,15 @@ final _sheetShellRoute = ShellRoute(
     // Use ModalSheetPage to show a modal sheet.
     return ModalSheetPage(
       swipeDismissible: true,
-      viewportPadding: EdgeInsets.only(
-        // Add the top padding to avoid the status bar.
-        top: MediaQuery.viewPaddingOf(context).top,
-      ),
+      viewportBuilder: (context, child) {
+        return SheetViewport(
+          padding: EdgeInsets.only(
+            // Add the top padding to avoid the status bar.
+            top: MediaQuery.viewPaddingOf(context).top,
+          ),
+          child: child,
+        );
+      },
       child: _SheetShell(
         navigator: navigator,
       ),
