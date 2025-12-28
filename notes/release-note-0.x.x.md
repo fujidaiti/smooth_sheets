@@ -8,11 +8,11 @@ The way to configure the bouncing behavior of a sheet is now much more straightf
 
 Use the [tweak bouncing effect example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/tweak_bouncing_effect.dart) to find the best values for your use case. Here are some examples:
 
-| extent:20 | extent:80 | extent:140 |
+| bounceExtent=20 | bounceExtent=80 | bounceExtent=140 |
 |----------|----------|-----------|
 | <video src="https://github.com/user-attachments/assets/2be57075-14e3-4778-8015-0f623d89d8b6" controls></video> | <video src="https://github.com/user-attachments/assets/c35cf699-cf0f-4699-bb4c-9db00b30c500" controls></video> | <video src="https://github.com/user-attachments/assets/7ea51f8a-3d3c-4bc7-a117-9c2fa452f0b4" controls></video> |
 
-| resistance:-10 | resistance:3 | resistance:20 |
+| resistance=-10 | resistance=3 | resistance=20 |
 |----------------|--------------|---------------|
 | <video src="https://github.com/user-attachments/assets/f0c0ce22-7b9c-41fe-bcc1-7ed6e374884c" controls></video> | <video src="https://github.com/user-attachments/assets/9cc40ba6-f60e-406a-9534-6a57e0dddcba" controls></video> | <video src="https://github.com/user-attachments/assets/592f9cc5-d477-4c92-afee-13f790ce9e11" controls></video> |
 
