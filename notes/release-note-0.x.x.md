@@ -2,11 +2,11 @@
 
 ## Simplified BouncingSheetPhysics configuration
 
-The way to configure the bouncing behavior of a sheet is now much more straightforward. There are only two parameters: [bounceExtent](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetPhysics/bounceExtent.html) and [resistance](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetPhysics/resistance.html). The `bounceExtent` is the maximum number of pixels that the sheet can be overdragged, and the `resistance` is a factor that controls how easy/hard it is to overdrag the sheet by [bounceExtent] pixels. The higher the `resistance` value, the harder it is to overdrag further.
+The way to configure the bouncing behavior of a sheet is now much more straightforward. There are only two parameters: [bounceExtent](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetPhysics/bounceExtent.html) and [resistance](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetPhysics/resistance.html). `bounceExtent` is the maximum number of pixels the sheet can be overdragged, and `resistance` is a factor that controls how easy or hard it is to overdrag the sheet by `bounceExtent` pixels. The higher the `resistance` value, the harder it is to overdrag further.
 
 ### Examples
 
-Use [tweak bouncing effect example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/tweak_bouncing_effect.dart) to figure out the best values for your use case. Here are some examples:
+Use the [tweak bouncing effect example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/tweak_bouncing_effect.dart) to find the best values for your use case. Here are some examples:
 
 | extent:20 | extent:80 | extent:140 |
 |----------|----------|-----------|
