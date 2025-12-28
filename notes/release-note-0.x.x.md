@@ -28,12 +28,16 @@ The following legacy APIs have been removed:
 
 Unfortunately, there is no straightforward way to migrate from the old APIs to `resistance` and `bounceExtent` parameters while keeping exactly the same bouncing behavior.
 
+</br>
+
 ## Stabilized Sheet Behaviors
 
 This release also includes several improvements to sheet behaviors in response to user gestures:
 
 - fix: Unexpected bouncing animation with ClampingScrollPhysics [#363](https://github.com/fujidaiti/smooth_sheets/issues/363)
 - fix: Inconsistent BouncingSheetPhysics behavior with keyboard state [#389](https://github.com/fujidaiti/smooth_sheets/issues/389)
+
+</br>
 
 ## Other Changes
 
