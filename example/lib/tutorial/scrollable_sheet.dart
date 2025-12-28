@@ -14,7 +14,7 @@ class _BasicScrollableSheetExample extends StatelessWidget {
       // Use a Stack to place the sheet on top of another widget.
       home: Stack(
         children: [
-          const Scaffold(),
+          Scaffold(),
           Builder(builder: (context) {
             return SheetViewport(
               padding: EdgeInsets.only(
@@ -37,7 +37,7 @@ class _MySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sheet(
       decoration: MaterialSheetDecoration(
-        size: SheetSize.stretch,
+        size: SheetSize.fit,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(20),
         ),

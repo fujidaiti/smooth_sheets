@@ -113,6 +113,7 @@ void main() {
       ValueGetter<ScrollController> getScrollController
     }) boilerplate({
       required SheetOffset initialOffset,
+      SheetPhysics physics = const BouncingSheetPhysics(),
     }) {
       final controller = SheetController();
       late ScrollController scrollController;
@@ -128,7 +129,7 @@ void main() {
           scrollConfiguration: SheetScrollConfiguration(
             scrollSyncMode: SheetScrollHandlingBehavior.always,
           ),
-          physics: BouncingSheetPhysics(),
+          physics: physics,
           builder: (context, controller) {
             scrollController = controller;
             return SizedBox.fromSize(
@@ -230,7 +231,10 @@ void main() {
     testWidgets(
       'Scroll content upward, then start over-dragging sheet upward',
       (tester) async {
-        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        final env = boilerplate(
+          initialOffset: SheetOffset.absolute(600),
+          physics: BouncingSheetPhysics(resistance: 0, bounceExtent: 50),
+        );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
         expect(env.getScrollController().offset, 0);
@@ -253,7 +257,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(
           tester.getRect(find.byKey(Key('sheet'))).top,
-          closeTo(-22.7, 0.1),
+          closeTo(-23.7, 0.1),
         );
         expect(env.getScrollController().offset, 400);
 
@@ -261,7 +265,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(
           tester.getRect(find.byKey(Key('sheet'))).top,
-          closeTo(-31.2, 0.1),
+          closeTo(-30.6, 0.1),
         );
         expect(env.getScrollController().offset, 400);
       },
@@ -303,7 +307,10 @@ void main() {
     testWidgets(
       'Smooth transition from momentum scrolling (upward) to sheet bouncing',
       (tester) async {
-        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        final env = boilerplate(
+          initialOffset: SheetOffset.absolute(600),
+          physics: BouncingSheetPhysics(resistance: 0, bounceExtent: 50),
+        );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
         expect(env.getScrollController().offset, 0);
@@ -327,7 +334,7 @@ void main() {
         expect(env.getScrollController().position.extentAfter, 0);
         expect(scrollOffsetHistory, isMonotonicallyIncreasing);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(sheetTopHistory.min, closeTo(-13, 0.1));
+        expect(sheetTopHistory.min, closeTo(-13.4, 0.1));
         expect(sheetTopHistory.max, 0);
         // The sheet should bounce only once.
         expect(sheetTopHistory, fluctuationEquals([-1, 1]));
