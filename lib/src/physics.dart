@@ -150,7 +150,7 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   /// This value can be negative.
   final double resistance;
 
-  /// The amount of pixels that the sheet can be overdragged at maximum.
+  /// The maximum number of pixels that the sheet can be overdragged.
   ///
   /// See also [resistance], which controls how easy/hard it is to overdrag the sheet.
   final double bounceExtent;
