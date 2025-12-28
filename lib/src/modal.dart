@@ -13,6 +13,11 @@ import 'viewport.dart';
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 
+typedef SheetViewportBuilder = Widget Function(
+  BuildContext context,
+  Widget child,
+);
+
 class ModalSheetPage<T> extends Page<T> {
   const ModalSheetPage({
     super.key,
@@ -28,12 +33,14 @@ class ModalSheetPage<T> extends Page<T> {
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
-    this.viewportPadding = EdgeInsets.zero,
+    this.viewportBuilder,
     required this.child,
   });
 
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
+
+  final SheetViewportBuilder? viewportBuilder;
 
   /// {@macro flutter.widgets.ModalRoute.maintainState}
   final bool maintainState;
@@ -53,8 +60,6 @@ class ModalSheetPage<T> extends Page<T> {
   final Curve transitionCurve;
 
   final SwipeDismissSensitivity swipeDismissSensitivity;
-
-  final EdgeInsets viewportPadding;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -100,13 +105,16 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
       _page.swipeDismissSensitivity;
 
   @override
-  EdgeInsets get viewportPadding => _page.viewportPadding;
-
-  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
   Widget buildSheet(BuildContext context) => _page.child;
+
+  @override
+  Widget buildViewport(BuildContext context, Widget child) {
+    return _page.viewportBuilder?.call(context, child) ??
+        super.buildViewport(context, child);
+  }
 }
 
 class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
@@ -114,6 +122,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     super.settings,
     super.fullscreenDialog,
     required this.builder,
+    this.viewportBuilder,
     this.maintainState = true,
     this.barrierDismissible = true,
     this.barrierLabel,
@@ -122,10 +131,11 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.transitionDuration = const Duration(milliseconds: 300),
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
-    this.viewportPadding = EdgeInsets.zero,
   });
 
   final WidgetBuilder builder;
+
+  final SheetViewportBuilder? viewportBuilder;
 
   @override
   final Color? barrierColor;
@@ -152,11 +162,14 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
   @override
-  final EdgeInsets viewportPadding;
-
-  @override
   Widget buildSheet(BuildContext context) {
     return builder(context);
+  }
+
+  @override
+  Widget buildViewport(BuildContext context, Widget child) {
+    return viewportBuilder?.call(context, child) ??
+        super.buildViewport(context, child);
   }
 }
 
@@ -166,8 +179,6 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   Curve get transitionCurve;
 
   SwipeDismissSensitivity get swipeDismissSensitivity;
-
-  EdgeInsets get viewportPadding;
 
   @override
   bool get opaque => false;
@@ -188,20 +199,23 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
 
   Widget buildSheet(BuildContext context);
 
+  Widget buildViewport(BuildContext context, Widget child) {
+    return SheetViewport(child: child);
+  }
+
   @override
   Widget buildPage(
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    return SheetViewport(
-      padding: viewportPadding,
-      child: _SheetDismissible(
-        enabled: swipeDismissible,
-        sensitivity: swipeDismissSensitivity,
-        child: buildSheet(context),
-      ),
-    );
+    return buildViewport(
+        context,
+        _SheetDismissible(
+          enabled: swipeDismissible,
+          sensitivity: swipeDismissSensitivity,
+          child: buildSheet(context),
+        ));
   }
 
   @override
@@ -599,9 +613,11 @@ class SwipeDismissSensitivity {
   /// Defines the threshold in terms of SheetOffset, below which the sheet
   /// will be dismissed when the drag ends.
   ///
-  /// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset(0.4))`, the sheet
-  /// will dismiss if 40% or less of the sheet is visible when the drag ends.
+  /// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset(0.4))`,
+  /// the sheet will dismiss if 40% or less of the sheet is visible when
+  /// the drag ends.
   ///
+  /// ignore: lines_longer_than_80_chars
   /// With `SwipeDismissSensitivity(dismissalOffset: SheetOffset.absolute(200))`,
   /// the sheet will dismiss if 200 pixels or less of the sheet is
   /// visible when the drag ends.

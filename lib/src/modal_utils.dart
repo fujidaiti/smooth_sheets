@@ -101,7 +101,6 @@ Future<T?> showModalSheet<T>({
   Curve? transitionCurve,
   SwipeDismissSensitivity swipeDismissSensitivity =
       const SwipeDismissSensitivity(),
-  EdgeInsets viewportPadding = EdgeInsets.zero,
   RouteSettings? routeSettings,
 }) {
   final route = ModalSheetRoute<T>(
@@ -116,7 +115,6 @@ Future<T?> showModalSheet<T>({
     transitionDuration: transitionDuration ?? const Duration(milliseconds: 300),
     transitionCurve: transitionCurve ?? Curves.fastEaseInToSlowEaseOut,
     swipeDismissSensitivity: swipeDismissSensitivity,
-    viewportPadding: viewportPadding,
   );
 
   return Navigator.of(context, rootNavigator: useRootNavigator).push(route);

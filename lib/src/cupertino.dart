@@ -504,6 +504,17 @@ class _CupertinoModalEntry extends _PreviousRouteEntry {
           ._outgoingTransitionController;
 }
 
+/// Signature of callbacks that build an [SheetViewport]
+/// for the [child] sheet widget.
+///
+/// The returned [SheetViewport] should have [preferredTopInset]
+/// as the top padding of [SheetViewport.padding].
+typedef CupertinoSheetViewportBuilder = Widget Function(
+  BuildContext context,
+  double preferredTopInset,
+  Widget child,
+);
+
 /// The base class for all Cupertino-style modal sheet routes.
 abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     with ModalSheetRouteMixin<T> {
@@ -541,12 +552,6 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   /// there is no way to attach a controller to an existing
   /// non-[_BaseCupertinoModalSheetRoute] route.
   _PreviousRouteEntry? _previousRouteEntry;
-
-  @override
-  // TODO: Support custom viewport padding.
-  EdgeInsets get viewportPadding => EdgeInsets.only(
-        top: MediaQuery.viewPaddingOf(navigator!.context).top + _sheetTopInset,
-      );
 
   @override
   void install() {
@@ -620,6 +625,27 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   }
 
   Widget _buildSheetInternal(BuildContext context);
+
+  @nonVirtual
+  @override
+  Widget buildViewport(BuildContext context, Widget child) {
+    final preferredTopInset =
+        MediaQuery.viewPaddingOf(navigator!.context).top + _sheetTopInset;
+    return _buildViewportInternal(context, preferredTopInset, child);
+  }
+
+  Widget _buildViewportInternal(
+    BuildContext context,
+    double preferredTopInset,
+    Widget child,
+  ) {
+    return SheetViewport(
+      padding: EdgeInsets.only(
+        top: preferredTopInset,
+      ),
+      child: child,
+    );
+  }
 }
 
 class CupertinoModalSheetPage<T> extends Page<T> {
@@ -637,11 +663,14 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.transitionCurve = _incomingTransitionCurve,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.overlayColor,
+    this.viewportBuilder,
     required this.child,
   });
 
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
+
+  final CupertinoSheetViewportBuilder? viewportBuilder;
 
   /// {@macro flutter.widgets.ModalRoute.maintainState}
   final bool maintainState;
@@ -713,12 +742,23 @@ class _PageBasedCupertinoModalSheetRoute<T>
 
   @override
   Widget _buildSheetInternal(BuildContext context) => _page.child;
+
+  @override
+  Widget _buildViewportInternal(
+    BuildContext context,
+    double preferredTopInset,
+    Widget child,
+  ) {
+    return _page.viewportBuilder?.call(context, preferredTopInset, child) ??
+        super._buildViewportInternal(context, preferredTopInset, child);
+  }
 }
 
 class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   CupertinoModalSheetRoute({
     super.settings,
     required this.builder,
+    this.viewportBuilder,
     this.maintainState = true,
     this.barrierDismissible = true,
     this.swipeDismissible = false,
@@ -731,6 +771,8 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   });
 
   final WidgetBuilder builder;
+
+  final CupertinoSheetViewportBuilder? viewportBuilder;
 
   @override
   final Color? barrierColor;
@@ -761,4 +803,14 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
 
   @override
   Widget _buildSheetInternal(BuildContext context) => builder(context);
+
+  @override
+  Widget _buildViewportInternal(
+    BuildContext context,
+    double preferredTopInset,
+    Widget child,
+  ) {
+    return viewportBuilder?.call(context, preferredTopInset, child) ??
+        super._buildViewportInternal(context, preferredTopInset, child);
+  }
 }
