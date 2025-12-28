@@ -68,8 +68,8 @@ class SheetScrollConfiguration {
   /// pull-to-refresh using [RefreshIndicator].
   ///
   /// Note that the above argument is only effective when the sheet's physics
-  /// does NOT handle overscroll. For example, [BouncingScrollPhysics] handles
-  /// overscroll, but [ClampingScrollPhysics] does not.
+  /// does NOT handle overscroll. For example, [BouncingSheetPhysics] handles
+  /// overscroll, but [ClampingSheetPhysics] does not.
   ///
   /// If `false`, the scrollable will never receive overscroll-driven scroll
   /// deltas. The part of such deltas that is not handled by the sheet's physics
@@ -330,7 +330,7 @@ mixin _ScrollAwareSheetActivityMixin
       }
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxOffset'.
-      if (cmp.isLessThanOrApprox(newOffset, maxOffset)) {
+      if (cmp.isLessThan(newOffset, maxOffset)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
         newOffset = min(newOffset + physicsAppliedDelta, maxOffset);
@@ -355,7 +355,7 @@ mixin _ScrollAwareSheetActivityMixin
     } else if (offset < 0) {
       // If the sheet is beyond 'maxOffset', drag it down as much
       // as possible until it reaches at 'maxOffset'.
-      if (cmp.isGreaterThanOrApprox(newOffset, maxOffset)) {
+      if (cmp.isGreaterThan(newOffset, maxOffset)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newOffset = max(newOffset + physicsAppliedDelta, maxOffset);
