@@ -1,0 +1,15 @@
+// This is a generated file; do not edit or check into version control.
+FLUTTER_ROOT=/Users/blinqipa/development/flutter
+FLUTTER_APPLICATION_PATH=/Users/blinqipa/Desktop/smooth_sheets/example
+COCOAPODS_PARALLEL_CODE_SIGN=true
+FLUTTER_TARGET=/Users/blinqipa/Desktop/smooth_sheets/example/lib/tutorial/imperative_modal_custom_barrier_sheet.dart
+FLUTTER_BUILD_DIR=build
+FLUTTER_BUILD_NAME=1.0.0
+FLUTTER_BUILD_NUMBER=1
+EXCLUDED_ARCHS[sdk=iphonesimulator*]=i386
+EXCLUDED_ARCHS[sdk=iphoneos*]=armv7
+DART_DEFINES=RkxVVFRFUl9WRVJTSU9OPTMuMzkuMC0xLjAucHJlLTQxNw==,RkxVVFRFUl9DSEFOTkVMPW1haW4=,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049OTQyNzgzY2E4NA==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049NDJkNmY3NzNhNQ==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMS4wIChidWlsZCAzLjExLjAtMjA3LjAuZGV2KQ==
+DART_OBFUSCATION=false
+TRACK_WIDGET_CREATION=true
+TREE_SHAKE_ICONS=false
+PACKAGE_CONFIG=/Users/blinqipa/Desktop/smooth_sheets/example/.dart_tool/package_config.json

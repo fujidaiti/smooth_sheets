@@ -264,11 +264,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     }
 
     if (barrierBuilder != null) {
-      return GestureDetector(
-        onTap: barrierDismissible ? onDismiss : null,
-        behavior: HitTestBehavior.translucent,
-        child: barrierBuilder!(this as ModalRoute<T>, onDismiss),
-      );
+      return barrierBuilder!(this, onDismiss);
     }
 
     final barrierColor = this.barrierColor;
