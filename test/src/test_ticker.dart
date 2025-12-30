@@ -23,7 +23,6 @@ class TestTicker implements Ticker {
   // ignore: lines_longer_than_80_chars
   // TODO: Remove the following ignore-rule once the minimum SDK is bumped to 3.29
   @override
-  // ignore: omit_obvious_property_types
   bool muted = false;
 
   /// Manually advances the ticker by the specified duration.

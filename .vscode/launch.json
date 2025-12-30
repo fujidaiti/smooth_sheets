@@ -171,6 +171,13 @@
       "type": "dart",
       "program": "lib/tutorial/imperative_modal_custom_barrier_sheet.dart",
       "cwd": "./example"
+    },
+    {
+      "name": "Tweak Bouncing Effect",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/tweak_bouncing_effect.dart",
+      "cwd": "./example"
     }
   ]
 }
