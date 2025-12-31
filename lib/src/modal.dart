@@ -13,6 +13,27 @@ import 'viewport.dart';
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
 const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 
+/// {@template modal_sheet_barrier_builder}
+/// A builder for creating a custom modal barrier.
+///
+/// If provided, this builder is called instead of creating the default
+/// [AnimatedModalBarrier]. The builder receives the route instance and
+/// a dismiss callback, allowing customization of the barrier's
+/// appearance and behavior.
+///
+/// The dismiss callback should be invoked when the user interacts with
+/// the barrier to dismiss the modal (e.g., by tapping). The callback
+/// will only dismiss the modal if [ModalSheetPage.barrierDismissible] is
+/// `true` and the route animation is completed.
+///
+/// If `null`, the default [AnimatedModalBarrier] is used with the
+/// configured [ModalSheetPage.barrierColor]. The default value is `null`.
+/// {@endtemplate}
+typedef ModalSheetBarrierBuilder<T> = Widget Function(
+  ModalRoute<T> route,
+  VoidCallback onDismissCallback,
+);
+
 class ModalSheetPage<T> extends Page<T> {
   const ModalSheetPage({
     super.key,
@@ -29,6 +50,7 @@ class ModalSheetPage<T> extends Page<T> {
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.viewportPadding = EdgeInsets.zero,
+    this.barrierBuilder,
     required this.child,
   });
 
@@ -55,6 +77,9 @@ class ModalSheetPage<T> extends Page<T> {
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
   final EdgeInsets viewportPadding;
+
+  /// {@macro modal_sheet_barrier_builder}
+  final ModalSheetBarrierBuilder<T>? barrierBuilder;
 
   @override
   Route<T> createRoute(BuildContext context) {
@@ -103,6 +128,9 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   EdgeInsets get viewportPadding => _page.viewportPadding;
 
   @override
+  ModalSheetBarrierBuilder<T>? get barrierBuilder => _page.barrierBuilder;
+
+  @override
   String get debugLabel => '${super.debugLabel}(${_page.name})';
 
   @override
@@ -123,6 +151,7 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.viewportPadding = EdgeInsets.zero,
+    this.barrierBuilder,
   });
 
   final WidgetBuilder builder;
@@ -155,6 +184,9 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   final EdgeInsets viewportPadding;
 
   @override
+  final ModalSheetBarrierBuilder<T>? barrierBuilder;
+
+  @override
   Widget buildSheet(BuildContext context) {
     return builder(context);
   }
@@ -171,6 +203,9 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
 
   @override
   bool get opaque => false;
+
+  /// {@macro modal_sheet_barrier_builder}
+  ModalSheetBarrierBuilder<T>? get barrierBuilder;
 
   // Provides access to the AnimationController of this route that is
   // marked as protected, allowing it to be used by SheetDismissible.
@@ -226,6 +261,10 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       if (animation!.isCompleted && !navigator!.userGestureInProgress) {
         navigator?.maybePop();
       }
+    }
+
+    if (barrierBuilder != null) {
+      return barrierBuilder!(this, onDismiss);
     }
 
     final barrierColor = this.barrierColor;
