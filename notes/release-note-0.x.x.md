@@ -1,5 +1,24 @@
 # v0.x.x Release Notes
 
+## Added Custom Barrier Support to Modal Sheets
+
+Thanks to @bqubique, we added `ModalSheetRoute.barrierBuilder` to modal routes and pages. This allows you to build a custom barrier for a modal sheet—for example, a blurred background.
+
+```dart
+ModalSheetRoute(
+  ...
+  barrierBuilder: (route, dismissCallback) {
+    return GestureDetector(
+      onTap: dismissCallback,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
+        child: Container(color: Colors.black12),
+      ),
+    );
+  },
+);
+```
+
 ## Simplified BouncingSheetPhysics configuration
 
 The way to configure the bouncing behavior of a sheet is now much more straightforward. There are only two parameters: [bounceExtent](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetPhysics/bounceExtent.html) and [resistance](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetPhysics/resistance.html). `bounceExtent` is the maximum number of pixels the sheet can be overdragged, and `resistance` is a factor that controls how easy or hard it is to overdrag the sheet by `bounceExtent` pixels. The higher the `resistance` value, the harder it is to overdrag further.
