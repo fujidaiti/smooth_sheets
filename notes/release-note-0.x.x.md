@@ -1,6 +1,6 @@
 # v0.x.x Release Notes
 
-## Added Custom Barrier Support to Modal Sheets
+## Added Custom Barrier Support for Modal Sheets
 
 Thanks to @bqubique, we added `ModalSheetRoute.barrierBuilder` to modal routes and pages. This allows you to build a custom barrier for a modal sheet—for example, a blurred background.
 
