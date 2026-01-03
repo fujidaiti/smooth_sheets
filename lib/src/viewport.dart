@@ -22,8 +22,7 @@ class SheetLayoutSpec {
     required this.viewportPadding,
     required this.viewportDynamicOverlap,
     required this.viewportStaticOverlap,
-    required this.shrinkContentToAvoidDynamicOverlap,
-    required this.shrinkContentToAvoidStaticOverlap,
+    required this.contentMargin,
   });
 
   /// {@macro ViewportLayout.viewportSize}
@@ -38,27 +37,11 @@ class SheetLayoutSpec {
   /// {@macro ViewportLayout.viewportStaticOverlap}
   final EdgeInsets viewportStaticOverlap;
 
-  /// Whether to shrink the sheet's content to avoid
-  /// overlapping with the dynamic system UI elements,
-  /// as described by [viewportDynamicOverlap].
-  final bool shrinkContentToAvoidDynamicOverlap;
-
-  /// Whether to shrink the sheet's content to avoid
-  /// overlapping with the static system UI elements,
-  /// as described by [viewportStaticOverlap].
-  final bool shrinkContentToAvoidStaticOverlap;
+  /// {@macro ViewportLayout.contentMargin}
+  final EdgeInsets contentMargin;
 
   /// {@macro ViewportLayout.contentBaseline}
-  double get contentBaseline {
-    var result = viewportPadding.bottom;
-    if (shrinkContentToAvoidDynamicOverlap) {
-      result = max(result, viewportDynamicOverlap.bottom);
-    }
-    if (shrinkContentToAvoidStaticOverlap) {
-      result = max(result, viewportStaticOverlap.bottom);
-    }
-    return result;
-  }
+  double get contentBaseline => viewportPadding.bottom + contentMargin.bottom;
 
   /// The maximum rectangle that the sheet can occupy.
   ///
@@ -78,10 +61,7 @@ class SheetLayoutSpec {
 
   /// The maximum rectangle that the sheet's content can occupy.
   ///
-  /// This area may be reduced due to the bottom inset of the viewport,
-  /// as described by [viewportDynamicOverlap],
-  /// if [shrinkContentToAvoidDynamicOverlap] is true.
-  /// Otherwise, it matches [maxSheetRect].
+  /// Note that this rectangle does not contain the [contentMargin].
   ///
   /// The width and the bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraint.
@@ -158,8 +138,7 @@ class SheetLayoutSpec {
           viewportPadding == other.viewportPadding &&
           viewportDynamicOverlap == other.viewportDynamicOverlap &&
           viewportStaticOverlap == other.viewportStaticOverlap &&
-          shrinkContentToAvoidDynamicOverlap ==
-              other.shrinkContentToAvoidDynamicOverlap;
+          contentMargin == other.contentMargin;
 
   @override
   int get hashCode => Object.hash(
@@ -167,7 +146,7 @@ class SheetLayoutSpec {
         viewportPadding,
         viewportDynamicOverlap,
         viewportStaticOverlap,
-        shrinkContentToAvoidDynamicOverlap,
+        contentMargin,
       );
 }
 
@@ -635,24 +614,12 @@ class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
 class BareSheet extends StatefulWidget {
   const BareSheet({
     super.key,
-    this.shrinkChildToAvoidDynamicOverlap = true,
-    this.shrinkChildToAvoidStaticOverlap = false,
+    this.padding = EdgeInsets.zero,
     this.decoration = const DefaultSheetDecoration(),
     required this.child,
   });
 
-  /// {@template BareSheet.shrinkChildToAvoidDynamicOverlap}
-  /// Whether to shrink the [child] to avoid overlapping with
-  /// the dynamic system UI elements, such as the on-screen keyboard.
-  /// {@endtemplate}
-  final bool shrinkChildToAvoidDynamicOverlap;
-
-  /// {@template BareSheet.shrinkChildToAvoidStaticOverlap}
-  /// Whether to shrink the [child] to avoid overlapping with
-  /// the static system UI elements, such as hardware display notches
-  /// or the system status bar.
-  /// {@endtemplate}
-  final bool shrinkChildToAvoidStaticOverlap;
+  final EdgeInsets padding;
 
   final SheetDecoration decoration;
 
@@ -694,10 +661,7 @@ class _BareSheetState extends State<BareSheet> {
           viewportPadding: sheetConstraints.viewportPadding,
           viewportDynamicOverlap: sheetConstraints.viewportInsets,
           viewportStaticOverlap: sheetConstraints.viewportViewPadding,
-          shrinkContentToAvoidDynamicOverlap:
-              widget.shrinkChildToAvoidDynamicOverlap,
-          shrinkContentToAvoidStaticOverlap:
-              widget.shrinkChildToAvoidStaticOverlap,
+          contentMargin: widget.padding,
         );
 
         Widget result = _SheetSkelton(
@@ -862,6 +826,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       viewportDynamicOverlap: _layoutSpec.viewportDynamicOverlap,
       viewportStaticOverlap: _layoutSpec.viewportStaticOverlap,
       contentBaseline: _layoutSpec.contentBaseline,
+      contentMargin: _layoutSpec.contentMargin,
     );
     final newOffset = _model._inner!.dryApplyNewLayout(viewportLayout);
     _preferredExtent = _getPreferredExtent(newOffset, viewportLayout);
@@ -983,6 +948,9 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   Size get contentSize => _inner!.contentSize;
 
   @override
+  EdgeInsets get contentMargin => _inner!.contentMargin;
+
+  @override
   Size get size => _inner!.size;
 
   @override
@@ -1009,6 +977,7 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
     EdgeInsets? viewportDynamicOverlap,
     EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
+    EdgeInsets? contentMargin,
     double? devicePixelRatio,
   }) {
     return ImmutableSheetMetrics(
@@ -1017,6 +986,7 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
       maxOffset: maxOffset ?? _inner!.maxOffset,
       devicePixelRatio: devicePixelRatio ?? _inner!.devicePixelRatio,
       contentBaseline: contentBaseline ?? _inner!.contentBaseline,
+      contentMargin: contentMargin ?? _inner!.contentMargin,
       contentSize: contentSize ?? _inner!.contentSize,
       size: size ?? _inner!.size,
       viewportDynamicOverlap:
