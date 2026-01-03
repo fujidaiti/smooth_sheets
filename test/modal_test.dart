@@ -924,4 +924,224 @@ void main() {
       });
     },
   );
+
+  group('ModalSheetRoute barrierBuilder test', () {
+    Widget boilerplate({
+      required ModalSheetRoute<dynamic> modalRoute,
+    }) {
+      return MaterialApp(
+        home: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, modalRoute);
+                  },
+                  child: const Text('Open modal'),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    testWidgets(
+      'barrierBuilder should be called when provided',
+      (tester) async {
+        var wasBuilderCalled = false;
+        ModalRoute<dynamic>? capturedRoute;
+        VoidCallback? capturedCallback;
+
+        final modalRoute = ModalSheetRoute<dynamic>(
+          barrierBuilder: (route, onDismiss) {
+            wasBuilderCalled = true;
+            capturedRoute = route;
+            capturedCallback = onDismiss;
+            return Container(
+              key: const Key('custom-barrier'),
+              color: Colors.red.withValues(alpha: 0.5),
+            );
+          },
+          builder: (context) {
+            return Sheet(
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                height: 400,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(boilerplate(modalRoute: modalRoute));
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        expect(wasBuilderCalled, isTrue);
+        expect(capturedRoute, isNotNull);
+        expect(capturedCallback, isNotNull);
+        expect(find.byKey(const Key('custom-barrier')), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'barrierBuilder should receive the correct route instance',
+      (tester) async {
+        ModalRoute<dynamic>? capturedRoute;
+
+        final modalRoute = ModalSheetRoute<dynamic>(
+          barrierColor: Colors.blue,
+          barrierDismissible: false,
+          barrierBuilder: (route, onDismiss) {
+            capturedRoute = route;
+            return Container(key: const Key('custom-barrier'));
+          },
+          builder: (context) {
+            return Sheet(
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                height: 400,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(boilerplate(modalRoute: modalRoute));
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        expect(capturedRoute, equals(modalRoute));
+        expect(capturedRoute!.barrierColor, Colors.blue);
+        expect(capturedRoute!.barrierDismissible, isFalse);
+      },
+    );
+
+    testWidgets(
+      'onDismiss callback should dismiss the modal when called',
+      (tester) async {
+        VoidCallback? capturedCallback;
+
+        final modalRoute = ModalSheetRoute<dynamic>(
+          barrierBuilder: (route, onDismiss) {
+            capturedCallback = onDismiss;
+            return GestureDetector(
+              key: const Key('custom-barrier'),
+              onTap: onDismiss,
+              child: Container(color: Colors.red.withValues(alpha: 0.5)),
+            );
+          },
+          builder: (context) {
+            return Sheet(
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                height: 400,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(boilerplate(modalRoute: modalRoute));
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+        expect(capturedCallback, isNotNull);
+
+        capturedCallback!();
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('sheet')), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'default barrier should be used when barrierBuilder is null',
+      (tester) async {
+        final modalRoute = ModalSheetRoute<dynamic>(
+          barrierColor: Colors.black54,
+          barrierBuilder: null,
+          builder: (context) {
+            return Sheet(
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                height: 400,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(boilerplate(modalRoute: modalRoute));
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+        expect(find.byType(AnimatedModalBarrier), findsOneWidget);
+      },
+    );
+  });
+
+  group('barrierBuilder edge cases', () {
+    testWidgets(
+      'onDismiss should only work when animation is completed',
+      (tester) async {
+        VoidCallback? capturedCallback;
+
+        final modalRoute = ModalSheetRoute<dynamic>(
+          transitionDuration: const Duration(milliseconds: 500),
+          barrierBuilder: (route, onDismiss) {
+            capturedCallback = onDismiss;
+            return GestureDetector(
+              key: const Key('custom-barrier'),
+              onTap: onDismiss,
+              child: Container(color: Colors.red.withValues(alpha: 0.5)),
+            );
+          },
+          builder: (context) {
+            return Sheet(
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                height: 400,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) {
+                return Scaffold(
+                  body: Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context, modalRoute);
+                      },
+                      child: const Text('Open modal'),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        capturedCallback!();
+        await tester.pump();
+
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        await tester.pumpAndSettle();
+      },
+    );
+  });
 }
