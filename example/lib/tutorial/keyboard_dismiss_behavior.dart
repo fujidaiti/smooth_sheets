@@ -137,14 +137,19 @@ class _ExampleHomeState extends State<_ExampleHome> {
       context,
       ModalSheetRoute(
         swipeDismissible: true, // Enable the swipe-to-dismiss behavior.
-        viewportPadding: EdgeInsets.only(
-          // Add the top padding to avoid the status bar.
-          top: MediaQuery.viewPaddingOf(context).top,
-        ),
         builder: (context) => _ExampleSheet(
           isFullScreen: isFullScreen,
           keyboardDismissBehavior: keyboardDismissBehavior,
         ),
+        viewportBuilder: (context, child) {
+          return SheetViewport(
+            padding: EdgeInsets.only(
+              // Add the top padding to avoid the status bar.
+              top: MediaQuery.viewPaddingOf(context).top,
+            ),
+            child: child,
+          );
+        },
       ),
     );
   }

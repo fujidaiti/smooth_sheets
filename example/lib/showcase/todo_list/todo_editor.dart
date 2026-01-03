@@ -8,11 +8,16 @@ Future<Todo?> showTodoEditor(BuildContext context) {
     context,
     ModalSheetRoute(
       swipeDismissible: true,
-      viewportPadding: EdgeInsets.only(
-        // Add a top padding to avoid the status bar.
-        top: MediaQuery.viewPaddingOf(context).top,
-      ),
       builder: (context) => TodoEditor(),
+      viewportBuilder: (context, child) {
+        return SheetViewport(
+          padding: EdgeInsets.only(
+            // Add a top padding to avoid the status bar.
+            top: MediaQuery.viewPaddingOf(context).top,
+          ),
+          child: child,
+        );
+      },
     ),
   );
 }

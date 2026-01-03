@@ -49,6 +49,44 @@ Unfortunately, there is no straightforward way to migrate from the old APIs to `
 
 </br>
 
+## Enable dynamic viewport padding for modal sheets
+
+A `viewportBuilder` has been added to modal sheet routes and pages. It builds a `SheetViewport` for a modal sheet, allowing `SheetViewport.padding` to depend on `BuildContext` and dynamically change based on system UI elements like the on-screen keyboard.
+
+You may think this change isn't very useful since the current `SheetViewport` only has a `padding` property. However, as more features like [#3](https://github.com/fujidaiti/smooth_sheets/issues/3) are added to `SheetViewport`, you'll see more benefits from this change.
+
+### Breaking Changes
+
+The `viewportPadding` property has been removed from modal sheet routes and pages. Use `viewportBuilder` instead and specify the padding directly via `SheetViewport.padding`.
+
+**BEFORE**
+
+```dart
+ModalSheetRoute(
+  viewportPadding: EdgeInsets.only(
+    top: MediaQuery.viewPaddingOf(context).top,
+  ),
+  builder: (context) => Sheet(...),
+);
+```
+
+**AFTER**
+
+```dart
+ModalSheetRoute(
+  viewportBuilder: (context, child) {
+    return SheetViewport(
+      padding: EdgeInsets.only(
+        top: MediaQuery.viewPaddingOf(context).top,
+      ),
+      // The child is the widget built by the builder callback.
+      child: child,
+    );
+  },
+  builder: (context) => Sheet(...),
+);
+```
+
 ## Stabilized Sheet Behaviors
 
 This release also includes several improvements to sheet behaviors in response to user gestures:
@@ -58,8 +96,6 @@ This release also includes several improvements to sheet behaviors in response t
 
 </br>
 
-## Other Changes
-
-### Removed thresholdVelocityToInterruptBallisticScroll
+## Removed thresholdVelocityToInterruptBallisticScroll
 
 `SheetScrollConfiguration.thresholdVelocityToInterruptBallisticScroll` has been removed. This option was part of the public API and configurable, but it never actually affected the sheet's behavior.
