@@ -7,7 +7,7 @@
 - **Smooth motion**: The sheets respond to user interaction with smooth, graceful motion.
 - **Highly flexible**: Not restricted to a specific design. Both modal and persistent styles are supported, as well as scrollable and non-scrollable widgets.
 - **Supports nested navigation**: A sheet is able to have multiple pages and to navigate between the pages with motion animation for transitions.
-- **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packages like go_route as well.
+- **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packages like go_router as well.
 - **iOS flavor**: The modal sheets in the style of iOS 15 are supported.
 
 <br/>
