@@ -35,6 +35,7 @@ class MutableSheetMetrics with SheetMetrics {
     required this.viewportPadding,
     required this.viewportSize,
     required this.viewportStaticOverlap,
+    required this.contentMargin,
   });
 
   @override
@@ -71,6 +72,9 @@ class MutableSheetMetrics with SheetMetrics {
   EdgeInsets viewportStaticOverlap;
 
   @override
+  EdgeInsets contentMargin;
+
+  @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
@@ -83,6 +87,7 @@ class MutableSheetMetrics with SheetMetrics {
     EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
     double? devicePixelRatio,
+    EdgeInsets? contentMargin,
   }) {
     return ImmutableSheetMetrics(
       offset: offset ?? this.offset,
@@ -98,6 +103,7 @@ class MutableSheetMetrics with SheetMetrics {
       viewportSize: viewportSize ?? this.viewportSize,
       viewportStaticOverlap:
           viewportStaticOverlap ?? this.viewportStaticOverlap,
+      contentMargin: contentMargin ?? this.contentMargin,
     );
   }
 }
@@ -112,20 +118,21 @@ class MutableSheetMetrics with SheetMetrics {
   SheetPhysics? physics,
   SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {
-  final initialMeasurements = ImmutableViewportLayout(
+  final initialLayout = ImmutableViewportLayout(
     viewportSize: viewportSize,
     viewportPadding: EdgeInsets.zero,
     viewportDynamicOverlap: viewportDynamicOverlap,
     viewportStaticOverlap: EdgeInsets.zero,
     contentSize: contentSize,
     contentBaseline: viewportDynamicOverlap.bottom,
+    contentMargin: viewportDynamicOverlap,
   );
   final (initialMinOffset, initialMaxOffset) =
-      snapGrid.getBoundaries(initialMeasurements);
+      snapGrid.getBoundaries(initialLayout);
   final metricsRegistry = MutableSheetMetrics(
     offset: offset,
-    minOffset: initialMinOffset.resolve(initialMeasurements),
-    maxOffset: initialMaxOffset.resolve(initialMeasurements),
+    minOffset: initialMinOffset.resolve(initialLayout),
+    maxOffset: initialMaxOffset.resolve(initialLayout),
     contentBaseline: viewportDynamicOverlap.bottom,
     contentSize: contentSize,
     size: viewportSize,
@@ -133,6 +140,7 @@ class MutableSheetMetrics with SheetMetrics {
     viewportPadding: EdgeInsets.zero,
     viewportSize: viewportSize,
     viewportStaticOverlap: EdgeInsets.zero,
+    contentMargin: viewportDynamicOverlap,
     devicePixelRatio: devicePixelRatio,
   );
 

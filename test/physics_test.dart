@@ -23,6 +23,7 @@ const _referenceSheetMetrics = ImmutableSheetMetrics(
   contentBaseline: 0,
   devicePixelRatio: 1,
   size: Size(400, 600),
+  contentMargin: EdgeInsets.zero,
 );
 
 final SheetMetrics _metricsAtTopEdge =

@@ -16,6 +16,7 @@ void main() {
       viewportPadding: EdgeInsets.symmetric(horizontal: 20),
       viewportSize: Size(400, 800),
       viewportStaticOverlap: EdgeInsets.only(top: 50),
+      contentMargin: EdgeInsets.zero,
     );
 
     final copy = original.copyWith(
@@ -30,6 +31,7 @@ void main() {
       viewportPadding: EdgeInsets.symmetric(horizontal: 25),
       viewportSize: Size(450, 850),
       viewportStaticOverlap: EdgeInsets.only(top: 55),
+      contentMargin: EdgeInsets.all(20),
     );
 
     expect(copy.offset, 400);
@@ -43,6 +45,7 @@ void main() {
     expect(copy.viewportPadding, EdgeInsets.symmetric(horizontal: 25));
     expect(copy.viewportSize, Size(450, 850));
     expect(copy.viewportStaticOverlap, EdgeInsets.only(top: 55));
+    expect(copy.contentMargin, EdgeInsets.all(20));
   });
 
   group('SheetMetrics', () {
@@ -554,6 +557,7 @@ class _TestSheetMetrics with SheetMetrics {
     EdgeInsets? viewportPadding,
     Size? viewportSize,
     EdgeInsets? viewportStaticOverlap,
+    EdgeInsets? contentMargin,
   })  : _contentBaseline = contentBaseline,
         _contentSize = contentSize,
         _devicePixelRatio = devicePixelRatio,
@@ -564,7 +568,8 @@ class _TestSheetMetrics with SheetMetrics {
         _viewportDynamicOverlap = viewportDynamicOverlap,
         _viewportPadding = viewportPadding,
         _viewportSize = viewportSize,
-        _viewportStaticOverlap = viewportStaticOverlap;
+        _viewportStaticOverlap = viewportStaticOverlap,
+        _contentMargin = contentMargin;
 
   final double? _contentBaseline;
   final Size? _contentSize;
@@ -577,6 +582,7 @@ class _TestSheetMetrics with SheetMetrics {
   final EdgeInsets? _viewportPadding;
   final Size? _viewportSize;
   final EdgeInsets? _viewportStaticOverlap;
+  final EdgeInsets? _contentMargin;
 
   @override
   double get contentBaseline =>
@@ -617,6 +623,10 @@ class _TestSheetMetrics with SheetMetrics {
       _viewportStaticOverlap ?? (throw UnimplementedError());
 
   @override
+  EdgeInsets get contentMargin =>
+      _contentMargin ?? (throw UnimplementedError());
+
+  @override
   SheetMetrics copyWith({
     double? offset,
     double? minOffset,
@@ -629,6 +639,7 @@ class _TestSheetMetrics with SheetMetrics {
     EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
     double? devicePixelRatio,
+    EdgeInsets? contentMargin,
   }) {
     throw UnimplementedError();
   }
