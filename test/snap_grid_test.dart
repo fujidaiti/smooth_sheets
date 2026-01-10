@@ -13,6 +13,7 @@ void main() {
     viewportStaticOverlap: EdgeInsets.zero,
     contentSize: const Size(800, 500),
     contentBaseline: 0,
+    contentMargin: EdgeInsets.zero,
   );
 
   group('SingleSnapGrid', () {

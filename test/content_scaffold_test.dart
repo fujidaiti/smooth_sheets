@@ -35,8 +35,7 @@ void main() {
                 viewportPadding: EdgeInsets.zero,
                 viewportDynamicOverlap: EdgeInsets.zero,
                 viewportStaticOverlap: EdgeInsets.zero,
-                shrinkContentToAvoidDynamicOverlap: false,
-                shrinkContentToAvoidStaticOverlap: false,
+                contentMargin: EdgeInsets.zero,
               ),
           child: Align(
             alignment: Alignment.bottomCenter,
@@ -636,8 +635,7 @@ void main() {
           viewportPadding: viewportPadding,
           viewportStaticOverlap: EdgeInsets.zero,
           viewportDynamicOverlap: EdgeInsets.only(bottom: keyboardHeight),
-          shrinkContentToAvoidDynamicOverlap: true,
-          shrinkContentToAvoidStaticOverlap: false,
+          contentMargin: EdgeInsets.only(bottom: keyboardHeight),
         );
       }
 
@@ -650,6 +648,7 @@ void main() {
           contentBaseline: layoutSpec.contentBaseline,
           viewportDynamicOverlap: layoutSpec.viewportDynamicOverlap,
           viewportStaticOverlap: layoutSpec.viewportStaticOverlap,
+          contentMargin: layoutSpec.contentMargin,
         );
       }
 
@@ -1377,8 +1376,7 @@ void main() {
             viewportPadding: EdgeInsets.zero,
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ),
           child: Center(
             child: SizedBox(
