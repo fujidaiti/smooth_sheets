@@ -962,8 +962,7 @@ void main() {
             viewportPadding: EdgeInsets.zero,
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ).maxSheetRect,
           Rect.fromLTWH(0, 0, 800, 600),
         );
@@ -980,8 +979,7 @@ void main() {
             viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ).maxSheetRect,
           Rect.fromLTRB(10, 0, 770, 600),
         );
@@ -998,8 +996,7 @@ void main() {
           viewportPadding: EdgeInsets.zero,
           viewportDynamicOverlap: EdgeInsets.zero,
           viewportStaticOverlap: EdgeInsets.zero,
-          shrinkContentToAvoidDynamicOverlap: false,
-          shrinkContentToAvoidStaticOverlap: false,
+          contentMargin: EdgeInsets.zero,
         );
         expect(spec.maxContentRect, equals(spec.maxSheetRect));
 
@@ -1009,8 +1006,7 @@ void main() {
           viewportStaticOverlap: EdgeInsets.zero,
           // Apply non-zero bottom inset.
           viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
-          shrinkContentToAvoidDynamicOverlap: false,
-          shrinkContentToAvoidStaticOverlap: false,
+          contentMargin: EdgeInsets.zero,
         );
         expect(spec.maxContentRect, equals(spec.maxSheetRect));
       },
@@ -1043,8 +1039,7 @@ void main() {
             viewportPadding: EdgeInsets.zero,
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ).maxSheetStaticOverlap,
           EdgeInsets.fromLTRB(10, 20, 30, 40),
         );
@@ -1060,8 +1055,7 @@ void main() {
             viewportPadding: EdgeInsets.all(40),
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ).maxSheetStaticOverlap,
           EdgeInsets.fromLTRB(0, 20, 0, 40),
         );
@@ -1077,8 +1071,7 @@ void main() {
             viewportPadding: EdgeInsets.zero,
             viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ).maxSheetDynamicOverlap,
           EdgeInsets.fromLTRB(10, 20, 30, 40),
         );
@@ -1094,8 +1087,7 @@ void main() {
             viewportPadding: EdgeInsets.all(40),
             viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ).maxSheetDynamicOverlap,
           EdgeInsets.fromLTRB(0, 20, 0, 40),
         );
@@ -1111,8 +1103,7 @@ void main() {
             viewportPadding: EdgeInsets.all(10),
             viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ).maxContentDynamicOverlap,
           EdgeInsets.fromLTRB(0, 10, 20, 30),
         );
