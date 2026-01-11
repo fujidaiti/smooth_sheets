@@ -933,43 +933,19 @@ void main() {
     );
 
     test(
-      'maxContentRect should always match the maxSheetRect '
-      'when resizeContentToAvoidBottomInset is false, '
-      'regardless of the bottom view-inset',
+      'maxContentRect should equal maxSheetRect deflated by the content margin',
       () {
-        var spec = SheetLayoutSpec(
+        final spec = SheetLayoutSpec(
           viewportSize: Size(800, 600),
           viewportPadding: EdgeInsets.zero,
+          viewportStaticOverlap: EdgeInsets.zero,
           viewportDynamicOverlap: EdgeInsets.zero,
-          viewportStaticOverlap: EdgeInsets.zero,
-          contentMargin: EdgeInsets.zero,
+          contentMargin: EdgeInsets.fromLTRB(10, 20, 30, 40),
         );
-        expect(spec.maxContentRect, equals(spec.maxSheetRect));
 
-        spec = SheetLayoutSpec(
-          viewportSize: Size(800, 600),
-          viewportPadding: EdgeInsets.zero,
-          viewportStaticOverlap: EdgeInsets.zero,
-          // Apply non-zero bottom inset.
-          viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
-          contentMargin: EdgeInsets.zero,
-        );
-        expect(spec.maxContentRect, equals(spec.maxSheetRect));
-      },
-    );
-
-    test(
-      'maxContentRect should reduce the height by the content margin',
-      () {
         expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.zero,
-            contentMargin: EdgeInsets.all(10),
-          ).maxContentRect,
-          Rect.fromLTRB(10, 10, 790, 590),
+          spec.maxContentRect,
+          spec.contentMargin.deflateRect(spec.maxSheetRect),
         );
       },
     );
@@ -980,12 +956,12 @@ void main() {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
+            viewportPadding: EdgeInsets.all(5),
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             contentMargin: EdgeInsets.zero,
           ).maxSheetStaticOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 40),
+          EdgeInsets.fromLTRB(5, 15, 25, 35),
         );
       },
     );
@@ -996,12 +972,28 @@ void main() {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(40),
+            viewportPadding: EdgeInsets.all(50),
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             contentMargin: EdgeInsets.zero,
           ).maxSheetStaticOverlap,
-          EdgeInsets.fromLTRB(0, 20, 0, 40),
+          EdgeInsets.zero,
+        );
+      },
+    );
+
+    test(
+      'maxSheetStaticOverlap: when static overlap equals padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(40),
+            viewportDynamicOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.all(40),
+            contentMargin: EdgeInsets.zero,
+          ).maxSheetStaticOverlap,
+          EdgeInsets.zero,
         );
       },
     );
@@ -1012,12 +1004,12 @@ void main() {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
+            viewportPadding: EdgeInsets.all(5),
             viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportStaticOverlap: EdgeInsets.zero,
             contentMargin: EdgeInsets.zero,
           ).maxSheetDynamicOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 40),
+          EdgeInsets.fromLTRB(5, 15, 25, 35),
         );
       },
     );
@@ -1028,12 +1020,28 @@ void main() {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(40),
+            viewportPadding: EdgeInsets.all(50),
             viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportStaticOverlap: EdgeInsets.zero,
             contentMargin: EdgeInsets.zero,
           ).maxSheetDynamicOverlap,
-          EdgeInsets.fromLTRB(0, 20, 0, 40),
+          EdgeInsets.zero,
+        );
+      },
+    );
+
+    test(
+      'maxSheetDynamicOverlap: when dynamic overlap equals padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(50),
+            viewportDynamicOverlap: EdgeInsets.all(50),
+            viewportStaticOverlap: EdgeInsets.zero,
+            contentMargin: EdgeInsets.zero,
+          ).maxSheetDynamicOverlap,
+          EdgeInsets.zero,
         );
       },
     );
@@ -1044,29 +1052,44 @@ void main() {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(10),
+            viewportPadding: EdgeInsets.all(5),
             viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportStaticOverlap: EdgeInsets.zero,
             contentMargin: EdgeInsets.zero,
           ).maxContentDynamicOverlap,
-          EdgeInsets.fromLTRB(0, 10, 20, 30),
+          EdgeInsets.fromLTRB(5, 15, 25, 35),
         );
       },
     );
 
     test(
-      'maxContentDynamicOverlap: when dynamic overlap is greater than padding '
-      'and the content is shrunk to avoid the bottom inset',
+      'maxContentDynamicOverlap: when dynamic overlap is less than padding',
       () {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
+            viewportPadding: EdgeInsets.all(50),
             viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             viewportStaticOverlap: EdgeInsets.zero,
-            contentMargin: EdgeInsets.only(bottom: 40),
+            contentMargin: EdgeInsets.zero,
           ).maxContentDynamicOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 0),
+          EdgeInsets.zero,
+        );
+      },
+    );
+
+    test(
+      'maxContentDynamicOverlap: when dynamic overlap equals padding',
+      () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(50),
+            viewportDynamicOverlap: EdgeInsets.all(50),
+            viewportStaticOverlap: EdgeInsets.zero,
+            contentMargin: EdgeInsets.zero,
+          ).maxContentDynamicOverlap,
+          EdgeInsets.zero,
         );
       },
     );
@@ -1077,12 +1100,12 @@ void main() {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(10),
+            viewportPadding: EdgeInsets.all(5),
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            contentMargin: EdgeInsets.only(bottom: 30),
+            contentMargin: EdgeInsets.zero,
           ).maxContentStaticOverlap,
-          EdgeInsets.fromLTRB(0, 10, 20, 30),
+          EdgeInsets.fromLTRB(5, 15, 25, 35),
         );
       },
     );
@@ -1093,7 +1116,7 @@ void main() {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(40),
+            viewportPadding: EdgeInsets.all(50),
             viewportDynamicOverlap: EdgeInsets.zero,
             viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
             contentMargin: EdgeInsets.zero,
@@ -1104,52 +1127,17 @@ void main() {
     );
 
     test(
-      'contentBaseline: should equal viewportPadding.bottom '
-      'when contentMargin.bottom is zero',
+      'maxContentStaticOverlap: when static overlap equals padding',
       () {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportPadding: EdgeInsets.all(50),
             viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
+            viewportStaticOverlap: EdgeInsets.all(50),
             contentMargin: EdgeInsets.zero,
-          ).contentBaseline,
-          40,
-        );
-      },
-    );
-
-    test(
-      'contentBaseline: should equal contentMargin.bottom '
-      'when viewportPadding.bottom is zero',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            contentMargin: EdgeInsets.only(bottom: 60),
-          ).contentBaseline,
-          60,
-        );
-      },
-    );
-
-    test(
-      'contentBaseline: should equal contentMargin.bottom '
-      'plus viewportPadding.bottom when both are non-zero',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            contentMargin: EdgeInsets.only(bottom: 60),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-          ).contentBaseline,
-          100,
+          ).maxContentStaticOverlap,
+          EdgeInsets.zero,
         );
       },
     );
