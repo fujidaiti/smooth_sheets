@@ -66,9 +66,9 @@ class SheetLayoutSpec {
   /// The width and the bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraint.
   Rect get maxContentRect => Rect.fromLTRB(
-        viewportPadding.left,
-        viewportPadding.top,
-        viewportSize.width - viewportPadding.right,
+        viewportPadding.left + contentMargin.left,
+        viewportPadding.top + contentMargin.top,
+        viewportSize.width - viewportPadding.right - contentMargin.right,
         viewportSize.height - contentBaseline,
       );
 
