@@ -1,8 +1,10 @@
-# v0.x.x Release Notes
+# v0.16.0 Release Notes
+
+This version includes several new features, fixes and breaking changes (denoted with 💥).
 
 ## Added Custom Barrier Support for Modal Sheets
 
-Thanks to @bqubique, we added `ModalSheetRoute.barrierBuilder` to modal routes and pages. This allows you to build a custom barrier for a modal sheet—for example, a blurred background.
+Thanks to @bqubique, we added `ModalSheetRoute.barrierBuilder` to modal routes and pages. This allows you to build a custom barrier for a modal sheet—for example, a blurred background. See [this example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_custom_barrier_sheet.dart) for more practical usage.
 
 ```dart
 ModalSheetRoute(
@@ -19,7 +21,7 @@ ModalSheetRoute(
 );
 ```
 
-## Simplified BouncingSheetPhysics configuration
+## Simplified BouncingSheetPhysics configuration 💥
 
 The way to configure the bouncing behavior of a sheet is now much more straightforward. There are only two parameters: [bounceExtent](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetPhysics/bounceExtent.html) and [resistance](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BouncingSheetPhysics/resistance.html). `bounceExtent` is the maximum number of pixels the sheet can be overdragged, and `resistance` is a factor that controls how easy or hard it is to overdrag the sheet by `bounceExtent` pixels. The higher the `resistance` value, the harder it is to overdrag further.
 
@@ -49,7 +51,7 @@ Unfortunately, there is no straightforward way to migrate from the old APIs to `
 
 </br>
 
-## Enable dynamic viewport padding for modal sheets
+## Enable dynamic viewport padding for modal sheets 💥
 
 A `viewportBuilder` has been added to modal sheet routes and pages. It builds a `SheetViewport` for a modal sheet, allowing `SheetViewport.padding` to depend on `BuildContext` and dynamically change based on system UI elements like the on-screen keyboard.
 
@@ -96,6 +98,6 @@ This release also includes several improvements to sheet behaviors in response t
 
 </br>
 
-## Removed thresholdVelocityToInterruptBallisticScroll
+## Removed thresholdVelocityToInterruptBallisticScroll 💥
 
 `SheetScrollConfiguration.thresholdVelocityToInterruptBallisticScroll` has been removed. This option was part of the public API and configurable, but it never actually affected the sheet's behavior.
