@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.16.0 - 2026-01-12
+- feat: Allow modal sheet to have dynamic viewport padding ([#458](https://github.com/fujidaiti/smooth_sheets/pull/458)) - [0dd7041](https://github.com/fujidaiti/smooth_sheets/commit/0dd7041df9024cf6f393f8d1b828932f48530406)
+- feat: Add custom barrier support for modal sheets - [b846084](https://github.com/fujidaiti/smooth_sheets/commit/b84608417e8f9a2f5727310421fb4dcfe29e581f)
+- feat: Simplify BouncingSheetPhysics configuration ([#467](https://github.com/fujidaiti/smooth_sheets/pull/467)) - [fe2d73f](https://github.com/fujidaiti/smooth_sheets/commit/fe2d73f41b6a1f692eeddd89f1c785d7b758dee6)
+- fix: Remove thresholdVelocityToInterruptBallisticScroll ([#464](https://github.com/fujidaiti/smooth_sheets/pull/464)) - [2fdd3bd](https://github.com/fujidaiti/smooth_sheets/commit/2fdd3bd0ad2cce7243523cade885a4dd3075bd75)
+- fix: Unexpected bouncing animation with ClampingScrollPhysics ([#363](https://github.com/fujidaiti/smooth_sheets/pull/363)) ([#432](https://github.com/fujidaiti/smooth_sheets/pull/432)) - [29ba25d](https://github.com/fujidaiti/smooth_sheets/commit/29ba25d688a03f2a81ef87ac45f45eb39936c5ab)
+
+
+> [!IMPORTANT]
+> - The `padding` properties have been removed from modal
+sheet routes and pages.
+> - `BouncingBehavior` and its subclasses have been removed.
+> - `behavior` and `frictionCurve` have been removed.
+> - `SheetScrollConfiguration.thresholdVelocityToInterruptBallisticScroll` was removed.
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.16.0) for more details.
+
 ## 0.15.0 - 2025-09-09
 - feat: Changed SwipeDismissSensitivity to use a SheetOffset as the minimum drag value ([#415](https://github.com/fujidaiti/smooth_sheets/pull/415)) - [aba6f2f](https://github.com/fujidaiti/smooth_sheets/commit/aba6f2f5c9c416b8934eeec80710acfb19ce6885)
 - fix: NavigatorEventObserver assertion error when pop during push transition ([#416](https://github.com/fujidaiti/smooth_sheets/pull/416)) - [4004500](https://github.com/fujidaiti/smooth_sheets/commit/40045009b2da1081106a0970fea1330e47a8906d)
