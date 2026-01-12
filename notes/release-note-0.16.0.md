@@ -4,7 +4,7 @@ This version includes several new features, fixes and breaking changes (denoted 
 
 ## Added Custom Barrier Support for Modal Sheets
 
-Thanks to @bqubique, we added `ModalSheetRoute.barrierBuilder` to modal routes and pages. This allows you to build a custom barrier for a modal sheet—for example, a blurred background. See [this example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_custom_barrier_sheet.dart) for more practical usage.
+`ModalSheetRoute.barrierBuilder` has been added to modal routes and pages (thank you, @bqubique). This allows you to build a custom barrier for a modal sheet—for example, a blurred background. See [this example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_custom_barrier_sheet.dart) for more practical usage.
 
 ```dart
 ModalSheetRoute(
