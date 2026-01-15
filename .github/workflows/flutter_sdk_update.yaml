@@ -129,5 +129,4 @@ jobs:
 
           gh pr create \
             --title "${PR_TITLE}" \
-            --assignee @me \
             --reviewer "${{ github.repository_owner }}"
