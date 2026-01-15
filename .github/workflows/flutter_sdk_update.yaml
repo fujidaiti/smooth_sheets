@@ -1,4 +1,4 @@
-name: Flutter SDK Auto Update
+name: Flutter SDK Update
 
 on:
   schedule:
@@ -129,4 +129,5 @@ jobs:
 
           gh pr create \
             --title "${PR_TITLE}" \
+            --base main \
             --reviewer "${{ github.repository_owner }}"
