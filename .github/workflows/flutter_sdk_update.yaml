@@ -1,0 +1,146 @@
+name: Flutter SDK Auto Update
+
+on:
+  schedule:
+    # Runs every Monday at 6:00 AM JST (Sunday 21:00 UTC)
+    - cron: '0 21 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-flutter-version:
+    runs-on: ubuntu-latest
+    outputs:
+      should_update: ${{ steps.compare.outputs.should_update }}
+      current_version: ${{ steps.compare.outputs.current_version }}
+      latest_version: ${{ steps.compare.outputs.latest_version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get current Flutter version
+        id: current
+        run: |
+          CURRENT_VERSION=$(jq -r '.flutter' .fvmrc)
+          echo "Current Flutter version: $CURRENT_VERSION"
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get latest stable Flutter version
+        id: latest
+        run: |
+          # Fetch all tags from Flutter repository
+          echo "Fetching Flutter SDK tags..."
+
+          # Get tags, filter only stable versions (no pre/beta/dev), sort by version
+          LATEST_VERSION=$(git ls-remote --tags https://github.com/flutter/flutter.git | \
+            grep -oP 'refs/tags/\K[0-9]+\.[0-9]+\.[0-9]+$' | \
+            sort -V | \
+            tail -n 1)
+
+          echo "Latest stable Flutter version: $LATEST_VERSION"
+          echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: compare
+        run: |
+          CURRENT="${{ steps.current.outputs.current_version }}"
+          LATEST="${{ steps.latest.outputs.latest_version }}"
+
+          echo "Comparing versions: $CURRENT vs $LATEST"
+
+          if [ "$CURRENT" != "$LATEST" ]; then
+            echo "Update needed: $CURRENT -> $LATEST"
+            echo "should_update=true" >> $GITHUB_OUTPUT
+          else
+            echo "Already on latest version: $CURRENT"
+            echo "should_update=false" >> $GITHUB_OUTPUT
+          fi
+
+          echo "current_version=$CURRENT" >> $GITHUB_OUTPUT
+          echo "latest_version=$LATEST" >> $GITHUB_OUTPUT
+
+  update-flutter-version:
+    runs-on: ubuntu-latest
+    needs: check-flutter-version
+    if: needs.check-flutter-version.outputs.should_update == 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update .fvmrc
+        run: |
+          LATEST="${{ needs.check-flutter-version.outputs.latest_version }}"
+          echo "Updating .fvmrc to version $LATEST"
+          jq --arg version "$LATEST" '.flutter = $version' .fvmrc > .fvmrc.tmp
+          mv .fvmrc.tmp .fvmrc
+
+      - name: Update .vscode/settings.json
+        run: |
+          LATEST="${{ needs.check-flutter-version.outputs.latest_version }}"
+          echo "Updating .vscode/settings.json to version $LATEST"
+          jq --arg path ".fvm/versions/$LATEST" '."dart.flutterSdkPath" = $path' .vscode/settings.json > .vscode/settings.json.tmp
+          mv .vscode/settings.json.tmp .vscode/settings.json
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.NORELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.NORELEASE_BOT_PRIVATE_KEY }}
+
+      - name: Get Bot user id
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure commit author for bot
+        run: |
+          git config --global user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+          git config --global user.email "${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+
+      - name: Create and Push Branch
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          LATEST_VERSION: ${{ needs.check-flutter-version.outputs.latest_version }}
+        run: |
+          BRANCH_NAME="chore/flutter-sdk-${LATEST_VERSION}"
+          git checkout -b $BRANCH_NAME
+          git add .fvmrc .vscode/settings.json
+          git commit -m "chore: Update Flutter SDK to ${LATEST_VERSION}"
+          git push origin $BRANCH_NAME
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          CURRENT_VERSION: ${{ needs.check-flutter-version.outputs.current_version }}
+          LATEST_VERSION: ${{ needs.check-flutter-version.outputs.latest_version }}
+        run: |
+          BRANCH_NAME="chore/flutter-sdk-${LATEST_VERSION}"
+          PR_TITLE="chore(env): Update Flutter SDK from ${CURRENT_VERSION} to ${LATEST_VERSION} [bot]"
+
+          cat > pr_body.txt << 'EOF'
+## Summary
+This PR updates the Flutter SDK to the latest stable version.
+
+## Changes
+- Updated `.fvmrc` to version ${LATEST_VERSION}
+- Updated `.vscode/settings.json` to reference the new SDK path
+
+## Notes
+This is an automated update to keep the project testing against the latest stable Flutter SDK.
+EOF
+
+          # Replace variables in the body
+          sed -i "s/\${LATEST_VERSION}/${LATEST_VERSION}/g" pr_body.txt
+
+          gh pr create \
+            --title "${PR_TITLE}" \
+            --body-file pr_body.txt \
+            --assignee @me \
+            --reviewer "${{ github.repository_owner }}"
