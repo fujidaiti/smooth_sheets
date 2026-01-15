@@ -109,20 +109,23 @@ jobs:
           git config --global user.email "${BOT_USER_ID}+${BOT_SLUG}[bot]@users.noreply.github.com"
 
       - name: Create and Push Branch
+        id: create-branch
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          BRANCH_NAME="chore/flutter-sdk-${LATEST_VERSION}"
+          UNIQUE_ID=$(uuidgen)
+          BRANCH_NAME="flutter-sdk-${LATEST_VERSION}-${UNIQUE_ID}"
           git checkout -b $BRANCH_NAME
           git add .fvmrc .vscode/settings.json
           git commit -m "chore: Update Flutter SDK to ${LATEST_VERSION}"
           git push origin $BRANCH_NAME
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.create-branch.outputs.branch_name }}
         run: |
-          BRANCH_NAME="chore/flutter-sdk-${LATEST_VERSION}"
           PR_TITLE="chore(env): Update Flutter SDK from ${CURRENT_VERSION} to ${LATEST_VERSION} [bot]"
 
           cat > pr_body.txt << 'EOF'
