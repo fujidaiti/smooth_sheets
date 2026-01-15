@@ -3,7 +3,7 @@ name: Flutter SDK Update
 on:
   schedule:
     # Runs every Monday at 6:00 AM JST (Sunday 21:00 UTC)
-    - cron: '0 21 * * 0'
+    - cron: "0 21 * * 0"
   workflow_dispatch:
 
 permissions:
@@ -129,5 +129,6 @@ jobs:
 
           gh pr create \
             --title "${PR_TITLE}" \
+            --body "[CHANGELOG](https://github.com/flutter/flutter/blob/stable/CHANGELOG.md)" \
             --base main \
             --reviewer "${{ github.repository_owner }}"
