@@ -124,24 +124,10 @@ jobs:
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          BRANCH_NAME: ${{ steps.create-branch.outputs.branch_name }}
         run: |
           PR_TITLE="chore(env): Update Flutter SDK from ${CURRENT_VERSION} to ${LATEST_VERSION} [bot]"
 
-          cat > pr_body.txt << 'EOF'
-## Summary
-This PR updates the Flutter SDK to the latest stable version.
-
-## Changes
-- Updated `.fvmrc` to version ${LATEST_VERSION}
-- Updated `.vscode/settings.json` to reference the new SDK path
-EOF
-
-          # Replace variables in the body
-          sed -i "s/\${LATEST_VERSION}/${LATEST_VERSION}/g" pr_body.txt
-
           gh pr create \
             --title "${PR_TITLE}" \
-            --body-file pr_body.txt \
             --assignee @me \
             --reviewer "${{ github.repository_owner }}"
