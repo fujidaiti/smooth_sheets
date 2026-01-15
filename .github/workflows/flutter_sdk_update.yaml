@@ -131,9 +131,6 @@ This PR updates the Flutter SDK to the latest stable version.
 ## Changes
 - Updated `.fvmrc` to version ${LATEST_VERSION}
 - Updated `.vscode/settings.json` to reference the new SDK path
-
-## Notes
-This is an automated update to keep the project testing against the latest stable Flutter SDK.
 EOF
 
           # Replace variables in the body
