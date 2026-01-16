@@ -225,6 +225,9 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   double get contentBaseline => _layout!.contentBaseline;
 
   @override
+  EdgeInsets get contentMargin => _layout!.contentMargin;
+
+  @override
   Size get size => _layout!.size;
 
   @override
@@ -469,6 +472,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     EdgeInsets? viewportDynamicOverlap,
     EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
+    EdgeInsets? contentMargin,
     double? devicePixelRatio,
   }) {
     return ImmutableSheetMetrics(
@@ -478,6 +482,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
       size: size ?? this.size,
       contentSize: contentSize ?? this.contentSize,
       contentBaseline: contentBaseline ?? this.contentBaseline,
+      contentMargin: contentMargin ?? this.contentMargin,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
       viewportDynamicOverlap:
           viewportDynamicOverlap ?? this.viewportDynamicOverlap,
@@ -559,6 +564,11 @@ abstract interface class ViewportLayout {
   /// such as hardware display notches or the system status bar.
   /// {@endtemplate}
   EdgeInsets get viewportStaticOverlap;
+
+  /// {@template ViewportLayout.contentMargin}
+  /// The margin by which the content insets the sheet.
+  /// {@endtemplate}
+  EdgeInsets get contentMargin;
 
   /// {@template ViewportLayout.contentBaseline}
   /// The minimum distance from the bottom of the viewport
@@ -705,6 +715,7 @@ class ImmutableViewportLayout implements ViewportLayout {
     required this.viewportDynamicOverlap,
     required this.viewportStaticOverlap,
     required this.contentBaseline,
+    required this.contentMargin,
   });
 
   @override
@@ -723,6 +734,9 @@ class ImmutableViewportLayout implements ViewportLayout {
   final EdgeInsets viewportStaticOverlap;
 
   @override
+  final EdgeInsets contentMargin;
+
+  @override
   final double contentBaseline;
 
   ImmutableViewportLayout copyWith({
@@ -732,6 +746,7 @@ class ImmutableViewportLayout implements ViewportLayout {
     EdgeInsets? viewportDynamicOverlap,
     EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
+    EdgeInsets? contentMargin,
   }) {
     return ImmutableViewportLayout(
       viewportSize: viewportSize ?? this.viewportSize,
@@ -742,6 +757,7 @@ class ImmutableViewportLayout implements ViewportLayout {
       viewportStaticOverlap:
           viewportStaticOverlap ?? this.viewportStaticOverlap,
       contentBaseline: contentBaseline ?? this.contentBaseline,
+      contentMargin: contentMargin ?? this.contentMargin,
     );
   }
 
@@ -754,7 +770,8 @@ class ImmutableViewportLayout implements ViewportLayout {
           viewportPadding == other.viewportPadding &&
           viewportDynamicOverlap == other.viewportDynamicOverlap &&
           viewportStaticOverlap == other.viewportStaticOverlap &&
-          contentBaseline == other.contentBaseline;
+          contentBaseline == other.contentBaseline &&
+          contentMargin == other.contentMargin;
 
   @override
   int get hashCode => Object.hash(
@@ -764,6 +781,7 @@ class ImmutableViewportLayout implements ViewportLayout {
         viewportDynamicOverlap,
         viewportStaticOverlap,
         contentBaseline,
+        contentMargin,
       );
 }
 
@@ -778,6 +796,7 @@ class ImmutableSheetLayout implements SheetLayout {
     required this.viewportPadding,
     required this.viewportSize,
     required this.viewportStaticOverlap,
+    required this.contentMargin,
   });
 
   factory ImmutableSheetLayout.from({
@@ -792,6 +811,7 @@ class ImmutableSheetLayout implements SheetLayout {
       viewportPadding: viewportLayout.viewportPadding,
       viewportSize: viewportLayout.viewportSize,
       viewportStaticOverlap: viewportLayout.viewportStaticOverlap,
+      contentMargin: viewportLayout.contentMargin,
     );
   }
 
@@ -816,6 +836,9 @@ class ImmutableSheetLayout implements SheetLayout {
   @override
   final EdgeInsets viewportStaticOverlap;
 
+  @override
+  final EdgeInsets contentMargin;
+
   ImmutableSheetLayout copyWith({
     double? contentBaseline,
     Size? contentSize,
@@ -824,6 +847,7 @@ class ImmutableSheetLayout implements SheetLayout {
     EdgeInsets? viewportPadding,
     Size? viewportSize,
     EdgeInsets? viewportStaticOverlap,
+    EdgeInsets? contentMargin,
   }) {
     return ImmutableSheetLayout(
       contentBaseline: contentBaseline ?? this.contentBaseline,
@@ -835,6 +859,7 @@ class ImmutableSheetLayout implements SheetLayout {
       viewportSize: viewportSize ?? this.viewportSize,
       viewportStaticOverlap:
           viewportStaticOverlap ?? this.viewportStaticOverlap,
+      contentMargin: contentMargin ?? this.contentMargin,
     );
   }
 
@@ -848,7 +873,8 @@ class ImmutableSheetLayout implements SheetLayout {
           viewportDynamicOverlap == other.viewportDynamicOverlap &&
           viewportPadding == other.viewportPadding &&
           viewportSize == other.viewportSize &&
-          viewportStaticOverlap == other.viewportStaticOverlap;
+          viewportStaticOverlap == other.viewportStaticOverlap &&
+          contentMargin == other.contentMargin;
 
   @override
   int get hashCode => Object.hash(
@@ -859,6 +885,7 @@ class ImmutableSheetLayout implements SheetLayout {
         viewportPadding,
         viewportSize,
         viewportStaticOverlap,
+        contentMargin,
       );
 }
 
@@ -877,6 +904,7 @@ class ImmutableSheetMetrics with SheetMetrics {
     required this.viewportPadding,
     required this.viewportSize,
     required this.viewportStaticOverlap,
+    required this.contentMargin,
   });
 
   @override
@@ -899,6 +927,9 @@ class ImmutableSheetMetrics with SheetMetrics {
 
   @override
   final Size contentSize;
+
+  @override
+  final EdgeInsets contentMargin;
 
   @override
   final Size viewportSize;
@@ -924,6 +955,7 @@ class ImmutableSheetMetrics with SheetMetrics {
     EdgeInsets? viewportDynamicOverlap,
     EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
+    EdgeInsets? contentMargin,
     double? devicePixelRatio,
   }) {
     return ImmutableSheetMetrics(
@@ -933,6 +965,7 @@ class ImmutableSheetMetrics with SheetMetrics {
       size: size ?? this.size,
       contentSize: contentSize ?? this.contentSize,
       contentBaseline: contentBaseline ?? this.contentBaseline,
+      contentMargin: contentMargin ?? this.contentMargin,
       devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
       viewportDynamicOverlap:
           viewportDynamicOverlap ?? this.viewportDynamicOverlap,
@@ -957,7 +990,8 @@ class ImmutableSheetMetrics with SheetMetrics {
           viewportDynamicOverlap == other.viewportDynamicOverlap &&
           viewportPadding == other.viewportPadding &&
           viewportSize == other.viewportSize &&
-          viewportStaticOverlap == other.viewportStaticOverlap;
+          viewportStaticOverlap == other.viewportStaticOverlap &&
+          contentMargin == other.contentMargin;
 
   @override
   int get hashCode => Object.hash(
@@ -972,5 +1006,6 @@ class ImmutableSheetMetrics with SheetMetrics {
         viewportPadding,
         viewportSize,
         viewportStaticOverlap,
+        contentMargin,
       );
 }
