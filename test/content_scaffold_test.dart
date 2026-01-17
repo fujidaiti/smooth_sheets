@@ -20,12 +20,12 @@ void main() {
   group('SheetContentScaffold - Core Layout', () {
     ({Widget testWidget}) boilerplate({
       SheetLayoutSpec? parentLayoutSpec,
+      EdgeInsets viewportViewInsets = EdgeInsets.zero,
       required WidgetBuilder builder,
     }) {
       final testWidget = MediaQuery(
         data: MediaQueryData(
-          viewInsets:
-              parentLayoutSpec?.viewportDynamicOverlap ?? EdgeInsets.zero,
+          viewInsets: viewportViewInsets,
         ),
         child: SheetMediaQuery(
           layoutNotifier: ValueNotifier(null),
@@ -33,10 +33,7 @@ void main() {
               SheetLayoutSpec(
                 viewportSize: testScreenSize,
                 viewportPadding: EdgeInsets.zero,
-                viewportDynamicOverlap: EdgeInsets.zero,
-                viewportStaticOverlap: EdgeInsets.zero,
-                shrinkContentToAvoidDynamicOverlap: false,
-                shrinkContentToAvoidStaticOverlap: false,
+                contentMargin: EdgeInsets.zero,
               ),
           child: Align(
             alignment: Alignment.bottomCenter,
@@ -634,10 +631,7 @@ void main() {
         return SheetLayoutSpec(
           viewportSize: testScreenSize,
           viewportPadding: viewportPadding,
-          viewportStaticOverlap: EdgeInsets.zero,
-          viewportDynamicOverlap: EdgeInsets.only(bottom: keyboardHeight),
-          shrinkContentToAvoidDynamicOverlap: true,
-          shrinkContentToAvoidStaticOverlap: false,
+          contentMargin: EdgeInsets.only(bottom: keyboardHeight),
         );
       }
 
@@ -648,8 +642,7 @@ void main() {
           viewportSize: layoutSpec.viewportSize,
           viewportPadding: layoutSpec.viewportPadding,
           contentBaseline: layoutSpec.contentBaseline,
-          viewportDynamicOverlap: layoutSpec.viewportDynamicOverlap,
-          viewportStaticOverlap: layoutSpec.viewportStaticOverlap,
+          contentMargin: layoutSpec.contentMargin,
         );
       }
 
@@ -1375,10 +1368,7 @@ void main() {
           layoutSpec: SheetLayoutSpec(
             viewportSize: testScreenSize,
             viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
+            contentMargin: EdgeInsets.zero,
           ),
           child: Center(
             child: SizedBox(
