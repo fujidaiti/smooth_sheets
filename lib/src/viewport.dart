@@ -20,8 +20,6 @@ class SheetLayoutSpec {
   const SheetLayoutSpec({
     required this.viewportSize,
     required this.viewportPadding,
-    required this.viewportDynamicOverlap,
-    required this.viewportStaticOverlap,
     required this.contentMargin,
   });
 
@@ -30,12 +28,6 @@ class SheetLayoutSpec {
 
   /// {@macro ViewportLayout.viewportPadding}
   final EdgeInsets viewportPadding;
-
-  /// {@macro ViewportLayout.viewportDynamicOverlap}
-  final EdgeInsets viewportDynamicOverlap;
-
-  /// {@macro ViewportLayout.viewportStaticOverlap}
-  final EdgeInsets viewportStaticOverlap;
 
   /// {@macro ViewportLayout.contentMargin}
   final EdgeInsets contentMargin;
@@ -72,80 +64,18 @@ class SheetLayoutSpec {
         viewportSize.height - contentBaseline,
       );
 
-  /// The maximum amounts of overlap that each side of the sheet can have
-  /// with static system UI elements, such as the system status bar or
-  /// hardware display notches.
-  EdgeInsets get maxSheetStaticOverlap {
-    final maxRect = maxSheetRect;
-    final staticSafeArea =
-        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(staticSafeArea.left - maxRect.left, 0),
-      max(staticSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - staticSafeArea.right, 0),
-      max(maxRect.bottom - staticSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet can have
-  /// with dynamic system UI elements, such as the on-screen keyboard.
-  EdgeInsets get maxSheetDynamicOverlap {
-    final maxRect = maxSheetRect;
-    final dynamicSafeArea =
-        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(dynamicSafeArea.left - maxRect.left, 0),
-      max(dynamicSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - dynamicSafeArea.right, 0),
-      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet's content
-  /// can have with dynamic system UI elements, such as the on-screen keyboard.
-  EdgeInsets get maxContentDynamicOverlap {
-    final maxRect = maxContentRect;
-    final dynamicSafeArea =
-        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(dynamicSafeArea.left - maxRect.left, 0),
-      max(dynamicSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - dynamicSafeArea.right, 0),
-      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet's content
-  /// can have with static system UI elements, such as the system status bar or
-  /// hardware display notches.
-  EdgeInsets get maxContentStaticOverlap {
-    final maxRect = maxContentRect;
-    final staticSafeArea =
-        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(staticSafeArea.left - maxRect.left, 0),
-      max(staticSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - staticSafeArea.right, 0),
-      max(maxRect.bottom - staticSafeArea.bottom, 0),
-    );
-  }
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SheetLayoutSpec &&
           viewportSize == other.viewportSize &&
           viewportPadding == other.viewportPadding &&
-          viewportDynamicOverlap == other.viewportDynamicOverlap &&
-          viewportStaticOverlap == other.viewportStaticOverlap &&
           contentMargin == other.contentMargin;
 
   @override
   int get hashCode => Object.hash(
         viewportSize,
         viewportPadding,
-        viewportDynamicOverlap,
-        viewportStaticOverlap,
         contentMargin,
       );
 }
@@ -155,10 +85,10 @@ typedef SheetLayoutListenable = ValueListenable<SheetLayout?>;
 /// Stores the geometry of the viewport and the layout constraints
 /// used to lay out the sheet and its content.
 ///
-/// Also overwrites the inherited [MediaQueryData.viewPadding] and
-/// [MediaQueryData.viewInsets] with [SheetLayoutSpec.maxContentStaticOverlap]
-/// and [SheetLayoutSpec.maxContentDynamicOverlap] specified in the
-/// [layoutSpec], respectively. This enables the descendant widgets to read
+/// Also reduces the inherited [MediaQueryData.viewPadding],
+/// [MediaQueryData.viewInsets], and [MediaQueryData.padding] by
+/// the [SheetLayoutSpec.viewportPadding] and [SheetLayoutSpec.contentMargin]
+///specified in the [layoutSpec]. This enables the descendant widgets to read
 /// that information using [layoutSpecOf] and use it to determine their own
 /// layout.
 ///
@@ -178,8 +108,65 @@ class SheetMediaQuery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewPaddingForChild = layoutSpec.maxContentStaticOverlap;
-    final viewInsetsForChild = layoutSpec.maxContentDynamicOverlap;
+    final inheritedMediaQuery = MediaQuery.maybeOf(context);
+    final viewportViewPadding =
+        inheritedMediaQuery?.viewPadding ?? EdgeInsets.zero;
+    final viewPaddingForChild = EdgeInsets.fromLTRB(
+      max(
+        viewportViewPadding.left -
+            layoutSpec.viewportPadding.left -
+            layoutSpec.contentMargin.left,
+        0.0,
+      ),
+      max(
+        viewportViewPadding.top -
+            layoutSpec.viewportPadding.top -
+            layoutSpec.contentMargin.top,
+        0.0,
+      ),
+      max(
+        viewportViewPadding.right -
+            layoutSpec.viewportPadding.right -
+            layoutSpec.contentMargin.right,
+        0.0,
+      ),
+      max(
+        viewportViewPadding.bottom -
+            layoutSpec.viewportPadding.bottom -
+            layoutSpec.contentMargin.bottom,
+        0.0,
+      ),
+    );
+
+    final viewportViewInsets =
+        inheritedMediaQuery?.viewInsets ?? EdgeInsets.zero;
+    final viewInsetsForChild = EdgeInsets.fromLTRB(
+      max(
+        viewportViewInsets.left -
+            layoutSpec.viewportPadding.left -
+            layoutSpec.contentMargin.left,
+        0.0,
+      ),
+      max(
+        viewportViewInsets.top -
+            layoutSpec.viewportPadding.top -
+            layoutSpec.contentMargin.top,
+        0.0,
+      ),
+      max(
+        viewportViewInsets.right -
+            layoutSpec.viewportPadding.right -
+            layoutSpec.contentMargin.right,
+        0.0,
+      ),
+      max(
+        viewportViewInsets.bottom -
+            layoutSpec.viewportPadding.bottom -
+            layoutSpec.contentMargin.bottom,
+        0.0,
+      ),
+    );
+
     final paddingForChild = EdgeInsets.fromLTRB(
       max(viewPaddingForChild.left - viewInsetsForChild.left, 0),
       max(viewPaddingForChild.top - viewInsetsForChild.top, 0),
@@ -191,13 +178,13 @@ class SheetMediaQuery extends StatelessWidget {
       layoutSpec: layoutSpec,
       layoutNotifier: layoutNotifier,
       child: MediaQuery(
-        data: switch (MediaQuery.maybeOf(context)) {
+        data: switch (inheritedMediaQuery) {
           null => MediaQueryData(
               viewPadding: viewPaddingForChild,
               viewInsets: viewInsetsForChild,
               padding: paddingForChild,
             ),
-          final data => data.copyWith(
+          final inheritedData => inheritedData.copyWith(
               viewPadding: viewPaddingForChild,
               viewInsets: viewInsetsForChild,
               padding: paddingForChild,
@@ -659,8 +646,6 @@ class _BareSheetState extends State<BareSheet> {
         final layoutSpec = SheetLayoutSpec(
           viewportSize: sheetConstraints.viewportSize,
           viewportPadding: sheetConstraints.viewportPadding,
-          viewportDynamicOverlap: sheetConstraints.viewportInsets,
-          viewportStaticOverlap: sheetConstraints.viewportViewPadding,
           contentMargin: widget.padding,
         );
 
@@ -823,8 +808,6 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       contentSize: Size.copy(child.size),
       viewportSize: _layoutSpec.viewportSize,
       viewportPadding: _layoutSpec.viewportPadding,
-      viewportDynamicOverlap: _layoutSpec.viewportDynamicOverlap,
-      viewportStaticOverlap: _layoutSpec.viewportStaticOverlap,
       contentBaseline: _layoutSpec.contentBaseline,
       contentMargin: _layoutSpec.contentMargin,
     );
@@ -954,16 +937,10 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   Size get size => _inner!.size;
 
   @override
-  EdgeInsets get viewportDynamicOverlap => _inner!.viewportDynamicOverlap;
-
-  @override
   EdgeInsets get viewportPadding => _inner!.viewportPadding;
 
   @override
   Size get viewportSize => _inner!.viewportSize;
-
-  @override
-  EdgeInsets get viewportStaticOverlap => _inner!.viewportStaticOverlap;
 
   @override
   SheetMetrics copyWith({
@@ -974,8 +951,6 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportPadding,
-    EdgeInsets? viewportDynamicOverlap,
-    EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
     EdgeInsets? contentMargin,
     double? devicePixelRatio,
@@ -989,12 +964,8 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
       contentMargin: contentMargin ?? _inner!.contentMargin,
       contentSize: contentSize ?? _inner!.contentSize,
       size: size ?? _inner!.size,
-      viewportDynamicOverlap:
-          viewportDynamicOverlap ?? _inner!.viewportDynamicOverlap,
       viewportPadding: viewportPadding ?? _inner!.viewportPadding,
       viewportSize: viewportSize ?? _inner!.viewportSize,
-      viewportStaticOverlap:
-          viewportStaticOverlap ?? _inner!.viewportStaticOverlap,
     );
   }
 }

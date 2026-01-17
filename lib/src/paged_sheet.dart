@@ -129,10 +129,8 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
           size: Size.zero,
           contentSize: Size.zero,
           contentMargin: EdgeInsets.zero,
-          viewportDynamicOverlap: layout.viewportDynamicOverlap,
           viewportPadding: layout.viewportPadding,
           viewportSize: layout.viewportSize,
-          viewportStaticOverlap: layout.viewportStaticOverlap,
         ),
       );
     } else {
