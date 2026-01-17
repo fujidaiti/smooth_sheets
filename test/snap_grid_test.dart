@@ -9,9 +9,8 @@ void main() {
   final testLayout = ImmutableViewportLayout(
     viewportSize: testScreenSize,
     viewportPadding: EdgeInsets.zero,
-    viewportDynamicOverlap: EdgeInsets.zero,
-    viewportStaticOverlap: EdgeInsets.zero,
     contentSize: const Size(800, 500),
+    contentMargin: EdgeInsets.zero,
     contentBaseline: 0,
   );
 
