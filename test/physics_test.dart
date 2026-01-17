@@ -17,10 +17,9 @@ const _referenceSheetMetrics = ImmutableSheetMetrics(
   maxOffset: 600,
   viewportSize: Size(400, 700),
   viewportPadding: EdgeInsets.zero,
-  viewportDynamicOverlap: EdgeInsets.zero,
-  viewportStaticOverlap: EdgeInsets.zero,
   contentSize: Size(400, 600),
   contentBaseline: 0,
+  contentMargin: EdgeInsets.zero,
   devicePixelRatio: 1,
   size: Size(400, 600),
 );
