@@ -725,6 +725,255 @@ void main() {
     });
   });
 
+  group('SheetViewport: Inherited MediaQuery modification test', () {
+    ({
+      Widget testWidget,
+      ValueGetter<MediaQueryData> getInheritedMediaQuery,
+    }) boilerplate({
+      EdgeInsets rootViewPadding = EdgeInsets.zero,
+      EdgeInsets rootViewInsets = EdgeInsets.zero,
+      EdgeInsets viewportPadding = EdgeInsets.zero,
+      EdgeInsets sheetPadding = EdgeInsets.zero,
+    }) {
+      final model = _TestSheetModel();
+      final sheetContentKey = GlobalKey();
+      final testWidget = MediaQuery(
+        data: MediaQueryData(
+          viewInsets: rootViewInsets,
+          viewPadding: rootViewPadding,
+          padding: EdgeInsets.fromLTRB(
+            max(rootViewPadding.left - rootViewInsets.left, 0),
+            max(rootViewPadding.top - rootViewInsets.top, 0),
+            max(rootViewPadding.right - rootViewInsets.right, 0),
+            max(rootViewPadding.bottom - rootViewInsets.bottom, 0),
+          ),
+        ),
+        child: SheetViewport(
+          padding: viewportPadding,
+          child: BareSheet(
+            padding: sheetPadding,
+            child: TestStatefulWidget(
+              key: sheetContentKey,
+              initialState: null,
+              didChangeDependencies: (context) {
+                context
+                    .findAncestorStateOfType<SheetViewportState>()!
+                    .setModel(model);
+              },
+              builder: (_, __) => SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        getInheritedMediaQuery: () =>
+            MediaQuery.of(sheetContentKey.currentContext!),
+      );
+    }
+
+    testWidgets(
+      'Inherited viewPadding should be reduced by viewport padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          viewportPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.zero);
+        expect(inheritedData.padding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewPadding should be reduced by sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.zero);
+        expect(inheritedData.padding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewPadding should be reduced by viewport padding '
+      '+ sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          viewportPadding: EdgeInsets.all(5),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.viewInsets, EdgeInsets.zero);
+        expect(inheritedData.padding, EdgeInsets.fromLTRB(0, 10, 20, 30));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets should be reduced by viewport padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewInsets: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          viewportPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.zero);
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets should be reduced by sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewInsets: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.zero);
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets should be reduced by viewport padding '
+      '+ sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewInsets: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          viewportPadding: EdgeInsets.all(5),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.zero);
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by viewport padding (when viewInsets is less than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(5, 15, 25, 35),
+          viewportPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.padding, EdgeInsets.all(5));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by sheet padding (when viewInsets is less than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(5, 15, 25, 35),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.padding, EdgeInsets.all(5));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by viewport padding + sheet padding '
+      '(when viewInsets is less than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(5, 15, 25, 35),
+          viewportPadding: EdgeInsets.all(5),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(0, 5, 15, 25));
+        expect(inheritedData.padding, EdgeInsets.fromLTRB(0, 5, 5, 5));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by viewport padding (when viewInsets is larger than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(15, 25, 35, 45),
+          viewportPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(10, 20, 30, 40));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by sheet padding (when viewInsets is larger than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(15, 25, 35, 45),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(10, 20, 30, 40));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by viewport padding + sheet padding '
+      '(when viewInsets is larger than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(15, 25, 35, 45),
+          viewportPadding: EdgeInsets.all(5),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+  });
+
   group('SheetLayoutSpec', () {
     test(
       'maxSheetRect should match the viewport if there is no padding',
