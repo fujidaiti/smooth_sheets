@@ -53,7 +53,7 @@ class MutableSheetMetrics with SheetMetrics {
 
   @override
   Size contentSize;
-  
+
   @override
   EdgeInsets contentMargin;
 
@@ -75,7 +75,7 @@ class MutableSheetMetrics with SheetMetrics {
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportPadding,
-    EdgeInsets? contentMargin,  
+    EdgeInsets? contentMargin,
     double? contentBaseline,
     double? devicePixelRatio,
   }) {
@@ -133,8 +133,7 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
   when(position.viewportPadding)
       .thenAnswer((_) => metricsRegistry.viewportPadding);
-  when(position.contentMargin)
-      .thenAnswer((_) => metricsRegistry.contentMargin);
+  when(position.contentMargin).thenAnswer((_) => metricsRegistry.contentMargin);
   when(position.contentBaseline)
       .thenAnswer((_) => metricsRegistry.contentBaseline);
   when(position.offset).thenAnswer((_) => metricsRegistry.offset);

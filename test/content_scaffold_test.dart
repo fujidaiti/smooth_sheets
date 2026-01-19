@@ -13,7 +13,6 @@ import 'package:smooth_sheets/src/viewport.dart';
 
 import 'flutter_test_config.dart';
 import 'src/flutter_test_x.dart';
-import 'src/stubbing.dart';
 import 'src/test_stateful_widget.dart';
 
 void main() {
@@ -627,64 +626,54 @@ void main() {
       double initialKeyboardHeight = 0,
       bool extendBodyBehindBottomBar = true,
     }) {
-      SheetLayoutSpec createLayoutSpecFrom(double keyboardHeight) {
-        return SheetLayoutSpec(
-          viewportSize: testScreenSize,
-          viewportPadding: viewportPadding,
-          contentMargin: EdgeInsets.only(bottom: keyboardHeight),
-        );
-      }
-
-      SheetLayout createSheetLayoutFrom(SheetLayoutSpec layoutSpec) {
-        return ImmutableSheetLayout(
-          size: layoutSpec.maxSheetRect.size,
-          contentSize: layoutSpec.maxContentRect.size,
-          viewportSize: layoutSpec.viewportSize,
-          viewportPadding: layoutSpec.viewportPadding,
-          contentBaseline: layoutSpec.contentBaseline,
-          contentMargin: layoutSpec.contentMargin,
-        );
-      }
-
-      final initialLayoutSpec = createLayoutSpecFrom(initialKeyboardHeight);
       final modelOwnerKey = GlobalKey<SheetModelOwnerState>();
-      final statefulKey = GlobalKey<TestStatefulWidgetState<SheetLayoutSpec>>();
+      final statefulKey = GlobalKey<TestStatefulWidgetState<double>>();
+
+      _TestSheetModel buildTestModel(
+        SheetContext context,
+        _TestSheetModelConfig config,
+      ) {
+        return _TestSheetModel(
+          context,
+          config,
+          initialOffset: SheetOffset(1),
+        );
+      }
+
       final testWidget = TestStatefulWidget(
         key: statefulKey,
-        initialState: initialLayoutSpec,
-        builder: (context, layoutSpec) {
-          return SheetMediaQuery(
-            layoutNotifier: ValueNotifier(null),
-            layoutSpec: layoutSpec,
-            child: SheetModelOwner(
-              key: modelOwnerKey,
-              factory: (_, config) {
-                return _TestSheetModel(
-                  MockSheetContext(),
-                  config,
-                  initialOffset: SheetOffset(1),
-                )..applyNewLayout(createSheetLayoutFrom(layoutSpec));
-              },
-              config: _TestSheetModelConfig(),
-              child: Center(
-                child: SizedBox.fromSize(
-                  size: layoutSpec.maxContentRect.size,
-                  child: SheetContentScaffold(
-                    key: Key('scaffold'),
-                    bottomBarVisibility: visibility,
-                    extendBodyBehindBottomBar: extendBodyBehindBottomBar,
-                    body: Container(
-                      key: Key('body'),
-                      color: Colors.white,
-                      height: double.infinity,
-                    ),
-                    bottomBar: Container(
-                      key: Key('bottomBar'),
-                      color: Colors.white,
-                      height: 50,
-                    ),
-                  ),
-                ),
+        initialState: initialKeyboardHeight,
+        builder: (context, keyboardHeight) {
+          return MediaQuery(
+            data: MediaQueryData(
+              viewInsets: EdgeInsets.only(bottom: keyboardHeight),
+            ),
+            child: SheetViewport(
+              child: SheetModelOwner(
+                key: modelOwnerKey,
+                factory: buildTestModel,
+                config: _TestSheetModelConfig(),
+                child: BareSheet(
+                    padding: EdgeInsets.only(bottom: keyboardHeight),
+                    child: SizedBox.expand(
+                      child: Center(
+                        child: SheetContentScaffold(
+                          key: Key('scaffold'),
+                          bottomBarVisibility: visibility,
+                          extendBodyBehindBottomBar: extendBodyBehindBottomBar,
+                          body: Container(
+                            key: Key('body'),
+                            color: Colors.white,
+                            height: double.infinity,
+                          ),
+                          bottomBar: Container(
+                            key: Key('bottomBar'),
+                            color: Colors.white,
+                            height: 50,
+                          ),
+                        ),
+                      ),
+                    )),
               ),
             ),
           );
@@ -706,10 +695,7 @@ void main() {
               ancestor: find.byKey(Key('scaffold')),
             ),
         updateKeyboardHeight: (height) {
-          final layoutSpec = createLayoutSpecFrom(height);
-          statefulKey.currentState!.state = layoutSpec;
-          modelOwnerKey.currentState!.model
-              .applyNewLayout(createSheetLayoutFrom(layoutSpec));
+          statefulKey.currentState!.state = height;
         },
       );
     }
