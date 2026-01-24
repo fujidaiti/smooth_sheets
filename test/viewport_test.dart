@@ -974,36 +974,105 @@ void main() {
     );
   });
 
-  group('SheetLayoutSpec', () {
-    test(
-      'maxSheetRect should match the viewport if there is no padding',
-      () {
+  group(
+    'SheetLayoutSpec',
+    () {
+      test(
+        'maxSheetRect should match the viewport if viewportPadding is zero',
+        () {
+          expect(
+            SheetLayoutSpec(
+              viewportSize: Size(800, 600),
+              viewportPadding: EdgeInsets.zero,
+              contentMargin: EdgeInsets.zero,
+            ).maxSheetRect,
+            Rect.fromLTWH(0, 0, 800, 600),
+          );
+        },
+      );
+
+      test(
+        'maxSheetRect should be reduced by the viewportPadding horizontally, '
+        'but remain unchanged vertically',
+        () {
+          expect(
+            SheetLayoutSpec(
+              viewportSize: Size(800, 600),
+              viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+              contentMargin: EdgeInsets.zero,
+            ).maxSheetRect,
+            Rect.fromLTRB(10, 0, 770, 600),
+          );
+        },
+      );
+
+      test('maxSheetRect should not be affected by contentMargin', () {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
-            contentMargin: EdgeInsets.zero,
+            contentMargin: EdgeInsets.all(10),
           ).maxSheetRect,
           Rect.fromLTWH(0, 0, 800, 600),
         );
-      },
-    );
 
-    test(
-      'maxSheetRect should be reduced by the viewport padding horizontally, '
-      'but remain unaffected vertically',
-      () {
         expect(
           SheetLayoutSpec(
             viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            contentMargin: EdgeInsets.zero,
+            viewportPadding: EdgeInsets.all(10),
+            contentMargin: EdgeInsets.all(50),
           ).maxSheetRect,
-          Rect.fromLTRB(10, 0, 770, 600),
+          Rect.fromLTWH(10, 0, 780, 600),
+          reason:
+              'Should be reduced by only viewportPadding, not contentMargin',
         );
-      },
-    );
-  });
+      });
+
+      test(
+        'maxContentRect should equal maxSheetRect if contentMargin is zero',
+        () {
+          final spec1 = SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            contentMargin: EdgeInsets.zero,
+          );
+          expect(spec1.maxContentRect, spec1.maxSheetRect);
+
+          final spec2 = SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(50),
+            contentMargin: EdgeInsets.zero,
+          );
+          expect(spec2.maxContentRect.left, spec2.maxSheetRect.left);
+          expect(spec2.maxContentRect.top, spec2.maxSheetRect.top + 50);
+          expect(spec2.maxContentRect.right, spec2.maxSheetRect.right);
+          expect(spec2.maxContentRect.bottom, spec2.maxSheetRect.bottom - 50);
+        },
+      );
+
+      test(
+          'maxContentRect should be reduced by contentMargin '
+          'from four sides of maxSheetRect', () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            contentMargin: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          ).maxContentRect,
+          Rect.fromLTWH(10, 20, 760, 540),
+        );
+
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(40, 30, 20, 10),
+            contentMargin: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          ).maxContentRect,
+          Rect.fromLTWH(50, 50, 700, 500),
+        );
+      });
+    },
+  );
 }
 
 class _TestIdleSheetActivity extends SheetActivity {
