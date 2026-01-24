@@ -32,9 +32,6 @@ class SheetLayoutSpec {
   /// {@macro ViewportLayout.contentMargin}
   final EdgeInsets contentMargin;
 
-  /// {@macro ViewportLayout.contentBaseline}
-  double get contentBaseline => viewportPadding.bottom + contentMargin.bottom;
-
   /// The maximum rectangle that the sheet can occupy.
   ///
   /// The width and bottom of the rectangle are fixed, so only
@@ -48,6 +45,7 @@ class SheetLayoutSpec {
         viewportPadding.left,
         0,
         viewportSize.width - viewportPadding.horizontal,
+        // TODO: Reduce the height by the viewportPadding.vertical
         viewportSize.height,
       );
 
@@ -57,11 +55,13 @@ class SheetLayoutSpec {
   ///
   /// The width and the bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraint.
-  Rect get maxContentRect => Rect.fromLTRB(
-        viewportPadding.left,
-        viewportPadding.top,
-        viewportSize.width - viewportPadding.right,
-        viewportSize.height - contentBaseline,
+  Rect get maxContentRect => Rect.fromLTWH(
+        maxSheetRect.left + contentMargin.left,
+        viewportPadding.top + contentMargin.top,
+        viewportSize.width -
+            viewportPadding.horizontal -
+            contentMargin.horizontal,
+        viewportSize.height - viewportPadding.vertical - contentMargin.vertical,
       );
 
   @override
@@ -808,7 +808,8 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       contentSize: Size.copy(child.size),
       viewportSize: _layoutSpec.viewportSize,
       viewportPadding: _layoutSpec.viewportPadding,
-      contentBaseline: _layoutSpec.contentBaseline,
+      contentBaseline:
+          _layoutSpec.viewportSize.height - _layoutSpec.maxContentRect.bottom,
       contentMargin: _layoutSpec.contentMargin,
     );
     final newOffset = _model._inner!.dryApplyNewLayout(viewportLayout);
