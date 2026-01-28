@@ -32,7 +32,7 @@ class SheetLayoutSpec {
   /// {@macro ViewportLayout.contentMargin}
   final EdgeInsets contentMargin;
 
-  /// The maximum rectangle that the sheet can occupy.
+  /// The maximum rectangle that the sheet can occupy within the viewport.
   ///
   /// The width and bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraints.
@@ -49,7 +49,8 @@ class SheetLayoutSpec {
         viewportSize.height,
       );
 
-  /// The maximum rectangle that the sheet's content can occupy.
+  /// The maximum rectangle that the sheet's content can occupy
+  /// within the viewport.
   ///
   /// Note that this rectangle does not contain the [contentMargin].
   ///
@@ -802,6 +803,8 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       ),
       parentUsesSize: true,
     );
+    (child.parentData! as BoxParentData).offset =
+        _layoutSpec.contentMargin.topLeft;
 
     assert(_model._inner != null);
     final viewportLayout = ImmutableViewportLayout(
@@ -816,10 +819,11 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     _preferredExtent = _getPreferredExtent(newOffset, viewportLayout);
     final maxRect = _layoutSpec.maxSheetRect;
     final maxSize = maxRect.size;
+    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
     size = BoxConstraints(
       minWidth: maxSize.width,
       maxWidth: maxSize.width,
-      minHeight: child.size.height,
+      minHeight: paddedChildSize.height,
       maxHeight: maxSize.height,
     ).constrain(Size.fromHeight(_preferredExtent!));
 

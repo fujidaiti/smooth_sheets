@@ -974,6 +974,165 @@ void main() {
     );
   });
 
+  group('BareSheet', () {
+    ({Widget testWidget}) boilerplate({
+      required Widget Function(Widget) contentBuilder,
+      EdgeInsets rootViewPadding = EdgeInsets.zero,
+      EdgeInsets rootViewInsets = EdgeInsets.zero,
+      EdgeInsets viewportPadding = EdgeInsets.zero,
+      EdgeInsets sheetPadding = EdgeInsets.zero,
+    }) {
+      final model = _TestSheetModel();
+      final testWidget = MediaQuery(
+        data: MediaQueryData(
+          viewInsets: rootViewInsets,
+          viewPadding: rootViewPadding,
+          padding: EdgeInsets.fromLTRB(
+            max(rootViewPadding.left - rootViewInsets.left, 0),
+            max(rootViewPadding.top - rootViewInsets.top, 0),
+            max(rootViewPadding.right - rootViewInsets.right, 0),
+            max(rootViewPadding.bottom - rootViewInsets.bottom, 0),
+          ),
+        ),
+        child: SheetViewport(
+          key: const Key('viewport'),
+          padding: viewportPadding,
+          child: BareSheet(
+            key: const Key('sheet'),
+            padding: sheetPadding,
+            child: contentBuilder(
+              TestStatefulWidget(
+                initialState: null,
+                didChangeDependencies: (context) {
+                  context
+                      .findAncestorStateOfType<SheetViewportState>()!
+                      .setModel(model);
+                },
+                builder: (_, __) => const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      return (testWidget: testWidget,);
+    }
+
+    testWidgets(
+      'should allow content to size itself freely within the viewport',
+      (tester) async {
+        final env = boilerplate(
+          contentBuilder: (child) => SizedBox.fromSize(
+            key: Key('content'),
+            size: Size.fromHeight(400),
+            child: child,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('viewport')), Size(800, 600));
+        expect(tester.getSize(find.byId('sheet')), Size(800, 400));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(0, 0, 800, 400),
+        );
+      },
+    );
+
+    testWidgets(
+      'should pad the content by the sheet padding ',
+      (tester) async {
+        final env = boilerplate(
+          sheetPadding: EdgeInsets.fromLTRB(10, 20, 40, 30),
+          contentBuilder: (child) => SizedBox.fromSize(
+            key: Key('content'),
+            size: Size.fromHeight(400),
+            child: child,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('sheet')), Size(800, 450));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(10, 20, 750, 400),
+        );
+      },
+    );
+
+    testWidgets(
+      'should pad the content by the sheet padding '
+      '(when viewport padding is non-zero)',
+      (tester) async {
+        final env = boilerplate(
+          sheetPadding: EdgeInsets.fromLTRB(10, 20, 40, 30),
+          viewportPadding: EdgeInsets.all(10),
+          contentBuilder: (child) =>
+              SizedBox.expand(key: Key('content'), child: child),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('sheet')), Size(780, 580));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(10, 20, 730, 530),
+        );
+      },
+    );
+
+    testWidgets(
+      'should reduce the maximum content rect by the sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          sheetPadding: EdgeInsets.fromLTRB(10, 20, 40, 30),
+          contentBuilder: (child) => SizedBox.expand(
+            key: Key('content'),
+            child: child,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('sheet')), Size(800, 600));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(10, 20, 750, 550),
+        );
+      },
+    );
+
+    testWidgets(
+      'content size should not be affected by inherited paddings',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.all(50),
+          rootViewInsets: EdgeInsets.all(100),
+          sheetPadding: EdgeInsets.zero,
+          contentBuilder: (child) => SizedBox.expand(
+            key: Key('content'),
+            child: child,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('sheet')), Size(800, 600));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(0, 0, 800, 600),
+        );
+      },
+    );
+  });
+
   group(
     'SheetLayoutSpec',
     () {
