@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 import 'internal/double_utils.dart';
 import 'modal.dart';
@@ -324,25 +325,36 @@ class _OutgoingTransitionState extends State<_OutgoingTransition> {
 
   @override
   Widget build(BuildContext context) {
-    return _TransformTransition(
+    return AnimatedBuilder(
       animation: _animation,
-      offsetTween: Tween(
-        begin: Offset.zero,
-        end: widget.endOffset,
-      ),
-      scaleTween: Tween(begin: 1, end: _minimizedSheetScale),
-      child: _ClipRRectTransition(
-        radius: Tween(
-          begin: 0.0,
-          end: _minimizedSheetCornerRadius,
-        ).animate(_animation),
-        child: widget.overlayColor != null
-            ? _ToningOverlay(
-                animation: _animation,
-                color: widget.overlayColor!,
-                child: widget.child,
-              )
-            : widget.child,
+      builder: (_, child) {
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: _animation.value > 0.5
+              ? SystemUiOverlayStyle.light
+              : SystemUiOverlayStyle.dark,
+          child: child!,
+        );
+      },
+      child: _TransformTransition(
+        animation: _animation,
+        offsetTween: Tween(
+          begin: Offset.zero,
+          end: widget.endOffset,
+        ),
+        scaleTween: Tween(begin: 1, end: _minimizedSheetScale),
+        child: _ClipRRectTransition(
+          radius: Tween(
+            begin: 0.0,
+            end: _minimizedSheetCornerRadius,
+          ).animate(_animation),
+          child: widget.overlayColor != null
+              ? _ToningOverlay(
+                  animation: _animation,
+                  color: widget.overlayColor!,
+                  child: widget.child,
+                )
+              : widget.child,
+        ),
       ),
     );
   }
