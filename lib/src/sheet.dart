@@ -97,6 +97,7 @@ class Sheet extends StatelessWidget {
 
   final SheetDecoration decoration;
 
+  /// {@macro viewport.BareSheet.padding}
   final EdgeInsets padding;
 
   /// The content of the sheet.

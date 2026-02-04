@@ -273,6 +273,7 @@ class PagedSheet extends StatelessWidget {
 
   final SheetDecoration decoration;
 
+  /// {@macro viewport.BareSheet.padding}
   final EdgeInsets padding;
 
   final Widget Function(BuildContext, Widget)? builder;

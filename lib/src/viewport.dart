@@ -1,3 +1,6 @@
+/// @docImport 'decorations.dart';
+library;
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -607,6 +610,111 @@ class BareSheet extends StatefulWidget {
     required this.child,
   });
 
+  /// {@template viewport.BareSheet.padding}
+  /// The padding around the [child].
+  ///
+  /// Typically, you want to use this property to push the [child] up
+  /// against the software keyboard as it appears, to avoid it being covered.
+  ///
+  /// ```dart
+  /// Sheet(
+  ///   padding: EdgeInsets.only(
+  ///     bottom: MediaQuery.viewInsetsOf(context).bottom,
+  ///   ),
+  ///   child: Container(height: 400),
+  /// );
+  /// ```
+  ///
+  /// If you want to avoid the screen notches at the bottom only when
+  /// the keyboard is closed:
+  ///
+  /// ```dart
+  /// Sheet(
+  ///   padding: EdgeInsets.only(
+  ///     bottom: math.max(
+  ///       MediaQuery.viewInsetsOf(context).bottom,
+  ///       MediaQuery.viewPaddingOf(context).bottom,
+  ///     ),
+  ///   ),
+  ///   child: Container(height: 400),
+  /// );
+  /// ```
+  ///
+  /// ## Padding widget vs. padding property
+  ///
+  /// Although wrapping the [child] with a [Padding] widget appears to produce
+  /// the same result as the former example, they differ in whether the padding
+  /// is included in the [child]'s size calculation; the [Padding] size is
+  /// added to the [child]'s size, but the [padding] property is not.
+  /// This leads to unexpected behavior depending on whether the keyboard
+  /// is open or closed, if you use [SheetOffset]s that depend on the [child]'s
+  /// size for controlling the sheet's position, such as animation destinations
+  /// and snap positions.
+  ///
+  /// For example, say we have a sheet with 3 snap offsets where the middle one
+  /// is `SheetOffset(0.5)`, and we wrap the [child] with a [Padding]
+  /// to avoid the keyboard.
+  ///
+  /// ```dart
+  /// Sheet(
+  ///   snapGrid: const SheetSnapGrid(
+  ///     snaps: [SheetOffset(0.2), SheetOffset(0.5), SheetOffset(1)],
+  ///   ),
+  ///   child: Padding(
+  ///     padding: EdgeInsets.only(
+  ///       bottom: MediaQuery.viewInsetsOf(context).bottom,
+  ///     ),
+  ///     child: Container(height: 400, color: Colors.red),
+  ///   ),
+  /// );
+  /// ```
+  ///
+  /// The actual value of `SheetOffset(0.5)` depends on the [child]'s size.
+  /// If the keyboard is hidden, the [child]'s height is 400 logical pixels,
+  /// so the sheet snaps to 400 * 0.5 = 200 logical pixels from the bottom
+  /// of the viewport. If the keyboard is shown, we expect the sheet to snap
+  /// to 200 logical pixels from the top of the keyboard for visual consistency.
+  /// However, since the [Padding] is part of the [child] and
+  /// `MediaQuery.viewInsetsOf(context).bottom` increases as the keyboard
+  /// appears (say to 200), the [child]'s height also increases by 200.
+  /// `SheetOffset(0.5)` then becomes 600 * 0.5 = 300 logical pixels.
+  /// This means the sheet snaps to 100 logical pixels above the keyboard,
+  /// which is 100 logical pixels below our expectation (200 logical pixels
+  /// above the keyboard).
+  ///
+  /// In contrast, the blank space the [padding] property creates does not add
+  /// to the [child]'s size, so `SheetOffset(0.5)` is always 200 regardless
+  /// of the keyboard height (unless the available height for the [child] is
+  /// less than 400, more precisely), meaning the sheet snaps to 200 logical
+  /// pixels from the bottom of the viewport when the keyboard is hidden, and
+  /// 200 logical pixels from the top of the keyboard when it is shown.
+  ///
+  /// For this reason, using the [padding] property is always preferable
+  /// to using a [Padding] widget to avoid the keyboard, unless you know
+  /// exactly what you are doing.
+  ///
+  /// ## SheetViewport.padding vs. padding property
+  ///
+  /// Specifying `MediaQuery.viewInsetsOf(context).bottom` to
+  /// the [SheetViewport.padding] is another option to prevent the [child]
+  /// from being overlapped by the keyboard. It pushes the sheet itself up
+  /// above the keyboard, which differs from the [padding] property that
+  /// only pushes up the [child].
+  ///
+  /// ```dart
+  /// SheetViewport(
+  ///   padding: EdgeInsets.only(
+  ///     bottom: MediaQuery.viewInsetsOf(context).bottom,
+  ///   ),
+  ///   child: Sheet(...),
+  /// );
+  /// ```
+  ///
+  /// Since this approach does not cause the `SheetOffset` problem described
+  /// in the previous section, and the [SheetViewport.padding] and the [padding]
+  /// property create two distinct sheet appearances, both options are valid,
+  /// and the choice depends on your use case.
+  /// {@endtemplate}
   final EdgeInsets padding;
 
   final SheetDecoration decoration;
