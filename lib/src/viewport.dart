@@ -239,7 +239,24 @@ class SheetViewport extends StatefulWidget {
     required this.child,
   });
 
+  /// The inset the viewport applies to the [child].
+  ///
+  /// Use this, for example, to push the [child] (typically a sheet) upward
+  /// as the software keyboard appears, preventing it from being covered.
+  ///
+  /// ```dart
+  /// SheetViewport(
+  ///   padding: EdgeInsets.only(
+  ///     bottom: MediaQuery.viewInsetsOf(context).bottom,
+  ///   ),
+  ///   child: Sheet(...),
+  /// );
+  /// ```
+  ///
+  /// See also:
+  /// - [BareSheet.padding], which is similar but pads the sheet content.
   final EdgeInsets padding;
+
   final Widget child;
 
   @override
@@ -613,8 +630,8 @@ class BareSheet extends StatefulWidget {
   /// {@template viewport.BareSheet.padding}
   /// The padding around the [child].
   ///
-  /// Typically, you want to use this property to push the [child] up
-  /// against the software keyboard as it appears, to avoid it being covered.
+  /// Typically, you want to use this property to push the [child] upward
+  /// as the software keyboard appears, preventing it from being covered.
   ///
   /// ```dart
   /// Sheet(
