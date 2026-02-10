@@ -325,10 +325,7 @@ void main() {
   });
 
   group('PagedSheet Basic Test - Declarative API', () {
-    ({
-      Widget testWidget,
-      ValueNotifier<List<Page<dynamic>>> pagesNotifier,
-    })
+    ({Widget testWidget, ValueNotifier<List<Page<dynamic>>> pagesNotifier})
     boilerplate({
       required Page<dynamic> initialPage,
     }) {

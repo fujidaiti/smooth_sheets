@@ -15,11 +15,7 @@ import 'src/flutter_test_x.dart';
 import 'src/stubbing.dart';
 
 void main() {
-  ({
-    Widget testWidget,
-    ValueGetter<SheetModel> getModel,
-  })
-  boilerplate({
+  ({Widget testWidget, ValueGetter<SheetModel> getModel}) boilerplate({
     SheetOffset initialOffset = const SheetOffset(1),
     EdgeInsets viewportPadding = EdgeInsets.zero,
     EdgeInsets viewInsets = EdgeInsets.zero,

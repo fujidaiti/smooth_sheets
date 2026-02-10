@@ -17,10 +17,7 @@ import 'src/test_stateful_widget.dart';
 
 void main() {
   group('SheetViewport', () {
-    ({
-      Widget testWidget,
-    })
-    boilerplate({
+    ({Widget testWidget}) boilerplate({
       required SheetModel model,
       EdgeInsets viewInsets = EdgeInsets.zero,
       EdgeInsets viewPadding = EdgeInsets.zero,
@@ -654,11 +651,7 @@ void main() {
   });
 
   group('SheetViewport: hit-testing', () {
-    ({
-      _TestSheetModel model,
-      Widget testWidget,
-    })
-    boilerplate() {
+    ({_TestSheetModel model, Widget testWidget}) boilerplate() {
       final model = _TestSheetModel();
 
       final testWidget = MediaQuery(
@@ -1332,10 +1325,7 @@ void main() {
   });
 
   group('SheetMediaQuery', () {
-    ({
-      Widget testWidget,
-    })
-    boilerplate({
+    ({Widget testWidget}) boilerplate({
       required SheetLayoutSpec layoutSpec,
       required Widget child,
     }) {

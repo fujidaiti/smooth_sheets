@@ -15,11 +15,7 @@ import 'package:smooth_sheets/src/viewport.dart';
 import 'src/flutter_test_x.dart';
 import 'src/stubbing.dart';
 
-({
-  Widget testWidget,
-  ValueGetter<NavigatorState> getNavigator,
-})
-_boilerplate({
+({Widget testWidget, ValueGetter<NavigatorState> getNavigator}) _boilerplate({
   Key? homeKey,
   double statusBarHeight = 0,
 }) {

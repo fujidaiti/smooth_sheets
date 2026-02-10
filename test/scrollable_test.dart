@@ -15,11 +15,7 @@ import 'src/object_ref.dart';
 
 void main() {
   group('Edge behaviors should not depend on scroll physics', () {
-    ({
-      Widget testWidget,
-      SheetController controller,
-    })
-    boilerplate({
+    ({Widget testWidget, SheetController controller}) boilerplate({
       required SheetPhysics sheetPhysics,
       required ScrollPhysics scrollPhysics,
     }) {
@@ -424,10 +420,7 @@ void main() {
   });
 
   group('SheetScrollHandlingBehavior', () {
-    ({
-      Widget testWidget,
-      ObjectRef<ScrollController> scrollControllerRef,
-    })
+    ({Widget testWidget, ObjectRef<ScrollController> scrollControllerRef})
     boilerplate({
       required SheetScrollConfiguration scrollConfiguration,
     }) {

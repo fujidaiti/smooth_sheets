@@ -581,19 +581,13 @@ void main() {
     testWidgets(
       'Dynamically enable/disable the swipe gesture',
       (tester) async {
-        const ({
-          bool canPop,
-          PopInvokedWithResultCallback<dynamic>? callback,
-        })
+        const ({bool canPop, PopInvokedWithResultCallback<dynamic>? callback})
         initialPopScopeConfig = (canPop: false, callback: null);
 
         final popScopeStateKey =
             GlobalKey<
               TestStatefulWidgetState<
-                ({
-                  bool canPop,
-                  PopInvokedWithResultCallback<dynamic>? callback,
-                })
+                ({bool canPop, PopInvokedWithResultCallback<dynamic>? callback})
               >
             >();
 
