@@ -7,10 +7,8 @@ import 'controller.dart';
 import 'model.dart';
 import 'viewport.dart';
 
-typedef SheetModelFactory<C extends SheetModelConfig> = SheetModel<C> Function(
-  SheetContext context,
-  C config,
-);
+typedef SheetModelFactory<C extends SheetModelConfig> =
+    SheetModel<C> Function(SheetContext context, C config);
 
 /// A widget that creates a [SheetModel], manages its lifecycle,
 /// and exposes it to the descendant widgets.
@@ -113,18 +111,12 @@ class SheetModelOwnerState<C extends SheetModelConfig>
 
   @override
   Widget build(BuildContext context) {
-    return _InheritedSheetModel(
-      model: model,
-      child: widget.child,
-    );
+    return _InheritedSheetModel(model: model, child: widget.child);
   }
 }
 
 class _InheritedSheetModel extends InheritedWidget {
-  const _InheritedSheetModel({
-    required this.model,
-    required super.child,
-  });
+  const _InheritedSheetModel({required this.model, required super.child});
 
   final SheetModel model;
 

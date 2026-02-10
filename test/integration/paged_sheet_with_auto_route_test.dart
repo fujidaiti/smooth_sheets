@@ -128,9 +128,7 @@ class _TestApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: router.config(),
-    );
+    return MaterialApp.router(routerConfig: router.config());
   }
 }
 
@@ -141,82 +139,77 @@ typedef _SheetPageConfig = ({
 });
 
 class _TestRouter extends RootStackRouter {
-  _TestRouter({
-    required this.firstPageConfig,
-    required this.secondPageConfig,
-  });
+  _TestRouter({required this.firstPageConfig, required this.secondPageConfig});
 
   final _SheetPageConfig firstPageConfig;
   final _SheetPageConfig secondPageConfig;
 
   @override
   List<AutoRoute> get routes => [
-        AutoRoute(
-          path: '/',
-          page: PageInfo(
-            '_HomeRoute',
-            builder: (data) {
-              return _HomePage();
-            },
-          ),
-        ),
+    AutoRoute(
+      path: '/',
+      page: PageInfo(
+        '_HomeRoute',
+        builder: (data) {
+          return _HomePage();
+        },
+      ),
+    ),
+    CustomRoute<dynamic>(
+      path: '/modal',
+      page: PageInfo(
+        '_ModalSheetRoute',
+        builder: (data) {
+          return _ModalSheetPage();
+        },
+      ),
+      customRouteBuilder: <T>(context, child, page) {
+        // Use ModalSheetRoute to show the sheet as a modal.
+        return ModalSheetRoute(
+          settings: page, // required
+          builder: (_) => child,
+        );
+      },
+      children: [
         CustomRoute<dynamic>(
-          path: '/modal',
+          initial: true,
+          path: 'first',
           page: PageInfo(
-            '_ModalSheetRoute',
+            '_FirstSheetRoute',
             builder: (data) {
-              return _ModalSheetPage();
+              return _FirstSheetPage(height: firstPageConfig.height);
             },
           ),
           customRouteBuilder: <T>(context, child, page) {
-            // Use ModalSheetRoute to show the sheet as a modal.
-            return ModalSheetRoute(
+            // Each route in the PagedSheet must be a PagedSheetRoute.
+            return PagedSheetRoute(
               settings: page, // required
+              initialOffset: firstPageConfig.initialOffset,
+              snapGrid: firstPageConfig.snapGrid,
               builder: (_) => child,
             );
           },
-          children: [
-            CustomRoute<dynamic>(
-              initial: true,
-              path: 'first',
-              page: PageInfo(
-                '_FirstSheetRoute',
-                builder: (data) {
-                  return _FirstSheetPage(
-                    height: firstPageConfig.height,
-                  );
-                },
-              ),
-              customRouteBuilder: <T>(context, child, page) {
-                // Each route in the PagedSheet must be a PagedSheetRoute.
-                return PagedSheetRoute(
-                  settings: page, // required
-                  initialOffset: firstPageConfig.initialOffset,
-                  snapGrid: firstPageConfig.snapGrid,
-                  builder: (_) => child,
-                );
-              },
-            ),
-            CustomRoute<dynamic>(
-              path: 'second',
-              page: PageInfo(
-                '_SecondSheetRoute',
-                builder: (data) {
-                  return _SecondSheetPage(height: secondPageConfig.height);
-                },
-              ),
-              customRouteBuilder: <T>(context, child, page) {
-                return PagedSheetRoute(
-                  settings: page, // required
-                  initialOffset: secondPageConfig.initialOffset,
-                  snapGrid: secondPageConfig.snapGrid,
-                  builder: (_) => child,
-                );
-              },
-            ),
-          ],
         ),
-      ];
+        CustomRoute<dynamic>(
+          path: 'second',
+          page: PageInfo(
+            '_SecondSheetRoute',
+            builder: (data) {
+              return _SecondSheetPage(height: secondPageConfig.height);
+            },
+          ),
+          customRouteBuilder: <T>(context, child, page) {
+            return PagedSheetRoute(
+              settings: page, // required
+              initialOffset: secondPageConfig.initialOffset,
+              snapGrid: secondPageConfig.snapGrid,
+              builder: (_) => child,
+            );
+          },
+        ),
+      ],
+    ),
+  ];
 }
 
 class _HomePage extends StatelessWidget {

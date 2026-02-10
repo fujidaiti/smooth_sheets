@@ -15,10 +15,7 @@ import 'src/flutter_test_x.dart';
 import 'src/stubbing.dart';
 
 void main() {
-  ({
-    Widget testWidget,
-    ValueGetter<SheetModel> getModel,
-  }) boilerplate({
+  ({Widget testWidget, ValueGetter<SheetModel> getModel}) boilerplate({
     SheetOffset initialOffset = const SheetOffset(1),
     EdgeInsets viewportPadding = EdgeInsets.zero,
     EdgeInsets viewInsets = EdgeInsets.zero,
@@ -41,10 +38,8 @@ void main() {
         padding: viewportPadding,
         child: SheetModelOwner(
           key: modelOwnerKey,
-          factory: (_, config) => _TestSheetModel(
-            config: config,
-            initialOffset: initialOffset,
-          ),
+          factory: (_, config) =>
+              _TestSheetModel(config: config, initialOffset: initialOffset),
           config: _TestSheetModelConfig(),
           child: sheet,
         ),
@@ -58,73 +53,70 @@ void main() {
   }
 
   group('SheetSize', () {
-    testWidgets(
-      "stretch - should stick the sheet's bottom edge "
-      'at the bottom of the viewport when the content is fully visible',
-      (tester) async {
-        final env = boilerplate(
-          initialOffset: SheetOffset.absolute(300),
-          sheet: BareSheet(
-            decoration: _PlaneSheetDecoration(
-              size: SheetSize.stretch,
-            ),
-            child: Container(
-              key: Key('content'),
-              height: 300,
-              width: double.infinity,
-              color: Colors.white,
-            ),
+    testWidgets("stretch - should stick the sheet's bottom edge "
+        'at the bottom of the viewport when the content is fully visible', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        initialOffset: SheetOffset.absolute(300),
+        sheet: BareSheet(
+          decoration: _PlaneSheetDecoration(size: SheetSize.stretch),
+          child: Container(
+            key: Key('content'),
+            height: 300,
+            width: double.infinity,
+            color: Colors.white,
           ),
-        );
+        ),
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 300,
-            testScreenSize.width,
-            300,
-          ),
-        );
+      await tester.pumpWidget(env.testWidget);
+      expect(
+        tester.getSize(find.byKey(Key('content'))),
+        Size(testScreenSize.width, 300),
+      );
+      expect(
+        tester.getRect(find.byType(BareSheet)),
+        Rect.fromLTWH(
+          0,
+          testScreenSize.height - 300,
+          testScreenSize.width,
+          300,
+        ),
+      );
 
-        env.getModel().offset = 350;
-        await tester.pump();
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 350,
-            testScreenSize.width,
-            350,
-          ),
-        );
+      env.getModel().offset = 350;
+      await tester.pump();
+      expect(
+        tester.getSize(find.byKey(Key('content'))),
+        Size(testScreenSize.width, 300),
+      );
+      expect(
+        tester.getRect(find.byType(BareSheet)),
+        Rect.fromLTWH(
+          0,
+          testScreenSize.height - 350,
+          testScreenSize.width,
+          350,
+        ),
+      );
 
-        env.getModel().offset = 150;
-        await tester.pump();
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(testScreenSize.width, 300),
-        );
-        expect(
-          tester.getRect(find.byType(BareSheet)),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 150,
-            testScreenSize.width,
-            300,
-          ),
-        );
-      },
-    );
+      env.getModel().offset = 150;
+      await tester.pump();
+      expect(
+        tester.getSize(find.byKey(Key('content'))),
+        Size(testScreenSize.width, 300),
+      );
+      expect(
+        tester.getRect(find.byType(BareSheet)),
+        Rect.fromLTWH(
+          0,
+          testScreenSize.height - 150,
+          testScreenSize.width,
+          300,
+        ),
+      );
+    });
 
     testWidgets(
       "stretch - should stick the sheet's bottom edge at the bottom of "
@@ -133,9 +125,7 @@ void main() {
         final env = boilerplate(
           viewportPadding: EdgeInsets.all(10),
           sheet: BareSheet(
-            decoration: _PlaneSheetDecoration(
-              size: SheetSize.stretch,
-            ),
+            decoration: _PlaneSheetDecoration(size: SheetSize.stretch),
             child: Container(
               key: Key('content'),
               height: 300,
@@ -201,9 +191,7 @@ void main() {
           initialOffset: SheetOffset(1),
           viewportPadding: EdgeInsets.all(10),
           sheet: BareSheet(
-            decoration: _PlaneSheetDecoration(
-              size: SheetSize.fit,
-            ),
+            decoration: _PlaneSheetDecoration(size: SheetSize.fit),
             child: Container(
               key: Key('content'),
               height: 300,
@@ -215,10 +203,7 @@ void main() {
 
         await tester.pumpWidget(env.testWidget);
         expect(env.getModel().offset, 310);
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(780, 300),
-        );
+        expect(tester.getSize(find.byKey(Key('content'))), Size(780, 300));
         expect(
           tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(10, 290, 780, 300),
@@ -226,10 +211,7 @@ void main() {
 
         env.getModel().offset = 360;
         await tester.pump();
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(780, 300),
-        );
+        expect(tester.getSize(find.byKey(Key('content'))), Size(780, 300));
         expect(
           tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(10, 240, 780, 300),
@@ -237,10 +219,7 @@ void main() {
 
         env.getModel().offset = 160;
         await tester.pump();
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          Size(780, 300),
-        );
+        expect(tester.getSize(find.byKey(Key('content'))), Size(780, 300));
         expect(
           tester.getRect(find.byType(BareSheet)),
           Rect.fromLTWH(10, 440, 780, 300),
@@ -256,11 +235,11 @@ class _TestIdleSheetActivity extends SheetActivity {
 
 class _TestSheetModelConfig extends SheetModelConfig {
   const _TestSheetModelConfig()
-      : super(
-          physics: const ClampingSheetPhysics(),
-          snapGrid: const SheetSnapGrid.stepless(),
-          gestureProxy: null,
-        );
+    : super(
+        physics: const ClampingSheetPhysics(),
+        snapGrid: const SheetSnapGrid.stepless(),
+        gestureProxy: null,
+      );
 
   @override
   SheetModelConfig copyWith({

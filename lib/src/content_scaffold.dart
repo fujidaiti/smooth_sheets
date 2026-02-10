@@ -28,23 +28,19 @@ sealed class BottomBarVisibility {
   /// the [SheetContentScaffold.bottomBar] within a [SheetContentScaffold].
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const BottomBarVisibility({
-    this.ignoreBottomInset = false,
-  });
+  const BottomBarVisibility({this.ignoreBottomInset = false});
 
   /// {@macro NaturalBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const factory BottomBarVisibility.natural({
-    bool ignoreBottomInset,
-  }) = NaturalBottomBarVisibility;
+  const factory BottomBarVisibility.natural({bool ignoreBottomInset}) =
+      NaturalBottomBarVisibility;
 
   /// {@macro AlwaysVisibleBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const factory BottomBarVisibility.always({
-    bool ignoreBottomInset,
-  }) = AlwaysVisibleBottomBarVisibility;
+  const factory BottomBarVisibility.always({bool ignoreBottomInset}) =
+      AlwaysVisibleBottomBarVisibility;
 
   /// {@macro ControlledBottomBarVisibility}
   ///
@@ -228,11 +224,9 @@ class SheetContentScaffold extends StatelessWidget {
 
     final effectiveTopBar = switch (topBar) {
       PreferredSizeWidget(:final preferredSize) => ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: preferredSize.height,
-          ),
-          child: topBar,
-        ),
+        constraints: BoxConstraints(maxHeight: preferredSize.height),
+        child: topBar,
+      ),
       _ => topBar,
     };
 
@@ -240,9 +234,7 @@ class SheetContentScaffold extends StatelessWidget {
     if (bottomBar != null) {
       if (bottomBar case PreferredSizeWidget(:final preferredSize)) {
         effectiveBottomBar = ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: preferredSize.height,
-          ),
+          constraints: BoxConstraints(maxHeight: preferredSize.height),
           child: bottomBar,
         );
       }
@@ -291,9 +283,7 @@ class SheetContentScaffold extends StatelessWidget {
         ignoreBottomInset: bottomBarVisibility.ignoreBottomInset,
         topBar: effectiveTopBar,
         bottomBar: effectiveBottomBar,
-        body: _ScaffoldBodyContainer(
-          child: body,
-        ),
+        body: _ScaffoldBodyContainer(child: body),
       ),
     );
   }
@@ -336,7 +326,7 @@ class _ScaffoldLayout
 
   @override
   SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox>
-      createRenderObject(BuildContext context) {
+  createRenderObject(BuildContext context) {
     return _RenderScaffoldLayout(
       sheetLayoutSpec: SheetMediaQuery.layoutSpecOf(context),
       extendBodyBehindTopBar: extendBodyBehindTopBar,
@@ -366,10 +356,10 @@ class _RenderScaffoldLayout extends RenderBox
     required bool extendBodyBehindBottomBar,
     required bool ignoreBottomInset,
     required SheetLayoutSpec sheetLayoutSpec,
-  })  : _extendBodyBehindTopBar = extendBodyBehindTopBar,
-        _extendBodyBehindBottomBar = extendBodyBehindBottomBar,
-        _ignoreBottomInset = ignoreBottomInset,
-        _sheetLayoutSpec = sheetLayoutSpec;
+  }) : _extendBodyBehindTopBar = extendBodyBehindTopBar,
+       _extendBodyBehindBottomBar = extendBodyBehindBottomBar,
+       _ignoreBottomInset = ignoreBottomInset,
+       _sheetLayoutSpec = sheetLayoutSpec;
 
   bool get extendBodyBehindTopBar => _extendBodyBehindTopBar;
   bool _extendBodyBehindTopBar;
@@ -499,10 +489,14 @@ class _RenderScaffoldLayout extends RenderBox
     );
 
     // Layout the bars.
-    final topBarHeight =
-        layoutChild(_ScaffoldSlot.topBar, childConstraints).height;
-    final bottomBarHeight =
-        layoutChild(_ScaffoldSlot.bottomBar, childConstraints).height;
+    final topBarHeight = layoutChild(
+      _ScaffoldSlot.topBar,
+      childConstraints,
+    ).height;
+    final bottomBarHeight = layoutChild(
+      _ScaffoldSlot.bottomBar,
+      childConstraints,
+    ).height;
 
     // Calculate the visible height of the bottom bar.
     final double visibleBottomBarHeight;
@@ -518,14 +512,17 @@ class _RenderScaffoldLayout extends RenderBox
       top: extendBodyBehindTopBar ? 0 : topBarHeight,
       bottom: extendBodyBehindBottomBar ? 0 : visibleBottomBarHeight,
     );
-    final bodyMaxHeight =
-        max(childConstraints.maxHeight - bodyMargin.vertical, 0.0);
+    final bodyMaxHeight = max(
+      childConstraints.maxHeight - bodyMargin.vertical,
+      0.0,
+    );
     final bodyHeight = layoutChild(
       _ScaffoldSlot.body,
       _ScaffoldBodyConstraints(
         topBarOverlap: extendBodyBehindTopBar ? topBarHeight : 0,
-        bottomBarOverlap:
-            extendBodyBehindBottomBar ? visibleBottomBarHeight : 0,
+        bottomBarOverlap: extendBodyBehindBottomBar
+            ? visibleBottomBarHeight
+            : 0,
         minWidth: childConstraints.minWidth,
         maxWidth: childConstraints.maxWidth,
         minHeight: constraints.isTight ? bodyMaxHeight : 0,
@@ -599,9 +596,7 @@ class _ScaffoldBodyConstraints extends BoxConstraints {
 }
 
 class _ScaffoldBodyContainer extends StatelessWidget {
-  const _ScaffoldBodyContainer({
-    required this.child,
-  });
+  const _ScaffoldBodyContainer({required this.child});
 
   final Widget child;
 
@@ -629,9 +624,9 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
   _RenderBottomBarVisibility({
     required SheetModelView model,
     required SheetLayoutListenable layoutNotifier,
-  })  : _model = model,
-        _layoutNotifier = layoutNotifier,
-        super(transform: Matrix4.zero(), transformHitTests: true) {
+  }) : _model = model,
+       _layoutNotifier = layoutNotifier,
+       super(transform: Matrix4.zero(), transformHitTests: true) {
     _model.addListener(invalidateTranslationValues);
     _layoutNotifier.addListener(invalidateTranslationValues);
   }
@@ -683,17 +678,18 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
     if (bottomBarSize != null && _model.hasMetrics) {
       // This translation ensures that the bar is fully visible even when
       // the sheet's content is partially or fully outside of the viewport.
-      final baseDeltaY = (_model.viewportSize.height -
-              _model.contentBaseline -
-              _model.contentRect.bottom)
-          .clamp(
-        // Prevent the bar from being moved up
-        // when the content is fully outside of the viewport.
-        bottomBarSize.height - _model.contentSize.height,
-        // We don't need to move the bar up
-        // when the content is fully visible within the viewport.
-        0.0,
-      );
+      final baseDeltaY =
+          (_model.viewportSize.height -
+                  _model.contentBaseline -
+                  _model.contentRect.bottom)
+              .clamp(
+                // Prevent the bar from being moved up
+                // when the content is fully outside of the viewport.
+                bottomBarSize.height - _model.contentSize.height,
+                // We don't need to move the bar up
+                // when the content is fully visible within the viewport.
+                0.0,
+              );
       final visibility = computeVisibility(_model, bottomBarSize);
       assert(0 <= visibility && visibility <= 1);
       final invisibleHeight = bottomBarSize.height * (1 - visibility);
@@ -707,9 +703,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 }
 
 class _AlwaysVisibleBottomBarVisibility extends SingleChildRenderObjectWidget {
-  const _AlwaysVisibleBottomBarVisibility({
-    required super.child,
-  });
+  const _AlwaysVisibleBottomBarVisibility({required super.child});
 
   @override
   RenderObject createRenderObject(BuildContext context) {

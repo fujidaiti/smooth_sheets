@@ -42,8 +42,9 @@ void main() {
       expect(ModalRoute.of(tester.element(find.byId('sheet'))), routeMatcher);
     }
 
-    testWidgets('should show CupertinoModalSheet on iOS platform',
-        (tester) async {
+    testWidgets('should show CupertinoModalSheet on iOS platform', (
+      tester,
+    ) async {
       await boilerplate(
         tester,
         TargetPlatform.iOS,
@@ -51,8 +52,9 @@ void main() {
       );
     });
 
-    testWidgets('should show CupertinoModalSheet on macOS platform',
-        (tester) async {
+    testWidgets('should show CupertinoModalSheet on macOS platform', (
+      tester,
+    ) async {
       await boilerplate(
         tester,
         TargetPlatform.macOS,
@@ -95,28 +97,30 @@ void main() {
 
   group('showModalSheet', () {
     testWidgets('should create and push ModalSheetRoute', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => showModalSheet<int>(
-                  context: context,
-                  builder: (context) => Sheet(
-                    child: Container(
-                      key: const Key('sheet'),
-                      color: Colors.white,
-                      width: double.infinity,
-                      height: 400,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () => showModalSheet<int>(
+                    context: context,
+                    builder: (context) => Sheet(
+                      child: Container(
+                        key: const Key('sheet'),
+                        color: Colors.white,
+                        width: double.infinity,
+                        height: 400,
+                      ),
                     ),
                   ),
+                  child: const Text('Open modal'),
                 ),
-                child: const Text('Open modal'),
               ),
             ),
           ),
         ),
-      ));
+      );
       await tester.tap(find.text('Open modal'));
       await tester.pumpAndSettle();
       expect(find.byId('sheet'), findsOneWidget);
@@ -128,30 +132,33 @@ void main() {
   });
 
   group('showCupertinoModalSheet', () {
-    testWidgets('should create and push CupertinoModalSheetRoute',
-        (tester) async {
-      await tester.pumpWidget(CupertinoApp(
-        home: CupertinoPageScaffold(
-          child: Center(
-            child: Builder(
-              builder: (context) => CupertinoButton.filled(
-                onPressed: () => showCupertinoModalSheet<int>(
-                  context: context,
-                  builder: (context) => Sheet(
-                    child: Container(
-                      key: const Key('sheet'),
-                      color: Colors.white,
-                      width: double.infinity,
-                      height: 400,
+    testWidgets('should create and push CupertinoModalSheetRoute', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        CupertinoApp(
+          home: CupertinoPageScaffold(
+            child: Center(
+              child: Builder(
+                builder: (context) => CupertinoButton.filled(
+                  onPressed: () => showCupertinoModalSheet<int>(
+                    context: context,
+                    builder: (context) => Sheet(
+                      child: Container(
+                        key: const Key('sheet'),
+                        color: Colors.white,
+                        width: double.infinity,
+                        height: 400,
+                      ),
                     ),
                   ),
+                  child: const Text('Open modal'),
                 ),
-                child: const Text('Open modal'),
               ),
             ),
           ),
         ),
-      ));
+      );
       await tester.tap(find.byType(CupertinoButton));
       await tester.pumpAndSettle();
       expect(find.byId('sheet'), findsOneWidget);

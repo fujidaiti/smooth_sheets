@@ -3,29 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/model.dart';
 
 Matcher throwsError({required String name}) => throwsA(
-      isA<Error>().having(
-        (e) => e.runtimeType.toString(),
-        'runtimeType',
-        name,
-      ),
-    );
+  isA<Error>().having((e) => e.runtimeType.toString(), 'runtimeType', name),
+);
 
 /// A matcher that checks if the error is a LateError.
 ///
 /// This is useful for verifying that a late field has not been initialized.
 Matcher get isNotInitialized => throwsError(name: 'LateError');
 
-Matcher isViewportLayout({
-  Size? contentSize,
-  double? contentBaseline,
-}) {
+Matcher isViewportLayout({Size? contentSize, double? contentBaseline}) {
   var result = isA<ViewportLayout>();
   if (contentSize != null) {
-    result = result.having(
-      (it) => it.contentSize,
-      'contentSize',
-      contentSize,
-    );
+    result = result.having((it) => it.contentSize, 'contentSize', contentSize);
   }
   if (contentBaseline != null) {
     result = result.having(

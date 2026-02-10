@@ -1,12 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-// TODO: Remove this import after the minimum sdk version is bumped to 3.35.0
-//
-// @internal annotation has been included in flutter/foundation.dart since 3.35.0.
-// See: https://github.com/flutter/flutter/commit/5706259791de29a27cb68e9b95d6319ba863e366
-// ignore: unnecessary_import
-import 'package:meta/meta.dart';
 
 import 'model.dart';
 
@@ -26,9 +20,9 @@ class SheetController extends ChangeNotifier
 
   /// The current metrics of the sheet.
   SheetMetrics? get metrics => switch (_client) {
-        final it? when it.hasMetrics => it.copyWith(),
-        _ => null,
-      };
+    final it? when it.hasMetrics => it.copyWith(),
+    _ => null,
+  };
 
   /// Whether a [SheetModel] is attached to this controller.
   bool get hasClient => _client != null;
@@ -100,10 +94,7 @@ class SheetController extends ChangeNotifier
 }
 
 class DefaultSheetController extends StatefulWidget {
-  const DefaultSheetController({
-    super.key,
-    required this.child,
-  });
+  const DefaultSheetController({super.key, required this.child});
 
   final Widget child;
 
@@ -119,17 +110,19 @@ class DefaultSheetController extends StatefulWidget {
   static SheetController of(BuildContext context) {
     final controller = maybeOf(context);
 
-    assert((() {
-      if (controller == null) {
-        throw FlutterError(
-          'No SheetControllerScope ancestor could be found starting '
-          'from the context that was passed to DefaultSheetController.of(). '
-          'The context used was:\n'
-          '$context',
-        );
-      }
-      return true;
-    })());
+    assert(
+      (() {
+        if (controller == null) {
+          throw FlutterError(
+            'No SheetControllerScope ancestor could be found starting '
+            'from the context that was passed to DefaultSheetController.of(). '
+            'The context used was:\n'
+            '$context',
+          );
+        }
+        return true;
+      })(),
+    );
 
     return controller!;
   }
@@ -152,10 +145,7 @@ class _DefaultSheetControllerState extends State<DefaultSheetController> {
 
   @override
   Widget build(BuildContext context) {
-    return SheetControllerScope(
-      controller: _controller,
-      child: widget.child,
-    );
+    return SheetControllerScope(controller: _controller, child: widget.child);
   }
 }
 

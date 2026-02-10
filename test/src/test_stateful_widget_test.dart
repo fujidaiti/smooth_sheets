@@ -32,7 +32,7 @@ void main() {
     await tester.pumpWidget(
       TestStatefulWidget(
         initialState: 0,
-        builder: (_, __) {
+        builder: (_, _) {
           return Container();
         },
         didChangeDependencies: (context) {

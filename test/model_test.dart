@@ -241,33 +241,37 @@ void main() {
       );
     });
 
-    test('visibleContentRect - when content is partially visible at the top',
-        () {
-      expect(
-        _TestSheetMetrics(
-          offset: 900,
-          size: Size(400, 300),
-          contentSize: Size(400, 300),
-          viewportSize: Size(400, 800),
-          viewportPadding: EdgeInsets.zero,
-        ).visibleContentRect,
-        Rect.fromLTWH(0, 0, 400, 200),
-      );
-    });
+    test(
+      'visibleContentRect - when content is partially visible at the top',
+      () {
+        expect(
+          _TestSheetMetrics(
+            offset: 900,
+            size: Size(400, 300),
+            contentSize: Size(400, 300),
+            viewportSize: Size(400, 800),
+            viewportPadding: EdgeInsets.zero,
+          ).visibleContentRect,
+          Rect.fromLTWH(0, 0, 400, 200),
+        );
+      },
+    );
 
-    test('visibleContentRect - when content is partially visible at the bottom',
-        () {
-      expect(
-        _TestSheetMetrics(
-          offset: 100,
-          size: Size(400, 300),
-          contentSize: Size(400, 300),
-          viewportSize: Size(400, 800),
-          viewportPadding: EdgeInsets.zero,
-        ).visibleContentRect,
-        Rect.fromLTWH(0, 700, 400, 100),
-      );
-    });
+    test(
+      'visibleContentRect - when content is partially visible at the bottom',
+      () {
+        expect(
+          _TestSheetMetrics(
+            offset: 100,
+            size: Size(400, 300),
+            contentSize: Size(400, 300),
+            viewportSize: Size(400, 800),
+            viewportPadding: EdgeInsets.zero,
+          ).visibleContentRect,
+          Rect.fromLTWH(0, 700, 400, 100),
+        );
+      },
+    );
 
     test('visibleContentRect - when content is not visible', () {
       expect(
@@ -400,24 +404,8 @@ void main() {
       );
     });
 
-    test('contentStaticOverlap - when content is not overlapped by static UI',
-        () {
-      expect(
-        _TestSheetMetrics(
-          offset: 800,
-          size: Size(400, 800),
-          contentSize: Size(400, 800),
-          viewportSize: Size(400, 800),
-          viewportPadding: EdgeInsets.zero,
-          viewportStaticOverlap: EdgeInsets.zero,
-        ).contentStaticOverlap,
-        EdgeInsets.zero,
-      );
-    });
-
     test(
-      'contentStaticOverlap - when four edges of content are overlapped '
-      'by static UI',
+      'contentStaticOverlap - when content is not overlapped by static UI',
       () {
         expect(
           _TestSheetMetrics(
@@ -426,12 +414,27 @@ void main() {
             contentSize: Size(400, 800),
             viewportSize: Size(400, 800),
             viewportPadding: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+            viewportStaticOverlap: EdgeInsets.zero,
           ).contentStaticOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 40),
+          EdgeInsets.zero,
         );
       },
     );
+
+    test('contentStaticOverlap - when four edges of content are overlapped '
+        'by static UI', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 800,
+          size: Size(400, 800),
+          contentSize: Size(400, 800),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+          viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+        ).contentStaticOverlap,
+        EdgeInsets.fromLTRB(10, 20, 30, 40),
+      );
+    });
 
     test(
       'contentStaticOverlap - when top of content is outside of viewport',
@@ -484,23 +487,20 @@ void main() {
       },
     );
 
-    test(
-      'contentDynamicOverlap - when four edges of content are overlapped '
-      'by dynamic UI',
-      () {
-        expect(
-          _TestSheetMetrics(
-            offset: 800,
-            size: Size(400, 800),
-            contentSize: Size(400, 800),
-            viewportSize: Size(400, 800),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-          ).contentDynamicOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 40),
-        );
-      },
-    );
+    test('contentDynamicOverlap - when four edges of content are overlapped '
+        'by dynamic UI', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 800,
+          size: Size(400, 800),
+          contentSize: Size(400, 800),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+          viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+        ).contentDynamicOverlap,
+        EdgeInsets.fromLTRB(10, 20, 30, 40),
+      );
+    });
 
     test(
       'contentDynamicOverlap - when top of content is outside of viewport',
@@ -519,23 +519,20 @@ void main() {
       },
     );
 
-    test(
-      'contentDynamicOverlap - when bottom of content is '
-      'outside of viewport',
-      () {
-        expect(
-          _TestSheetMetrics(
-            offset: 300,
-            size: Size(400, 700),
-            contentSize: Size(400, 700),
-            viewportSize: Size(400, 800),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-          ).contentDynamicOverlap,
-          EdgeInsets.fromLTRB(10, 0, 30, 40),
-        );
-      },
-    );
+    test('contentDynamicOverlap - when bottom of content is '
+        'outside of viewport', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 300,
+          size: Size(400, 700),
+          contentSize: Size(400, 700),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+          viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+        ).contentDynamicOverlap,
+        EdgeInsets.fromLTRB(10, 0, 30, 40),
+      );
+    });
   });
 }
 
@@ -554,17 +551,17 @@ class _TestSheetMetrics with SheetMetrics {
     EdgeInsets? viewportPadding,
     Size? viewportSize,
     EdgeInsets? viewportStaticOverlap,
-  })  : _contentBaseline = contentBaseline,
-        _contentSize = contentSize,
-        _devicePixelRatio = devicePixelRatio,
-        _maxOffset = maxOffset,
-        _minOffset = minOffset,
-        _offset = offset,
-        _size = size,
-        _viewportDynamicOverlap = viewportDynamicOverlap,
-        _viewportPadding = viewportPadding,
-        _viewportSize = viewportSize,
-        _viewportStaticOverlap = viewportStaticOverlap;
+  }) : _contentBaseline = contentBaseline,
+       _contentSize = contentSize,
+       _devicePixelRatio = devicePixelRatio,
+       _maxOffset = maxOffset,
+       _minOffset = minOffset,
+       _offset = offset,
+       _size = size,
+       _viewportDynamicOverlap = viewportDynamicOverlap,
+       _viewportPadding = viewportPadding,
+       _viewportSize = viewportSize,
+       _viewportStaticOverlap = viewportStaticOverlap;
 
   final double? _contentBaseline;
   final Size? _contentSize;

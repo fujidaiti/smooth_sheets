@@ -11,9 +11,8 @@ abstract interface class SheetSnapGrid {
     double minFlingSpeed,
   }) = MultiSnapGrid;
 
-  const factory SheetSnapGrid.single({
-    required SheetOffset snap,
-  }) = SingleSnapGrid;
+  const factory SheetSnapGrid.single({required SheetOffset snap}) =
+      SingleSnapGrid;
 
   const factory SheetSnapGrid.stepless({
     SheetOffset minOffset,
@@ -33,9 +32,7 @@ abstract interface class SheetSnapGrid {
 }
 
 class SingleSnapGrid implements SheetSnapGrid {
-  const SingleSnapGrid({
-    required this.snap,
-  });
+  const SingleSnapGrid({required this.snap});
 
   final SheetOffset snap;
 
@@ -167,7 +164,8 @@ class MultiSnapGrid implements SheetSnapGrid {
     SheetOffset nearest,
     SheetOffset leftmost,
     SheetOffset rightmost,
-  }) _scanSnapOffsets(ViewportLayout layout, double offset) {
+  })
+  _scanSnapOffsets(ViewportLayout layout, double offset) {
     assert(snaps.isNotEmpty);
 
     if (snaps.length == 1) {

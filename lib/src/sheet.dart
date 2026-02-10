@@ -69,9 +69,7 @@ class Sheet extends StatelessWidget {
     super.key,
     this.initialOffset = const SheetOffset(1),
     this.physics,
-    this.snapGrid = const SheetSnapGrid.single(
-      snap: SheetOffset(1),
-    ),
+    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset(1)),
     this.controller,
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
@@ -163,19 +161,13 @@ class DraggableScrollableSheetContent extends StatelessWidget {
   Widget build(BuildContext context) {
     var result = child;
     if (dragConfiguration case final config?) {
-      result = SheetDraggable(
-        behavior: config.hitTestBehavior,
-        child: result,
-      );
+      result = SheetDraggable(behavior: config.hitTestBehavior, child: result);
     }
     if (scrollConfiguration != null) {
       final child = result;
       result = SheetScrollable(
         builder: (context, controller) {
-          return PrimaryScrollController(
-            controller: controller,
-            child: child,
-          );
+          return PrimaryScrollController(controller: controller, child: child);
         },
       );
     }

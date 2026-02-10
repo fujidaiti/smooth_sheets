@@ -3,12 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-// TODO: Remove this import after the minimum sdk version is bumped to 3.35.0
-//
-// @internal annotation has been included in flutter/foundation.dart since 3.35.0.
-// See: https://github.com/flutter/flutter/commit/5706259791de29a27cb68e9b95d6319ba863e366
-// ignore: unnecessary_import
-import 'package:meta/meta.dart';
 
 import '../smooth_sheets.dart';
 import 'activity.dart';
@@ -398,8 +392,11 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   }
 
   void goBallistic(double velocity) {
-    final simulation =
-        physics.createBallisticSimulation(velocity, this, snapGrid);
+    final simulation = physics.createBallisticSimulation(
+      velocity,
+      this,
+      snapGrid,
+    );
     if (simulation != null) {
       beginActivity(BallisticSheetActivity(simulation: simulation));
     } else {
@@ -409,10 +406,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   void settleTo(SheetOffset offset, Duration duration) {
     beginActivity(
-      SettlingSheetActivity.withDuration(
-        duration,
-        destination: offset,
-      ),
+      SettlingSheetActivity.withDuration(duration, destination: offset),
     );
   }
 
@@ -758,13 +752,13 @@ class ImmutableViewportLayout implements ViewportLayout {
 
   @override
   int get hashCode => Object.hash(
-        viewportSize,
-        contentSize,
-        viewportPadding,
-        viewportDynamicOverlap,
-        viewportStaticOverlap,
-        contentBaseline,
-      );
+    viewportSize,
+    contentSize,
+    viewportPadding,
+    viewportDynamicOverlap,
+    viewportStaticOverlap,
+    contentBaseline,
+  );
 }
 
 @immutable
@@ -852,14 +846,14 @@ class ImmutableSheetLayout implements SheetLayout {
 
   @override
   int get hashCode => Object.hash(
-        contentBaseline,
-        contentSize,
-        size,
-        viewportDynamicOverlap,
-        viewportPadding,
-        viewportSize,
-        viewportStaticOverlap,
-      );
+    contentBaseline,
+    contentSize,
+    size,
+    viewportDynamicOverlap,
+    viewportPadding,
+    viewportSize,
+    viewportStaticOverlap,
+  );
 }
 
 @immutable
@@ -961,16 +955,16 @@ class ImmutableSheetMetrics with SheetMetrics {
 
   @override
   int get hashCode => Object.hash(
-        offset,
-        minOffset,
-        maxOffset,
-        devicePixelRatio,
-        contentBaseline,
-        contentSize,
-        size,
-        viewportDynamicOverlap,
-        viewportPadding,
-        viewportSize,
-        viewportStaticOverlap,
-      );
+    offset,
+    minOffset,
+    maxOffset,
+    devicePixelRatio,
+    contentBaseline,
+    contentSize,
+    size,
+    viewportDynamicOverlap,
+    viewportPadding,
+    viewportSize,
+    viewportStaticOverlap,
+  );
 }

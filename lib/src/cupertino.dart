@@ -24,10 +24,7 @@ const ThreePointCubic _incomingTransitionCurve = Curves.fastEaseInToSlowEaseOut;
 /// allowing the corner radius to depend on the sheet position and
 /// reflect the new value in the subsequent painting phase.
 class _ClipRRectTransition extends SingleChildRenderObjectWidget {
-  const _ClipRRectTransition({
-    required this.radius,
-    required super.child,
-  });
+  const _ClipRRectTransition({required this.radius, required super.child});
 
   final Animation<double> radius;
 
@@ -47,10 +44,9 @@ class _ClipRRectTransition extends SingleChildRenderObjectWidget {
 }
 
 class _RenderClipRRectTransition extends RenderClipRRect {
-  _RenderClipRRectTransition({
-    required Animation<double> radius,
-  })  : _radius = radius,
-        super(clipBehavior: Clip.antiAlias) {
+  _RenderClipRRectTransition({required Animation<double> radius})
+    : _radius = radius,
+      super(clipBehavior: Clip.antiAlias) {
     _radius.addListener(_invalidateBorderRadius);
   }
 
@@ -93,10 +89,7 @@ class _ToningOverlay extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderToningOverlay(
-      animation: animation,
-      color: color,
-    );
+    return _RenderToningOverlay(animation: animation, color: color);
   }
 
   @override
@@ -115,8 +108,8 @@ class _RenderToningOverlay extends RenderProxyBox {
   _RenderToningOverlay({
     required Animation<double> animation,
     required Color color,
-  })  : _animation = animation,
-        _color = color {
+  }) : _animation = animation,
+       _color = color {
     _animation.addListener(markNeedsPaint);
   }
 
@@ -209,14 +202,14 @@ class _RenderTransformTransition extends RenderTransform {
     required Animation<double> animation,
     required Tween<double> scaleTween,
     required Tween<Offset> offsetTween,
-  })  : _animation = animation,
-        _scaleTween = scaleTween,
-        _offsetTween = offsetTween,
-        super(
-          transform: Matrix4.identity(),
-          alignment: Alignment.topCenter,
-          transformHitTests: true,
-        ) {
+  }) : _animation = animation,
+       _scaleTween = scaleTween,
+       _offsetTween = offsetTween,
+       super(
+         transform: Matrix4.identity(),
+         alignment: Alignment.topCenter,
+         transformHitTests: true,
+       ) {
     _animation.addListener(_invalidateMatrix);
   }
 
@@ -261,14 +254,7 @@ class _RenderTransformTransition extends RenderTransform {
     final scaleFactor = _scaleTween.transform(_animation.value);
     final offset = _offsetTween.transform(_animation.value);
     transform = Matrix4.translationValues(offset.dx, offset.dy, 0.0)
-      // ignore: lines_longer_than_80_chars
-      // TODO: Migrate to scaleByVector3 when minimum SDK version is raised to 3.35.0
-      //
-      // vector_math package has been upgraded to 2.2.0 in Flutter 3.35.0,
-      // in which the `scale` method has been deprecated.
-      // See: https://github.com/flutter/flutter/commit/c08e9dff6865b91a3c20bb39980053951a6cae34
-      // ignore: deprecated_member_use
-      ..scale(scaleFactor, scaleFactor, 1.0);
+      ..scaleByDouble(scaleFactor, scaleFactor, 1.0, 1.0);
   }
 }
 
@@ -326,10 +312,7 @@ class _OutgoingTransitionState extends State<_OutgoingTransition> {
   Widget build(BuildContext context) {
     return _TransformTransition(
       animation: _animation,
-      offsetTween: Tween(
-        begin: Offset.zero,
-        end: widget.endOffset,
-      ),
+      offsetTween: Tween(begin: Offset.zero, end: widget.endOffset),
       scaleTween: Tween(begin: 1, end: _minimizedSheetScale),
       child: _ClipRRectTransition(
         radius: Tween(
@@ -496,7 +479,7 @@ class _NonCupertinoModalEntry extends _PreviousRouteEntry {
 class _CupertinoModalEntry extends _PreviousRouteEntry {
   // ignore: use_super_parameters
   const _CupertinoModalEntry(_BaseCupertinoModalSheetRoute<dynamic> value)
-      : super(value);
+    : super(value);
 
   @override
   _OutgoingTransitionController get outgoingTransitionController =>
@@ -509,11 +492,12 @@ class _CupertinoModalEntry extends _PreviousRouteEntry {
 ///
 /// The returned [SheetViewport] should have [preferredTopInset]
 /// as the top padding of [SheetViewport.padding].
-typedef CupertinoSheetViewportBuilder = Widget Function(
-  BuildContext context,
-  double preferredTopInset,
-  Widget child,
-);
+typedef CupertinoSheetViewportBuilder =
+    Widget Function(
+      BuildContext context,
+      double preferredTopInset,
+      Widget child,
+    );
 
 /// The base class for all Cupertino-style modal sheet routes.
 abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
@@ -569,8 +553,9 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   void didChangePrevious(Route<dynamic>? previousRoute) {
     super.didChangePrevious(previousRoute);
     _previousRouteEntry = switch (previousRoute) {
-      final _BaseCupertinoModalSheetRoute<dynamic> it =>
-        _CupertinoModalEntry(it),
+      final _BaseCupertinoModalSheetRoute<dynamic> it => _CupertinoModalEntry(
+        it,
+      ),
       final PageRoute<dynamic> it when !it.fullscreenDialog =>
         _NonCupertinoModalEntry(it),
       _ => null,
@@ -640,9 +625,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     Widget child,
   ) {
     return SheetViewport(
-      padding: EdgeInsets.only(
-        top: preferredTopInset,
-      ),
+      padding: EdgeInsets.only(top: preferredTopInset),
       child: child,
     );
   }
@@ -694,9 +677,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
 
   @override
   Route<T> createRoute(BuildContext context) {
-    return _PageBasedCupertinoModalSheetRoute(
-      page: this,
-    );
+    return _PageBasedCupertinoModalSheetRoute(page: this);
   }
 }
 
