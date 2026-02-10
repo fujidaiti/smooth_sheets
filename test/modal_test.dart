@@ -586,7 +586,7 @@ void main() {
       // 2. Cannot pop; Gesture is enabled.
       popScopeStateKey.currentState!.state = (
         canPop: false,
-        callback: (_, __) {},
+        callback: (_, _) {},
       );
       await tester.pumpAndSettle();
       await performSwipeGesture(tester, shouldGestureEnabled: true);
@@ -595,7 +595,7 @@ void main() {
       // 3. Can pop; Gesture is enabled.
       popScopeStateKey.currentState!.state = (
         canPop: true,
-        callback: (_, __) {},
+        callback: (_, _) {},
       );
       await tester.pumpAndSettle();
       await performSwipeGesture(tester, shouldGestureEnabled: true);
@@ -611,7 +611,7 @@ void main() {
           swipeDismissible: false,
           popScopeBuilder: (sheet) => SheetPopScope(
             canPop: true,
-            onPopInvokedWithResult: (_, __) {},
+            onPopInvokedWithResult: (_, _) {},
             child: sheet,
           ),
         );

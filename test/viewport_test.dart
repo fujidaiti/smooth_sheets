@@ -43,7 +43,7 @@ void main() {
                   model,
                 );
               },
-              builder: (_, __) => SizedBox.shrink(),
+              builder: (_, _) => SizedBox.shrink(),
             ),
           ),
         ),
@@ -601,7 +601,7 @@ void main() {
                         .findAncestorStateOfType<SheetViewportState>()!
                         .setModel(model);
                   },
-                  builder: (_, __) {
+                  builder: (_, _) {
                     return BareSheet(
                       child: Container(
                         key: Key('child'),
@@ -727,7 +727,7 @@ void main() {
                           .findAncestorStateOfType<SheetViewportState>()!
                           .setModel(model);
                     },
-                    builder: (_, __) => BareSheet(child: Container()),
+                    builder: (_, _) => BareSheet(child: Container()),
                   ),
                 ),
               ],
@@ -760,7 +760,7 @@ void main() {
                   model,
                 );
               },
-              builder: (_, __) => Padding(
+              builder: (_, _) => Padding(
                 padding: EdgeInsets.all(10),
                 child: BareSheet(child: Container()),
               ),
@@ -798,7 +798,7 @@ void main() {
                       .findAncestorStateOfType<SheetViewportState>()!
                       .setModel(model);
                 },
-                builder: (_, __) => BareSheet(
+                builder: (_, _) => BareSheet(
                   decoration: SheetDecorationBuilder(
                     size: SheetSize.fit,
                     builder: (context, child) =>
@@ -843,7 +843,7 @@ void main() {
                       .findAncestorStateOfType<SheetViewportState>()!
                       .setModel(model);
                 },
-                builder: (_, __) => BareSheet(child: Container()),
+                builder: (_, _) => BareSheet(child: Container()),
               ),
             ),
           ),
