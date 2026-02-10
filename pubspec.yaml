@@ -20,7 +20,10 @@ dependencies:
   navigator_resizable: ^3.0.0
 # Dependencies for testing
 dev_dependencies:
-  auto_route: ^10.2.0
+  # Since v10.2.0 introduced a breaking change incompatible with
+  # Flutter 3.29.0 (our minimum supported version), CI failed.
+  # Adding this upper bound as a workaround.
+  auto_route: <10.2.0
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter
