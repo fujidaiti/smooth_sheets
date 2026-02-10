@@ -47,18 +47,12 @@ class _SheetGestureProxyState extends State<SheetGestureProxy> {
 
   @override
   Widget build(BuildContext context) {
-    return _SheetGestureProxyScope(
-      proxy: widget.proxy,
-      child: widget.child,
-    );
+    return _SheetGestureProxyScope(proxy: widget.proxy, child: widget.child);
   }
 }
 
 class _SheetGestureProxyScope extends InheritedWidget {
-  const _SheetGestureProxyScope({
-    required this.proxy,
-    required super.child,
-  });
+  const _SheetGestureProxyScope({required this.proxy, required super.child});
 
   final SheetGestureProxyMixin proxy;
 

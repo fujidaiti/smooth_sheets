@@ -36,9 +36,7 @@ void main() {
               child: SingleChildScrollView(
                 physics: scrollPhysics,
                 controller: controller,
-                child: SizedBox.fromSize(
-                  size: Size.fromHeight(1000),
-                ),
+                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
               ),
             );
           },
@@ -48,61 +46,59 @@ void main() {
       return (testWidget: testWidget, controller: controller);
     }
 
-    testWidgets(
-      'BouncingSheetPhysics with ClampingScrollPhysics',
-      (tester) async {
-        final env = boilerplate(
-          sheetPhysics: BouncingSheetPhysics(),
-          scrollPhysics: ClampingScrollPhysics(),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 0);
+    testWidgets('BouncingSheetPhysics with ClampingScrollPhysics', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        sheetPhysics: BouncingSheetPhysics(),
+        scrollPhysics: ClampingScrollPhysics(),
+      );
+      await tester.pumpWidget(env.testWidget);
+      expect(tester.getRect(find.byId('sheet')).top, 0);
 
-        final sheetTopHistory = <double>[];
-        env.controller.addListener(() {
-          sheetTopHistory.add(tester.getRect(find.byId('sheet')).top);
-        });
+      final sheetTopHistory = <double>[];
+      env.controller.addListener(() {
+        sheetTopHistory.add(tester.getRect(find.byId('sheet')).top);
+      });
 
-        await tester.dragDownward(find.byId('sheet'), deltaY: 100);
-        await tester.pumpAndSettle();
-        expect(sheetTopHistory.min, 0);
-        expect(sheetTopHistory.max, greaterThan(0));
-        expect(
-          sheetTopHistory,
-          fluctuationEquals([1, -1]),
-          reason:
-              'Sheet should move downward even if '
-              'scroll physics does not allow it',
-        );
-      },
-    );
+      await tester.dragDownward(find.byId('sheet'), deltaY: 100);
+      await tester.pumpAndSettle();
+      expect(sheetTopHistory.min, 0);
+      expect(sheetTopHistory.max, greaterThan(0));
+      expect(
+        sheetTopHistory,
+        fluctuationEquals([1, -1]),
+        reason:
+            'Sheet should move downward even if '
+            'scroll physics does not allow it',
+      );
+    });
 
-    testWidgets(
-      'ClampingSheetPhysics with BouncingScrollPhysics',
-      (tester) async {
-        final env = boilerplate(
-          sheetPhysics: ClampingSheetPhysics(),
-          scrollPhysics: BouncingScrollPhysics(),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 0);
+    testWidgets('ClampingSheetPhysics with BouncingScrollPhysics', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        sheetPhysics: ClampingSheetPhysics(),
+        scrollPhysics: BouncingScrollPhysics(),
+      );
+      await tester.pumpWidget(env.testWidget);
+      expect(tester.getRect(find.byId('sheet')).top, 0);
 
-        final sheetTopHistory = <double>[];
-        env.controller.addListener(() {
-          sheetTopHistory.add(tester.getRect(find.byId('sheet')).top);
-        });
+      final sheetTopHistory = <double>[];
+      env.controller.addListener(() {
+        sheetTopHistory.add(tester.getRect(find.byId('sheet')).top);
+      });
 
-        await tester.dragDownward(find.byId('sheet'), deltaY: 100);
-        await tester.pumpAndSettle();
-        expect(
-          sheetTopHistory,
-          everyElement(isZero),
-          reason:
-              'Sheet should not move even if '
-              'scroll physics allows it',
-        );
-      },
-    );
+      await tester.dragDownward(find.byId('sheet'), deltaY: 100);
+      await tester.pumpAndSettle();
+      expect(
+        sheetTopHistory,
+        everyElement(isZero),
+        reason:
+            'Sheet should not move even if '
+            'scroll physics allows it',
+      );
+    });
   });
 
   group('Scroll sync test', () {
@@ -123,10 +119,7 @@ void main() {
           controller: controller,
           initialOffset: initialOffset,
           snapGrid: SheetSnapGrid(
-            snaps: [
-              SheetOffset.absolute(300),
-              SheetOffset.absolute(600),
-            ],
+            snaps: [SheetOffset.absolute(300), SheetOffset.absolute(600)],
           ),
           scrollConfiguration: SheetScrollConfiguration(
             scrollSyncMode: SheetScrollHandlingBehavior.always,
@@ -140,9 +133,7 @@ void main() {
                 key: Key('scrollable'),
                 physics: BouncingScrollPhysics(),
                 controller: controller,
-                child: SizedBox.fromSize(
-                  size: Size.fromHeight(1000),
-                ),
+                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
               ),
             );
           },
@@ -156,40 +147,39 @@ void main() {
       );
     }
 
-    testWidgets(
-      'Drag sheet upward, then start scrolling content upward',
-      (tester) async {
-        final env = boilerplate(initialOffset: SheetOffset.absolute(300));
+    testWidgets('Drag sheet upward, then start scrolling content upward', (
+      tester,
+    ) async {
+      final env = boilerplate(initialOffset: SheetOffset.absolute(300));
 
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 300);
+      await tester.pumpWidget(env.testWidget);
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 300);
 
-        final gesture = await tester.startDrag(
-          tester.getCenter(find.byId('sheet')),
-          AxisDirection.up,
-        );
-        await gesture.moveUpwardBy(150 - kDragSlopDefault);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 150);
-        expect(env.getScrollController().offset, 0);
+      final gesture = await tester.startDrag(
+        tester.getCenter(find.byId('sheet')),
+        AxisDirection.up,
+      );
+      await gesture.moveUpwardBy(150 - kDragSlopDefault);
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 150);
+      expect(env.getScrollController().offset, 0);
 
-        await gesture.moveUpwardBy(150);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(env.getScrollController().offset, 0);
+      await gesture.moveUpwardBy(150);
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+      expect(env.getScrollController().offset, 0);
 
-        await gesture.moveUpwardBy(50);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(env.getScrollController().offset, 50);
+      await gesture.moveUpwardBy(50);
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+      expect(env.getScrollController().offset, 50);
 
-        await gesture.moveUpwardBy(100);
-        await gesture.up();
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(env.getScrollController().offset, 150);
-      },
-    );
+      await gesture.moveUpwardBy(100);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+      expect(env.getScrollController().offset, 150);
+    });
 
     testWidgets(
       'Scroll content upward, then start over-dragging sheet upward',
@@ -369,9 +359,7 @@ void main() {
               size: Size.fromHeight(600),
               child: SingleChildScrollView(
                 controller: controller,
-                child: SizedBox.fromSize(
-                  size: Size.fromHeight(1000),
-                ),
+                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
               ),
             );
           },
@@ -421,9 +409,7 @@ void main() {
 
   group('SheetScrollHandlingBehavior', () {
     ({Widget testWidget, ObjectRef<ScrollController> scrollControllerRef})
-    boilerplate({
-      required SheetScrollConfiguration scrollConfiguration,
-    }) {
+    boilerplate({required SheetScrollConfiguration scrollConfiguration}) {
       final scrollControllerRef = ObjectRef<ScrollController>();
       final testWidget = SheetViewport(
         child: _TestSheet(
@@ -440,18 +426,13 @@ void main() {
                 key: Key('scrollable'),
                 physics: BouncingScrollPhysics(),
                 controller: controller,
-                child: SizedBox.fromSize(
-                  size: Size.fromHeight(1000),
-                ),
+                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
               ),
             );
           },
         ),
       );
-      return (
-        testWidget: testWidget,
-        scrollControllerRef: scrollControllerRef,
-      );
+      return (testWidget: testWidget, scrollControllerRef: scrollControllerRef);
     }
 
     testWidgets(
@@ -571,9 +552,7 @@ void main() {
                 key: Key('scrollable'),
                 physics: scrollPhysics,
                 controller: controller,
-                child: SizedBox.fromSize(
-                  size: Size.fromHeight(1000),
-                ),
+                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
               ),
             );
           },
@@ -588,184 +567,180 @@ void main() {
       );
     }
 
-    testWidgets(
-      'when true: ClampingSheetPhysics with BouncingScrollPhsics',
-      (tester) async {
-        final env = boilerplate(
-          tester: tester,
-          scrollConfiguration: SheetScrollConfiguration(
-            delegateUnhandledOverscrollToChild: true,
+    testWidgets('when true: ClampingSheetPhysics with BouncingScrollPhsics', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        tester: tester,
+        scrollConfiguration: SheetScrollConfiguration(
+          delegateUnhandledOverscrollToChild: true,
+        ),
+        sheetPhysics: ClampingSheetPhysics(),
+        scrollPhysics: BouncingScrollPhysics(),
+      );
+
+      await tester.pumpWidget(env.testWidget);
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
+
+      final startOffset = tester.getCenter(find.byId('sheet'));
+      final gesture = await tester.startDrag(startOffset, AxisDirection.down);
+      await tester.pump();
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), -1 * kDragSlopDefault);
+
+      const dragDelta = 100.0;
+      final expectedScrollOffsetAfterDrag =
+          env.getScrollOffset()! -
+          BouncingScrollPhysics().applyPhysicsToUserOffset(
+            env.getScrollPosition()!,
+            dragDelta,
+          );
+      await gesture.moveDownwardBy(dragDelta);
+      expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
+      expect(
+        env.getScrollOffset(),
+        allOf(lessThan(0), equals(expectedScrollOffsetAfterDrag)),
+        reason: 'Scrollable should overscroll',
+      );
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
+    });
+
+    testWidgets('when true: ClampingSheetPhysics with ClampingScrollPhsics', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        tester: tester,
+        scrollConfiguration: SheetScrollConfiguration(
+          delegateUnhandledOverscrollToChild: true,
+        ),
+        sheetPhysics: ClampingSheetPhysics(),
+        scrollPhysics: ClampingScrollPhysics(),
+      );
+
+      final capturedNotifications = <OverscrollNotification>[];
+      await tester.pumpWidget(
+        NotificationListener<OverscrollNotification>(
+          onNotification: (notification) {
+            capturedNotifications.add(notification);
+            return true;
+          },
+          child: env.testWidget,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
+
+      final startOffset = tester.getCenter(find.byId('sheet'));
+      final gesture = await tester.startDrag(startOffset, AxisDirection.down);
+      await gesture.moveDownwardBy(100);
+      await tester.pump();
+      expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
+      expect(
+        env.getScrollOffset(),
+        0,
+        reason: 'Scrollable should not overscroll',
+      );
+      expect(
+        capturedNotifications,
+        orderedEquals([
+          isA<OverscrollNotification>().having(
+            (it) => it.overscroll,
+            'overscroll',
+            -20,
           ),
-          sheetPhysics: ClampingSheetPhysics(),
-          scrollPhysics: BouncingScrollPhysics(),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
-
-        final startOffset = tester.getCenter(find.byId('sheet'));
-        final gesture = await tester.startDrag(startOffset, AxisDirection.down);
-        await tester.pump();
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), -1 * kDragSlopDefault);
-
-        const dragDelta = 100.0;
-        final expectedScrollOffsetAfterDrag =
-            env.getScrollOffset()! -
-            BouncingScrollPhysics().applyPhysicsToUserOffset(
-              env.getScrollPosition()!,
-              dragDelta,
-            );
-        await gesture.moveDownwardBy(dragDelta);
-        expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
-        expect(
-          env.getScrollOffset(),
-          allOf(lessThan(0), equals(expectedScrollOffsetAfterDrag)),
-          reason: 'Scrollable should overscroll',
-        );
-
-        await gesture.up();
-        await tester.pumpAndSettle();
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
-      },
-    );
-
-    testWidgets(
-      'when true: ClampingSheetPhysics with ClampingScrollPhsics',
-      (tester) async {
-        final env = boilerplate(
-          tester: tester,
-          scrollConfiguration: SheetScrollConfiguration(
-            delegateUnhandledOverscrollToChild: true,
+          isA<OverscrollNotification>().having(
+            (it) => it.overscroll,
+            'overscroll',
+            -100,
           ),
-          sheetPhysics: ClampingSheetPhysics(),
-          scrollPhysics: ClampingScrollPhysics(),
-        );
+        ]),
+        reason: 'Scrollable should dispatch overscroll notifications',
+      );
 
-        final capturedNotifications = <OverscrollNotification>[];
-        await tester.pumpWidget(
-          NotificationListener<OverscrollNotification>(
-            onNotification: (notification) {
-              capturedNotifications.add(notification);
-              return true;
-            },
-            child: env.testWidget,
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
+    });
 
-        final startOffset = tester.getCenter(find.byId('sheet'));
-        final gesture = await tester.startDrag(startOffset, AxisDirection.down);
-        await gesture.moveDownwardBy(100);
-        await tester.pump();
-        expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
-        expect(
-          env.getScrollOffset(),
-          0,
-          reason: 'Scrollable should not overscroll',
-        );
-        expect(
-          capturedNotifications,
-          orderedEquals([
-            isA<OverscrollNotification>().having(
-              (it) => it.overscroll,
-              'overscroll',
-              -20,
-            ),
-            isA<OverscrollNotification>().having(
-              (it) => it.overscroll,
-              'overscroll',
-              -100,
-            ),
-          ]),
-          reason: 'Scrollable should dispatch overscroll notifications',
-        );
+    testWidgets('when true: BouncingSheetPhysics with BouncingScrollPhsics', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        tester: tester,
+        scrollConfiguration: SheetScrollConfiguration(
+          delegateUnhandledOverscrollToChild: true,
+        ),
+        sheetPhysics: BouncingSheetPhysics(),
+        scrollPhysics: BouncingScrollPhysics(),
+      );
 
-        await gesture.up();
-        await tester.pumpAndSettle();
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
 
-    testWidgets(
-      'when true: BouncingSheetPhysics with BouncingScrollPhsics',
-      (tester) async {
-        final env = boilerplate(
-          tester: tester,
-          scrollConfiguration: SheetScrollConfiguration(
-            delegateUnhandledOverscrollToChild: true,
-          ),
-          sheetPhysics: BouncingSheetPhysics(),
-          scrollPhysics: BouncingScrollPhysics(),
-        );
+      final startOffset = tester.getCenter(find.byId('sheet'));
+      final gesture = await tester.startDrag(startOffset, AxisDirection.down);
+      await gesture.moveDownwardBy(100);
+      await tester.pump();
+      expect(
+        env.getSheetTop(),
+        greaterThan(300),
+        reason: 'Sheet should move downward',
+      );
+      expect(
+        env.getScrollOffset(),
+        0,
+        reason: 'Sheet should consume the whole overflowed scroll delta',
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
+    });
 
-        final startOffset = tester.getCenter(find.byId('sheet'));
-        final gesture = await tester.startDrag(startOffset, AxisDirection.down);
-        await gesture.moveDownwardBy(100);
-        await tester.pump();
-        expect(
-          env.getSheetTop(),
-          greaterThan(300),
-          reason: 'Sheet should move downward',
-        );
-        expect(
-          env.getScrollOffset(),
-          0,
-          reason: 'Sheet should consume the whole overflowed scroll delta',
-        );
+    testWidgets('when false: ClampingSheetPhysics with BouncingScrollPhsics', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        tester: tester,
+        scrollConfiguration: SheetScrollConfiguration(
+          delegateUnhandledOverscrollToChild: false,
+        ),
+        sheetPhysics: ClampingSheetPhysics(),
+        scrollPhysics: BouncingScrollPhysics(),
+      );
 
-        await gesture.up();
-        await tester.pumpAndSettle();
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
 
-    testWidgets(
-      'when false: ClampingSheetPhysics with BouncingScrollPhsics',
-      (tester) async {
-        final env = boilerplate(
-          tester: tester,
-          scrollConfiguration: SheetScrollConfiguration(
-            delegateUnhandledOverscrollToChild: false,
-          ),
-          sheetPhysics: ClampingSheetPhysics(),
-          scrollPhysics: BouncingScrollPhysics(),
-        );
+      final startOffset = tester.getCenter(find.byId('sheet'));
+      final gesture = await tester.startDrag(startOffset, AxisDirection.down);
+      await tester.pump();
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
 
-        await tester.pumpWidget(env.testWidget);
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
+      await gesture.moveDownwardBy(100);
+      expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
+      expect(
+        env.getScrollOffset(),
+        0,
+        reason: 'Scrollable should not overscroll',
+      );
 
-        final startOffset = tester.getCenter(find.byId('sheet'));
-        final gesture = await tester.startDrag(startOffset, AxisDirection.down);
-        await tester.pump();
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
-
-        await gesture.moveDownwardBy(100);
-        expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
-        expect(
-          env.getScrollOffset(),
-          0,
-          reason: 'Scrollable should not overscroll',
-        );
-
-        await gesture.up();
-        await tester.pumpAndSettle();
-        expect(env.getSheetTop(), 300);
-        expect(env.getScrollOffset(), 0);
-      },
-    );
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(env.getSheetTop(), 300);
+      expect(env.getScrollOffset(), 0);
+    });
   });
 }
 
@@ -830,11 +805,7 @@ class _TestSheet extends StatelessWidget {
         snapGrid: snapGrid,
         scrollConfiguration: scrollConfiguration,
       ),
-      child: BareSheet(
-        child: SheetScrollable(
-          builder: builder,
-        ),
-      ),
+      child: BareSheet(child: SheetScrollable(builder: builder)),
     );
   }
 }

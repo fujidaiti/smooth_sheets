@@ -28,23 +28,19 @@ sealed class BottomBarVisibility {
   /// the [SheetContentScaffold.bottomBar] within a [SheetContentScaffold].
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const BottomBarVisibility({
-    this.ignoreBottomInset = false,
-  });
+  const BottomBarVisibility({this.ignoreBottomInset = false});
 
   /// {@macro NaturalBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const factory BottomBarVisibility.natural({
-    bool ignoreBottomInset,
-  }) = NaturalBottomBarVisibility;
+  const factory BottomBarVisibility.natural({bool ignoreBottomInset}) =
+      NaturalBottomBarVisibility;
 
   /// {@macro AlwaysVisibleBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
-  const factory BottomBarVisibility.always({
-    bool ignoreBottomInset,
-  }) = AlwaysVisibleBottomBarVisibility;
+  const factory BottomBarVisibility.always({bool ignoreBottomInset}) =
+      AlwaysVisibleBottomBarVisibility;
 
   /// {@macro ControlledBottomBarVisibility}
   ///
@@ -228,9 +224,7 @@ class SheetContentScaffold extends StatelessWidget {
 
     final effectiveTopBar = switch (topBar) {
       PreferredSizeWidget(:final preferredSize) => ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: preferredSize.height,
-        ),
+        constraints: BoxConstraints(maxHeight: preferredSize.height),
         child: topBar,
       ),
       _ => topBar,
@@ -240,9 +234,7 @@ class SheetContentScaffold extends StatelessWidget {
     if (bottomBar != null) {
       if (bottomBar case PreferredSizeWidget(:final preferredSize)) {
         effectiveBottomBar = ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: preferredSize.height,
-          ),
+          constraints: BoxConstraints(maxHeight: preferredSize.height),
           child: bottomBar,
         );
       }
@@ -291,9 +283,7 @@ class SheetContentScaffold extends StatelessWidget {
         ignoreBottomInset: bottomBarVisibility.ignoreBottomInset,
         topBar: effectiveTopBar,
         bottomBar: effectiveBottomBar,
-        body: _ScaffoldBodyContainer(
-          child: body,
-        ),
+        body: _ScaffoldBodyContainer(child: body),
       ),
     );
   }
@@ -606,9 +596,7 @@ class _ScaffoldBodyConstraints extends BoxConstraints {
 }
 
 class _ScaffoldBodyContainer extends StatelessWidget {
-  const _ScaffoldBodyContainer({
-    required this.child,
-  });
+  const _ScaffoldBodyContainer({required this.child});
 
   final Widget child;
 
@@ -715,9 +703,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
 }
 
 class _AlwaysVisibleBottomBarVisibility extends SingleChildRenderObjectWidget {
-  const _AlwaysVisibleBottomBarVisibility({
-    required super.child,
-  });
+  const _AlwaysVisibleBottomBarVisibility({required super.child});
 
   @override
   RenderObject createRenderObject(BuildContext context) {

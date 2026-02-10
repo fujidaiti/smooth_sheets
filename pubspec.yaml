@@ -10,8 +10,8 @@ topics:
   - widget
   - bottom-sheet
 environment:
-  sdk: ">=3.8.0 <4.0.0"
-  flutter: ">=3.32.0"
+  sdk: ">=3.9.0 <4.0.0"
+  flutter: ">=3.35.1"
 dependencies:
   collection: ^1.17.1
   flutter:
@@ -20,9 +20,7 @@ dependencies:
   navigator_resizable: ^3.0.0
 # Dependencies for testing
 dev_dependencies:
-  # auto_route >=10.2.0 uses APIs (e.g. MediaQuery.heightOf) that
-  # are not available in Flutter 3.32.0 (our minimum supported version).
-  auto_route: <10.2.0
+  auto_route: ^11.1.0
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter

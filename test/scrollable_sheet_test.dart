@@ -14,10 +14,7 @@ import 'package:smooth_sheets/src/viewport.dart';
 import 'src/keyboard_inset_simulation.dart';
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({
-    this.useMaterial = false,
-    required this.child,
-  });
+  const _TestApp({this.useMaterial = false, required this.child});
 
   final bool useMaterial;
   final Widget child;
@@ -25,16 +22,11 @@ class _TestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (useMaterial) {
-      return MaterialApp(
-        home: child,
-      );
+      return MaterialApp(home: child);
     } else {
       return Directionality(
         textDirection: TextDirection.ltr,
-        child: MediaQuery(
-          data: const MediaQueryData(),
-          child: child,
-        ),
+        child: MediaQuery(data: const MediaQueryData(), child: child),
       );
     }
   }
@@ -120,10 +112,7 @@ void main() {
               controller: controller,
               scrollConfiguration: const SheetScrollConfiguration(),
               snapGrid: SheetSnapGrid(
-                snaps: [
-                  const SheetOffset.absolute(200),
-                  const SheetOffset(1),
-                ],
+                snaps: [const SheetOffset.absolute(200), const SheetOffset(1)],
               ),
               initialOffset: const SheetOffset.absolute(200),
               child: const _TestSheetContent(height: 400),
@@ -174,71 +163,68 @@ void main() {
 
   group('Press-and-hold gesture should stop momentum scrolling', () {
     // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/190
-    testWidgets(
-      'in a plain ListView',
-      (tester) async {
-        const targetKey = Key('Target');
-        final controller = SheetController();
-        late ScrollController scrollController;
+    testWidgets('in a plain ListView', (tester) async {
+      const targetKey = Key('Target');
+      final controller = SheetController();
+      late ScrollController scrollController;
 
-        await tester.pumpWidget(
-          _TestApp(
-            child: SheetViewport(
-              child: Sheet(
-                scrollConfiguration: const SheetScrollConfiguration(),
-                controller: controller,
-                child: Builder(
-                  builder: (context) {
-                    // TODO(fujita): Refactor this line after #116 is resolved.
-                    scrollController = PrimaryScrollController.of(context);
-                    return _TestSheetContent(
-                      key: targetKey,
-                      itemCount: 1000,
-                      height: null,
-                      // The items need to be clickable to cause the issue.
-                      onTapItem: (index) {},
-                    );
-                  },
-                ),
+      await tester.pumpWidget(
+        _TestApp(
+          child: SheetViewport(
+            child: Sheet(
+              scrollConfiguration: const SheetScrollConfiguration(),
+              controller: controller,
+              child: Builder(
+                builder: (context) {
+                  // TODO(fujita): Refactor this line after #116 is resolved.
+                  scrollController = PrimaryScrollController.of(context);
+                  return _TestSheetContent(
+                    key: targetKey,
+                    itemCount: 1000,
+                    height: null,
+                    // The items need to be clickable to cause the issue.
+                    onTapItem: (index) {},
+                  );
+                },
               ),
             ),
           ),
-        );
+        ),
+      );
 
-        const dragDistance = 200.0;
-        const flingSpeed = 2000.0;
-        await tester.fling(
-          find.byKey(targetKey),
-          const Offset(0, -1 * dragDistance), // Fling up
-          flingSpeed,
-        );
+      const dragDistance = 200.0;
+      const flingSpeed = 2000.0;
+      await tester.fling(
+        find.byKey(targetKey),
+        const Offset(0, -1 * dragDistance), // Fling up
+        flingSpeed,
+      );
 
-        final offsetAfterFling = scrollController.offset;
-        // Don't know why, but we need to call `pump` at least 2 times
-        // to forward the animation clock.
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 250));
-        final offsetBeforePress = scrollController.offset;
-        expect(
-          offsetBeforePress,
-          greaterThan(offsetAfterFling),
-          reason: 'Momentum scrolling should be in progress.',
-        );
+      final offsetAfterFling = scrollController.offset;
+      // Don't know why, but we need to call `pump` at least 2 times
+      // to forward the animation clock.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+      final offsetBeforePress = scrollController.offset;
+      expect(
+        offsetBeforePress,
+        greaterThan(offsetAfterFling),
+        reason: 'Momentum scrolling should be in progress.',
+      );
 
-        // Press and hold the finger on the target widget.
-        await tester.press(find.byKey(targetKey));
-        // Wait for the momentum scrolling to stop.
-        await tester.pumpAndSettle();
-        final offsetAfterPress = scrollController.offset;
-        expect(
-          offsetAfterPress,
-          equals(offsetBeforePress),
-          reason:
-              'Momentum scrolling should be stopped immediately '
-              'by pressing and holding.',
-        );
-      },
-    );
+      // Press and hold the finger on the target widget.
+      await tester.press(find.byKey(targetKey));
+      // Wait for the momentum scrolling to stop.
+      await tester.pumpAndSettle();
+      final offsetAfterPress = scrollController.offset;
+      expect(
+        offsetAfterPress,
+        equals(offsetBeforePress),
+        reason:
+            'Momentum scrolling should be stopped immediately '
+            'by pressing and holding.',
+      );
+    });
 
     // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/214
     testWidgets('in a PageView with multiple ListViews', (tester) async {
@@ -337,9 +323,7 @@ void main() {
                       child: ListView(
                         children: List.generate(
                           30,
-                          (index) => ListTile(
-                            title: Text('Item $index'),
-                          ),
+                          (index) => ListTile(title: Text('Item $index')),
                         ),
                       ),
                     ),

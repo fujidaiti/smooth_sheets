@@ -100,10 +100,7 @@ class SheetController extends ChangeNotifier
 }
 
 class DefaultSheetController extends StatefulWidget {
-  const DefaultSheetController({
-    super.key,
-    required this.child,
-  });
+  const DefaultSheetController({super.key, required this.child});
 
   final Widget child;
 
@@ -154,10 +151,7 @@ class _DefaultSheetControllerState extends State<DefaultSheetController> {
 
   @override
   Widget build(BuildContext context) {
-    return SheetControllerScope(
-      controller: _controller,
-      child: widget.child,
-    );
+    return SheetControllerScope(controller: _controller, child: widget.child);
   }
 }
 

@@ -56,16 +56,14 @@ void main() {
       ).getBoundaries(testLayout);
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
-      result = const SingleSnapGrid(snap: SheetOffset.absolute(500))
-          .getBoundaries(
-            testLayout.copyWith(contentSize: Size(800, 600)),
-          );
+      result = const SingleSnapGrid(
+        snap: SheetOffset.absolute(500),
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 600)));
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
-      result = const SingleSnapGrid(snap: SheetOffset.absolute(500))
-          .getBoundaries(
-            testLayout.copyWith(contentSize: Size(800, 500)),
-          );
+      result = const SingleSnapGrid(
+        snap: SheetOffset.absolute(500),
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 500)));
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
     });
   });
@@ -76,23 +74,17 @@ void main() {
       maxOffset: SheetOffset(1),
     );
 
-    test(
-      'getSnapOffset: returns minOffset when '
-      'the current offset is less than minOffset',
-      () {
-        final result = snap.getSnapOffset(testLayout, -100, 0);
-        expect(result, SheetOffset(0));
-      },
-    );
+    test('getSnapOffset: returns minOffset when '
+        'the current offset is less than minOffset', () {
+      final result = snap.getSnapOffset(testLayout, -100, 0);
+      expect(result, SheetOffset(0));
+    });
 
-    test(
-      'getSnapOffset: returns maxOffset '
-      'when metrics.offset is greater than maxOffset',
-      () {
-        final result = snap.getSnapOffset(testLayout, 600, 0);
-        expect(result, SheetOffset(1));
-      },
-    );
+    test('getSnapOffset: returns maxOffset '
+        'when metrics.offset is greater than maxOffset', () {
+      final result = snap.getSnapOffset(testLayout, 600, 0);
+      expect(result, SheetOffset(1));
+    });
 
     test('getSnapOffset: returns minOffset when offset is at minOffset', () {
       final result = snap.getSnapOffset(testLayout, 0, 0);
@@ -168,22 +160,19 @@ void main() {
     });
 
     test('getBoundaries', () {
-      var result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(
-            testLayout.copyWith(contentSize: Size(800, 400)),
-          );
+      var result = const MultiSnapGrid(
+        snaps: [SheetOffset.absolute(500)],
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 400)));
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(
-            testLayout.copyWith(contentSize: Size(800, 600)),
-          );
+      result = const MultiSnapGrid(
+        snaps: [SheetOffset.absolute(500)],
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 600)));
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: [SheetOffset.absolute(500)])
-          .getBoundaries(
-            testLayout.copyWith(contentSize: Size(800, 500)),
-          );
+      result = const MultiSnapGrid(
+        snaps: [SheetOffset.absolute(500)],
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 500)));
       expect(result, (SheetOffset.absolute(500), SheetOffset.absolute(500)));
     });
   });
@@ -289,41 +278,32 @@ void main() {
 
     test('getSnapOffset: the order of "snaps" list does not matter', () {
       final result = const MultiSnapGrid(
-        snaps: [
-          SheetOffset.absolute(500),
-          SheetOffset.absolute(0),
-        ],
+        snaps: [SheetOffset.absolute(500), SheetOffset.absolute(0)],
       ).getSnapOffset(testLayout, 100, 0);
       expect(result, SheetOffset.absolute(0));
     });
 
     test('getBoundaries', () {
-      var result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 400)),
-      );
+      var result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 400)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 600)),
-      );
+      result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 600)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 500)),
-      );
+      result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 500)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
 
     test('getBoundaries: the order of "snaps" list does not matter', () {
-      final result =
-          const MultiSnapGrid(
-            snaps: [
-              SheetOffset.absolute(500),
-              SheetOffset.absolute(0),
-            ],
-          ).getBoundaries(
-            testLayout.copyWith(contentSize: Size(800, 400)),
-          );
+      final result = const MultiSnapGrid(
+        snaps: [SheetOffset.absolute(500), SheetOffset.absolute(0)],
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 400)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
   });
@@ -487,33 +467,30 @@ void main() {
     });
 
     test('getBoundaries', () {
-      var result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 400)),
-      );
+      var result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 400)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 600)),
-      );
+      result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 600)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
 
-      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 500)),
-      );
+      result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 500)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
 
     test('getBoundaries: the order of "snaps" list does not matter', () {
-      final result =
-          const MultiSnapGrid(
-            snaps: [
-              SheetOffset.absolute(250),
-              SheetOffset.absolute(500),
-              SheetOffset.absolute(0),
-            ],
-          ).getBoundaries(
-            testLayout.copyWith(contentSize: Size(800, 400)),
-          );
+      final result = const MultiSnapGrid(
+        snaps: [
+          SheetOffset.absolute(250),
+          SheetOffset.absolute(500),
+          SheetOffset.absolute(0),
+        ],
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 400)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(500)));
     });
   });
@@ -713,34 +690,31 @@ void main() {
     });
 
     test('getBoundaries', () {
-      var result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 400)),
-      );
+      var result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 400)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
 
-      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 600)),
-      );
+      result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 600)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
 
-      result = const MultiSnapGrid(snaps: snaps).getBoundaries(
-        testLayout.copyWith(contentSize: Size(800, 500)),
-      );
+      result = const MultiSnapGrid(
+        snaps: snaps,
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 500)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
     });
 
     test('getBoundaries: the order of "snaps" list does not matter', () {
-      final result =
-          const MultiSnapGrid(
-            snaps: [
-              SheetOffset.absolute(750),
-              SheetOffset.absolute(500),
-              SheetOffset.absolute(250),
-              SheetOffset.absolute(0),
-            ],
-          ).getBoundaries(
-            testLayout.copyWith(contentSize: Size(800, 400)),
-          );
+      final result = const MultiSnapGrid(
+        snaps: [
+          SheetOffset.absolute(750),
+          SheetOffset.absolute(500),
+          SheetOffset.absolute(250),
+          SheetOffset.absolute(0),
+        ],
+      ).getBoundaries(testLayout.copyWith(contentSize: Size(800, 400)));
       expect(result, (SheetOffset.absolute(0), SheetOffset.absolute(750)));
     });
   });

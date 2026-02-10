@@ -117,9 +117,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
 }
 
 class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
-  const ClampingSheetPhysics({
-    this.spring = kDefaultSheetSpring,
-  });
+  const ClampingSheetPhysics({this.spring = kDefaultSheetSpring});
 
   @override
   final SpringDescription spring;

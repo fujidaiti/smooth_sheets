@@ -60,10 +60,17 @@ void main() {
     });
 
     test('skips zero deltas between equal consecutive values', () {
-      expect(
-        [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 2.0, 2.0, 1.0],
-        fluctuationEquals([1, -1, 1, -1]),
-      );
+      expect([
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        2.0,
+        2.0,
+        1.0,
+      ], fluctuationEquals([1, -1, 1, -1]));
     });
 
     test('one item should not match any sign pattern', () {

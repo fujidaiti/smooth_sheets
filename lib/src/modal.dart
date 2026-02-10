@@ -30,16 +30,10 @@ const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 /// configured [ModalSheetPage.barrierColor]. The default value is `null`.
 /// {@endtemplate}
 typedef ModalSheetBarrierBuilder<T> =
-    Widget Function(
-      ModalRoute<T> route,
-      VoidCallback onDismissCallback,
-    );
+    Widget Function(ModalRoute<T> route, VoidCallback onDismissCallback);
 
 typedef SheetViewportBuilder =
-    Widget Function(
-      BuildContext context,
-      Widget child,
-    );
+    Widget Function(BuildContext context, Widget child);
 
 class ModalSheetPage<T> extends Page<T> {
   const ModalSheetPage({
@@ -619,10 +613,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
   @override
   Widget build(BuildContext context) {
-    final child = KeyedSubtree(
-      key: _childGlobalKey,
-      child: widget.child,
-    );
+    final child = KeyedSubtree(key: _childGlobalKey, child: widget.child);
     return _isGestureEnabled
         ? SheetGestureProxy(proxy: this, child: child)
         : child;

@@ -421,23 +421,20 @@ void main() {
       },
     );
 
-    test(
-      'contentStaticOverlap - when four edges of content are overlapped '
-      'by static UI',
-      () {
-        expect(
-          _TestSheetMetrics(
-            offset: 800,
-            size: Size(400, 800),
-            contentSize: Size(400, 800),
-            viewportSize: Size(400, 800),
-            viewportPadding: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-          ).contentStaticOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 40),
-        );
-      },
-    );
+    test('contentStaticOverlap - when four edges of content are overlapped '
+        'by static UI', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 800,
+          size: Size(400, 800),
+          contentSize: Size(400, 800),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+          viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+        ).contentStaticOverlap,
+        EdgeInsets.fromLTRB(10, 20, 30, 40),
+      );
+    });
 
     test(
       'contentStaticOverlap - when top of content is outside of viewport',
@@ -490,23 +487,20 @@ void main() {
       },
     );
 
-    test(
-      'contentDynamicOverlap - when four edges of content are overlapped '
-      'by dynamic UI',
-      () {
-        expect(
-          _TestSheetMetrics(
-            offset: 800,
-            size: Size(400, 800),
-            contentSize: Size(400, 800),
-            viewportSize: Size(400, 800),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-          ).contentDynamicOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 40),
-        );
-      },
-    );
+    test('contentDynamicOverlap - when four edges of content are overlapped '
+        'by dynamic UI', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 800,
+          size: Size(400, 800),
+          contentSize: Size(400, 800),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+          viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+        ).contentDynamicOverlap,
+        EdgeInsets.fromLTRB(10, 20, 30, 40),
+      );
+    });
 
     test(
       'contentDynamicOverlap - when top of content is outside of viewport',
@@ -525,23 +519,20 @@ void main() {
       },
     );
 
-    test(
-      'contentDynamicOverlap - when bottom of content is '
-      'outside of viewport',
-      () {
-        expect(
-          _TestSheetMetrics(
-            offset: 300,
-            size: Size(400, 700),
-            contentSize: Size(400, 700),
-            viewportSize: Size(400, 800),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-          ).contentDynamicOverlap,
-          EdgeInsets.fromLTRB(10, 0, 30, 40),
-        );
-      },
-    );
+    test('contentDynamicOverlap - when bottom of content is '
+        'outside of viewport', () {
+      expect(
+        _TestSheetMetrics(
+          offset: 300,
+          size: Size(400, 700),
+          contentSize: Size(400, 700),
+          viewportSize: Size(400, 800),
+          viewportPadding: EdgeInsets.zero,
+          viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
+        ).contentDynamicOverlap,
+        EdgeInsets.fromLTRB(10, 0, 30, 40),
+      );
+    });
   });
 }
 

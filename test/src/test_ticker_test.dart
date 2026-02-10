@@ -125,16 +125,13 @@ void main() {
     ticker.start();
     ticker.tickAndSettle(duration: const Duration(milliseconds: 120));
 
-    expect(
-      tickDurations,
-      const [
-        Duration(milliseconds: 120),
-        Duration(milliseconds: 240),
-        Duration(milliseconds: 360),
-        Duration(milliseconds: 480),
-        Duration(milliseconds: 600),
-      ],
-    );
+    expect(tickDurations, const [
+      Duration(milliseconds: 120),
+      Duration(milliseconds: 240),
+      Duration(milliseconds: 360),
+      Duration(milliseconds: 480),
+      Duration(milliseconds: 600),
+    ]);
   });
 
   test('toString Should include debugLabel if provided', () {

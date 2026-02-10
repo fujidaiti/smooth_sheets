@@ -93,9 +93,7 @@ class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
 abstract class SheetKeyboardDismissBehavior {
   /// Creates an object that determines when the on-screen keyboard
   /// should be dismissed.
-  const SheetKeyboardDismissBehavior({
-    this.isContentScrollAware = false,
-  });
+  const SheetKeyboardDismissBehavior({this.isContentScrollAware = false});
 
   /// {@macro drag_sheet_keyboard_dismiss_behavior.ctor}
   const factory SheetKeyboardDismissBehavior.onDrag({

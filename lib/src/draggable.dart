@@ -97,10 +97,7 @@ class _SheetDraggableState extends State<SheetDraggable> {
       },
       // At least one hit-testable widget is required
       // to receive drag events.
-      child: ColoredBox(
-        color: const Color(0x00000000),
-        child: widget.child,
-      ),
+      child: ColoredBox(color: const Color(0x00000000), child: widget.child),
     );
   }
 }

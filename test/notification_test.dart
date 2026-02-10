@@ -24,9 +24,7 @@ void main() {
           },
           child: SheetViewport(
             child: Sheet(
-              snapGrid: const SheetSnapGrid.stepless(
-                minOffset: SheetOffset(0),
-              ),
+              snapGrid: const SheetSnapGrid.stepless(minOffset: SheetOffset(0)),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
               child: Container(
@@ -156,97 +154,94 @@ void main() {
     },
   );
 
-  testWidgets(
-    'Sheet animation should dispatch metrics update notifications',
-    (tester) async {
-      final reportedNotifications = <SheetNotification>[];
-      final controller = SheetController();
+  testWidgets('Sheet animation should dispatch metrics update notifications', (
+    tester,
+  ) async {
+    final reportedNotifications = <SheetNotification>[];
+    final controller = SheetController();
 
-      await tester.pumpWidget(
-        NotificationListener<SheetNotification>(
-          onNotification: (notification) {
-            reportedNotifications.add(notification);
-            return false;
-          },
-          child: SheetViewport(
-            child: Sheet(
-              controller: controller,
-              snapGrid: SheetSnapGrid.stepless(
-                minOffset: SheetOffset(0),
-              ),
-              // Disable the snapping effect
-              physics: const ClampingSheetPhysics(),
-              child: Container(
-                color: Colors.white,
-                width: double.infinity,
-                height: 600,
-              ),
+    await tester.pumpWidget(
+      NotificationListener<SheetNotification>(
+        onNotification: (notification) {
+          reportedNotifications.add(notification);
+          return false;
+        },
+        child: SheetViewport(
+          child: Sheet(
+            controller: controller,
+            snapGrid: SheetSnapGrid.stepless(minOffset: SheetOffset(0)),
+            // Disable the snapping effect
+            physics: const ClampingSheetPhysics(),
+            child: Container(
+              color: Colors.white,
+              width: double.infinity,
+              height: 600,
             ),
           ),
         ),
-      );
+      ),
+    );
 
-      unawaited(
-        controller.animateTo(
-          const SheetOffset(0),
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.linear,
-        ),
-      );
-      await tester.pump(Duration.zero);
-      expect(
-        reportedNotifications.single,
-        isA<SheetUpdateNotification>().having(
-          (e) => e.metrics.offset,
-          'offset',
-          moreOrLessEquals(600),
-        ),
-      );
+    unawaited(
+      controller.animateTo(
+        const SheetOffset(0),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.linear,
+      ),
+    );
+    await tester.pump(Duration.zero);
+    expect(
+      reportedNotifications.single,
+      isA<SheetUpdateNotification>().having(
+        (e) => e.metrics.offset,
+        'offset',
+        moreOrLessEquals(600),
+      ),
+    );
 
-      reportedNotifications.clear();
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(
-        reportedNotifications.single,
-        isA<SheetUpdateNotification>().having(
-          (e) => e.metrics.offset,
-          'offset',
-          moreOrLessEquals(400),
-        ),
-      );
+    reportedNotifications.clear();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(
+      reportedNotifications.single,
+      isA<SheetUpdateNotification>().having(
+        (e) => e.metrics.offset,
+        'offset',
+        moreOrLessEquals(400),
+      ),
+    );
 
-      reportedNotifications.clear();
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(
-        reportedNotifications.single,
-        isA<SheetUpdateNotification>().having(
-          (e) => e.metrics.offset,
-          'offset',
-          moreOrLessEquals(200),
-        ),
-      );
+    reportedNotifications.clear();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(
+      reportedNotifications.single,
+      isA<SheetUpdateNotification>().having(
+        (e) => e.metrics.offset,
+        'offset',
+        moreOrLessEquals(200),
+      ),
+    );
 
-      reportedNotifications.clear();
-      await tester.pump(const Duration(seconds: 100));
-      expect(
-        reportedNotifications.single,
-        isA<SheetUpdateNotification>().having(
-          (e) => e.metrics.offset,
-          'offset',
-          moreOrLessEquals(0),
-        ),
-      );
+    reportedNotifications.clear();
+    await tester.pump(const Duration(seconds: 100));
+    expect(
+      reportedNotifications.single,
+      isA<SheetUpdateNotification>().having(
+        (e) => e.metrics.offset,
+        'offset',
+        moreOrLessEquals(0),
+      ),
+    );
 
-      reportedNotifications.clear();
-      await tester.pumpAndSettle();
-      expect(
-        reportedNotifications,
-        isEmpty,
-        reason:
-            'Once the animation is finished, '
-            'no notification should be dispatched.',
-      );
-    },
-  );
+    reportedNotifications.clear();
+    await tester.pumpAndSettle();
+    expect(
+      reportedNotifications,
+      isEmpty,
+      reason:
+          'Once the animation is finished, '
+          'no notification should be dispatched.',
+    );
+  });
 
   testWidgets(
     'Over-darg gesture should dispatch both drag and overflow notifications',
@@ -263,9 +258,7 @@ void main() {
           child: SheetViewport(
             child: Sheet(
               // Make sure the sheet can't be dragged
-              snapGrid: SheetSnapGrid.single(
-                snap: SheetOffset(1),
-              ),
+              snapGrid: SheetSnapGrid.single(snap: SheetOffset(1)),
               // Disable the snapping effect
               physics: const ClampingSheetPhysics(),
               child: Container(
@@ -414,10 +407,7 @@ void main() {
                 navigator: ValueListenableBuilder(
                   valueListenable: pagesNotifier,
                   builder: (context, pages, _) {
-                    return Navigator(
-                      pages: pages,
-                      onDidRemovePage: (_) {},
-                    );
+                    return Navigator(pages: pages, onDidRemovePage: (_) {});
                   },
                 ),
               ),

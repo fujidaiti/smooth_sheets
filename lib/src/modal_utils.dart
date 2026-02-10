@@ -117,10 +117,7 @@ Future<T?> showModalSheet<T>({
     transitionCurve: transitionCurve ?? Curves.fastEaseInToSlowEaseOut,
     swipeDismissSensitivity: swipeDismissSensitivity,
     viewportBuilder: (context, child) {
-      return SheetViewport(
-        padding: viewportPadding,
-        child: child,
-      );
+      return SheetViewport(padding: viewportPadding, child: child);
     },
   );
 

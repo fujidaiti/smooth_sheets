@@ -98,280 +98,254 @@ void main() {
       );
     });
 
-    testWidgets(
-      'TopBar-Body layout with tight box-constraints',
-      (tester) async {
-        final scaffoldKey = UniqueKey();
-        final topBarKey = UniqueKey();
-        final bodyKey = UniqueKey();
-        final env = boilerplate(
-          builder: (context) {
-            return ConstrainedBox(
-              constraints: BoxConstraints.tight(testScreenSize),
-              child: SheetContentScaffold(
-                key: scaffoldKey,
-                topBar: Container(key: topBarKey, height: 50),
-                body: SizedBox.shrink(key: bodyKey),
-              ),
-            );
-          },
-        );
+    testWidgets('TopBar-Body layout with tight box-constraints', (
+      tester,
+    ) async {
+      final scaffoldKey = UniqueKey();
+      final topBarKey = UniqueKey();
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.tight(testScreenSize),
+            child: SheetContentScaffold(
+              key: scaffoldKey,
+              topBar: Container(key: topBarKey, height: 50),
+              body: SizedBox.shrink(key: bodyKey),
+            ),
+          );
+        },
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
-        expect(
-          tester.getLocalRect(
-            find.byKey(topBarKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 0, testScreenSize.width, 50),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bodyKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(
-            0,
-            50,
-            testScreenSize.width,
-            testScreenSize.height - 50,
-          ),
-        );
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+      expect(
+        tester.getLocalRect(
+          find.byKey(topBarKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 50, testScreenSize.width, testScreenSize.height - 50),
+      );
+    });
 
-    testWidgets(
-      'TopBar-Body layout with loose box-constraints',
-      (tester) async {
-        final scaffoldKey = UniqueKey();
-        final topBarKey = UniqueKey();
-        final bodyKey = UniqueKey();
-        final env = boilerplate(
-          builder: (context) {
-            return ConstrainedBox(
-              constraints: BoxConstraints.loose(testScreenSize),
-              child: SheetContentScaffold(
-                key: scaffoldKey,
-                topBar: Container(key: topBarKey, height: 50),
-                body: Container(key: bodyKey, height: 200),
-              ),
-            );
-          },
-        );
+    testWidgets('TopBar-Body layout with loose box-constraints', (
+      tester,
+    ) async {
+      final scaffoldKey = UniqueKey();
+      final topBarKey = UniqueKey();
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.loose(testScreenSize),
+            child: SheetContentScaffold(
+              key: scaffoldKey,
+              topBar: Container(key: topBarKey, height: 50),
+              body: Container(key: bodyKey, height: 200),
+            ),
+          );
+        },
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byKey(scaffoldKey)),
-          Size(testScreenSize.width, 250),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(topBarKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 0, testScreenSize.width, 50),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bodyKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 50, testScreenSize.width, 200),
-        );
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(
+        tester.getSize(find.byKey(scaffoldKey)),
+        Size(testScreenSize.width, 250),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(topBarKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 50, testScreenSize.width, 200),
+      );
+    });
 
-    testWidgets(
-      'Body-BottomBar layout with tight box-constraints',
-      (tester) async {
-        final scaffoldKey = UniqueKey();
-        final bottomBarKey = UniqueKey();
-        final bodyKey = UniqueKey();
-        final env = boilerplate(
-          builder: (context) {
-            return ConstrainedBox(
-              constraints: BoxConstraints.tight(testScreenSize),
-              child: SheetContentScaffold(
-                key: scaffoldKey,
-                bottomBar: Container(key: bottomBarKey, height: 50),
-                body: SizedBox.shrink(key: bodyKey),
-              ),
-            );
-          },
-        );
+    testWidgets('Body-BottomBar layout with tight box-constraints', (
+      tester,
+    ) async {
+      final scaffoldKey = UniqueKey();
+      final bottomBarKey = UniqueKey();
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.tight(testScreenSize),
+            child: SheetContentScaffold(
+              key: scaffoldKey,
+              bottomBar: Container(key: bottomBarKey, height: 50),
+              body: SizedBox.shrink(key: bodyKey),
+            ),
+          );
+        },
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
-        expect(
-          tester.getLocalRect(
-            find.byKey(bodyKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 50),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bottomBarKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 50,
-            testScreenSize.width,
-            50,
-          ),
-        );
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 50),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bottomBarKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, testScreenSize.height - 50, testScreenSize.width, 50),
+      );
+    });
 
-    testWidgets(
-      'Body-BottomBar layout with loose box-constraints',
-      (tester) async {
-        final scaffoldKey = UniqueKey();
-        final bottomBarKey = UniqueKey();
-        final bodyKey = UniqueKey();
-        final env = boilerplate(
-          builder: (context) {
-            return ConstrainedBox(
-              constraints: BoxConstraints.loose(testScreenSize),
-              child: SheetContentScaffold(
-                key: scaffoldKey,
-                bottomBar: Container(key: bottomBarKey, height: 50),
-                body: Container(key: bodyKey, height: 200),
-              ),
-            );
-          },
-        );
+    testWidgets('Body-BottomBar layout with loose box-constraints', (
+      tester,
+    ) async {
+      final scaffoldKey = UniqueKey();
+      final bottomBarKey = UniqueKey();
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.loose(testScreenSize),
+            child: SheetContentScaffold(
+              key: scaffoldKey,
+              bottomBar: Container(key: bottomBarKey, height: 50),
+              body: Container(key: bodyKey, height: 200),
+            ),
+          );
+        },
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byKey(scaffoldKey)),
-          Size(testScreenSize.width, 250),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bottomBarKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 200, testScreenSize.width, 50),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bodyKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 0, testScreenSize.width, 200),
-        );
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(
+        tester.getSize(find.byKey(scaffoldKey)),
+        Size(testScreenSize.width, 250),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bottomBarKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 200, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 200),
+      );
+    });
 
-    testWidgets(
-      'TopBar-Body-BottomBar layout with tight box-constraints',
-      (tester) async {
-        final scaffoldKey = UniqueKey();
-        final topBarKey = UniqueKey();
-        final bottomBarKey = UniqueKey();
-        final bodyKey = UniqueKey();
-        final env = boilerplate(
-          builder: (context) {
-            return ConstrainedBox(
-              constraints: BoxConstraints.tight(testScreenSize),
-              child: SheetContentScaffold(
-                key: scaffoldKey,
-                topBar: Container(key: topBarKey, height: 50),
-                bottomBar: Container(key: bottomBarKey, height: 50),
-                body: SizedBox.shrink(key: bodyKey),
-              ),
-            );
-          },
-        );
+    testWidgets('TopBar-Body-BottomBar layout with tight box-constraints', (
+      tester,
+    ) async {
+      final scaffoldKey = UniqueKey();
+      final topBarKey = UniqueKey();
+      final bottomBarKey = UniqueKey();
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.tight(testScreenSize),
+            child: SheetContentScaffold(
+              key: scaffoldKey,
+              topBar: Container(key: topBarKey, height: 50),
+              bottomBar: Container(key: bottomBarKey, height: 50),
+              body: SizedBox.shrink(key: bodyKey),
+            ),
+          );
+        },
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
-        expect(
-          tester.getLocalRect(
-            find.byKey(topBarKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 0, testScreenSize.width, 50),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bottomBarKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(
-            0,
-            testScreenSize.height - 50,
-            testScreenSize.width,
-            50,
-          ),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bodyKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(
-            0,
-            50,
-            testScreenSize.width,
-            testScreenSize.height - 100,
-          ),
-        );
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+      expect(
+        tester.getLocalRect(
+          find.byKey(topBarKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bottomBarKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, testScreenSize.height - 50, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 50, testScreenSize.width, testScreenSize.height - 100),
+      );
+    });
 
-    testWidgets(
-      'TopBar-Body-BottomBar layout with loose box-constraints',
-      (tester) async {
-        final scaffoldKey = UniqueKey();
-        final topBarKey = UniqueKey();
-        final bottomBarKey = UniqueKey();
-        final bodyKey = UniqueKey();
-        final env = boilerplate(
-          builder: (context) {
-            return ConstrainedBox(
-              constraints: BoxConstraints.loose(testScreenSize),
-              child: SheetContentScaffold(
-                key: scaffoldKey,
-                topBar: Container(key: topBarKey, height: 50),
-                bottomBar: Container(key: bottomBarKey, height: 50),
-                body: Container(key: bodyKey, height: 200),
-              ),
-            );
-          },
-        );
+    testWidgets('TopBar-Body-BottomBar layout with loose box-constraints', (
+      tester,
+    ) async {
+      final scaffoldKey = UniqueKey();
+      final topBarKey = UniqueKey();
+      final bottomBarKey = UniqueKey();
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.loose(testScreenSize),
+            child: SheetContentScaffold(
+              key: scaffoldKey,
+              topBar: Container(key: topBarKey, height: 50),
+              bottomBar: Container(key: bottomBarKey, height: 50),
+              body: Container(key: bodyKey, height: 200),
+            ),
+          );
+        },
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byKey(scaffoldKey)),
-          Size(testScreenSize.width, 300),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(topBarKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 0, testScreenSize.width, 50),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bottomBarKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 250, testScreenSize.width, 50),
-        );
-        expect(
-          tester.getLocalRect(
-            find.byKey(bodyKey),
-            ancestor: find.byKey(scaffoldKey),
-          ),
-          Rect.fromLTWH(0, 50, testScreenSize.width, 200),
-        );
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(
+        tester.getSize(find.byKey(scaffoldKey)),
+        Size(testScreenSize.width, 300),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(topBarKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bottomBarKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 250, testScreenSize.width, 50),
+      );
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byKey(scaffoldKey),
+        ),
+        Rect.fromLTWH(0, 50, testScreenSize.width, 200),
+      );
+    });
 
     testWidgets('Extends body behind top bar', (tester) async {
       final topBarKey = UniqueKey();
@@ -514,12 +488,8 @@ void main() {
     ) async {
       final env = boilerplate(
         builder: (context) => Theme(
-          data: ThemeData(
-            scaffoldBackgroundColor: Colors.purple,
-          ),
-          child: SheetContentScaffold(
-            body: Container(height: 200),
-          ),
+          data: ThemeData(scaffoldBackgroundColor: Colors.purple),
+          child: SheetContentScaffold(body: Container(height: 200)),
         ),
       );
 
@@ -592,28 +562,25 @@ void main() {
       expect(inheritedPadding, EdgeInsets.only(bottom: 50));
     });
 
-    testWidgets(
-      'Removes MediaQueryData.padding.bottom '
-      'if extendBodyBehindBottomBar is false',
-      (tester) async {
-        late EdgeInsets inheritedPadding;
-        final env = boilerplate(
-          builder: (context) => SheetContentScaffold(
-            extendBodyBehindBottomBar: false,
-            bottomBar: Container(height: 50, color: Colors.blue),
-            body: Builder(
-              builder: (context) {
-                inheritedPadding = MediaQuery.of(context).padding;
-                return SizedBox.expand();
-              },
-            ),
+    testWidgets('Removes MediaQueryData.padding.bottom '
+        'if extendBodyBehindBottomBar is false', (tester) async {
+      late EdgeInsets inheritedPadding;
+      final env = boilerplate(
+        builder: (context) => SheetContentScaffold(
+          extendBodyBehindBottomBar: false,
+          bottomBar: Container(height: 50, color: Colors.blue),
+          body: Builder(
+            builder: (context) {
+              inheritedPadding = MediaQuery.of(context).padding;
+              return SizedBox.expand();
+            },
           ),
-        );
+        ),
+      );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(inheritedPadding, EdgeInsets.zero);
-      },
-    );
+      await tester.pumpWidget(env.testWidget);
+      expect(inheritedPadding, EdgeInsets.zero);
+    });
   });
 
   group('SheetContentScaffold - bottom-bar visibility', () {
@@ -706,9 +673,8 @@ void main() {
           find.byKey(Key('body')),
           ancestor: find.byKey(Key('scaffold')),
         ),
-        getScaffoldRect: (tester) => tester.getLocalRect(
-          find.byKey(Key('scaffold')),
-        ),
+        getScaffoldRect: (tester) =>
+            tester.getLocalRect(find.byKey(Key('scaffold'))),
         getLocalBottomBarRect: (tester) => tester.getLocalRect(
           find.byKey(Key('bottomBar')),
           ancestor: find.byKey(Key('scaffold')),
@@ -724,9 +690,7 @@ void main() {
     }
 
     testWidgets('natural - when keyboard is closed', (tester) async {
-      final env = boilerplate(
-        visibility: BottomBarVisibility.natural(),
-      );
+      final env = boilerplate(visibility: BottomBarVisibility.natural());
       await tester.pumpWidget(env.testWidget);
 
       expect(env.getModel().offset, 600);
@@ -750,73 +714,71 @@ void main() {
       );
     });
 
-    testWidgets(
-      'natural - when keyboard is open, '
-      'extendBodyBehindBottomBar is true, and ignoreBottomInset is false',
-      (tester) async {
-        final env = boilerplate(
-          visibility: BottomBarVisibility.natural(ignoreBottomInset: false),
-          extendBodyBehindBottomBar: true,
-          initialKeyboardHeight: 25,
-        );
-        await tester.pumpWidget(env.testWidget);
+    testWidgets('natural - when keyboard is open, '
+        'extendBodyBehindBottomBar is true, and ignoreBottomInset is false', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.natural(ignoreBottomInset: false),
+        extendBodyBehindBottomBar: true,
+        initialKeyboardHeight: 25,
+      );
+      await tester.pumpWidget(env.testWidget);
 
-        expect(env.getModel().offset, 600);
-        expect(env.getScaffoldRect(tester).size.height, 575);
-        expect(env.getLocalBodyRect(tester).height, 575);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'Half of the bar should be outside of the scaffold',
-        );
+      expect(env.getModel().offset, 600);
+      expect(env.getScaffoldRect(tester).size.height, 575);
+      expect(env.getLocalBodyRect(tester).height, 575);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'Half of the bar should be outside of the scaffold',
+      );
 
-        env.updateKeyboardHeight(50);
-        await tester.pump();
+      env.updateKeyboardHeight(50);
+      await tester.pump();
 
-        expect(env.getModel().offset, 600);
-        expect(env.getScaffoldRect(tester).size.height, 550);
-        expect(env.getLocalBodyRect(tester).height, 550);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'The entire bar should be outside of the scaffold',
-        );
-      },
-    );
+      expect(env.getModel().offset, 600);
+      expect(env.getScaffoldRect(tester).size.height, 550);
+      expect(env.getLocalBodyRect(tester).height, 550);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'The entire bar should be outside of the scaffold',
+      );
+    });
 
-    testWidgets(
-      'natural - when keyboard is open, '
-      'extendBodyBehindBottomBar is false, and ignoreBottomInset is false',
-      (tester) async {
-        final env = boilerplate(
-          visibility: BottomBarVisibility.natural(ignoreBottomInset: false),
-          extendBodyBehindBottomBar: false,
-          initialKeyboardHeight: 25,
-        );
-        await tester.pumpWidget(env.testWidget);
+    testWidgets('natural - when keyboard is open, '
+        'extendBodyBehindBottomBar is false, and ignoreBottomInset is false', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.natural(ignoreBottomInset: false),
+        extendBodyBehindBottomBar: false,
+        initialKeyboardHeight: 25,
+      );
+      await tester.pumpWidget(env.testWidget);
 
-        expect(env.getModel().offset, 600);
-        expect(env.getScaffoldRect(tester).size.height, 575);
-        expect(env.getLocalBodyRect(tester).height, 550);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'Half of the bar should be outside of the scaffold',
-        );
+      expect(env.getModel().offset, 600);
+      expect(env.getScaffoldRect(tester).size.height, 575);
+      expect(env.getLocalBodyRect(tester).height, 550);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'Half of the bar should be outside of the scaffold',
+      );
 
-        env.updateKeyboardHeight(50);
-        await tester.pump();
+      env.updateKeyboardHeight(50);
+      await tester.pump();
 
-        expect(env.getModel().offset, 600);
-        expect(env.getScaffoldRect(tester).size.height, 550);
-        expect(env.getLocalBodyRect(tester).height, 550);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'The entire bar should be outside of the scaffold',
-        );
-      },
-    );
+      expect(env.getModel().offset, 600);
+      expect(env.getScaffoldRect(tester).size.height, 550);
+      expect(env.getLocalBodyRect(tester).height, 550);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'The entire bar should be outside of the scaffold',
+      );
+    });
 
     testWidgets(
       'natural - when keyboard is open and ignoreBottomInset is true',
@@ -859,9 +821,7 @@ void main() {
     );
 
     testWidgets('always - when keyboard is closed', (tester) async {
-      final env = boilerplate(
-        visibility: BottomBarVisibility.always(),
-      );
+      final env = boilerplate(visibility: BottomBarVisibility.always());
       await tester.pumpWidget(env.testWidget);
 
       expect(env.getModel().offset, 600);
@@ -897,73 +857,71 @@ void main() {
       );
     });
 
-    testWidgets(
-      'always - when keyboard is open, '
-      'extendBodyBehindBottomBar is true, and ignoreBottomInset is false',
-      (tester) async {
-        final env = boilerplate(
-          visibility: BottomBarVisibility.always(ignoreBottomInset: false),
-          extendBodyBehindBottomBar: true,
-          initialKeyboardHeight: 25,
-        );
-        await tester.pumpWidget(env.testWidget);
+    testWidgets('always - when keyboard is open, '
+        'extendBodyBehindBottomBar is true, and ignoreBottomInset is false', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.always(ignoreBottomInset: false),
+        extendBodyBehindBottomBar: true,
+        initialKeyboardHeight: 25,
+      );
+      await tester.pumpWidget(env.testWidget);
 
-        expect(env.getModel().offset, 600);
-        expect(env.getScaffoldRect(tester).size.height, 575);
-        expect(env.getLocalBodyRect(tester).height, 575);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'Half of the bar should be outside of the scaffold',
-        );
+      expect(env.getModel().offset, 600);
+      expect(env.getScaffoldRect(tester).size.height, 575);
+      expect(env.getLocalBodyRect(tester).height, 575);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'Half of the bar should be outside of the scaffold',
+      );
 
-        env.updateKeyboardHeight(50);
-        await tester.pump();
+      env.updateKeyboardHeight(50);
+      await tester.pump();
 
-        expect(env.getModel().offset, 600);
-        expect(env.getScaffoldRect(tester).size.height, 550);
-        expect(env.getLocalBodyRect(tester).height, 550);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'The entire bar should be outside of the scaffold',
-        );
-      },
-    );
+      expect(env.getModel().offset, 600);
+      expect(env.getScaffoldRect(tester).size.height, 550);
+      expect(env.getLocalBodyRect(tester).height, 550);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'The entire bar should be outside of the scaffold',
+      );
+    });
 
-    testWidgets(
-      'always - when keyboard is open, '
-      'extendBodyBehindBottomBar is false, and ignoreBottomInset is false',
-      (tester) async {
-        final env = boilerplate(
-          visibility: BottomBarVisibility.always(ignoreBottomInset: false),
-          extendBodyBehindBottomBar: false,
-          initialKeyboardHeight: 25,
-        );
-        await tester.pumpWidget(env.testWidget);
+    testWidgets('always - when keyboard is open, '
+        'extendBodyBehindBottomBar is false, and ignoreBottomInset is false', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.always(ignoreBottomInset: false),
+        extendBodyBehindBottomBar: false,
+        initialKeyboardHeight: 25,
+      );
+      await tester.pumpWidget(env.testWidget);
 
-        expect(env.getModel().offset, 600);
-        expect(env.getScaffoldRect(tester).size.height, 575);
-        expect(env.getLocalBodyRect(tester).height, 550);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'Half of the bar should be outside of the scaffold',
-        );
+      expect(env.getModel().offset, 600);
+      expect(env.getScaffoldRect(tester).size.height, 575);
+      expect(env.getLocalBodyRect(tester).height, 550);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'Half of the bar should be outside of the scaffold',
+      );
 
-        env.updateKeyboardHeight(50);
-        await tester.pump();
+      env.updateKeyboardHeight(50);
+      await tester.pump();
 
-        expect(env.getModel().offset, 600);
-        expect(env.getScaffoldRect(tester).size.height, 550);
-        expect(env.getLocalBodyRect(tester).height, 550);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'The entire bar should be outside of the scaffold',
-        );
-      },
-    );
+      expect(env.getModel().offset, 600);
+      expect(env.getScaffoldRect(tester).size.height, 550);
+      expect(env.getLocalBodyRect(tester).height, 550);
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'The entire bar should be outside of the scaffold',
+      );
+    });
 
     testWidgets(
       'always - when keyboard is open and ignoreBottomInset is true',
@@ -1016,28 +974,27 @@ void main() {
       },
     );
 
-    testWidgets(
-      'controlled - throws when extendBodyBehindBottomBar is false',
-      (tester) async {
-        final env = boilerplate(
-          visibility: BottomBarVisibility.controlled(
-            animation: Animation.fromValueListenable(ValueNotifier(1.0)),
-          ),
-          extendBodyBehindBottomBar: false,
-        );
+    testWidgets('controlled - throws when extendBodyBehindBottomBar is false', (
+      tester,
+    ) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.controlled(
+          animation: Animation.fromValueListenable(ValueNotifier(1.0)),
+        ),
+        extendBodyBehindBottomBar: false,
+      );
 
-        final errors = await tester.pumpWidgetAndCaptureErrors(env.testWidget);
-        expect(
-          errors.first.exception,
-          isAssertionError.having(
-            (it) => it.message,
-            'message',
-            'BottomBarVisibility.controlled must be used with '
-                'SheetContentScaffold.extendBodyBehindBottomBar set to true.',
-          ),
-        );
-      },
-    );
+      final errors = await tester.pumpWidgetAndCaptureErrors(env.testWidget);
+      expect(
+        errors.first.exception,
+        isAssertionError.having(
+          (it) => it.message,
+          'message',
+          'BottomBarVisibility.controlled must be used with '
+              'SheetContentScaffold.extendBodyBehindBottomBar set to true.',
+        ),
+      );
+    });
 
     testWidgets('controlled - when keyboard is closed', (tester) async {
       final visibilityNotifier = ValueNotifier(1.0);
@@ -1214,67 +1171,52 @@ void main() {
       },
     );
 
-    testWidgets(
-      'conditional - when keyboard is closed',
-      (tester) async {
-        final env = boilerplate(
-          visibility: BottomBarVisibility.conditional(
-            isVisible: (model) => model.offset >= 600,
-            duration: Duration(milliseconds: 300),
-            curve: Curves.linear,
-          ),
-          extendBodyBehindBottomBar: true,
-        );
-        await tester.pumpWidget(env.testWidget);
+    testWidgets('conditional - when keyboard is closed', (tester) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.conditional(
+          isVisible: (model) => model.offset >= 600,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.linear,
+        ),
+        extendBodyBehindBottomBar: true,
+      );
+      await tester.pumpWidget(env.testWidget);
 
-        expect(env.getModel().offset, 600);
-        expect(env.getLocalBodyRect(tester).height, 600);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-        );
+      expect(env.getModel().offset, 600);
+      expect(env.getLocalBodyRect(tester).height, 600);
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 550, 800, 50));
 
-        env.getModel().offset = 700;
-        await tester.pump();
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 550, 800, 50),
-          reason: 'The bar should be visible',
-        );
+      env.getModel().offset = 700;
+      await tester.pump();
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 550, 800, 50),
+        reason: 'The bar should be visible',
+      );
 
-        env.getModel().offset = 500;
-        await tester.pump();
-        expect(env.getModel().visibleContentRect!.height, 500);
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 450, 800, 50),
-        );
+      env.getModel().offset = 500;
+      await tester.pump();
+      expect(env.getModel().visibleContentRect!.height, 500);
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 450, 800, 50));
 
-        await tester.pump(Duration(milliseconds: 75));
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 462.5, 800, 50),
-        );
+      await tester.pump(Duration(milliseconds: 75));
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 462.5, 800, 50),
+      );
 
-        await tester.pump(Duration(milliseconds: 75));
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 475, 800, 50),
-        );
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 475, 800, 50));
 
-        await tester.pump(Duration(milliseconds: 75));
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 487.5, 800, 50),
-        );
+      await tester.pump(Duration(milliseconds: 75));
+      expect(
+        env.getLocalBottomBarRect(tester),
+        Rect.fromLTWH(0, 487.5, 800, 50),
+      );
 
-        await tester.pumpAndSettle();
-        expect(
-          env.getLocalBottomBarRect(tester),
-          Rect.fromLTWH(0, 500, 800, 50),
-        );
-      },
-    );
+      await tester.pumpAndSettle();
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 500, 800, 50));
+    });
 
     testWidgets(
       'conditional - when keyboard is open and ignoreBottomInset is false',
@@ -1565,90 +1507,87 @@ void main() {
   });
 
   group('Intergration Test', () {
-    testWidgets(
-      'Always visible shared bottom-bar in PagedSheet',
-      (tester) async {
-        final firstRoute = PagedSheetRoute<dynamic>(
-          initialOffset: SheetOffset(0.5),
-          snapGrid: SheetSnapGrid(
-            snaps: [SheetOffset(0.5), SheetOffset(1)],
-          ),
-          builder: (context) => SizedBox(key: Key('first'), height: 300),
-        );
-        final secondRoute = PagedSheetRoute<dynamic>(
-          transitionDuration: Duration(milliseconds: 300),
-          builder: (context) => SizedBox(key: Key('second'), height: 600),
-        );
-        final thirdRoute = PagedSheetRoute<dynamic>(
-          transitionDuration: Duration(milliseconds: 300),
-          builder: (context) => SizedBox(key: Key('third'), height: 300),
-        );
+    testWidgets('Always visible shared bottom-bar in PagedSheet', (
+      tester,
+    ) async {
+      final firstRoute = PagedSheetRoute<dynamic>(
+        initialOffset: SheetOffset(0.5),
+        snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]),
+        builder: (context) => SizedBox(key: Key('first'), height: 300),
+      );
+      final secondRoute = PagedSheetRoute<dynamic>(
+        transitionDuration: Duration(milliseconds: 300),
+        builder: (context) => SizedBox(key: Key('second'), height: 600),
+      );
+      final thirdRoute = PagedSheetRoute<dynamic>(
+        transitionDuration: Duration(milliseconds: 300),
+        builder: (context) => SizedBox(key: Key('third'), height: 300),
+      );
 
-        final navigatorKey = GlobalKey<NavigatorState>();
-        final testWidget = Directionality(
-          textDirection: TextDirection.ltr,
-          child: SheetViewport(
-            child: PagedSheet(
-              builder: (context, child) {
-                return SheetContentScaffold(
-                  extendBodyBehindBottomBar: true,
-                  bottomBarVisibility: BottomBarVisibility.always(),
-                  body: child,
-                  bottomBar: Container(
-                    key: Key('bottomBar'),
-                    height: 50,
-                    color: Colors.white,
-                  ),
-                );
+      final navigatorKey = GlobalKey<NavigatorState>();
+      final testWidget = Directionality(
+        textDirection: TextDirection.ltr,
+        child: SheetViewport(
+          child: PagedSheet(
+            builder: (context, child) {
+              return SheetContentScaffold(
+                extendBodyBehindBottomBar: true,
+                bottomBarVisibility: BottomBarVisibility.always(),
+                body: child,
+                bottomBar: Container(
+                  key: Key('bottomBar'),
+                  height: 50,
+                  color: Colors.white,
+                ),
+              );
+            },
+            navigator: Navigator(
+              key: navigatorKey,
+              onGenerateRoute: (_) {
+                return firstRoute;
               },
-              navigator: Navigator(
-                key: navigatorKey,
-                onGenerateRoute: (_) {
-                  return firstRoute;
-                },
-              ),
             ),
           ),
-        );
+        ),
+      );
 
-        final expectedBottomBarRect = Rect.fromLTRB(0, 550, 800, 600);
-        Rect bottomBarRect() => tester.getRect(find.byId('bottomBar'));
+      final expectedBottomBarRect = Rect.fromLTRB(0, 550, 800, 600);
+      Rect bottomBarRect() => tester.getRect(find.byId('bottomBar'));
 
-        await tester.pumpWidget(testWidget);
-        expect(bottomBarRect(), expectedBottomBarRect);
-        expect(find.byId('first'), findsOneWidget);
+      await tester.pumpWidget(testWidget);
+      expect(bottomBarRect(), expectedBottomBarRect);
+      expect(find.byId('first'), findsOneWidget);
 
-        unawaited(navigatorKey.currentState!.push(secondRoute));
-        await tester.pump();
-        expect(bottomBarRect(), expectedBottomBarRect);
+      unawaited(navigatorKey.currentState!.push(secondRoute));
+      await tester.pump();
+      expect(bottomBarRect(), expectedBottomBarRect);
 
-        await tester.pump(const Duration(milliseconds: 100));
-        expect(bottomBarRect(), expectedBottomBarRect);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(bottomBarRect(), expectedBottomBarRect);
 
-        await tester.pump(const Duration(milliseconds: 200));
-        expect(bottomBarRect(), expectedBottomBarRect);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(bottomBarRect(), expectedBottomBarRect);
 
-        await tester.pumpAndSettle();
-        expect(bottomBarRect(), expectedBottomBarRect);
-        expect(find.byId('first'), findsNothing);
-        expect(find.byId('second'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(bottomBarRect(), expectedBottomBarRect);
+      expect(find.byId('first'), findsNothing);
+      expect(find.byId('second'), findsOneWidget);
 
-        unawaited(navigatorKey.currentState!.push(thirdRoute));
-        await tester.pump();
-        expect(bottomBarRect(), expectedBottomBarRect);
+      unawaited(navigatorKey.currentState!.push(thirdRoute));
+      await tester.pump();
+      expect(bottomBarRect(), expectedBottomBarRect);
 
-        await tester.pump(const Duration(milliseconds: 100));
-        expect(bottomBarRect(), expectedBottomBarRect);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(bottomBarRect(), expectedBottomBarRect);
 
-        await tester.pump(const Duration(milliseconds: 200));
-        expect(bottomBarRect(), expectedBottomBarRect);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(bottomBarRect(), expectedBottomBarRect);
 
-        await tester.pumpAndSettle();
-        expect(bottomBarRect(), expectedBottomBarRect);
-        expect(find.byId('second'), findsNothing);
-        expect(find.byId('third'), findsOneWidget);
-      },
-    );
+      await tester.pumpAndSettle();
+      expect(bottomBarRect(), expectedBottomBarRect);
+      expect(find.byId('second'), findsNothing);
+      expect(find.byId('third'), findsOneWidget);
+    });
   });
 }
 
@@ -1675,11 +1614,7 @@ class _TestSheetModelConfig extends SheetModelConfig {
 }
 
 class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
-  _TestSheetModel(
-    super.context,
-    super.config, {
-    required this.initialOffset,
-  });
+  _TestSheetModel(super.context, super.config, {required this.initialOffset});
 
   @override
   final SheetOffset initialOffset;

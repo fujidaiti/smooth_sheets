@@ -24,10 +24,7 @@ const ThreePointCubic _incomingTransitionCurve = Curves.fastEaseInToSlowEaseOut;
 /// allowing the corner radius to depend on the sheet position and
 /// reflect the new value in the subsequent painting phase.
 class _ClipRRectTransition extends SingleChildRenderObjectWidget {
-  const _ClipRRectTransition({
-    required this.radius,
-    required super.child,
-  });
+  const _ClipRRectTransition({required this.radius, required super.child});
 
   final Animation<double> radius;
 
@@ -47,10 +44,9 @@ class _ClipRRectTransition extends SingleChildRenderObjectWidget {
 }
 
 class _RenderClipRRectTransition extends RenderClipRRect {
-  _RenderClipRRectTransition({
-    required Animation<double> radius,
-  }) : _radius = radius,
-       super(clipBehavior: Clip.antiAlias) {
+  _RenderClipRRectTransition({required Animation<double> radius})
+    : _radius = radius,
+      super(clipBehavior: Clip.antiAlias) {
     _radius.addListener(_invalidateBorderRadius);
   }
 
@@ -93,10 +89,7 @@ class _ToningOverlay extends SingleChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderToningOverlay(
-      animation: animation,
-      color: color,
-    );
+    return _RenderToningOverlay(animation: animation, color: color);
   }
 
   @override
@@ -326,10 +319,7 @@ class _OutgoingTransitionState extends State<_OutgoingTransition> {
   Widget build(BuildContext context) {
     return _TransformTransition(
       animation: _animation,
-      offsetTween: Tween(
-        begin: Offset.zero,
-        end: widget.endOffset,
-      ),
+      offsetTween: Tween(begin: Offset.zero, end: widget.endOffset),
       scaleTween: Tween(begin: 1, end: _minimizedSheetScale),
       child: _ClipRRectTransition(
         radius: Tween(
@@ -642,9 +632,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
     Widget child,
   ) {
     return SheetViewport(
-      padding: EdgeInsets.only(
-        top: preferredTopInset,
-      ),
+      padding: EdgeInsets.only(top: preferredTopInset),
       child: child,
     );
   }
@@ -696,9 +684,7 @@ class CupertinoModalSheetPage<T> extends Page<T> {
 
   @override
   Route<T> createRoute(BuildContext context) {
-    return _PageBasedCupertinoModalSheetRoute(
-      page: this,
-    );
+    return _PageBasedCupertinoModalSheetRoute(page: this);
   }
 }
 

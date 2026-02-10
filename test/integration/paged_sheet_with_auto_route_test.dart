@@ -128,9 +128,7 @@ class _TestApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: router.config(),
-    );
+    return MaterialApp.router(routerConfig: router.config());
   }
 }
 
@@ -141,10 +139,7 @@ typedef _SheetPageConfig = ({
 });
 
 class _TestRouter extends RootStackRouter {
-  _TestRouter({
-    required this.firstPageConfig,
-    required this.secondPageConfig,
-  });
+  _TestRouter({required this.firstPageConfig, required this.secondPageConfig});
 
   final _SheetPageConfig firstPageConfig;
   final _SheetPageConfig secondPageConfig;
@@ -182,9 +177,7 @@ class _TestRouter extends RootStackRouter {
           page: PageInfo(
             '_FirstSheetRoute',
             builder: (data) {
-              return _FirstSheetPage(
-                height: firstPageConfig.height,
-              );
+              return _FirstSheetPage(height: firstPageConfig.height);
             },
           ),
           customRouteBuilder: <T>(context, child, page) {

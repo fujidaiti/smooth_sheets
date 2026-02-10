@@ -320,10 +320,7 @@ class SheetViewportState extends State<SheetViewport> {
 
     return _InheritedSheetViewport(
       state: this,
-      child: _SheetTranslate(
-        padding: widget.padding,
-        child: widget.child,
-      ),
+      child: _SheetTranslate(padding: widget.padding, child: widget.child),
     );
   }
 
@@ -335,10 +332,7 @@ class SheetViewportState extends State<SheetViewport> {
 }
 
 class _InheritedSheetViewport extends InheritedWidget {
-  const _InheritedSheetViewport({
-    required this.state,
-    required super.child,
-  });
+  const _InheritedSheetViewport({required this.state, required super.child});
 
   final SheetViewportState state;
 
@@ -347,10 +341,7 @@ class _InheritedSheetViewport extends InheritedWidget {
 }
 
 class _SheetTranslate extends SingleChildRenderObjectWidget {
-  const _SheetTranslate({
-    required super.child,
-    required this.padding,
-  });
+  const _SheetTranslate({required super.child, required this.padding});
 
   final EdgeInsets padding;
   @override
@@ -500,10 +491,7 @@ class _SheetConstraints extends BoxConstraints {
     required this.viewportInsets,
     required this.viewportPadding,
     required this.viewportViewPadding,
-  }) : super(
-         maxWidth: viewportSize.width,
-         maxHeight: viewportSize.height,
-       );
+  }) : super(maxWidth: viewportSize.width, maxHeight: viewportSize.height);
 
   final Size viewportSize;
   final EdgeInsets viewportInsets;
@@ -894,14 +882,10 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     super.debugPaintSize(context, offset);
     assert(() {
       final outerRect = offset & size;
-      debugPaintPadding(
-        context.canvas,
-        outerRect,
-        switch (child) {
-          null => null,
-          final child => Offset.zero & child.size,
-        },
-      );
+      debugPaintPadding(context.canvas, outerRect, switch (child) {
+        null => null,
+        final child => Offset.zero & child.size,
+      });
       return true;
     }());
   }

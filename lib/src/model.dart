@@ -412,10 +412,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   void settleTo(SheetOffset offset, Duration duration) {
     beginActivity(
-      SettlingSheetActivity.withDuration(
-        duration,
-        destination: offset,
-      ),
+      SettlingSheetActivity.withDuration(duration, destination: offset),
     );
   }
 

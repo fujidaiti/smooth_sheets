@@ -143,11 +143,7 @@ class AnimatedSheetActivity extends SheetActivity
 
   @override
   TickerFuture onAnimationStart() {
-    return controller.animateTo(
-      1.0,
-      duration: duration,
-      curve: curve,
-    );
+    return controller.animateTo(1.0, duration: duration, curve: curve);
   }
 
   @override
@@ -177,9 +173,7 @@ class AnimatedSheetActivity extends SheetActivity
 @internal
 class BallisticSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
-  BallisticSheetActivity({
-    required this.simulation,
-  });
+  BallisticSheetActivity({required this.simulation});
 
   final Simulation simulation;
 
@@ -263,12 +257,10 @@ class BallisticSheetActivity extends SheetActivity
 class SettlingSheetActivity extends SheetActivity {
   /// Creates a settling activity that animates the sheet position to the
   /// [destination] with a constant [velocity].
-  SettlingSheetActivity({
-    required this.destination,
-    required double velocity,
-  }) : assert(velocity > 0),
-       _velocity = velocity,
-       duration = null;
+  SettlingSheetActivity({required this.destination, required double velocity})
+    : assert(velocity > 0),
+      _velocity = velocity,
+      duration = null;
 
   /// Creates a settling activity that animates the sheet position to the
   /// [destination] over the specified [duration].

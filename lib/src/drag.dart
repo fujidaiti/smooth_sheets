@@ -11,9 +11,7 @@ import 'gesture_proxy.dart';
 /// Represents the details of a drag event on a sheet.
 sealed class SheetDragDetails {
   /// Const constructor to allow subclasses to be const.
-  SheetDragDetails({
-    required this.axisDirection,
-  });
+  SheetDragDetails({required this.axisDirection});
 
   /// The direction in which the drag is occurring.
   final VerticalDirection axisDirection;
@@ -353,10 +351,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
           .computeMinPotentialDeltaConsumption(details.delta);
       assert(minPotentialDeltaConsumption.dx.abs() <= details.delta.dx.abs());
       assert(minPotentialDeltaConsumption.dy.abs() <= details.delta.dy.abs());
-      details = proxy.onDragUpdate(
-        details,
-        minPotentialDeltaConsumption,
-      );
+      details = proxy.onDragUpdate(details, minPotentialDeltaConsumption);
     }
 
     _lastDetails = details;

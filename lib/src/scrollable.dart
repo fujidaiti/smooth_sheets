@@ -1073,9 +1073,8 @@ class _SheetBallisticScrollActivity extends ScrollActivity {
 /// scroll position and the actual scrolling is done by the associated
 /// [HoldScrollDrivenSheetActivity].
 class _SheetHoldScrollActivity extends ScrollActivity {
-  _SheetHoldScrollActivity({
-    required ScrollActivityDelegate delegate,
-  }) : super(delegate);
+  _SheetHoldScrollActivity({required ScrollActivityDelegate delegate})
+    : super(delegate);
 
   @override
   bool get shouldIgnorePointer => false;
