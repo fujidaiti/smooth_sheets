@@ -18,7 +18,8 @@ import 'src/stubbing.dart';
 ({
   Widget testWidget,
   ValueGetter<NavigatorState> getNavigator,
-}) _boilerplate({
+})
+_boilerplate({
   Key? homeKey,
   double statusBarHeight = 0,
 }) {
@@ -76,8 +77,7 @@ Widget _boilerplateSheet({
 }
 
 void main() {
-  group(
-      'Previous route transition animation test - '
+  group('Previous route transition animation test - '
       'when the previous route is not a cupertino modal sheet', () {
     testWidgets(
       'and the initial sheet offset is at maximum',
@@ -89,17 +89,17 @@ void main() {
         await tester.pumpWidget(env.testWidget);
         unawaited(
           env.getNavigator().push(
-                CupertinoModalSheetRoute(
-                  transitionDuration: Duration(milliseconds: 300),
-                  builder: (context) => _boilerplateSheet(
-                    key: Key('sheet'),
-                    height: double.infinity,
-                    initialOffset: SheetOffset(1),
-                    minOffset: SheetOffset(1),
-                    maxOffset: SheetOffset(1),
-                  ),
-                ),
+            CupertinoModalSheetRoute(
+              transitionDuration: Duration(milliseconds: 300),
+              builder: (context) => _boilerplateSheet(
+                key: Key('sheet'),
+                height: double.infinity,
+                initialOffset: SheetOffset(1),
+                minOffset: SheetOffset(1),
+                maxOffset: SheetOffset(1),
               ),
+            ),
+          ),
         );
 
         await tester.pump();
@@ -138,18 +138,18 @@ void main() {
         await tester.pumpWidget(env.testWidget);
         unawaited(
           env.getNavigator().push(
-                CupertinoModalSheetRoute(
-                  transitionDuration: Duration(milliseconds: 300),
-                  builder: (context) => _boilerplateSheet(
-                    key: Key('sheet'),
-                    height: double.infinity,
-                    initialOffset: SheetOffset(0.5),
-                    minOffset: SheetOffset(0.5),
-                    maxOffset: SheetOffset(1),
-                    modelOwnerKey: modelOwnerKey,
-                  ),
-                ),
+            CupertinoModalSheetRoute(
+              transitionDuration: Duration(milliseconds: 300),
+              builder: (context) => _boilerplateSheet(
+                key: Key('sheet'),
+                height: double.infinity,
+                initialOffset: SheetOffset(0.5),
+                minOffset: SheetOffset(0.5),
+                maxOffset: SheetOffset(1),
+                modelOwnerKey: modelOwnerKey,
               ),
+            ),
+          ),
         );
         await tester.pumpAndSettle();
 
@@ -198,32 +198,32 @@ void main() {
           await tester.pumpWidget(env.testWidget);
           unawaited(
             env.getNavigator().push(
-                  CupertinoModalSheetRoute(
-                    builder: (context) => _boilerplateSheet(
-                      key: Key('previous'),
-                      height: double.infinity,
-                      initialOffset: SheetOffset(1),
-                      minOffset: SheetOffset(1),
-                      maxOffset: SheetOffset(1),
-                    ),
-                  ),
+              CupertinoModalSheetRoute(
+                builder: (context) => _boilerplateSheet(
+                  key: Key('previous'),
+                  height: double.infinity,
+                  initialOffset: SheetOffset(1),
+                  minOffset: SheetOffset(1),
+                  maxOffset: SheetOffset(1),
                 ),
+              ),
+            ),
           );
           await tester.pumpAndSettle();
 
           unawaited(
             env.getNavigator().push(
-                  CupertinoModalSheetRoute(
-                    transitionDuration: Duration(milliseconds: 300),
-                    builder: (context) => _boilerplateSheet(
-                      key: Key('sheet'),
-                      height: double.infinity,
-                      initialOffset: SheetOffset(1),
-                      minOffset: SheetOffset(1),
-                      maxOffset: SheetOffset(1),
-                    ),
-                  ),
+              CupertinoModalSheetRoute(
+                transitionDuration: Duration(milliseconds: 300),
+                builder: (context) => _boilerplateSheet(
+                  key: Key('sheet'),
+                  height: double.infinity,
+                  initialOffset: SheetOffset(1),
+                  minOffset: SheetOffset(1),
+                  maxOffset: SheetOffset(1),
                 ),
+              ),
+            ),
           );
           await tester.pump();
           final initialRect = Rect.fromLTWH(0, 76, 800, 524);
@@ -236,22 +236,31 @@ void main() {
           await tester.pump(Duration(milliseconds: 75));
           expect(
             tester.getRect(find.byId('previous')).toString(),
-            Rect.lerp(initialRect, finalRect, Curves.easeIn.transform(0.25))
-                .toString(),
+            Rect.lerp(
+              initialRect,
+              finalRect,
+              Curves.easeIn.transform(0.25),
+            ).toString(),
           );
 
           await tester.pump(Duration(milliseconds: 75));
           expect(
             tester.getRect(find.byId('previous')).toString(),
-            Rect.lerp(initialRect, finalRect, Curves.easeIn.transform(0.5))
-                .toString(),
+            Rect.lerp(
+              initialRect,
+              finalRect,
+              Curves.easeIn.transform(0.5),
+            ).toString(),
           );
 
           await tester.pump(Duration(milliseconds: 75));
           expect(
             tester.getRect(find.byId('previous')).toString(),
-            Rect.lerp(initialRect, finalRect, Curves.easeIn.transform(0.75))
-                .toString(),
+            Rect.lerp(
+              initialRect,
+              finalRect,
+              Curves.easeIn.transform(0.75),
+            ).toString(),
           );
 
           await tester.pumpAndSettle();
@@ -269,34 +278,34 @@ void main() {
           await tester.pumpWidget(env.testWidget);
           unawaited(
             env.getNavigator().push(
-                  CupertinoModalSheetRoute(
-                    builder: (context) => _boilerplateSheet(
-                      key: Key('previous'),
-                      height: double.infinity,
-                      initialOffset: SheetOffset(1),
-                      minOffset: SheetOffset(1),
-                      maxOffset: SheetOffset(1),
-                    ),
-                  ),
+              CupertinoModalSheetRoute(
+                builder: (context) => _boilerplateSheet(
+                  key: Key('previous'),
+                  height: double.infinity,
+                  initialOffset: SheetOffset(1),
+                  minOffset: SheetOffset(1),
+                  maxOffset: SheetOffset(1),
                 ),
+              ),
+            ),
           );
           await tester.pumpAndSettle();
 
           final modelOwnerKey = GlobalKey<SheetModelOwnerState>();
           unawaited(
             env.getNavigator().push(
-                  CupertinoModalSheetRoute(
-                    transitionDuration: Duration(milliseconds: 300),
-                    builder: (context) => _boilerplateSheet(
-                      key: Key('sheet'),
-                      modelOwnerKey: modelOwnerKey,
-                      height: double.infinity,
-                      initialOffset: SheetOffset(0.5),
-                      minOffset: SheetOffset(0.5),
-                      maxOffset: SheetOffset(1),
-                    ),
-                  ),
+              CupertinoModalSheetRoute(
+                transitionDuration: Duration(milliseconds: 300),
+                builder: (context) => _boilerplateSheet(
+                  key: Key('sheet'),
+                  modelOwnerKey: modelOwnerKey,
+                  height: double.infinity,
+                  initialOffset: SheetOffset(0.5),
+                  minOffset: SheetOffset(0.5),
+                  maxOffset: SheetOffset(1),
                 ),
+              ),
+            ),
           );
           await tester.pumpAndSettle();
           final initialRect = Rect.fromLTWH(0, 76, 800, 524);
@@ -309,24 +318,33 @@ void main() {
           await tester.pump();
           expect(
             tester.getRect(find.byId('previous')).toString(),
-            Rect.lerp(initialRect, finalRect, Curves.easeIn.transform(0.25))
-                .toString(),
+            Rect.lerp(
+              initialRect,
+              finalRect,
+              Curves.easeIn.transform(0.25),
+            ).toString(),
           );
 
           model.offset = SheetOffset(0.75).resolve(model);
           await tester.pump();
           expect(
             tester.getRect(find.byId('previous')).toString(),
-            Rect.lerp(initialRect, finalRect, Curves.easeIn.transform(0.5))
-                .toString(),
+            Rect.lerp(
+              initialRect,
+              finalRect,
+              Curves.easeIn.transform(0.5),
+            ).toString(),
           );
 
           model.offset = SheetOffset(0.875).resolve(model);
           await tester.pump();
           expect(
             tester.getRect(find.byId('previous')).toString(),
-            Rect.lerp(initialRect, finalRect, Curves.easeIn.transform(0.75))
-                .toString(),
+            Rect.lerp(
+              initialRect,
+              finalRect,
+              Curves.easeIn.transform(0.75),
+            ).toString(),
           );
 
           model.offset = SheetOffset(1).resolve(model);
@@ -488,13 +506,13 @@ class _TestSheetModelConfig extends SheetModelConfig {
     required SheetOffset maxOffset,
     required SheetOffset minOffset,
   }) : super(
-          physics: const ClampingSheetPhysics(),
-          snapGrid: SheetSnapGrid.stepless(
-            minOffset: minOffset,
-            maxOffset: maxOffset,
-          ),
-          gestureProxy: null,
-        );
+         physics: const ClampingSheetPhysics(),
+         snapGrid: SheetSnapGrid.stepless(
+           minOffset: minOffset,
+           maxOffset: maxOffset,
+         ),
+         gestureProxy: null,
+       );
 
   @override
   SheetModelConfig copyWith({

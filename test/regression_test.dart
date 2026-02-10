@@ -9,7 +9,7 @@ import 'src/flutter_test_x.dart';
 import 'src/matchers.dart';
 
 void main() {
-// https://github.com/fujidaiti/smooth_sheets/issues/363
+  // https://github.com/fujidaiti/smooth_sheets/issues/363
   testWidgets(
     'Unexpected bouncing animation with ClampingSheetPhysics',
     (tester) async {

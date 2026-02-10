@@ -259,7 +259,9 @@ void main() {
         expect(find.byKey(const Key('sheet')), findsOneWidget);
 
         await tester.drag(
-            find.byKey(const Key('sheet')), const Offset(0, (600 * 0.6) + 1));
+          find.byKey(const Key('sheet')),
+          const Offset(0, (600 * 0.6) + 1),
+        );
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('sheet')), findsNothing);
       },
@@ -582,14 +584,18 @@ void main() {
         const ({
           bool canPop,
           PopInvokedWithResultCallback<dynamic>? callback,
-        }) initialPopScopeConfig = (canPop: false, callback: null);
+        })
+        initialPopScopeConfig = (canPop: false, callback: null);
 
-        final popScopeStateKey = GlobalKey<
-            TestStatefulWidgetState<
+        final popScopeStateKey =
+            GlobalKey<
+              TestStatefulWidgetState<
                 ({
                   bool canPop,
                   PopInvokedWithResultCallback<dynamic>? callback,
-                })>>();
+                })
+              >
+            >();
 
         final testWidget = boilerplate(
           swipeDismissible: true,
@@ -612,15 +618,19 @@ void main() {
         expect(find.byId('sheet'), findsOneWidget);
 
         // 2. Cannot pop; Gesture is enabled.
-        popScopeStateKey.currentState!.state =
-            (canPop: false, callback: (_, __) {});
+        popScopeStateKey.currentState!.state = (
+          canPop: false,
+          callback: (_, __) {},
+        );
         await tester.pumpAndSettle();
         await performSwipeGesture(tester, shouldGestureEnabled: true);
         expect(find.byId('sheet'), findsOneWidget);
 
         // 3. Can pop; Gesture is enabled.
-        popScopeStateKey.currentState!.state =
-            (canPop: true, callback: (_, __) {});
+        popScopeStateKey.currentState!.state = (
+          canPop: true,
+          callback: (_, __) {},
+        );
         await tester.pumpAndSettle();
         await performSwipeGesture(tester, shouldGestureEnabled: true);
         expect(find.byId('sheet'), findsNothing);
@@ -656,7 +666,8 @@ void main() {
       Widget testWidget,
       ModalSheetRoute<dynamic> modalRoute,
       ValueGetter<bool> popInvoked,
-    }) boilerplate() {
+    })
+    boilerplate() {
       var popInvoked = false;
       final modalRoute = ModalSheetRoute<dynamic>(
         swipeDismissible: true,
@@ -793,7 +804,8 @@ void main() {
         Widget testWidget,
         ValueGetter<ModalSheetRouteMixin<dynamic>?> modalRoute,
         ValueGetter<bool> popInvoked,
-      }) boilerplate() {
+      })
+      boilerplate() {
         var popInvoked = false;
         ModalSheetRouteMixin<dynamic>? modalRoute;
         final testWidget = _BoilerplateWithGoRouter(

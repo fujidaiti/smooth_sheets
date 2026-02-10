@@ -29,7 +29,8 @@ void main() {
         ),
         child: SheetMediaQuery(
           layoutNotifier: ValueNotifier(null),
-          layoutSpec: parentLayoutSpec ??
+          layoutSpec:
+              parentLayoutSpec ??
               SheetLayoutSpec(
                 viewportSize: testScreenSize,
                 viewportPadding: EdgeInsets.zero,
@@ -508,8 +509,9 @@ void main() {
       );
     });
 
-    testWidgets('Applies background color from theme when not explicitly set',
-        (tester) async {
+    testWidgets('Applies background color from theme when not explicitly set', (
+      tester,
+    ) async {
       final env = boilerplate(
         builder: (context) => Theme(
           data: ThemeData(
@@ -528,8 +530,7 @@ void main() {
       );
     });
 
-    testWidgets(
-        'Exposes height of top-bar as MediaQueryData.padding.top '
+    testWidgets('Exposes height of top-bar as MediaQueryData.padding.top '
         'if extendBodyBehindTopBar is true', (tester) async {
       late EdgeInsets inheritedPadding;
       final env = boilerplate(
@@ -571,8 +572,7 @@ void main() {
       },
     );
 
-    testWidgets(
-        'Exposes height of bottom-bar as MediaQueryData.padding.bottom '
+    testWidgets('Exposes height of bottom-bar as MediaQueryData.padding.bottom '
         'if extendBodyBehindBottomBar is true', (tester) async {
       late EdgeInsets inheritedPadding;
       final env = boilerplate(
@@ -624,7 +624,8 @@ void main() {
       Rect Function(WidgetTesterX) getLocalBodyRect,
       Rect Function(WidgetTesterX) getLocalBottomBarRect,
       ValueSetter<double> updateKeyboardHeight,
-    }) boilerplate({
+    })
+    boilerplate({
       required BottomBarVisibility visibility,
       EdgeInsets viewportPadding = EdgeInsets.zero,
       double initialKeyboardHeight = 0,
@@ -702,21 +703,22 @@ void main() {
         testWidget: testWidget,
         getModel: () => modelOwnerKey.currentState!.model,
         getLocalBodyRect: (tester) => tester.getLocalRect(
-              find.byKey(Key('body')),
-              ancestor: find.byKey(Key('scaffold')),
-            ),
+          find.byKey(Key('body')),
+          ancestor: find.byKey(Key('scaffold')),
+        ),
         getScaffoldRect: (tester) => tester.getLocalRect(
-              find.byKey(Key('scaffold')),
-            ),
+          find.byKey(Key('scaffold')),
+        ),
         getLocalBottomBarRect: (tester) => tester.getLocalRect(
-              find.byKey(Key('bottomBar')),
-              ancestor: find.byKey(Key('scaffold')),
-            ),
+          find.byKey(Key('bottomBar')),
+          ancestor: find.byKey(Key('scaffold')),
+        ),
         updateKeyboardHeight: (height) {
           final layoutSpec = createLayoutSpecFrom(height);
           statefulKey.currentState!.state = layoutSpec;
-          modelOwnerKey.currentState!.model
-              .applyNewLayout(createSheetLayoutFrom(layoutSpec));
+          modelOwnerKey.currentState!.model.applyNewLayout(
+            createSheetLayoutFrom(layoutSpec),
+          );
         },
       );
     }
@@ -876,7 +878,8 @@ void main() {
       expect(
         env.getLocalBottomBarRect(tester),
         Rect.fromLTWH(0, 550, 800, 50),
-        reason: 'The offset should not affect the relative position of the bar '
+        reason:
+            'The offset should not affect the relative position of the bar '
             'when the bottom part of the sheet is within the viewport',
       );
 
@@ -1006,7 +1009,8 @@ void main() {
         expect(
           env.getLocalBottomBarRect(tester),
           Rect.fromLTWH(0, 400, 800, 50),
-          reason: 'The bar should be visible even if '
+          reason:
+              'The bar should be visible even if '
               'the scaffold is partially outside of the viewport',
         );
       },
@@ -1070,7 +1074,8 @@ void main() {
       expect(
         env.getLocalBottomBarRect(tester),
         Rect.fromLTWH(0, 575, 800, 50),
-        reason: 'The bar should keep the specified visibility '
+        reason:
+            'The bar should keep the specified visibility '
             'regardless of the offset',
       );
 
@@ -1080,7 +1085,8 @@ void main() {
       expect(
         env.getLocalBottomBarRect(tester),
         Rect.fromLTWH(0, 475, 800, 50),
-        reason: 'The bar should keep the specified visibility '
+        reason:
+            'The bar should keep the specified visibility '
             'regardless of the offset',
       );
     });
@@ -1170,7 +1176,8 @@ void main() {
         expect(
           env.getLocalBottomBarRect(tester),
           Rect.fromLTWH(0, 400, 800, 50),
-          reason: 'The bar should be visible even if '
+          reason:
+              'The bar should be visible even if '
               'the scaffold is partially outside of the viewport',
         );
 
@@ -1651,11 +1658,11 @@ class _TestIdleSheetActivity extends SheetActivity {
 
 class _TestSheetModelConfig extends SheetModelConfig {
   const _TestSheetModelConfig()
-      : super(
-          physics: const ClampingSheetPhysics(),
-          snapGrid: const SheetSnapGrid.stepless(),
-          gestureProxy: null,
-        );
+    : super(
+        physics: const ClampingSheetPhysics(),
+        snapGrid: const SheetSnapGrid.stepless(),
+        gestureProxy: null,
+      );
 
   @override
   SheetModelConfig copyWith({

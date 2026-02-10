@@ -103,8 +103,9 @@ void main() {
       expect(ownerMetrics.offset, 250);
 
       when(controller.value).thenReturn(0.25);
-      when(controller.lastElapsedDuration)
-          .thenReturn(const Duration(milliseconds: 75));
+      when(
+        controller.lastElapsedDuration,
+      ).thenReturn(const Duration(milliseconds: 75));
       activity.onAnimationTick();
       expect(ownerMetrics.offset, 400);
 
@@ -123,10 +124,12 @@ void main() {
 
       activity.applyNewLayout(oldMeasurements);
       expect(ownerMetrics.offset, 400);
-      verify(owner.settleTo(
-        const SheetOffset(1),
-        const Duration(milliseconds: 225),
-      ));
+      verify(
+        owner.settleTo(
+          const SheetOffset(1),
+          const Duration(milliseconds: 225),
+        ),
+      );
     });
   });
 
@@ -307,10 +310,16 @@ void main() {
         ..contentBaseline = 30;
 
       activity.applyNewLayout(oldMeasurements);
-      expect(ownerMetrics.offset, 350,
-          reason: 'Visual position should not change when viewport changes.');
-      expect(activity.velocity, 1120, // 280 offset / 0.25s = 1120 offset/s
-          reason: 'Velocity should be updated when viewport changes.');
+      expect(
+        ownerMetrics.offset,
+        350,
+        reason: 'Visual position should not change when viewport changes.',
+      );
+      expect(
+        activity.velocity,
+        1120, // 280 offset / 0.25s = 1120 offset/s
+        reason: 'Velocity should be updated when viewport changes.',
+      );
 
       internalOnTickCallback!(const Duration(milliseconds: 100));
       expect(ownerMetrics.offset, 406); // 1120 * 0.05 = 56 offset in 50ms

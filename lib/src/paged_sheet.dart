@@ -168,8 +168,9 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     ValueGetter<double?> targetOffsetResolver(_PagedSheetEntry entry) {
       return () {
         if (entry._contentSize case final contentSize?) {
-          return (entry._targetOffset ?? entry.initialOffset)
-              .resolve(copyWith(contentSize: contentSize));
+          return (entry._targetOffset ?? entry.initialOffset).resolve(
+            copyWith(contentSize: contentSize),
+          );
         }
         return null;
       };
@@ -202,8 +203,10 @@ class _PagedSheetIdleActivity extends IdleSheetActivity<_PagedSheetModel> {
   @override
   void init(_PagedSheetModel owner) {
     super.init(owner);
-    if (owner._currentEntry
-        case _PagedSheetEntry(_contentSize: null, :final initialOffset)) {
+    if (owner._currentEntry case _PagedSheetEntry(
+      _contentSize: null,
+      :final initialOffset,
+    )) {
       targetOffset = initialOffset;
     }
   }

@@ -84,16 +84,16 @@ class _SheetDraggableState extends State<SheetDraggable> {
       gestures: {
         VerticalDragGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
-          () => VerticalDragGestureRecognizer(
-            debugOwner: kDebugMode ? runtimeType : null,
-            supportedDevices: const {PointerDeviceKind.touch},
-          ),
-          (instance) => instance
-            ..onStart = _handleDragStart
-            ..onUpdate = _handleDragUpdate
-            ..onEnd = _handleDragEnd
-            ..onCancel = _handleDragCancel,
-        ),
+              () => VerticalDragGestureRecognizer(
+                debugOwner: kDebugMode ? runtimeType : null,
+                supportedDevices: const {PointerDeviceKind.touch},
+              ),
+              (instance) => instance
+                ..onStart = _handleDragStart
+                ..onUpdate = _handleDragUpdate
+                ..onEnd = _handleDragEnd
+                ..onCancel = _handleDragCancel,
+            ),
       },
       // At least one hit-testable widget is required
       // to receive drag events.

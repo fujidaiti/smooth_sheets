@@ -109,8 +109,7 @@ void main() {
     expect(ticks, isEmpty);
   });
 
-  test(
-      'should call onTick repeatedly with custom duration '
+  test('should call onTick repeatedly with custom duration '
       'until ticker is inactive', () {
     late TestTicker ticker;
     final tickDurations = <Duration>[];

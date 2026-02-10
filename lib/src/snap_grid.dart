@@ -167,7 +167,8 @@ class MultiSnapGrid implements SheetSnapGrid {
     SheetOffset nearest,
     SheetOffset leftmost,
     SheetOffset rightmost,
-  }) _scanSnapOffsets(ViewportLayout layout, double offset) {
+  })
+  _scanSnapOffsets(ViewportLayout layout, double offset) {
     assert(snaps.isNotEmpty);
 
     if (snaps.length == 1) {

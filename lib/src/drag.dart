@@ -256,9 +256,9 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     required double? carriedVelocity,
     required double? motionStartDistanceThreshold,
     required this.gestureProxy,
-  })  : _target = target,
-        _lastDetails = details,
-        pointerDeviceKind = details.kind {
+  }) : _target = target,
+       _lastDetails = details,
+       pointerDeviceKind = details.kind {
     // Actual work is done by this object.
     _impl = ScrollDragController(
       delegate: this,
@@ -349,8 +349,8 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
     );
 
     if (gestureProxy() case final proxy?) {
-      final minPotentialDeltaConsumption =
-          _target.computeMinPotentialDeltaConsumption(details.delta);
+      final minPotentialDeltaConsumption = _target
+          .computeMinPotentialDeltaConsumption(details.delta);
       assert(minPotentialDeltaConsumption.dx.abs() <= details.delta.dx.abs());
       assert(minPotentialDeltaConsumption.dy.abs() <= details.delta.dy.abs());
       details = proxy.onDragUpdate(

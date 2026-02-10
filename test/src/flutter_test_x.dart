@@ -188,8 +188,10 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
       return;
     }
 
-    final viewFinder =
-        t.find.ancestor(of: target, matching: t.find.byType(View));
+    final viewFinder = t.find.ancestor(
+      of: target,
+      matching: t.find.byType(View),
+    );
     final view = firstWidget<View>(viewFinder).view;
     final result = HitTestResult();
     binding.hitTestInView(result, location, view.viewId);
@@ -199,8 +201,9 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
       return;
     }
 
-    final renderView =
-        binding.renderViews.firstWhere((r) => r.flutterView == view);
+    final renderView = binding.renderViews.firstWhere(
+      (r) => r.flutterView == view,
+    );
     final outOfBounds = !(Offset.zero & renderView.size).contains(location);
 
     FlutterError.reportError(
@@ -272,16 +275,14 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
   Future<void> dragUpward(
     t.FinderBase<Element> finder, {
     required double deltaY,
-  }) =>
-      drag(finder, Offset(0, -deltaY));
+  }) => drag(finder, Offset(0, -deltaY));
 
   /// Attempts to drag the given widget downward by the given [deltaY],
   /// by starting a drag in the middle of the widget.
   Future<void> dragDownward(
     t.FinderBase<Element> finder, {
     required double deltaY,
-  }) =>
-      drag(finder, Offset(0, deltaY));
+  }) => drag(finder, Offset(0, deltaY));
 
   /// Returns the local rectangle of the widget specified by the [finder].
   ///

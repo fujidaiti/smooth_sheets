@@ -10,8 +10,8 @@ topics:
   - widget
   - bottom-sheet
 environment:
-  sdk: ">=3.6.0 <4.0.0"
-  flutter: ">=3.29.0"
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.32.0"
 dependencies:
   collection: ^1.17.1
   flutter:
@@ -20,10 +20,7 @@ dependencies:
   navigator_resizable: ^3.0.0
 # Dependencies for testing
 dev_dependencies:
-  # Since v10.2.0 introduced a breaking change incompatible with
-  # Flutter 3.29.0 (our minimum supported version), CI failed.
-  # Adding this upper bound as a workaround.
-  auto_route: <10.2.0
+  auto_route: ^10.2.0
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter

@@ -266,9 +266,9 @@ class SettlingSheetActivity extends SheetActivity {
   SettlingSheetActivity({
     required this.destination,
     required double velocity,
-  })  : assert(velocity > 0),
-        _velocity = velocity,
-        duration = null;
+  }) : assert(velocity > 0),
+       _velocity = velocity,
+       duration = null;
 
   /// Creates a settling activity that animates the sheet position to the
   /// [destination] over the specified [duration].
@@ -312,7 +312,7 @@ class SettlingSheetActivity extends SheetActivity {
   void _tick(Duration elapsedDuration) {
     final elapsedFrameTime =
         (elapsedDuration - _elapsedDuration).inMicroseconds /
-            Duration.microsecondsPerSecond;
+        Duration.microsecondsPerSecond;
     final destination = this.destination.resolve(owner);
     final offset = owner.offset;
     final newOffset = destination > offset
@@ -350,7 +350,8 @@ class SettlingSheetActivity extends SheetActivity {
   /// current velocity.
   void _invalidateVelocity() {
     if (duration case final duration?) {
-      final remainingSeconds = (duration - _elapsedDuration).inMicroseconds /
+      final remainingSeconds =
+          (duration - _elapsedDuration).inMicroseconds /
           Duration.microsecondsPerSecond;
       final destination = this.destination.resolve(owner);
       final offset = owner.offset;
@@ -460,8 +461,10 @@ class DragSheetActivity<T extends SheetModel> extends SheetActivity<T>
 
   @override
   void onDragUpdate(SheetDragUpdateDetails details) {
-    final physicsAppliedDelta =
-        owner.physics.applyPhysicsToOffset(details.deltaY, owner);
+    final physicsAppliedDelta = owner.physics.applyPhysicsToOffset(
+      details.deltaY,
+      owner,
+    );
     if (physicsAppliedDelta != 0) {
       owner
         ..offset = owner.offset + physicsAppliedDelta

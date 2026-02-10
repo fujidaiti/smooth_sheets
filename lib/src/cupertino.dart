@@ -49,8 +49,8 @@ class _ClipRRectTransition extends SingleChildRenderObjectWidget {
 class _RenderClipRRectTransition extends RenderClipRRect {
   _RenderClipRRectTransition({
     required Animation<double> radius,
-  })  : _radius = radius,
-        super(clipBehavior: Clip.antiAlias) {
+  }) : _radius = radius,
+       super(clipBehavior: Clip.antiAlias) {
     _radius.addListener(_invalidateBorderRadius);
   }
 
@@ -115,8 +115,8 @@ class _RenderToningOverlay extends RenderProxyBox {
   _RenderToningOverlay({
     required Animation<double> animation,
     required Color color,
-  })  : _animation = animation,
-        _color = color {
+  }) : _animation = animation,
+       _color = color {
     _animation.addListener(markNeedsPaint);
   }
 
@@ -209,14 +209,14 @@ class _RenderTransformTransition extends RenderTransform {
     required Animation<double> animation,
     required Tween<double> scaleTween,
     required Tween<Offset> offsetTween,
-  })  : _animation = animation,
-        _scaleTween = scaleTween,
-        _offsetTween = offsetTween,
-        super(
-          transform: Matrix4.identity(),
-          alignment: Alignment.topCenter,
-          transformHitTests: true,
-        ) {
+  }) : _animation = animation,
+       _scaleTween = scaleTween,
+       _offsetTween = offsetTween,
+       super(
+         transform: Matrix4.identity(),
+         alignment: Alignment.topCenter,
+         transformHitTests: true,
+       ) {
     _animation.addListener(_invalidateMatrix);
   }
 
@@ -496,7 +496,7 @@ class _NonCupertinoModalEntry extends _PreviousRouteEntry {
 class _CupertinoModalEntry extends _PreviousRouteEntry {
   // ignore: use_super_parameters
   const _CupertinoModalEntry(_BaseCupertinoModalSheetRoute<dynamic> value)
-      : super(value);
+    : super(value);
 
   @override
   _OutgoingTransitionController get outgoingTransitionController =>
@@ -509,11 +509,12 @@ class _CupertinoModalEntry extends _PreviousRouteEntry {
 ///
 /// The returned [SheetViewport] should have [preferredTopInset]
 /// as the top padding of [SheetViewport.padding].
-typedef CupertinoSheetViewportBuilder = Widget Function(
-  BuildContext context,
-  double preferredTopInset,
-  Widget child,
-);
+typedef CupertinoSheetViewportBuilder =
+    Widget Function(
+      BuildContext context,
+      double preferredTopInset,
+      Widget child,
+    );
 
 /// The base class for all Cupertino-style modal sheet routes.
 abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
@@ -569,8 +570,9 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   void didChangePrevious(Route<dynamic>? previousRoute) {
     super.didChangePrevious(previousRoute);
     _previousRouteEntry = switch (previousRoute) {
-      final _BaseCupertinoModalSheetRoute<dynamic> it =>
-        _CupertinoModalEntry(it),
+      final _BaseCupertinoModalSheetRoute<dynamic> it => _CupertinoModalEntry(
+        it,
+      ),
       final PageRoute<dynamic> it when !it.fullscreenDialog =>
         _NonCupertinoModalEntry(it),
       _ => null,

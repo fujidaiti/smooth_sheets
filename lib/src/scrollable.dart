@@ -93,10 +93,9 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
 
   /// A [ScrollPosition] that is currently driving the sheet position.
   SheetScrollPosition? get _primaryScrollPosition => switch (activity) {
-        final _ScrollAwareSheetActivityMixin activity =>
-          activity.scrollPosition,
-        _ => null,
-      };
+    final _ScrollAwareSheetActivityMixin activity => activity.scrollPosition,
+    _ => null,
+  };
 
   @override
   bool get hasPrimaryScrollPosition => _primaryScrollPosition != null;
@@ -197,8 +196,9 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
       scrollPosition,
       startDetails: details,
       cancelCallback: dragCancelCallback,
-      carriedVelocity:
-          scrollPosition.physics.carriedMomentum(heldPreviousVelocity),
+      carriedVelocity: scrollPosition.physics.carriedMomentum(
+        heldPreviousVelocity,
+      ),
     );
 
     beginActivity(dragActivity);
@@ -218,10 +218,14 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     required double velocity,
     required SheetScrollPosition scrollPosition,
   }) {
-    if (FloatComp.distance(context.devicePixelRatio)
-        .isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
-      final simulation =
-          physics.createBallisticSimulation(velocity, this, snapGrid);
+    if (FloatComp.distance(
+      context.devicePixelRatio,
+    ).isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
+      final simulation = physics.createBallisticSimulation(
+        velocity,
+        this,
+        snapGrid,
+      );
       if (simulation != null) {
         scrollPosition.goIdle(calledByDelegate: true);
         beginActivity(BallisticSheetActivity(simulation: simulation));
@@ -256,8 +260,10 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
       ),
     );
 
-    final scrollSimulation = scrollPosition.physics
-        .createBallisticSimulation(scrollMetricsForScrollPhysics, velocity);
+    final scrollSimulation = scrollPosition.physics.createBallisticSimulation(
+      scrollMetricsForScrollPhysics,
+      velocity,
+    );
     if (scrollSimulation != null) {
       beginActivity(
         BallisticScrollDrivenSheetActivity(
@@ -340,8 +346,9 @@ mixin _ScrollAwareSheetActivityMixin
       if (cmp.isGreaterThanOrApprox(newOffset, maxOffset) &&
           scrollPosition.extentAfter > 0) {
         final oldScrollPixels = scrollPosition.pixels;
-        scrollPosition
-            .correctPixels(min(scrollPosition.pixels + delta, maxScrollPixels));
+        scrollPosition.correctPixels(
+          min(scrollPosition.pixels + delta, maxScrollPixels),
+        );
         delta -= scrollPosition.pixels - oldScrollPixels;
       }
       // If the content cannot be scrolled up anymore, drag the sheet up
@@ -365,8 +372,9 @@ mixin _ScrollAwareSheetActivityMixin
       // as much as possible.
       if (cmp.isLessThanOrApprox(newOffset, maxOffset) &&
           scrollPosition.extentBefore > 0) {
-        scrollPosition
-            .correctPixels(max(scrollPosition.pixels + delta, minScrollPixels));
+        scrollPosition.correctPixels(
+          max(scrollPosition.pixels + delta, minScrollPixels),
+        );
         delta -= scrollPosition.pixels - oldScrollPixels;
       }
       // If the content cannot be scrolled down anymore, drag the sheet down
@@ -385,13 +393,16 @@ mixin _ScrollAwareSheetActivityMixin
     final double childOverScroll;
     if (owner.scrollConfiguration.delegateUnhandledOverscrollToChild &&
         unhandledOverscroll.abs() > precisionErrorTolerance) {
-      final preferredScrollOffset = scrollPosition.pixels -
+      final preferredScrollOffset =
+          scrollPosition.pixels -
           scrollPosition.physics.applyPhysicsToUserOffset(
             scrollPosition,
             -1 * unhandledOverscroll,
           );
-      childOverScroll = scrollPosition.physics
-          .applyBoundaryConditions(scrollPosition, preferredScrollOffset);
+      childOverScroll = scrollPosition.physics.applyBoundaryConditions(
+        scrollPosition,
+        preferredScrollOffset,
+      );
       scrollPosition.correctPixels(preferredScrollOffset - childOverScroll);
     } else {
       childOverScroll = 0;
@@ -434,19 +445,19 @@ class DragScrollDrivenSheetActivity
     required super.startDetails,
     required super.cancelCallback,
     required super.carriedVelocity,
-  })  : _scrollPosition = scrollPosition,
-        assert(() {
-          if (scrollPosition.axisDirection != AxisDirection.down &&
-              scrollPosition.axisDirection != AxisDirection.up) {
-            throw FlutterError(
-              'The axis direction of the scroll position associated with a '
-              'Sheet must be either $AxisDirection.down '
-              'or $AxisDirection.up, but the provided scroll position has an '
-              'axis direction of ${scrollPosition.axisDirection}.',
-            );
-          }
-          return true;
-        }());
+  }) : _scrollPosition = scrollPosition,
+       assert(() {
+         if (scrollPosition.axisDirection != AxisDirection.down &&
+             scrollPosition.axisDirection != AxisDirection.up) {
+           throw FlutterError(
+             'The axis direction of the scroll position associated with a '
+             'Sheet must be either $AxisDirection.down '
+             'or $AxisDirection.up, but the provided scroll position has an '
+             'axis direction of ${scrollPosition.axisDirection}.',
+           );
+         }
+         return true;
+       }());
 
   SheetScrollPosition? _scrollPosition;
 
@@ -475,13 +486,15 @@ class DragScrollDrivenSheetActivity
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
     switch (delta.dy) {
       case < 0:
-        final draggablePixels = scrollPosition.extentAfter +
+        final draggablePixels =
+            scrollPosition.extentAfter +
             max(0.0, owner.maxOffset - owner.offset);
         assert(draggablePixels >= 0);
         return Offset(delta.dx, max(-1 * draggablePixels, delta.dy));
 
       case > 0:
-        final draggablePixels = scrollPosition.extentBefore +
+        final draggablePixels =
+            scrollPosition.extentBefore +
             max(0.0, owner.offset - owner.minOffset);
         assert(draggablePixels >= 0);
         return Offset(delta.dx, min(draggablePixels, delta.dy));
@@ -542,8 +555,8 @@ class BallisticScrollDrivenSheetActivity
     SheetScrollPosition scrollPosition, {
     required this.simulation,
     required double initialOffset,
-  })  : _scrollPosition = scrollPosition,
-        _oldOffset = initialOffset;
+  }) : _scrollPosition = scrollPosition,
+       _oldOffset = initialOffset;
 
   final Simulation simulation;
 
@@ -592,7 +605,7 @@ class BallisticScrollDrivenSheetActivity
     final scrollExtentAfter = scrollPosition.extentAfter;
     final shouldInterruptBallisticScroll =
         (cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
-            (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0);
+        (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0);
     if (shouldInterruptBallisticScroll) {
       _end();
     }
@@ -779,11 +792,11 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
     super.debugLabel,
     super.keepScrollOffset,
   }) : super(
-          physics: switch (physics) {
-            AlwaysScrollableScrollPhysics() => physics,
-            _ => AlwaysScrollableScrollPhysics(parent: physics),
-          },
-        );
+         physics: switch (physics) {
+           AlwaysScrollableScrollPhysics() => physics,
+           _ => AlwaysScrollableScrollPhysics(parent: physics),
+         },
+       );
 
   /// Getter of a [_SheetScrollPositionDelegate] for this scroll position.
   ///
@@ -808,9 +821,9 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
   void absorb(ScrollPosition other) {
     if (other is SheetScrollPosition) {
       _delegate?.call()?.replaceScrollPosition(
-            oldPosition: other,
-            newPosition: this,
-          );
+        oldPosition: other,
+        newPosition: this,
+      );
     }
     super.absorb(other);
   }
@@ -876,12 +889,14 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
     }
     final simulation = physics.createBallisticSimulation(this, velocity);
     if (simulation != null) {
-      beginActivity(BallisticScrollActivity(
-        this,
-        simulation,
-        context.vsync,
-        activity?.shouldIgnorePointer ?? true,
-      ));
+      beginActivity(
+        BallisticScrollActivity(
+          this,
+          simulation,
+          context.vsync,
+          activity?.shouldIgnorePointer ?? true,
+        ),
+      );
     } else {
       goIdle(calledByDelegate: calledByOwner);
     }

@@ -146,9 +146,13 @@ void main() {
 
       reportedNotifications.clear();
       await tester.pumpAndSettle();
-      expect(reportedNotifications, isEmpty,
-          reason: 'Once the drag is ended, '
-              'no notification should be dispatched.');
+      expect(
+        reportedNotifications,
+        isEmpty,
+        reason:
+            'Once the drag is ended, '
+            'no notification should be dispatched.',
+      );
     },
   );
 
@@ -192,39 +196,55 @@ void main() {
       await tester.pump(Duration.zero);
       expect(
         reportedNotifications.single,
-        isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'offset', moreOrLessEquals(600)),
+        isA<SheetUpdateNotification>().having(
+          (e) => e.metrics.offset,
+          'offset',
+          moreOrLessEquals(600),
+        ),
       );
 
       reportedNotifications.clear();
       await tester.pump(const Duration(milliseconds: 100));
       expect(
         reportedNotifications.single,
-        isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'offset', moreOrLessEquals(400)),
+        isA<SheetUpdateNotification>().having(
+          (e) => e.metrics.offset,
+          'offset',
+          moreOrLessEquals(400),
+        ),
       );
 
       reportedNotifications.clear();
       await tester.pump(const Duration(milliseconds: 100));
       expect(
         reportedNotifications.single,
-        isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'offset', moreOrLessEquals(200)),
+        isA<SheetUpdateNotification>().having(
+          (e) => e.metrics.offset,
+          'offset',
+          moreOrLessEquals(200),
+        ),
       );
 
       reportedNotifications.clear();
       await tester.pump(const Duration(seconds: 100));
       expect(
         reportedNotifications.single,
-        isA<SheetUpdateNotification>()
-            .having((e) => e.metrics.offset, 'offset', moreOrLessEquals(0)),
+        isA<SheetUpdateNotification>().having(
+          (e) => e.metrics.offset,
+          'offset',
+          moreOrLessEquals(0),
+        ),
       );
 
       reportedNotifications.clear();
       await tester.pumpAndSettle();
-      expect(reportedNotifications, isEmpty,
-          reason: 'Once the animation is finished, '
-              'no notification should be dispatched.');
+      expect(
+        reportedNotifications,
+        isEmpty,
+        reason:
+            'Once the animation is finished, '
+            'no notification should be dispatched.',
+      );
     },
   );
 
@@ -297,9 +317,13 @@ void main() {
 
       reportedNotifications.clear();
       await tester.pumpAndSettle();
-      expect(reportedNotifications, isEmpty,
-          reason: 'Once the drag is ended, '
-              'no notification should be dispatched.');
+      expect(
+        reportedNotifications,
+        isEmpty,
+        reason:
+            'Once the drag is ended, '
+            'no notification should be dispatched.',
+      );
     },
   );
 

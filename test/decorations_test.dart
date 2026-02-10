@@ -18,7 +18,8 @@ void main() {
   ({
     Widget testWidget,
     ValueGetter<SheetModel> getModel,
-  }) boilerplate({
+  })
+  boilerplate({
     SheetOffset initialOffset = const SheetOffset(1),
     EdgeInsets viewportPadding = EdgeInsets.zero,
     EdgeInsets viewInsets = EdgeInsets.zero,
@@ -256,11 +257,11 @@ class _TestIdleSheetActivity extends SheetActivity {
 
 class _TestSheetModelConfig extends SheetModelConfig {
   const _TestSheetModelConfig()
-      : super(
-          physics: const ClampingSheetPhysics(),
-          snapGrid: const SheetSnapGrid.stepless(),
-          gestureProxy: null,
-        );
+    : super(
+        physics: const ClampingSheetPhysics(),
+        snapGrid: const SheetSnapGrid.stepless(),
+        gestureProxy: null,
+      );
 
   @override
   SheetModelConfig copyWith({

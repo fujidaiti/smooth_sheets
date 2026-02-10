@@ -120,8 +120,9 @@ class MutableSheetMetrics with SheetMetrics {
     contentSize: contentSize,
     contentBaseline: viewportDynamicOverlap.bottom,
   );
-  final (initialMinOffset, initialMaxOffset) =
-      snapGrid.getBoundaries(initialMeasurements);
+  final (initialMinOffset, initialMaxOffset) = snapGrid.getBoundaries(
+    initialMeasurements,
+  );
   final metricsRegistry = MutableSheetMetrics(
     offset: offset,
     minOffset: initialMinOffset.resolve(initialMeasurements),
@@ -141,20 +142,25 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
   when(position.size).thenAnswer((_) => metricsRegistry.size);
   when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
-  when(position.viewportPadding)
-      .thenAnswer((_) => metricsRegistry.viewportPadding);
-  when(position.viewportDynamicOverlap)
-      .thenAnswer((_) => metricsRegistry.viewportDynamicOverlap);
-  when(position.viewportStaticOverlap)
-      .thenAnswer((_) => metricsRegistry.viewportStaticOverlap);
-  when(position.contentBaseline)
-      .thenAnswer((_) => metricsRegistry.contentBaseline);
+  when(
+    position.viewportPadding,
+  ).thenAnswer((_) => metricsRegistry.viewportPadding);
+  when(
+    position.viewportDynamicOverlap,
+  ).thenAnswer((_) => metricsRegistry.viewportDynamicOverlap);
+  when(
+    position.viewportStaticOverlap,
+  ).thenAnswer((_) => metricsRegistry.viewportStaticOverlap);
+  when(
+    position.contentBaseline,
+  ).thenAnswer((_) => metricsRegistry.contentBaseline);
   when(position.offset).thenAnswer((_) => metricsRegistry.offset);
   when(position.initialOffset).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
-  when(position.devicePixelRatio)
-      .thenAnswer((_) => metricsRegistry.devicePixelRatio);
+  when(
+    position.devicePixelRatio,
+  ).thenAnswer((_) => metricsRegistry.devicePixelRatio);
   when(position.copyWith()).thenAnswer((_) => metricsRegistry);
 
   when(position.offset = any).thenAnswer((invocation) {
@@ -171,19 +177,21 @@ class MutableSheetMetrics with SheetMetrics {
       ..contentBaseline = layout.contentBaseline;
   });
   when(position.snapGrid).thenReturn(snapGrid);
-  when(position.copyWith(
-    offset: anyNamed('offset'),
-    minOffset: anyNamed('minOffset'),
-    maxOffset: anyNamed('maxOffset'),
-    size: anyNamed('size'),
-    devicePixelRatio: anyNamed('devicePixelRatio'),
-    contentBaseline: anyNamed('contentBaseline'),
-    contentSize: anyNamed('contentSize'),
-    viewportDynamicOverlap: anyNamed('viewportDynamicOverlap'),
-    viewportPadding: anyNamed('viewportPadding'),
-    viewportSize: anyNamed('viewportSize'),
-    viewportStaticOverlap: anyNamed('viewportStaticOverlap'),
-  )).thenAnswer((invocation) {
+  when(
+    position.copyWith(
+      offset: anyNamed('offset'),
+      minOffset: anyNamed('minOffset'),
+      maxOffset: anyNamed('maxOffset'),
+      size: anyNamed('size'),
+      devicePixelRatio: anyNamed('devicePixelRatio'),
+      contentBaseline: anyNamed('contentBaseline'),
+      contentSize: anyNamed('contentSize'),
+      viewportDynamicOverlap: anyNamed('viewportDynamicOverlap'),
+      viewportPadding: anyNamed('viewportPadding'),
+      viewportSize: anyNamed('viewportSize'),
+      viewportStaticOverlap: anyNamed('viewportStaticOverlap'),
+    ),
+  ).thenAnswer((invocation) {
     return metricsRegistry.copyWith(
       offset: invocation.namedArguments[#offset] as double?,
       minOffset: invocation.namedArguments[#minOffset] as double?,

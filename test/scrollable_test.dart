@@ -18,7 +18,8 @@ void main() {
     ({
       Widget testWidget,
       SheetController controller,
-    }) boilerplate({
+    })
+    boilerplate({
       required SheetPhysics sheetPhysics,
       required ScrollPhysics scrollPhysics,
     }) {
@@ -73,7 +74,8 @@ void main() {
         expect(
           sheetTopHistory,
           fluctuationEquals([1, -1]),
-          reason: 'Sheet should move downward even if '
+          reason:
+              'Sheet should move downward even if '
               'scroll physics does not allow it',
         );
       },
@@ -99,7 +101,8 @@ void main() {
         expect(
           sheetTopHistory,
           everyElement(isZero),
-          reason: 'Sheet should not move even if '
+          reason:
+              'Sheet should not move even if '
               'scroll physics allows it',
         );
       },
@@ -110,8 +113,9 @@ void main() {
     ({
       Widget testWidget,
       SheetController controller,
-      ValueGetter<ScrollController> getScrollController
-    }) boilerplate({
+      ValueGetter<ScrollController> getScrollController,
+    })
+    boilerplate({
       required SheetOffset initialOffset,
       SheetPhysics physics = const BouncingSheetPhysics(),
     }) {
@@ -122,10 +126,12 @@ void main() {
           key: Key('sheet'),
           controller: controller,
           initialOffset: initialOffset,
-          snapGrid: SheetSnapGrid(snaps: [
-            SheetOffset.absolute(300),
-            SheetOffset.absolute(600),
-          ]),
+          snapGrid: SheetSnapGrid(
+            snaps: [
+              SheetOffset.absolute(300),
+              SheetOffset.absolute(600),
+            ],
+          ),
           scrollConfiguration: SheetScrollConfiguration(
             scrollSyncMode: SheetScrollHandlingBehavior.always,
           ),
@@ -150,7 +156,7 @@ void main() {
       return (
         testWidget: testWidget,
         controller: controller,
-        getScrollController: () => scrollController
+        getScrollController: () => scrollController,
       );
     }
 
@@ -347,7 +353,8 @@ void main() {
       Widget testWidget,
       SheetController controller,
       ValueGetter<ScrollController> getScrollController,
-    }) boilerplate() {
+    })
+    boilerplate() {
       final controller = SheetController();
       late ScrollController scrollController;
       final testWidget = SheetViewport(
@@ -378,7 +385,7 @@ void main() {
       return (
         testWidget: testWidget,
         controller: controller,
-        getScrollController: () => scrollController
+        getScrollController: () => scrollController,
       );
     }
 
@@ -420,7 +427,8 @@ void main() {
     ({
       Widget testWidget,
       ObjectRef<ScrollController> scrollControllerRef,
-    }) boilerplate({
+    })
+    boilerplate({
       required SheetScrollConfiguration scrollConfiguration,
     }) {
       final scrollControllerRef = ObjectRef<ScrollController>();
@@ -465,8 +473,9 @@ void main() {
         expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
         expect(env.scrollControllerRef.value!.offset, 0);
 
-        final gesture =
-            await tester.startGesture(tester.getCenter(find.byId('sheet')));
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
         await gesture.moveDownwardBy(100);
         await tester.pumpAndSettle();
         expect(tester.getTopLeft(find.byId('sheet')).dy, greaterThan(300));
@@ -493,8 +502,9 @@ void main() {
         expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
         expect(env.scrollControllerRef.value!.offset, 0);
 
-        final gesture =
-            await tester.startGesture(tester.getCenter(find.byId('sheet')));
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
         await gesture.moveDownwardBy(100);
         await tester.pumpAndSettle();
         expect(tester.getTopLeft(find.byId('sheet')).dy, greaterThan(300));
@@ -527,8 +537,9 @@ void main() {
         expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
         expect(env.scrollControllerRef.value!.offset, 100);
 
-        final gesture =
-            await tester.startGesture(tester.getCenter(find.byId('sheet')));
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
         await gesture.moveDownwardBy(200);
         await tester.pumpAndSettle();
         expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
@@ -544,7 +555,8 @@ void main() {
       ValueGetter<ScrollPosition?> getScrollPosition,
       ValueGetter<double?> getScrollOffset,
       ValueGetter<double?> getSheetTop,
-    }) boilerplate({
+    })
+    boilerplate({
       required WidgetTesterX tester,
       required SheetScrollConfiguration scrollConfiguration,
       required SheetPhysics sheetPhysics,
@@ -606,7 +618,8 @@ void main() {
         expect(env.getScrollOffset(), -1 * kDragSlopDefault);
 
         const dragDelta = 100.0;
-        final expectedScrollOffsetAfterDrag = env.getScrollOffset()! -
+        final expectedScrollOffsetAfterDrag =
+            env.getScrollOffset()! -
             BouncingScrollPhysics().applyPhysicsToUserOffset(
               env.getScrollPosition()!,
               dragDelta,
@@ -657,15 +670,24 @@ void main() {
         await gesture.moveDownwardBy(100);
         await tester.pump();
         expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
-        expect(env.getScrollOffset(), 0,
-            reason: 'Scrollable should not overscroll');
+        expect(
+          env.getScrollOffset(),
+          0,
+          reason: 'Scrollable should not overscroll',
+        );
         expect(
           capturedNotifications,
           orderedEquals([
-            isA<OverscrollNotification>()
-                .having((it) => it.overscroll, 'overscroll', -20),
-            isA<OverscrollNotification>()
-                .having((it) => it.overscroll, 'overscroll', -100),
+            isA<OverscrollNotification>().having(
+              (it) => it.overscroll,
+              'overscroll',
+              -20,
+            ),
+            isA<OverscrollNotification>().having(
+              (it) => it.overscroll,
+              'overscroll',
+              -100,
+            ),
           ]),
           reason: 'Scrollable should dispatch overscroll notifications',
         );
@@ -697,10 +719,16 @@ void main() {
         final gesture = await tester.startDrag(startOffset, AxisDirection.down);
         await gesture.moveDownwardBy(100);
         await tester.pump();
-        expect(env.getSheetTop(), greaterThan(300),
-            reason: 'Sheet should move downward');
-        expect(env.getScrollOffset(), 0,
-            reason: 'Sheet should consume the whole overflowed scroll delta');
+        expect(
+          env.getSheetTop(),
+          greaterThan(300),
+          reason: 'Sheet should move downward',
+        );
+        expect(
+          env.getScrollOffset(),
+          0,
+          reason: 'Sheet should consume the whole overflowed scroll delta',
+        );
 
         await gesture.up();
         await tester.pumpAndSettle();
@@ -733,8 +761,11 @@ void main() {
 
         await gesture.moveDownwardBy(100);
         expect(env.getSheetTop(), 300, reason: 'Sheet should not move');
-        expect(env.getScrollOffset(), 0,
-            reason: 'Scrollable should not overscroll');
+        expect(
+          env.getScrollOffset(),
+          0,
+          reason: 'Scrollable should not overscroll',
+        );
 
         await gesture.up();
         await tester.pumpAndSettle();

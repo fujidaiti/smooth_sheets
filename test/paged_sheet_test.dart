@@ -15,7 +15,8 @@ void main() {
       Key sheetKey,
       ValueGetter<NavigatorState> getNavigator,
       Rect Function(WidgetTester) getSheetRect,
-    }) boilerplate({
+    })
+    boilerplate({
       required ValueGetter<Route<dynamic>> initialRoute,
     }) {
       final navigatorKey = GlobalKey<NavigatorState>();
@@ -75,13 +76,13 @@ void main() {
 
         unawaited(
           env.getNavigator().push(
-                PagedSheetRoute(
-                  builder: (_) => _TestPage(
-                    key: Key('b'),
-                    height: 500,
-                  ),
-                ),
+            PagedSheetRoute(
+              builder: (_) => _TestPage(
+                key: Key('b'),
+                height: 500,
               ),
+            ),
+          ),
         );
 
         await tester.pumpAndSettle();
@@ -114,15 +115,15 @@ void main() {
 
         unawaited(
           env.getNavigator().push(
-                PagedSheetRoute(
-                  snapGrid: SheetSnapGrid.stepless(),
-                  initialOffset: SheetOffset(0.5),
-                  builder: (_) => _TestPage(
-                    key: Key('b'),
-                    height: 500,
-                  ),
-                ),
+            PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              initialOffset: SheetOffset(0.5),
+              builder: (_) => _TestPage(
+                key: Key('b'),
+                height: 500,
               ),
+            ),
+          ),
         );
 
         await tester.pumpAndSettle();
@@ -157,14 +158,14 @@ void main() {
 
         unawaited(
           env.getNavigator().push(
-                PagedSheetRoute(
-                  snapGrid: SheetSnapGrid.stepless(),
-                  builder: (_) => _TestPage(
-                    key: Key('b'),
-                    height: 500,
-                  ),
-                ),
+            PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              builder: (_) => _TestPage(
+                key: Key('b'),
+                height: 500,
               ),
+            ),
+          ),
         );
 
         await tester.pumpAndSettle();
@@ -191,14 +192,14 @@ void main() {
         await tester.pumpWidget(env.testWidget);
         unawaited(
           env.getNavigator().push(
-                PagedSheetRoute(
-                  snapGrid: SheetSnapGrid.stepless(),
-                  builder: (_) => _TestPage(
-                    key: Key('b'),
-                    height: 500,
-                  ),
-                ),
+            PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              builder: (_) => _TestPage(
+                key: Key('b'),
+                height: 500,
               ),
+            ),
+          ),
         );
 
         // Forwards the transition animation by half.
@@ -233,30 +234,36 @@ void main() {
         var gesture = await tester.startGesture(centerLocation);
         await gesture.moveBy(Offset(0, 50));
         await tester.pumpAndSettle();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 250,
-            reason: 'The first page should be draggable.');
+        expect(
+          env.getSheetRect(tester).top,
+          testScreenSize.height - 250,
+          reason: 'The first page should be draggable.',
+        );
 
         await gesture.up();
         await tester.pumpAndSettle();
         unawaited(
           env.getNavigator().push(
-                PagedSheetRoute(
-                  snapGrid: SheetSnapGrid.stepless(),
-                  dragConfiguration: null,
-                  builder: (_) => _TestPage(
-                    key: Key('b'),
-                    height: 300,
-                  ),
-                ),
+            PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              dragConfiguration: null,
+              builder: (_) => _TestPage(
+                key: Key('b'),
+                height: 300,
               ),
+            ),
+          ),
         );
         await tester.pumpAndSettle();
         centerLocation = tester.getCenter(find.byKey(Key('b')));
         gesture = await tester.startGesture(centerLocation);
         await gesture.moveBy(Offset(0, 50));
         await tester.pumpAndSettle();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 300,
-            reason: 'The second page should not be draggable.');
+        expect(
+          env.getSheetRect(tester).top,
+          testScreenSize.height - 300,
+          reason: 'The second page should not be draggable.',
+        );
       },
     );
 
@@ -282,31 +289,37 @@ void main() {
         var gesture = await tester.startDrag(centerLocation);
         await gesture.moveBy(Offset(0, 50));
         await tester.pumpAndSettle();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 250,
-            reason: 'The first page should be draggable.');
+        expect(
+          env.getSheetRect(tester).top,
+          testScreenSize.height - 250,
+          reason: 'The first page should be draggable.',
+        );
 
         // await gesture.up();
         await tester.pumpAndSettle();
         unawaited(
           env.getNavigator().push(
-                PagedSheetRoute(
-                  snapGrid: SheetSnapGrid.stepless(),
-                  scrollConfiguration: null,
-                  builder: (_) => _TestPage(
-                    key: Key('b'),
-                    height: 300,
-                    isScrollable: true,
-                  ),
-                ),
+            PagedSheetRoute(
+              snapGrid: SheetSnapGrid.stepless(),
+              scrollConfiguration: null,
+              builder: (_) => _TestPage(
+                key: Key('b'),
+                height: 300,
+                isScrollable: true,
               ),
+            ),
+          ),
         );
         await tester.pumpAndSettle();
         centerLocation = tester.getCenter(find.byKey(Key('b')));
         gesture = await tester.startDrag(centerLocation);
         await gesture.moveBy(Offset(0, 50));
         await tester.pumpAndSettle();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 300,
-            reason: 'The second page should not be draggable.');
+        expect(
+          env.getSheetRect(tester).top,
+          testScreenSize.height - 300,
+          reason: 'The second page should not be draggable.',
+        );
       },
     );
   });
@@ -315,7 +328,8 @@ void main() {
     ({
       Widget testWidget,
       ValueNotifier<List<Page<dynamic>>> pagesNotifier,
-    }) boilerplate({
+    })
+    boilerplate({
       required Page<dynamic> initialPage,
     }) {
       final pagesNotifier = ValueNotifier([initialPage]);
@@ -386,7 +400,8 @@ void main() {
       VoidCallback popRoute,
       void Function(String name, double height, [Duration? duration]) pushRoute,
       Rect Function(WidgetTester) getSheetRect,
-    }) boilerplate({
+    })
+    boilerplate({
       required String initialRoute,
       required double initialRouteHeight,
       Curve offsetInterpolationCurve = Curves.linear,
@@ -766,10 +781,10 @@ void main() {
         env.pushRoute('b', 500);
 
         Rect rectAt(double t) => Rect.lerp(
-              Rect.fromLTWH(0, 300, 800, 300),
-              Rect.fromLTWH(0, 100, 800, 500),
-              nonLinearCurve.transform(t),
-            )!;
+          Rect.fromLTWH(0, 300, 800, 300),
+          Rect.fromLTWH(0, 100, 800, 500),
+          nonLinearCurve.transform(t),
+        )!;
 
         await tester.pump();
         expect(env.getSheetRect(tester), rectAt(0));
@@ -791,7 +806,8 @@ void main() {
       GlobalKey<NavigatorState> navigatorKey,
       ValueSetter<List<Page<dynamic>>> setPages,
       Rect Function(WidgetTester) getSheetRect,
-    }) boilerplate({
+    })
+    boilerplate({
       required List<Page<dynamic>> initialPages,
     }) {
       const sheetKey = Key('sheet');
@@ -1363,13 +1379,13 @@ class _TestPage extends StatelessWidget {
         child: switch (isScrollable) {
           false => null,
           true => ListView.builder(
-              itemCount: 50,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text('Item $index'),
-                );
-              },
-            ),
+            itemCount: 50,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text('Item $index'),
+              );
+            },
+          ),
         },
       ),
     );

@@ -25,11 +25,13 @@ const _referenceSheetMetrics = ImmutableSheetMetrics(
   size: Size(400, 600),
 );
 
-final SheetMetrics _metricsAtTopEdge =
-    _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.maxOffset);
+final SheetMetrics _metricsAtTopEdge = _referenceSheetMetrics.copyWith(
+  offset: _referenceSheetMetrics.maxOffset,
+);
 
-final SheetMetrics _metricsAtBottomEdge =
-    _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.minOffset);
+final SheetMetrics _metricsAtBottomEdge = _referenceSheetMetrics.copyWith(
+  offset: _referenceSheetMetrics.minOffset,
+);
 
 final SheetMetrics _metricsAtMiddle = _referenceSheetMetrics.copyWith(
   offset: (_metricsAtTopEdge.offset + _metricsAtBottomEdge.offset) / 2,
@@ -72,9 +74,11 @@ void main() {
 
     test('does not apply any resistance if position is in bounds', () {
       final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
-          offset: _referenceSheetMetrics.maxOffset - 10);
+        offset: _referenceSheetMetrics.maxOffset - 10,
+      );
       final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
-          offset: _referenceSheetMetrics.minOffset + 10);
+        offset: _referenceSheetMetrics.minOffset + 10,
+      );
 
       expect(
         physicsUnderTest.applyPhysicsToOffset(10, _metricsAtMiddle),

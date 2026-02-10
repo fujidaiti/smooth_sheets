@@ -26,9 +26,9 @@ class SheetController extends ChangeNotifier
 
   /// The current metrics of the sheet.
   SheetMetrics? get metrics => switch (_client) {
-        final it? when it.hasMetrics => it.copyWith(),
-        _ => null,
-      };
+    final it? when it.hasMetrics => it.copyWith(),
+    _ => null,
+  };
 
   /// Whether a [SheetModel] is attached to this controller.
   bool get hasClient => _client != null;
@@ -119,17 +119,19 @@ class DefaultSheetController extends StatefulWidget {
   static SheetController of(BuildContext context) {
     final controller = maybeOf(context);
 
-    assert((() {
-      if (controller == null) {
-        throw FlutterError(
-          'No SheetControllerScope ancestor could be found starting '
-          'from the context that was passed to DefaultSheetController.of(). '
-          'The context used was:\n'
-          '$context',
-        );
-      }
-      return true;
-    })());
+    assert(
+      (() {
+        if (controller == null) {
+          throw FlutterError(
+            'No SheetControllerScope ancestor could be found starting '
+            'from the context that was passed to DefaultSheetController.of(). '
+            'The context used was:\n'
+            '$context',
+          );
+        }
+        return true;
+      })(),
+    );
 
     return controller!;
   }

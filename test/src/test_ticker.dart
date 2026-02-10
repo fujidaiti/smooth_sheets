@@ -117,8 +117,8 @@ class TestAnimationController extends AnimationController {
     required super.lowerBound,
     required super.upperBound,
     required _SingleVsync vsync,
-  })  : _vsync = vsync,
-        super(vsync: vsync);
+  }) : _vsync = vsync,
+       super(vsync: vsync);
 
   final _SingleVsync _vsync;
 

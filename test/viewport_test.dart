@@ -19,7 +19,8 @@ void main() {
   group('SheetViewport', () {
     ({
       Widget testWidget,
-    }) boilerplate({
+    })
+    boilerplate({
       required SheetModel model,
       EdgeInsets viewInsets = EdgeInsets.zero,
       EdgeInsets viewPadding = EdgeInsets.zero,
@@ -41,9 +42,9 @@ void main() {
             TestStatefulWidget(
               initialState: null,
               didChangeDependencies: (context) {
-                context
-                    .findAncestorStateOfType<SheetViewportState>()!
-                    .setModel(model);
+                context.findAncestorStateOfType<SheetViewportState>()!.setModel(
+                  model,
+                );
               },
               builder: (_, __) => SizedBox.shrink(),
             ),
@@ -463,8 +464,9 @@ void main() {
             initialState: 500.0,
             builder: (_, viewportHeight) {
               return ConstrainedBox(
-                constraints:
-                    BoxConstraints.tight(Size.fromHeight(viewportHeight)),
+                constraints: BoxConstraints.tight(
+                  Size.fromHeight(viewportHeight),
+                ),
                 child: SheetViewport(
                   child: BareSheet(
                     child: SizedBox.fromSize(
@@ -617,9 +619,9 @@ void main() {
                 initialState: Size.fromHeight(300),
                 didChangeDependencies: (context) {
                   inheritedLayoutNotifier?.removeListener(onLayoutChange);
-                  inheritedLayoutNotifier =
-                      SheetMediaQuery.layoutNotifierOf(context)
-                        ..addListener(onLayoutChange);
+                  inheritedLayoutNotifier = SheetMediaQuery.layoutNotifierOf(
+                    context,
+                  )..addListener(onLayoutChange);
                 },
                 builder: (_, size) => SizedBox.fromSize(
                   size: size,
@@ -655,7 +657,8 @@ void main() {
     ({
       _TestSheetModel model,
       Widget testWidget,
-    }) boilerplate() {
+    })
+    boilerplate() {
       final model = _TestSheetModel();
 
       final testWidget = MediaQuery(
@@ -729,8 +732,12 @@ void main() {
         const child = Key('child');
         const background = Key('background');
 
-        final expectedChildRect =
-            Rect.fromLTWH(10, testScreenSize.height - 310, 780, 300);
+        final expectedChildRect = Rect.fromLTWH(
+          10,
+          testScreenSize.height - 310,
+          780,
+          300,
+        );
         expect(tester.getRect(find.byKey(child)), expectedChildRect);
 
         final topLeft = expectedChildRect.topLeft;
@@ -917,8 +924,9 @@ void main() {
       },
     );
 
-    testWidgets('throws when multiple viewports exist in the same route',
-        (tester) async {
+    testWidgets('throws when multiple viewports exist in the same route', (
+      tester,
+    ) async {
       final model = _TestSheetModel();
       final errors = await tester.pumpWidgetAndCaptureErrors(
         MediaQuery(
@@ -1326,7 +1334,8 @@ void main() {
   group('SheetMediaQuery', () {
     ({
       Widget testWidget,
-    }) boilerplate({
+    })
+    boilerplate({
       required SheetLayoutSpec layoutSpec,
       required Widget child,
     }) {
@@ -1457,11 +1466,11 @@ class _TestIdleSheetActivity extends SheetActivity {
 
 class _TestSheetModelConfig extends SheetModelConfig {
   const _TestSheetModelConfig()
-      : super(
-          physics: const ClampingSheetPhysics(),
-          snapGrid: const SheetSnapGrid.stepless(),
-          gestureProxy: null,
-        );
+    : super(
+        physics: const ClampingSheetPhysics(),
+        snapGrid: const SheetSnapGrid.stepless(),
+        gestureProxy: null,
+      );
 
   @override
   SheetModelConfig copyWith({

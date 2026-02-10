@@ -335,8 +335,9 @@ void main() {
   });
 
   group('WidgetTesterX.pumpAndSettleAndCaptureErrors', () {
-    testWidgets('should return empty list when no errors occur',
-        (tester) async {
+    testWidgets('should return empty list when no errors occur', (
+      tester,
+    ) async {
       await tester.pumpWidget(Container());
       final errors = await tester.pumpAndSettleAndCaptureErrors();
       expect(errors, isEmpty);
@@ -405,8 +406,9 @@ void main() {
       );
     });
 
-    testWidgets('moveUpwardBy should move pointer upward by deltaY',
-        (tester) async {
+    testWidgets('moveUpwardBy should move pointer upward by deltaY', (
+      tester,
+    ) async {
       await tester.pumpWidget(testWidget);
       final center = tester.getCenter(find.byType(Container));
 
@@ -419,8 +421,9 @@ void main() {
       await gesture.up();
     });
 
-    testWidgets('moveDownwardBy should move pointer downward by deltaY',
-        (tester) async {
+    testWidgets('moveDownwardBy should move pointer downward by deltaY', (
+      tester,
+    ) async {
       await tester.pumpWidget(testWidget);
       final center = tester.getCenter(find.byType(Container));
 

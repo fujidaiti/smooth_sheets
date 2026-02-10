@@ -7,10 +7,11 @@ import 'controller.dart';
 import 'model.dart';
 import 'viewport.dart';
 
-typedef SheetModelFactory<C extends SheetModelConfig> = SheetModel<C> Function(
-  SheetContext context,
-  C config,
-);
+typedef SheetModelFactory<C extends SheetModelConfig> =
+    SheetModel<C> Function(
+      SheetContext context,
+      C config,
+    );
 
 /// A widget that creates a [SheetModel], manages its lifecycle,
 /// and exposes it to the descendant widgets.

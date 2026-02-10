@@ -398,8 +398,11 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   }
 
   void goBallistic(double velocity) {
-    final simulation =
-        physics.createBallisticSimulation(velocity, this, snapGrid);
+    final simulation = physics.createBallisticSimulation(
+      velocity,
+      this,
+      snapGrid,
+    );
     if (simulation != null) {
       beginActivity(BallisticSheetActivity(simulation: simulation));
     } else {
@@ -758,13 +761,13 @@ class ImmutableViewportLayout implements ViewportLayout {
 
   @override
   int get hashCode => Object.hash(
-        viewportSize,
-        contentSize,
-        viewportPadding,
-        viewportDynamicOverlap,
-        viewportStaticOverlap,
-        contentBaseline,
-      );
+    viewportSize,
+    contentSize,
+    viewportPadding,
+    viewportDynamicOverlap,
+    viewportStaticOverlap,
+    contentBaseline,
+  );
 }
 
 @immutable
@@ -852,14 +855,14 @@ class ImmutableSheetLayout implements SheetLayout {
 
   @override
   int get hashCode => Object.hash(
-        contentBaseline,
-        contentSize,
-        size,
-        viewportDynamicOverlap,
-        viewportPadding,
-        viewportSize,
-        viewportStaticOverlap,
-      );
+    contentBaseline,
+    contentSize,
+    size,
+    viewportDynamicOverlap,
+    viewportPadding,
+    viewportSize,
+    viewportStaticOverlap,
+  );
 }
 
 @immutable
@@ -961,16 +964,16 @@ class ImmutableSheetMetrics with SheetMetrics {
 
   @override
   int get hashCode => Object.hash(
-        offset,
-        minOffset,
-        maxOffset,
-        devicePixelRatio,
-        contentBaseline,
-        contentSize,
-        size,
-        viewportDynamicOverlap,
-        viewportPadding,
-        viewportSize,
-        viewportStaticOverlap,
-      );
+    offset,
+    minOffset,
+    maxOffset,
+    devicePixelRatio,
+    contentBaseline,
+    contentSize,
+    size,
+    viewportDynamicOverlap,
+    viewportPadding,
+    viewportSize,
+    viewportStaticOverlap,
+  );
 }

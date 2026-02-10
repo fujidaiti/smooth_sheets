@@ -3,12 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smooth_sheets/src/model.dart';
 
 Matcher throwsError({required String name}) => throwsA(
-      isA<Error>().having(
-        (e) => e.runtimeType.toString(),
-        'runtimeType',
-        name,
-      ),
-    );
+  isA<Error>().having(
+    (e) => e.runtimeType.toString(),
+    'runtimeType',
+    name,
+  ),
+);
 
 /// A matcher that checks if the error is a LateError.
 ///

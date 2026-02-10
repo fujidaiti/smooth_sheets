@@ -92,9 +92,9 @@ mixin SheetGestureProxyMixin {
     return switch (_parent) {
       null => details,
       final parent => parent.onDragUpdate(
-          details,
-          minPotentialDeltaConsumption,
-        ),
+        details,
+        minPotentialDeltaConsumption,
+      ),
     };
   }
 

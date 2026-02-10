@@ -91,13 +91,17 @@ void main() {
       ),
     );
 
-    expect(controller.hasClient, isTrue,
-        reason: 'The controller should have a client.');
+    expect(
+      controller.hasClient,
+      isTrue,
+      reason: 'The controller should have a client.',
+    );
   });
 
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/14
-  testWidgets('Opening keyboard does not interrupt sheet animation',
-      (tester) async {
+  testWidgets('Opening keyboard does not interrupt sheet animation', (
+    tester,
+  ) async {
     final controller = SheetController();
     final viewportKey = GlobalKey();
     final sheetKey = GlobalKey();
@@ -129,8 +133,11 @@ void main() {
       ),
     );
 
-    expect(controller.metrics!.offset, 200,
-        reason: 'The sheet should be at the initial position.');
+    expect(
+      controller.metrics!.offset,
+      200,
+      reason: 'The sheet should be at the initial position.',
+    );
     expect(
       controller.metrics!.minOffset < controller.metrics!.maxOffset,
       isTrue,
@@ -146,16 +153,21 @@ void main() {
     );
     // Then, show the keyboard while the sheet is animating.
     unawaited(
-      keyboardSimulationKey.currentState!
-          .showKeyboard(const Duration(milliseconds: 250)),
+      keyboardSimulationKey.currentState!.showKeyboard(
+        const Duration(milliseconds: 250),
+      ),
     );
     await tester.pumpAndSettle();
-    expect(MediaQuery.viewInsetsOf(viewportKey.currentContext!).bottom, 200,
-        reason: 'The keyboard should be fully shown.');
+    expect(
+      MediaQuery.viewInsetsOf(viewportKey.currentContext!).bottom,
+      200,
+      reason: 'The keyboard should be fully shown.',
+    );
     expect(
       tester.getRect(find.byKey(sheetKey)),
       Rect.fromLTWH(0, 0, 800, 400),
-      reason: 'After the keyboard is fully shown, '
+      reason:
+          'After the keyboard is fully shown, '
           'the entire sheet should also be visible.',
     );
   });
@@ -207,8 +219,11 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 250));
         final offsetBeforePress = scrollController.offset;
-        expect(offsetBeforePress, greaterThan(offsetAfterFling),
-            reason: 'Momentum scrolling should be in progress.');
+        expect(
+          offsetBeforePress,
+          greaterThan(offsetAfterFling),
+          reason: 'Momentum scrolling should be in progress.',
+        );
 
         // Press and hold the finger on the target widget.
         await tester.press(find.byKey(targetKey));
@@ -218,7 +233,8 @@ void main() {
         expect(
           offsetAfterPress,
           equals(offsetBeforePress),
-          reason: 'Momentum scrolling should be stopped immediately '
+          reason:
+              'Momentum scrolling should be stopped immediately '
               'by pressing and holding.',
         );
       },
@@ -277,8 +293,11 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
       final offsetBeforePress = scrollController.offset;
-      expect(offsetBeforePress, greaterThan(offsetAfterFling),
-          reason: 'Momentum scrolling should be in progress.');
+      expect(
+        offsetBeforePress,
+        greaterThan(offsetAfterFling),
+        reason: 'Momentum scrolling should be in progress.',
+      );
 
       // Press and hold the finger on the target widget.
       await tester.press(find.byKey(listViewKey));
@@ -288,7 +307,8 @@ void main() {
       expect(
         offsetAfterPress,
         equals(offsetBeforePress),
-        reason: 'Momentum scrolling should be stopped immediately '
+        reason:
+            'Momentum scrolling should be stopped immediately '
             'by pressing and holding.',
       );
     });
@@ -340,13 +360,19 @@ void main() {
       await tester.pumpWidget(testWidget);
 
       await tester.showKeyboard(find.byType(TextField));
-      expect(focusNode.hasFocus, isTrue,
-          reason: 'The keyboard should be shown.');
+      expect(
+        focusNode.hasFocus,
+        isTrue,
+        reason: 'The keyboard should be shown.',
+      );
 
       await tester.drag(find.byType(ListView), const Offset(0, 40));
       await tester.pumpAndSettle();
-      expect(focusNode.hasFocus, isFalse,
-          reason: 'Downward dragging should dismiss the keyboard.');
+      expect(
+        focusNode.hasFocus,
+        isFalse,
+        reason: 'Downward dragging should dismiss the keyboard.',
+      );
     });
 
     testWidgets('should dismiss the keyboard when scrolling', (tester) async {
@@ -354,13 +380,19 @@ void main() {
 
       final textField = find.byType(TextField).first;
       await tester.showKeyboard(textField);
-      expect(focusNode.hasFocus, isTrue,
-          reason: 'The keyboard should be shown.');
+      expect(
+        focusNode.hasFocus,
+        isTrue,
+        reason: 'The keyboard should be shown.',
+      );
 
       await tester.drag(find.byType(ListView), const Offset(0, -40));
       await tester.pumpAndSettle();
-      expect(focusNode.hasFocus, isFalse,
-          reason: 'Upward scrolling should dismiss the keyboard.');
+      expect(
+        focusNode.hasFocus,
+        isFalse,
+        reason: 'Upward scrolling should dismiss the keyboard.',
+      );
     });
   });
 
@@ -409,16 +441,22 @@ void main() {
       );
       final pumpedFrames = await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 0);
-      expect(pumpedFrames, 1,
-          reason: 'Should not enter an infinite build loop');
+      expect(
+        pumpedFrames,
+        1,
+        reason: 'Should not enter an infinite build loop',
+      );
     });
 
     testWidgets('bottom edge', (tester) async {
       await tester.pumpWidget(testWidget);
       scrollController.jumpTo(600.0);
       await tester.pumpAndSettle();
-      expect(scrollController.position.extentAfter, 0,
-          reason: 'Ensure that the scroll view cannot be scrolled anymore');
+      expect(
+        scrollController.position.extentAfter,
+        0,
+        reason: 'Ensure that the scroll view cannot be scrolled anymore',
+      );
 
       // Start a ballistic animation from a position extremely close to,
       // but not equal, to the current position.
@@ -429,8 +467,11 @@ void main() {
       );
       final pumpedFrames = await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 600.0);
-      expect(pumpedFrames, 1,
-          reason: 'Should not enter an infinite build loop');
+      expect(
+        pumpedFrames,
+        1,
+        reason: 'Should not enter an infinite build loop',
+      );
     });
   });
 }
