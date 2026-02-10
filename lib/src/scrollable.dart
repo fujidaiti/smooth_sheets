@@ -9,7 +9,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-
 import 'activity.dart';
 import 'drag.dart';
 import 'internal/float_comp.dart';

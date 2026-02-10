@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-
 import '../smooth_sheets.dart';
 import 'activity.dart';
 import 'gesture_proxy.dart';

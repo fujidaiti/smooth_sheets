@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 
-
 import 'model.dart';
 import 'model_owner.dart';
 import 'sheet.dart';
