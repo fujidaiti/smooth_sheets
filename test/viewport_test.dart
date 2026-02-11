@@ -188,233 +188,6 @@ void main() {
     );
 
     testWidgets(
-      "should not shrink the sheet content's height "
-      "if 'shrinkChildToAvoidDynamicOverlap' is false",
-      (tester) async {
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewInsets: EdgeInsets.all(10),
-          builder: (child) => SheetViewport(
-            child: BareSheet(
-              shrinkChildToAvoidDynamicOverlap: false,
-              shrinkChildToAvoidStaticOverlap: false,
-              child: SizedBox.expand(
-                key: Key('content'),
-                child: child,
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byKey(Key('content'))), testScreenSize);
-        expect(
-          tester.getSize(find.byType(BareSheet)),
-          testScreenSize,
-        );
-      },
-    );
-
-    testWidgets(
-      // ignore: lines_longer_than_80_chars
-      "should shrink the sheet content's height by 'MediaQueryData.viewInsets.bottom' "
-      "if 'shrinkChildToAvoidDynamicOverlap' is true",
-      (tester) async {
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewInsets: EdgeInsets.all(10),
-          builder: (child) => SheetViewport(
-            child: BareSheet(
-              shrinkChildToAvoidDynamicOverlap: true,
-              shrinkChildToAvoidStaticOverlap: false,
-              child: SizedBox.expand(
-                key: Key('content'),
-                child: child,
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getRect(find.byKey(Key('content'))),
-          Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 10),
-        );
-      },
-    );
-
-    testWidgets(
-      "should remove the inherited 'viewInsets.bottom' "
-      "if 'shrinkChildToAvoidDynamicOverlap' is true",
-      (tester) async {
-        late EdgeInsets inheritedViewInsets;
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewInsets: EdgeInsets.all(10),
-          builder: (child) => SheetViewport(
-            child: BareSheet(
-              shrinkChildToAvoidDynamicOverlap: true,
-              shrinkChildToAvoidStaticOverlap: false,
-              child: Builder(
-                builder: (context) {
-                  inheritedViewInsets = MediaQuery.viewInsetsOf(context);
-                  return SizedBox.expand(
-                    child: child,
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(inheritedViewInsets, EdgeInsets.fromLTRB(10, 10, 10, 0));
-      },
-    );
-
-    testWidgets(
-      "should not shrink the sheet content's height "
-      "if 'shrinkChildToAvoidStaticOverlap' is false",
-      (tester) async {
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewPadding: EdgeInsets.all(10),
-          builder: (child) => SheetViewport(
-            child: BareSheet(
-              shrinkChildToAvoidDynamicOverlap: false,
-              shrinkChildToAvoidStaticOverlap: false,
-              child: SizedBox.expand(
-                key: Key('content'),
-                child: child,
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getSize(find.byKey(Key('content'))), testScreenSize);
-        expect(
-          tester.getSize(find.byType(BareSheet)),
-          testScreenSize,
-        );
-      },
-    );
-
-    testWidgets(
-      // ignore: lines_longer_than_80_chars
-      "should shrink the sheet content's height by 'MediaQueryData.viewPadding.bottom' "
-      "if 'shrinkChildToAvoidStaticOverlap' is true",
-      (tester) async {
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewPadding: EdgeInsets.all(10),
-          builder: (child) => SheetViewport(
-            child: BareSheet(
-              shrinkChildToAvoidDynamicOverlap: false,
-              shrinkChildToAvoidStaticOverlap: true,
-              child: SizedBox.expand(
-                key: Key('content'),
-                child: child,
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getRect(find.byKey(Key('content'))),
-          Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 10),
-        );
-      },
-    );
-
-    testWidgets(
-      "should remove the inherited 'viewPadding.bottom' "
-      "if 'shrinkChildToAvoidStaticOverlap' is true",
-      (tester) async {
-        late EdgeInsets inheritedViewPadding;
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewPadding: EdgeInsets.all(10),
-          builder: (child) => SheetViewport(
-            child: BareSheet(
-              shrinkChildToAvoidDynamicOverlap: false,
-              shrinkChildToAvoidStaticOverlap: true,
-              child: Builder(
-                builder: (context) {
-                  inheritedViewPadding = MediaQuery.viewPaddingOf(context);
-                  return SizedBox.expand(
-                    child: child,
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(inheritedViewPadding, EdgeInsets.fromLTRB(10, 10, 10, 0));
-      },
-    );
-
-    testWidgets(
-      'should reduce the inherited padding, viewInsets, and viewPadding '
-      "by the viewport's padding",
-      (tester) async {
-        late EdgeInsets inheritedPadding;
-        late EdgeInsets inheritedViewPadding;
-        late EdgeInsets inheritedViewInsets;
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewPadding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-          viewInsets: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          builder: (child) => SheetViewport(
-            padding: EdgeInsets.all(10),
-            child: BareSheet(
-              child: Builder(
-                builder: (context) {
-                  inheritedPadding = MediaQuery.paddingOf(context);
-                  inheritedViewPadding = MediaQuery.viewPaddingOf(context);
-                  inheritedViewInsets = MediaQuery.viewInsetsOf(context);
-                  return SizedBox.expand(
-                    child: child,
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(inheritedViewInsets, EdgeInsets.symmetric(horizontal: 10));
-        expect(
-          inheritedViewPadding,
-          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        );
-        expect(inheritedPadding, EdgeInsets.all(10));
-      },
-    );
-
-    testWidgets(
-      "should respect both 'padding' and 'MediaQueryData.viewInsets' "
-      "if 'shrinkChildToAvoidDynamicOverlap' is true",
-      (tester) async {
-        final env = boilerplate(
-          model: _TestSheetModel(),
-          viewInsets: EdgeInsets.only(bottom: 100),
-          builder: (child) => SheetViewport(
-            padding: EdgeInsets.all(10),
-            child: BareSheet(
-              shrinkChildToAvoidDynamicOverlap: true,
-              child: SizedBox.expand(
-                key: Key('content'),
-                child: child,
-              ),
-            ),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getSize(find.byKey(Key('content'))),
-          EdgeInsets.fromLTRB(10, 10, 10, 100).deflateSize(testScreenSize),
-        );
-      },
-    );
-
-    testWidgets(
       "should translate the child's visual position "
       'according to the current sheet metrics',
       (tester) async {
@@ -952,503 +725,513 @@ void main() {
     });
   });
 
-  group('SheetLayoutSpec', () {
-    test(
-      'maxSheetRect should match the viewport if there is no padding',
-      () {
+  group('SheetViewport: Inherited MediaQuery modification test', () {
+    ({
+      Widget testWidget,
+      ValueGetter<MediaQueryData> getInheritedMediaQuery,
+    }) boilerplate({
+      EdgeInsets rootViewPadding = EdgeInsets.zero,
+      EdgeInsets rootViewInsets = EdgeInsets.zero,
+      EdgeInsets viewportPadding = EdgeInsets.zero,
+      EdgeInsets sheetPadding = EdgeInsets.zero,
+    }) {
+      final model = _TestSheetModel();
+      final sheetContentKey = GlobalKey();
+      final testWidget = MediaQuery(
+        data: MediaQueryData(
+          viewInsets: rootViewInsets,
+          viewPadding: rootViewPadding,
+          padding: EdgeInsets.fromLTRB(
+            max(rootViewPadding.left - rootViewInsets.left, 0),
+            max(rootViewPadding.top - rootViewInsets.top, 0),
+            max(rootViewPadding.right - rootViewInsets.right, 0),
+            max(rootViewPadding.bottom - rootViewInsets.bottom, 0),
+          ),
+        ),
+        child: SheetViewport(
+          padding: viewportPadding,
+          child: BareSheet(
+            padding: sheetPadding,
+            child: TestStatefulWidget(
+              key: sheetContentKey,
+              initialState: null,
+              didChangeDependencies: (context) {
+                context
+                    .findAncestorStateOfType<SheetViewportState>()!
+                    .setModel(model);
+              },
+              builder: (_, __) => SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        getInheritedMediaQuery: () =>
+            MediaQuery.of(sheetContentKey.currentContext!),
+      );
+    }
+
+    testWidgets(
+      'Inherited viewPadding should be reduced by viewport padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          viewportPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.zero);
+        expect(inheritedData.padding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewPadding should be reduced by sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.zero);
+        expect(inheritedData.padding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewPadding should be reduced by viewport padding '
+      '+ sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          viewportPadding: EdgeInsets.all(5),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.viewInsets, EdgeInsets.zero);
+        expect(inheritedData.padding, EdgeInsets.fromLTRB(0, 10, 20, 30));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets should be reduced by viewport padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewInsets: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          viewportPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.zero);
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets should be reduced by sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewInsets: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.zero);
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets should be reduced by viewport padding '
+      '+ sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          rootViewInsets: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          viewportPadding: EdgeInsets.all(5),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.zero);
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by viewport padding (when viewInsets is less than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(5, 15, 25, 35),
+          viewportPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.padding, EdgeInsets.all(5));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by sheet padding (when viewInsets is less than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(5, 15, 25, 35),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.padding, EdgeInsets.all(5));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by viewport padding + sheet padding '
+      '(when viewInsets is less than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(5, 15, 25, 35),
+          viewportPadding: EdgeInsets.all(5),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(0, 5, 15, 25));
+        expect(inheritedData.padding, EdgeInsets.fromLTRB(0, 5, 5, 5));
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by viewport padding (when viewInsets is larger than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(15, 25, 35, 45),
+          viewportPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(10, 20, 30, 40));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by sheet padding (when viewInsets is larger than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(15, 25, 35, 45),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(10, 20, 30, 40));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+
+    testWidgets(
+      'Inherited viewInsets and viewPadding should be reduced '
+      'by viewport padding + sheet padding '
+      '(when viewInsets is larger than viewPadding)',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          rootViewInsets: EdgeInsets.fromLTRB(15, 25, 35, 45),
+          viewportPadding: EdgeInsets.all(5),
+          sheetPadding: EdgeInsets.all(5),
+        );
+        await tester.pumpWidget(env.testWidget);
+        final inheritedData = env.getInheritedMediaQuery();
+        expect(inheritedData.viewPadding, EdgeInsets.fromLTRB(0, 10, 20, 30));
+        expect(inheritedData.viewInsets, EdgeInsets.fromLTRB(5, 15, 25, 35));
+        expect(inheritedData.padding, EdgeInsets.zero);
+      },
+    );
+  });
+
+  group('BareSheet', () {
+    ({Widget testWidget}) boilerplate({
+      required Widget Function(Widget) contentBuilder,
+      EdgeInsets rootViewPadding = EdgeInsets.zero,
+      EdgeInsets rootViewInsets = EdgeInsets.zero,
+      EdgeInsets viewportPadding = EdgeInsets.zero,
+      EdgeInsets sheetPadding = EdgeInsets.zero,
+    }) {
+      final model = _TestSheetModel();
+      final testWidget = MediaQuery(
+        data: MediaQueryData(
+          viewInsets: rootViewInsets,
+          viewPadding: rootViewPadding,
+          padding: EdgeInsets.fromLTRB(
+            max(rootViewPadding.left - rootViewInsets.left, 0),
+            max(rootViewPadding.top - rootViewInsets.top, 0),
+            max(rootViewPadding.right - rootViewInsets.right, 0),
+            max(rootViewPadding.bottom - rootViewInsets.bottom, 0),
+          ),
+        ),
+        child: SheetViewport(
+          key: const Key('viewport'),
+          padding: viewportPadding,
+          child: BareSheet(
+            key: const Key('sheet'),
+            padding: sheetPadding,
+            child: contentBuilder(
+              TestStatefulWidget(
+                initialState: null,
+                didChangeDependencies: (context) {
+                  context
+                      .findAncestorStateOfType<SheetViewportState>()!
+                      .setModel(model);
+                },
+                builder: (_, __) => const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      return (testWidget: testWidget,);
+    }
+
+    testWidgets(
+      'should allow content to size itself freely within the viewport',
+      (tester) async {
+        final env = boilerplate(
+          contentBuilder: (child) => SizedBox.fromSize(
+            key: Key('content'),
+            size: Size.fromHeight(400),
+            child: child,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('viewport')), Size(800, 600));
+        expect(tester.getSize(find.byId('sheet')), Size(800, 400));
         expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxSheetRect,
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(0, 0, 800, 400),
+        );
+      },
+    );
+
+    testWidgets(
+      'should pad the content by the sheet padding ',
+      (tester) async {
+        final env = boilerplate(
+          sheetPadding: EdgeInsets.fromLTRB(10, 20, 40, 30),
+          contentBuilder: (child) => SizedBox.fromSize(
+            key: Key('content'),
+            size: Size.fromHeight(400),
+            child: child,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('sheet')), Size(800, 450));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(10, 20, 750, 400),
+        );
+      },
+    );
+
+    testWidgets(
+      'should pad the content by the sheet padding '
+      '(when viewport padding is non-zero)',
+      (tester) async {
+        final env = boilerplate(
+          sheetPadding: EdgeInsets.fromLTRB(10, 20, 40, 30),
+          viewportPadding: EdgeInsets.all(10),
+          contentBuilder: (child) =>
+              SizedBox.expand(key: Key('content'), child: child),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('sheet')), Size(780, 580));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(10, 20, 730, 530),
+        );
+      },
+    );
+
+    testWidgets(
+      'should reduce the maximum content rect by the sheet padding',
+      (tester) async {
+        final env = boilerplate(
+          sheetPadding: EdgeInsets.fromLTRB(10, 20, 40, 30),
+          contentBuilder: (child) => SizedBox.expand(
+            key: Key('content'),
+            child: child,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('sheet')), Size(800, 600));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
+          Rect.fromLTWH(10, 20, 750, 550),
+        );
+      },
+    );
+
+    testWidgets(
+      'content size should not be affected by inherited paddings',
+      (tester) async {
+        final env = boilerplate(
+          rootViewPadding: EdgeInsets.all(50),
+          rootViewInsets: EdgeInsets.all(100),
+          sheetPadding: EdgeInsets.zero,
+          contentBuilder: (child) => SizedBox.expand(
+            key: Key('content'),
+            child: child,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byId('sheet')), Size(800, 600));
+        expect(
+          tester.getLocalRect(
+            find.byId('content'),
+            ancestor: find.byId('sheet'),
+          ),
           Rect.fromLTWH(0, 0, 800, 600),
         );
       },
     );
-
-    test(
-      'maxSheetRect should be reduced by the viewport padding horizontally, '
-      'but remain unaffected vertically',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxSheetRect,
-          Rect.fromLTRB(10, 0, 770, 600),
-        );
-      },
-    );
-
-    test(
-      'maxContentRect should always match the maxSheetRect '
-      'when resizeContentToAvoidBottomInset is false, '
-      'regardless of the bottom view-inset',
-      () {
-        var spec = SheetLayoutSpec(
-          viewportSize: Size(800, 600),
-          viewportPadding: EdgeInsets.zero,
-          viewportDynamicOverlap: EdgeInsets.zero,
-          viewportStaticOverlap: EdgeInsets.zero,
-          shrinkContentToAvoidDynamicOverlap: false,
-          shrinkContentToAvoidStaticOverlap: false,
-        );
-        expect(spec.maxContentRect, equals(spec.maxSheetRect));
-
-        spec = SheetLayoutSpec(
-          viewportSize: Size(800, 600),
-          viewportPadding: EdgeInsets.zero,
-          viewportStaticOverlap: EdgeInsets.zero,
-          // Apply non-zero bottom inset.
-          viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
-          shrinkContentToAvoidDynamicOverlap: false,
-          shrinkContentToAvoidStaticOverlap: false,
-        );
-        expect(spec.maxContentRect, equals(spec.maxSheetRect));
-      },
-    );
-
-    test(
-      'maxContentRect should reduce the height to avoid the bottom view inset '
-      'if resizeContentToAvoidBottomInset is true',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
-            shrinkContentToAvoidDynamicOverlap: true,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxContentRect,
-          Rect.fromLTRB(0, 0, 800, 550),
-        );
-      },
-    );
-
-    test(
-      'maxSheetStaticOverlap: when static overlap is greater than padding',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxSheetStaticOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 40),
-        );
-      },
-    );
-
-    test(
-      'maxSheetStaticOverlap: when static overlap is less than padding',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(40),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxSheetStaticOverlap,
-          EdgeInsets.fromLTRB(0, 20, 0, 40),
-        );
-      },
-    );
-
-    test(
-      'maxSheetDynamicOverlap: when dynamic overlap is greater than padding',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxSheetDynamicOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 40),
-        );
-      },
-    );
-
-    test(
-      'maxSheetDynamicOverlap: when dynamic overlap is less than padding',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(40),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxSheetDynamicOverlap,
-          EdgeInsets.fromLTRB(0, 20, 0, 40),
-        );
-      },
-    );
-
-    test(
-      'maxContentDynamicOverlap: when dynamic overlap is greater than padding',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(10),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxContentDynamicOverlap,
-          EdgeInsets.fromLTRB(0, 10, 20, 30),
-        );
-      },
-    );
-
-    test(
-      'maxContentDynamicOverlap: when dynamic overlap is greater than padding '
-      'and the content is shrunk to avoid the bottom inset',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: true,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxContentDynamicOverlap,
-          EdgeInsets.fromLTRB(10, 20, 30, 0),
-        );
-      },
-    );
-
-    test(
-      'maxContentStaticOverlap: when static overlap is greater than padding',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(10),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxContentStaticOverlap,
-          EdgeInsets.fromLTRB(0, 10, 20, 30),
-        );
-      },
-    );
-
-    test(
-      'maxContentStaticOverlap: when static overlap is less than padding',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(40),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).maxContentStaticOverlap,
-          EdgeInsets.zero,
-        );
-      },
-    );
-
-    test(
-      'contentBaseline: should equal viewportPadding.bottom '
-      'when no overlaps and no shrinking',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).contentBaseline,
-          40,
-        );
-      },
-    );
-
-    test(
-      'contentBaseline: should equal viewportPadding.bottom '
-      'when overlaps are smaller than padding and no shrinking',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 20),
-            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 20),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).contentBaseline,
-          40,
-        );
-      },
-    );
-
-    test(
-      'contentBaseline: should equal viewportDynamicOverlap.bottom '
-      'when it is larger than padding and shrinkContentToAvoidDynamicOverlap '
-      'is true',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
-            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 20),
-            shrinkContentToAvoidDynamicOverlap: true,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).contentBaseline,
-          60,
-        );
-      },
-    );
-
-    test(
-      'contentBaseline: should equal viewportStaticOverlap.bottom '
-      'when it is larger than padding and shrinkContentToAvoidStaticOverlap '
-      'is true',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 20),
-            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: true,
-          ).contentBaseline,
-          60,
-        );
-      },
-    );
-
-    test(
-      'contentBaseline: should take the maximum of all applicable values '
-      'when both shrink flags are true',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
-            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 80),
-            shrinkContentToAvoidDynamicOverlap: true,
-            shrinkContentToAvoidStaticOverlap: true,
-          ).contentBaseline,
-          80,
-          reason: 'should equal to the static overlap',
-        );
-
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 80),
-            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
-            shrinkContentToAvoidDynamicOverlap: true,
-            shrinkContentToAvoidStaticOverlap: true,
-          ).contentBaseline,
-          80,
-          reason: 'should equal to the dynamic overlap',
-        );
-
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 90),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
-            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 80),
-            shrinkContentToAvoidDynamicOverlap: true,
-            shrinkContentToAvoidStaticOverlap: true,
-          ).contentBaseline,
-          90,
-          reason: 'should equal to the padding',
-        );
-      },
-    );
-
-    test(
-      'contentBaseline: should ignore overlaps '
-      'when corresponding shrink flags are false',
-      () {
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
-            viewportStaticOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).contentBaseline,
-          40,
-          reason: 'should ignore the dynamic overlap',
-        );
-
-        expect(
-          SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.fromLTRB(5, 10, 15, 60),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ).contentBaseline,
-          40,
-          reason: 'should ignore the static overlap',
-        );
-      },
-    );
   });
 
-  group('SheetMediaQuery', () {
-    ({
-      Widget testWidget,
-    }) boilerplate({
-      required SheetLayoutSpec layoutSpec,
-      required Widget child,
-    }) {
-      final testWidget = MediaQuery(
-        data: MediaQueryData(),
-        child: SheetMediaQuery(
-          layoutNotifier: ValueNotifier(null),
-          layoutSpec: layoutSpec,
-          child: child,
-        ),
+  group(
+    'SheetLayoutSpec',
+    () {
+      test(
+        'maxSheetRect should match the viewport if viewportPadding is zero',
+        () {
+          expect(
+            SheetLayoutSpec(
+              viewportSize: Size(800, 600),
+              viewportPadding: EdgeInsets.zero,
+              contentMargin: EdgeInsets.zero,
+            ).maxSheetRect,
+            Rect.fromLTWH(0, 0, 800, 600),
+          );
+        },
       );
 
-      return (testWidget: testWidget);
-    }
+      test(
+        'maxSheetRect should be reduced by the viewportPadding horizontally, '
+        'but remain unchanged vertically',
+        () {
+          expect(
+            SheetLayoutSpec(
+              viewportSize: Size(800, 600),
+              viewportPadding: EdgeInsets.fromLTRB(10, 20, 30, 40),
+              contentMargin: EdgeInsets.zero,
+            ).maxSheetRect,
+            Rect.fromLTRB(10, 0, 770, 600),
+          );
+        },
+      );
 
-    testWidgets(
-      'should calculate the inherited padding as '
-      'max(staticOverlap - dynamicOverlap, 0)',
-      (tester) async {
-        late MediaQueryData childData;
-        final env = boilerplate(
-          layoutSpec: SheetLayoutSpec(
-            viewportSize: Size(800, 600),
-            viewportPadding: EdgeInsets.all(5),
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 5, 15, 25),
-            viewportStaticOverlap: EdgeInsets.fromLTRB(30, 20, 10, 40),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ),
-          child: Builder(
-            builder: (context) {
-              childData = MediaQuery.of(context);
-              return Container();
-            },
-          ),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(childData.padding, EdgeInsets.fromLTRB(20, 15, 0, 15));
-      },
-    );
-
-    testWidgets(
-      'should allow descendants to read dynamic overlap as view-inset',
-      (tester) async {
-        late MediaQueryData childData;
-        final env = boilerplate(
-          layoutSpec: SheetLayoutSpec(
+      test('maxSheetRect should not be affected by contentMargin', () {
+        expect(
+          SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.zero,
-            viewportDynamicOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ),
-          child: Builder(
-            builder: (context) {
-              childData = MediaQuery.of(context);
-              return Container();
-            },
-          ),
+            contentMargin: EdgeInsets.all(10),
+          ).maxSheetRect,
+          Rect.fromLTWH(0, 0, 800, 600),
         );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(childData.viewInsets, EdgeInsets.fromLTRB(10, 20, 30, 40));
-      },
-    );
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(10),
+            contentMargin: EdgeInsets.all(50),
+          ).maxSheetRect,
+          Rect.fromLTWH(10, 0, 780, 600),
+          reason:
+              'Should be reduced by only viewportPadding, not contentMargin',
+        );
+      });
 
-    testWidgets(
-      'should allow descendants to read static overlap as view-padding',
-      (tester) async {
-        late MediaQueryData childData;
-        final env = boilerplate(
-          layoutSpec: SheetLayoutSpec(
+      test(
+        'maxContentRect should equal maxSheetRect if contentMargin is zero',
+        () {
+          final spec1 = SheetLayoutSpec(
             viewportSize: Size(800, 600),
             viewportPadding: EdgeInsets.zero,
-            viewportStaticOverlap: EdgeInsets.fromLTRB(10, 20, 30, 40),
-            viewportDynamicOverlap: EdgeInsets.zero,
-            shrinkContentToAvoidDynamicOverlap: false,
-            shrinkContentToAvoidStaticOverlap: false,
-          ),
-          child: Builder(
-            builder: (context) {
-              childData = MediaQuery.of(context);
-              return Container();
-            },
-          ),
+            contentMargin: EdgeInsets.zero,
+          );
+          expect(spec1.maxContentRect, spec1.maxSheetRect);
+
+          final spec2 = SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.all(50),
+            contentMargin: EdgeInsets.zero,
+          );
+          expect(spec2.maxContentRect.left, spec2.maxSheetRect.left);
+          expect(spec2.maxContentRect.top, spec2.maxSheetRect.top + 50);
+          expect(spec2.maxContentRect.right, spec2.maxSheetRect.right);
+          expect(spec2.maxContentRect.bottom, spec2.maxSheetRect.bottom - 50);
+        },
+      );
+
+      test(
+          'maxContentRect should be reduced by contentMargin '
+          'from four sides of maxSheetRect', () {
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.zero,
+            contentMargin: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          ).maxContentRect,
+          Rect.fromLTWH(10, 20, 760, 540),
         );
 
-        await tester.pumpWidget(env.testWidget);
-        expect(childData.viewPadding, EdgeInsets.fromLTRB(10, 20, 30, 40));
-      },
-    );
-
-    testWidgets(
-      'should provide access to LayoutSpec through static method',
-      (tester) async {
-        late SheetLayoutSpec retrievedSpec;
-        final layoutSpec = SheetLayoutSpec(
-          viewportSize: Size(800, 600),
-          viewportPadding: EdgeInsets.all(10),
-          viewportDynamicOverlap: EdgeInsets.zero,
-          viewportStaticOverlap: EdgeInsets.zero,
-          shrinkContentToAvoidDynamicOverlap: false,
-          shrinkContentToAvoidStaticOverlap: false,
+        expect(
+          SheetLayoutSpec(
+            viewportSize: Size(800, 600),
+            viewportPadding: EdgeInsets.fromLTRB(40, 30, 20, 10),
+            contentMargin: EdgeInsets.fromLTRB(10, 20, 30, 40),
+          ).maxContentRect,
+          Rect.fromLTWH(50, 50, 700, 500),
         );
-
-        final env = boilerplate(
-          layoutSpec: layoutSpec,
-          child: Builder(
-            builder: (context) {
-              retrievedSpec = SheetMediaQuery.layoutSpecOf(context);
-              return Container();
-            },
-          ),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(retrievedSpec, equals(layoutSpec));
-      },
-    );
-  });
+      });
+    },
+  );
 }
 
 class _TestIdleSheetActivity extends SheetActivity {

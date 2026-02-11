@@ -109,21 +109,28 @@ void main() {
         child: KeyboardInsetSimulation(
           key: keyboardSimulationKey,
           keyboardHeight: 200,
-          child: SheetViewport(
-            key: viewportKey,
-            child: Sheet(
-              key: sheetKey,
-              controller: controller,
-              scrollConfiguration: const SheetScrollConfiguration(),
-              snapGrid: SheetSnapGrid(
-                snaps: [
-                  const SheetOffset.absolute(200),
-                  const SheetOffset(1),
-                ],
-              ),
-              initialOffset: const SheetOffset.absolute(200),
-              child: const _TestSheetContent(height: 400),
-            ),
+          child: Builder(
+            builder: (context) {
+              return SheetViewport(
+                key: viewportKey,
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.viewInsetsOf(context).bottom,
+                ),
+                child: Sheet(
+                  key: sheetKey,
+                  controller: controller,
+                  scrollConfiguration: const SheetScrollConfiguration(),
+                  snapGrid: const SheetSnapGrid(
+                    snaps: [
+                      SheetOffset.absolute(200),
+                      SheetOffset(1),
+                    ],
+                  ),
+                  initialOffset: const SheetOffset.absolute(200),
+                  child: const _TestSheetContent(height: 400),
+                ),
+              );
+            },
           ),
         ),
       ),

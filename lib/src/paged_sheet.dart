@@ -128,10 +128,9 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
           contentBaseline: 0,
           size: Size.zero,
           contentSize: Size.zero,
-          viewportDynamicOverlap: layout.viewportDynamicOverlap,
+          contentMargin: EdgeInsets.zero,
           viewportPadding: layout.viewportPadding,
           viewportSize: layout.viewportSize,
-          viewportStaticOverlap: layout.viewportStaticOverlap,
         ),
       );
     } else {
@@ -259,8 +258,7 @@ class PagedSheet extends StatelessWidget {
     this.physics = kDefaultSheetPhysics,
     this.transitionCurve = Curves.easeInOutCubic,
     this.decoration = const DefaultSheetDecoration(),
-    this.shrinkChildToAvoidDynamicOverlap = true,
-    this.shrinkChildToAvoidStaticOverlap = false,
+    this.padding = EdgeInsets.zero,
     this.builder,
     required this.navigator,
   });
@@ -275,11 +273,8 @@ class PagedSheet extends StatelessWidget {
 
   final SheetDecoration decoration;
 
-  /// {@macro BareSheet.shrinkChildToAvoidDynamicOverlap}
-  final bool shrinkChildToAvoidDynamicOverlap;
-
-  /// {@macro Sheet.shrinkChildToAvoidStaticOverlap}
-  final bool shrinkChildToAvoidStaticOverlap;
+  /// {@macro viewport.BareSheet.padding}
+  final EdgeInsets padding;
 
   final Widget Function(BuildContext, Widget)? builder;
 
@@ -312,8 +307,7 @@ class PagedSheet extends StatelessWidget {
       ),
       child: BareSheet(
         decoration: decoration,
-        shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
-        shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
+        padding: padding,
         child: content,
       ),
     );

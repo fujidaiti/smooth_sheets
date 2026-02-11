@@ -178,6 +178,13 @@
       "type": "dart",
       "program": "lib/tutorial/tweak_bouncing_effect.dart",
       "cwd": "./example"
+    },
+    {
+      "name": "Sheet Padding",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/tutorial/sheet_padding.dart",
+      "cwd": "./example"
     }
   ]
 }

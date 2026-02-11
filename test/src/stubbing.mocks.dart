@@ -243,24 +243,6 @@ class MockSheetModel<C extends _i5.SheetModelConfig> extends _i1.Mock
       ) as _i3.EdgeInsets);
 
   @override
-  _i3.EdgeInsets get viewportDynamicOverlap => (super.noSuchMethod(
-        Invocation.getter(#viewportDynamicOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#viewportDynamicOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
-  _i3.EdgeInsets get viewportStaticOverlap => (super.noSuchMethod(
-        Invocation.getter(#viewportStaticOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#viewportStaticOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
   _i2.Size get contentSize => (super.noSuchMethod(
         Invocation.getter(#contentSize),
         returnValue: _FakeSize_0(
@@ -274,6 +256,15 @@ class MockSheetModel<C extends _i5.SheetModelConfig> extends _i1.Mock
         Invocation.getter(#contentBaseline),
         returnValue: 0.0,
       ) as double);
+
+  @override
+  _i3.EdgeInsets get contentMargin => (super.noSuchMethod(
+        Invocation.getter(#contentMargin),
+        returnValue: _FakeEdgeInsets_1(
+          this,
+          Invocation.getter(#contentMargin),
+        ),
+      ) as _i3.EdgeInsets);
 
   @override
   _i2.Size get size => (super.noSuchMethod(
@@ -410,42 +401,6 @@ class MockSheetModel<C extends _i5.SheetModelConfig> extends _i1.Mock
           Invocation.getter(#contentRect),
         ),
       ) as _i2.Rect);
-
-  @override
-  _i3.EdgeInsets get staticOverlap => (super.noSuchMethod(
-        Invocation.getter(#staticOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#staticOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
-  _i3.EdgeInsets get dynamicOverlap => (super.noSuchMethod(
-        Invocation.getter(#dynamicOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#dynamicOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
-  _i3.EdgeInsets get contentDynamicOverlap => (super.noSuchMethod(
-        Invocation.getter(#contentDynamicOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#contentDynamicOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
-  _i3.EdgeInsets get contentStaticOverlap => (super.noSuchMethod(
-        Invocation.getter(#contentStaticOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#contentStaticOverlap),
-        ),
-      ) as _i3.EdgeInsets);
 
   @override
   bool get hasListeners => (super.noSuchMethod(
@@ -596,9 +551,8 @@ class MockSheetModel<C extends _i5.SheetModelConfig> extends _i1.Mock
     _i2.Size? contentSize,
     _i2.Size? viewportSize,
     _i3.EdgeInsets? viewportPadding,
-    _i3.EdgeInsets? viewportDynamicOverlap,
-    _i3.EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
+    _i3.EdgeInsets? contentMargin,
     double? devicePixelRatio,
   }) =>
       (super.noSuchMethod(
@@ -613,9 +567,8 @@ class MockSheetModel<C extends _i5.SheetModelConfig> extends _i1.Mock
             #contentSize: contentSize,
             #viewportSize: viewportSize,
             #viewportPadding: viewportPadding,
-            #viewportDynamicOverlap: viewportDynamicOverlap,
-            #viewportStaticOverlap: viewportStaticOverlap,
             #contentBaseline: contentBaseline,
+            #contentMargin: contentMargin,
             #devicePixelRatio: devicePixelRatio,
           },
         ),
@@ -632,9 +585,8 @@ class MockSheetModel<C extends _i5.SheetModelConfig> extends _i1.Mock
               #contentSize: contentSize,
               #viewportSize: viewportSize,
               #viewportPadding: viewportPadding,
-              #viewportDynamicOverlap: viewportDynamicOverlap,
-              #viewportStaticOverlap: viewportStaticOverlap,
               #contentBaseline: contentBaseline,
+              #contentMargin: contentMargin,
               #devicePixelRatio: devicePixelRatio,
             },
           ),
@@ -808,58 +760,6 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
       ) as _i2.Rect);
 
   @override
-  _i3.EdgeInsets get staticOverlap => (super.noSuchMethod(
-        Invocation.getter(#staticOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#staticOverlap),
-        ),
-        returnValueForMissingStub: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#staticOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
-  _i3.EdgeInsets get dynamicOverlap => (super.noSuchMethod(
-        Invocation.getter(#dynamicOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#dynamicOverlap),
-        ),
-        returnValueForMissingStub: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#dynamicOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
-  _i3.EdgeInsets get contentDynamicOverlap => (super.noSuchMethod(
-        Invocation.getter(#contentDynamicOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#contentDynamicOverlap),
-        ),
-        returnValueForMissingStub: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#contentDynamicOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
-  _i3.EdgeInsets get contentStaticOverlap => (super.noSuchMethod(
-        Invocation.getter(#contentStaticOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#contentStaticOverlap),
-        ),
-        returnValueForMissingStub: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#contentStaticOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
   _i2.Size get size => (super.noSuchMethod(
         Invocation.getter(#size),
         returnValue: _FakeSize_0(
@@ -912,28 +812,15 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
       ) as _i3.EdgeInsets);
 
   @override
-  _i3.EdgeInsets get viewportDynamicOverlap => (super.noSuchMethod(
-        Invocation.getter(#viewportDynamicOverlap),
+  _i3.EdgeInsets get contentMargin => (super.noSuchMethod(
+        Invocation.getter(#contentMargin),
         returnValue: _FakeEdgeInsets_1(
           this,
-          Invocation.getter(#viewportDynamicOverlap),
+          Invocation.getter(#contentMargin),
         ),
         returnValueForMissingStub: _FakeEdgeInsets_1(
           this,
-          Invocation.getter(#viewportDynamicOverlap),
-        ),
-      ) as _i3.EdgeInsets);
-
-  @override
-  _i3.EdgeInsets get viewportStaticOverlap => (super.noSuchMethod(
-        Invocation.getter(#viewportStaticOverlap),
-        returnValue: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#viewportStaticOverlap),
-        ),
-        returnValueForMissingStub: _FakeEdgeInsets_1(
-          this,
-          Invocation.getter(#viewportStaticOverlap),
+          Invocation.getter(#contentMargin),
         ),
       ) as _i3.EdgeInsets);
 
@@ -953,8 +840,6 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
     _i2.Size? contentSize,
     _i2.Size? viewportSize,
     _i3.EdgeInsets? viewportPadding,
-    _i3.EdgeInsets? viewportDynamicOverlap,
-    _i3.EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
     double? devicePixelRatio,
   }) =>
@@ -970,8 +855,6 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
             #contentSize: contentSize,
             #viewportSize: viewportSize,
             #viewportPadding: viewportPadding,
-            #viewportDynamicOverlap: viewportDynamicOverlap,
-            #viewportStaticOverlap: viewportStaticOverlap,
             #contentBaseline: contentBaseline,
             #devicePixelRatio: devicePixelRatio,
           },
@@ -989,8 +872,6 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
               #contentSize: contentSize,
               #viewportSize: viewportSize,
               #viewportPadding: viewportPadding,
-              #viewportDynamicOverlap: viewportDynamicOverlap,
-              #viewportStaticOverlap: viewportStaticOverlap,
               #contentBaseline: contentBaseline,
               #devicePixelRatio: devicePixelRatio,
             },
@@ -1009,8 +890,6 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
               #contentSize: contentSize,
               #viewportSize: viewportSize,
               #viewportPadding: viewportPadding,
-              #viewportDynamicOverlap: viewportDynamicOverlap,
-              #viewportStaticOverlap: viewportStaticOverlap,
               #contentBaseline: contentBaseline,
               #devicePixelRatio: devicePixelRatio,
             },

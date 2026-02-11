@@ -44,8 +44,6 @@ sealed class SheetNotification extends Notification {
       ..add('contentSize: ${metrics.contentSize}')
       ..add('viewportSize: ${metrics.viewportSize}')
       ..add('viewportPadding: ${metrics.viewportPadding}')
-      ..add('viewportDynamicOverlap: ${metrics.viewportDynamicOverlap}')
-      ..add('viewportStaticOverlap: ${metrics.viewportStaticOverlap}')
       ..add('contentBaseline: ${metrics.contentBaseline}');
   }
 }
