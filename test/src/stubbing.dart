@@ -165,7 +165,6 @@ class MutableSheetMetrics with SheetMetrics {
     devicePixelRatio: anyNamed('devicePixelRatio'),
     contentBaseline: anyNamed('contentBaseline'),
     contentSize: anyNamed('contentSize'),
-    contentMargin: anyNamed('contentMargin'),
     viewportPadding: anyNamed('viewportPadding'),
     viewportSize: anyNamed('viewportSize'),
   )).thenAnswer((invocation) {
