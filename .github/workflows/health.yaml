@@ -67,6 +67,16 @@ jobs:
       - name: Analyze
         run: dart analyze
 
+      - name: Run build_runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Verify generated code is up to date
+        run: |
+          if ! git diff --exit-code; then
+            echo "::error::Generated code is out of date. Run 'dart run build_runner build --delete-conflicting-outputs' and commit the result."
+            exit 1
+          fi
+
   testing:
     needs: setup
     if: ${{ needs.setup.outputs.flutter-file-changed == 'true' || needs.setup.outputs.dev-sdk-version-changed == 'true' }}
