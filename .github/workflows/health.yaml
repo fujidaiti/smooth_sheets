@@ -61,12 +61,6 @@ jobs:
         with:
           version: ${{ needs.setup.outputs.flutter-upper-bound }}
 
-      - name: Format
-        run: dart format . -o none --set-exit-if-changed
-
-      - name: Analyze
-        run: dart analyze
-
       - name: Run build_runner
         run: dart run build_runner build --delete-conflicting-outputs
 
@@ -76,6 +70,12 @@ jobs:
             echo "::error::Generated code is out of date. Run 'dart run build_runner build --delete-conflicting-outputs' and commit the result."
             exit 1
           fi
+
+      - name: Format
+        run: dart format . -o none --set-exit-if-changed
+
+      - name: Analyze
+        run: dart analyze
 
   testing:
     needs: setup
