@@ -96,8 +96,9 @@ mixin SheetPhysicsMixin on SheetPhysics {
         .getSnapOffset(metrics, metrics.offset, velocity)
         .resolve(metrics);
 
-    if (FloatComp.distance(metrics.devicePixelRatio)
-        .isNotApprox(snap, metrics.offset)) {
+    if (FloatComp.distance(
+      metrics.devicePixelRatio,
+    ).isNotApprox(snap, metrics.offset)) {
       final direction = (snap - metrics.offset).sign;
       return ScrollSpringSimulation(
         spring,
@@ -116,9 +117,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
 }
 
 class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
-  const ClampingSheetPhysics({
-    this.spring = kDefaultSheetSpring,
-  });
+  const ClampingSheetPhysics({this.spring = kDefaultSheetSpring});
 
   @override
   final SpringDescription spring;
@@ -204,8 +203,10 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       // if the delta is too large relative to the exceeding pixels, preventing
       // the sheet from slipping too far.
       final fragment = (delta - consumedDelta).clamp(-kTouchSlop, kTouchSlop);
-      final overflowPastStart =
-          math.max(minOffset - (newOffset + fragment), 0.0);
+      final overflowPastStart = math.max(
+        minOffset - (newOffset + fragment),
+        0.0,
+      );
       final overflowPastEnd = math.max(newOffset + fragment - maxOffset, 0.0);
       final overflowPast = math.max(overflowPastStart, overflowPastEnd);
       assert(overflowPast >= 0);
@@ -214,7 +215,8 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       // The more the sheet is overdragged, the harder it is to drag further.
       final double frictionFactor;
       if (cmp.isNotApprox(resistance, 0)) {
-        frictionFactor = (1.0 - math.exp(-1 * resistance * overflowFraction)) /
+        frictionFactor =
+            (1.0 - math.exp(-1 * resistance * overflowFraction)) /
             (1.0 - math.exp(-1 * resistance));
       } else {
         // Linear map

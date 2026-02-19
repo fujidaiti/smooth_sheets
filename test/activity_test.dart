@@ -103,8 +103,9 @@ void main() {
       expect(ownerMetrics.offset, 250);
 
       when(controller.value).thenReturn(0.25);
-      when(controller.lastElapsedDuration)
-          .thenReturn(const Duration(milliseconds: 75));
+      when(
+        controller.lastElapsedDuration,
+      ).thenReturn(const Duration(milliseconds: 75));
       activity.onAnimationTick();
       expect(ownerMetrics.offset, 400);
 
@@ -118,65 +119,63 @@ void main() {
       final oldMeasurements = ownerMetrics.copyWith();
       ownerMetrics
         ..contentSize = const Size(400, 850)
-        ..viewportDynamicOverlap = EdgeInsets.only(bottom: 50)
+        ..contentMargin = EdgeInsets.only(bottom: 50)
         ..contentBaseline = 50;
 
       activity.applyNewLayout(oldMeasurements);
       expect(ownerMetrics.offset, 400);
-      verify(owner.settleTo(
-        const SheetOffset(1),
-        const Duration(milliseconds: 225),
-      ));
+      verify(
+        owner.settleTo(const SheetOffset(1), const Duration(milliseconds: 225)),
+      );
     });
   });
 
   group('BallisticSheetActivity', () {
-    testWithVsync(
-      'should stop when a physics detects overflow',
-      (tester) async {
-        const frameTime = Duration(milliseconds: 17);
+    testWithVsync('should stop when a physics detects overflow', (
+      tester,
+    ) async {
+      const frameTime = Duration(milliseconds: 17);
 
-        final mockSheetContext = MockSheetContext();
-        when(mockSheetContext.vsync).thenReturn(const TestVSync());
+      final mockSheetContext = MockSheetContext();
+      when(mockSheetContext.vsync).thenReturn(const TestVSync());
 
-        final mockSheetModel = MockSheetModel();
-        final mockPhysics = MockSheetPhysics();
-        final mockSimulation = MockSimulation();
-        when(mockSheetModel.context).thenReturn(mockSheetContext);
-        when(mockSheetModel.physics).thenReturn(mockPhysics);
-        when(mockSheetModel.offset).thenReturn(350);
+      final mockSheetModel = MockSheetModel();
+      final mockPhysics = MockSheetPhysics();
+      final mockSimulation = MockSimulation();
+      when(mockSheetModel.context).thenReturn(mockSheetContext);
+      when(mockSheetModel.physics).thenReturn(mockPhysics);
+      when(mockSheetModel.offset).thenReturn(350);
 
-        final activity = BallisticSheetActivity(simulation: mockSimulation);
-        tester.addTearDown(activity.dispose);
+      final activity = BallisticSheetActivity(simulation: mockSimulation);
+      tester.addTearDown(activity.dispose);
 
-        activity.init(mockSheetModel);
-        await tester.flushMicrotasks();
+      activity.init(mockSheetModel);
+      await tester.flushMicrotasks();
 
-        when(mockSimulation.x(any)).thenReturn(365);
-        when(mockSimulation.isDone(any)).thenReturn(false);
-        when(mockPhysics.computeOverflow(any, any)).thenReturn(0);
-        await tester.elapse(frameTime);
-        verify(mockSheetModel.offset = 365);
+      when(mockSimulation.x(any)).thenReturn(365);
+      when(mockSimulation.isDone(any)).thenReturn(false);
+      when(mockPhysics.computeOverflow(any, any)).thenReturn(0);
+      await tester.elapse(frameTime);
+      verify(mockSheetModel.offset = 365);
 
-        when(mockSimulation.x(any)).thenReturn(380);
-        when(mockSheetModel.offset).thenReturn(365);
-        await tester.elapse(frameTime);
-        verify(mockSheetModel.offset = 380);
+      when(mockSimulation.x(any)).thenReturn(380);
+      when(mockSheetModel.offset).thenReturn(365);
+      await tester.elapse(frameTime);
+      verify(mockSheetModel.offset = 380);
 
-        when(mockSheetModel.offset).thenReturn(380);
-        when(mockSimulation.x(any)).thenReturn(395);
-        await tester.elapse(frameTime);
-        verify(mockSheetModel.offset = 395);
+      when(mockSheetModel.offset).thenReturn(380);
+      when(mockSimulation.x(any)).thenReturn(395);
+      await tester.elapse(frameTime);
+      verify(mockSheetModel.offset = 395);
 
-        when(mockSheetModel.offset).thenReturn(395);
-        when(mockSimulation.x(any)).thenReturn(410);
-        when(mockSimulation.isDone(any)).thenReturn(true);
-        when(mockPhysics.computeOverflow(any, any)).thenReturn(10);
-        await tester.elapse(frameTime);
-        verify(mockSheetModel.offset = 400);
-        verify(mockSheetModel.goBallistic(0));
-      },
-    );
+      when(mockSheetModel.offset).thenReturn(395);
+      when(mockSimulation.x(any)).thenReturn(410);
+      when(mockSimulation.isDone(any)).thenReturn(true);
+      when(mockPhysics.computeOverflow(any, any)).thenReturn(10);
+      await tester.elapse(frameTime);
+      verify(mockSheetModel.offset = 400);
+      verify(mockSheetModel.goBallistic(0));
+    });
   });
 
   group('SettlingSheetActivity', () {
@@ -236,19 +235,16 @@ void main() {
       expect(() => activity.velocity, isNotInitialized);
     });
 
-    test(
-      'Velocity should be set when the activity is initialized',
-      () {
-        final activity = SettlingSheetActivity.withDuration(
-          const Duration(milliseconds: 300),
-          destination: const SheetOffset(1),
-        );
-        expect(() => activity.velocity, isNotInitialized);
+    test('Velocity should be set when the activity is initialized', () {
+      final activity = SettlingSheetActivity.withDuration(
+        const Duration(milliseconds: 300),
+        destination: const SheetOffset(1),
+      );
+      expect(() => activity.velocity, isNotInitialized);
 
-        activity.init(owner);
-        expect(activity.velocity, 1000); // (300pixels / 300ms) = 1000 offset/s
-      },
-    );
+      activity.init(owner);
+      expect(activity.velocity, 1000); // (300pixels / 300ms) = 1000 offset/s
+    });
 
     test('Progressively updates current position toward destination', () {
       final activity = SettlingSheetActivity(
@@ -275,19 +271,16 @@ void main() {
       expect(ownerMetrics.offset, 600); // 300 * 0.2 = 60 offset in 200ms
     });
 
-    test(
-      'Should start an idle activity when it reaches destination',
-      () {
-        final _ = SettlingSheetActivity(
-          destination: const SheetOffset(1),
-          velocity: 300,
-        )..init(owner);
+    test('Should start an idle activity when it reaches destination', () {
+      final _ = SettlingSheetActivity(
+        destination: const SheetOffset(1),
+        velocity: 300,
+      )..init(owner);
 
-        ownerMetrics.offset = 540;
-        internalOnTickCallback!(const Duration(milliseconds: 1000));
-        verify(owner.goIdle());
-      },
-    );
+      ownerMetrics.offset = 540;
+      internalOnTickCallback!(const Duration(milliseconds: 1000));
+      verify(owner.goIdle());
+    });
 
     test('Should absorb viewport changes', () {
       final activity = SettlingSheetActivity.withDuration(
@@ -303,14 +296,20 @@ void main() {
       final oldMeasurements = ownerMetrics.copyWith();
       // Show the on-screen keyboard.
       ownerMetrics
-        ..viewportDynamicOverlap = EdgeInsets.only(bottom: 30)
+        ..contentMargin = EdgeInsets.only(bottom: 30)
         ..contentBaseline = 30;
 
       activity.applyNewLayout(oldMeasurements);
-      expect(ownerMetrics.offset, 350,
-          reason: 'Visual position should not change when viewport changes.');
-      expect(activity.velocity, 1120, // 280 offset / 0.25s = 1120 offset/s
-          reason: 'Velocity should be updated when viewport changes.');
+      expect(
+        ownerMetrics.offset,
+        350,
+        reason: 'Visual position should not change when viewport changes.',
+      );
+      expect(
+        activity.velocity,
+        1120, // 280 offset / 0.25s = 1120 offset/s
+        reason: 'Velocity should be updated when viewport changes.',
+      );
 
       internalOnTickCallback!(const Duration(milliseconds: 100));
       expect(ownerMetrics.offset, 406); // 1120 * 0.05 = 56 offset in 50ms
@@ -325,21 +324,18 @@ void main() {
           offset: 160,
           initialPosition: const SheetOffset(0.2),
           snapGrid: SheetSnapGrid(
-            snaps: [
-              const SheetOffset(0.2),
-              const SheetOffset(1),
-            ],
+            snaps: [const SheetOffset(0.2), const SheetOffset(1)],
           ),
           contentSize: const Size(400, 800),
           viewportSize: const Size(400, 900),
-          viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
+          contentMargin: EdgeInsets.only(bottom: 50),
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
         );
 
         final oldMeasurements = ownerMetrics.copyWith();
         ownerMetrics
-          ..viewportDynamicOverlap = EdgeInsets.only(bottom: 50)
+          ..contentMargin = EdgeInsets.only(bottom: 50)
           ..contentSize = const Size(400, 850)
           ..contentBaseline = 50;
 
@@ -350,34 +346,28 @@ void main() {
       },
     );
 
-    test(
-      'should maintain previous position when content size changes',
-      () {
-        final (ownerMetrics, owner) = createMockSheetModel(
-          offset: 250,
-          initialPosition: const SheetOffset(0.5),
-          snapGrid: SheetSnapGrid(
-            snaps: [
-              const SheetOffset(0.5),
-              const SheetOffset(1),
-            ],
-          ),
-          contentSize: Size(400, 500),
-          viewportSize: const Size(400, 900),
-          devicePixelRatio: 1,
-          physics: kDefaultSheetPhysics,
-        );
-        expect(ownerMetrics.offset, 250);
+    test('should maintain previous position when content size changes', () {
+      final (ownerMetrics, owner) = createMockSheetModel(
+        offset: 250,
+        initialPosition: const SheetOffset(0.5),
+        snapGrid: SheetSnapGrid(
+          snaps: [const SheetOffset(0.5), const SheetOffset(1)],
+        ),
+        contentSize: Size(400, 500),
+        viewportSize: const Size(400, 900),
+        devicePixelRatio: 1,
+        physics: kDefaultSheetPhysics,
+      );
+      expect(ownerMetrics.offset, 250);
 
-        final oldMeasurements = owner.copyWith();
-        ownerMetrics.contentSize = Size(400, 600);
-        IdleSheetActivity()
-          ..init(owner)
-          ..applyNewLayout(oldMeasurements);
-        expect(owner.offset, 300);
-        // Still in the idle activity.
-        verifyNever(owner.beginActivity(any));
-      },
-    );
+      final oldMeasurements = owner.copyWith();
+      ownerMetrics.contentSize = Size(400, 600);
+      IdleSheetActivity()
+        ..init(owner)
+        ..applyNewLayout(oldMeasurements);
+      expect(owner.offset, 300);
+      // Still in the idle activity.
+      verifyNever(owner.beginActivity(any));
+    });
   });
 }

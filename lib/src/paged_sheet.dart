@@ -128,10 +128,9 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
           contentBaseline: 0,
           size: Size.zero,
           contentSize: Size.zero,
-          viewportDynamicOverlap: layout.viewportDynamicOverlap,
+          contentMargin: EdgeInsets.zero,
           viewportPadding: layout.viewportPadding,
           viewportSize: layout.viewportSize,
-          viewportStaticOverlap: layout.viewportStaticOverlap,
         ),
       );
     } else {
@@ -168,8 +167,9 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     ValueGetter<double?> targetOffsetResolver(_PagedSheetEntry entry) {
       return () {
         if (entry._contentSize case final contentSize?) {
-          return (entry._targetOffset ?? entry.initialOffset)
-              .resolve(copyWith(contentSize: contentSize));
+          return (entry._targetOffset ?? entry.initialOffset).resolve(
+            copyWith(contentSize: contentSize),
+          );
         }
         return null;
       };
@@ -202,8 +202,10 @@ class _PagedSheetIdleActivity extends IdleSheetActivity<_PagedSheetModel> {
   @override
   void init(_PagedSheetModel owner) {
     super.init(owner);
-    if (owner._currentEntry
-        case _PagedSheetEntry(_contentSize: null, :final initialOffset)) {
+    if (owner._currentEntry case _PagedSheetEntry(
+      _contentSize: null,
+      :final initialOffset,
+    )) {
       targetOffset = initialOffset;
     }
   }
@@ -230,9 +232,8 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
     super.init(owner);
     _startPixelOffset = owner.offset;
     owner.config = owner.config.copyWith(snapGrid: _kDefaultSnapGrid);
-    _effectiveAnimation = animation.drive(
-      CurveTween(curve: animationCurve),
-    )..addListener(_onAnimationTick);
+    _effectiveAnimation = animation.drive(CurveTween(curve: animationCurve))
+      ..addListener(_onAnimationTick);
   }
 
   @override
@@ -259,8 +260,7 @@ class PagedSheet extends StatelessWidget {
     this.physics = kDefaultSheetPhysics,
     this.transitionCurve = Curves.easeInOutCubic,
     this.decoration = const DefaultSheetDecoration(),
-    this.shrinkChildToAvoidDynamicOverlap = true,
-    this.shrinkChildToAvoidStaticOverlap = false,
+    this.padding = EdgeInsets.zero,
     this.builder,
     required this.navigator,
   });
@@ -275,11 +275,8 @@ class PagedSheet extends StatelessWidget {
 
   final SheetDecoration decoration;
 
-  /// {@macro BareSheet.shrinkChildToAvoidDynamicOverlap}
-  final bool shrinkChildToAvoidDynamicOverlap;
-
-  /// {@macro Sheet.shrinkChildToAvoidStaticOverlap}
-  final bool shrinkChildToAvoidStaticOverlap;
+  /// {@macro viewport.BareSheet.padding}
+  final EdgeInsets padding;
 
   final Widget Function(BuildContext, Widget)? builder;
 
@@ -289,9 +286,7 @@ class PagedSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget content = NavigatorResizable(
       interpolationCurve: transitionCurve,
-      child: _NavigatorEventDispatcher(
-        child: navigator,
-      ),
+      child: _NavigatorEventDispatcher(child: navigator),
     );
     if (builder case final builder?) {
       content = builder(context, content);
@@ -312,8 +307,7 @@ class PagedSheet extends StatelessWidget {
       ),
       child: BareSheet(
         decoration: decoration,
-        shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
-        shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
+        padding: padding,
         child: content,
       ),
     );
@@ -321,9 +315,7 @@ class PagedSheet extends StatelessWidget {
 }
 
 class _NavigatorEventDispatcher extends StatefulWidget {
-  const _NavigatorEventDispatcher({
-    required this.child,
-  });
+  const _NavigatorEventDispatcher({required this.child});
 
   final Widget child;
 
@@ -490,11 +482,7 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,
-          child: buildContent(
-            context,
-            animation,
-            secondaryAnimation,
-          ),
+          child: buildContent(context, animation, secondaryAnimation),
         ),
       ),
     );
@@ -610,9 +598,8 @@ class PagedSheetPage<T> extends Page<T> {
 }
 
 class _PageBasedPagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
-  _PageBasedPagedSheetRoute({
-    required PagedSheetPage<T> page,
-  }) : super(settings: page);
+  _PageBasedPagedSheetRoute({required PagedSheetPage<T> page})
+    : super(settings: page);
 
   PagedSheetPage<T> get page => settings as PagedSheetPage<T>;
 

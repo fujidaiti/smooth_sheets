@@ -14,10 +14,7 @@ import 'package:smooth_sheets/src/viewport.dart';
 import 'src/keyboard_inset_simulation.dart';
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({
-    this.useMaterial = false,
-    required this.child,
-  });
+  const _TestApp({this.useMaterial = false, required this.child});
 
   final bool useMaterial;
   final Widget child;
@@ -25,16 +22,11 @@ class _TestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (useMaterial) {
-      return MaterialApp(
-        home: child,
-      );
+      return MaterialApp(home: child);
     } else {
       return Directionality(
         textDirection: TextDirection.ltr,
-        child: MediaQuery(
-          data: const MediaQueryData(),
-          child: child,
-        ),
+        child: MediaQuery(data: const MediaQueryData(), child: child),
       );
     }
   }
@@ -91,13 +83,17 @@ void main() {
       ),
     );
 
-    expect(controller.hasClient, isTrue,
-        reason: 'The controller should have a client.');
+    expect(
+      controller.hasClient,
+      isTrue,
+      reason: 'The controller should have a client.',
+    );
   });
 
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/14
-  testWidgets('Opening keyboard does not interrupt sheet animation',
-      (tester) async {
+  testWidgets('Opening keyboard does not interrupt sheet animation', (
+    tester,
+  ) async {
     final controller = SheetController();
     final viewportKey = GlobalKey();
     final sheetKey = GlobalKey();
@@ -109,28 +105,35 @@ void main() {
         child: KeyboardInsetSimulation(
           key: keyboardSimulationKey,
           keyboardHeight: 200,
-          child: SheetViewport(
-            key: viewportKey,
-            child: Sheet(
-              key: sheetKey,
-              controller: controller,
-              scrollConfiguration: const SheetScrollConfiguration(),
-              snapGrid: SheetSnapGrid(
-                snaps: [
-                  const SheetOffset.absolute(200),
-                  const SheetOffset(1),
-                ],
-              ),
-              initialOffset: const SheetOffset.absolute(200),
-              child: const _TestSheetContent(height: 400),
-            ),
+          child: Builder(
+            builder: (context) {
+              return SheetViewport(
+                key: viewportKey,
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.viewInsetsOf(context).bottom,
+                ),
+                child: Sheet(
+                  key: sheetKey,
+                  controller: controller,
+                  scrollConfiguration: const SheetScrollConfiguration(),
+                  snapGrid: const SheetSnapGrid(
+                    snaps: [SheetOffset.absolute(200), SheetOffset(1)],
+                  ),
+                  initialOffset: const SheetOffset.absolute(200),
+                  child: const _TestSheetContent(height: 400),
+                ),
+              );
+            },
           ),
         ),
       ),
     );
 
-    expect(controller.metrics!.offset, 200,
-        reason: 'The sheet should be at the initial position.');
+    expect(
+      controller.metrics!.offset,
+      200,
+      reason: 'The sheet should be at the initial position.',
+    );
     expect(
       controller.metrics!.minOffset < controller.metrics!.maxOffset,
       isTrue,
@@ -146,83 +149,89 @@ void main() {
     );
     // Then, show the keyboard while the sheet is animating.
     unawaited(
-      keyboardSimulationKey.currentState!
-          .showKeyboard(const Duration(milliseconds: 250)),
+      keyboardSimulationKey.currentState!.showKeyboard(
+        const Duration(milliseconds: 250),
+      ),
     );
     await tester.pumpAndSettle();
-    expect(MediaQuery.viewInsetsOf(viewportKey.currentContext!).bottom, 200,
-        reason: 'The keyboard should be fully shown.');
+    expect(
+      MediaQuery.viewInsetsOf(viewportKey.currentContext!).bottom,
+      200,
+      reason: 'The keyboard should be fully shown.',
+    );
     expect(
       tester.getRect(find.byKey(sheetKey)),
       Rect.fromLTWH(0, 0, 800, 400),
-      reason: 'After the keyboard is fully shown, '
+      reason:
+          'After the keyboard is fully shown, '
           'the entire sheet should also be visible.',
     );
   });
 
   group('Press-and-hold gesture should stop momentum scrolling', () {
     // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/190
-    testWidgets(
-      'in a plain ListView',
-      (tester) async {
-        const targetKey = Key('Target');
-        final controller = SheetController();
-        late ScrollController scrollController;
+    testWidgets('in a plain ListView', (tester) async {
+      const targetKey = Key('Target');
+      final controller = SheetController();
+      late ScrollController scrollController;
 
-        await tester.pumpWidget(
-          _TestApp(
-            child: SheetViewport(
-              child: Sheet(
-                scrollConfiguration: const SheetScrollConfiguration(),
-                controller: controller,
-                child: Builder(
-                  builder: (context) {
-                    // TODO(fujita): Refactor this line after #116 is resolved.
-                    scrollController = PrimaryScrollController.of(context);
-                    return _TestSheetContent(
-                      key: targetKey,
-                      itemCount: 1000,
-                      height: null,
-                      // The items need to be clickable to cause the issue.
-                      onTapItem: (index) {},
-                    );
-                  },
-                ),
+      await tester.pumpWidget(
+        _TestApp(
+          child: SheetViewport(
+            child: Sheet(
+              scrollConfiguration: const SheetScrollConfiguration(),
+              controller: controller,
+              child: Builder(
+                builder: (context) {
+                  // TODO(fujita): Refactor this line after #116 is resolved.
+                  scrollController = PrimaryScrollController.of(context);
+                  return _TestSheetContent(
+                    key: targetKey,
+                    itemCount: 1000,
+                    height: null,
+                    // The items need to be clickable to cause the issue.
+                    onTapItem: (index) {},
+                  );
+                },
               ),
             ),
           ),
-        );
+        ),
+      );
 
-        const dragDistance = 200.0;
-        const flingSpeed = 2000.0;
-        await tester.fling(
-          find.byKey(targetKey),
-          const Offset(0, -1 * dragDistance), // Fling up
-          flingSpeed,
-        );
+      const dragDistance = 200.0;
+      const flingSpeed = 2000.0;
+      await tester.fling(
+        find.byKey(targetKey),
+        const Offset(0, -1 * dragDistance), // Fling up
+        flingSpeed,
+      );
 
-        final offsetAfterFling = scrollController.offset;
-        // Don't know why, but we need to call `pump` at least 2 times
-        // to forward the animation clock.
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 250));
-        final offsetBeforePress = scrollController.offset;
-        expect(offsetBeforePress, greaterThan(offsetAfterFling),
-            reason: 'Momentum scrolling should be in progress.');
+      final offsetAfterFling = scrollController.offset;
+      // Don't know why, but we need to call `pump` at least 2 times
+      // to forward the animation clock.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+      final offsetBeforePress = scrollController.offset;
+      expect(
+        offsetBeforePress,
+        greaterThan(offsetAfterFling),
+        reason: 'Momentum scrolling should be in progress.',
+      );
 
-        // Press and hold the finger on the target widget.
-        await tester.press(find.byKey(targetKey));
-        // Wait for the momentum scrolling to stop.
-        await tester.pumpAndSettle();
-        final offsetAfterPress = scrollController.offset;
-        expect(
-          offsetAfterPress,
-          equals(offsetBeforePress),
-          reason: 'Momentum scrolling should be stopped immediately '
-              'by pressing and holding.',
-        );
-      },
-    );
+      // Press and hold the finger on the target widget.
+      await tester.press(find.byKey(targetKey));
+      // Wait for the momentum scrolling to stop.
+      await tester.pumpAndSettle();
+      final offsetAfterPress = scrollController.offset;
+      expect(
+        offsetAfterPress,
+        equals(offsetBeforePress),
+        reason:
+            'Momentum scrolling should be stopped immediately '
+            'by pressing and holding.',
+      );
+    });
 
     // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/214
     testWidgets('in a PageView with multiple ListViews', (tester) async {
@@ -277,8 +286,11 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
       final offsetBeforePress = scrollController.offset;
-      expect(offsetBeforePress, greaterThan(offsetAfterFling),
-          reason: 'Momentum scrolling should be in progress.');
+      expect(
+        offsetBeforePress,
+        greaterThan(offsetAfterFling),
+        reason: 'Momentum scrolling should be in progress.',
+      );
 
       // Press and hold the finger on the target widget.
       await tester.press(find.byKey(listViewKey));
@@ -288,7 +300,8 @@ void main() {
       expect(
         offsetAfterPress,
         equals(offsetBeforePress),
-        reason: 'Momentum scrolling should be stopped immediately '
+        reason:
+            'Momentum scrolling should be stopped immediately '
             'by pressing and holding.',
       );
     });
@@ -317,9 +330,7 @@ void main() {
                       child: ListView(
                         children: List.generate(
                           30,
-                          (index) => ListTile(
-                            title: Text('Item $index'),
-                          ),
+                          (index) => ListTile(title: Text('Item $index')),
                         ),
                       ),
                     ),
@@ -340,13 +351,19 @@ void main() {
       await tester.pumpWidget(testWidget);
 
       await tester.showKeyboard(find.byType(TextField));
-      expect(focusNode.hasFocus, isTrue,
-          reason: 'The keyboard should be shown.');
+      expect(
+        focusNode.hasFocus,
+        isTrue,
+        reason: 'The keyboard should be shown.',
+      );
 
       await tester.drag(find.byType(ListView), const Offset(0, 40));
       await tester.pumpAndSettle();
-      expect(focusNode.hasFocus, isFalse,
-          reason: 'Downward dragging should dismiss the keyboard.');
+      expect(
+        focusNode.hasFocus,
+        isFalse,
+        reason: 'Downward dragging should dismiss the keyboard.',
+      );
     });
 
     testWidgets('should dismiss the keyboard when scrolling', (tester) async {
@@ -354,13 +371,19 @@ void main() {
 
       final textField = find.byType(TextField).first;
       await tester.showKeyboard(textField);
-      expect(focusNode.hasFocus, isTrue,
-          reason: 'The keyboard should be shown.');
+      expect(
+        focusNode.hasFocus,
+        isTrue,
+        reason: 'The keyboard should be shown.',
+      );
 
       await tester.drag(find.byType(ListView), const Offset(0, -40));
       await tester.pumpAndSettle();
-      expect(focusNode.hasFocus, isFalse,
-          reason: 'Upward scrolling should dismiss the keyboard.');
+      expect(
+        focusNode.hasFocus,
+        isFalse,
+        reason: 'Upward scrolling should dismiss the keyboard.',
+      );
     });
   });
 
@@ -409,16 +432,22 @@ void main() {
       );
       final pumpedFrames = await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 0);
-      expect(pumpedFrames, 1,
-          reason: 'Should not enter an infinite build loop');
+      expect(
+        pumpedFrames,
+        1,
+        reason: 'Should not enter an infinite build loop',
+      );
     });
 
     testWidgets('bottom edge', (tester) async {
       await tester.pumpWidget(testWidget);
       scrollController.jumpTo(600.0);
       await tester.pumpAndSettle();
-      expect(scrollController.position.extentAfter, 0,
-          reason: 'Ensure that the scroll view cannot be scrolled anymore');
+      expect(
+        scrollController.position.extentAfter,
+        0,
+        reason: 'Ensure that the scroll view cannot be scrolled anymore',
+      );
 
       // Start a ballistic animation from a position extremely close to,
       // but not equal, to the current position.
@@ -429,8 +458,11 @@ void main() {
       );
       final pumpedFrames = await tester.pumpAndSettle();
       expect(scrollController.position.pixels, 600.0);
-      expect(pumpedFrames, 1,
-          reason: 'Should not enter an infinite build loop');
+      expect(
+        pumpedFrames,
+        1,
+        reason: 'Should not enter an infinite build loop',
+      );
     });
   });
 }

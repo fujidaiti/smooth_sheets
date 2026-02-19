@@ -69,15 +69,12 @@ class Sheet extends StatelessWidget {
     super.key,
     this.initialOffset = const SheetOffset(1),
     this.physics,
-    this.snapGrid = const SheetSnapGrid.single(
-      snap: SheetOffset(1),
-    ),
+    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset(1)),
     this.controller,
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
     this.decoration = const DefaultSheetDecoration(),
-    this.shrinkChildToAvoidDynamicOverlap = true,
-    this.shrinkChildToAvoidStaticOverlap = false,
+    this.padding = EdgeInsets.zero,
     required this.child,
   });
 
@@ -98,11 +95,8 @@ class Sheet extends StatelessWidget {
 
   final SheetDecoration decoration;
 
-  /// {@macro BareSheet.shrinkChildToAvoidDynamicOverlap}
-  final bool shrinkChildToAvoidDynamicOverlap;
-
-  /// {@macro BareSheet.shrinkChildToAvoidStaticOverlap}
-  final bool shrinkChildToAvoidStaticOverlap;
+  /// {@macro viewport.BareSheet.padding}
+  final EdgeInsets padding;
 
   /// The content of the sheet.
   final Widget child;
@@ -121,8 +115,7 @@ class Sheet extends StatelessWidget {
       ),
       child: BareSheet(
         decoration: decoration,
-        shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
-        shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
+        padding: padding,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,
@@ -163,19 +156,13 @@ class DraggableScrollableSheetContent extends StatelessWidget {
   Widget build(BuildContext context) {
     var result = child;
     if (dragConfiguration case final config?) {
-      result = SheetDraggable(
-        behavior: config.hitTestBehavior,
-        child: result,
-      );
+      result = SheetDraggable(behavior: config.hitTestBehavior, child: result);
     }
     if (scrollConfiguration != null) {
       final child = result;
       result = SheetScrollable(
         builder: (context, controller) {
-          return PrimaryScrollController(
-            controller: controller,
-            child: child,
-          );
+          return PrimaryScrollController(controller: controller, child: child);
         },
       );
     }

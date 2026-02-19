@@ -9,8 +9,8 @@ class SheetOffsetDrivenAnimation extends Animation<double> {
     required this.initialValue,
     this.startOffset,
     this.endOffset,
-  })  : _controller = controller,
-        assert(initialValue >= 0.0 && initialValue <= 1.0);
+  }) : _controller = controller,
+       assert(initialValue >= 0.0 && initialValue <= 1.0);
 
   final SheetController _controller;
   final double initialValue;

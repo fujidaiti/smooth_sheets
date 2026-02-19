@@ -51,24 +51,26 @@ class _ExampleHomeState extends State<_ExampleHome> {
 
   @override
   Widget build(BuildContext context) {
-    final options = [
-      for (final behavior in _KeyboardDismissBehaviorKind.values)
-        RadioListTile(
-          title: Text(behavior.name),
-          subtitle: Text(behavior.description),
-          value: behavior,
-          // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-          // ignore: deprecated_member_use
-          groupValue: selectedBehavior,
-          contentPadding: const EdgeInsets.only(left: 32, right: 16),
-          controlAffinity: ListTileControlAffinity.trailing,
-          // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-          // ignore: deprecated_member_use
-          onChanged: (value) => setState(() {
-            selectedBehavior = value!;
-          }),
-        ),
-    ];
+    final options = RadioGroup<_KeyboardDismissBehaviorKind>(
+      groupValue: selectedBehavior,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() => selectedBehavior = value);
+        }
+      },
+      child: Column(
+        children: [
+          for (final behavior in _KeyboardDismissBehaviorKind.values)
+            RadioListTile(
+              title: Text(behavior.name),
+              subtitle: Text(behavior.description),
+              value: behavior,
+              contentPadding: const EdgeInsets.only(left: 32, right: 16),
+              controlAffinity: ListTileControlAffinity.trailing,
+            ),
+        ],
+      ),
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -82,7 +84,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
                   'Determines when the sheet should dismiss the on-screen keyboard.',
                 ),
               ),
-              ...options,
+              options,
               const Divider(),
               CheckboxListTile(
                 value: isContentScrollAware,

@@ -102,6 +102,8 @@ class _MySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PagedSheet(
+      // Pad the content to avoid the software keyboard.
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       decoration: const MaterialSheetDecoration(
         size: SheetSize.stretch,
         borderRadius: BorderRadius.vertical(

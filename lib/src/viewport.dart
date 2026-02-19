@@ -1,14 +1,11 @@
+/// @docImport 'decorations.dart';
+library;
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// TODO: Remove this import after the minimum sdk version is bumped to 3.35.0
-//
-// @internal annotation has been included in flutter/foundation.dart since 3.35.0.
-// See: https://github.com/flutter/flutter/commit/5706259791de29a27cb68e9b95d6319ba863e366
-// ignore: unnecessary_import
-import 'package:meta/meta.dart';
 
 import 'model.dart';
 
@@ -20,10 +17,7 @@ class SheetLayoutSpec {
   const SheetLayoutSpec({
     required this.viewportSize,
     required this.viewportPadding,
-    required this.viewportDynamicOverlap,
-    required this.viewportStaticOverlap,
-    required this.shrinkContentToAvoidDynamicOverlap,
-    required this.shrinkContentToAvoidStaticOverlap,
+    required this.contentMargin,
   });
 
   /// {@macro ViewportLayout.viewportSize}
@@ -32,35 +26,10 @@ class SheetLayoutSpec {
   /// {@macro ViewportLayout.viewportPadding}
   final EdgeInsets viewportPadding;
 
-  /// {@macro ViewportLayout.viewportDynamicOverlap}
-  final EdgeInsets viewportDynamicOverlap;
+  /// {@macro ViewportLayout.contentMargin}
+  final EdgeInsets contentMargin;
 
-  /// {@macro ViewportLayout.viewportStaticOverlap}
-  final EdgeInsets viewportStaticOverlap;
-
-  /// Whether to shrink the sheet's content to avoid
-  /// overlapping with the dynamic system UI elements,
-  /// as described by [viewportDynamicOverlap].
-  final bool shrinkContentToAvoidDynamicOverlap;
-
-  /// Whether to shrink the sheet's content to avoid
-  /// overlapping with the static system UI elements,
-  /// as described by [viewportStaticOverlap].
-  final bool shrinkContentToAvoidStaticOverlap;
-
-  /// {@macro ViewportLayout.contentBaseline}
-  double get contentBaseline {
-    var result = viewportPadding.bottom;
-    if (shrinkContentToAvoidDynamicOverlap) {
-      result = max(result, viewportDynamicOverlap.bottom);
-    }
-    if (shrinkContentToAvoidStaticOverlap) {
-      result = max(result, viewportStaticOverlap.bottom);
-    }
-    return result;
-  }
-
-  /// The maximum rectangle that the sheet can occupy.
+  /// The maximum rectangle that the sheet can occupy within the viewport.
   ///
   /// The width and bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraints.
@@ -70,85 +39,26 @@ class SheetLayoutSpec {
   /// returned by [BareSheet.decoration]. This allows the sheet to
   /// stretch vertically in response to user gestures.
   Rect get maxSheetRect => Rect.fromLTWH(
-        viewportPadding.left,
-        0,
-        viewportSize.width - viewportPadding.horizontal,
-        viewportSize.height,
-      );
+    viewportPadding.left,
+    0,
+    viewportSize.width - viewportPadding.horizontal,
+    // TODO: Reduce the height by the viewportPadding.vertical
+    viewportSize.height,
+  );
 
-  /// The maximum rectangle that the sheet's content can occupy.
+  /// The maximum rectangle that the sheet's content can occupy
+  /// within the viewport.
   ///
-  /// This area may be reduced due to the bottom inset of the viewport,
-  /// as described by [viewportDynamicOverlap],
-  /// if [shrinkContentToAvoidDynamicOverlap] is true.
-  /// Otherwise, it matches [maxSheetRect].
+  /// Note that this rectangle does not contain the [contentMargin].
   ///
   /// The width and the bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraint.
-  Rect get maxContentRect => Rect.fromLTRB(
-        viewportPadding.left,
-        viewportPadding.top,
-        viewportSize.width - viewportPadding.right,
-        viewportSize.height - contentBaseline,
-      );
-
-  /// The maximum amounts of overlap that each side of the sheet can have
-  /// with static system UI elements, such as the system status bar or
-  /// hardware display notches.
-  EdgeInsets get maxSheetStaticOverlap {
-    final maxRect = maxSheetRect;
-    final staticSafeArea =
-        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(staticSafeArea.left - maxRect.left, 0),
-      max(staticSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - staticSafeArea.right, 0),
-      max(maxRect.bottom - staticSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet can have
-  /// with dynamic system UI elements, such as the on-screen keyboard.
-  EdgeInsets get maxSheetDynamicOverlap {
-    final maxRect = maxSheetRect;
-    final dynamicSafeArea =
-        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(dynamicSafeArea.left - maxRect.left, 0),
-      max(dynamicSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - dynamicSafeArea.right, 0),
-      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet's content
-  /// can have with dynamic system UI elements, such as the on-screen keyboard.
-  EdgeInsets get maxContentDynamicOverlap {
-    final maxRect = maxContentRect;
-    final dynamicSafeArea =
-        viewportDynamicOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(dynamicSafeArea.left - maxRect.left, 0),
-      max(dynamicSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - dynamicSafeArea.right, 0),
-      max(maxRect.bottom - dynamicSafeArea.bottom, 0),
-    );
-  }
-
-  /// The maximum amounts of overlap that each side of the sheet's content
-  /// can have with static system UI elements, such as the system status bar or
-  /// hardware display notches.
-  EdgeInsets get maxContentStaticOverlap {
-    final maxRect = maxContentRect;
-    final staticSafeArea =
-        viewportStaticOverlap.deflateRect(Offset.zero & viewportSize);
-    return EdgeInsets.fromLTRB(
-      max(staticSafeArea.left - maxRect.left, 0),
-      max(staticSafeArea.top - maxRect.top, 0),
-      max(maxRect.right - staticSafeArea.right, 0),
-      max(maxRect.bottom - staticSafeArea.bottom, 0),
-    );
-  }
+  Rect get maxContentRect => Rect.fromLTWH(
+    maxSheetRect.left + contentMargin.left,
+    viewportPadding.top + contentMargin.top,
+    viewportSize.width - viewportPadding.horizontal - contentMargin.horizontal,
+    viewportSize.height - viewportPadding.vertical - contentMargin.vertical,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -156,19 +66,10 @@ class SheetLayoutSpec {
       other is SheetLayoutSpec &&
           viewportSize == other.viewportSize &&
           viewportPadding == other.viewportPadding &&
-          viewportDynamicOverlap == other.viewportDynamicOverlap &&
-          viewportStaticOverlap == other.viewportStaticOverlap &&
-          shrinkContentToAvoidDynamicOverlap ==
-              other.shrinkContentToAvoidDynamicOverlap;
+          contentMargin == other.contentMargin;
 
   @override
-  int get hashCode => Object.hash(
-        viewportSize,
-        viewportPadding,
-        viewportDynamicOverlap,
-        viewportStaticOverlap,
-        shrinkContentToAvoidDynamicOverlap,
-      );
+  int get hashCode => Object.hash(viewportSize, viewportPadding, contentMargin);
 }
 
 typedef SheetLayoutListenable = ValueListenable<SheetLayout?>;
@@ -176,10 +77,10 @@ typedef SheetLayoutListenable = ValueListenable<SheetLayout?>;
 /// Stores the geometry of the viewport and the layout constraints
 /// used to lay out the sheet and its content.
 ///
-/// Also overwrites the inherited [MediaQueryData.viewPadding] and
-/// [MediaQueryData.viewInsets] with [SheetLayoutSpec.maxContentStaticOverlap]
-/// and [SheetLayoutSpec.maxContentDynamicOverlap] specified in the
-/// [layoutSpec], respectively. This enables the descendant widgets to read
+/// Also reduces the inherited [MediaQueryData.viewPadding],
+/// [MediaQueryData.viewInsets], and [MediaQueryData.padding] by
+/// the [SheetLayoutSpec.viewportPadding] and [SheetLayoutSpec.contentMargin]
+///specified in the [layoutSpec]. This enables the descendant widgets to read
 /// that information using [layoutSpecOf] and use it to determine their own
 /// layout.
 ///
@@ -199,8 +100,65 @@ class SheetMediaQuery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewPaddingForChild = layoutSpec.maxContentStaticOverlap;
-    final viewInsetsForChild = layoutSpec.maxContentDynamicOverlap;
+    final inheritedMediaQuery = MediaQuery.maybeOf(context);
+    final viewportViewPadding =
+        inheritedMediaQuery?.viewPadding ?? EdgeInsets.zero;
+    final viewPaddingForChild = EdgeInsets.fromLTRB(
+      max(
+        viewportViewPadding.left -
+            layoutSpec.viewportPadding.left -
+            layoutSpec.contentMargin.left,
+        0.0,
+      ),
+      max(
+        viewportViewPadding.top -
+            layoutSpec.viewportPadding.top -
+            layoutSpec.contentMargin.top,
+        0.0,
+      ),
+      max(
+        viewportViewPadding.right -
+            layoutSpec.viewportPadding.right -
+            layoutSpec.contentMargin.right,
+        0.0,
+      ),
+      max(
+        viewportViewPadding.bottom -
+            layoutSpec.viewportPadding.bottom -
+            layoutSpec.contentMargin.bottom,
+        0.0,
+      ),
+    );
+
+    final viewportViewInsets =
+        inheritedMediaQuery?.viewInsets ?? EdgeInsets.zero;
+    final viewInsetsForChild = EdgeInsets.fromLTRB(
+      max(
+        viewportViewInsets.left -
+            layoutSpec.viewportPadding.left -
+            layoutSpec.contentMargin.left,
+        0.0,
+      ),
+      max(
+        viewportViewInsets.top -
+            layoutSpec.viewportPadding.top -
+            layoutSpec.contentMargin.top,
+        0.0,
+      ),
+      max(
+        viewportViewInsets.right -
+            layoutSpec.viewportPadding.right -
+            layoutSpec.contentMargin.right,
+        0.0,
+      ),
+      max(
+        viewportViewInsets.bottom -
+            layoutSpec.viewportPadding.bottom -
+            layoutSpec.contentMargin.bottom,
+        0.0,
+      ),
+    );
+
     final paddingForChild = EdgeInsets.fromLTRB(
       max(viewPaddingForChild.left - viewInsetsForChild.left, 0),
       max(viewPaddingForChild.top - viewInsetsForChild.top, 0),
@@ -212,17 +170,17 @@ class SheetMediaQuery extends StatelessWidget {
       layoutSpec: layoutSpec,
       layoutNotifier: layoutNotifier,
       child: MediaQuery(
-        data: switch (MediaQuery.maybeOf(context)) {
+        data: switch (inheritedMediaQuery) {
           null => MediaQueryData(
-              viewPadding: viewPaddingForChild,
-              viewInsets: viewInsetsForChild,
-              padding: paddingForChild,
-            ),
-          final data => data.copyWith(
-              viewPadding: viewPaddingForChild,
-              viewInsets: viewInsetsForChild,
-              padding: paddingForChild,
-            ),
+            viewPadding: viewPaddingForChild,
+            viewInsets: viewInsetsForChild,
+            padding: paddingForChild,
+          ),
+          final inheritedData => inheritedData.copyWith(
+            viewPadding: viewPaddingForChild,
+            viewInsets: viewInsetsForChild,
+            padding: paddingForChild,
+          ),
         },
         child: child,
       ),
@@ -269,7 +227,24 @@ class SheetViewport extends StatefulWidget {
     required this.child,
   });
 
+  /// The inset the viewport applies to the [child].
+  ///
+  /// Use this, for example, to push the [child] (typically a sheet) upward
+  /// as the software keyboard appears, preventing it from being covered.
+  ///
+  /// ```dart
+  /// SheetViewport(
+  ///   padding: EdgeInsets.only(
+  ///     bottom: MediaQuery.viewInsetsOf(context).bottom,
+  ///   ),
+  ///   child: Sheet(...),
+  /// );
+  /// ```
+  ///
+  /// See also:
+  /// - [BareSheet.padding], which is similar but pads the sheet content.
   final EdgeInsets padding;
+
   final Widget child;
 
   @override
@@ -316,10 +291,7 @@ class SheetViewportState extends State<SheetViewport> {
 
     return _InheritedSheetViewport(
       state: this,
-      child: _SheetTranslate(
-        padding: widget.padding,
-        child: widget.child,
-      ),
+      child: _SheetTranslate(padding: widget.padding, child: widget.child),
     );
   }
 
@@ -331,10 +303,7 @@ class SheetViewportState extends State<SheetViewport> {
 }
 
 class _InheritedSheetViewport extends InheritedWidget {
-  const _InheritedSheetViewport({
-    required this.state,
-    required super.child,
-  });
+  const _InheritedSheetViewport({required this.state, required super.child});
 
   final SheetViewportState state;
 
@@ -343,10 +312,7 @@ class _InheritedSheetViewport extends InheritedWidget {
 }
 
 class _SheetTranslate extends SingleChildRenderObjectWidget {
-  const _SheetTranslate({
-    required super.child,
-    required this.padding,
-  });
+  const _SheetTranslate({required super.child, required this.padding});
 
   final EdgeInsets padding;
   @override
@@ -375,14 +341,14 @@ class _RenderSheetTranslate extends RenderTransform {
     required EdgeInsets padding,
     required EdgeInsets viewInsets,
     required EdgeInsets viewPadding,
-  })  : _model = model,
-        _padding = padding,
-        _viewInsets = viewInsets,
-        _viewPadding = viewPadding,
-        super(
-          transform: Matrix4.zero()..setIdentity(),
-          transformHitTests: true,
-        ) {
+  }) : _model = model,
+       _padding = padding,
+       _viewInsets = viewInsets,
+       _viewPadding = viewPadding,
+       super(
+         transform: Matrix4.zero()..setIdentity(),
+         transformHitTests: true,
+       ) {
     model.addRectListener(_invalidateTransformMatrix);
     _invalidateTransformMatrix();
   }
@@ -496,10 +462,7 @@ class _SheetConstraints extends BoxConstraints {
     required this.viewportInsets,
     required this.viewportPadding,
     required this.viewportViewPadding,
-  }) : super(
-          maxWidth: viewportSize.width,
-          maxHeight: viewportSize.height,
-        );
+  }) : super(maxWidth: viewportSize.width, maxHeight: viewportSize.height);
 
   final Size viewportSize;
   final EdgeInsets viewportInsets;
@@ -524,12 +487,12 @@ class _SheetConstraints extends BoxConstraints {
 
   @override
   int get hashCode => Object.hash(
-        super.hashCode,
-        viewportSize,
-        viewportInsets,
-        viewportPadding,
-        viewportViewPadding,
-      );
+    super.hashCode,
+    viewportSize,
+    viewportInsets,
+    viewportPadding,
+    viewportViewPadding,
+  );
 }
 
 @immutable
@@ -586,8 +549,8 @@ class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
   _RenderDebugAssertSheetDecorationUsage({
     required Type sheetDecorationType,
     required SheetLayoutSpec expectedLayoutSpec,
-  })  : _sheetDecorationType = sheetDecorationType,
-        _expectedLayoutSpec = expectedLayoutSpec;
+  }) : _sheetDecorationType = sheetDecorationType,
+       _expectedLayoutSpec = expectedLayoutSpec;
 
   Type _sheetDecorationType;
   // ignore: avoid_setters_without_getters
@@ -635,24 +598,117 @@ class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
 class BareSheet extends StatefulWidget {
   const BareSheet({
     super.key,
-    this.shrinkChildToAvoidDynamicOverlap = true,
-    this.shrinkChildToAvoidStaticOverlap = false,
+    this.padding = EdgeInsets.zero,
     this.decoration = const DefaultSheetDecoration(),
     required this.child,
   });
 
-  /// {@template BareSheet.shrinkChildToAvoidDynamicOverlap}
-  /// Whether to shrink the [child] to avoid overlapping with
-  /// the dynamic system UI elements, such as the on-screen keyboard.
+  /// {@template viewport.BareSheet.padding}
+  /// The padding around the [child].
+  ///
+  /// Typically, you want to use this property to push the [child] upward
+  /// as the software keyboard appears, preventing it from being covered.
+  ///
+  /// ```dart
+  /// Sheet(
+  ///   padding: EdgeInsets.only(
+  ///     bottom: MediaQuery.viewInsetsOf(context).bottom,
+  ///   ),
+  ///   child: Container(height: 400),
+  /// );
+  /// ```
+  ///
+  /// If you want to avoid the screen notches at the bottom only when
+  /// the keyboard is closed:
+  ///
+  /// ```dart
+  /// Sheet(
+  ///   padding: EdgeInsets.only(
+  ///     bottom: math.max(
+  ///       MediaQuery.viewInsetsOf(context).bottom,
+  ///       MediaQuery.viewPaddingOf(context).bottom,
+  ///     ),
+  ///   ),
+  ///   child: Container(height: 400),
+  /// );
+  /// ```
+  ///
+  /// ## Padding widget vs. padding property
+  ///
+  /// Although wrapping the [child] with a [Padding] widget appears to produce
+  /// the same result as the former example, they differ in whether the padding
+  /// is included in the [child]'s size calculation; the [Padding] size is
+  /// added to the [child]'s size, but the [padding] property is not.
+  /// This leads to unexpected behavior depending on whether the keyboard
+  /// is open or closed, if you use [SheetOffset]s that depend on the [child]'s
+  /// size for controlling the sheet's position, such as animation destinations
+  /// and snap positions.
+  ///
+  /// For example, say we have a sheet with 3 snap offsets where the middle one
+  /// is `SheetOffset(0.5)`, and we wrap the [child] with a [Padding]
+  /// to avoid the keyboard.
+  ///
+  /// ```dart
+  /// Sheet(
+  ///   snapGrid: const SheetSnapGrid(
+  ///     snaps: [SheetOffset(0.2), SheetOffset(0.5), SheetOffset(1)],
+  ///   ),
+  ///   child: Padding(
+  ///     padding: EdgeInsets.only(
+  ///       bottom: MediaQuery.viewInsetsOf(context).bottom,
+  ///     ),
+  ///     child: Container(height: 400, color: Colors.red),
+  ///   ),
+  /// );
+  /// ```
+  ///
+  /// The actual value of `SheetOffset(0.5)` depends on the [child]'s size.
+  /// If the keyboard is hidden, the [child]'s height is 400 logical pixels,
+  /// so the sheet snaps to 400 * 0.5 = 200 logical pixels from the bottom
+  /// of the viewport. If the keyboard is shown, we expect the sheet to snap
+  /// to 200 logical pixels from the top of the keyboard for visual consistency.
+  /// However, since the [Padding] is part of the [child] and
+  /// `MediaQuery.viewInsetsOf(context).bottom` increases as the keyboard
+  /// appears (say to 200), the [child]'s height also increases by 200.
+  /// `SheetOffset(0.5)` then becomes 600 * 0.5 = 300 logical pixels.
+  /// This means the sheet snaps to 100 logical pixels above the keyboard,
+  /// which is 100 logical pixels below our expectation (200 logical pixels
+  /// above the keyboard).
+  ///
+  /// In contrast, the blank space the [padding] property creates does not add
+  /// to the [child]'s size, so `SheetOffset(0.5)` is always 200 regardless
+  /// of the keyboard height (unless the available height for the [child] is
+  /// less than 400, more precisely), meaning the sheet snaps to 200 logical
+  /// pixels from the bottom of the viewport when the keyboard is hidden, and
+  /// 200 logical pixels from the top of the keyboard when it is shown.
+  ///
+  /// For this reason, using the [padding] property is always preferable
+  /// to using a [Padding] widget to avoid the keyboard, unless you know
+  /// exactly what you are doing.
+  ///
+  /// ## SheetViewport.padding vs. padding property
+  ///
+  /// Specifying `MediaQuery.viewInsetsOf(context).bottom` to
+  /// the [SheetViewport.padding] is another option to prevent the [child]
+  /// from being overlapped by the keyboard. It pushes the sheet itself up
+  /// above the keyboard, which differs from the [padding] property that
+  /// only pushes up the [child].
+  ///
+  /// ```dart
+  /// SheetViewport(
+  ///   padding: EdgeInsets.only(
+  ///     bottom: MediaQuery.viewInsetsOf(context).bottom,
+  ///   ),
+  ///   child: Sheet(...),
+  /// );
+  /// ```
+  ///
+  /// Since this approach does not cause the `SheetOffset` problem described
+  /// in the previous section, and the [SheetViewport.padding] and the [padding]
+  /// property create two distinct sheet appearances, both options are valid,
+  /// and the choice depends on your use case.
   /// {@endtemplate}
-  final bool shrinkChildToAvoidDynamicOverlap;
-
-  /// {@template BareSheet.shrinkChildToAvoidStaticOverlap}
-  /// Whether to shrink the [child] to avoid overlapping with
-  /// the static system UI elements, such as hardware display notches
-  /// or the system status bar.
-  /// {@endtemplate}
-  final bool shrinkChildToAvoidStaticOverlap;
+  final EdgeInsets padding;
 
   final SheetDecoration decoration;
 
@@ -692,12 +748,7 @@ class _BareSheetState extends State<BareSheet> {
         final layoutSpec = SheetLayoutSpec(
           viewportSize: sheetConstraints.viewportSize,
           viewportPadding: sheetConstraints.viewportPadding,
-          viewportDynamicOverlap: sheetConstraints.viewportInsets,
-          viewportStaticOverlap: sheetConstraints.viewportViewPadding,
-          shrinkContentToAvoidDynamicOverlap:
-              widget.shrinkChildToAvoidDynamicOverlap,
-          shrinkContentToAvoidStaticOverlap:
-              widget.shrinkChildToAvoidStaticOverlap,
+          contentMargin: widget.padding,
         );
 
         Widget result = _SheetSkelton(
@@ -766,10 +817,10 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     required _LazySheetModelView model,
     required SheetLayoutSpec layoutSpec,
     required _GetPreferredExtent getPreferredExtent,
-  })  : _model = model,
-        _layoutSpec = layoutSpec,
-        _getPreferredExtent = getPreferredExtent,
-        super(null) {
+  }) : _model = model,
+       _layoutSpec = layoutSpec,
+       _getPreferredExtent = getPreferredExtent,
+       super(null) {
     model.addListener(_invalidatePreferredExtent);
     _invalidatePreferredExtent();
   }
@@ -853,24 +904,27 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       ),
       parentUsesSize: true,
     );
+    (child.parentData! as BoxParentData).offset =
+        _layoutSpec.contentMargin.topLeft;
 
     assert(_model._inner != null);
     final viewportLayout = ImmutableViewportLayout(
       contentSize: Size.copy(child.size),
       viewportSize: _layoutSpec.viewportSize,
       viewportPadding: _layoutSpec.viewportPadding,
-      viewportDynamicOverlap: _layoutSpec.viewportDynamicOverlap,
-      viewportStaticOverlap: _layoutSpec.viewportStaticOverlap,
-      contentBaseline: _layoutSpec.contentBaseline,
+      contentBaseline:
+          _layoutSpec.viewportSize.height - _layoutSpec.maxContentRect.bottom,
+      contentMargin: _layoutSpec.contentMargin,
     );
     final newOffset = _model._inner!.dryApplyNewLayout(viewportLayout);
     _preferredExtent = _getPreferredExtent(newOffset, viewportLayout);
     final maxRect = _layoutSpec.maxSheetRect;
     final maxSize = maxRect.size;
+    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
     size = BoxConstraints(
       minWidth: maxSize.width,
       maxWidth: maxSize.width,
-      minHeight: child.size.height,
+      minHeight: paddedChildSize.height,
       maxHeight: maxSize.height,
     ).constrain(Size.fromHeight(_preferredExtent!));
 
@@ -890,14 +944,10 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     super.debugPaintSize(context, offset);
     assert(() {
       final outerRect = offset & size;
-      debugPaintPadding(
-        context.canvas,
-        outerRect,
-        switch (child) {
-          null => null,
-          final child => Offset.zero & child.size,
-        },
-      );
+      debugPaintPadding(context.canvas, outerRect, switch (child) {
+        null => null,
+        final child => Offset.zero & child.size,
+      });
       return true;
     }());
   }
@@ -924,12 +974,11 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
         ?..addListener(notifyListeners)
         ..addRectListener(_rectNotifier.notifyListeners);
 
-      if (newModel
-          case SheetModel(
-            hasMetrics: true,
-            :final offset,
-            :final rect,
-          )) {
+      if (newModel case SheetModel(
+        hasMetrics: true,
+        :final offset,
+        :final rect,
+      )) {
         if (offset != oldOffset) {
           notifyListeners();
         }
@@ -983,19 +1032,16 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   Size get contentSize => _inner!.contentSize;
 
   @override
-  Size get size => _inner!.size;
+  EdgeInsets get contentMargin => _inner!.contentMargin;
 
   @override
-  EdgeInsets get viewportDynamicOverlap => _inner!.viewportDynamicOverlap;
+  Size get size => _inner!.size;
 
   @override
   EdgeInsets get viewportPadding => _inner!.viewportPadding;
 
   @override
   Size get viewportSize => _inner!.viewportSize;
-
-  @override
-  EdgeInsets get viewportStaticOverlap => _inner!.viewportStaticOverlap;
 
   @override
   SheetMetrics copyWith({
@@ -1006,9 +1052,8 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
     Size? contentSize,
     Size? viewportSize,
     EdgeInsets? viewportPadding,
-    EdgeInsets? viewportDynamicOverlap,
-    EdgeInsets? viewportStaticOverlap,
     double? contentBaseline,
+    EdgeInsets? contentMargin,
     double? devicePixelRatio,
   }) {
     return ImmutableSheetMetrics(
@@ -1017,14 +1062,11 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
       maxOffset: maxOffset ?? _inner!.maxOffset,
       devicePixelRatio: devicePixelRatio ?? _inner!.devicePixelRatio,
       contentBaseline: contentBaseline ?? _inner!.contentBaseline,
+      contentMargin: contentMargin ?? _inner!.contentMargin,
       contentSize: contentSize ?? _inner!.contentSize,
       size: size ?? _inner!.size,
-      viewportDynamicOverlap:
-          viewportDynamicOverlap ?? _inner!.viewportDynamicOverlap,
       viewportPadding: viewportPadding ?? _inner!.viewportPadding,
       viewportSize: viewportSize ?? _inner!.viewportSize,
-      viewportStaticOverlap:
-          viewportStaticOverlap ?? _inner!.viewportStaticOverlap,
     );
   }
 }
