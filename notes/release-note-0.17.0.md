@@ -1,71 +1,85 @@
 # v0.17.0 Release Notes
 
-This version introduces a new flexible padding API for sheets, replacing the previous overlap-based approach with a more intuitive and powerful design.
+This version introduces a `padding` property on `Sheet` and `PagedSheet`, which gives you full control over how the sheet content responds to the keyboard, safe areas, or any other insets.
 
-## Replaced `shrinkChildToAvoidDynamicOverlap` and `shrinkChildToAvoidStaticOverlap` with `padding` 💥
+## Context
 
-Previously, `Sheet` and `PagedSheet` offered two boolean flags — `shrinkChildToAvoidDynamicOverlap` and `shrinkChildToAvoidStaticOverlap` — to control whether the sheet content should shrink to avoid system UI elements like the software keyboard or screen notches. While functional, this approach was limited: it only supported shrinking (not offsetting), offered no fine-grained control over which edges to adjust, and required understanding the distinction between "dynamic" and "static" overlaps.
+Previously, `Sheet` and `PagedSheet` offered two boolean flags — `shrinkChildToAvoidDynamicOverlap` and `shrinkChildToAvoidStaticOverlap` — to control whether a sheet automatically resizes its child to avoid the on-screen keyboard or screen notches. While they worked well in many cases, there're still cases where those simple 2 flags can't cover; for example, a floating sheet that has margin around it and the bottom margin changes depending on whether the keyboard is open.
 
-These flags have been replaced by a single `EdgeInsets padding` property on `Sheet` and `PagedSheet`. Instead of toggling automatic behaviors, you now specify the exact padding to apply around the sheet content. This gives full control over how the content responds to the keyboard, safe areas, or any other insets.
+## What's new?
 
-**Usage:**
+A `padding` property has been added to `Sheet` and `PagedSheet` widets to replace the two flags. This change has also eliminated the automatic content resizing behavior, so you now take responsibility for padding the sheet content to avoid the keyboard and the screen notches.
 
-Push the content above the keyboard:
+Although it sounds like a downgrade, it enables you to build more complex layouts that couldn't be achieved with the legacy flags. Here's an example of such layouts where the sheet avoids the screen notches at the first view, and shifts itself above the keyboard when it opens while preseving a fixed size of space between the keyboard and the sheet. Weirdly, this wan't possible because `shrinkChildToAvoidDynamicOverlap` interfered `SheetViewport.padding`, completely ignoring the padding when the keyboard is shown.
+
+// TODO Add an example usage of the padding property.
+
+// TODO: Add images of the example case
+
+### Sheet.padding vs. SheetViewport.padding vs. Padding widget
+
+You might wonder what it actually differs from  `SheetViewport.padding` and wrapping the sheet content (`Sheet.child`) with a `Padding` from the Flutter SDK. While [this interactive example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_padding.dart) is useful for understanding the differences with a visual comparison, but for TL;DL:
+
+- use `Sheet.padding` to inset the content,
+- use `SheetViewport.padding` to add margin around the sheet itself, and
+- wrapping the context with a `Padding` doesn't fit in most cases.
+
+## Breaking Changes
+
+`shrinkChildToAvoidDynamicOverlap` and `shrinkChildToAvoidStaticOverlap` flags on `Sheet` and `PagedSheet` **were removed**. Please follow the instructions below to migrate from the two flags to the padding property. The basic ruls are to replace:
+
+- `shrinkChildToAvoidDynamicOverlap: true` with a padding of `MediaQuery.viewInsetsOf(context).bottom`
+-  `shrinkChildToAvoidStaticOverlap: true` with a padding of `MediaQuery.viewPaddingOf(context).bottom`
+
+### For sheets with `shrinkChildToAvoidDynamicOverlap: true`
+
+You may enabled `shrinkChildToAvoidDynamicOverlap` to automatically shifts the sheet content upward to avoid the keyboard. It was true by default, so sheets not explicitly disabling that flag should also migrate to the padding property as follows:
+
+**BEFORE**
+
+```dart
+Sheet(
+  shrinkChildToAvoidDynamicOverlap: true,
+  child: ...,
+);
+```
+
+**AFTER**
 
 ```dart
 Sheet(
   padding: EdgeInsets.only(
-    bottom: MediaQuery.viewInsetsOf(context).bottom,
+  	bottom: MediaQuery.viewInsetsOf(context).bottom,
   ),
-  child: Container(height: 400),
+  child: ...,
 );
 ```
 
-Respect the bottom safe area when the keyboard is closed, and avoid the keyboard when open:
+### For sheets with `shrinkChildToAvoidStaticOverlap: true`
+
+Follow this migration guide if you enabled `shrinkChildToAvoidStaticOverlap` to automatically pads the content to avoid the screen notches at the bottom. It was false by default, so sheets not explicitly enabling that flag are not affected by this change.
+
+**BEFORE**
+
+```dart
+Sheet(
+  shrinkChildToAvoidStaticOverlap: true,
+  child: ...,
+);
+```
+
+**AFTER**
 
 ```dart
 Sheet(
   padding: EdgeInsets.only(
-    bottom: math.max(
-      MediaQuery.viewInsetsOf(context).bottom,
-      MediaQuery.viewPaddingOf(context).bottom,
-    ),
+  	bottom: MediaQuery.viewPaddingOf(context).bottom,
   ),
-  child: Container(height: 400),
+  child: ...,
 );
 ```
 
-### Why `padding` instead of a `Padding` widget?
-
-Although wrapping the child with a `Padding` widget may appear equivalent, they differ in a key way: the `Padding` widget's size is included in the child's size calculation, but `Sheet.padding` is not. This distinction matters when using `SheetOffset`s that depend on the child's size, such as snap positions.
-
-For example, with a sheet whose snap grid includes `SheetOffset(0.5)` and a child height of 400, the snap position resolves to 200 pixels. If a `Padding` widget is used to avoid the keyboard and the keyboard is 200 pixels tall, the child's height becomes 600, and the snap position shifts to 300 — not the expected 200 pixels above the keyboard. With `Sheet.padding`, the snap position remains at 200 regardless of the keyboard height.
-
-See [this example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_padding.dart) for a visual comparison.
-
-### `Sheet.padding` vs. `SheetViewport.padding`
-
-Both `Sheet.padding` and `SheetViewport.padding` can be used to avoid the keyboard, but they produce different visual results:
-
-- `Sheet.padding` pushes the **content** inside the sheet above the keyboard, without moving the sheet itself.
-- `SheetViewport.padding` pushes the **entire sheet** above the keyboard, keeping the sheet layout unchanged.
-
-```dart
-// Push the entire sheet up above the keyboard.
-SheetViewport(
-  padding: EdgeInsets.only(
-    bottom: MediaQuery.viewInsetsOf(context).bottom,
-  ),
-  child: Sheet(...),
-);
-```
-
-### Breaking Changes
-
-The following properties have been removed from `Sheet` and `PagedSheet`:
-
-- `shrinkChildToAvoidDynamicOverlap`
-- `shrinkChildToAvoidStaticOverlap`
+### For sheets with both `shrinkChildToAvoidDynamicOverlap: true` and `shrinkChildToAvoidStaticOverlap: true`
 
 **BEFORE**
 
@@ -73,7 +87,7 @@ The following properties have been removed from `Sheet` and `PagedSheet`:
 Sheet(
   shrinkChildToAvoidDynamicOverlap: true,
   shrinkChildToAvoidStaticOverlap: true,
-  child: MyContent(),
+  child: ...,
 );
 ```
 
@@ -87,23 +101,27 @@ Sheet(
       MediaQuery.viewPaddingOf(context).bottom,
     ),
   ),
-  child: MyContent(),
+  child: ...,
 );
 ```
 
-## Replaced `viewportDynamicOverlap` and `viewportStaticOverlap` with `contentMargin` 💥
 
-The internal metrics properties `viewportDynamicOverlap` and `viewportStaticOverlap` on `SheetMetrics`, `SheetLayoutSpec`, and related types have been replaced by a single `contentMargin` property. This simplifies the data model by collapsing two separate overlap concepts into one unified margin.
 
-### Breaking Changes
+## Other Breaking Changes
 
-The following properties have been removed:
+The following properties have also been removed:
 
 - `SheetMetrics.viewportDynamicOverlap`
+  - Use `MediaQuery.viewInsetsOf(context).bottom` from descendant widgets of a sheet instead.
+
 - `SheetMetrics.viewportStaticOverlap`
+  - Use `MediaQuery.viewPaddingOf(context).bottom` from descendant widgets of a sheet instead.
+
 - `SheetLayoutSpec.viewportDynamicOverlap`
+  - Use `MediaQuery.viewInsetsOf(context).bottom` from descendant widgets of a sheet instead.
+
 - `SheetLayoutSpec.viewportStaticOverlap`
+  - Use `MediaQuery.viewPaddingOf(context).bottom` from descendant widgets of a sheet instead.
+
 - `SheetLayoutSpec.shrinkContentToAvoidDynamicOverlap`
 - `SheetLayoutSpec.shrinkContentToAvoidStaticOverlap`
-
-Use `contentMargin` instead.
