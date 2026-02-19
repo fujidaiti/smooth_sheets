@@ -118,7 +118,7 @@ void main() {
       final oldMeasurements = ownerMetrics.copyWith();
       ownerMetrics
         ..contentSize = const Size(400, 850)
-        ..viewportDynamicOverlap = EdgeInsets.only(bottom: 50)
+        ..contentMargin = EdgeInsets.only(bottom: 50)
         ..contentBaseline = 50;
 
       activity.applyNewLayout(oldMeasurements);
@@ -303,7 +303,7 @@ void main() {
       final oldMeasurements = ownerMetrics.copyWith();
       // Show the on-screen keyboard.
       ownerMetrics
-        ..viewportDynamicOverlap = EdgeInsets.only(bottom: 30)
+        ..contentMargin = EdgeInsets.only(bottom: 30)
         ..contentBaseline = 30;
 
       activity.applyNewLayout(oldMeasurements);
@@ -332,14 +332,14 @@ void main() {
           ),
           contentSize: const Size(400, 800),
           viewportSize: const Size(400, 900),
-          viewportDynamicOverlap: EdgeInsets.only(bottom: 50),
+          contentMargin: EdgeInsets.only(bottom: 50),
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
         );
 
         final oldMeasurements = ownerMetrics.copyWith();
         ownerMetrics
-          ..viewportDynamicOverlap = EdgeInsets.only(bottom: 50)
+          ..contentMargin = EdgeInsets.only(bottom: 50)
           ..contentSize = const Size(400, 850)
           ..contentBaseline = 50;
 

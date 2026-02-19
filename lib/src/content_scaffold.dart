@@ -337,11 +337,15 @@ class _ScaffoldLayout
   @override
   SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox>
       createRenderObject(BuildContext context) {
+    final viewportContext = SheetViewportState.of(context)?.context;
     return _RenderScaffoldLayout(
-      sheetLayoutSpec: SheetMediaQuery.layoutSpecOf(context),
       extendBodyBehindTopBar: extendBodyBehindTopBar,
       extendBodyBehindBottomBar: extendBodyBehindBottomBar,
       ignoreBottomInset: ignoreBottomInset,
+      sheetLayoutSpec: SheetMediaQuery.layoutSpecOf(context),
+      viewportViewInsets: viewportContext != null
+          ? MediaQuery.viewInsetsOf(viewportContext)
+          : EdgeInsets.zero,
     );
   }
 
@@ -351,11 +355,15 @@ class _ScaffoldLayout
     SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox> renderObject,
   ) {
     super.updateRenderObject(context, renderObject);
+    final viewportContext = SheetViewportState.of(context)?.context;
     (renderObject as _RenderScaffoldLayout)
-      ..sheetLayoutSpec = SheetMediaQuery.layoutSpecOf(context)
       ..extendBodyBehindTopBar = extendBodyBehindTopBar
       ..extendBodyBehindBottomBar = extendBodyBehindBottomBar
-      ..ignoreBottomInset = ignoreBottomInset;
+      ..ignoreBottomInset = ignoreBottomInset
+      ..sheetLayoutSpec = SheetMediaQuery.layoutSpecOf(context)
+      ..viewportViewInsets = viewportContext != null
+          ? MediaQuery.viewInsetsOf(viewportContext)
+          : EdgeInsets.zero;
   }
 }
 
@@ -366,10 +374,12 @@ class _RenderScaffoldLayout extends RenderBox
     required bool extendBodyBehindBottomBar,
     required bool ignoreBottomInset,
     required SheetLayoutSpec sheetLayoutSpec,
+    required EdgeInsets viewportViewInsets,
   })  : _extendBodyBehindTopBar = extendBodyBehindTopBar,
         _extendBodyBehindBottomBar = extendBodyBehindBottomBar,
         _ignoreBottomInset = ignoreBottomInset,
-        _sheetLayoutSpec = sheetLayoutSpec;
+        _sheetLayoutSpec = sheetLayoutSpec,
+        _viewportViewInsets = viewportViewInsets;
 
   bool get extendBodyBehindTopBar => _extendBodyBehindTopBar;
   bool _extendBodyBehindTopBar;
@@ -403,6 +413,15 @@ class _RenderScaffoldLayout extends RenderBox
   set sheetLayoutSpec(SheetLayoutSpec value) {
     if (value != _sheetLayoutSpec) {
       _sheetLayoutSpec = value;
+      markNeedsLayout();
+    }
+  }
+
+  EdgeInsets get viewportViewInsets => _viewportViewInsets;
+  EdgeInsets _viewportViewInsets;
+  set viewportViewInsets(EdgeInsets value) {
+    if (value != _viewportViewInsets) {
+      _viewportViewInsets = value;
       markNeedsLayout();
     }
   }
@@ -509,8 +528,8 @@ class _RenderScaffoldLayout extends RenderBox
     if (ignoreBottomInset) {
       visibleBottomBarHeight = bottomBarHeight;
     } else {
-      final bottomInsetOverlap = _sheetLayoutSpec.maxSheetDynamicOverlap.bottom;
-      visibleBottomBarHeight = max(bottomBarHeight - bottomInsetOverlap, 0);
+      visibleBottomBarHeight =
+          max(bottomBarHeight - viewportViewInsets.bottom, 0);
     }
 
     // Layout the body.

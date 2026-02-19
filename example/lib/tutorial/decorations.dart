@@ -165,7 +165,9 @@ class _ExampleSheetState extends State<_ExampleSheet> {
     return Sheet(
       controller: _controller,
       decoration: decoration,
-      shrinkChildToAvoidStaticOverlap: true,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.paddingOf(context).bottom,
+      ),
       child: SizedBox(
         height: 500,
         width: double.infinity,

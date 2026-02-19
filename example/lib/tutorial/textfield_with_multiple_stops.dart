@@ -29,6 +29,10 @@ class TextFieldWithMultipleStops extends StatelessWidget {
                 size: SheetSize.stretch,
                 color: Theme.of(context).colorScheme.secondaryContainer,
               ),
+              padding: EdgeInsets.only(
+                // Pad the content to avoid the software keyboard.
+                bottom: MediaQuery.viewInsetsOf(context).bottom,
+              ),
               child: SheetContentScaffold(
                 backgroundColor:
                     Theme.of(context).colorScheme.secondaryContainer,

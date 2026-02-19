@@ -156,6 +156,10 @@ class _TodoEditorState extends State<TodoEditor> {
         ),
         child: Sheet(
           scrollConfiguration: const SheetScrollConfiguration(),
+          padding: EdgeInsets.only(
+            // Pad the content to avoid the software keyboard.
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
           decoration: MaterialSheetDecoration(
             size: SheetSize.stretch,
             color: Theme.of(context).colorScheme.secondaryContainer,

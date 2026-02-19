@@ -76,8 +76,7 @@ class Sheet extends StatelessWidget {
     this.scrollConfiguration,
     this.dragConfiguration = const SheetDragConfiguration(),
     this.decoration = const DefaultSheetDecoration(),
-    this.shrinkChildToAvoidDynamicOverlap = true,
-    this.shrinkChildToAvoidStaticOverlap = false,
+    this.padding = EdgeInsets.zero,
     required this.child,
   });
 
@@ -98,11 +97,8 @@ class Sheet extends StatelessWidget {
 
   final SheetDecoration decoration;
 
-  /// {@macro BareSheet.shrinkChildToAvoidDynamicOverlap}
-  final bool shrinkChildToAvoidDynamicOverlap;
-
-  /// {@macro BareSheet.shrinkChildToAvoidStaticOverlap}
-  final bool shrinkChildToAvoidStaticOverlap;
+  /// {@macro viewport.BareSheet.padding}
+  final EdgeInsets padding;
 
   /// The content of the sheet.
   final Widget child;
@@ -121,8 +117,7 @@ class Sheet extends StatelessWidget {
       ),
       child: BareSheet(
         decoration: decoration,
-        shrinkChildToAvoidDynamicOverlap: shrinkChildToAvoidDynamicOverlap,
-        shrinkChildToAvoidStaticOverlap: shrinkChildToAvoidStaticOverlap,
+        padding: padding,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,
