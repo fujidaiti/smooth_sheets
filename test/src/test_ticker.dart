@@ -20,8 +20,6 @@ class TestTicker implements Ticker {
   @override
   bool get isTicking => isActive && !muted;
 
-  // ignore: lines_longer_than_80_chars
-  // TODO: Remove the following ignore-rule once the minimum SDK is bumped to 3.29
   @override
   bool muted = false;
 
@@ -117,8 +115,8 @@ class TestAnimationController extends AnimationController {
     required super.lowerBound,
     required super.upperBound,
     required _SingleVsync vsync,
-  })  : _vsync = vsync,
-        super(vsync: vsync);
+  }) : _vsync = vsync,
+       super(vsync: vsync);
 
   final _SingleVsync _vsync;
 

@@ -238,33 +238,37 @@ void main() {
       );
     });
 
-    test('visibleContentRect - when content is partially visible at the top',
-        () {
-      expect(
-        _TestSheetMetrics(
-          offset: 900,
-          size: Size(400, 300),
-          contentSize: Size(400, 300),
-          viewportSize: Size(400, 800),
-          viewportPadding: EdgeInsets.zero,
-        ).visibleContentRect,
-        Rect.fromLTWH(0, 0, 400, 200),
-      );
-    });
+    test(
+      'visibleContentRect - when content is partially visible at the top',
+      () {
+        expect(
+          _TestSheetMetrics(
+            offset: 900,
+            size: Size(400, 300),
+            contentSize: Size(400, 300),
+            viewportSize: Size(400, 800),
+            viewportPadding: EdgeInsets.zero,
+          ).visibleContentRect,
+          Rect.fromLTWH(0, 0, 400, 200),
+        );
+      },
+    );
 
-    test('visibleContentRect - when content is partially visible at the bottom',
-        () {
-      expect(
-        _TestSheetMetrics(
-          offset: 100,
-          size: Size(400, 300),
-          contentSize: Size(400, 300),
-          viewportSize: Size(400, 800),
-          viewportPadding: EdgeInsets.zero,
-        ).visibleContentRect,
-        Rect.fromLTWH(0, 700, 400, 100),
-      );
-    });
+    test(
+      'visibleContentRect - when content is partially visible at the bottom',
+      () {
+        expect(
+          _TestSheetMetrics(
+            offset: 100,
+            size: Size(400, 300),
+            contentSize: Size(400, 300),
+            viewportSize: Size(400, 800),
+            viewportPadding: EdgeInsets.zero,
+          ).visibleContentRect,
+          Rect.fromLTWH(0, 700, 400, 100),
+        );
+      },
+    );
 
     test('visibleContentRect - when content is not visible', () {
       expect(
@@ -295,16 +299,16 @@ class _TestSheetMetrics with SheetMetrics {
     EdgeInsets? contentMargin,
     EdgeInsets? viewportPadding,
     Size? viewportSize,
-  })  : _contentBaseline = contentBaseline,
-        _contentSize = contentSize,
-        _devicePixelRatio = devicePixelRatio,
-        _maxOffset = maxOffset,
-        _minOffset = minOffset,
-        _offset = offset,
-        _size = size,
-        _contentMargin = contentMargin,
-        _viewportPadding = viewportPadding,
-        _viewportSize = viewportSize;
+  }) : _contentBaseline = contentBaseline,
+       _contentSize = contentSize,
+       _devicePixelRatio = devicePixelRatio,
+       _maxOffset = maxOffset,
+       _minOffset = minOffset,
+       _offset = offset,
+       _size = size,
+       _contentMargin = contentMargin,
+       _viewportPadding = viewportPadding,
+       _viewportSize = viewportSize;
 
   final double? _contentBaseline;
   final Size? _contentSize;

@@ -14,3 +14,4 @@ linter:
     prefer_relative_imports: true
     unnecessary_parenthesis: false
     avoid_positional_boolean_parameters: false
+    omit_obvious_property_types: false

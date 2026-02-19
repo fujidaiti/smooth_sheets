@@ -1,12 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-// TODO: Remove this import after the minimum sdk version is bumped to 3.35.0
-//
-// @internal annotation has been included in flutter/foundation.dart since 3.35.0.
-// See: https://github.com/flutter/flutter/commit/5706259791de29a27cb68e9b95d6319ba863e366
-// ignore: unnecessary_import
-import 'package:meta/meta.dart';
 
 import 'model.dart';
 import 'model_owner.dart';
@@ -84,23 +78,20 @@ class _SheetDraggableState extends State<SheetDraggable> {
       gestures: {
         VerticalDragGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
-          () => VerticalDragGestureRecognizer(
-            debugOwner: kDebugMode ? runtimeType : null,
-            supportedDevices: const {PointerDeviceKind.touch},
-          ),
-          (instance) => instance
-            ..onStart = _handleDragStart
-            ..onUpdate = _handleDragUpdate
-            ..onEnd = _handleDragEnd
-            ..onCancel = _handleDragCancel,
-        ),
+              () => VerticalDragGestureRecognizer(
+                debugOwner: kDebugMode ? runtimeType : null,
+                supportedDevices: const {PointerDeviceKind.touch},
+              ),
+              (instance) => instance
+                ..onStart = _handleDragStart
+                ..onUpdate = _handleDragUpdate
+                ..onEnd = _handleDragEnd
+                ..onCancel = _handleDragCancel,
+            ),
       },
       // At least one hit-testable widget is required
       // to receive drag events.
-      child: ColoredBox(
-        color: const Color(0x00000000),
-        child: widget.child,
-      ),
+      child: ColoredBox(color: const Color(0x00000000), child: widget.child),
     );
   }
 }

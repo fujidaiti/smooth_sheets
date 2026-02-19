@@ -29,15 +29,11 @@ const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 /// If `null`, the default [AnimatedModalBarrier] is used with the
 /// configured [ModalSheetPage.barrierColor]. The default value is `null`.
 /// {@endtemplate}
-typedef ModalSheetBarrierBuilder<T> = Widget Function(
-  ModalRoute<T> route,
-  VoidCallback onDismissCallback,
-);
+typedef ModalSheetBarrierBuilder<T> =
+    Widget Function(ModalRoute<T> route, VoidCallback onDismissCallback);
 
-typedef SheetViewportBuilder = Widget Function(
-  BuildContext context,
-  Widget child,
-);
+typedef SheetViewportBuilder =
+    Widget Function(BuildContext context, Widget child);
 
 class ModalSheetPage<T> extends Page<T> {
   const ModalSheetPage({
@@ -245,12 +241,13 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     Animation<double> secondaryAnimation,
   ) {
     return buildViewport(
-        context,
-        _SheetDismissible(
-          enabled: swipeDismissible,
-          sensitivity: swipeDismissSensitivity,
-          child: buildSheet(context),
-        ));
+      context,
+      _SheetDismissible(
+        enabled: swipeDismissible,
+        sensitivity: swipeDismissSensitivity,
+        child: buildSheet(context),
+      ),
+    );
   }
 
   @override
@@ -439,8 +436,9 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       // Dominantly use the full pixels if it is in the middle of a transition.
       effectiveDragDelta = dragDelta;
     } else if (dragDelta < 0 &&
-        FloatComp.distance(MediaQuery.devicePixelRatioOf(context))
-            .isNotApprox(dragDelta, minPDC) &&
+        FloatComp.distance(
+          MediaQuery.devicePixelRatioOf(context),
+        ).isNotApprox(dragDelta, minPDC) &&
         MediaQuery.viewInsetsOf(context).bottom == 0) {
       // If the drag is downwards and the sheet may not consume the full pixels,
       // then use the remaining pixels as the effective drag delta.
@@ -457,8 +455,10 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     final viewport = _navigatorSize.height;
     final visibleViewport = viewport * _transitionController.value;
     assert(0 <= visibleViewport && visibleViewport <= viewport);
-    final newVisibleViewport =
-        (visibleViewport + effectiveDragDelta).clamp(0, viewport);
+    final newVisibleViewport = (visibleViewport + effectiveDragDelta).clamp(
+      0,
+      viewport,
+    );
 
     assert(viewport > 0);
     final transitionProgress = newVisibleViewport / viewport;
@@ -523,15 +523,16 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       // Flings down.
       invokePop =
           effectiveVelocity.abs() > widget.sensitivity.minFlingVelocityRatio;
-    } else if (FloatComp.velocity(MediaQuery.devicePixelRatioOf(context))
-        .isApprox(effectiveVelocity, 0)) {
+    } else if (FloatComp.velocity(
+      MediaQuery.devicePixelRatioOf(context),
+    ).isApprox(effectiveVelocity, 0)) {
       assert(draggedDistance >= 0);
       // Dragged down enough to dismiss.
       final viewPortState = SheetViewportState.of(context);
       final currentOffset = viewPortState!.model.offset;
 
-      final resolvedDismissalOffset =
-          widget.sensitivity.dismissalOffset.resolve(viewPortState.model);
+      final resolvedDismissalOffset = widget.sensitivity.dismissalOffset
+          .resolve(viewPortState.model);
 
       final apparentOffset = currentOffset - draggedDistance;
       invokePop = resolvedDismissalOffset > apparentOffset;
@@ -554,11 +555,13 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       );
 
       const completedAnimationValue = 1.0;
-      unawaited(_transitionController.animateTo(
-        completedAnimationValue,
-        duration: Duration(milliseconds: animationTime),
-        curve: _releasedPageForwardAnimationCurve,
-      ));
+      unawaited(
+        _transitionController.animateTo(
+          completedAnimationValue,
+          duration: Duration(milliseconds: animationTime),
+          curve: _releasedPageForwardAnimationCurve,
+        ),
+      );
     }
 
     // Reset the transition animation curve back to the default from linear
@@ -610,10 +613,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
   @override
   Widget build(BuildContext context) {
-    final child = KeyedSubtree(
-      key: _childGlobalKey,
-      child: widget.child,
-    );
+    final child = KeyedSubtree(key: _childGlobalKey, child: widget.child);
     return _isGestureEnabled
         ? SheetGestureProxy(proxy: this, child: child)
         : child;
@@ -793,8 +793,8 @@ class _SheetPopScopeState<T> extends State<SheetPopScope<T>> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final sheetDismissible =
-        context.findAncestorStateOfType<_SheetDismissibleState>();
+    final sheetDismissible = context
+        .findAncestorStateOfType<_SheetDismissibleState>();
     if (sheetDismissible != _sheetDismissible) {
       _sheetDismissible?.unregisterPopScope(this);
       _sheetDismissible = sheetDismissible?..registerPopScope(this);

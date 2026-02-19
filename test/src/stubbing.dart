@@ -6,9 +6,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:smooth_sheets/src/model.dart';
 
 @GenerateNiceMocks([
-  MockSpec<SheetModel>(
-    onMissingStub: OnMissingStub.throwException,
-  ),
+  MockSpec<SheetModel>(onMissingStub: OnMissingStub.throwException),
   MockSpec<SheetContext>(),
   MockSpec<SheetMetrics>(),
   MockSpec<AnimationController>(),
@@ -111,8 +109,9 @@ class MutableSheetMetrics with SheetMetrics {
     contentSize: contentSize,
     contentBaseline: contentMargin.bottom,
   );
-  final (initialMinOffset, initialMaxOffset) =
-      snapGrid.getBoundaries(initialMeasurements);
+  final (initialMinOffset, initialMaxOffset) = snapGrid.getBoundaries(
+    initialMeasurements,
+  );
   final metricsRegistry = MutableSheetMetrics(
     offset: offset,
     minOffset: initialMinOffset.resolve(initialMeasurements),
@@ -131,17 +130,20 @@ class MutableSheetMetrics with SheetMetrics {
   when(position.contentSize).thenAnswer((_) => metricsRegistry.contentSize);
   when(position.size).thenAnswer((_) => metricsRegistry.size);
   when(position.viewportSize).thenAnswer((_) => metricsRegistry.viewportSize);
-  when(position.viewportPadding)
-      .thenAnswer((_) => metricsRegistry.viewportPadding);
+  when(
+    position.viewportPadding,
+  ).thenAnswer((_) => metricsRegistry.viewportPadding);
   when(position.contentMargin).thenAnswer((_) => metricsRegistry.contentMargin);
-  when(position.contentBaseline)
-      .thenAnswer((_) => metricsRegistry.contentBaseline);
+  when(
+    position.contentBaseline,
+  ).thenAnswer((_) => metricsRegistry.contentBaseline);
   when(position.offset).thenAnswer((_) => metricsRegistry.offset);
   when(position.initialOffset).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
-  when(position.devicePixelRatio)
-      .thenAnswer((_) => metricsRegistry.devicePixelRatio);
+  when(
+    position.devicePixelRatio,
+  ).thenAnswer((_) => metricsRegistry.devicePixelRatio);
   when(position.copyWith()).thenAnswer((_) => metricsRegistry);
 
   when(position.offset = any).thenAnswer((invocation) {
@@ -157,17 +159,19 @@ class MutableSheetMetrics with SheetMetrics {
       ..contentBaseline = layout.contentBaseline;
   });
   when(position.snapGrid).thenReturn(snapGrid);
-  when(position.copyWith(
-    offset: anyNamed('offset'),
-    minOffset: anyNamed('minOffset'),
-    maxOffset: anyNamed('maxOffset'),
-    size: anyNamed('size'),
-    devicePixelRatio: anyNamed('devicePixelRatio'),
-    contentBaseline: anyNamed('contentBaseline'),
-    contentSize: anyNamed('contentSize'),
-    viewportPadding: anyNamed('viewportPadding'),
-    viewportSize: anyNamed('viewportSize'),
-  )).thenAnswer((invocation) {
+  when(
+    position.copyWith(
+      offset: anyNamed('offset'),
+      minOffset: anyNamed('minOffset'),
+      maxOffset: anyNamed('maxOffset'),
+      size: anyNamed('size'),
+      devicePixelRatio: anyNamed('devicePixelRatio'),
+      contentBaseline: anyNamed('contentBaseline'),
+      contentSize: anyNamed('contentSize'),
+      viewportPadding: anyNamed('viewportPadding'),
+      viewportSize: anyNamed('viewportSize'),
+    ),
+  ).thenAnswer((invocation) {
     return metricsRegistry.copyWith(
       offset: invocation.namedArguments[#offset] as double?,
       minOffset: invocation.namedArguments[#minOffset] as double?,

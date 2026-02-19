@@ -24,11 +24,13 @@ const _referenceSheetMetrics = ImmutableSheetMetrics(
   size: Size(400, 600),
 );
 
-final SheetMetrics _metricsAtTopEdge =
-    _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.maxOffset);
+final SheetMetrics _metricsAtTopEdge = _referenceSheetMetrics.copyWith(
+  offset: _referenceSheetMetrics.maxOffset,
+);
 
-final SheetMetrics _metricsAtBottomEdge =
-    _referenceSheetMetrics.copyWith(offset: _referenceSheetMetrics.minOffset);
+final SheetMetrics _metricsAtBottomEdge = _referenceSheetMetrics.copyWith(
+  offset: _referenceSheetMetrics.minOffset,
+);
 
 final SheetMetrics _metricsAtMiddle = _referenceSheetMetrics.copyWith(
   offset: (_metricsAtTopEdge.offset + _metricsAtBottomEdge.offset) / 2,
@@ -71,9 +73,11 @@ void main() {
 
     test('does not apply any resistance if position is in bounds', () {
       final positionAtNearTopEdge = _referenceSheetMetrics.copyWith(
-          offset: _referenceSheetMetrics.maxOffset - 10);
+        offset: _referenceSheetMetrics.maxOffset - 10,
+      );
       final positionAtNearBottomEdge = _referenceSheetMetrics.copyWith(
-          offset: _referenceSheetMetrics.minOffset + 10);
+        offset: _referenceSheetMetrics.minOffset + 10,
+      );
 
       expect(
         physicsUnderTest.applyPhysicsToOffset(10, _metricsAtMiddle),
@@ -169,10 +173,7 @@ void main() {
 
   group('BouncingSheetPhysics', () {
     test('progressively applies friction if position is out of bounds', () {
-      const physics = BouncingSheetPhysics(
-        resistance: 0,
-        bounceExtent: 50,
-      );
+      const physics = BouncingSheetPhysics(resistance: 0, bounceExtent: 50);
 
       final overDraggedPosition = _referenceSheetMetrics.copyWith(
         offset: _referenceSheetMetrics.maxOffset + 10,
@@ -188,10 +189,7 @@ void main() {
     test(
       'does not allow to go beyond offset limits plus/minus bounceExtent',
       () {
-        const physics = BouncingSheetPhysics(
-          resistance: 0,
-          bounceExtent: 30,
-        );
+        const physics = BouncingSheetPhysics(resistance: 0, bounceExtent: 30);
 
         final overDraggedPosition = _referenceSheetMetrics.copyWith(
           offset: _referenceSheetMetrics.maxOffset + 20,
@@ -212,20 +210,14 @@ void main() {
     );
 
     test('applies friction even if position is on boundary', () {
-      const physics = BouncingSheetPhysics(
-        resistance: 0,
-        bounceExtent: 50,
-      );
+      const physics = BouncingSheetPhysics(resistance: 0, bounceExtent: 50);
 
       expect(physics.applyPhysicsToOffset(10, _metricsAtTopEdge), 8);
       expect(physics.applyPhysicsToOffset(-10, _metricsAtBottomEdge), -8);
     });
 
     test('can apply a reasonable friction to extremely large offset', () {
-      const physics = BouncingSheetPhysics(
-        resistance: 0,
-        bounceExtent: 50,
-      );
+      const physics = BouncingSheetPhysics(resistance: 0, bounceExtent: 50);
 
       expect(
         physics.applyPhysicsToOffset(300, _metricsAtTopEdge),

@@ -145,10 +145,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
     } on Error catch (error, stackTrace) {
       // Forward the error to Flutter.onError
       FlutterError.reportError(
-        FlutterErrorDetails(
-          exception: error,
-          stack: stackTrace,
-        ),
+        FlutterErrorDetails(exception: error, stack: stackTrace),
       );
     }
   }
@@ -177,10 +174,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
       // ignore: avoid_catching_errors
     } on FlutterError catch (error, stackTrace) {
       FlutterError.reportError(
-        FlutterErrorDetails(
-          exception: error,
-          stack: stackTrace,
-        ),
+        FlutterErrorDetails(exception: error, stack: stackTrace),
       );
     }
 
@@ -188,8 +182,10 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
       return;
     }
 
-    final viewFinder =
-        t.find.ancestor(of: target, matching: t.find.byType(View));
+    final viewFinder = t.find.ancestor(
+      of: target,
+      matching: t.find.byType(View),
+    );
     final view = firstWidget<View>(viewFinder).view;
     final result = HitTestResult();
     binding.hitTestInView(result, location, view.viewId);
@@ -199,40 +195,37 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
       return;
     }
 
-    final renderView =
-        binding.renderViews.firstWhere((r) => r.flutterView == view);
+    final renderView = binding.renderViews.firstWhere(
+      (r) => r.flutterView == view,
+    );
     final outOfBounds = !(Offset.zero & renderView.size).contains(location);
 
     FlutterError.reportError(
       FlutterErrorDetails(
-        exception: FlutterError.fromParts(
-          <DiagnosticsNode>[
-            ErrorSummary(
-              'Finder specifies a widget that '
-              'would not receive pointer events.',
-            ),
-            ErrorDescription(
-              'The widget specified by the finder "$target" would not '
-              'receive pointer events at the given location "$location".',
-            ),
+        exception: FlutterError.fromParts(<DiagnosticsNode>[
+          ErrorSummary(
+            'Finder specifies a widget that '
+            'would not receive pointer events.',
+          ),
+          ErrorDescription(
+            'The widget specified by the finder "$target" would not '
+            'receive pointer events at the given location "$location".',
+          ),
+          ErrorHint(
+            'Maybe the widget is actually off-screen, or another widget is '
+            'obscuring it, or the widget cannot receive pointer events.',
+          ),
+          if (outOfBounds)
             ErrorHint(
-              'Maybe the widget is actually off-screen, or another widget is '
-              'obscuring it, or the widget cannot receive pointer events.',
+              'Indeed, $location is outside the bounds of the root '
+              'of the render tree, ${renderView.size}.',
             ),
-            if (outOfBounds)
-              ErrorHint(
-                'Indeed, $location is outside the bounds of the root '
-                'of the render tree, ${renderView.size}.',
-              ),
-            box.toDiagnosticsNode(
-              name: 'The finder corresponds to this RenderBox',
-              style: DiagnosticsTreeStyle.singleLine,
-            ),
-            ErrorDescription(
-              'The hit test result at that offset is: $result',
-            ),
-          ],
-        ),
+          box.toDiagnosticsNode(
+            name: 'The finder corresponds to this RenderBox',
+            style: DiagnosticsTreeStyle.singleLine,
+          ),
+          ErrorDescription('The hit test result at that offset is: $result'),
+        ]),
         stack: StackTrace.current,
       ),
     );
@@ -272,16 +265,14 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
   Future<void> dragUpward(
     t.FinderBase<Element> finder, {
     required double deltaY,
-  }) =>
-      drag(finder, Offset(0, -deltaY));
+  }) => drag(finder, Offset(0, -deltaY));
 
   /// Attempts to drag the given widget downward by the given [deltaY],
   /// by starting a drag in the middle of the widget.
   Future<void> dragDownward(
     t.FinderBase<Element> finder, {
     required double deltaY,
-  }) =>
-      drag(finder, Offset(0, deltaY));
+  }) => drag(finder, Offset(0, deltaY));
 
   /// Returns the local rectangle of the widget specified by the [finder].
   ///

@@ -114,10 +114,7 @@ class BoxSheetDecoration extends SizedSheetDecoration {
 }
 
 class SheetDecorationBuilder extends SizedSheetDecoration {
-  const SheetDecorationBuilder({
-    required super.size,
-    required this.builder,
-  });
+  const SheetDecorationBuilder({required super.size, required this.builder});
 
   final Widget Function(BuildContext, Widget) builder;
 

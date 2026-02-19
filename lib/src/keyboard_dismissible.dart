@@ -93,21 +93,22 @@ class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
 abstract class SheetKeyboardDismissBehavior {
   /// Creates an object that determines when the on-screen keyboard
   /// should be dismissed.
-  const SheetKeyboardDismissBehavior({
-    this.isContentScrollAware = false,
-  });
+  const SheetKeyboardDismissBehavior({this.isContentScrollAware = false});
 
   /// {@macro drag_sheet_keyboard_dismiss_behavior.ctor}
-  const factory SheetKeyboardDismissBehavior.onDrag(
-      {bool isContentScrollAware}) = DragSheetKeyboardDismissBehavior;
+  const factory SheetKeyboardDismissBehavior.onDrag({
+    bool isContentScrollAware,
+  }) = DragSheetKeyboardDismissBehavior;
 
   /// {@macro drag_down_sheet_keyboard_dismiss_behavior.ctor}
-  const factory SheetKeyboardDismissBehavior.onDragDown(
-      {bool isContentScrollAware}) = DragDownSheetKeyboardDismissBehavior;
+  const factory SheetKeyboardDismissBehavior.onDragDown({
+    bool isContentScrollAware,
+  }) = DragDownSheetKeyboardDismissBehavior;
 
   /// {@macro drag_up_sheet_keyboard_dismiss_behavior.ctor}
-  const factory SheetKeyboardDismissBehavior.onDragUp(
-      {bool isContentScrollAware}) = DragUpSheetKeyboardDismissBehavior;
+  const factory SheetKeyboardDismissBehavior.onDragUp({
+    bool isContentScrollAware,
+  }) = DragUpSheetKeyboardDismissBehavior;
 
   /// Whether the sheet should be aware of the content scrolling.
   ///
