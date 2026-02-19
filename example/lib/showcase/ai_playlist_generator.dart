@@ -402,20 +402,18 @@ class _ConfirmPage extends StatelessWidget {
                     icon: const Icon(Icons.edit_outlined),
                   ),
                 ),
-                RadioListTile(
-                  title: Text(_moods.first.label),
-                  secondary: Text(
-                    _moods.first.emoji,
-                    style: const TextStyle(fontSize: 24),
-                  ),
-                  controlAffinity: ListTileControlAffinity.trailing,
-                  value: '',
-                  // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-                  // ignore: deprecated_member_use
+                RadioGroup<String>(
                   groupValue: '',
-                  // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-                  // ignore: deprecated_member_use
                   onChanged: (_) {},
+                  child: RadioListTile(
+                    title: Text(_moods.first.label),
+                    secondary: Text(
+                      _moods.first.emoji,
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                    controlAffinity: ListTileControlAffinity.trailing,
+                    value: '',
+                  ),
                 ),
                 const Divider(height: 32),
                 ListTile(
@@ -551,29 +549,29 @@ class _SelectableMoodListState extends State<_SelectableMoodList> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final mood in _moods)
-          RadioListTile(
-            title: Text(mood.label),
-            secondary: Text(
-              mood.emoji,
-              style: const TextStyle(fontSize: 24),
+    return RadioGroup<String>(
+      groupValue: selectedMood,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() => selectedMood = value);
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final mood in _moods)
+            RadioListTile(
+              title: Text(mood.label),
+              secondary: Text(
+                mood.emoji,
+                style: const TextStyle(fontSize: 24),
+              ),
+              controlAffinity: ListTileControlAffinity.trailing,
+              selected: mood.label == selectedMood,
+              value: mood.label,
             ),
-            controlAffinity: ListTileControlAffinity.trailing,
-            selected: mood.label == selectedMood,
-            value: mood.label,
-            // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-            // ignore: deprecated_member_use
-            groupValue: selectedMood,
-            // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-            // ignore: deprecated_member_use
-            onChanged: (newMooed) => setState(() {
-              selectedMood = newMooed;
-            }),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -6,12 +6,6 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// TODO: Remove this import after the minimum sdk version is bumped to 3.35.0
-//
-// @internal annotation has been included in flutter/foundation.dart since 3.35.0.
-// See: https://github.com/flutter/flutter/commit/5706259791de29a27cb68e9b95d6319ba863e366
-// ignore: unnecessary_import
-import 'package:meta/meta.dart';
 
 import 'model.dart';
 
@@ -45,12 +39,12 @@ class SheetLayoutSpec {
   /// returned by [BareSheet.decoration]. This allows the sheet to
   /// stretch vertically in response to user gestures.
   Rect get maxSheetRect => Rect.fromLTWH(
-        viewportPadding.left,
-        0,
-        viewportSize.width - viewportPadding.horizontal,
-        // TODO: Reduce the height by the viewportPadding.vertical
-        viewportSize.height,
-      );
+    viewportPadding.left,
+    0,
+    viewportSize.width - viewportPadding.horizontal,
+    // TODO: Reduce the height by the viewportPadding.vertical
+    viewportSize.height,
+  );
 
   /// The maximum rectangle that the sheet's content can occupy
   /// within the viewport.
@@ -60,13 +54,11 @@ class SheetLayoutSpec {
   /// The width and the bottom of the rectangle are fixed, so only
   /// the height can be adjusted within the constraint.
   Rect get maxContentRect => Rect.fromLTWH(
-        maxSheetRect.left + contentMargin.left,
-        viewportPadding.top + contentMargin.top,
-        viewportSize.width -
-            viewportPadding.horizontal -
-            contentMargin.horizontal,
-        viewportSize.height - viewportPadding.vertical - contentMargin.vertical,
-      );
+    maxSheetRect.left + contentMargin.left,
+    viewportPadding.top + contentMargin.top,
+    viewportSize.width - viewportPadding.horizontal - contentMargin.horizontal,
+    viewportSize.height - viewportPadding.vertical - contentMargin.vertical,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -77,11 +69,7 @@ class SheetLayoutSpec {
           contentMargin == other.contentMargin;
 
   @override
-  int get hashCode => Object.hash(
-        viewportSize,
-        viewportPadding,
-        contentMargin,
-      );
+  int get hashCode => Object.hash(viewportSize, viewportPadding, contentMargin);
 }
 
 typedef SheetLayoutListenable = ValueListenable<SheetLayout?>;
@@ -184,15 +172,15 @@ class SheetMediaQuery extends StatelessWidget {
       child: MediaQuery(
         data: switch (inheritedMediaQuery) {
           null => MediaQueryData(
-              viewPadding: viewPaddingForChild,
-              viewInsets: viewInsetsForChild,
-              padding: paddingForChild,
-            ),
+            viewPadding: viewPaddingForChild,
+            viewInsets: viewInsetsForChild,
+            padding: paddingForChild,
+          ),
           final inheritedData => inheritedData.copyWith(
-              viewPadding: viewPaddingForChild,
-              viewInsets: viewInsetsForChild,
-              padding: paddingForChild,
-            ),
+            viewPadding: viewPaddingForChild,
+            viewInsets: viewInsetsForChild,
+            padding: paddingForChild,
+          ),
         },
         child: child,
       ),
@@ -303,10 +291,7 @@ class SheetViewportState extends State<SheetViewport> {
 
     return _InheritedSheetViewport(
       state: this,
-      child: _SheetTranslate(
-        padding: widget.padding,
-        child: widget.child,
-      ),
+      child: _SheetTranslate(padding: widget.padding, child: widget.child),
     );
   }
 
@@ -318,10 +303,7 @@ class SheetViewportState extends State<SheetViewport> {
 }
 
 class _InheritedSheetViewport extends InheritedWidget {
-  const _InheritedSheetViewport({
-    required this.state,
-    required super.child,
-  });
+  const _InheritedSheetViewport({required this.state, required super.child});
 
   final SheetViewportState state;
 
@@ -330,10 +312,7 @@ class _InheritedSheetViewport extends InheritedWidget {
 }
 
 class _SheetTranslate extends SingleChildRenderObjectWidget {
-  const _SheetTranslate({
-    required super.child,
-    required this.padding,
-  });
+  const _SheetTranslate({required super.child, required this.padding});
 
   final EdgeInsets padding;
   @override
@@ -362,14 +341,14 @@ class _RenderSheetTranslate extends RenderTransform {
     required EdgeInsets padding,
     required EdgeInsets viewInsets,
     required EdgeInsets viewPadding,
-  })  : _model = model,
-        _padding = padding,
-        _viewInsets = viewInsets,
-        _viewPadding = viewPadding,
-        super(
-          transform: Matrix4.zero()..setIdentity(),
-          transformHitTests: true,
-        ) {
+  }) : _model = model,
+       _padding = padding,
+       _viewInsets = viewInsets,
+       _viewPadding = viewPadding,
+       super(
+         transform: Matrix4.zero()..setIdentity(),
+         transformHitTests: true,
+       ) {
     model.addRectListener(_invalidateTransformMatrix);
     _invalidateTransformMatrix();
   }
@@ -483,10 +462,7 @@ class _SheetConstraints extends BoxConstraints {
     required this.viewportInsets,
     required this.viewportPadding,
     required this.viewportViewPadding,
-  }) : super(
-          maxWidth: viewportSize.width,
-          maxHeight: viewportSize.height,
-        );
+  }) : super(maxWidth: viewportSize.width, maxHeight: viewportSize.height);
 
   final Size viewportSize;
   final EdgeInsets viewportInsets;
@@ -511,12 +487,12 @@ class _SheetConstraints extends BoxConstraints {
 
   @override
   int get hashCode => Object.hash(
-        super.hashCode,
-        viewportSize,
-        viewportInsets,
-        viewportPadding,
-        viewportViewPadding,
-      );
+    super.hashCode,
+    viewportSize,
+    viewportInsets,
+    viewportPadding,
+    viewportViewPadding,
+  );
 }
 
 @immutable
@@ -573,8 +549,8 @@ class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
   _RenderDebugAssertSheetDecorationUsage({
     required Type sheetDecorationType,
     required SheetLayoutSpec expectedLayoutSpec,
-  })  : _sheetDecorationType = sheetDecorationType,
-        _expectedLayoutSpec = expectedLayoutSpec;
+  }) : _sheetDecorationType = sheetDecorationType,
+       _expectedLayoutSpec = expectedLayoutSpec;
 
   Type _sheetDecorationType;
   // ignore: avoid_setters_without_getters
@@ -841,10 +817,10 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     required _LazySheetModelView model,
     required SheetLayoutSpec layoutSpec,
     required _GetPreferredExtent getPreferredExtent,
-  })  : _model = model,
-        _layoutSpec = layoutSpec,
-        _getPreferredExtent = getPreferredExtent,
-        super(null) {
+  }) : _model = model,
+       _layoutSpec = layoutSpec,
+       _getPreferredExtent = getPreferredExtent,
+       super(null) {
     model.addListener(_invalidatePreferredExtent);
     _invalidatePreferredExtent();
   }
@@ -968,14 +944,10 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     super.debugPaintSize(context, offset);
     assert(() {
       final outerRect = offset & size;
-      debugPaintPadding(
-        context.canvas,
-        outerRect,
-        switch (child) {
-          null => null,
-          final child => Offset.zero & child.size,
-        },
-      );
+      debugPaintPadding(context.canvas, outerRect, switch (child) {
+        null => null,
+        final child => Offset.zero & child.size,
+      });
       return true;
     }());
   }
@@ -1002,12 +974,11 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
         ?..addListener(notifyListeners)
         ..addRectListener(_rectNotifier.notifyListeners);
 
-      if (newModel
-          case SheetModel(
-            hasMetrics: true,
-            :final offset,
-            :final rect,
-          )) {
+      if (newModel case SheetModel(
+        hasMetrics: true,
+        :final offset,
+        :final rect,
+      )) {
         if (offset != oldOffset) {
           notifyListeners();
         }

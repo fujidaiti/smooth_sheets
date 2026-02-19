@@ -26,9 +26,7 @@ import 'physics.dart';
 /// - [NotificationListener], which can be used to listen for notifications
 ///   in a subtree.
 sealed class SheetNotification extends Notification {
-  const SheetNotification({
-    required this.metrics,
-  });
+  const SheetNotification({required this.metrics});
 
   /// A snapshot of the sheet metrics at the time this notification was sent.
   final SheetMetrics metrics;
@@ -116,9 +114,7 @@ class SheetDragEndNotification extends SheetNotification {
 class SheetDragCancelNotification extends SheetNotification {
   /// Create a notification that is dispatched when a drag gesture
   /// in the sheet is canceled.
-  const SheetDragCancelNotification({
-    required super.metrics,
-  });
+  const SheetDragCancelNotification({required super.metrics});
 }
 
 /// A [SheetNotification] that is dispatched when the user tries

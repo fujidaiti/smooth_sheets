@@ -74,19 +74,23 @@ class _ExampleHomeState extends State<_ExampleHome> {
               style: Theme.of(context).textTheme.labelLarge,
             ),
           ),
-          for (final physics in _PhysicsKind.values)
-            RadioListTile(
-              title: Text(physics.name),
-              value: physics,
-              // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-              // ignore: deprecated_member_use
-              groupValue: selectedPhysics,
-              // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-              // ignore: deprecated_member_use
-              onChanged: (value) => setState(() {
-                selectedPhysics = value!;
-              }),
+          RadioGroup<_PhysicsKind>(
+            groupValue: selectedPhysics,
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => selectedPhysics = value);
+              }
+            },
+            child: Column(
+              children: [
+                for (final physics in _PhysicsKind.values)
+                  RadioListTile(
+                    title: Text(physics.name),
+                    value: physics,
+                  ),
+              ],
             ),
+          ),
           const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -95,19 +99,23 @@ class _ExampleHomeState extends State<_ExampleHome> {
               style: Theme.of(context).textTheme.labelLarge,
             ),
           ),
-          for (final snapGrid in _SnapGridKind.values)
-            RadioListTile(
-              title: Text(snapGrid.name),
-              value: snapGrid,
-              // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-              // ignore: deprecated_member_use
-              groupValue: selectedSnapGrid,
-              // TODO: Migrate to RadioGroup when minimum SDK version is raised to 3.35.0
-              // ignore: deprecated_member_use
-              onChanged: (value) => setState(() {
-                selectedSnapGrid = value!;
-              }),
+          RadioGroup<_SnapGridKind>(
+            groupValue: selectedSnapGrid,
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => selectedSnapGrid = value);
+              }
+            },
+            child: Column(
+              children: [
+                for (final snapGrid in _SnapGridKind.values)
+                  RadioListTile(
+                    title: Text(snapGrid.name),
+                    value: snapGrid,
+                  ),
+              ],
             ),
+          ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
