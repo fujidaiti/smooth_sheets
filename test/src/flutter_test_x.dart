@@ -137,6 +137,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
   /// for more information.
   @pragma('vm:notify-debugger-on-exception')
   @isTest
+  // ignore: experimental_member_use
   @redeclare
   Future<void> tap(t.Finder finder) async {
     try {

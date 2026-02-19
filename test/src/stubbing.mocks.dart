@@ -1284,6 +1284,15 @@ class MockTickerFuture extends _i1.Mock implements _i3.TickerFuture {
 /// See the documentation for Mockito's code generation for more information.
 class MockTicker extends _i1.Mock implements _i10.Ticker {
   @override
+  bool get forceFrames =>
+      (super.noSuchMethod(
+            Invocation.getter(#forceFrames),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
   bool get muted =>
       (super.noSuchMethod(
             Invocation.getter(#muted),
@@ -1327,6 +1336,12 @@ class MockTicker extends _i1.Mock implements _i10.Ticker {
             returnValueForMissingStub: false,
           )
           as bool);
+
+  @override
+  set forceFrames(bool? value) => super.noSuchMethod(
+    Invocation.setter(#forceFrames, value),
+    returnValueForMissingStub: null,
+  );
 
   @override
   set muted(bool? value) => super.noSuchMethod(

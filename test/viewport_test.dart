@@ -591,7 +591,6 @@ void main() {
           'message',
           'This error was likely caused either by the sheet being wrapped '
               'in a widget that adds extra margin around it (e.g. Padding), '
-              // ignore: lines_longer_than_80_chars
               'or by there is no SheetViewport in the ancestors of the sheet.',
         ),
       );
