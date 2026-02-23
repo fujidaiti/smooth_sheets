@@ -1111,6 +1111,292 @@ void main() {
     });
   });
 
+  group('Inherited Drag Configuration Test', () {
+    ({
+      Widget testWidget,
+      Key sheetKey,
+      ValueGetter<NavigatorState> getNavigator,
+    })
+    boilerplate({
+      required ValueGetter<Route<dynamic>> initialRoute,
+      required SheetDragConfiguration? globalDragConfiguration,
+      Widget Function(BuildContext, Widget)? sharedContentBuilder,
+    }) {
+      final navigatorKey = GlobalKey<NavigatorState>();
+      const sheetKey = Key('sheet');
+      final testWidget = Directionality(
+        textDirection: TextDirection.ltr,
+        child: SheetViewport(
+          child: PagedSheet(
+            key: sheetKey,
+            dragConfiguration: globalDragConfiguration,
+            builder: sharedContentBuilder,
+            navigator: Navigator(
+              key: navigatorKey,
+              onGenerateRoute: (_) {
+                return initialRoute();
+              },
+            ),
+          ),
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        sheetKey: sheetKey,
+        getNavigator: () {
+          return navigatorKey.currentState!;
+        },
+      );
+    }
+
+    PagedSheetRoute<dynamic> createRoute({
+      Key? contentKey,
+      required SheetDragConfiguration? dragConfiguration,
+    }) {
+      return PagedSheetRoute(
+        initialOffset: SheetOffset(1),
+        dragConfiguration: dragConfiguration,
+        snapGrid: SheetSnapGrid(
+          snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+        ),
+        builder: (_) => _TestPage(key: contentKey, height: 300),
+      );
+    }
+
+    testWidgets(
+      'Sheet is draggable when both global and per-route drag configurations '
+      'are not null',
+      (tester) async {
+        final env = boilerplate(
+          globalDragConfiguration: SheetDragConfiguration(),
+          initialRoute: () =>
+              createRoute(dragConfiguration: SheetDragConfiguration()),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason:
+              'The sheet should initially be positioned '
+              'at the upper snap point',
+        );
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'The sheet should be flung to the lower snap point',
+        );
+      },
+    );
+
+    testWidgets(
+      'Sheet is draggable when per-route drag config is not null, '
+      'even if global config is null',
+      (tester) async {
+        final env = boilerplate(
+          globalDragConfiguration: null,
+          initialRoute: () =>
+              createRoute(dragConfiguration: SheetDragConfiguration()),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason:
+              'The sheet should initially be positioned '
+              'at the upper snap point',
+        );
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'The sheet should be flung to the lower snap point',
+        );
+      },
+    );
+
+    testWidgets(
+      'Sheet is not draggable if both global and per-route drag configurations '
+      'are null',
+      (tester) async {
+        final env = boilerplate(
+          globalDragConfiguration: null,
+          initialRoute: () => createRoute(dragConfiguration: null),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason:
+              'The sheet should initially be positioned '
+              'at the upper snap point',
+        );
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'The sheet should not move because it is not draggable',
+        );
+      },
+    );
+
+    testWidgets(
+      'Sheet is not draggable if per-route drag configuration is null, '
+      'even if global config is not null',
+      (tester) async {
+        final env = boilerplate(
+          globalDragConfiguration: SheetDragConfiguration(),
+          initialRoute: () => createRoute(dragConfiguration: null),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason:
+              'The sheet should initially be positioned '
+              'at the upper snap point',
+        );
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'The sheet should not move because it is not draggable',
+        );
+      },
+    );
+
+    testWidgets(
+      'Shared elements work as drag handles when per-route config is not null, '
+      'even if global config is null',
+      (tester) async {
+        final env = boilerplate(
+          globalDragConfiguration: null,
+          sharedContentBuilder: (_, child) {
+            return SheetContentScaffold(
+              extendBodyBehindTopBar: true,
+              extendBodyBehindBottomBar: true,
+              topBar: Container(
+                key: const Key('top-bar'),
+                color: Colors.red,
+                height: 50,
+              ),
+              bottomBar: Container(
+                key: const Key('bottom-bar'),
+                color: Colors.blue,
+                height: 50,
+              ),
+              body: child,
+            );
+          },
+          initialRoute: () => createRoute(
+            contentKey: Key('body'),
+            dragConfiguration: SheetDragConfiguration(),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason:
+              'The sheet should initially be positioned '
+              'at the upper snap point',
+        );
+
+        await tester.fling(find.byId('body'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'The sheet should be flung to the lower snap point',
+        );
+
+        await tester.fling(find.byId('top-bar'), Offset(0, -50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'The sheet should be flung to the upper snap point ',
+        );
+
+        await tester.fling(find.byId('bottom-bar'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'The sheet should be flung to the lower snap point',
+        );
+      },
+    );
+
+    testWidgets(
+      'Shared elements do not work as drag handles when per-route '
+      'drag configuration is null, even if global config is not null',
+      (tester) async {
+        final env = boilerplate(
+          globalDragConfiguration: SheetDragConfiguration(),
+          sharedContentBuilder: (_, child) {
+            return SheetContentScaffold(
+              extendBodyBehindTopBar: true,
+              extendBodyBehindBottomBar: true,
+              topBar: Container(
+                key: Key('top-bar'),
+                color: Colors.red,
+                height: 50,
+              ),
+              bottomBar: Container(
+                key: Key('bottom-bar'),
+                color: Colors.blue,
+                height: 50,
+              ),
+              body: child,
+            );
+          },
+          initialRoute: () =>
+              createRoute(contentKey: Key('body'), dragConfiguration: null),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason:
+              'The sheet should initially be positioned '
+              'at the upper snap point',
+        );
+
+        await tester.fling(find.byId('top-bar'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('bottom-bar'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('body'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'The sheet should not move when dragging the body either',
+        );
+      },
+    );
+  });
+
   group('Regression test', () {
     // https://github.com/fujidaiti/smooth_sheets/issues/309
     testWidgets(

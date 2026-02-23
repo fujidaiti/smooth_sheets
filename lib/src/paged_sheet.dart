@@ -256,6 +256,7 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
 class PagedSheet extends StatelessWidget {
   const PagedSheet({
     super.key,
+    this.dragConfiguration,
     this.controller,
     this.physics = kDefaultSheetPhysics,
     this.transitionCurve = Curves.easeInOutCubic,
@@ -264,6 +265,8 @@ class PagedSheet extends StatelessWidget {
     this.builder,
     required this.navigator,
   });
+
+  final SheetDragConfiguration? dragConfiguration;
 
   final SheetController? controller;
 
