@@ -1,13 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
 import 'activity.dart';
 import 'controller.dart';
-import 'draggable.dart';
 import 'gesture_proxy.dart';
 import 'model.dart';
 import 'model_owner.dart';
@@ -28,6 +28,8 @@ mixin _PagedSheetEntry {
   SheetOffset get initialOffset;
 
   SheetScrollConfiguration? get scrollConfiguration;
+
+  SheetDragConfiguration? get dragConfiguration;
 
   SheetOffset? _targetOffset;
 
@@ -293,11 +295,6 @@ class PagedSheet extends StatelessWidget {
     );
     if (builder case final builder?) {
       content = builder(context, content);
-      // Ensure the widget built by the builder is also draggable.
-      content = SheetDraggable(
-        behavior: HitTestBehavior.translucent,
-        child: content,
-      );
     }
 
     return SheetModelOwner(
@@ -311,7 +308,186 @@ class PagedSheet extends StatelessWidget {
       child: BareSheet(
         decoration: decoration,
         padding: padding,
-        child: content,
+        child: _PagedSheetDraggable(child: content),
+      ),
+    );
+  }
+}
+
+/// A drag-handle widget for [PagedSheet] that evaluates whether dragging
+/// is allowed and the hit-test behavior lazily at gesture time.
+///
+/// This widget always remains in the tree and checks the current route's
+/// [SheetDragConfiguration] at pointer-down time and hit-test time,
+/// avoiding the need to synchronize widget state with route transitions.
+class _PagedSheetDraggable extends StatefulWidget {
+  const _PagedSheetDraggable({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_PagedSheetDraggable> createState() => _PagedSheetDraggableState();
+}
+
+class _PagedSheetDraggableState extends State<_PagedSheetDraggable> {
+  late final VerticalDragGestureRecognizer _gestureRecognizer;
+  _PagedSheetModel? _model;
+  Drag? _currentDrag;
+
+  SheetDragConfiguration? get _effectiveDragConfiguration =>
+      _model?._currentEntry?.dragConfiguration;
+
+  @override
+  void initState() {
+    super.initState();
+    _gestureRecognizer =
+        VerticalDragGestureRecognizer(
+            debugOwner: kDebugMode ? runtimeType : null,
+            supportedDevices: const {PointerDeviceKind.touch},
+          )
+          ..onStart = _handleDragStart
+          ..onUpdate = _handleDragUpdate
+          ..onEnd = _handleDragEnd
+          ..onCancel = _handleDragCancel;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _model = SheetModelOwner.of(context) as _PagedSheetModel?;
+  }
+
+  @override
+  void dispose() {
+    _gestureRecognizer.dispose();
+    _model = null;
+    _disposeDrag();
+    super.dispose();
+  }
+
+  void _disposeDrag() {
+    _currentDrag = null;
+  }
+
+  void _handleDragStart(DragStartDetails details) {
+    assert(_currentDrag == null);
+    if (_effectiveDragConfiguration != null) {
+      _currentDrag = _model?.drag(details, _disposeDrag);
+    }
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    _currentDrag?.update(details);
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    _currentDrag?.end(details);
+    _disposeDrag();
+  }
+
+  void _handleDragCancel() {
+    _currentDrag?.cancel();
+    _disposeDrag();
+  }
+
+  HitTestBehavior _effectiveHitTestBehavior() {
+    return _effectiveDragConfiguration?.hitTestBehavior ??
+        HitTestBehavior.translucent;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _PagedSheetPointerListener(
+      hitTestBehavior: _effectiveHitTestBehavior,
+      gestureRecognizer: _gestureRecognizer,
+      child: widget.child,
+    );
+  }
+}
+
+class _PagedSheetPointerListener extends SingleChildRenderObjectWidget {
+  const _PagedSheetPointerListener({
+    required this.hitTestBehavior,
+    required this.gestureRecognizer,
+    required super.child,
+  });
+
+  final ValueGetter<HitTestBehavior> hitTestBehavior;
+  final GestureRecognizer gestureRecognizer;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderPagedSheetPointerListener(
+      hitTestBehavior: hitTestBehavior,
+      gestureRecognizer: gestureRecognizer,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderPagedSheetPointerListener renderObject,
+  ) {
+    renderObject
+      ..hitTestBehavior = hitTestBehavior
+      ..gestureRecognizer = gestureRecognizer;
+  }
+}
+
+class _RenderPagedSheetPointerListener
+    extends RenderProxyBoxWithHitTestBehavior {
+  _RenderPagedSheetPointerListener({
+    required this.hitTestBehavior,
+    required this.gestureRecognizer,
+  }) : super(behavior: HitTestBehavior.deferToChild);
+
+  ValueGetter<HitTestBehavior?> hitTestBehavior;
+  GestureRecognizer gestureRecognizer;
+
+  @override
+  HitTestBehavior get behavior {
+    final value = hitTestBehavior();
+    if (value == null) {
+      throw StateError('Should not be used when hitTestBehavior returns null.');
+    }
+    return value;
+  }
+
+  @override
+  set behavior(HitTestBehavior value) {
+    throw StateError('Should not be used.');
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    // Ignores touch events when hitTestBehavior returns null.
+    return hitTestBehavior() != null &&
+        super.hitTest(result, position: position);
+  }
+
+  @override
+  bool hitTestSelf(Offset position) {
+    // Ignores touch events when hitTestBehavior returns null.
+    return hitTestBehavior() != null && super.hitTestSelf(position);
+  }
+
+  @override
+  void handleEvent(PointerEvent event, covariant HitTestEntry entry) {
+    if (event is PointerDownEvent) {
+      gestureRecognizer.addPointer(event);
+    } else if (event is PointerPanZoomStartEvent) {
+      gestureRecognizer.addPointerPanZoom(event);
+    }
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      EnumProperty<HitTestBehavior>(
+        'behavior',
+        hitTestBehavior(),
+        defaultValue: null,
       ),
     );
   }
@@ -424,8 +600,6 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
 
   RouteTransitionsBuilder? get transitionsBuilder;
 
-  SheetDragConfiguration? get dragConfiguration;
-
   @override
   Color? get barrierColor => null;
 
@@ -484,7 +658,7 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
         onContentSizeChanged: (size) => _contentSize = size,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
-          dragConfiguration: dragConfiguration,
+          dragConfiguration: null,
           child: buildContent(context, animation, secondaryAnimation),
         ),
       ),

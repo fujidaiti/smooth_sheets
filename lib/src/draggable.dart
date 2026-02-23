@@ -23,6 +23,7 @@ class SheetDraggable extends StatefulWidget {
   });
 
   /// How to behave during hit testing.
+  // TODO: This has no effect!
   final HitTestBehavior behavior;
 
   /// The widget below this widget in the tree.
