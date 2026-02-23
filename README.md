@@ -10,21 +10,9 @@
 - **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packages like go_router as well.
 - **iOS flavor**: The modal sheets in the style of iOS 15 are supported.
 
-<br/>
-
-## Migration guide
-
-> [!IMPORTANT]
-> Version 0.11.x requires Flutter SDK version **3.27.0** or higher.
-
 > [!CAUTION]
 > The pre-release versions (1.0.0-f324.x) have been deprecated and are no longer maintained.
 > We recommend using the non–pre-release versions (0.11.x or higher) for all developers.
-
-- [0.10.x to 0.11.x](https://github.com/fujidaiti/smooth_sheets/blob/main/notes/migration-guide-0.11.x.md) 🆕
-- [0.9.x to 0.10.x](https://github.com/fujidaiti/smooth_sheets/blob/main/notes/migration-guide-0.10.x.md)
-
-See [here](https://github.com/fujidaiti/smooth_sheets/tree/main/migrations) for older versions.
 
 <br/>
 
@@ -97,7 +85,7 @@ See [here](https://github.com/fujidaiti/smooth_sheets/tree/main/migrations) for 
 There are few packages on pub.dev that supports nested navigation with motion animation for page transitions. One of the great choices for this usecase is [wolt_modal_sheet](https://github.com/woltapp/wolt_modal_sheet), which this package is inspired by. Although smooth_sheet has similar features with wolt_modal_sheet, it is not intended to be a replacement of that package. Here is some differences between those 2 packages:
 
 |                        |                                                             wolt_modal_sheet                                                              |                             smooth_sheets                              |
-|:----------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------:|
+| :--------------------: | :---------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
 |         Design         | Based on Wolt's [design guideline](https://careers.wolt.com/en/blog/tech/an-overview-of-the-multi-page-scrollable-bottom-sheet-ui-design) |        Not restricted to a specific design, fully customizable         |
 |  Navigation mechanism  |                        [Manage the page index in ValueNotifier](https://github.com/woltapp/wolt_modal_sheet#usage)                        | Works with built-in Navigator API (both of imperative and declarative) |
 |   Scrollable content   |                                [Supported](https://github.com/woltapp/wolt_modal_sheet#scrollable-content)                                |                               Supported                                |
@@ -112,7 +100,6 @@ Several resources are available for learning the functionalities of this package
 
 - Tutorials: See [example/lib/tutorial/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/tutorial) to learn the basic usage of the core components.
 - Showcases: More practical examples are available in [example/lib/showcase/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/showcase).
-- Documentation: WORK IN PROGRESS!
 
 <br/>
 
@@ -179,7 +166,7 @@ See also:
 - [SwipeDismissSensitivity](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SwipeDismissSensitivity-class.html), which can be used to tweak the sensitivity of the swipe-to-dismiss action.
 - [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
 - [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
-- [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/cupertino_modal_sheet.dart),  a tutorial of iOS style modal sheets.
+- [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
 - [ios_style_declarative_modal_paged_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/ios_style_declarative_modal_paged_sheet.dart), an example of iOS-style modal PagedSheet with go_router.
 - [showcase/todo_list](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/todo_list), which uses SheetDismissible to show a confirmation dialog when the user tries to discard the todo editing sheet without saving the content.
 

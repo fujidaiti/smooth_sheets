@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.17.0 - 2026-02-22
+- feat: Add Sheet.padding for flexible padding control ([#479](https://github.com/fujidaiti/smooth_sheets/pull/479)) - [3f057a0](https://github.com/fujidaiti/smooth_sheets/commit/3f057a006c3f968316a1edc91412890d195961ee)
+
+
+> [!IMPORTANT]
+> - `shrinkChildToAvoidDynamicOverlap` and `shrinkChildToAvoidStaticOverlap` have been removed from `Sheet`, `PagedSheet`. Use the `padding` parameter instead.
+> - `viewportDynamicOverlap` and `viewportStaticOverlap` have been removed from `ViewportLayout`, `SheetLayoutSpec`, `SheetMetrics`, and related classes.
+> - `staticOverlap`, `dynamicOverlap`, `contentDynamicOverlap`, and `contentStaticOverlap` getters have been removed from `SheetMetrics`.
+> - `SheetLayoutSpec.contentBaseline` getter has been removed.
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.17.0) for more details.
+
 ## 0.16.0 - 2026-01-12
 - feat: Allow modal sheet to have dynamic viewport padding ([#458](https://github.com/fujidaiti/smooth_sheets/pull/458)) - [0dd7041](https://github.com/fujidaiti/smooth_sheets/commit/0dd7041df9024cf6f393f8d1b828932f48530406)
 - feat: Add custom barrier support for modal sheets - [b846084](https://github.com/fujidaiti/smooth_sheets/commit/b84608417e8f9a2f5727310421fb4dcfe29e581f)
