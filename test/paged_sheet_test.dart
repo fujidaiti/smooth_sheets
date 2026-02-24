@@ -560,6 +560,78 @@ void main() {
       expect(find.byKey(Key('c')), findsNothing);
     });
 
+    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/188
+    testWidgets('When replacing a route via Navigator.replace', (tester) async {
+      late PagedSheetRoute<dynamic> initialRoute;
+      final navigatorKey = GlobalKey<NavigatorState>();
+      const sheetKey = Key('sheet');
+      final testWidget = Directionality(
+        textDirection: TextDirection.ltr,
+        child: SheetViewport(
+          child: PagedSheet(
+            key: sheetKey,
+            transitionCurve: Curves.linear,
+            physics: const ClampingSheetPhysics(),
+            navigator: Navigator(
+              key: navigatorKey,
+              onGenerateRoute: (_) {
+                initialRoute = PagedSheetRoute(
+                  builder: (_) => _TestPage(key: Key('a'), height: 300),
+                );
+                return initialRoute;
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(testWidget);
+      expect(
+        tester.getRect(find.byKey(sheetKey)).top,
+        testScreenSize.height - 300,
+      );
+
+      final newRoute = PagedSheetRoute<dynamic>(
+        builder: (_) => _TestPage(key: Key('b'), height: 500),
+      );
+      navigatorKey.currentState!.replace(
+        oldRoute: initialRoute,
+        newRoute: newRoute,
+      );
+
+      await tester.pump();
+      expect(
+        tester.getRect(find.byKey(sheetKey)).top,
+        testScreenSize.height - 300,
+      );
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(
+        tester.getRect(find.byKey(sheetKey)).top,
+        testScreenSize.height - 350,
+      );
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(
+        tester.getRect(find.byKey(sheetKey)).top,
+        testScreenSize.height - 400,
+      );
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(
+        tester.getRect(find.byKey(sheetKey)).top,
+        testScreenSize.height - 450,
+      );
+
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byKey(sheetKey)).top,
+        testScreenSize.height - 500,
+      );
+
+      expect(find.byKey(Key('b')), findsOneWidget);
+    });
+
     testWidgets('When iOS swipe back gesture is performed', (tester) async {
       final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
       await tester.pumpWidget(
@@ -963,6 +1035,45 @@ void main() {
       expect(find.byKey(Key('b')), findsNothing);
       expect(find.byKey(Key('c')), findsNothing);
     });
+
+    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/188
+    testWidgets(
+      'When replacing a single page (GoRouter replace scenario)',
+      (tester) async {
+        final pageA = createPage(name: 'a', height: 300);
+        final env = boilerplate(initialPages: [pageA]);
+        await tester.pumpWidget(env.testWidget);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+        expect(env.getSheetRect(tester).height, 300);
+
+        // Replace [pageA] with [pageB] (simulates GoRouter's context.replace).
+        final pageB = createPage(name: 'b', height: 500);
+        env.setPages([pageB]);
+
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+        expect(env.getSheetRect(tester).height, 300);
+
+        await tester.pump(Duration(milliseconds: 75));
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
+        expect(env.getSheetRect(tester).height, 350);
+
+        await tester.pump(Duration(milliseconds: 75));
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+        expect(env.getSheetRect(tester).height, 400);
+
+        await tester.pump(Duration(milliseconds: 75));
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
+        expect(env.getSheetRect(tester).height, 450);
+
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+        expect(env.getSheetRect(tester).height, 500);
+
+        expect(find.byKey(Key('a')), findsNothing);
+        expect(find.byKey(Key('b')), findsOneWidget);
+      },
+    );
 
     testWidgets('When replacing the entire page stack', (tester) async {
       final pageA = createPage(name: 'a', height: 300);
