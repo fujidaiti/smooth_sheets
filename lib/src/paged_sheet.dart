@@ -5,13 +5,13 @@ library;
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
 import 'activity.dart';
 import 'controller.dart';
+import 'draggable.dart';
 import 'gesture_proxy.dart';
 import 'model.dart';
 import 'model_owner.dart';
@@ -348,8 +348,8 @@ class PagedSheet extends StatelessWidget {
       child: BareSheet(
         decoration: decoration,
         padding: padding,
-        child: _CurrentRouteAwareSheetDraggable(
-          defaultDragConfiguration: dragConfiguration,
+        child: _RouteAwareSheetDraggable(
+          defaultConfiguration: dragConfiguration,
           child: content,
         ),
       ),
@@ -357,175 +357,40 @@ class PagedSheet extends StatelessWidget {
   }
 }
 
-/// A variant of [SheetDraggable] that lazily evaluates whether dragging
-/// is allowed and the hit-test behavior at gesture time
-/// based on the current route's [SheetDragConfiguration].
-///
-/// Since the configuration is evaluated at gesture time rather than at build
-/// time, no additional rebuilds are needed to update the drag behavior when
-/// the route changes — which would otherwise require a one-frame delay to
-/// reflect the new route's configuration.
-class _CurrentRouteAwareSheetDraggable extends StatefulWidget {
-  const _CurrentRouteAwareSheetDraggable({
-    required this.defaultDragConfiguration,
+class _RouteAwareSheetDraggable extends StatefulWidget {
+  const _RouteAwareSheetDraggable({
+    required this.defaultConfiguration,
     required this.child,
   });
 
-  final SheetDragConfiguration defaultDragConfiguration;
+  final SheetDragConfiguration defaultConfiguration;
   final Widget child;
 
   @override
-  State<_CurrentRouteAwareSheetDraggable> createState() =>
-      _CurrentRouteAwareSheetDraggableState();
+  State<_RouteAwareSheetDraggable> createState() =>
+      _RouteAwareSheetDraggableState();
 }
 
-class _CurrentRouteAwareSheetDraggableState
-    extends State<_CurrentRouteAwareSheetDraggable> {
-  late final VerticalDragGestureRecognizer _gestureRecognizer;
-  _PagedSheetModel? _model;
-  Drag? _currentDrag;
+class _RouteAwareSheetDraggableState extends State<_RouteAwareSheetDraggable>
+    implements SheetDragConfiguration {
+  late _PagedSheetModel _model;
 
   @override
-  void initState() {
-    super.initState();
-    _gestureRecognizer =
-        VerticalDragGestureRecognizer(
-            debugOwner: kDebugMode ? runtimeType : null,
-            supportedDevices: const {PointerDeviceKind.touch},
-          )
-          ..onStart = _handleDragStart
-          ..onUpdate = _handleDragUpdate
-          ..onEnd = _handleDragEnd
-          ..onCancel = _handleDragCancel;
+  HitTestBehavior? get hitTestBehavior {
+    final effectiveConfig =
+        _model._currentEntry?.dragConfiguration ?? widget.defaultConfiguration;
+    return effectiveConfig.hitTestBehavior;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _model = SheetModelOwner.of(context) as _PagedSheetModel?;
-  }
-
-  @override
-  void dispose() {
-    _gestureRecognizer.dispose();
-    _model = null;
-    _disposeDrag();
-    super.dispose();
-  }
-
-  void _disposeDrag() {
-    _currentDrag = null;
-  }
-
-  SheetDragConfiguration _effectiveDragConfiguration() {
-    final routeConfig = _model?._currentEntry?.dragConfiguration;
-    return routeConfig ?? widget.defaultDragConfiguration;
-  }
-
-  void _handleDragStart(DragStartDetails details) {
-    assert(_currentDrag == null);
-    if (_effectiveDragConfiguration() != SheetDragConfiguration.disabled) {
-      _currentDrag = _model?.drag(details, _disposeDrag);
-    }
-  }
-
-  void _handleDragUpdate(DragUpdateDetails details) {
-    _currentDrag?.update(details);
-  }
-
-  void _handleDragEnd(DragEndDetails details) {
-    _currentDrag?.end(details);
-    _disposeDrag();
-  }
-
-  void _handleDragCancel() {
-    _currentDrag?.cancel();
-    _disposeDrag();
+    _model = SheetModelOwner.of(context)! as _PagedSheetModel;
   }
 
   @override
   Widget build(BuildContext context) {
-    return _PagedSheetPointerListener(
-      dragConfiguration: _effectiveDragConfiguration,
-      gestureRecognizer: _gestureRecognizer,
-      child: widget.child,
-    );
-  }
-}
-
-class _PagedSheetPointerListener extends SingleChildRenderObjectWidget {
-  const _PagedSheetPointerListener({
-    required this.dragConfiguration,
-    required this.gestureRecognizer,
-    required super.child,
-  });
-
-  final ValueGetter<SheetDragConfiguration> dragConfiguration;
-  final GestureRecognizer gestureRecognizer;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) {
-    return _RenderPagedSheetPointerListener(
-      dragConfiguration: dragConfiguration,
-      gestureRecognizer: gestureRecognizer,
-    );
-  }
-
-  @override
-  void updateRenderObject(
-    BuildContext context,
-    _RenderPagedSheetPointerListener renderObject,
-  ) {
-    renderObject
-      ..dragConfiguration = dragConfiguration
-      ..gestureRecognizer = gestureRecognizer;
-  }
-}
-
-class _RenderPagedSheetPointerListener
-    extends RenderProxyBoxWithHitTestBehavior {
-  _RenderPagedSheetPointerListener({
-    required this.dragConfiguration,
-    required this.gestureRecognizer,
-  }) : super(behavior: HitTestBehavior.deferToChild);
-
-  ValueGetter<SheetDragConfiguration> dragConfiguration;
-  GestureRecognizer gestureRecognizer;
-
-  @override
-  HitTestBehavior get behavior {
-    return dragConfiguration().hitTestBehavior;
-  }
-
-  @override
-  set behavior(HitTestBehavior value) {
-    throw StateError('Should not be used.');
-  }
-
-  @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    if (dragConfiguration() == SheetDragConfiguration.disabled) {
-      // When drag is disabled, still hit-test children so that
-      // child widgets (e.g. buttons) remain interactive.
-      return size.contains(position) &&
-          hitTestChildren(result, position: position);
-    }
-    return super.hitTest(result, position: position);
-  }
-
-  @override
-  bool hitTestSelf(Offset position) {
-    return dragConfiguration() != SheetDragConfiguration.disabled &&
-        super.hitTestSelf(position);
-  }
-
-  @override
-  void handleEvent(PointerEvent event, covariant HitTestEntry entry) {
-    if (event is PointerDownEvent) {
-      gestureRecognizer.addPointer(event);
-    } else if (event is PointerPanZoomStartEvent) {
-      gestureRecognizer.addPointerPanZoom(event);
-    }
+    return SheetDraggable(configuration: this, child: widget.child);
   }
 }
 
@@ -604,13 +469,15 @@ class _RouteContentLayoutObserver extends SingleChildRenderObjectWidget {
   void updateRenderObject(
     BuildContext context,
     _RenderRouteContentLayoutObserver renderObject,
-  ) {}
+  ) {
+    renderObject.onContentSizeChanged = onContentSizeChanged;
+  }
 }
 
 class _RenderRouteContentLayoutObserver extends RenderProxyBox {
   _RenderRouteContentLayoutObserver(this.onContentSizeChanged);
 
-  final ValueChanged<Size> onContentSizeChanged;
+  ValueChanged<Size> onContentSizeChanged;
 
   @override
   void performLayout() {

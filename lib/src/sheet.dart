@@ -11,49 +11,6 @@ import 'scrollable.dart';
 import 'snap_grid.dart';
 import 'viewport.dart';
 
-@immutable
-class SheetDragConfiguration {
-  const SheetDragConfiguration({
-    this.hitTestBehavior = HitTestBehavior.translucent,
-  });
-
-  static const SheetDragConfiguration disabled =
-      _SheetDragConfigurationDisabled.disabled;
-
-  final HitTestBehavior hitTestBehavior;
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        other is SheetDragConfiguration &&
-            runtimeType == other.runtimeType &&
-            hitTestBehavior == other.hitTestBehavior;
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, hitTestBehavior);
-}
-
-@immutable
-class _SheetDragConfigurationDisabled extends SheetDragConfiguration {
-  const _SheetDragConfigurationDisabled._()
-    : super(hitTestBehavior: HitTestBehavior.deferToChild);
-
-  static const disabled = _SheetDragConfigurationDisabled._();
-
-  @override
-  bool operator ==(Object other) {
-    assert(
-      identical(this, disabled),
-      'Only one instance of $runtimeType should exist.',
-    );
-    return identical(this, other);
-  }
-
-  @override
-  int get hashCode => identityHashCode(this);
-}
-
 class _DraggableScrollableSheetModelConfig extends SheetModelConfig {
   const _DraggableScrollableSheetModelConfig({
     required super.physics,
@@ -192,11 +149,10 @@ class DraggableScrollableSheetContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var result = child;
-    if (dragConfiguration case final config
-        when config != SheetDragConfiguration.disabled) {
-      result = SheetDraggable(behavior: config.hitTestBehavior, child: result);
-    }
+    Widget result = SheetDraggable(
+      configuration: dragConfiguration,
+      child: child,
+    );
     if (scrollConfiguration != null) {
       final child = result;
       result = SheetScrollable(
