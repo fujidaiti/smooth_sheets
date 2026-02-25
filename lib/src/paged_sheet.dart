@@ -1,3 +1,7 @@
+/// @docImport 'package:flutter/widgets.dart';
+/// @docImport 'draggable.dart';
+library;
+
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -258,7 +262,7 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
 class PagedSheet extends StatelessWidget {
   const PagedSheet({
     super.key,
-    this.dragConfiguration,
+    this.dragConfiguration = const SheetDragConfiguration(),
     this.controller,
     this.physics = kDefaultSheetPhysics,
     this.transitionCurve = Curves.easeInOutCubic,
@@ -268,7 +272,21 @@ class PagedSheet extends StatelessWidget {
     required this.navigator,
   });
 
-  final SheetDragConfiguration? dragConfiguration;
+  /// The default drag configuration for all routes in this [PagedSheet].
+  ///
+  /// Individual routes can override this via their own
+  /// [PagedSheetRoute.dragConfiguration]. If a route's `dragConfiguration` is
+  /// `null`, it falls back to this value.
+  ///
+  /// Set to [SheetDragConfiguration.disabled] to disable dragging globally.
+  ///
+  /// This and a per-route drag configuration also affect shared elements built
+  /// by the [builder] callback. A shared element is a widget that is always
+  /// shown along with all routes, such as an app bar (see [builder] for more
+  /// details). For example, if the `dragConfiguration` of the current route is
+  /// `.disabled`, the shared elements will not respond to drag gestures as well
+  /// as the route content, regardless of the global configuration.
+  final SheetDragConfiguration dragConfiguration;
 
   final SheetController? controller;
 
@@ -283,6 +301,27 @@ class PagedSheet extends StatelessWidget {
   /// {@macro viewport.BareSheet.padding}
   final EdgeInsets padding;
 
+  /// A builder callback for inserting extra widgets between this
+  /// [PagedSheet] and the [navigator].
+  ///
+  /// Think of this like the [WidgetsApp.builder] of [WidgetsApp]. A common use
+  /// case is to create shared top bar and/or bottom bar that is always shown along
+  /// with all routes in the [navigator].
+  ///
+  /// ```dart
+  /// PagedSheet(
+  ///   builder: (context, navigator) {
+  ///     return SheetContentScaffold(
+  ///       extendBodyBehindTopBar: true,
+  ///       extendBodyBehindBottomBar: true,
+  ///       topBar: AppBar(title: Text('Title')),
+  ///       bottomBar: BottomNavigationBar(items: [...]),
+  ///       body: navigator,
+  ///     );
+  ///   },
+  ///   navigator: Navigator(...),
+  /// )
+  /// ```
   final Widget Function(BuildContext, Widget)? builder;
 
   final Widget navigator;
@@ -308,34 +347,42 @@ class PagedSheet extends StatelessWidget {
       child: BareSheet(
         decoration: decoration,
         padding: padding,
-        child: _PagedSheetDraggable(child: content),
+        child: _CurrentRouteAwareSheetDraggable(
+          defaultDragConfiguration: dragConfiguration,
+          child: content,
+        ),
       ),
     );
   }
 }
 
-/// A drag-handle widget for [PagedSheet] that evaluates whether dragging
-/// is allowed and the hit-test behavior lazily at gesture time.
+/// A variant of [SheetDraggable] that lazily evaluates whether dragging
+/// is allowed and the hit-test behavior at gesture time
+/// based on the current route's [SheetDragConfiguration].
 ///
-/// This widget always remains in the tree and checks the current route's
-/// [SheetDragConfiguration] at pointer-down time and hit-test time,
-/// avoiding the need to synchronize widget state with route transitions.
-class _PagedSheetDraggable extends StatefulWidget {
-  const _PagedSheetDraggable({required this.child});
+/// Since the configuration is evaluated at gesture time rather than at build
+/// time, no additional rebuilds are needed to update the drag behavior when
+/// the route changes — which would otherwise require a one-frame delay to
+/// reflect the new route's configuration.
+class _CurrentRouteAwareSheetDraggable extends StatefulWidget {
+  const _CurrentRouteAwareSheetDraggable({
+    required this.defaultDragConfiguration,
+    required this.child,
+  });
 
+  final SheetDragConfiguration defaultDragConfiguration;
   final Widget child;
 
   @override
-  State<_PagedSheetDraggable> createState() => _PagedSheetDraggableState();
+  State<_CurrentRouteAwareSheetDraggable> createState() =>
+      _CurrentRouteAwareSheetDraggableState();
 }
 
-class _PagedSheetDraggableState extends State<_PagedSheetDraggable> {
+class _CurrentRouteAwareSheetDraggableState
+    extends State<_CurrentRouteAwareSheetDraggable> {
   late final VerticalDragGestureRecognizer _gestureRecognizer;
   _PagedSheetModel? _model;
   Drag? _currentDrag;
-
-  SheetDragConfiguration? get _effectiveDragConfiguration =>
-      _model?._currentEntry?.dragConfiguration;
 
   @override
   void initState() {
@@ -369,9 +416,14 @@ class _PagedSheetDraggableState extends State<_PagedSheetDraggable> {
     _currentDrag = null;
   }
 
+  SheetDragConfiguration _effectiveDragConfiguration() {
+    final routeConfig = _model?._currentEntry?.dragConfiguration;
+    return routeConfig ?? widget.defaultDragConfiguration;
+  }
+
   void _handleDragStart(DragStartDetails details) {
     assert(_currentDrag == null);
-    if (_effectiveDragConfiguration != null) {
+    if (_effectiveDragConfiguration() != SheetDragConfiguration.disabled) {
       _currentDrag = _model?.drag(details, _disposeDrag);
     }
   }
@@ -390,15 +442,10 @@ class _PagedSheetDraggableState extends State<_PagedSheetDraggable> {
     _disposeDrag();
   }
 
-  HitTestBehavior _effectiveHitTestBehavior() {
-    return _effectiveDragConfiguration?.hitTestBehavior ??
-        HitTestBehavior.translucent;
-  }
-
   @override
   Widget build(BuildContext context) {
     return _PagedSheetPointerListener(
-      hitTestBehavior: _effectiveHitTestBehavior,
+      dragConfiguration: _effectiveDragConfiguration,
       gestureRecognizer: _gestureRecognizer,
       child: widget.child,
     );
@@ -407,18 +454,18 @@ class _PagedSheetDraggableState extends State<_PagedSheetDraggable> {
 
 class _PagedSheetPointerListener extends SingleChildRenderObjectWidget {
   const _PagedSheetPointerListener({
-    required this.hitTestBehavior,
+    required this.dragConfiguration,
     required this.gestureRecognizer,
     required super.child,
   });
 
-  final ValueGetter<HitTestBehavior> hitTestBehavior;
+  final ValueGetter<SheetDragConfiguration> dragConfiguration;
   final GestureRecognizer gestureRecognizer;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderPagedSheetPointerListener(
-      hitTestBehavior: hitTestBehavior,
+      dragConfiguration: dragConfiguration,
       gestureRecognizer: gestureRecognizer,
     );
   }
@@ -429,7 +476,7 @@ class _PagedSheetPointerListener extends SingleChildRenderObjectWidget {
     _RenderPagedSheetPointerListener renderObject,
   ) {
     renderObject
-      ..hitTestBehavior = hitTestBehavior
+      ..dragConfiguration = dragConfiguration
       ..gestureRecognizer = gestureRecognizer;
   }
 }
@@ -437,20 +484,16 @@ class _PagedSheetPointerListener extends SingleChildRenderObjectWidget {
 class _RenderPagedSheetPointerListener
     extends RenderProxyBoxWithHitTestBehavior {
   _RenderPagedSheetPointerListener({
-    required this.hitTestBehavior,
+    required this.dragConfiguration,
     required this.gestureRecognizer,
   }) : super(behavior: HitTestBehavior.deferToChild);
 
-  ValueGetter<HitTestBehavior?> hitTestBehavior;
+  ValueGetter<SheetDragConfiguration> dragConfiguration;
   GestureRecognizer gestureRecognizer;
 
   @override
   HitTestBehavior get behavior {
-    final value = hitTestBehavior();
-    if (value == null) {
-      throw StateError('Should not be used when hitTestBehavior returns null.');
-    }
-    return value;
+    return dragConfiguration().hitTestBehavior;
   }
 
   @override
@@ -460,15 +503,14 @@ class _RenderPagedSheetPointerListener
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    // Ignores touch events when hitTestBehavior returns null.
-    return hitTestBehavior() != null &&
+    return dragConfiguration() != SheetDragConfiguration.disabled &&
         super.hitTest(result, position: position);
   }
 
   @override
   bool hitTestSelf(Offset position) {
-    // Ignores touch events when hitTestBehavior returns null.
-    return hitTestBehavior() != null && super.hitTestSelf(position);
+    return dragConfiguration() != SheetDragConfiguration.disabled &&
+        super.hitTestSelf(position);
   }
 
   @override
@@ -478,18 +520,6 @@ class _RenderPagedSheetPointerListener
     } else if (event is PointerPanZoomStartEvent) {
       gestureRecognizer.addPointerPanZoom(event);
     }
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(
-      EnumProperty<HitTestBehavior>(
-        'behavior',
-        hitTestBehavior(),
-        defaultValue: null,
-      ),
-    );
   }
 }
 
@@ -658,7 +688,9 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
         onContentSizeChanged: (size) => _contentSize = size,
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
-          dragConfiguration: null,
+          // _CurrentRouteAwareSheetDraggable already handles drag gestures
+          // within the route content, so we eliminate per-route SheetDraggable.
+          dragConfiguration: SheetDragConfiguration.disabled,
           child: buildContent(context, animation, secondaryAnimation),
         ),
       ),
@@ -691,7 +723,7 @@ class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
     super.settings,
     this.maintainState = true,
     this.scrollConfiguration,
-    this.dragConfiguration = const SheetDragConfiguration(),
+    this.dragConfiguration,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.initialOffset = const SheetOffset(1),
     this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset(1)),
@@ -714,6 +746,11 @@ class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
   @override
   final RouteTransitionsBuilder? transitionsBuilder;
 
+  /// Overrides the global [PagedSheet.dragConfiguration] for this route.
+  ///
+  /// If `null`, the global configuration is inherited.
+  /// Set to [SheetDragConfiguration.disabled] to explicitly disable
+  /// dragging for this route.
   @override
   final SheetDragConfiguration? dragConfiguration;
 
@@ -740,7 +777,7 @@ class PagedSheetPage<T> extends Page<T> {
     super.restorationId,
     this.maintainState = true,
     this.scrollConfiguration,
-    this.dragConfiguration = const SheetDragConfiguration(),
+    this.dragConfiguration,
     this.transitionDuration = const Duration(milliseconds: 300),
     this.initialOffset = const SheetOffset(1),
     this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset(1)),
@@ -761,6 +798,12 @@ class PagedSheetPage<T> extends Page<T> {
 
   final RouteTransitionsBuilder? transitionsBuilder;
 
+  /// Overrides the global [PagedSheet.dragConfiguration] for the route
+  /// associated with this page.
+  ///
+  /// If `null` (default), the global configuration is inherited.
+  /// Set to [SheetDragConfiguration.disabled] to explicitly disable
+  /// dragging for the route.
   final SheetDragConfiguration? dragConfiguration;
 
   final SheetScrollConfiguration? scrollConfiguration;

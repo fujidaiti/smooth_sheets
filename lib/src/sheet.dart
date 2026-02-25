@@ -125,7 +125,11 @@ class Sheet extends StatelessWidget {
 
   final SheetScrollConfiguration? scrollConfiguration;
 
-  final SheetDragConfiguration? dragConfiguration;
+  /// Controls how the sheet responds to drag gestures.
+  ///
+  /// Set to [SheetDragConfiguration.disabled] to prevent the sheet from
+  /// being dragged.
+  final SheetDragConfiguration dragConfiguration;
 
   final SheetDecoration decoration;
 
@@ -182,14 +186,15 @@ class DraggableScrollableSheetContent extends StatelessWidget {
 
   final SheetScrollConfiguration? scrollConfiguration;
 
-  final SheetDragConfiguration? dragConfiguration;
+  final SheetDragConfiguration dragConfiguration;
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     var result = child;
-    if (dragConfiguration case final config?) {
+    if (dragConfiguration case final config
+        when config != SheetDragConfiguration.disabled) {
       result = SheetDraggable(behavior: config.hitTestBehavior, child: result);
     }
     if (scrollConfiguration != null) {
