@@ -280,12 +280,13 @@ class PagedSheet extends StatelessWidget {
   ///
   /// Set to [SheetDragConfiguration.disabled] to disable dragging globally.
   ///
-  /// This and a per-route drag configuration also affect shared elements built
+  /// This and per-route drag configurations also affect shared elements built
   /// by the [builder] callback. A shared element is a widget that is always
-  /// shown along with all routes, such as an app bar (see [builder] for more
-  /// details). For example, if the `dragConfiguration` of the current route is
-  /// `.disabled`, the shared elements will not respond to drag gestures as well
-  /// as the route content, regardless of the global configuration.
+  /// displayed alongside all routes, such as an app bar (see [builder] for
+  /// details). For example, if the current route's `dragConfiguration` is set
+  /// to `.disabled`, the shared elements will not respond to drag gestures,
+  /// just as the route content does not, regardless of the global
+  /// [dragConfiguration].
   final SheetDragConfiguration dragConfiguration;
 
   final SheetController? controller;
