@@ -78,13 +78,13 @@ jobs:
       - name: Update .fvmrc
         run: |
           echo "Updating .fvmrc to version $LATEST_VERSION"
-          jq --arg version "$LATEST_VERSION" '.flutter = $version' .fvmrc > .fvmrc.tmp
+          echo "$(jq --arg version "$LATEST_VERSION" '.flutter = $version' .fvmrc)" > .fvmrc.tmp
           mv .fvmrc.tmp .fvmrc
 
       - name: Update .vscode/settings.json
         run: |
           echo "Updating .vscode/settings.json to version $LATEST_VERSION"
-          jq --arg path ".fvm/versions/$LATEST_VERSION" '."dart.flutterSdkPath" = $path' .vscode/settings.json > .vscode/settings.json.tmp
+          echo "$(jq --arg path ".fvm/versions/$LATEST_VERSION" '."dart.flutterSdkPath" = $path' .vscode/settings.json)" > .vscode/settings.json.tmp
           mv .vscode/settings.json.tmp .vscode/settings.json
 
       - name: Generate GitHub App token
