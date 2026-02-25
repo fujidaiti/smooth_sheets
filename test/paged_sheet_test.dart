@@ -1587,6 +1587,70 @@ void main() {
         );
       },
     );
+
+    testWidgets(
+      'Child widgets are still interactive when drag is disabled',
+      (tester) async {
+        var tapCount = 0;
+        final env = boilerplate(
+          globalDragConfiguration: SheetDragConfiguration.disabled,
+          initialRoute: () => PagedSheetRoute(
+            builder: (_) => SizedBox(
+              height: 300,
+              child: Material(
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: () => tapCount++,
+                    child: Text('button'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        await tester.tap(find.text('button'));
+        expect(tapCount, 1);
+      },
+    );
+
+    testWidgets(
+      'Scrollable widgets are still scrollable when drag is disabled',
+      (tester) async {
+        final scrollController = ScrollController();
+        addTearDown(scrollController.dispose);
+
+        final env = boilerplate(
+          globalDragConfiguration: SheetDragConfiguration.disabled,
+          initialRoute: () => PagedSheetRoute(
+            dragConfiguration: SheetDragConfiguration.disabled,
+            builder: (_) => SizedBox(
+              height: 300,
+              child: SingleChildScrollView(
+                key: Key('scrollable'),
+                controller: scrollController,
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 1000,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(scrollController.offset, 0);
+
+        await tester.fling(find.byId('scrollable'), Offset(0, -200), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          scrollController.offset,
+          greaterThan(200),
+          reason: 'Scrollable should have scrolled',
+        );
+      },
+    );
   });
 
   group('Regression test', () {

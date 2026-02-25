@@ -64,5 +64,71 @@ void main() {
         );
       },
     );
+
+    testWidgets(
+      'Child widgets are still interactive when drag is disabled',
+      (tester) async {
+        var tapCount = 0;
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: SheetViewport(
+              child: Sheet(
+                dragConfiguration: SheetDragConfiguration.disabled,
+                child: SizedBox(
+                  height: 300,
+                  child: Material(
+                    child: Center(
+                      child: ElevatedButton(
+                        onPressed: () => tapCount++,
+                        child: Text('Tap me'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Tap me'));
+        expect(tapCount, 1);
+      },
+    );
+
+    testWidgets(
+      'Scrollable widgets are still scrollable when drag is disabled',
+      (tester) async {
+        final scrollController = ScrollController();
+        addTearDown(scrollController.dispose);
+        await tester.pumpWidget(
+          SheetViewport(
+            child: Sheet(
+              dragConfiguration: SheetDragConfiguration.disabled,
+              child: SizedBox(
+                height: 300,
+                child: SingleChildScrollView(
+                  key: Key('scrollable'),
+                  controller: scrollController,
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 1000,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        expect(scrollController.offset, 0);
+
+        await tester.fling(find.byId('scrollable'), Offset(0, -200), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          scrollController.offset,
+          greaterThan(200),
+          reason: 'Scrollable should have scrolled',
+        );
+      },
+    );
   });
 }

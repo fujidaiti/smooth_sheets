@@ -504,8 +504,13 @@ class _RenderPagedSheetPointerListener
 
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    return dragConfiguration() != SheetDragConfiguration.disabled &&
-        super.hitTest(result, position: position);
+    if (dragConfiguration() == SheetDragConfiguration.disabled) {
+      // When drag is disabled, still hit-test children so that
+      // child widgets (e.g. buttons) remain interactive.
+      return size.contains(position) &&
+          hitTestChildren(result, position: position);
+    }
+    return super.hitTest(result, position: position);
   }
 
   @override
