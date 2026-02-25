@@ -1316,124 +1316,69 @@ void main() {
       },
     );
 
+    ({
+      Widget testWidget,
+      Key sheetKey,
+      ValueGetter<NavigatorState> getNavigator,
+    })
+    boilerplateForSharedElementTest({
+      required SheetDragConfiguration globalDragConfiguration,
+      required SheetDragConfiguration? perRouteDragConfiguration,
+    }) {
+      return boilerplate(
+        globalDragConfiguration: globalDragConfiguration,
+        sharedContentBuilder: (_, child) {
+          return SheetContentScaffold(
+            extendBodyBehindTopBar: true,
+            extendBodyBehindBottomBar: true,
+            topBar: Container(
+              key: const Key('top-bar'),
+              color: Colors.red,
+              height: 50,
+            ),
+            bottomBar: Container(
+              key: const Key('bottom-bar'),
+              color: Colors.blue,
+              height: 50,
+            ),
+            body: child,
+          );
+        },
+        initialRoute: () => createRoute(
+          dragConfiguration: perRouteDragConfiguration,
+        ),
+      );
+    }
+
     testWidgets(
-      'Shared elements work as drag handles when per-route is enabled '
-      'and global is enabled',
+      'Shared elements are affected by global config '
+      'if per-route config is not specified (enabled globally)',
       (tester) async {
-        final env = boilerplate(
+        final env = boilerplateForSharedElementTest(
           globalDragConfiguration: SheetDragConfiguration(),
-          sharedContentBuilder: (_, child) {
-            return SheetContentScaffold(
-              extendBodyBehindTopBar: true,
-              extendBodyBehindBottomBar: true,
-              topBar: Container(
-                key: const Key('top-bar'),
-                color: Colors.red,
-                height: 50,
-              ),
-              bottomBar: Container(
-                key: const Key('bottom-bar'),
-                color: Colors.blue,
-                height: 50,
-              ),
-              body: child,
-            );
-          },
-          initialRoute: () => createRoute(
-            contentKey: Key('body'),
-            dragConfiguration: SheetDragConfiguration(),
-          ),
+          perRouteDragConfiguration: null,
         );
 
         await tester.pumpWidget(env.testWidget);
         expect(tester.getRect(find.byId('sheet')).top, 300);
 
-        await tester.fling(find.byId('body'), Offset(0, 50), 1000);
+        await tester.fling(find.byId('top-bar'), Offset(0, 50), 1000);
         await tester.pumpAndSettle();
         expect(tester.getRect(find.byId('sheet')).top, 500);
 
-        await tester.fling(find.byId('top-bar'), Offset(0, -50), 1000);
+        await tester.fling(find.byId('bottom-bar'), Offset(0, -50), 1000);
         await tester.pumpAndSettle();
         expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(find.byId('bottom-bar'), Offset(0, 50), 1000);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byId('sheet')).top, 500);
       },
     );
 
     testWidgets(
-      'Shared elements work as drag handles when per-route is null '
-      'and global is enabled (inherits global)',
+      'Shared elements are affected by global config '
+      'if per-route config is not specified (disabled globally)',
       (tester) async {
-        final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration(),
-          sharedContentBuilder: (_, child) {
-            return SheetContentScaffold(
-              extendBodyBehindTopBar: true,
-              extendBodyBehindBottomBar: true,
-              topBar: Container(
-                key: const Key('top-bar'),
-                color: Colors.red,
-                height: 50,
-              ),
-              bottomBar: Container(
-                key: const Key('bottom-bar'),
-                color: Colors.blue,
-                height: 50,
-              ),
-              body: child,
-            );
-          },
-          initialRoute: () => createRoute(
-            contentKey: Key('body'),
-            dragConfiguration: null,
-          ),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(find.byId('body'), Offset(0, 50), 1000);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byId('sheet')).top, 500);
-
-        await tester.fling(find.byId('top-bar'), Offset(0, -50), 1000);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(find.byId('bottom-bar'), Offset(0, 50), 1000);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byId('sheet')).top, 500);
-      },
-    );
-
-    testWidgets(
-      'Shared elements do not work as drag handles when per-route is disabled',
-      (tester) async {
-        final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration(),
-          sharedContentBuilder: (_, child) {
-            return SheetContentScaffold(
-              extendBodyBehindTopBar: true,
-              extendBodyBehindBottomBar: true,
-              topBar: Container(
-                key: Key('top-bar'),
-                color: Colors.red,
-                height: 50,
-              ),
-              bottomBar: Container(
-                key: Key('bottom-bar'),
-                color: Colors.blue,
-                height: 50,
-              ),
-              body: child,
-            );
-          },
-          initialRoute: () => createRoute(
-            contentKey: Key('body'),
-            dragConfiguration: SheetDragConfiguration.disabled,
-          ),
+        final env = boilerplateForSharedElementTest(
+          globalDragConfiguration: SheetDragConfiguration.disabled,
+          perRouteDragConfiguration: null,
         );
 
         await tester.pumpWidget(env.testWidget);
@@ -1456,9 +1401,108 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.getRect(find.byId('sheet')).top, 300);
+      },
+    );
+
+    testWidgets(
+      'Shared elements are also affected by per-route config '
+      'if specified (enabled / enabled)',
+      (tester) async {
+        final env = boilerplateForSharedElementTest(
+          globalDragConfiguration: SheetDragConfiguration(),
+          perRouteDragConfiguration: SheetDragConfiguration(),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('top-bar'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 500);
+
+        await tester.fling(find.byId('bottom-bar'), Offset(0, -50), 1000);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+      },
+    );
+
+    testWidgets(
+      'Shared elements are also affected by per-route config '
+      'if specified (enabled / disabled)',
+      (tester) async {
+        final env = boilerplateForSharedElementTest(
+          globalDragConfiguration: SheetDragConfiguration(),
+          perRouteDragConfiguration: SheetDragConfiguration.disabled,
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
 
         await tester.fling(
-          find.byId('body'),
+          find.byId('top-bar'),
+          Offset(0, 50),
+          1000,
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(
+          find.byId('bottom-bar'),
+          Offset(0, 50),
+          1000,
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+      },
+    );
+
+    testWidgets(
+      'Shared elements are also affected by per-route config '
+      'if specified (disabled / enabled)',
+      (tester) async {
+        final env = boilerplateForSharedElementTest(
+          globalDragConfiguration: SheetDragConfiguration.disabled,
+          perRouteDragConfiguration: SheetDragConfiguration(),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('top-bar'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 500);
+
+        await tester.fling(find.byId('bottom-bar'), Offset(0, -50), 1000);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+      },
+    );
+
+    testWidgets(
+      'Shared elements are also affected by per-route config '
+      'if specified (disabled / disabled)',
+      (tester) async {
+        final env = boilerplateForSharedElementTest(
+          globalDragConfiguration: SheetDragConfiguration.disabled,
+          perRouteDragConfiguration: SheetDragConfiguration.disabled,
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(
+          find.byId('top-bar'),
+          Offset(0, 50),
+          1000,
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(
+          find.byId('bottom-bar'),
           Offset(0, 50),
           1000,
           warnIfMissed: false,
