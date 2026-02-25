@@ -17,7 +17,41 @@ class SheetDragConfiguration {
     this.hitTestBehavior = HitTestBehavior.translucent,
   });
 
+  static const SheetDragConfiguration disabled =
+      _SheetDragConfigurationDisabled.disabled;
+
   final HitTestBehavior hitTestBehavior;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is SheetDragConfiguration &&
+            runtimeType == other.runtimeType &&
+            hitTestBehavior == other.hitTestBehavior;
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, hitTestBehavior);
+}
+
+@immutable
+class _SheetDragConfigurationDisabled extends SheetDragConfiguration {
+  const _SheetDragConfigurationDisabled._()
+    : super(hitTestBehavior: HitTestBehavior.deferToChild);
+
+  static const disabled = _SheetDragConfigurationDisabled._();
+
+  @override
+  bool operator ==(Object other) {
+    assert(
+      identical(this, disabled),
+      'Only one instance of $runtimeType should exist.',
+    );
+    return identical(this, other);
+  }
+
+  @override
+  int get hashCode => identityHashCode(this);
 }
 
 class _DraggableScrollableSheetModelConfig extends SheetModelConfig {
