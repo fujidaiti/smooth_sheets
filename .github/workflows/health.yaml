@@ -101,6 +101,7 @@ jobs:
         uses: ./.github/actions/setup_flutter
         with:
           version: ${{ matrix.flutter-version }}
+          pub-get-args: --no-example
 
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
