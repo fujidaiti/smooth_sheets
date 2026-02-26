@@ -12,50 +12,47 @@ void main() {
 class _ExampleRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
-        AutoRoute(
-          path: '/',
-          page: _HomeRoute.page,
+    AutoRoute(path: '/', page: _HomeRoute.page),
+    CustomRoute(
+      path: '/modal',
+      page: _ModalSheetRoute.page,
+      customRouteBuilder: <T>(context, child, page) {
+        // Use ModalSheetRoute to show the sheet as a modal.
+        return ModalSheetRoute(
+          settings: page, // required
+          builder: (_) => child,
+        );
+      },
+      children: [
+        CustomRoute(
+          initial: true,
+          path: 'first',
+          page: _FirstSheetRoute.page,
+          customRouteBuilder: <T>(context, child, page) {
+            // Each route in the PagedSheet must be a PagedSheetRoute.
+            return PagedSheetRoute(
+              settings: page, // required
+              initialOffset: const SheetOffset(0.5),
+              snapGrid: const SheetSnapGrid(
+                snaps: [SheetOffset(0.5), SheetOffset(1)],
+              ),
+              builder: (_) => child,
+            );
+          },
         ),
         CustomRoute(
-          path: '/modal',
-          page: _ModalSheetRoute.page,
+          path: 'second',
+          page: _SecondSheetRoute.page,
           customRouteBuilder: <T>(context, child, page) {
-            // Use ModalSheetRoute to show the sheet as a modal.
-            return ModalSheetRoute(
+            return PagedSheetRoute(
               settings: page, // required
               builder: (_) => child,
             );
           },
-          children: [
-            CustomRoute(
-              initial: true,
-              path: 'first',
-              page: _FirstSheetRoute.page,
-              customRouteBuilder: <T>(context, child, page) {
-                // Each route in the PagedSheet must be a PagedSheetRoute.
-                return PagedSheetRoute(
-                  settings: page, // required
-                  initialOffset: const SheetOffset(0.5),
-                  snapGrid: const SheetSnapGrid(
-                    snaps: [SheetOffset(0.5), SheetOffset(1)],
-                  ),
-                  builder: (_) => child,
-                );
-              },
-            ),
-            CustomRoute(
-              path: 'second',
-              page: _SecondSheetRoute.page,
-              customRouteBuilder: <T>(context, child, page) {
-                return PagedSheetRoute(
-                  settings: page, // required
-                  builder: (_) => child,
-                );
-              },
-            ),
-          ],
         ),
-      ];
+      ],
+    ),
+  ];
 }
 
 class PagedSheetWithAutoRouteExample extends StatefulWidget {
@@ -77,9 +74,7 @@ class _PagedSheetWithAutoRouteExampleState
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: _router.config(),
-    );
+    return MaterialApp.router(routerConfig: _router.config());
   }
 }
 

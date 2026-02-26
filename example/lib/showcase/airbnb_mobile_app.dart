@@ -6,9 +6,7 @@ import 'package:smooth_sheets/smooth_sheets.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Lock the screen orientation to portrait.
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   runApp(const _AirbnbMobileAppExample());
 }
@@ -65,9 +63,7 @@ class _Home extends StatelessWidget {
       // another one is manually specified in the constructor.
       // The descendant widgets can also get this controller by
       // calling 'DefaultSheetController.of(context)'.
-      child: DefaultSheetController(
-        child: result,
-      ),
+      child: DefaultSheetController(child: result),
     );
   }
 }
@@ -114,10 +110,7 @@ class _MapButton extends StatelessWidget {
     // Hide the button when the sheet is dragged down.
     return ScaleTransition(
       scale: animation,
-      child: FadeTransition(
-        opacity: animation,
-        child: result,
-      ),
+      child: FadeTransition(opacity: animation, child: result),
     );
   }
 }
@@ -130,19 +123,14 @@ class _Map extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: SizedBox.expand(
-        child: Image.asset(
-          'assets/fake_map.png',
-          fit: BoxFit.fitHeight,
-        ),
+        child: Image.asset('assets/fake_map.png', fit: BoxFit.fitHeight),
       ),
     );
   }
 }
 
 class _ContentSheet extends StatelessWidget {
-  const _ContentSheet({
-    required this.systemUiInsets,
-  });
+  const _ContentSheet({required this.systemUiInsets});
 
   final EdgeInsets systemUiInsets;
 
@@ -154,8 +142,9 @@ class _ContentSheet extends StatelessWidget {
         final appbarHeight = MediaQuery.of(context).padding.top;
         final handleHeight = const _ContentSheetHandle().preferredSize.height;
         final sheetHeight = parentHeight - appbarHeight + handleHeight;
-        final minSheetOffset =
-            SheetOffset.absolute(handleHeight + systemUiInsets.bottom);
+        final minSheetOffset = SheetOffset.absolute(
+          handleHeight + systemUiInsets.bottom,
+        );
 
         return SheetViewport(
           child: Sheet(
@@ -166,9 +155,7 @@ class _ContentSheet extends StatelessWidget {
             decoration: const MaterialSheetDecoration(
               size: SheetSize.fit,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
             ),
             child: SizedBox(
@@ -237,9 +224,7 @@ class _HouseList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final result = ListView.builder(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       itemCount: _houses.length,
       itemBuilder: (context, index) {
         return _HouseCard(_houses[index]);
@@ -251,9 +236,7 @@ class _HouseList extends StatelessWidget {
       opacity: SheetOffsetDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
-      ).drive(
-        CurveTween(curve: Curves.easeOutCubic),
-      ),
+      ).drive(CurveTween(curve: Curves.easeOutCubic)),
       child: result,
     );
   }
@@ -342,28 +325,22 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Where to?',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
+        Text('Where to?', style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 4),
         Text(
           'Anywhere · Any week · Add guest',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context)
-              .textTheme
-              .labelMedium
-              ?.copyWith(color: Colors.black54),
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(color: Colors.black54),
         ),
       ],
     );
 
     const decoration = ShapeDecoration(
       color: Colors.white,
-      shape: StadiumBorder(
-        side: BorderSide(color: Colors.black12),
-      ),
+      shape: StadiumBorder(side: BorderSide(color: Colors.black12)),
       shadows: [
         BoxShadow(
           color: Color(0x0a000000),
@@ -410,10 +387,7 @@ class _BottomNavigationBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       showUnselectedLabels: true,
       items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Explore',
-        ),
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Explore'),
         BottomNavigationBarItem(
           icon: Icon(Icons.favorite_border_outlined),
           label: 'Wishlists',
@@ -438,12 +412,7 @@ class _BottomNavigationBar extends StatelessWidget {
       position: SheetOffsetDrivenAnimation(
         controller: DefaultSheetController.of(context),
         initialValue: 1,
-      ).drive(
-        Tween(
-          begin: const Offset(0, 1),
-          end: Offset.zero,
-        ),
-      ),
+      ).drive(Tween(begin: const Offset(0, 1), end: Offset.zero)),
       child: result,
     );
   }
@@ -457,25 +426,22 @@ class _HouseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final primaryTextStyle =
-        textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold);
+    final primaryTextStyle = textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.bold,
+    );
     final secondaryTextStyle = textTheme.titleMedium;
-    final tertiaryTextStyle =
-        textTheme.titleMedium?.copyWith(color: Colors.black54);
+    final tertiaryTextStyle = textTheme.titleMedium?.copyWith(
+      color: Colors.black54,
+    );
 
     final image = Container(
       clipBehavior: Clip.antiAlias,
       decoration: ShapeDecoration(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       child: AspectRatio(
         aspectRatio: 1.2,
-        child: Image.network(
-          house.image,
-          fit: BoxFit.fitWidth,
-        ),
+        child: Image.network(house.image, fit: BoxFit.fitWidth),
       ),
     );
 

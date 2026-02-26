@@ -69,20 +69,9 @@ class _AddressBar extends StatelessWidget {
       ),
       child: const Row(
         children: [
-          Icon(
-            CupertinoIcons.textformat,
-            color: CupertinoColors.black,
-          ),
-          Expanded(
-            child: Text(
-              'apple.com',
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Icon(
-            CupertinoIcons.refresh,
-            color: CupertinoColors.black,
-          ),
+          Icon(CupertinoIcons.textformat, color: CupertinoColors.black),
+          Expanded(child: Text('apple.com', textAlign: TextAlign.center)),
+          Icon(CupertinoIcons.refresh, color: CupertinoColors.black),
         ],
       ),
     );

@@ -27,20 +27,13 @@ class CupertinoAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (leading case final leading?)
-            Positioned(
-              left: 1,
-              child: leading,
-            ),
+          if (leading case final leading?) Positioned(left: 1, child: leading),
           DefaultTextStyle(
             style: Theme.of(context).textTheme.titleMedium!,
             child: title,
           ),
           if (trailing case final trailing?)
-            Positioned(
-              right: 1,
-              child: trailing,
-            ),
+            Positioned(right: 1, child: trailing),
         ],
       ),
     );
@@ -48,18 +41,12 @@ class CupertinoAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class SiteIcon extends StatelessWidget {
-  const SiteIcon({
-    super.key,
-    required this.url,
-  });
+  const SiteIcon({super.key, required this.url});
 
   final String url;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: 48,
-      child: Image.network(url),
-    );
+    return SizedBox.square(dimension: 48, child: Image.network(url));
   }
 }

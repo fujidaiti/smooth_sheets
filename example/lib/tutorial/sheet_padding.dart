@@ -14,7 +14,8 @@ enum _PaddingStrategy {
   ),
   pushContent(
     'Push content up (Sheet.padding)',
-    subtitle: 'Shifts the content inside the sheet above the keyboard '
+    subtitle:
+        'Shifts the content inside the sheet above the keyboard '
         'without moving the sheet itself.',
   ),
   usePaddingWidget(
@@ -25,12 +26,14 @@ enum _PaddingStrategy {
   ),
   pushSheet(
     'Push sheet up (SheetViewport.padding)',
-    subtitle: 'Moves the entire sheet above the keyboard, '
+    subtitle:
+        'Moves the entire sheet above the keyboard, '
         'keeping the sheet layout unchanged.',
   ),
   adaptive(
     'Adaptive padding',
-    subtitle: 'Respects the bottom safe area when the keyboard is closed, '
+    subtitle:
+        'Respects the bottom safe area when the keyboard is closed, '
         'and avoids the keyboard when open while preserving a 16px bottom padding '
         'between the sheet and the keyboard.',
   );
@@ -102,12 +105,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
 }
 
 void _showIgnoreKeyboard(BuildContext context) {
-  Navigator.push(
-    context,
-    ModalSheetRoute(
-      builder: _buildSheet,
-    ),
-  );
+  Navigator.push(context, ModalSheetRoute(builder: _buildSheet));
 }
 
 void _showPushContentUp(BuildContext context) {
@@ -211,18 +209,13 @@ Sheet _buildSheet(
       color: Colors.red,
     ),
     padding: padding,
-    snapGrid: const SheetSnapGrid(
-      snaps: [SheetOffset(0.5), SheetOffset(1)],
-    ),
+    snapGrid: const SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]),
     child: content,
   );
 }
 
 class _StrategySelector extends StatelessWidget {
-  const _StrategySelector({
-    required this.selected,
-    required this.onChanged,
-  });
+  const _StrategySelector({required this.selected, required this.onChanged});
 
   final _PaddingStrategy selected;
   final ValueChanged<_PaddingStrategy> onChanged;
@@ -247,7 +240,7 @@ class _StrategySelector extends StatelessWidget {
               value: strategy,
             ),
             const Divider(),
-          ]
+          ],
         ],
       ),
     );

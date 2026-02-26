@@ -14,11 +14,7 @@ final _router = GoRouter(
       routes: [
         ShellRoute(
           pageBuilder: (context, state, child) {
-            return ModalSheetPage(
-              child: _MySheet(
-                navigator: child,
-              ),
-            );
+            return ModalSheetPage(child: _MySheet(navigator: child));
           },
           routes: [
             GoRoute(
@@ -77,9 +73,7 @@ class _Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
+      appBar: AppBar(title: const Text('Home')),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
@@ -93,9 +87,7 @@ class _Home extends StatelessWidget {
 }
 
 class _MySheet extends StatelessWidget {
-  const _MySheet({
-    required this.navigator,
-  });
+  const _MySheet({required this.navigator});
 
   final Widget navigator;
 
@@ -106,9 +98,7 @@ class _MySheet extends StatelessWidget {
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       decoration: const MaterialSheetDecoration(
         size: SheetSize.stretch,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       navigator: navigator,
     );
@@ -135,9 +125,7 @@ class _EditablePageContent extends StatelessWidget {
           padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
           child: Column(
             children: [
-              TextField(
-                autofocus: autofocus,
-              ),
+              TextField(autofocus: autofocus),
               ElevatedButton(
                 onPressed: () => context.go(nextLocation),
                 child: const Text('Next'),

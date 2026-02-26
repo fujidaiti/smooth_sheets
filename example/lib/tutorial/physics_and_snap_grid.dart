@@ -10,9 +10,7 @@ class _PhysicsAndSnapGridExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: _ExampleHome(),
-    );
+    return const MaterialApp(home: _ExampleHome());
   }
 }
 
@@ -61,9 +59,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Physics and Snap Grid'),
-      ),
+      appBar: AppBar(title: const Text('Physics and Snap Grid')),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -84,10 +80,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
             child: Column(
               children: [
                 for (final physics in _PhysicsKind.values)
-                  RadioListTile(
-                    title: Text(physics.name),
-                    value: physics,
-                  ),
+                  RadioListTile(title: Text(physics.name), value: physics),
               ],
             ),
           ),
@@ -109,10 +102,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
             child: Column(
               children: [
                 for (final snapGrid in _SnapGridKind.values)
-                  RadioListTile(
-                    title: Text(snapGrid.name),
-                    value: snapGrid,
-                  ),
+                  RadioListTile(title: Text(snapGrid.name), value: snapGrid),
               ],
             ),
           ),
@@ -135,10 +125,7 @@ const _sheetHeight = 500.0;
 const _halfwayFraction = 0.6;
 
 class _MySheet extends StatelessWidget {
-  const _MySheet({
-    required this.physicsKind,
-    required this.snapGridKind,
-  });
+  const _MySheet({required this.physicsKind, required this.snapGridKind});
 
   final _PhysicsKind physicsKind;
   final _SnapGridKind snapGridKind;
@@ -152,12 +139,13 @@ class _MySheet extends StatelessWidget {
 
   SheetSnapGrid createSnapGrid() {
     return switch (snapGridKind) {
-      _SnapGridKind.stepless =>
-        const SteplessSnapGrid(minOffset: SheetOffset(_halfwayFraction)),
+      _SnapGridKind.stepless => const SteplessSnapGrid(
+        minOffset: SheetOffset(_halfwayFraction),
+      ),
       _SnapGridKind.single => const SingleSnapGrid(snap: SheetOffset(1)),
       _SnapGridKind.multi => const MultiSnapGrid(
-          snaps: [SheetOffset(_halfwayFraction), SheetOffset(1)],
-        ),
+        snaps: [SheetOffset(_halfwayFraction), SheetOffset(1)],
+      ),
     };
   }
 
@@ -190,9 +178,8 @@ class _MySheet extends StatelessWidget {
                 child: Text(
                   '${(_halfwayFraction * 100).toInt()}%',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color:
-                            Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
                 ),
               ),
             ),
@@ -205,8 +192,8 @@ class _MySheet extends StatelessWidget {
                 child: Text(
                   '${(100 - _halfwayFraction * 100).toInt()}%',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onTertiary,
-                      ),
+                    color: Theme.of(context).colorScheme.onTertiary,
+                  ),
                 ),
               ),
             ),

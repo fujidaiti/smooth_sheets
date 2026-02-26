@@ -34,11 +34,13 @@ class TextFieldWithMultipleStops extends StatelessWidget {
                 bottom: MediaQuery.viewInsetsOf(context).bottom,
               ),
               child: SheetContentScaffold(
-                backgroundColor:
-                    Theme.of(context).colorScheme.secondaryContainer,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.secondaryContainer,
                 topBar: AppBar(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.secondaryContainer,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.secondaryContainer,
                   title: const Text('Sheet with a TextField'),
                   leading: IconButton(
                     onPressed: () => primaryFocus?.unfocus(),

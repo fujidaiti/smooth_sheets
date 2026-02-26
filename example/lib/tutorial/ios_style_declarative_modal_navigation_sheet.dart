@@ -11,31 +11,32 @@ final router = GoRouter(
   initialLocation: '/',
   routes: [
     GoRoute(
-        path: '/',
-        builder: (context, state) {
-          return const _Home();
-        },
-        routes: [
-          ShellRoute(
-            pageBuilder: (context, state, child) {
-              return CupertinoModalSheetPage(
-                key: state.pageKey,
-                child: _Modal(nestedNavigator: child),
-              );
-            },
-            routes: [
-              GoRoute(
-                path: 'modal',
-                pageBuilder: (context, state) {
-                  return PagedSheetPage(
-                    key: state.pageKey,
-                    child: Container(color: Colors.white),
-                  );
-                },
-              ),
-            ],
-          )
-        ]),
+      path: '/',
+      builder: (context, state) {
+        return const _Home();
+      },
+      routes: [
+        ShellRoute(
+          pageBuilder: (context, state, child) {
+            return CupertinoModalSheetPage(
+              key: state.pageKey,
+              child: _Modal(nestedNavigator: child),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: 'modal',
+              pageBuilder: (context, state) {
+                return PagedSheetPage(
+                  key: state.pageKey,
+                  child: Container(color: Colors.white),
+                );
+              },
+            ),
+          ],
+        ),
+      ],
+    ),
   ],
 );
 
@@ -65,9 +66,7 @@ class _Home extends StatelessWidget {
 }
 
 class _Modal extends StatelessWidget {
-  const _Modal({
-    required this.nestedNavigator,
-  });
+  const _Modal({required this.nestedNavigator});
 
   final Widget nestedNavigator;
 

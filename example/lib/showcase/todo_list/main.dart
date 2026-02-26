@@ -11,10 +11,7 @@ class _TodoListExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: _Home(),
-    );
+    return const MaterialApp(debugShowCheckedModeBanner: false, home: _Home());
   }
 }
 
@@ -43,9 +40,7 @@ class _HomeState extends State<_Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Todo List'),
-      ),
+      appBar: AppBar(title: const Text('Todo List')),
       body: _TodoListView(todoList: _todoList),
       floatingActionButton: FloatingActionButton(
         onPressed: () => addTodo(),
@@ -63,9 +58,7 @@ class _HomeState extends State<_Home> {
 }
 
 class _TodoListView extends StatelessWidget {
-  const _TodoListView({
-    required this.todoList,
-  });
+  const _TodoListView({required this.todoList});
 
   final TodoList todoList;
 
@@ -92,10 +85,7 @@ class _TodoListView extends StatelessWidget {
 }
 
 class _TodoListViewItem extends StatelessWidget {
-  const _TodoListViewItem({
-    required this.todo,
-    required this.checkboxCallback,
-  });
+  const _TodoListViewItem({required this.todo, required this.checkboxCallback});
 
   final Todo todo;
   final ValueChanged<bool?> checkboxCallback;
@@ -114,14 +104,13 @@ class _TodoListViewItem extends StatelessWidget {
     final description = switch (todo.description) {
       null => null,
       final text => Text(
-          text,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context)
-              .textTheme
-              .bodyLarge
-              ?.copyWith(color: Colors.black54),
-        ),
+        text,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(color: Colors.black54),
+      ),
     };
 
     final secondaryContent = [
@@ -137,9 +126,9 @@ class _TodoListViewItem extends StatelessWidget {
       isThreeLine: secondaryContent.isNotEmpty,
       subtitle: switch (secondaryContent.isNotEmpty) {
         true => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: secondaryContent,
-          ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: secondaryContent,
+        ),
         false => null,
       },
     );
@@ -164,10 +153,7 @@ class _StatusChip extends StatelessWidget {
       label: Text(label),
       padding: EdgeInsets.zero,
       labelPadding: const EdgeInsets.only(right: 12),
-      visualDensity: const VisualDensity(
-        vertical: -4,
-        horizontal: -4,
-      ),
+      visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
     );
   }
 }

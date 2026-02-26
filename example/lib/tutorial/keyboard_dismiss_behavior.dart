@@ -10,17 +10,12 @@ class _KeyboardDismissBehaviorExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: _ExampleHome(),
-    );
+    return const MaterialApp(home: _ExampleHome());
   }
 }
 
 enum _KeyboardDismissBehaviorKind {
-  onDrag(
-    'onDrag',
-    'Dismisses the keyboard when the user drags the sheet.',
-  ),
+  onDrag('onDrag', 'Dismisses the keyboard when the user drags the sheet.'),
   onDragDown(
     'onDragDown',
     'Dismisses the keyboard only when the user drags the sheet downwards.',
@@ -126,13 +121,16 @@ class _ExampleHomeState extends State<_ExampleHome> {
     final keyboardDismissBehavior = switch (selectedBehavior) {
       _KeyboardDismissBehaviorKind.onDrag =>
         SheetKeyboardDismissBehavior.onDrag(
-            isContentScrollAware: isContentScrollAware),
+          isContentScrollAware: isContentScrollAware,
+        ),
       _KeyboardDismissBehaviorKind.onDragDown =>
         SheetKeyboardDismissBehavior.onDragDown(
-            isContentScrollAware: isContentScrollAware),
+          isContentScrollAware: isContentScrollAware,
+        ),
       _KeyboardDismissBehaviorKind.onDragUp =>
         SheetKeyboardDismissBehavior.onDragUp(
-            isContentScrollAware: isContentScrollAware),
+          isContentScrollAware: isContentScrollAware,
+        ),
     };
 
     Navigator.push(
@@ -171,9 +169,7 @@ class _ExampleSheet extends StatelessWidget {
     Widget body = const SingleChildScrollView(
       child: TextField(
         maxLines: null,
-        decoration: InputDecoration(
-          hintText: 'Enter some text...',
-        ),
+        decoration: InputDecoration(hintText: 'Enter some text...'),
       ),
     );
     if (isFullScreen) {
@@ -185,15 +181,9 @@ class _ExampleSheet extends StatelessWidget {
       child: SafeArea(
         child: Row(
           children: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.menu),
-            ),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
             const Spacer(),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.more_vert),
-            ),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
           ],
         ),
       ),

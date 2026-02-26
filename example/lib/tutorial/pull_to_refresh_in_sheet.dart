@@ -42,9 +42,7 @@ class _MySheet extends StatelessWidget {
         size: SheetSize.fit,
         color: Colors.white,
       ),
-      snapGrid: const SheetSnapGrid(
-        snaps: [SheetOffset(0.5), SheetOffset(1)],
-      ),
+      snapGrid: const SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]),
       physics: const ClampingSheetPhysics(),
       scrollConfiguration: const SheetScrollConfiguration(
         // 1. Enable this flag
@@ -64,9 +62,7 @@ class _MySheet extends StatelessWidget {
             child: ListView.builder(
               itemCount: 50,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text('Item $index'),
-                );
+                return ListTile(title: Text('Item $index'));
               },
             ),
           ),

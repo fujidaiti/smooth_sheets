@@ -10,9 +10,7 @@ class _SheetControllerExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: _ExampleHome(),
-    );
+    return const MaterialApp(home: _ExampleHome());
   }
 }
 
@@ -59,11 +57,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
               ),
             ),
           ),
-          SheetViewport(
-            child: _ExampleSheet(
-              controller: controller,
-            ),
-          ),
+          SheetViewport(child: _ExampleSheet(controller: controller)),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -80,9 +74,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
 }
 
 class _ExampleSheet extends StatelessWidget {
-  const _ExampleSheet({
-    required this.controller,
-  });
+  const _ExampleSheet({required this.controller});
 
   final SheetController controller;
 
@@ -90,9 +82,7 @@ class _ExampleSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sheet(
       controller: controller,
-      snapGrid: const SheetSnapGrid(
-        snaps: [SheetOffset(0.5), SheetOffset(1)],
-      ),
+      snapGrid: const SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]),
       child: Container(
         color: Theme.of(context).colorScheme.secondaryContainer,
         width: double.infinity,
