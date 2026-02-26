@@ -78,14 +78,18 @@ jobs:
       - name: Update .fvmrc
         run: |
           echo "Updating .fvmrc to version $LATEST_VERSION"
-          jq --arg version "$LATEST_VERSION" '.flutter = $version' .fvmrc > .fvmrc.tmp
-          mv .fvmrc.tmp .fvmrc
+          # Use printf to ensure the file ends with a trailing newline,
+          # matching the output of "fvm use" on local machines.
+          UPDATED=$(jq --arg version "$LATEST_VERSION" '.flutter = $version' .fvmrc)
+          printf '%s\n' "$UPDATED" > .fvmrc
 
       - name: Update .vscode/settings.json
         run: |
           echo "Updating .vscode/settings.json to version $LATEST_VERSION"
-          jq --arg path ".fvm/versions/$LATEST_VERSION" '."dart.flutterSdkPath" = $path' .vscode/settings.json > .vscode/settings.json.tmp
-          mv .vscode/settings.json.tmp .vscode/settings.json
+          # Use printf to ensure the file ends with a trailing newline,
+          # matching the output of "fvm use" on local machines.
+          UPDATED=$(jq --arg path ".fvm/versions/$LATEST_VERSION" '."dart.flutterSdkPath" = $path' .vscode/settings.json)
+          printf '%s\n' "$UPDATED" > .vscode/settings.json
 
       - name: Generate GitHub App token
         id: app-token
