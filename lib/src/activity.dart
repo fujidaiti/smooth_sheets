@@ -209,6 +209,17 @@ class BallisticSheetActivity extends SheetActivity
 
   @override
   void applyNewLayout(ViewportLayout oldLayout) {
+    // If only the sheet size changed (not any viewport properties),
+    // the animation itself caused the change (e.g., stretch sheets
+    // whose size depends on offset). Don't interrupt the animation.
+    if (oldLayout.viewportSize == owner.viewportSize &&
+        oldLayout.viewportPadding == owner.viewportPadding &&
+        oldLayout.contentSize == owner.contentSize &&
+        oldLayout.contentBaseline == owner.contentBaseline &&
+        oldLayout.contentMargin == owner.contentMargin) {
+      return;
+    }
+
     final destination = owner.snapGrid.getSnapOffset(
       oldLayout,
       owner.offset,
