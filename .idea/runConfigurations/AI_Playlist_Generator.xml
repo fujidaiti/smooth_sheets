@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="AI Playlist Generator" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="filePath" value="$PROJECT_DIR$/example/lib/showcase/ai_playlist_generator.dart" />
-    <method v="2" />
-  </configuration>
-</component>

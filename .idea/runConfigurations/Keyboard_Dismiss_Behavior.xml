@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Keyboard Dismiss Behavior" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="filePath" value="$PROJECT_DIR$/example/lib/tutorial/keyboard_dismiss_behavior.dart" />
-    <method v="2" />
-  </configuration>
-</component>

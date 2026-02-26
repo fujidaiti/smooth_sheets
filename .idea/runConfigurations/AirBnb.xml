@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Airbnb" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="filePath" value="$PROJECT_DIR$/example/lib/showcase/airbnb_mobile_app.dart" />
-    <method v="2" />
-  </configuration>
-</component>
