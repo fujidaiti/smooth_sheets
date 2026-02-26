@@ -21,10 +21,7 @@ enum Priority {
   low(displayName: 'Low Priority', color: Colors.blue),
   none(displayName: 'No Priority');
 
-  const Priority({
-    required this.displayName,
-    this.color,
-  });
+  const Priority({required this.displayName, this.color});
 
   final String displayName;
   final Color? color;

@@ -64,9 +64,7 @@ const _sheetDecoration = BoxSheetDecoration(
   decoration: ShapeDecoration(
     color: CupertinoColors.darkBackgroundGray,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(
-        Radius.circular(8),
-      ),
+      borderRadius: BorderRadius.all(Radius.circular(8)),
     ),
   ),
 );
@@ -99,12 +97,8 @@ class _HalfScreenSheetState extends State<_HalfScreenSheet> {
       controller: _controller,
       decoration: _sheetDecoration,
       initialOffset: const SheetOffset(0.5),
-      snapGrid: const SheetSnapGrid(
-        snaps: [SheetOffset(0.5), SheetOffset(1)],
-      ),
-      child: _SheetContent(
-        controller: _controller,
-      ),
+      snapGrid: const SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]),
+      child: _SheetContent(controller: _controller),
     );
   }
 }
@@ -114,10 +108,7 @@ class _FullScreenSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Sheet(
-      decoration: _sheetDecoration,
-      child: _SheetContent(),
-    );
+    return const Sheet(decoration: _sheetDecoration, child: _SheetContent());
   }
 }
 

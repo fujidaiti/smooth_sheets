@@ -10,9 +10,6 @@ class _SafariApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoApp(
-      debugShowCheckedModeBanner: false,
-      home: Home(),
-    );
+    return const CupertinoApp(debugShowCheckedModeBanner: false, home: Home());
   }
 }

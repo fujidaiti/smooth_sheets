@@ -25,9 +25,7 @@ class MenuSheet extends StatelessWidget {
       child: Sheet(
         scrollConfiguration: const SheetScrollConfiguration(),
         initialOffset: halfWayOffset,
-        snapGrid: SheetSnapGrid(
-          snaps: [halfWayOffset, SheetOffset(1)],
-        ),
+        snapGrid: SheetSnapGrid(snaps: [halfWayOffset, SheetOffset(1)]),
         decoration: SheetDecorationBuilder(
           size: SheetSize.stretch,
           builder: (context, child) {
@@ -69,14 +67,8 @@ class _MenuList extends StatelessWidget {
       children: [
         const _MenuListSection(
           children: [
-            _MenuListItem(
-              title: 'Copy',
-              icon: CupertinoIcons.doc_on_doc,
-            ),
-            _MenuListItem(
-              title: 'Save in Keep',
-              icon: CupertinoIcons.bookmark,
-            ),
+            _MenuListItem(title: 'Copy', icon: CupertinoIcons.doc_on_doc),
+            _MenuListItem(title: 'Save in Keep', icon: CupertinoIcons.bookmark),
           ],
         ),
         const _MenuListSection(
@@ -85,14 +77,8 @@ class _MenuList extends StatelessWidget {
               title: 'Add to Reading List',
               icon: CupertinoIcons.eyeglasses,
             ),
-            _MenuListItem(
-              title: 'Add Bookmark',
-              icon: CupertinoIcons.book,
-            ),
-            _MenuListItem(
-              title: 'Add to Favorites',
-              icon: CupertinoIcons.star,
-            ),
+            _MenuListItem(title: 'Add Bookmark', icon: CupertinoIcons.book),
+            _MenuListItem(title: 'Add to Favorites', icon: CupertinoIcons.star),
             _MenuListItem(
               title: 'Find on Page',
               icon: CupertinoIcons.doc_text_search,
@@ -105,14 +91,8 @@ class _MenuList extends StatelessWidget {
         ),
         const _MenuListSection(
           children: [
-            _MenuListItem(
-              title: 'Markup',
-              icon: CupertinoIcons.pencil_outline,
-            ),
-            _MenuListItem(
-              title: 'Print',
-              icon: CupertinoIcons.printer,
-            ),
+            _MenuListItem(title: 'Markup', icon: CupertinoIcons.pencil_outline),
+            _MenuListItem(title: 'Print', icon: CupertinoIcons.printer),
           ],
         ),
         CupertinoListTile.notched(
@@ -127,9 +107,7 @@ class _MenuList extends StatelessWidget {
 }
 
 class _MenuListSection extends StatelessWidget {
-  const _MenuListSection({
-    required this.children,
-  });
+  const _MenuListSection({required this.children});
 
   final List<Widget> children;
 
@@ -143,10 +121,7 @@ class _MenuListSection extends StatelessWidget {
 }
 
 class _MenuListItem extends StatelessWidget {
-  const _MenuListItem({
-    required this.title,
-    required this.icon,
-  });
+  const _MenuListItem({required this.title, required this.icon});
 
   final String title;
   final IconData icon;
@@ -187,19 +162,15 @@ class _TopBar extends StatelessWidget {
       this.displayUrl,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: Theme.of(context)
-          .textTheme
-          .bodyMedium
-          ?.copyWith(color: CupertinoColors.secondaryLabel),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: CupertinoColors.secondaryLabel),
     );
 
     return ColoredBox(
       color: CupertinoColors.systemGroupedBackground,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

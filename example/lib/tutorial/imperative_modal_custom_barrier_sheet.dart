@@ -12,9 +12,7 @@ class _ImperativeModalSheetCustomBarrierExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: _ExampleHome(),
-    );
+    return const MaterialApp(home: _ExampleHome());
   }
 }
 
@@ -117,9 +115,7 @@ class _ExampleSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Sheet(
       controller: controller,
-      snapGrid: const SheetSnapGrid(
-        snaps: [SheetOffset(0.4), SheetOffset(1)],
-      ),
+      snapGrid: const SheetSnapGrid(snaps: [SheetOffset(0.4), SheetOffset(1)]),
       decoration: MaterialSheetDecoration(
         size: SheetSize.fit,
         borderRadius: BorderRadius.circular(20),

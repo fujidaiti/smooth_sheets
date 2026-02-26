@@ -20,9 +20,7 @@ class _ScrollablePageViewSheetExample extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    ModalSheetRoute(
-                      builder: (_) => const _MySheet(),
-                    ),
+                    ModalSheetRoute(builder: (_) => const _MySheet()),
                   );
                 },
                 child: const Text('Show Sheet'),
@@ -52,11 +50,7 @@ class _MySheet extends StatelessWidget {
         child: SizedBox(
           height: 600,
           child: PageView(
-            children: const [
-              _PageViewItem(),
-              _PageViewItem(),
-              _PageViewItem(),
-            ],
+            children: const [_PageViewItem(), _PageViewItem(), _PageViewItem()],
           ),
         ),
       ),
@@ -82,10 +76,7 @@ class _PageViewItemState extends State<_PageViewItem>
     return ListView.builder(
       itemCount: 100,
       itemBuilder: (context, index) {
-        return ListTile(
-          onTap: () {},
-          title: Text('Item $index'),
-        );
+        return ListTile(onTap: () {}, title: Text('Item $index'));
       },
     );
   }

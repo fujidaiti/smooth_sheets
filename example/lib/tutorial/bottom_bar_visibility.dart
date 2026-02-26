@@ -10,9 +10,7 @@ class _BottomBarVisibilityExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: _ExampleHome(),
-    );
+    return const MaterialApp(home: _ExampleHome());
   }
 }
 
@@ -88,9 +86,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
     Navigator.push(
       context,
       ModalSheetRoute(
-        builder: (context) => _ExampleSheet(
-          visibilityType: visibilityType,
-        ),
+        builder: (context) => _ExampleSheet(visibilityType: visibilityType),
         viewportBuilder: (context, child) {
           return SheetViewport(
             padding: EdgeInsets.only(
@@ -106,9 +102,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
 }
 
 class _ExampleSheet extends StatelessWidget {
-  const _ExampleSheet({
-    required this.visibilityType,
-  });
+  const _ExampleSheet({required this.visibilityType});
 
   final _BottomBarVisibilityType visibilityType;
 
@@ -118,13 +112,13 @@ class _ExampleSheet extends StatelessWidget {
       _BottomBarVisibilityType.natural => const BottomBarVisibility.natural(),
       _BottomBarVisibilityType.always => const BottomBarVisibility.always(),
       _BottomBarVisibilityType.conditional => BottomBarVisibility.conditional(
-          // This callback is called whenever the sheet metrics changes,
-          // and returning true keeps the bottom bar visible.
-          isVisible: (metrics) {
-            // The bottom bar is visible when at least 50% of the sheet is visible.
-            return metrics.offset >= const SheetOffset(0.5).resolve(metrics);
-          },
-        ),
+        // This callback is called whenever the sheet metrics changes,
+        // and returning true keeps the bottom bar visible.
+        isVisible: (metrics) {
+          // The bottom bar is visible when at least 50% of the sheet is visible.
+          return metrics.offset >= const SheetOffset(0.5).resolve(metrics);
+        },
+      ),
     };
 
     const minSize = SheetOffset(0.2);
@@ -161,15 +155,9 @@ class _ExampleBottomBar extends StatelessWidget {
           size: const Size.fromHeight(kToolbarHeight),
           child: Row(
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.menu),
-              ),
+              IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
               const Spacer(),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.more_vert),
-              ),
+              IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
             ],
           ),
         ),

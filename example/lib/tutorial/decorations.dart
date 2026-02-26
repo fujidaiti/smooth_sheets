@@ -48,7 +48,8 @@ class _ExampleHomeState extends State<_ExampleHome> {
                         value: SheetSize.fit,
                         title: Text('SheetSize.fit'),
                         subtitle: Text(
-                            'The sheet size is always the same as the content.'),
+                          'The sheet size is always the same as the content.',
+                        ),
                       ),
                       RadioListTile(
                         value: SheetSize.stretch,
@@ -70,8 +71,9 @@ class _ExampleHomeState extends State<_ExampleHome> {
                 ),
                 ListTile(
                   title: Text('BoxSheetDecoration'),
-                  subtitle:
-                      Text('Decorate the sheet using a DecoratedBox widget.'),
+                  subtitle: Text(
+                    'Decorate the sheet using a DecoratedBox widget.',
+                  ),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () => showSheet(_DecorationType.box),
                 ),
@@ -91,10 +93,7 @@ class _ExampleHomeState extends State<_ExampleHome> {
 }
 
 class _ExampleSheet extends StatefulWidget {
-  const _ExampleSheet({
-    required this.type,
-    required this.size,
-  });
+  const _ExampleSheet({required this.type, required this.size});
 
   final _DecorationType type;
   final SheetSize size;
@@ -124,48 +123,43 @@ class _ExampleSheetState extends State<_ExampleSheet> {
 
     final decoration = switch (widget.type) {
       _DecorationType.material => MaterialSheetDecoration(
-          size: widget.size,
-          color: sheetBackgroundColor,
-          borderRadius: BorderRadius.circular(16),
-          clipBehavior: Clip.antiAlias,
-        ),
+        size: widget.size,
+        color: sheetBackgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+      ),
       _DecorationType.box => BoxSheetDecoration(
-          size: widget.size,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                sheetBackgroundColor.shade100,
-                sheetBackgroundColor,
-              ],
-            ),
+        size: widget.size,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [sheetBackgroundColor.shade100, sheetBackgroundColor],
           ),
         ),
+      ),
       _DecorationType.builder => SheetDecorationBuilder(
-          size: widget.size,
-          builder: (context, child) {
-            return ColoredBox(
-              color: sheetBackgroundColor,
-              child: FadeTransition(
-                opacity: SheetOffsetDrivenAnimation(
-                  controller: _controller,
-                  initialValue: 1,
-                  startOffset: const SheetOffset(0.95),
-                ),
-                child: child,
+        size: widget.size,
+        builder: (context, child) {
+          return ColoredBox(
+            color: sheetBackgroundColor,
+            child: FadeTransition(
+              opacity: SheetOffsetDrivenAnimation(
+                controller: _controller,
+                initialValue: 1,
+                startOffset: const SheetOffset(0.95),
               ),
-            );
-          },
-        ),
+              child: child,
+            ),
+          );
+        },
+      ),
     };
 
     return Sheet(
       controller: _controller,
       decoration: decoration,
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.paddingOf(context).bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
       child: SizedBox(
         height: 500,
         width: double.infinity,

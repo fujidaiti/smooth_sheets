@@ -205,10 +205,7 @@ class _MultiLineInput extends StatelessWidget {
       textInputAction: textInputAction,
       onChanged: onChanged,
       style: style,
-      decoration: InputDecoration(
-        hintText: hintText,
-        border: InputBorder.none,
-      ),
+      decoration: InputDecoration(hintText: hintText, border: InputBorder.none),
     );
   }
 }

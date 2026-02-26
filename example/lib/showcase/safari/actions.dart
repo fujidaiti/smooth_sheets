@@ -95,10 +95,7 @@ class _ActionList extends StatelessWidget {
 }
 
 class _ActionListSection extends StatelessWidget {
-  const _ActionListSection({
-    this.header,
-    required this.children,
-  });
+  const _ActionListSection({this.header, required this.children});
 
   final Widget? header;
   final List<Widget> children;
@@ -114,10 +111,7 @@ class _ActionListSection extends StatelessWidget {
 }
 
 class _ActionListItem extends StatelessWidget {
-  const _ActionListItem({
-    required this.title,
-    this.isFavorite = false,
-  });
+  const _ActionListItem({required this.title, this.isFavorite = false});
 
   final String title;
   final bool isFavorite;

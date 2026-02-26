@@ -14,9 +14,7 @@ class _ImperativePagedSheetExample extends StatelessWidget {
       home: Stack(
         children: [
           Scaffold(),
-          SheetViewport(
-            child: _ExampleSheet(),
-          ),
+          SheetViewport(child: _ExampleSheet()),
         ],
       ),
     );
@@ -74,8 +72,8 @@ class _DraggablePage extends StatelessWidget {
     final title = Text(
       'Draggable Page',
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSecondaryContainer,
-          ),
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
+      ),
     );
 
     return LayoutBuilder(
@@ -117,9 +115,7 @@ class _ScrollablePage extends StatelessWidget {
       body: ListView.builder(
         itemCount: 30,
         itemBuilder: (context, index) {
-          return ListTile(
-            title: Text('Item #$index'),
-          );
+          return ListTile(title: Text('Item #$index'));
         },
       ),
     );

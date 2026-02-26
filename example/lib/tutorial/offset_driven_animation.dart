@@ -45,9 +45,7 @@ class _ExampleScaffoldState extends State<_ExampleScaffold> {
       body: Stack(
         children: [
           _RotatedFlutterLogo(controller: controller),
-          SheetViewport(
-            child: _ExampleSheet(controller: controller),
-          ),
+          SheetViewport(child: _ExampleSheet(controller: controller)),
         ],
       ),
       bottomNavigationBar: _BottomAppBar(controller: controller),
@@ -56,9 +54,7 @@ class _ExampleScaffoldState extends State<_ExampleScaffold> {
 }
 
 class _ExampleSheet extends StatelessWidget {
-  const _ExampleSheet({
-    required this.controller,
-  });
+  const _ExampleSheet({required this.controller});
 
   final SheetController controller;
 
@@ -69,9 +65,7 @@ class _ExampleSheet extends StatelessWidget {
 
     return Sheet(
       controller: controller,
-      snapGrid: SheetSnapGrid(
-        snaps: [minOffset, const SheetOffset(1)],
-      ),
+      snapGrid: SheetSnapGrid(snaps: [minOffset, const SheetOffset(1)]),
       child: SafeArea(
         top: false,
         child: Container(
@@ -85,9 +79,7 @@ class _ExampleSheet extends StatelessWidget {
 }
 
 class _BottomAppBar extends StatelessWidget {
-  const _BottomAppBar({
-    required this.controller,
-  });
+  const _BottomAppBar({required this.controller});
 
   final SheetController controller;
 
@@ -112,14 +104,8 @@ class _BottomAppBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.menu),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
-          ),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
         ],
       ),
     );
@@ -127,10 +113,7 @@ class _BottomAppBar extends StatelessWidget {
     // Hide the bottom app bar when the sheet is dragged down.
     return SlideTransition(
       position: animation.drive(
-        Tween(
-          begin: const Offset(0, 1),
-          end: Offset.zero,
-        ),
+        Tween(begin: const Offset(0, 1), end: Offset.zero),
       ),
       child: bottomAppBar,
     );
@@ -138,9 +121,7 @@ class _BottomAppBar extends StatelessWidget {
 }
 
 class _RotatedFlutterLogo extends StatelessWidget {
-  const _RotatedFlutterLogo({
-    required this.controller,
-  });
+  const _RotatedFlutterLogo({required this.controller});
 
   final SheetController controller;
 
@@ -158,10 +139,7 @@ class _RotatedFlutterLogo extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: logo,
-        ),
+        child: Align(alignment: Alignment.topCenter, child: logo),
       ),
     );
   }

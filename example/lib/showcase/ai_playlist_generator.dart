@@ -16,10 +16,12 @@ void main() {
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top],
     ).then((_) {
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarDividerColor: Colors.transparent,
-      ));
+      SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle.dark.copyWith(
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarDividerColor: Colors.transparent,
+        ),
+      );
     });
   }
 
@@ -70,9 +72,7 @@ final _sheetShellRoute = ShellRoute(
           child: child,
         );
       },
-      child: _SheetShell(
-        navigator: navigator,
-      ),
+      child: _SheetShell(navigator: navigator),
     );
   },
   routes: [_introRoute],
@@ -131,9 +131,7 @@ final _confirmRoute = GoRoute(
       transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
       scrollConfiguration: SheetScrollConfiguration(),
       initialOffset: SheetOffset(0.7),
-      snapGrid: SheetSnapGrid(
-        snaps: [SheetOffset(0.7), SheetOffset(1)],
-      ),
+      snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.7), SheetOffset(1)]),
       child: _ConfirmPage(),
     );
   },
@@ -160,19 +158,18 @@ class _Root extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: ElevatedButton(
-        onPressed: () => context.go('/intro'),
-        child: const Text('Generate Playlist'),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () => context.go('/intro'),
+          child: const Text('Generate Playlist'),
+        ),
       ),
-    ));
+    );
   }
 }
 
 class _SheetShell extends StatelessWidget {
-  const _SheetShell({
-    required this.navigator,
-  });
+  const _SheetShell({required this.navigator});
 
   final Widget navigator;
 
@@ -184,8 +181,9 @@ class _SheetShell extends StatelessWidget {
         builder: (context) {
           return AlertDialog(
             title: const Text('Are you sure?'),
-            content:
-                const Text('Do you want to cancel the playlist generation?'),
+            content: const Text(
+              'Do you want to cancel the playlist generation?',
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
@@ -282,10 +280,7 @@ class _SelectGenrePage extends StatelessWidget {
           Wrap(
             spacing: 10,
             children: [
-              for (final genre in _genres)
-                _SelectableChip(
-                  label: Text(genre),
-                ),
+              for (final genre in _genres) _SelectableChip(label: Text(genre)),
             ],
           ),
         ],
@@ -336,16 +331,16 @@ class _SelectSeedTrackPage extends StatelessWidget {
       itemBuilder: (context, index) {
         return switch (index) {
           0 => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
-              child: Text(
-                'Select seed tracks to get started (3/3)',
-                style: Theme.of(context).textTheme.headlineMediumBold,
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+            child: Text(
+              'Select seed tracks to get started (3/3)',
+              style: Theme.of(context).textTheme.headlineMediumBold,
             ),
+          ),
           _ => _SelectableListTile(
-              padding: const EdgeInsets.only(left: 16),
-              title: _seedTracks[index - 1],
-            ),
+            padding: const EdgeInsets.only(left: 16),
+            title: _seedTracks[index - 1],
+          ),
         };
       },
     );
@@ -481,9 +476,7 @@ extension on TextTheme {
 }
 
 class _SelectableChip extends StatefulWidget {
-  const _SelectableChip({
-    required this.label,
-  });
+  const _SelectableChip({required this.label});
 
   final Widget label;
 
@@ -507,10 +500,7 @@ class _SelectableChipState extends State<_SelectableChip> {
 }
 
 class _SelectableListTile extends StatefulWidget {
-  const _SelectableListTile({
-    required this.title,
-    required this.padding,
-  });
+  const _SelectableListTile({required this.title, required this.padding});
 
   final String title;
   final EdgeInsets padding;
@@ -562,10 +552,7 @@ class _SelectableMoodListState extends State<_SelectableMoodList> {
           for (final mood in _moods)
             RadioListTile(
               title: Text(mood.label),
-              secondary: Text(
-                mood.emoji,
-                style: const TextStyle(fontSize: 24),
-              ),
+              secondary: Text(mood.emoji, style: const TextStyle(fontSize: 24)),
               controlAffinity: ListTileControlAffinity.trailing,
               selected: mood.label == selectedMood,
               value: mood.label,
@@ -602,10 +589,7 @@ class _SharedSheetTopBar extends StatelessWidget
     };
 
     return AppBar(
-      leading: IconButton(
-        onPressed: enabled ? onTap : null,
-        icon: icon,
-      ),
+      leading: IconButton(onPressed: enabled ? onTap : null, icon: icon),
     );
   }
 }

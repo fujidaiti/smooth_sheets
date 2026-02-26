@@ -59,10 +59,7 @@ class EditBookmarkSheet extends StatelessWidget {
           body: SizedBox.expand(
             child: CupertinoListSection.insetGrouped(
               children: [
-                _BookmarkEditor(
-                  pageUrl: pageUrl,
-                  faviconUrl: faviconUrl,
-                ),
+                _BookmarkEditor(pageUrl: pageUrl, faviconUrl: faviconUrl),
               ],
             ),
           ),
@@ -73,10 +70,7 @@ class EditBookmarkSheet extends StatelessWidget {
 }
 
 class _BookmarkEditor extends StatelessWidget {
-  const _BookmarkEditor({
-    required this.pageUrl,
-    required this.faviconUrl,
-  });
+  const _BookmarkEditor({required this.pageUrl, required this.faviconUrl});
 
   final String pageUrl;
   final String faviconUrl;
@@ -100,10 +94,9 @@ class _BookmarkEditor extends StatelessWidget {
               const Divider(color: CupertinoColors.systemGrey5),
               Text(
                 pageUrl,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: CupertinoColors.secondaryLabel),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: CupertinoColors.secondaryLabel,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

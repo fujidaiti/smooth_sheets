@@ -121,9 +121,7 @@ class _DeclarativePagedSheetExample extends StatelessWidget {
 }
 
 class _ExampleHome extends StatelessWidget {
-  const _ExampleHome({
-    required this.nestedNavigator,
-  });
+  const _ExampleHome({required this.nestedNavigator});
 
   final Widget nestedNavigator;
 
@@ -132,20 +130,14 @@ class _ExampleHome extends StatelessWidget {
     return Stack(
       children: [
         const Scaffold(),
-        SheetViewport(
-          child: _ExampleSheet(
-            nestedNavigator: nestedNavigator,
-          ),
-        ),
+        SheetViewport(child: _ExampleSheet(nestedNavigator: nestedNavigator)),
       ],
     );
   }
 }
 
 class _ExampleSheet extends StatelessWidget {
-  const _ExampleSheet({
-    required this.nestedNavigator,
-  });
+  const _ExampleSheet({required this.nestedNavigator});
 
   final Widget nestedNavigator;
 
@@ -178,9 +170,9 @@ class _ExampleSheetContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).colorScheme.onSecondaryContainer;
     final textStyle = Theme.of(context).textTheme.displayMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        );
+      fontWeight: FontWeight.bold,
+      color: textColor,
+    );
 
     // Tips: You can use SheetMediaQuery to get the layout information of the sheet
     // in the build method, such as the size of the viewport where the sheet is rendered.
@@ -194,18 +186,14 @@ class _ExampleSheetContent extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: Center(
-                child: Text(title, style: textStyle),
-              ),
+              child: Center(child: Text(title, style: textStyle)),
             ),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 for (final dest in destinations)
                   TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: textColor,
-                    ),
+                    style: TextButton.styleFrom(foregroundColor: textColor),
                     onPressed: () => context.go(dest),
                     child: Text('Go To $dest'),
                   ),
