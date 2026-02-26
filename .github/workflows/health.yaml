@@ -97,21 +97,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-
-      - name: Install Flutter SDK
-        uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: ./.github/actions/setup_flutter
         with:
-          channel: stable
-          flutter-version: ${{ matrix.flutter-version }}
-          cache: true
-
-      - name: Flutter version
-        run: flutter --version
-        shell: bash
-
-      - name: Install dependencies
-        run: flutter pub get --no-example
-        shell: bash
+          version: ${{ matrix.flutter-version }}
 
       - name: Run unit tests
         run: flutter test --file-reporter="json:${{ env.FLUTTER_TEST_REPORT }}"
