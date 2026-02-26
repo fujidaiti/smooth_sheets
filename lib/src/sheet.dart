@@ -11,15 +11,6 @@ import 'scrollable.dart';
 import 'snap_grid.dart';
 import 'viewport.dart';
 
-@immutable
-class SheetDragConfiguration {
-  const SheetDragConfiguration({
-    this.hitTestBehavior = HitTestBehavior.translucent,
-  });
-
-  final HitTestBehavior hitTestBehavior;
-}
-
 class _DraggableScrollableSheetModelConfig extends SheetModelConfig {
   const _DraggableScrollableSheetModelConfig({
     required super.physics,
@@ -91,7 +82,11 @@ class Sheet extends StatelessWidget {
 
   final SheetScrollConfiguration? scrollConfiguration;
 
-  final SheetDragConfiguration? dragConfiguration;
+  /// Controls how the sheet responds to drag gestures.
+  ///
+  /// Set to [SheetDragConfiguration.disabled] to prevent the sheet from
+  /// being dragged.
+  final SheetDragConfiguration dragConfiguration;
 
   final SheetDecoration decoration;
 
@@ -148,16 +143,16 @@ class DraggableScrollableSheetContent extends StatelessWidget {
 
   final SheetScrollConfiguration? scrollConfiguration;
 
-  final SheetDragConfiguration? dragConfiguration;
+  final SheetDragConfiguration dragConfiguration;
 
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    var result = child;
-    if (dragConfiguration case final config?) {
-      result = SheetDraggable(behavior: config.hitTestBehavior, child: result);
-    }
+    Widget result = SheetDraggable(
+      configuration: dragConfiguration,
+      child: child,
+    );
     if (scrollConfiguration != null) {
       final child = result;
       result = SheetScrollable(
