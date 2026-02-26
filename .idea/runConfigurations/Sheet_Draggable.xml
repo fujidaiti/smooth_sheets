@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Sheet Draggable" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="filePath" value="$PROJECT_DIR$/example/lib/tutorial/sheet_draggable.dart" />
-    <method v="2" />
-  </configuration>
-</component>
