@@ -20,10 +20,14 @@ void main() {
     ({Widget testWidget}) boilerplate({
       SheetLayoutSpec? parentLayoutSpec,
       EdgeInsets viewportViewInsets = EdgeInsets.zero,
+      EdgeInsets viewPadding = EdgeInsets.zero,
       required WidgetBuilder builder,
     }) {
       final testWidget = MediaQuery(
-        data: MediaQueryData(viewInsets: viewportViewInsets),
+        data: MediaQueryData(
+          viewInsets: viewportViewInsets,
+          viewPadding: viewPadding,
+        ),
         child: SheetMediaQuery(
           layoutNotifier: ValueNotifier(null),
           layoutSpec:
@@ -439,6 +443,85 @@ void main() {
         Rect.fromLTWH(0, 0, testScreenSize.width, 60),
       );
     });
+
+    testWidgets(
+      'PreferredSizeWidget topBar gets extra height from viewPadding.top',
+      (tester) async {
+        final topBarKey = UniqueKey();
+        final env = boilerplate(
+          viewPadding: EdgeInsets.only(top: 47),
+          builder: (context) => SheetContentScaffold(
+            topBar: PreferredSize(
+              key: topBarKey,
+              preferredSize: const Size.fromHeight(60),
+              child: Container(),
+            ),
+            body: Container(height: 200),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getLocalRect(find.byKey(topBarKey)),
+          Rect.fromLTWH(0, 0, testScreenSize.width, 107),
+        );
+      },
+    );
+
+    testWidgets(
+      'Body positioned correctly below taller topBar with viewPadding',
+      (tester) async {
+        final scaffoldKey = UniqueKey();
+        final topBarKey = UniqueKey();
+        final bodyKey = UniqueKey();
+        final env = boilerplate(
+          viewPadding: EdgeInsets.only(top: 47),
+          builder: (context) => SheetContentScaffold(
+            key: scaffoldKey,
+            topBar: PreferredSize(
+              key: topBarKey,
+              preferredSize: const Size.fromHeight(60),
+              child: Container(),
+            ),
+            body: Container(key: bodyKey, height: 200),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getLocalRect(
+            find.byKey(bodyKey),
+            ancestor: find.byKey(scaffoldKey),
+          ),
+          Rect.fromLTWH(0, 107, testScreenSize.width, 200),
+        );
+      },
+    );
+
+    testWidgets(
+      'PreferredSizeWidget bottomBar gets extra height '
+      'from viewPadding.bottom',
+      (tester) async {
+        final bottomBarKey = UniqueKey();
+        final env = boilerplate(
+          viewPadding: EdgeInsets.only(bottom: 34),
+          builder: (context) => SheetContentScaffold(
+            bottomBar: PreferredSize(
+              key: bottomBarKey,
+              preferredSize: const Size.fromHeight(60),
+              child: Container(),
+            ),
+            body: Container(height: 200),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getLocalRect(find.byKey(bottomBarKey)),
+          Rect.fromLTWH(0, 0, testScreenSize.width, 94),
+        );
+      },
+    );
 
     testWidgets('When bottom bar has a preferred size', (tester) async {
       final bottomBarKey = UniqueKey();

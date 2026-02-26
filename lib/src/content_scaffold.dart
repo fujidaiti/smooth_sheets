@@ -222,9 +222,12 @@ class SheetContentScaffold extends StatelessWidget {
     final effectiveBackgroundColor =
         backgroundColor ?? Theme.of(context).scaffoldBackgroundColor;
 
+    final topViewPadding = MediaQuery.viewPaddingOf(context).top;
     final effectiveTopBar = switch (topBar) {
       PreferredSizeWidget(:final preferredSize) => ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: preferredSize.height),
+        constraints: BoxConstraints(
+          maxHeight: preferredSize.height + topViewPadding,
+        ),
         child: topBar,
       ),
       _ => topBar,
@@ -233,8 +236,11 @@ class SheetContentScaffold extends StatelessWidget {
     var effectiveBottomBar = bottomBar;
     if (bottomBar != null) {
       if (bottomBar case PreferredSizeWidget(:final preferredSize)) {
+        final bottomViewPadding = MediaQuery.viewPaddingOf(context).bottom;
         effectiveBottomBar = ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: preferredSize.height),
+          constraints: BoxConstraints(
+            maxHeight: preferredSize.height + bottomViewPadding,
+          ),
           child: bottomBar,
         );
       }
