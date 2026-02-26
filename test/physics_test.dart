@@ -150,8 +150,11 @@ void main() {
       );
 
       expect(overDragSimulation, isNotNull);
+      expect(overDragSimulation, isA<SheetSpringSimulation>());
+      expect(overDragSimulation!.startOffset, overDraggedPosition.offset);
+      expect(overDragSimulation.endOffset, _referenceSheetMetrics.maxOffset);
       expect(
-        overDragSimulation!.x(5), // 5s passed
+        overDragSimulation.x(5), // 5s passed
         moreOrLessEquals(_referenceSheetMetrics.maxOffset),
       );
       expect(
@@ -160,8 +163,14 @@ void main() {
       );
 
       expect(underDraggedSimulation, isNotNull);
+      expect(underDraggedSimulation, isA<SheetSpringSimulation>());
+      expect(underDraggedSimulation!.startOffset, underDragPosition.offset);
       expect(
-        underDraggedSimulation!.x(5), // 5s passed
+        underDraggedSimulation.endOffset,
+        _referenceSheetMetrics.minOffset,
+      );
+      expect(
+        underDraggedSimulation.x(5), // 5s passed
         moreOrLessEquals(_referenceSheetMetrics.minOffset),
       );
       expect(

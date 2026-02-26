@@ -1433,10 +1433,28 @@ class MockTickerProvider extends _i1.Mock implements _i3.TickerProvider {
           as _i10.Ticker);
 }
 
-/// A class which mocks [Simulation].
+/// A class which mocks [SheetSimulation].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSimulation extends _i1.Mock implements _i3.Simulation {
+class MockSheetSimulation extends _i1.Mock implements _i4.SheetSimulation {
+  @override
+  double get startOffset =>
+      (super.noSuchMethod(
+            Invocation.getter(#startOffset),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
+  @override
+  double get endOffset =>
+      (super.noSuchMethod(
+            Invocation.getter(#endOffset),
+            returnValue: 0.0,
+            returnValueForMissingStub: 0.0,
+          )
+          as double);
+
   @override
   _i3.Tolerance get tolerance =>
       (super.noSuchMethod(
@@ -1506,7 +1524,7 @@ class MockSheetPhysics extends _i1.Mock implements _i4.SheetPhysics {
           as double);
 
   @override
-  _i3.Simulation? createBallisticSimulation(
+  _i4.SheetSimulation? createBallisticSimulation(
     double? velocity,
     _i4.SheetMetrics? metrics,
     _i4.SheetSnapGrid? snapGrid,
@@ -1519,5 +1537,5 @@ class MockSheetPhysics extends _i1.Mock implements _i4.SheetPhysics {
             ]),
             returnValueForMissingStub: null,
           )
-          as _i3.Simulation?);
+          as _i4.SheetSimulation?);
 }

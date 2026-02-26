@@ -13,7 +13,7 @@ import 'package:smooth_sheets/src/model.dart';
   MockSpec<TickerFuture>(),
   MockSpec<Ticker>(),
   MockSpec<TickerProvider>(),
-  MockSpec<Simulation>(),
+  MockSpec<SheetSimulation>(),
   MockSpec<SheetPhysics>(),
 ])
 import 'stubbing.mocks.dart';

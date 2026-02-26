@@ -141,7 +141,7 @@ void main() {
 
       final mockSheetModel = MockSheetModel();
       final mockPhysics = MockSheetPhysics();
-      final mockSimulation = MockSimulation();
+      final mockSimulation = MockSheetSimulation();
       when(mockSheetModel.context).thenReturn(mockSheetContext);
       when(mockSheetModel.physics).thenReturn(mockPhysics);
       when(mockSheetModel.offset).thenReturn(350);

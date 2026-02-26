@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/gestures.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 
 import 'internal/float_comp.dart';
@@ -25,6 +26,34 @@ const kDefaultSheetSpring = SpringDescription(
 /// The default [SheetPhysics] used by sheet widgets.
 const kDefaultSheetPhysics = BouncingSheetPhysics();
 
+/// Describes temporal changes in the sheet's position and velocity.
+abstract class SheetSimulation implements Simulation {
+  SheetSimulation({required this.startOffset});
+
+  /// The resolved offset at the start of the simulation.
+  final double startOffset;
+
+  /// The offset at the end of the simulation.
+  double get endOffset;
+}
+
+class SheetSpringSimulation extends SpringSimulation
+    implements SheetSimulation {
+  SheetSpringSimulation({
+    required SpringDescription spring,
+    required this.startOffset,
+    required this.endOffset,
+    required double startVelocity,
+    super.tolerance,
+  }) : super(spring, startOffset, endOffset, startVelocity, snapToEnd: true);
+
+  @override
+  final double startOffset;
+
+  @override
+  final double endOffset;
+}
+
 abstract class SheetPhysics {
   const SheetPhysics();
 
@@ -45,7 +74,7 @@ abstract class SheetPhysics {
   // to avoid recomputation of the overflow.
   double applyPhysicsToOffset(double delta, SheetMetrics metrics);
 
-  Simulation? createBallisticSimulation(
+  SheetSimulation? createBallisticSimulation(
     double velocity,
     SheetMetrics metrics,
     SheetSnapGrid snapGrid,
@@ -85,7 +114,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
   }
 
   @override
-  Simulation? createBallisticSimulation(
+  SheetSimulation? createBallisticSimulation(
     double velocity,
     SheetMetrics metrics,
     SheetSnapGrid snapGrid,
@@ -100,15 +129,15 @@ mixin SheetPhysicsMixin on SheetPhysics {
       metrics.devicePixelRatio,
     ).isNotApprox(snap, metrics.offset)) {
       final direction = (snap - metrics.offset).sign;
-      return ScrollSpringSimulation(
-        spring,
-        metrics.offset,
-        snap,
-        // The simulation velocity is intentionally set to 0 if the velocity is
+      return SheetSpringSimulation(
+        spring: spring,
+        startOffset: metrics.offset,
+        endOffset: snap,
+        // The simulation velocity is intentionally set to 0 if the velocity
         // is in the opposite direction of the destination, as flinging up an
         // over-dragged sheet or flinging down an under-dragged sheet tends to
         // cause unstable motion.
-        velocity.sign == direction ? velocity : 0.0,
+        startVelocity: velocity.sign == direction ? velocity : 0.0,
       );
     }
 

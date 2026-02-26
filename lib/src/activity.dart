@@ -175,7 +175,7 @@ class BallisticSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
   BallisticSheetActivity({required this.simulation});
 
-  final Simulation simulation;
+  final SheetSimulation simulation;
 
   @override
   AnimationController createAnimationController() {
