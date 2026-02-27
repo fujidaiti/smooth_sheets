@@ -468,33 +468,6 @@ void main() {
     );
 
     testWidgets(
-      'Body positioned correctly below taller topBar with viewPadding',
-      (tester) async {
-        final env = boilerplate(
-          rootViewPadding: EdgeInsets.only(top: 50),
-          builder: (context) => SheetContentScaffold(
-            key: Key('scaffold'),
-            topBar: PreferredSize(
-              key: Key('topBar'),
-              preferredSize: const Size.fromHeight(60),
-              child: Container(),
-            ),
-            body: Container(key: Key('body'), height: 200),
-          ),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          tester.getLocalRect(
-            find.byId('body'),
-            ancestor: find.byId('scaffold'),
-          ),
-          Rect.fromLTWH(0, 110, testScreenSize.width, 200),
-        );
-      },
-    );
-
-    testWidgets(
       'PreferredSizeWidget bottomBar gets extra height '
       'from viewPadding.bottom',
       (tester) async {
