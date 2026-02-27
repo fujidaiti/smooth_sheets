@@ -521,6 +521,7 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   }
 }
 
+// TODO: Make this an immutable data class.
 abstract interface class ViewportLayout {
   /// {@template ViewportLayout.viewportSize}
   /// The size of the *viewport*, which is the rectangle
