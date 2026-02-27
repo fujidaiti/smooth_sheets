@@ -27,31 +27,57 @@ const kDefaultSheetSpring = SpringDescription(
 const kDefaultSheetPhysics = BouncingSheetPhysics();
 
 /// Describes temporal changes in the sheet's position and velocity.
-abstract class SheetSimulation implements Simulation {
-  SheetSimulation({required this.startOffset});
+abstract class SheetSimulation extends Simulation {
+  SheetSimulation({
+    required this.startOffset,
+    required this.endOffset,
+    required this.layoutSnapshot,
+    super.tolerance,
+  });
+
+  /// A snapshot of the viewport layout at the start of the simulation.
+  ///
+  /// The actual layout should match this snapshot until the simulation ends,
+  /// otherwise the simulation may produce inconsistent results.
+  final ViewportLayout layoutSnapshot;
 
   /// The resolved offset at the start of the simulation.
   final double startOffset;
 
   /// The offset at the end of the simulation.
-  double get endOffset;
+  final SheetOffset endOffset;
+
+  /// The offset at the end of the simulation, in logical pixels.
+  double get resolvedEndOffset => endOffset.resolve(layoutSnapshot);
 }
 
-class SheetSpringSimulation extends SpringSimulation
-    implements SheetSimulation {
+class SheetSpringSimulation extends SheetSimulation {
   SheetSpringSimulation({
     required SpringDescription spring,
-    required this.startOffset,
-    required this.endOffset,
     required double startVelocity,
+    required super.startOffset,
+    required super.endOffset,
+    required super.layoutSnapshot,
     super.tolerance,
-  }) : super(spring, startOffset, endOffset, startVelocity, snapToEnd: true);
+  }) : _delegate = SpringSimulation(
+         spring,
+         startOffset,
+         endOffset.resolve(layoutSnapshot),
+         startVelocity,
+         tolerance: tolerance,
+         snapToEnd: true,
+       );
+
+  final SpringSimulation _delegate;
 
   @override
-  final double startOffset;
+  double dx(double time) => _delegate.dx(time);
 
   @override
-  final double endOffset;
+  bool isDone(double time) => _delegate.isDone(time);
+
+  @override
+  double x(double time) => _delegate.x(time);
 }
 
 abstract class SheetPhysics {
@@ -121,18 +147,22 @@ mixin SheetPhysicsMixin on SheetPhysics {
   ) {
     // Ensure that this method always uses the default implementation
     // of findSettledPosition.
-    final snap = snapGrid
-        .getSnapOffset(metrics, metrics.offset, velocity)
-        .resolve(metrics);
+    final snapOffset = snapGrid.getSnapOffset(
+      metrics,
+      metrics.offset,
+      velocity,
+    );
+    final resolvedSnapOffset = snapOffset.resolve(metrics);
 
     if (FloatComp.distance(
       metrics.devicePixelRatio,
-    ).isNotApprox(snap, metrics.offset)) {
-      final direction = (snap - metrics.offset).sign;
+    ).isNotApprox(resolvedSnapOffset, metrics.offset)) {
+      final direction = (resolvedSnapOffset - metrics.offset).sign;
       return SheetSpringSimulation(
         spring: spring,
         startOffset: metrics.offset,
-        endOffset: snap,
+        endOffset: snapOffset,
+        layoutSnapshot: metrics.copyWith(),
         // The simulation velocity is intentionally set to 0 if the velocity
         // is in the opposite direction of the destination, as flinging up an
         // over-dragged sheet or flinging down an under-dragged sheet tends to
