@@ -175,7 +175,7 @@ class BallisticSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
   BallisticSheetActivity({required this.simulation});
 
-  final SheetSimulation simulation;
+  final Simulation simulation;
 
   @override
   AnimationController createAnimationController() {
@@ -209,17 +209,12 @@ class BallisticSheetActivity extends SheetActivity
 
   @override
   void applyNewLayout(ViewportLayout oldLayout) {
-    if (simulation.layoutSnapshot.viewportSize == owner.viewportSize &&
-        simulation.layoutSnapshot.viewportPadding == owner.viewportPadding &&
-        simulation.layoutSnapshot.contentSize == owner.contentSize &&
-        simulation.layoutSnapshot.contentBaseline == owner.contentBaseline &&
-        simulation.layoutSnapshot.contentMargin == owner.contentMargin) {
-      // The layout hasn't changed since the simulation was created,
-      // so we can continue the animation without any adjustments.
-      return;
-    }
-
-    final endOffset = simulation.resolvedEndOffset;
+    final destination = owner.snapGrid.getSnapOffset(
+      oldLayout,
+      owner.offset,
+      velocity,
+    );
+    final endOffset = destination.resolve(owner);
     if (endOffset == owner.offset) {
       return;
     }
@@ -232,7 +227,7 @@ class BallisticSheetActivity extends SheetActivity
         : double.infinity;
 
     owner.settleTo(
-      simulation.endOffset,
+      destination,
       estimatedSettlingDuration > maxSettlingDuration
           ? const Duration(milliseconds: maxSettlingDuration)
           : Duration(milliseconds: estimatedSettlingDuration.round()),

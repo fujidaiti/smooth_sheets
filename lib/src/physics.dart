@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/gestures.dart';
-import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 
 import 'internal/float_comp.dart';
@@ -26,60 +25,6 @@ const kDefaultSheetSpring = SpringDescription(
 /// The default [SheetPhysics] used by sheet widgets.
 const kDefaultSheetPhysics = BouncingSheetPhysics();
 
-/// Describes temporal changes in the sheet's position and velocity.
-abstract class SheetSimulation extends Simulation {
-  SheetSimulation({
-    required this.startOffset,
-    required this.endOffset,
-    required this.layoutSnapshot,
-    super.tolerance,
-  });
-
-  /// A snapshot of the viewport layout at the start of the simulation.
-  ///
-  /// The actual layout should match this snapshot until the simulation ends,
-  /// otherwise the simulation may produce inconsistent results.
-  final ViewportLayout layoutSnapshot;
-
-  /// The resolved offset at the start of the simulation.
-  final double startOffset;
-
-  /// The offset at the end of the simulation.
-  final SheetOffset endOffset;
-
-  /// The offset at the end of the simulation, in logical pixels.
-  double get resolvedEndOffset => endOffset.resolve(layoutSnapshot);
-}
-
-class _SheetSpringSimulation extends SheetSimulation {
-  _SheetSpringSimulation({
-    required SpringDescription spring,
-    required double startVelocity,
-    required super.startOffset,
-    required super.endOffset,
-    required super.layoutSnapshot,
-    super.tolerance,
-  }) : _delegate = SpringSimulation(
-         spring,
-         startOffset,
-         endOffset.resolve(layoutSnapshot),
-         startVelocity,
-         tolerance: tolerance,
-         snapToEnd: true,
-       );
-
-  final SpringSimulation _delegate;
-
-  @override
-  double dx(double time) => _delegate.dx(time);
-
-  @override
-  bool isDone(double time) => _delegate.isDone(time);
-
-  @override
-  double x(double time) => _delegate.x(time);
-}
-
 abstract class SheetPhysics {
   const SheetPhysics();
 
@@ -100,7 +45,7 @@ abstract class SheetPhysics {
   // to avoid recomputation of the overflow.
   double applyPhysicsToOffset(double delta, SheetMetrics metrics);
 
-  SheetSimulation? createBallisticSimulation(
+  Simulation? createBallisticSimulation(
     double velocity,
     SheetMetrics metrics,
     SheetSnapGrid snapGrid,
@@ -140,34 +85,30 @@ mixin SheetPhysicsMixin on SheetPhysics {
   }
 
   @override
-  SheetSimulation? createBallisticSimulation(
+  Simulation? createBallisticSimulation(
     double velocity,
     SheetMetrics metrics,
     SheetSnapGrid snapGrid,
   ) {
     // Ensure that this method always uses the default implementation
     // of findSettledPosition.
-    final snapOffset = snapGrid.getSnapOffset(
-      metrics,
-      metrics.offset,
-      velocity,
-    );
-    final resolvedSnapOffset = snapOffset.resolve(metrics);
+    final snap = snapGrid
+        .getSnapOffset(metrics, metrics.offset, velocity)
+        .resolve(metrics);
 
     if (FloatComp.distance(
       metrics.devicePixelRatio,
-    ).isNotApprox(resolvedSnapOffset, metrics.offset)) {
-      final direction = (resolvedSnapOffset - metrics.offset).sign;
-      return _SheetSpringSimulation(
-        spring: spring,
-        startOffset: metrics.offset,
-        endOffset: snapOffset,
-        layoutSnapshot: metrics.copyWith(),
-        // The simulation velocity is intentionally set to 0 if the velocity
+    ).isNotApprox(snap, metrics.offset)) {
+      final direction = (snap - metrics.offset).sign;
+      return ScrollSpringSimulation(
+        spring,
+        metrics.offset,
+        snap,
+        // The simulation velocity is intentionally set to 0 if the velocity is
         // is in the opposite direction of the destination, as flinging up an
         // over-dragged sheet or flinging down an under-dragged sheet tends to
         // cause unstable motion.
-        startVelocity: velocity.sign == direction ? velocity : 0.0,
+        velocity.sign == direction ? velocity : 0.0,
       );
     }
 
