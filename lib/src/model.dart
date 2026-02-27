@@ -1,17 +1,13 @@
-/// @docImport 'controller.dart';
-library;
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import '../smooth_sheets.dart';
 import 'activity.dart';
-import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'model_owner.dart';
-import 'notification.dart';
-import 'physics.dart';
-import 'snap_grid.dart';
 
 /// An abstract representation of a sheet's position.
 ///
@@ -310,7 +306,13 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   SheetLayout? _layout;
 
   void applyNewLayout(SheetLayout layout) {
-    if (layout == _layout) {
+    // ignore: lines_longer_than_80_chars
+    // TODO: Make the layout class immutable so that we can compare the old and new layouts by the equality operator.
+    if (layout.viewportSize == _layout?.viewportSize &&
+        layout.viewportPadding == _layout?.viewportPadding &&
+        layout.contentSize == _layout?.contentSize &&
+        layout.contentBaseline == _layout?.contentBaseline &&
+        layout.contentMargin == _layout?.contentMargin) {
       return;
     }
 
