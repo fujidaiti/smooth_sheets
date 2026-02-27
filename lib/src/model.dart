@@ -1,13 +1,19 @@
+/// @docImport 'controller.dart';
+library;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../smooth_sheets.dart';
 import 'activity.dart';
+import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'model_owner.dart';
+import 'notification.dart';
+import 'physics.dart';
+import 'snap_grid.dart';
 
 /// An abstract representation of a sheet's position.
 ///
