@@ -60,6 +60,8 @@ void main() {
         MaterialApp(
           home: SheetViewport(
             child: Sheet(
+              key: const Key('sheet'),
+              physics: BouncingSheetPhysics(),
               decoration: MaterialSheetDecoration(size: SheetSize.stretch),
               child: Builder(
                 builder: (context) {
@@ -72,24 +74,26 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-
-      // ignore: invalid_use_of_protected_member
       expect(model.activity, isA<IdleSheetActivity>());
+      expect(tester.getRect(find.byId('sheet')).top, 100);
 
       // Over-drag the sheet upward.
       final gesture = await tester.startDrag(
         tester.getCenter(find.byType(Sheet)),
         AxisDirection.up,
       );
-      await gesture.moveUpwardBy(50);
+      await gesture.moveUpwardBy(100);
       await tester.pump();
-      // ignore: invalid_use_of_protected_member
       expect(model.activity, isA<DragSheetActivity>());
+      expect(
+        tester.getRect(find.byId('sheet')).top,
+        lessThan(100),
+        reason: 'The sheet should be over-dragged',
+      );
 
       // Release the drag to start ballistic animation.
       await gesture.up();
       await tester.pump();
-      // ignore: invalid_use_of_protected_member
       expect(model.activity, isA<BallisticSheetActivity>());
 
       // After one animation frame, the activity should still be ballistic
@@ -97,12 +101,16 @@ void main() {
       // each offset update, causing applyNewLayout() to replace the
       // ballistic activity with a settling activity.
       await tester.pump(Duration(milliseconds: 17));
-      // ignore: invalid_use_of_protected_member
       expect(model.activity, isA<BallisticSheetActivity>());
+      expect(tester.getRect(find.byId('sheet')).top, lessThan(100));
 
       await tester.pumpAndSettle();
-      // ignore: invalid_use_of_protected_member
       expect(model.activity, isA<IdleSheetActivity>());
+      expect(
+        tester.getRect(find.byId('sheet')).top,
+        100,
+        reason: 'The sheet should settle back to the initial position',
+      );
     },
   );
 }
