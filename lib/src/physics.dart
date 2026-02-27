@@ -51,8 +51,8 @@ abstract class SheetSimulation extends Simulation {
   double get resolvedEndOffset => endOffset.resolve(layoutSnapshot);
 }
 
-class SheetSpringSimulation extends SheetSimulation {
-  SheetSpringSimulation({
+class _SheetSpringSimulation extends SheetSimulation {
+  _SheetSpringSimulation({
     required SpringDescription spring,
     required double startVelocity,
     required super.startOffset,
@@ -158,7 +158,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
       metrics.devicePixelRatio,
     ).isNotApprox(resolvedSnapOffset, metrics.offset)) {
       final direction = (resolvedSnapOffset - metrics.offset).sign;
-      return SheetSpringSimulation(
+      return _SheetSpringSimulation(
         spring: spring,
         startOffset: metrics.offset,
         endOffset: snapOffset,
