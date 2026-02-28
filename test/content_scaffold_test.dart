@@ -48,14 +48,13 @@ void main() {
     }
 
     testWidgets('Body-only layout with tight box-constraints', (tester) async {
-      final scaffoldKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
         builder: (context) {
           return ConstrainedBox(
             constraints: BoxConstraints.tight(testScreenSize),
             child: SheetContentScaffold(
-              key: scaffoldKey,
+              key: Key('scaffold'),
               body: SizedBox.shrink(key: bodyKey),
             ),
           );
@@ -63,19 +62,18 @@ void main() {
       );
 
       await tester.pumpWidget(env.testWidget);
-      expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+      expect(tester.getSize(find.byId('scaffold')), testScreenSize);
       expect(tester.getSize(find.byKey(bodyKey)), testScreenSize);
     });
 
     testWidgets('Body-only layout with loose box-constraints', (tester) async {
-      final scaffoldKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
         builder: (context) {
           return ConstrainedBox(
             constraints: BoxConstraints.loose(testScreenSize),
             child: SheetContentScaffold(
-              key: scaffoldKey,
+              key: Key('scaffold'),
               body: SizedBox(key: bodyKey, height: 200),
             ),
           );
@@ -84,13 +82,13 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getSize(find.byKey(scaffoldKey)),
+        tester.getSize(find.byId('scaffold')),
         Size(testScreenSize.width, 200),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bodyKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 200),
       );
@@ -99,7 +97,6 @@ void main() {
     testWidgets('TopBar-Body layout with tight box-constraints', (
       tester,
     ) async {
-      final scaffoldKey = UniqueKey();
       final topBarKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
@@ -107,7 +104,7 @@ void main() {
           return ConstrainedBox(
             constraints: BoxConstraints.tight(testScreenSize),
             child: SheetContentScaffold(
-              key: scaffoldKey,
+              key: Key('scaffold'),
               topBar: Container(key: topBarKey, height: 50),
               body: SizedBox.shrink(key: bodyKey),
             ),
@@ -116,18 +113,18 @@ void main() {
       );
 
       await tester.pumpWidget(env.testWidget);
-      expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+      expect(tester.getSize(find.byId('scaffold')), testScreenSize);
       expect(
         tester.getLocalRect(
           find.byKey(topBarKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 50),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bodyKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 50, testScreenSize.width, testScreenSize.height - 50),
       );
@@ -136,7 +133,6 @@ void main() {
     testWidgets('TopBar-Body layout with loose box-constraints', (
       tester,
     ) async {
-      final scaffoldKey = UniqueKey();
       final topBarKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
@@ -144,7 +140,7 @@ void main() {
           return ConstrainedBox(
             constraints: BoxConstraints.loose(testScreenSize),
             child: SheetContentScaffold(
-              key: scaffoldKey,
+              key: Key('scaffold'),
               topBar: Container(key: topBarKey, height: 50),
               body: Container(key: bodyKey, height: 200),
             ),
@@ -154,20 +150,20 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getSize(find.byKey(scaffoldKey)),
+        tester.getSize(find.byId('scaffold')),
         Size(testScreenSize.width, 250),
       );
       expect(
         tester.getLocalRect(
           find.byKey(topBarKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 50),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bodyKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 50, testScreenSize.width, 200),
       );
@@ -176,7 +172,6 @@ void main() {
     testWidgets('Body-BottomBar layout with tight box-constraints', (
       tester,
     ) async {
-      final scaffoldKey = UniqueKey();
       final bottomBarKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
@@ -184,7 +179,7 @@ void main() {
           return ConstrainedBox(
             constraints: BoxConstraints.tight(testScreenSize),
             child: SheetContentScaffold(
-              key: scaffoldKey,
+              key: Key('scaffold'),
               bottomBar: Container(key: bottomBarKey, height: 50),
               body: SizedBox.shrink(key: bodyKey),
             ),
@@ -193,18 +188,18 @@ void main() {
       );
 
       await tester.pumpWidget(env.testWidget);
-      expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+      expect(tester.getSize(find.byId('scaffold')), testScreenSize);
       expect(
         tester.getLocalRect(
           find.byKey(bodyKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 0, testScreenSize.width, testScreenSize.height - 50),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bottomBarKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, testScreenSize.height - 50, testScreenSize.width, 50),
       );
@@ -213,7 +208,6 @@ void main() {
     testWidgets('Body-BottomBar layout with loose box-constraints', (
       tester,
     ) async {
-      final scaffoldKey = UniqueKey();
       final bottomBarKey = UniqueKey();
       final bodyKey = UniqueKey();
       final env = boilerplate(
@@ -221,7 +215,7 @@ void main() {
           return ConstrainedBox(
             constraints: BoxConstraints.loose(testScreenSize),
             child: SheetContentScaffold(
-              key: scaffoldKey,
+              key: Key('scaffold'),
               bottomBar: Container(key: bottomBarKey, height: 50),
               body: Container(key: bodyKey, height: 200),
             ),
@@ -231,20 +225,20 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getSize(find.byKey(scaffoldKey)),
+        tester.getSize(find.byId('scaffold')),
         Size(testScreenSize.width, 250),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bottomBarKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 200, testScreenSize.width, 50),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bodyKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 200),
       );
@@ -253,7 +247,6 @@ void main() {
     testWidgets('TopBar-Body-BottomBar layout with tight box-constraints', (
       tester,
     ) async {
-      final scaffoldKey = UniqueKey();
       final topBarKey = UniqueKey();
       final bottomBarKey = UniqueKey();
       final bodyKey = UniqueKey();
@@ -262,7 +255,7 @@ void main() {
           return ConstrainedBox(
             constraints: BoxConstraints.tight(testScreenSize),
             child: SheetContentScaffold(
-              key: scaffoldKey,
+              key: Key('scaffold'),
               topBar: Container(key: topBarKey, height: 50),
               bottomBar: Container(key: bottomBarKey, height: 50),
               body: SizedBox.shrink(key: bodyKey),
@@ -272,25 +265,25 @@ void main() {
       );
 
       await tester.pumpWidget(env.testWidget);
-      expect(tester.getSize(find.byKey(scaffoldKey)), testScreenSize);
+      expect(tester.getSize(find.byId('scaffold')), testScreenSize);
       expect(
         tester.getLocalRect(
           find.byKey(topBarKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 50),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bottomBarKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, testScreenSize.height - 50, testScreenSize.width, 50),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bodyKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 50, testScreenSize.width, testScreenSize.height - 100),
       );
@@ -299,7 +292,6 @@ void main() {
     testWidgets('TopBar-Body-BottomBar layout with loose box-constraints', (
       tester,
     ) async {
-      final scaffoldKey = UniqueKey();
       final topBarKey = UniqueKey();
       final bottomBarKey = UniqueKey();
       final bodyKey = UniqueKey();
@@ -308,7 +300,7 @@ void main() {
           return ConstrainedBox(
             constraints: BoxConstraints.loose(testScreenSize),
             child: SheetContentScaffold(
-              key: scaffoldKey,
+              key: Key('scaffold'),
               topBar: Container(key: topBarKey, height: 50),
               bottomBar: Container(key: bottomBarKey, height: 50),
               body: Container(key: bodyKey, height: 200),
@@ -319,27 +311,27 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getSize(find.byKey(scaffoldKey)),
+        tester.getSize(find.byId('scaffold')),
         Size(testScreenSize.width, 300),
       );
       expect(
         tester.getLocalRect(
           find.byKey(topBarKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 50),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bottomBarKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 250, testScreenSize.width, 50),
       );
       expect(
         tester.getLocalRect(
           find.byKey(bodyKey),
-          ancestor: find.byKey(scaffoldKey),
+          ancestor: find.byId('scaffold'),
         ),
         Rect.fromLTWH(0, 50, testScreenSize.width, 200),
       );
@@ -351,6 +343,7 @@ void main() {
       final env = boilerplate(
         builder: (context) {
           return SheetContentScaffold(
+            key: Key('scaffold'),
             extendBodyBehindTopBar: true,
             topBar: Container(key: topBarKey, height: 50),
             body: Container(key: bodyKey, height: 200),
@@ -360,11 +353,17 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getLocalRect(find.byKey(topBarKey)),
+        tester.getLocalRect(
+          find.byKey(topBarKey),
+          ancestor: find.byId('scaffold'),
+        ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 50),
       );
       expect(
-        tester.getLocalRect(find.byKey(bodyKey)),
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byId('scaffold'),
+        ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 200),
       );
     });
@@ -375,6 +374,7 @@ void main() {
       final env = boilerplate(
         builder: (context) {
           return SheetContentScaffold(
+            key: Key('scaffold'),
             extendBodyBehindBottomBar: true,
             bottomBar: Container(key: bottomBarKey, height: 50),
             body: Container(key: bodyKey, height: 200),
@@ -384,11 +384,17 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getLocalRect(find.byKey(bottomBarKey)),
+        tester.getLocalRect(
+          find.byKey(bottomBarKey),
+          ancestor: find.byId('scaffold'),
+        ),
         Rect.fromLTWH(0, 150, testScreenSize.width, 50),
       );
       expect(
-        tester.getLocalRect(find.byKey(bodyKey)),
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byId('scaffold'),
+        ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 200),
       );
     });
@@ -400,6 +406,7 @@ void main() {
       final env = boilerplate(
         builder: (context) {
           return SheetContentScaffold(
+            key: Key('scaffold'),
             extendBodyBehindTopBar: true,
             extendBodyBehindBottomBar: true,
             topBar: Container(key: topBarKey, height: 50),
@@ -411,15 +418,24 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getLocalRect(find.byKey(topBarKey)),
+        tester.getLocalRect(
+          find.byKey(topBarKey),
+          ancestor: find.byId('scaffold'),
+        ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 50),
       );
       expect(
-        tester.getLocalRect(find.byKey(bottomBarKey)),
+        tester.getLocalRect(
+          find.byKey(bottomBarKey),
+          ancestor: find.byId('scaffold'),
+        ),
         Rect.fromLTWH(0, 150, testScreenSize.width, 50),
       );
       expect(
-        tester.getLocalRect(find.byKey(bodyKey)),
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byId('scaffold'),
+        ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 200),
       );
     });
@@ -428,10 +444,13 @@ void main() {
       final topBarKey = UniqueKey();
       final env = boilerplate(
         builder: (context) => SheetContentScaffold(
+          key: Key('scaffold'),
           topBar: PreferredSize(
-            key: topBarKey,
             preferredSize: const Size.fromHeight(60),
-            child: Container(),
+            child: Container(
+              key: topBarKey,
+              height: double.infinity,
+            ),
           ),
           body: Container(height: 200),
         ),
@@ -439,21 +458,28 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getLocalRect(find.byKey(topBarKey)),
+        tester.getLocalRect(
+          find.byKey(topBarKey),
+          ancestor: find.byId('scaffold'),
+        ),
         Rect.fromLTWH(0, 0, testScreenSize.width, 60),
       );
     });
 
     testWidgets(
-      'PreferredSizeWidget topBar gets extra height from viewPadding.top',
+      'PreferredSizeWidget topBar gets extra available height '
+      'from viewPadding.top',
       (tester) async {
         final env = boilerplate(
           rootViewPadding: EdgeInsets.only(top: 50),
           builder: (context) => SheetContentScaffold(
+            key: Key('scaffold'),
             topBar: PreferredSize(
-              key: Key('topBar'),
               preferredSize: const Size.fromHeight(60),
-              child: Container(),
+              child: Container(
+                key: Key('topBar'),
+                height: double.infinity,
+              ),
             ),
             body: Container(height: 200),
           ),
@@ -461,32 +487,44 @@ void main() {
 
         await tester.pumpWidget(env.testWidget);
         expect(
-          tester.getLocalRect(find.byId('topBar')),
+          tester.getLocalRect(
+            find.byId('topBar'),
+            ancestor: find.byId('scaffold'),
+          ),
           Rect.fromLTWH(0, 0, testScreenSize.width, 110),
         );
       },
     );
 
     testWidgets(
-      'PreferredSizeWidget bottomBar gets extra height '
+      'PreferredSizeWidget bottomBar gets extra available height '
       'from viewPadding.bottom',
       (tester) async {
         final env = boilerplate(
           rootViewPadding: EdgeInsets.only(bottom: 34),
           builder: (context) => SheetContentScaffold(
+            key: Key('scaffold'),
             bottomBar: PreferredSize(
-              key: Key('bottomBar'),
               preferredSize: const Size.fromHeight(60),
-              child: Container(),
+              child: Container(
+                key: Key('bottomBar'),
+                height: double.infinity,
+              ),
             ),
-            body: Container(height: 200),
+            body: Container(
+              height: 200,
+              key: Key('body'),
+            ),
           ),
         );
 
         await tester.pumpWidget(env.testWidget);
         expect(
-          tester.getLocalRect(find.byId('bottomBar')),
-          Rect.fromLTWH(0, 0, testScreenSize.width, 94),
+          tester.getLocalRect(
+            find.byId('bottomBar'),
+            ancestor: find.byId('scaffold'),
+          ),
+          Rect.fromLTWH(0, 200, testScreenSize.width, 94),
         );
       },
     );
@@ -497,6 +535,7 @@ void main() {
         final env = boilerplate(
           rootViewPadding: EdgeInsets.only(top: 50),
           builder: (context) => SheetContentScaffold(
+            key: Key('scaffold'),
             topBar: PreferredSize(
               key: Key('topBar'),
               preferredSize: const Size.fromHeight(60),
@@ -508,7 +547,10 @@ void main() {
 
         await tester.pumpWidget(env.testWidget);
         expect(
-          tester.getLocalRect(find.byId('topBar')),
+          tester.getLocalRect(
+            find.byId('topBar'),
+            ancestor: find.byId('scaffold'),
+          ),
           Rect.fromLTWH(0, 0, testScreenSize.width, 60),
         );
       },
@@ -520,10 +562,13 @@ void main() {
         final env = boilerplate(
           rootViewPadding: EdgeInsets.only(bottom: 34),
           builder: (context) => SheetContentScaffold(
+            key: Key('scaffold'),
             bottomBar: PreferredSize(
-              key: Key('bottomBar'),
               preferredSize: const Size.fromHeight(60),
-              child: Container(height: 60),
+              child: Container(
+                key: Key('bottomBar'),
+                height: 60,
+              ),
             ),
             body: Container(height: 200),
           ),
@@ -531,8 +576,11 @@ void main() {
 
         await tester.pumpWidget(env.testWidget);
         expect(
-          tester.getLocalRect(find.byId('bottomBar')),
-          Rect.fromLTWH(0, 0, testScreenSize.width, 60),
+          tester.getLocalRect(
+            find.byId('bottomBar'),
+            ancestor: find.byId('scaffold'),
+          ),
+          Rect.fromLTWH(0, 200, testScreenSize.width, 60),
         );
       },
     );
@@ -542,10 +590,13 @@ void main() {
       final env = boilerplate(
         builder: (context) {
           return SheetContentScaffold(
+            key: Key('scaffold'),
             bottomBar: PreferredSize(
-              key: bottomBarKey,
               preferredSize: const Size.fromHeight(60),
-              child: Container(),
+              child: Container(
+                key: bottomBarKey,
+                height: double.infinity,
+              ),
             ),
             body: Container(height: 200),
           );
@@ -554,8 +605,11 @@ void main() {
 
       await tester.pumpWidget(env.testWidget);
       expect(
-        tester.getLocalRect(find.byKey(bottomBarKey)),
-        Rect.fromLTWH(0, 0, testScreenSize.width, 60),
+        tester.getLocalRect(
+          find.byKey(bottomBarKey),
+          ancestor: find.byId('scaffold'),
+        ),
+        Rect.fromLTWH(0, 200, testScreenSize.width, 60),
       );
     });
 
