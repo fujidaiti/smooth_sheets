@@ -17,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.9.1
-  navigator_resizable: ^3.0.0
+  navigator_resizable: ^3.0.1
 # Dependencies for testing
 dev_dependencies:
   auto_route: ^11.1.0
