@@ -248,7 +248,7 @@ void main() {
           reason: 'The first page should be draggable.',
         );
 
-        // await gesture.up();
+        await gesture.up();
         await tester.pumpAndSettle();
         unawaited(
           env.getNavigator().push(
@@ -269,6 +269,53 @@ void main() {
           env.getSheetRect(tester).top,
           testScreenSize.height - 300,
           reason: 'The second page should not be draggable.',
+        );
+      },
+    );
+
+    testWidgets(
+      'snapGrid is respected on first build with multiple snap points',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              initialOffset: SheetOffset(0.2),
+              snapGrid: SheetSnapGrid(
+                snaps: [SheetOffset(0.5), SheetOffset(1)],
+              ),
+              builder: (_) => _TestPage(height: 600),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          env.getSheetRect(tester),
+          Rect.fromLTWH(0, 300, 800, 600),
+          reason: 'Sheet should snap to nearest snap point (offset=0.5)',
+        );
+      },
+    );
+
+    testWidgets(
+      'initialOffset within snapGrid is preserved',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              initialOffset: SheetOffset(0.2),
+              snapGrid: SheetSnapGrid(
+                snaps: [SheetOffset(0.2), SheetOffset(1)],
+              ),
+              builder: (_) => _TestPage(height: 600),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          env.getSheetRect(tester),
+          Rect.fromLTWH(0, 480, 800, 600),
         );
       },
     );

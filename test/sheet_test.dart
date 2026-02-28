@@ -131,4 +131,55 @@ void main() {
       },
     );
   });
+
+  group('Initial Build Layout Test', () {
+    testWidgets(
+      'snapGrid is respected on first build with multiple snap points',
+      (tester) async {
+        await tester.pumpWidget(
+          SheetViewport(
+            child: Sheet(
+              key: Key('sheet'),
+              initialOffset: SheetOffset(0.2),
+              snapGrid: SheetSnapGrid(
+                snaps: [SheetOffset(0.5), SheetOffset(1)],
+              ),
+              child: SizedBox.fromSize(
+                size: Size.fromHeight(600),
+              ),
+            ),
+          ),
+        );
+        expect(
+          tester.getRect(find.byId('sheet')),
+          Rect.fromLTWH(0, 300, 800, 600),
+          reason: 'Sheet should snap to nearest snap point (offset=0.5)',
+        );
+      },
+    );
+
+    testWidgets(
+      'initialOffset within snapGrid is preserved',
+      (tester) async {
+        await tester.pumpWidget(
+          SheetViewport(
+            child: Sheet(
+              key: Key('sheet'),
+              initialOffset: SheetOffset(0.2),
+              snapGrid: SheetSnapGrid(
+                snaps: [SheetOffset(0.2), SheetOffset(1)],
+              ),
+              child: SizedBox.fromSize(
+                size: Size.fromHeight(600),
+              ),
+            ),
+          ),
+        );
+        expect(
+          tester.getRect(find.byId('sheet')),
+          Rect.fromLTWH(0, 480, 800, 600),
+        );
+      },
+    );
+  });
 }
