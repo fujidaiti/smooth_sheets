@@ -66,7 +66,10 @@ void main() {
               child: Builder(
                 builder: (context) {
                   model = SheetModelOwner.of(context)!;
-                  return SizedBox(height: 500);
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 500,
+                  );
                 },
               ),
             ),

@@ -419,9 +419,11 @@ class _RenderSheetTranslate extends RenderTransform {
   void _invalidateTransformMatrix() {
     if (_model.hasMetrics) {
       final dy = _lastMeasuredSize.height - _model.offset;
+      final availableWidth = _lastMeasuredSize.width - _padding.horizontal;
+      final dx = _padding.left + (availableWidth - _model.size.width) / 2;
       // Update the translation value and mark this render object
       // as needing to be repainted.
-      transform = Matrix4.translationValues(_padding.left, dy, 0);
+      transform = Matrix4.translationValues(dx, dy, 0);
     }
   }
 
@@ -898,7 +900,6 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     final maxChildSize = maxChildRect.size;
     child.layout(
       BoxConstraints(
-        minWidth: maxChildSize.width,
         maxWidth: maxChildSize.width,
         maxHeight: maxChildSize.height,
       ),
@@ -922,11 +923,10 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     final maxSize = maxRect.size;
     final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
     size = BoxConstraints(
-      minWidth: maxSize.width,
       maxWidth: maxSize.width,
       minHeight: paddedChildSize.height,
       maxHeight: maxSize.height,
-    ).constrain(Size.fromHeight(_preferredExtent!));
+    ).constrain(Size(paddedChildSize.width, _preferredExtent!));
 
     final newLayout = ImmutableSheetLayout.from(
       viewportLayout: viewportLayout,

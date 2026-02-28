@@ -67,8 +67,9 @@ void main() {
       },
     );
 
-    testWidgets("should force the sheet's width to match the viewport's width, "
-        'but not the height', (tester) async {
+    testWidgets('SizedBox.shrink content should have zero width and height', (
+      tester,
+    ) async {
       final env = boilerplate(
         model: _TestSheetModel(),
         builder: (child) => SheetViewport(
@@ -78,15 +79,130 @@ void main() {
         ),
       );
       await tester.pumpWidget(env.testWidget);
-      expect(
-        tester.getSize(find.byKey(Key('content'))),
-        Size(testScreenSize.width, 0),
-      );
-      expect(
-        tester.getSize(find.byType(BareSheet)),
-        Size(testScreenSize.width, 0),
-      );
+      expect(tester.getSize(find.byKey(Key('content'))), Size(0, 0));
+      expect(tester.getSize(find.byType(BareSheet)), Size(0, 0));
     });
+
+    testWidgets(
+      'content with explicit narrow width should be narrower than viewport',
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          builder: (child) => SheetViewport(
+            child: BareSheet(
+              child: SizedBox(
+                key: Key('content'),
+                width: 300,
+                height: 200,
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byKey(Key('content'))), Size(300, 200));
+        expect(tester.getSize(find.byType(BareSheet)), Size(300, 200));
+      },
+    );
+
+    testWidgets(
+      'content with infinite width should fill the available width',
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          builder: (child) => SheetViewport(
+            child: BareSheet(
+              child: SizedBox.fromSize(
+                key: Key('content'),
+                size: Size.fromHeight(300),
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getSize(find.byKey(Key('content'))),
+          Size(testScreenSize.width, 300),
+        );
+        expect(
+          tester.getSize(find.byType(BareSheet)),
+          Size(testScreenSize.width, 300),
+        );
+      },
+    );
+
+    testWidgets(
+      'sheet size should include content margin around narrow content',
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          builder: (child) => SheetViewport(
+            child: BareSheet(
+              padding: EdgeInsets.all(10),
+              child: SizedBox(
+                key: Key('content'),
+                width: 300,
+                height: 200,
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getSize(find.byKey(Key('content'))), Size(300, 200));
+        expect(tester.getSize(find.byType(BareSheet)), Size(320, 220));
+      },
+    );
+
+    testWidgets(
+      'narrow sheet should be horizontally centered within viewport',
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          builder: (child) => SheetViewport(
+            child: BareSheet(
+              child: SizedBox(
+                key: Key('content'),
+                width: 300,
+                height: 200,
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byType(BareSheet)),
+          Rect.fromLTWH(250, 400, 300, 200),
+        );
+      },
+    );
+
+    testWidgets(
+      'centering should account for viewport padding',
+      (tester) async {
+        final env = boilerplate(
+          model: _TestSheetModel(),
+          builder: (child) => SheetViewport(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: BareSheet(
+              child: SizedBox(
+                key: Key('content'),
+                width: 300,
+                height: 200,
+                child: child,
+              ),
+            ),
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byType(BareSheet)),
+          Rect.fromLTWH(250, 400, 300, 200),
+        );
+      },
+    );
 
     testWidgets(
       'should allow the sheet to size its height freely within the viewport',
