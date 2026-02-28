@@ -601,34 +601,18 @@ void main() {
 
       await tester.pump();
       expect(
-        tester.getRect(find.byKey(sheetKey)).top,
-        testScreenSize.height - 300,
-      );
-
-      await tester.pump(Duration(milliseconds: 75));
-      expect(
-        tester.getRect(find.byKey(sheetKey)).top,
-        testScreenSize.height - 350,
-      );
-
-      await tester.pump(Duration(milliseconds: 75));
-      expect(
-        tester.getRect(find.byKey(sheetKey)).top,
-        testScreenSize.height - 400,
-      );
-
-      await tester.pump(Duration(milliseconds: 75));
-      expect(
-        tester.getRect(find.byKey(sheetKey)).top,
-        testScreenSize.height - 450,
+        tester.getRect(find.byKey(sheetKey)),
+        Rect.fromLTWH(0, 100, 800, 500),
+        reason:
+            'The sheet should immediately jump to the new route '
+            'without animation.',
       );
 
       await tester.pumpAndSettle();
       expect(
-        tester.getRect(find.byKey(sheetKey)).top,
-        testScreenSize.height - 500,
+        tester.getRect(find.byKey(sheetKey)),
+        Rect.fromLTWH(0, 100, 800, 500),
       );
-
       expect(find.byKey(Key('b')), findsOneWidget);
     });
 
