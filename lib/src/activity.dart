@@ -62,9 +62,13 @@ abstract class SheetActivity<T extends SheetModel> {
 
   bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
-  double dryApplyNewLayout(ViewportLayout layout) => owner.offset;
+  double dryApplyNewLayout(ViewportLayout layout) {
+    return owner.hasMetrics
+        ? owner.offset
+        : owner.initialOffset.resolve(layout);
+  }
 
-  void applyNewLayout(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
     owner.offset = dryApplyNewLayout(owner);
   }
 
@@ -160,7 +164,8 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void applyNewLayout(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    if (oldLayout == null) return;
     final newEndOffset = destination.resolve(owner);
     if (newEndOffset != _endOffset) {
       final remainingDuration =
@@ -208,7 +213,8 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void applyNewLayout(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    if (oldLayout == null) return;
     final destination = owner.snapGrid.getSnapOffset(
       oldLayout,
       owner.offset,
@@ -322,7 +328,8 @@ class SettlingSheetActivity extends SheetActivity {
   }
 
   @override
-  void applyNewLayout(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    if (oldLayout == null) return;
     _invalidateVelocity();
   }
 
@@ -357,28 +364,41 @@ class SettlingSheetActivity extends SheetActivity {
 // TODO: Rename to `StableSheetActivity` or similar.
 @internal
 class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
-  late SheetOffset targetOffset;
+  SheetOffset? targetOffset;
 
   @override
   void init(T owner) {
     super.init(owner);
-    targetOffset = owner.hasMetrics
-        ? owner.snapGrid.getSnapOffset(owner, owner.offset, 0)
-        : owner.initialOffset;
+    if (owner.hasMetrics) {
+      targetOffset = _effectiveTargetOffset(owner);
+    }
   }
 
   @override
-  double dryApplyNewLayout(ViewportLayout layout) =>
-      targetOffset.resolve(layout);
+  double dryApplyNewLayout(ViewportLayout layout) {
+    return _effectiveTargetOffset(layout).resolve(layout);
+  }
 
   /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
-  void applyNewLayout(ViewportLayout oldLayout) {
-    final newOffset = dryApplyNewLayout(owner);
-    if (newOffset != owner.offset) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    targetOffset ??= _effectiveTargetOffset(owner);
+    final newOffset = targetOffset!.resolve(owner);
+    if (!owner.hasMetrics || newOffset != owner.offset) {
       owner
         ..offset = newOffset
         ..didUpdateMetrics();
+    }
+  }
+
+  SheetOffset _effectiveTargetOffset(ViewportLayout layout) {
+    if (targetOffset case final target?) {
+      return target;
+    } else {
+      final preferredOffset = owner.hasMetrics
+          ? owner.offset
+          : owner.initialOffset.resolve(layout);
+      return owner.snapGrid.getSnapOffset(layout, preferredOffset, 0);
     }
   }
 }
