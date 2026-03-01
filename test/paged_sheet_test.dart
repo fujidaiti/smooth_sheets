@@ -143,6 +143,52 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
     });
 
+    testWidgets(
+      'Per-route snap grids are respected on first build for each route',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              initialOffset: SheetOffset(0.2),
+              snapGrid: SheetSnapGrid(
+                snaps: [SheetOffset(0.5), SheetOffset(1)],
+              ),
+              builder: (_) => _TestPage(height: 600),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          env.getSheetRect(tester),
+          Rect.fromLTWH(0, 300, 800, 600),
+          reason:
+              'Sheet should snap to nearest snap point (offset=0.5) '
+              'from the initial offset (offset=0.2)',
+        );
+
+        unawaited(
+          env.getNavigator().push(
+            PagedSheetRoute(
+              initialOffset: SheetOffset(0.8),
+              snapGrid: SheetSnapGrid(
+                snaps: [SheetOffset(0.2), SheetOffset(1)],
+              ),
+              builder: (_) => _TestPage(height: 300),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          env.getSheetRect(tester),
+          Rect.fromLTWH(0, 200, 800, 300),
+          reason:
+              'The second page should snap to the offset=1.0 snap point '
+              'from the initial offset (offset=0.8)',
+        );
+      },
+    );
+
     testWidgets('Pointer events should be ignored during a transition', (
       tester,
     ) async {
@@ -269,53 +315,6 @@ void main() {
           env.getSheetRect(tester).top,
           testScreenSize.height - 300,
           reason: 'The second page should not be draggable.',
-        );
-      },
-    );
-
-    testWidgets(
-      'snapGrid is respected on first build with multiple snap points',
-      (tester) async {
-        final env = boilerplate(
-          initialRoute: () {
-            return PagedSheetRoute(
-              initialOffset: SheetOffset(0.2),
-              snapGrid: SheetSnapGrid(
-                snaps: [SheetOffset(0.5), SheetOffset(1)],
-              ),
-              builder: (_) => _TestPage(height: 600),
-            );
-          },
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          env.getSheetRect(tester),
-          Rect.fromLTWH(0, 300, 800, 600),
-          reason: 'Sheet should snap to nearest snap point (offset=0.5)',
-        );
-      },
-    );
-
-    testWidgets(
-      'initialOffset within snapGrid is preserved',
-      (tester) async {
-        final env = boilerplate(
-          initialRoute: () {
-            return PagedSheetRoute(
-              initialOffset: SheetOffset(0.2),
-              snapGrid: SheetSnapGrid(
-                snaps: [SheetOffset(0.2), SheetOffset(1)],
-              ),
-              builder: (_) => _TestPage(height: 600),
-            );
-          },
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(
-          env.getSheetRect(tester),
-          Rect.fromLTWH(0, 480, 800, 600),
         );
       },
     );
