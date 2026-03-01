@@ -202,9 +202,7 @@ abstract class SheetModelView with SheetMetrics implements Listenable {
 abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     with ChangeNotifier {
   /// Creates an object that manages the position of a sheet.
-  SheetModel(this.context, C config) : _config = config {
-    goIdle();
-  }
+  SheetModel(this.context, C config) : _config = config;
 
   @override
   Size get viewportSize => _layout!.viewportSize;
@@ -255,10 +253,6 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
-
-  // ignore: lines_longer_than_80_chars
-  // TODO: Remote this field. The initial offset should be determined by the activity.
-  SheetOffset get initialOffset;
 
   /// A handle to the owner of this object.
   final SheetContext context;

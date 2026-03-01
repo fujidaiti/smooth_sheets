@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
+import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/controller.dart';
 import 'package:smooth_sheets/src/gesture_proxy.dart';
 import 'package:smooth_sheets/src/model.dart';
@@ -766,14 +767,17 @@ class _TestModelConfig extends SheetModelConfig {
 
 class _TestModel extends SheetModel<_TestModelConfig>
     with ScrollAwareSheetModelMixin {
-  _TestModel(super.context, super.config, this.initialOffset);
+  _TestModel(
+    super.context,
+    super.config,
+    SheetOffset initialOffset,
+  ) {
+    beginActivity(IdleSheetActivity(initialOffset: initialOffset));
+  }
 
   @override
   SheetScrollConfiguration get scrollConfiguration =>
       config.scrollConfiguration;
-
-  @override
-  final SheetOffset initialOffset;
 }
 
 class _TestSheet extends StatelessWidget {

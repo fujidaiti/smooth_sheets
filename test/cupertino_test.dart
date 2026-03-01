@@ -458,10 +458,6 @@ void main() {
   });
 }
 
-class _TestIdleSheetActivity extends SheetActivity {
-  /* This activity literally does nothing. */
-}
-
 class _TestSheetModelConfig extends SheetModelConfig {
   _TestSheetModelConfig({
     required SheetOffset maxOffset,
@@ -488,14 +484,8 @@ class _TestSheetModelConfig extends SheetModelConfig {
 class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
   _TestSheetModel({
     required _TestSheetModelConfig config,
-    this.initialOffset = const SheetOffset(1),
-  }) : super(MockSheetContext(), config);
-
-  @override
-  final SheetOffset initialOffset;
-
-  @override
-  void goIdle() {
-    beginActivity(_TestIdleSheetActivity());
+    SheetOffset initialOffset = const SheetOffset(1),
+  }) : super(MockSheetContext(), config) {
+    beginActivity(IdleSheetActivity(initialOffset: initialOffset));
   }
 }

@@ -1712,10 +1712,6 @@ void main() {
   });
 }
 
-class _TestIdleSheetActivity extends SheetActivity {
-  /* This activity literally does nothing. */
-}
-
 class _TestSheetModelConfig extends SheetModelConfig {
   const _TestSheetModelConfig()
     : super(
@@ -1735,13 +1731,11 @@ class _TestSheetModelConfig extends SheetModelConfig {
 }
 
 class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
-  _TestSheetModel(super.context, super.config, {required this.initialOffset});
-
-  @override
-  final SheetOffset initialOffset;
-
-  @override
-  void goIdle() {
-    beginActivity(_TestIdleSheetActivity());
+  _TestSheetModel(
+    super.context,
+    super.config, {
+    required SheetOffset initialOffset,
+  }) {
+    beginActivity(IdleSheetActivity(initialOffset: initialOffset));
   }
 }

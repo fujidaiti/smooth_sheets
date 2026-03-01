@@ -570,6 +570,15 @@ class BallisticScrollDrivenSheetActivity
   }
 
   @override
+  void init(ScrollAwareSheetModelMixin<SheetModelConfig> owner) {
+    super.init(owner);
+    assert(
+      owner.hasMetrics,
+      '$runtimeType can not be the initial activity of the model.',
+    );
+  }
+
+  @override
   AnimationController createAnimationController() {
     return AnimationController.unbounded(vsync: owner.context.vsync);
   }
@@ -618,6 +627,14 @@ class BallisticScrollDrivenSheetActivity
       scrollPosition: scrollPosition,
     );
   }
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    return owner.offset;
+  }
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {}
 }
 
 /// A [SheetActivity] that does nothing but can be released to resume
@@ -656,6 +673,15 @@ class HoldScrollDrivenSheetActivity
   }
 
   @override
+  void init(ScrollAwareSheetModelMixin<SheetModelConfig> owner) {
+    super.init(owner);
+    assert(
+      owner.hasMetrics,
+      '$runtimeType can not be the initial activity of the model.',
+    );
+  }
+
+  @override
   void cancel() {
     owner.goBallisticWithScrollPosition(
       velocity: 0,
@@ -668,6 +694,14 @@ class HoldScrollDrivenSheetActivity
     onHoldCanceled?.call();
     super.dispose();
   }
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    return owner.offset;
+  }
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {}
 }
 
 class SheetScrollable extends StatefulWidget {

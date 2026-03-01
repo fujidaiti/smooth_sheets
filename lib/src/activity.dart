@@ -62,15 +62,28 @@ abstract class SheetActivity<T extends SheetModel> {
 
   bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
-  double dryApplyNewLayout(ViewportLayout layout) {
-    return owner.hasMetrics
-        ? owner.offset
-        : owner.initialOffset.resolve(layout);
-  }
+  /// Returns the offset that [owner] would have if
+  /// [applyNewLayout] were called with the given [layout].
+  ///
+  /// This method is **dry** because it does not mutate the state
+  /// of [owner].
+  ///
+  /// Used to determine the adjusted sheet position when layout factors change,
+  /// such as when the content size changes. This is also called before
+  /// [owner] receives its initial offset on the first build, so it should
+  /// check `owner.hasMetrics` if the computation relies on the current offset.
+  double dryApplyNewLayout(ViewportLayout layout);
 
-  void applyNewLayout(ViewportLayout? oldLayout) {
-    owner.offset = dryApplyNewLayout(owner);
-  }
+  /// Adjusts [owner]'s state in response to a new viewport layout.
+  ///
+  /// [oldLayout] is the layout before the change; [owner] already holds the
+  /// new layout at this point. If [oldLayout] is `null`, the sheet is being
+  /// laid out for the first time, meaning [owner] does not yet have an offset
+  /// and this method is responsible for setting it.
+  ///
+  /// If this method changes [owner]'s offset, the new offset must equal
+  /// the value returned by [dryApplyNewLayout] for the new layout.
+  void applyNewLayout(ViewportLayout? oldLayout);
 
   @protected
   bool debugAssertMounted() {
@@ -136,6 +149,10 @@ class AnimatedSheetActivity extends SheetActivity
   // ignore: avoid_renaming_method_parameters
   void init(SheetModel delegate) {
     super.init(delegate);
+    assert(
+      owner.hasMetrics,
+      '$runtimeType can not be the initial activity of the model.',
+    );
     _startOffset = owner.offset;
     _endOffset = destination.resolve(owner);
   }
@@ -164,6 +181,14 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    // This activity will initiate a settling activity when the layout changes;
+    // otherwise, it does not change the sheet position, so we just return
+    // the current offset.
+    return owner.offset;
+  }
+
+  @override
   void applyNewLayout(ViewportLayout? oldLayout) {
     if (oldLayout == null) return;
     final newEndOffset = destination.resolve(owner);
@@ -181,6 +206,15 @@ class BallisticSheetActivity extends SheetActivity
   BallisticSheetActivity({required this.simulation});
 
   final Simulation simulation;
+
+  @override
+  void init(SheetModel<SheetModelConfig> owner) {
+    super.init(owner);
+    assert(
+      owner.hasMetrics,
+      '$runtimeType can not be the initial activity of the model.',
+    );
+  }
 
   @override
   AnimationController createAnimationController() {
@@ -210,6 +244,14 @@ class BallisticSheetActivity extends SheetActivity
   @override
   void onAnimationEnd() {
     owner.goBallistic(0);
+  }
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    // This activity will initiate a settling activity when the layout changes;
+    // otherwise, it does not change the sheet position, so we just return
+    // the current offset.
+    return owner.offset;
   }
 
   @override
@@ -297,6 +339,10 @@ class SettlingSheetActivity extends SheetActivity {
   @override
   void init(SheetModel owner) {
     super.init(owner);
+    assert(
+      owner.hasMetrics,
+      '$runtimeType can not be the initial activity of the model.',
+    );
     _ticker = owner.context.vsync.createTicker(_tick)..start();
     _invalidateVelocity();
   }
@@ -325,6 +371,11 @@ class SettlingSheetActivity extends SheetActivity {
     if (newOffset == destination) {
       owner.goIdle();
     }
+  }
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    return owner.offset;
   }
 
   @override
@@ -364,6 +415,10 @@ class SettlingSheetActivity extends SheetActivity {
 // TODO: Rename to `StableSheetActivity` or similar.
 @internal
 class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
+  IdleSheetActivity({this.initialOffset});
+
+  final SheetOffset? initialOffset;
+
   SheetOffset? targetOffset;
 
   @override
@@ -397,7 +452,7 @@ class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
     } else {
       final preferredOffset = owner.hasMetrics
           ? owner.offset
-          : owner.initialOffset.resolve(layout);
+          : initialOffset!.resolve(layout);
       return owner.snapGrid.getSnapOffset(layout, preferredOffset, 0);
     }
   }
@@ -423,6 +478,10 @@ class DragSheetActivity<T extends SheetModel> extends SheetActivity<T>
   @override
   void init(T owner) {
     super.init(owner);
+    assert(
+      owner.hasMetrics,
+      '$runtimeType can not be the initial activity of the model.',
+    );
     var startDetails = SheetDragStartDetails(
       sourceTimeStamp: this.startDetails.sourceTimeStamp,
       axisDirection: dragAxisDirection,
@@ -502,6 +561,17 @@ class DragSheetActivity<T extends SheetModel> extends SheetActivity<T>
       ..didDragCancel()
       ..goBallistic(0);
   }
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    // While dragging, this activity maintains the sheet position where
+    // the user holds the sheet, so we just return the current offset,
+    // meaning the layout change won't affect the sheet position.
+    return owner.offset;
+  }
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {}
 }
 
 @internal

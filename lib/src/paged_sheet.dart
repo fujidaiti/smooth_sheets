@@ -69,13 +69,11 @@ class _PagedSheetModelConfig extends SheetModelConfig {
 
 class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     with ScrollAwareSheetModelMixin<_PagedSheetModelConfig> {
-  _PagedSheetModel(super.context, super.config);
+  _PagedSheetModel(super.context, super.config) {
+    goIdle();
+  }
 
   _PagedSheetEntry? _currentEntry;
-
-  @override
-  SheetOffset get initialOffset =>
-      _currentEntry?.initialOffset ?? const SheetOffset(1);
 
   @override
   SheetScrollConfiguration get scrollConfiguration =>
@@ -198,12 +196,16 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
 
   @override
   void goIdle() {
-    beginActivity(_PagedSheetIdleActivity());
+    beginActivity(
+      _PagedSheetIdleActivity(
+        initialOffset: _currentEntry?.initialOffset ?? const SheetOffset(1),
+      ),
+    );
   }
 }
 
 class _PagedSheetIdleActivity extends IdleSheetActivity<_PagedSheetModel> {
-  _PagedSheetIdleActivity();
+  _PagedSheetIdleActivity({super.initialOffset});
 
   @override
   void init(_PagedSheetModel owner) {
@@ -236,6 +238,10 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
   @override
   void init(_PagedSheetModel owner) {
     super.init(owner);
+    assert(
+      owner.hasMetrics,
+      '$runtimeType can not be the initial activity of the model.',
+    );
     _startPixelOffset = owner.offset;
     owner.config = owner.config.copyWith(snapGrid: _kDefaultSnapGrid);
     _effectiveAnimation = animation.drive(CurveTween(curve: animationCurve))
@@ -257,6 +263,14 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
       owner.didUpdateMetrics();
     }
   }
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    return owner.offset;
+  }
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {}
 }
 
 class PagedSheet extends StatelessWidget {

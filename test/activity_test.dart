@@ -42,7 +42,7 @@ void main() {
     test('should animate to the destination', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 300,
-        initialPosition: const SheetOffset.absolute(300),
+
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(300),
         ),
@@ -82,7 +82,7 @@ void main() {
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 250,
-        initialPosition: const SheetOffset.absolute(250),
+
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(250),
         ),
@@ -145,6 +145,7 @@ void main() {
       when(mockSheetModel.context).thenReturn(mockSheetContext);
       when(mockSheetModel.physics).thenReturn(mockPhysics);
       when(mockSheetModel.offset).thenReturn(350);
+      when(mockSheetModel.hasMetrics).thenReturn(true);
 
       final activity = BallisticSheetActivity(simulation: mockSimulation);
       tester.addTearDown(activity.dispose);
@@ -187,7 +188,7 @@ void main() {
     setUp(() {
       (ownerMetrics, owner) = createMockSheetModel(
         offset: 300,
-        initialPosition: const SheetOffset(0.5),
+
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(300),
         ),
@@ -322,7 +323,7 @@ void main() {
       () {
         final (ownerMetrics, owner) = createMockSheetModel(
           offset: 160,
-          initialPosition: const SheetOffset(0.2),
+
           snapGrid: SheetSnapGrid(
             snaps: [const SheetOffset(0.2), const SheetOffset(1)],
           ),
@@ -349,7 +350,7 @@ void main() {
     test('should maintain previous position when content size changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 250,
-        initialPosition: const SheetOffset(0.5),
+
         snapGrid: SheetSnapGrid(
           snaps: [const SheetOffset(0.5), const SheetOffset(1)],
         ),
