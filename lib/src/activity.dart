@@ -412,20 +412,25 @@ class SettlingSheetActivity extends SheetActivity {
   }
 }
 
-// TODO: Rename to `StableSheetActivity` or similar.
 @internal
 class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
   IdleSheetActivity({this.initialOffset});
 
   final SheetOffset? initialOffset;
-
-  SheetOffset? targetOffset;
+  SheetOffset? _targetOffset;
+  SheetOffset get targetOffset => _targetOffset!;
+  set targetOffset(SheetOffset newTarget) => _targetOffset = newTarget;
 
   @override
   void init(T owner) {
     super.init(owner);
+    assert(
+      owner.hasMetrics || initialOffset != null,
+      '$runtimeType can not be the initial activity of the model '
+      'without an initial offset.',
+    );
     if (owner.hasMetrics) {
-      targetOffset = _effectiveTargetOffset(owner);
+      _targetOffset = _effectiveTargetOffset(owner);
     }
   }
 
@@ -434,11 +439,11 @@ class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
     return _effectiveTargetOffset(layout).resolve(layout);
   }
 
-  /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
+  /// Updates [SheetMetrics.offset] to maintain the [_targetOffset].
   @override
   void applyNewLayout(ViewportLayout? oldLayout) {
-    targetOffset ??= _effectiveTargetOffset(owner);
-    final newOffset = targetOffset!.resolve(owner);
+    _targetOffset ??= _effectiveTargetOffset(owner);
+    final newOffset = _targetOffset!.resolve(owner);
     if (!owner.hasMetrics || newOffset != owner.offset) {
       owner
         ..offset = newOffset
@@ -447,7 +452,7 @@ class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
   }
 
   SheetOffset _effectiveTargetOffset(ViewportLayout layout) {
-    if (targetOffset case final target?) {
+    if (_targetOffset case final target?) {
       return target;
     } else {
       final preferredOffset = owner.hasMetrics
