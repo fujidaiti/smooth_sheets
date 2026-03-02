@@ -583,10 +583,8 @@ mixin SheetMetrics implements SheetLayout {
   /// The rectangle that bounds the sheet within the viewport.
   Rect get rect {
     final size = this.size;
-    final availableWidth = viewportSize.width - viewportPadding.horizontal;
-    final dx = viewportPadding.left + (availableWidth - size.width) / 2;
     return Rect.fromLTWH(
-      dx,
+      (viewportSize.width - size.width) / 2,
       viewportSize.height - offset,
       size.width,
       size.height,
