@@ -229,6 +229,24 @@ void main() {
   });
 }
 
+class _TestIdleSheetActivity extends SheetActivity {
+  _TestIdleSheetActivity({required this.initialOffset});
+
+  final SheetOffset initialOffset;
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    return owner.hasMetrics ? owner.offset : initialOffset.resolve(layout);
+  }
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    if (!owner.hasMetrics) {
+      owner.offset = initialOffset.resolve(owner);
+    }
+  }
+}
+
 class _TestSheetModelConfig extends SheetModelConfig {
   const _TestSheetModelConfig()
     : super(
@@ -250,16 +268,23 @@ class _TestSheetModelConfig extends SheetModelConfig {
 class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
   _TestSheetModel({
     required _TestSheetModelConfig config,
-    SheetOffset initialOffset = const SheetOffset(1),
+    this.initialOffset = const SheetOffset(1),
   }) : super(MockSheetContext(), config) {
-    beginActivity(IdleSheetActivity(initialOffset: initialOffset));
+    goIdle();
   }
+
+  final SheetOffset initialOffset;
 
   bool? debugShouldIgnorePointerOverride;
 
   @override
   bool get shouldIgnorePointer =>
       debugShouldIgnorePointerOverride ?? super.shouldIgnorePointer;
+
+  @override
+  void goIdle() {
+    beginActivity(_TestIdleSheetActivity(initialOffset: initialOffset));
+  }
 }
 
 class _PlaneSheetDecoration extends SizedSheetDecoration {

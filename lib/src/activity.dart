@@ -444,7 +444,10 @@ class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
   void applyNewLayout(ViewportLayout? oldLayout) {
     _targetOffset ??= _effectiveTargetOffset(owner);
     final newOffset = _targetOffset!.resolve(owner);
-    if (!owner.hasMetrics || newOffset != owner.offset) {
+    if (!owner.hasMetrics) {
+      // Offset initialization doesn't send a metrics update notification.
+      owner.offset = newOffset;
+    } else if (newOffset != owner.offset) {
       owner
         ..offset = newOffset
         ..didUpdateMetrics();
