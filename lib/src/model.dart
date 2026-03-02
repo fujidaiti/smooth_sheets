@@ -321,6 +321,12 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     final (minOffset, maxOffset) = snapGrid.getBoundaries(layout);
     _minOffset = minOffset.resolve(layout);
     _maxOffset = maxOffset.resolve(layout);
+
+    double? debugDryApplyNewLayoutResult;
+    assert(() {
+      debugDryApplyNewLayoutResult = dryApplyNewLayout(layout);
+      return true;
+    }());
     final oldOffset = _offset;
     assert(
       (oldOffset == null && oldLayout == null) ||
@@ -329,9 +335,9 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     activity.applyNewLayout(oldLayout);
     assert(hasMetrics);
     assert(
-      offset == dryApplyNewLayout(layout),
-      'applyNewLayout must update the offset to the value '
-      'that dryApplyLayout would return.',
+      offset == debugDryApplyNewLayoutResult,
+      'applyNewLayout must update the offset to the same value '
+      'as dryApplyNewLayout returns for the same layout.',
     );
 
     // Notify the rect listeners only when the layout has changed
