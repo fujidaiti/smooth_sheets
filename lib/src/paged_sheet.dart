@@ -175,20 +175,33 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
       effectiveAnimation = animation;
     }
 
-    ValueGetter<double?> targetOffsetResolver(_PagedSheetEntry entry) {
-      return () {
-        if (entry._contentSize case final contentSize?) {
-          return (entry._targetOffset ?? entry.initialOffset).resolve(
-            copyWith(contentSize: contentSize),
-          );
-        }
+    double? targetOffsetResolver() {
+      final targetSize = targetEntry._contentSize;
+      if (targetSize == null) {
+        // The new entry is not laid out yet.
         return null;
-      };
+      }
+
+      final metricsForTarget = copyWith(contentSize: targetSize);
+      final prevTargetOffset = targetEntry._targetOffset;
+      if (prevTargetOffset != null) {
+        return prevTargetOffset.resolve(metricsForTarget);
+      }
+
+      final initialOffset = targetEntry.initialOffset.resolve(
+        metricsForTarget,
+      );
+      final effectiveInitialOffset = targetEntry.snapGrid.getSnapOffset(
+        metricsForTarget,
+        initialOffset,
+        0,
+      );
+      return effectiveInitialOffset.resolve(metricsForTarget);
     }
 
     beginActivity(
       _RouteTransitionSheetActivity(
-        destinationRouteOffset: targetOffsetResolver(targetEntry),
+        destinationRouteOffset: targetOffsetResolver,
         animation: effectiveAnimation,
         animationCurve: effectiveCurve,
       ),
@@ -201,15 +214,6 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     if (hasMetrics) {
       goIdle();
     }
-  }
-
-  @override
-  void goIdle() {
-    beginActivity(
-      _PagedSheetIdleActivity(
-        initialOffset: _currentEntry?.initialOffset ?? const SheetOffset(1),
-      ),
-    );
   }
 }
 
@@ -227,21 +231,6 @@ class _InitialSheetOffset implements SheetOffset {
     );
     final offset = model._currentEntry?.initialOffset ?? const SheetOffset(1);
     return offset.resolve(metrics);
-  }
-}
-
-class _PagedSheetIdleActivity extends IdleSheetActivity<_PagedSheetModel> {
-  _PagedSheetIdleActivity({super.initialOffset});
-
-  @override
-  void init(_PagedSheetModel owner) {
-    super.init(owner);
-    if (owner._currentEntry case _PagedSheetEntry(
-      _contentSize: null,
-      :final initialOffset,
-    )) {
-      targetOffset = initialOffset;
-    }
   }
 }
 

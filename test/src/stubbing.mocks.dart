@@ -338,8 +338,8 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  void goIdle() => super.noSuchMethod(
-    Invocation.method(#goIdle, []),
+  void goIdle({_i4.SheetOffset? targetOffset}) => super.noSuchMethod(
+    Invocation.method(#goIdle, [], {#targetOffset: targetOffset}),
     returnValueForMissingStub: null,
   );
 

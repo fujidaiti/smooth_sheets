@@ -772,7 +772,7 @@ class _TestModel extends SheetModel<_TestModelConfig>
     super.config,
     SheetOffset initialOffset,
   ) {
-    beginActivity(IdleSheetActivity(initialOffset: initialOffset));
+    beginActivity(InitialSheetActivity(preferredInitialOffset: initialOffset));
   }
 
   @override

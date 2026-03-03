@@ -486,6 +486,6 @@ class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
     required _TestSheetModelConfig config,
     SheetOffset initialOffset = const SheetOffset(1),
   }) : super(MockSheetContext(), config) {
-    beginActivity(IdleSheetActivity(initialOffset: initialOffset));
+    beginActivity(InitialSheetActivity(preferredInitialOffset: initialOffset));
   }
 }

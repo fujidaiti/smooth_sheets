@@ -230,21 +230,11 @@ void main() {
 }
 
 class _TestIdleSheetActivity extends SheetActivity {
-  _TestIdleSheetActivity({required this.initialOffset});
-
-  final SheetOffset initialOffset;
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) => owner.offset;
 
   @override
-  double dryApplyNewLayout(ViewportLayout layout) {
-    return owner.hasMetrics ? owner.offset : initialOffset.resolve(layout);
-  }
-
-  @override
-  void applyNewLayout(ViewportLayout? oldLayout) {
-    if (!owner.hasMetrics) {
-      owner.offset = initialOffset.resolve(owner);
-    }
-  }
+  void applyNewLayout(ViewportLayout? oldLayout) {}
 }
 
 class _TestSheetModelConfig extends SheetModelConfig {
@@ -270,7 +260,7 @@ class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
     required _TestSheetModelConfig config,
     this.initialOffset = const SheetOffset(1),
   }) : super(MockSheetContext(), config) {
-    goIdle();
+    beginActivity(InitialSheetActivity(preferredInitialOffset: initialOffset));
   }
 
   final SheetOffset initialOffset;
@@ -282,8 +272,8 @@ class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
       debugShouldIgnorePointerOverride ?? super.shouldIgnorePointer;
 
   @override
-  void goIdle() {
-    beginActivity(_TestIdleSheetActivity(initialOffset: initialOffset));
+  void goIdle({SheetOffset? targetOffset}) {
+    beginActivity(_TestIdleSheetActivity());
   }
 }
 

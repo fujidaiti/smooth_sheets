@@ -42,7 +42,6 @@ void main() {
     test('should animate to the destination', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 300,
-
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(300),
         ),
@@ -280,7 +279,7 @@ void main() {
 
       ownerMetrics.offset = 540;
       internalOnTickCallback!(const Duration(milliseconds: 1000));
-      verify(owner.goIdle());
+      verify(owner.goIdle(targetOffset: const SheetOffset(1)));
     });
 
     test('Should absorb viewport changes', () {
@@ -319,38 +318,33 @@ void main() {
 
   group('IdleSheetActivity', () {
     test(
-      'should keep the only 50% of the content visible when keyboard appears',
+      'should keep the only 20% of the content visible when keyboard appears',
       () {
         final (ownerMetrics, owner) = createMockSheetModel(
           offset: 160,
-
           snapGrid: SheetSnapGrid(
             snaps: [const SheetOffset(0.2), const SheetOffset(1)],
           ),
           contentSize: const Size(400, 800),
           viewportSize: const Size(400, 900),
-          contentMargin: EdgeInsets.only(bottom: 50),
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
         );
+        final activity = IdleSheetActivity(targetOffset: const SheetOffset(0.2))
+          ..init(owner);
 
         final oldMeasurements = ownerMetrics.copyWith();
         ownerMetrics
           ..contentMargin = EdgeInsets.only(bottom: 50)
-          ..contentSize = const Size(400, 850)
           ..contentBaseline = 50;
-
-        IdleSheetActivity()
-          ..init(owner)
-          ..applyNewLayout(oldMeasurements);
-        expect(ownerMetrics.offset, 220);
+        activity.applyNewLayout(oldMeasurements);
+        expect(ownerMetrics.offset, 210);
       },
     );
 
     test('should maintain previous position when content size changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 250,
-
         snapGrid: SheetSnapGrid(
           snaps: [const SheetOffset(0.5), const SheetOffset(1)],
         ),
@@ -359,11 +353,10 @@ void main() {
         devicePixelRatio: 1,
         physics: kDefaultSheetPhysics,
       );
-      expect(ownerMetrics.offset, 250);
 
       final oldMeasurements = owner.copyWith();
       ownerMetrics.contentSize = Size(400, 600);
-      IdleSheetActivity()
+      IdleSheetActivity(targetOffset: const SheetOffset(0.5))
         ..init(owner)
         ..applyNewLayout(oldMeasurements);
       expect(owner.offset, 300);

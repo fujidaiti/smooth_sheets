@@ -149,7 +149,7 @@ void main() {
         final env = boilerplate(
           initialRoute: () {
             return PagedSheetRoute(
-              initialOffset: SheetOffset(0.2),
+              initialOffset: SheetOffset(0.8),
               snapGrid: SheetSnapGrid(
                 snaps: [SheetOffset(0.5), SheetOffset(1)],
               ),
@@ -161,16 +161,16 @@ void main() {
         await tester.pumpWidget(env.testWidget);
         expect(
           env.getSheetRect(tester),
-          Rect.fromLTWH(0, 300, 800, 600),
+          Rect.fromLTWH(0, 0, 800, 600),
           reason:
-              'Sheet should snap to nearest snap point (offset=0.5) '
-              'from the initial offset (offset=0.2)',
+              'Sheet should snap to nearest snap point (offset=1.0) '
+              'from the initial offset (offset=0.8)',
         );
 
         unawaited(
           env.getNavigator().push(
             PagedSheetRoute(
-              initialOffset: SheetOffset(0.8),
+              initialOffset: SheetOffset(0.3),
               snapGrid: SheetSnapGrid(
                 snaps: [SheetOffset(0.2), SheetOffset(1)],
               ),
@@ -181,10 +181,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(
           env.getSheetRect(tester),
-          Rect.fromLTWH(0, 200, 800, 300),
+          Rect.fromLTWH(0, 540, 800, 300),
           reason:
-              'The second page should snap to the offset=1.0 snap point '
-              'from the initial offset (offset=0.8)',
+              'The second page should snap to the offset=0.2 snap point '
+              'from the initial offset (offset=0.3)',
         );
       },
     );

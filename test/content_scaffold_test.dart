@@ -1736,6 +1736,6 @@ class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
     super.config, {
     required SheetOffset initialOffset,
   }) {
-    beginActivity(IdleSheetActivity(initialOffset: initialOffset));
+    beginActivity(InitialSheetActivity(preferredInitialOffset: initialOffset));
   }
 }

@@ -406,8 +406,12 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     _rectNotifier.removeListener(listener);
   }
 
-  void goIdle() {
-    beginActivity(IdleSheetActivity());
+  void goIdle({SheetOffset? targetOffset}) {
+    beginActivity(
+      IdleSheetActivity(
+        targetOffset: targetOffset ?? snapGrid.getSnapOffset(this, offset, 0),
+      ),
+    );
   }
 
   void goBallistic(double velocity) {

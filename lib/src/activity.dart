@@ -150,7 +150,7 @@ class InitialSheetActivity<T extends SheetModel> extends SheetActivity<T> {
     assert(!owner.hasMetrics);
     final initialOffset = _effectiveInitialOffset(owner);
     owner.offset = initialOffset.resolve(owner);
-    owner.goIdle();
+    owner.goIdle(targetOffset: initialOffset);
   }
 
   SheetOffset _effectiveInitialOffset(ViewportLayout layout) {
@@ -416,7 +416,7 @@ class SettlingSheetActivity extends SheetActivity {
     _elapsedDuration = elapsedDuration;
 
     if (newOffset == destination) {
-      owner.goIdle();
+      owner.goIdle(targetOffset: this.destination);
     }
   }
 
@@ -461,54 +461,39 @@ class SettlingSheetActivity extends SheetActivity {
 
 @internal
 class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
-  IdleSheetActivity({this.initialOffset});
+  IdleSheetActivity({required this.targetOffset});
 
-  final SheetOffset? initialOffset;
-  SheetOffset? _targetOffset;
-  SheetOffset get targetOffset => _targetOffset!;
-  set targetOffset(SheetOffset newTarget) => _targetOffset = newTarget;
+  final SheetOffset targetOffset;
 
   @override
   void init(T owner) {
     super.init(owner);
-    assert(
-      owner.hasMetrics || initialOffset != null,
-      '$runtimeType can not be the initial activity of the model '
-      'without an initial offset.',
-    );
-    if (owner.hasMetrics) {
-      _targetOffset = _effectiveTargetOffset(owner);
-    }
+    assert(() {
+      final resolvedTargetOffset = targetOffset.resolve(owner);
+      if (owner.offset != resolvedTargetOffset) {
+        throw AssertionError(
+          'The sheet should already be at the target offset '
+          'when starting an $runtimeType. Expected offset is '
+          '$resolvedTargetOffset, but the actual offset is ${owner.offset}.',
+        );
+      }
+      return true;
+    }());
   }
 
   @override
   double dryApplyNewLayout(ViewportLayout layout) {
-    return _effectiveTargetOffset(layout).resolve(layout);
+    return targetOffset.resolve(layout);
   }
 
-  /// Updates [SheetMetrics.offset] to maintain the [_targetOffset].
+  /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
   void applyNewLayout(ViewportLayout? oldLayout) {
-    _targetOffset ??= _effectiveTargetOffset(owner);
-    final newOffset = _targetOffset!.resolve(owner);
-    if (!owner.hasMetrics) {
-      // Offset initialization doesn't send a metrics update notification.
-      owner.offset = newOffset;
-    } else if (newOffset != owner.offset) {
+    final newOffset = dryApplyNewLayout(owner);
+    if (newOffset != owner.offset) {
       owner
         ..offset = newOffset
         ..didUpdateMetrics();
-    }
-  }
-
-  SheetOffset _effectiveTargetOffset(ViewportLayout layout) {
-    if (_targetOffset case final target?) {
-      return target;
-    } else {
-      final preferredOffset = owner.hasMetrics
-          ? owner.offset
-          : initialOffset!.resolve(layout);
-      return owner.snapGrid.getSnapOffset(layout, preferredOffset, 0);
     }
   }
 }
