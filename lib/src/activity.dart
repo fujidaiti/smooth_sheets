@@ -119,6 +119,11 @@ abstract class SheetActivity<T extends SheetModel> {
   }
 }
 
+/// A special [SheetActivity] dedicated to initialize [owner]'s offset
+/// on the first build.
+///
+/// Supposed to be used as the initial activity of a [SheetModel] and
+/// should not be used for any other purpose.
 @internal
 class InitialSheetActivity<T extends SheetModel> extends SheetActivity<T> {
   InitialSheetActivity({required this.preferredInitialOffset});
