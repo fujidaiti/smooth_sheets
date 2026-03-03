@@ -47,7 +47,7 @@ class _DraggableScrollableSheetModel
     super.config, {
     required SheetOffset initialOffset,
   }) {
-    beginActivity(IdleSheetActivity(initialOffset: initialOffset));
+    beginActivity(InitialSheetActivity(preferredInitialOffset: initialOffset));
   }
 
   @override

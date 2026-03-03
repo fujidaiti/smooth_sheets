@@ -83,6 +83,10 @@ abstract class SheetActivity<T extends SheetModel> {
   ///
   /// If this method changes [owner]'s offset, the new offset must equal
   /// the value returned by [dryApplyNewLayout] for the new layout.
+  ///
+  /// It's also fine to initiate another activity in this method,
+  /// however, note that the new activity will not receive a call to
+  /// [applyNewLayout] until the next layout change.
   void applyNewLayout(ViewportLayout? oldLayout);
 
   @protected
@@ -112,6 +116,44 @@ abstract class SheetActivity<T extends SheetModel> {
       return true;
     }());
     return true;
+  }
+}
+
+@internal
+class InitialSheetActivity<T extends SheetModel> extends SheetActivity<T> {
+  InitialSheetActivity({required this.preferredInitialOffset});
+
+  final SheetOffset preferredInitialOffset;
+
+  @override
+  void init(T owner) {
+    super.init(owner);
+    assert(
+      !owner.hasMetrics,
+      '$runtimeType should only be used as the initial activity.',
+    );
+  }
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    assert(!owner.hasMetrics);
+    return _effectiveInitialOffset(layout).resolve(layout);
+  }
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    assert(!owner.hasMetrics);
+    final initialOffset = _effectiveInitialOffset(owner);
+    owner.offset = initialOffset.resolve(owner);
+    owner.goIdle();
+  }
+
+  SheetOffset _effectiveInitialOffset(ViewportLayout layout) {
+    return owner.snapGrid.getSnapOffset(
+      layout,
+      preferredInitialOffset.resolve(layout),
+      0,
+    );
   }
 }
 

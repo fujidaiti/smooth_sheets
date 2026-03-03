@@ -70,7 +70,11 @@ class _PagedSheetModelConfig extends SheetModelConfig {
 class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     with ScrollAwareSheetModelMixin<_PagedSheetModelConfig> {
   _PagedSheetModel(super.context, super.config) {
-    goIdle();
+    beginActivity(
+      InitialSheetActivity(
+        preferredInitialOffset: _InitialSheetOffset(this),
+      ),
+    );
   }
 
   _PagedSheetEntry? _currentEntry;
@@ -191,7 +195,9 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
   void didEndTransition(_PagedSheetEntry entry) {
     _currentEntry = entry;
     didChangeInternalStateOfEntry(entry);
-    goIdle();
+    if (hasMetrics) {
+      goIdle();
+    }
   }
 
   @override
@@ -201,6 +207,23 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
         initialOffset: _currentEntry?.initialOffset ?? const SheetOffset(1),
       ),
     );
+  }
+}
+
+class _InitialSheetOffset implements SheetOffset {
+  _InitialSheetOffset(this.model);
+
+  final _PagedSheetModel model;
+
+  @override
+  double resolve(ViewportLayout metrics) {
+    assert(
+      !model.hasMetrics,
+      '$runtimeType should only be used '
+      'in the initialization phase of the model',
+    );
+    final offset = model._currentEntry?.initialOffset ?? const SheetOffset(1);
+    return offset.resolve(metrics);
   }
 }
 
