@@ -103,6 +103,9 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
   void beginActivity(SheetActivity activity) {
     super.beginActivity(activity);
     if (activity is IdleSheetActivity) {
+      // Saves the offset to which the current entry settles when idle,
+      // so that we can restore it when returning to this entry from another
+      // via, e.g., Navigator.pop().
       _currentEntry?._targetOffset = activity.targetOffset;
     }
   }
