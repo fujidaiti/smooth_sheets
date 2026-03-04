@@ -354,11 +354,12 @@ void main() {
         physics: kDefaultSheetPhysics,
       );
 
+      final activity = IdleSheetActivity(targetOffset: const SheetOffset(0.5))
+        ..init(owner);
+
       final oldMeasurements = owner.copyWith();
       ownerMetrics.contentSize = Size(400, 600);
-      IdleSheetActivity(targetOffset: const SheetOffset(0.5))
-        ..init(owner)
-        ..applyNewLayout(oldMeasurements);
+      activity.applyNewLayout(oldMeasurements);
       expect(owner.offset, 300);
       // Still in the idle activity.
       verifyNever(owner.beginActivity(any));

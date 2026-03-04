@@ -218,6 +218,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 150);
         expect(env.getScrollController().offset, 0);
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
       },
     );
 
@@ -261,6 +265,10 @@ void main() {
           closeTo(-30.6, 0.1),
         );
         expect(env.getScrollController().offset, 400);
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
       },
     );
 
