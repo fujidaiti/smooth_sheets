@@ -127,7 +127,11 @@ void main() {
       await tester.pumpWidget(env.testWidget);
       await tester.fling(find.byKey(Key('a')), Offset(0, 50), 500);
       await tester.pumpAndSettle();
-      expect(env.getSheetRect(tester).top, testScreenSize.height - 100);
+      expect(
+        env.getSheetRect(tester).top,
+        testScreenSize.height - 100,
+        reason: 'The sheet should snap to the nearest snap point',
+      );
 
       unawaited(
         env.getNavigator().push(
@@ -140,7 +144,13 @@ void main() {
 
       await tester.pumpAndSettle();
       await tester.drag(find.byKey(Key('b')), Offset(0, 100));
-      expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+      expect(
+        env.getSheetRect(tester).top,
+        testScreenSize.height - 400,
+        reason:
+            'The sheet should stay at the point where it was dragged to, '
+            'because the second page has a stepless snap grid.',
+      );
     });
 
     testWidgets(
@@ -183,9 +193,77 @@ void main() {
           env.getSheetRect(tester),
           Rect.fromLTWH(0, 540, 800, 300),
           reason:
-              'The second page should snap to the offset=0.2 snap point '
-              'from the initial offset (offset=0.3)',
+              'The second page should snap to the offset=0.2 snap point, '
+              'not the initialOffset=0.3',
         );
+      },
+    );
+
+    testWidgets(
+      'Per-route snap grid is respected even after a route transition '
+      'without animation',
+      (tester) async {
+        late PagedSheetRoute<dynamic> initialRoute;
+        final navigatorKey = GlobalKey<NavigatorState>();
+        const sheetKey = Key('sheet');
+        final testWidget = Directionality(
+          textDirection: TextDirection.ltr,
+          child: SheetViewport(
+            child: PagedSheet(
+              key: sheetKey,
+              navigator: Navigator(
+                key: navigatorKey,
+                onGenerateRoute: (_) {
+                  initialRoute = PagedSheetRoute(
+                    initialOffset: SheetOffset(0.8),
+                    snapGrid: SheetSnapGrid(
+                      snaps: [SheetOffset(0.5), SheetOffset(1)],
+                    ),
+                    builder: (_) => _TestPage(key: Key('a'), height: 600),
+                  );
+                  return initialRoute;
+                },
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+        expect(
+          tester.getRect(find.byKey(sheetKey)),
+          Rect.fromLTWH(0, 0, 800, 600),
+          reason:
+              'The sheet should snap to the offset=1.0 snap point, '
+              'not the initialOffset=0.8',
+        );
+
+        final newRoute = PagedSheetRoute<dynamic>(
+          initialOffset: SheetOffset(0.3),
+          snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.2), SheetOffset(1)]),
+          builder: (_) => _TestPage(key: Key('b'), height: 300),
+        );
+        // Navigator.replace changes the route without transition animation.
+        navigatorKey.currentState!.replace(
+          oldRoute: initialRoute,
+          newRoute: newRoute,
+        );
+
+        await tester.pump();
+        expect(
+          tester.getRect(find.byKey(sheetKey)),
+          Rect.fromLTWH(0, 540, 800, 300),
+          reason:
+              'The route b should snap to the offset=0.2 snap point '
+              'immediately, not the initialOffset=0.3',
+        );
+
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byKey(sheetKey)),
+          Rect.fromLTWH(0, 540, 800, 300),
+          reason: 'No visual change should occur after the first frame.',
+        );
+        expect(find.byKey(Key('b')), findsOneWidget);
       },
     );
 
