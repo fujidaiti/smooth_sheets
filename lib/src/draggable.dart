@@ -86,17 +86,20 @@ class SheetDraggable extends StatefulWidget {
 }
 
 class _SheetDraggableState extends State<SheetDraggable> {
-  late final VerticalDragGestureRecognizer _gestureRecognizer;
+  VerticalDragGestureRecognizer? _gestureRecognizer;
   SheetModel? _model;
   Drag? _currentDrag;
 
   @override
-  void initState() {
-    super.initState();
-    _gestureRecognizer =
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _model = SheetModelOwner.of(context);
+    final dragDevices = ScrollConfiguration.of(context).dragDevices;
+    _gestureRecognizer?.supportedDevices = dragDevices;
+    _gestureRecognizer ??=
         VerticalDragGestureRecognizer(
             debugOwner: kDebugMode ? runtimeType : null,
-            supportedDevices: const {PointerDeviceKind.touch},
+            supportedDevices: dragDevices,
           )
           ..onStart = _handleDragStart
           ..onUpdate = _handleDragUpdate
@@ -105,16 +108,10 @@ class _SheetDraggableState extends State<SheetDraggable> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _model = SheetModelOwner.of(context);
-  }
-
-  @override
   void dispose() {
     _model = null;
     _disposeDrag();
-    _gestureRecognizer.dispose();
+    _gestureRecognizer?.dispose();
     super.dispose();
   }
 
@@ -147,7 +144,7 @@ class _SheetDraggableState extends State<SheetDraggable> {
   Widget build(BuildContext context) {
     return _DragGestureListener(
       dragConfiguration: widget.configuration,
-      gestureRecognizer: _gestureRecognizer,
+      gestureRecognizer: _gestureRecognizer!,
       child: widget.child,
     );
   }
