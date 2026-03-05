@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'drag.dart';
+import 'internal/float_comp.dart';
 import 'model.dart';
 import 'physics.dart';
 
@@ -437,7 +438,9 @@ class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
     super.init(owner);
     assert(() {
       final resolvedTargetOffset = targetOffset.resolve(owner);
-      if (owner.offset != resolvedTargetOffset) {
+      if (!FloatComp.distance(
+        owner.devicePixelRatio,
+      ).isApprox(owner.offset, resolvedTargetOffset)) {
         throw AssertionError(
           'The sheet should already be at the target offset '
           'when starting an $runtimeType. Expected offset is '
