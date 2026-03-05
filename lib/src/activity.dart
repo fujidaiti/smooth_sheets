@@ -199,13 +199,8 @@ class AnimatedSheetActivity extends SheetActivity
   late final double _endOffset;
 
   @override
-  // ignore: avoid_renaming_method_parameters
-  void init(SheetModel delegate) {
-    super.init(delegate);
-    assert(
-      owner.hasMetrics,
-      '$runtimeType can not be the initial activity of the model.',
-    );
+  void init(SheetModel owner) {
+    super.init(owner);
     _startOffset = owner.offset;
     _endOffset = destination.resolve(owner);
   }
@@ -251,15 +246,6 @@ class BallisticSheetActivity extends SheetActivity
   BallisticSheetActivity({required this.simulation});
 
   final Simulation simulation;
-
-  @override
-  void init(SheetModel<SheetModelConfig> owner) {
-    super.init(owner);
-    assert(
-      owner.hasMetrics,
-      '$runtimeType can not be the initial activity of the model.',
-    );
-  }
 
   @override
   AnimationController createAnimationController() {
@@ -376,10 +362,6 @@ class SettlingSheetActivity extends SheetActivity {
   @override
   void init(SheetModel owner) {
     super.init(owner);
-    assert(
-      owner.hasMetrics,
-      '$runtimeType can not be the initial activity of the model.',
-    );
     _ticker = owner.context.vsync.createTicker(_tick)..start();
     _invalidateVelocity();
   }
@@ -503,10 +485,6 @@ class DragSheetActivity<T extends SheetModel> extends SheetActivity<T>
   @override
   void init(T owner) {
     super.init(owner);
-    assert(
-      owner.hasMetrics,
-      '$runtimeType can not be the initial activity of the model.',
-    );
     var startDetails = SheetDragStartDetails(
       sourceTimeStamp: this.startDetails.sourceTimeStamp,
       axisDirection: dragAxisDirection,

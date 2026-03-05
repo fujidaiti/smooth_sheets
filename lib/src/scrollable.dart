@@ -570,15 +570,6 @@ class BallisticScrollDrivenSheetActivity
   }
 
   @override
-  void init(ScrollAwareSheetModelMixin<SheetModelConfig> owner) {
-    super.init(owner);
-    assert(
-      owner.hasMetrics,
-      '$runtimeType can not be the initial activity of the model.',
-    );
-  }
-
-  @override
   AnimationController createAnimationController() {
     return AnimationController.unbounded(vsync: owner.context.vsync);
   }
@@ -662,15 +653,6 @@ class HoldScrollDrivenSheetActivity
   @override
   set scrollPosition(SheetScrollPosition value) {
     _scrollPosition = value;
-  }
-
-  @override
-  void init(ScrollAwareSheetModelMixin<SheetModelConfig> owner) {
-    super.init(owner);
-    assert(
-      owner.hasMetrics,
-      '$runtimeType can not be the initial activity of the model.',
-    );
   }
 
   @override
