@@ -266,14 +266,6 @@ class _TransitionActivity extends SheetActivity<_PagedSheetModel> {
       )!
       ..didUpdateMetrics();
   }
-
-  @override
-  double dryApplyNewLayout(ViewportLayout layout) {
-    return owner.offset;
-  }
-
-  @override
-  void applyNewLayout(ViewportLayout? oldLayout) {}
 }
 
 class _PostTransitionWithoutAnimationActivity

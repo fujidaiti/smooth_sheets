@@ -230,11 +230,7 @@ void main() {
 }
 
 class _TestIdleSheetActivity extends SheetActivity {
-  @override
-  double dryApplyNewLayout(ViewportLayout layout) => owner.offset;
-
-  @override
-  void applyNewLayout(ViewportLayout? oldLayout) {}
+  /* This activity literally does nothing. */
 }
 
 class _TestSheetModelConfig extends SheetModelConfig {

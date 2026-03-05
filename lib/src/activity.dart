@@ -72,7 +72,10 @@ abstract class SheetActivity<T extends SheetModel> {
   /// such as when the content size changes. This is also called before
   /// [owner] receives its initial offset on the first build, so it should
   /// check `owner.hasMetrics` if the computation relies on the current offset.
-  double dryApplyNewLayout(ViewportLayout layout);
+  ///
+  /// By default, this method returns the current offset, meaning the layout
+  /// change does not affect the sheet position.
+  double dryApplyNewLayout(ViewportLayout layout) => owner.offset;
 
   /// Adjusts [owner]'s state in response to a new viewport layout.
   ///
@@ -87,7 +90,10 @@ abstract class SheetActivity<T extends SheetModel> {
   /// It's also fine to initiate another activity in this method,
   /// however, note that the new activity will not receive a call to
   /// [applyNewLayout] until the next layout change.
-  void applyNewLayout(ViewportLayout? oldLayout);
+  ///
+  /// By default, this method does nothing, meaning the layout change does not
+  /// affect the sheet position.
+  void applyNewLayout(ViewportLayout? oldLayout) {}
 
   @protected
   bool debugAssertMounted() {
@@ -228,14 +234,6 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  double dryApplyNewLayout(ViewportLayout layout) {
-    // This activity will initiate a settling activity when the layout changes;
-    // otherwise, it does not change the sheet position, so we just return
-    // the current offset.
-    return owner.offset;
-  }
-
-  @override
   void applyNewLayout(ViewportLayout? oldLayout) {
     if (oldLayout == null) return;
     final newEndOffset = destination.resolve(owner);
@@ -291,14 +289,6 @@ class BallisticSheetActivity extends SheetActivity
   @override
   void onAnimationEnd() {
     owner.goBallistic(0);
-  }
-
-  @override
-  double dryApplyNewLayout(ViewportLayout layout) {
-    // This activity will initiate a settling activity when the layout changes;
-    // otherwise, it does not change the sheet position, so we just return
-    // the current offset.
-    return owner.offset;
   }
 
   @override
@@ -418,11 +408,6 @@ class SettlingSheetActivity extends SheetActivity {
     if (newOffset == destination) {
       owner.goIdle(targetOffset: this.destination);
     }
-  }
-
-  @override
-  double dryApplyNewLayout(ViewportLayout layout) {
-    return owner.offset;
   }
 
   @override
@@ -601,17 +586,6 @@ class DragSheetActivity<T extends SheetModel> extends SheetActivity<T>
       ..didDragCancel()
       ..goBallistic(0);
   }
-
-  @override
-  double dryApplyNewLayout(ViewportLayout layout) {
-    // While dragging, this activity maintains the sheet position where
-    // the user holds the sheet, so we just return the current offset,
-    // meaning the layout change won't affect the sheet position.
-    return owner.offset;
-  }
-
-  @override
-  void applyNewLayout(ViewportLayout? oldLayout) {}
 }
 
 @internal
