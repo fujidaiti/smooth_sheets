@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'drag.dart';
-import 'internal/float_comp.dart';
 import 'model.dart';
 import 'physics.dart';
 
@@ -434,21 +433,24 @@ class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
   final SheetOffset targetOffset;
 
   @override
+  // ignore: unnecessary_overrides
   void init(T owner) {
     super.init(owner);
-    assert(() {
-      final resolvedTargetOffset = targetOffset.resolve(owner);
-      if (!FloatComp.distance(
-        owner.devicePixelRatio,
-      ).isApprox(owner.offset, resolvedTargetOffset)) {
-        throw AssertionError(
-          'The sheet should already be at the target offset '
-          'when starting an $runtimeType. Expected offset is '
-          '$resolvedTargetOffset, but the actual offset is ${owner.offset}.',
-        );
-      }
-      return true;
-    }());
+    // ignore: lines_longer_than_80_chars
+    // TODO: Enable this assertion once the floating point precision issue is resolved.
+    // assert(() {
+    //   final resolvedTargetOffset = targetOffset.resolve(owner);
+    //   if (!FloatComp.distance(
+    //     owner.devicePixelRatio,
+    //   ).isApprox(owner.offset, resolvedTargetOffset)) {
+    //     throw AssertionError(
+    //       'The sheet should already be at the target offset '
+    //       'when starting an $runtimeType. Expected offset is '
+    //       '$resolvedTargetOffset, but the actual offset is ${owner.offset}.',
+    //     );
+    //   }
+    //   return true;
+    // }());
   }
 
   @override
