@@ -1634,15 +1634,18 @@ void main() {
       final firstRoute = PagedSheetRoute<dynamic>(
         initialOffset: SheetOffset(0.5),
         snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]),
-        builder: (context) => SizedBox(key: Key('first'), height: 300),
+        builder: (context) =>
+            SizedBox.fromSize(key: Key('first'), size: Size.fromHeight(300)),
       );
       final secondRoute = PagedSheetRoute<dynamic>(
         transitionDuration: Duration(milliseconds: 300),
-        builder: (context) => SizedBox(key: Key('second'), height: 600),
+        builder: (context) =>
+            SizedBox.fromSize(key: Key('second'), size: Size.fromHeight(600)),
       );
       final thirdRoute = PagedSheetRoute<dynamic>(
         transitionDuration: Duration(milliseconds: 300),
-        builder: (context) => SizedBox(key: Key('third'), height: 300),
+        builder: (context) =>
+            SizedBox.fromSize(key: Key('third'), size: Size.fromHeight(300)),
       );
 
       final navigatorKey = GlobalKey<NavigatorState>();

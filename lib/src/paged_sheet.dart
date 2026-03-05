@@ -70,7 +70,7 @@ class _PagedSheetModelConfig extends SheetModelConfig {
 class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     with ScrollAwareSheetModelMixin<_PagedSheetModelConfig> {
   _PagedSheetModel(super.context, super.config) {
-    beginActivity(_NoNavigatorActivity());
+    beginActivity(_InitialActivity());
   }
 
   _PagedSheetEntry? _currentEntry;
@@ -172,7 +172,7 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     }
 
     beginActivity(
-      _RouteTransitionSheetActivity(
+      _TransitionActivity(
         destinationEntry: targetEntry,
         animation: effectiveAnimation,
         animationCurve: effectiveCurve,
@@ -186,12 +186,12 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     if (entry._contentSize != null) {
       goIdle();
     } else {
-      beginActivity(_PostRouteTransitionSheetActivity(newEntry: entry));
+      beginActivity(_PostTransitionWithoutAnimationActivity(newEntry: entry));
     }
   }
 }
 
-class _NoNavigatorActivity extends SheetActivity<_PagedSheetModel> {
+class _InitialActivity extends SheetActivity<_PagedSheetModel> {
   @override
   bool get shouldIgnorePointer => true;
 
@@ -202,13 +202,13 @@ class _NoNavigatorActivity extends SheetActivity<_PagedSheetModel> {
   @override
   void applyNewLayout(ViewportLayout? oldLayout) {
     if (!owner.hasMetrics) {
-      owner.offset = 0;
+      owner.offset = dryApplyNewLayout(owner);
     }
   }
 }
 
-class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
-  _RouteTransitionSheetActivity({
+class _TransitionActivity extends SheetActivity<_PagedSheetModel> {
+  _TransitionActivity({
     required this.destinationEntry,
     required this.animation,
     required this.animationCurve,
@@ -276,14 +276,20 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
   void applyNewLayout(ViewportLayout? oldLayout) {}
 }
 
-class _PostRouteTransitionSheetActivity
+class _PostTransitionWithoutAnimationActivity
     extends SheetActivity<_PagedSheetModel> {
-  _PostRouteTransitionSheetActivity({required this.newEntry});
+  _PostTransitionWithoutAnimationActivity({required this.newEntry});
 
   final _PagedSheetEntry newEntry;
 
   @override
   bool get shouldIgnorePointer => true;
+
+  @override
+  void init(_PagedSheetModel owner) {
+    super.init(owner);
+    assert(newEntry._contentSize == null);
+  }
 
   @override
   double dryApplyNewLayout(ViewportLayout layout) =>
@@ -299,6 +305,8 @@ class _PostRouteTransitionSheetActivity
   }
 
   SheetOffset _effectiveInitialOffset(ViewportLayout layout) {
+    assert(layout.contentSize == newEntry._contentSize);
+    assert(newEntry._lastSettledOffset == null);
     return newEntry.snapGrid.getSnapOffset(
       layout,
       newEntry.initialOffset.resolve(layout),
