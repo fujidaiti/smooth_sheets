@@ -35,7 +35,7 @@ mixin _PagedSheetEntry {
 
   SheetDragConfiguration? get dragConfiguration;
 
-  SheetOffset? _targetOffset;
+  SheetOffset? _lastSettledOffset;
 
   Size? _contentSize;
 }
@@ -70,11 +70,7 @@ class _PagedSheetModelConfig extends SheetModelConfig {
 class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     with ScrollAwareSheetModelMixin<_PagedSheetModelConfig> {
   _PagedSheetModel(super.context, super.config) {
-    beginActivity(
-      InitialSheetActivity(
-        preferredInitialOffset: _InitialSheetOffset(this),
-      ),
-    );
+    beginActivity(_NoNavigatorActivity());
   }
 
   _PagedSheetEntry? _currentEntry;
@@ -106,7 +102,7 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
       // Saves the offset to which the current entry settles when idle,
       // so that we can restore it when returning to this entry from another
       // via, e.g., Navigator.pop().
-      _currentEntry?._targetOffset = activity.targetOffset;
+      _currentEntry?._lastSettledOffset = activity.targetOffset;
     }
   }
 
@@ -175,33 +171,9 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
       effectiveAnimation = animation;
     }
 
-    double? targetOffsetResolver() {
-      final targetSize = targetEntry._contentSize;
-      if (targetSize == null) {
-        // The new entry is not laid out yet.
-        return null;
-      }
-
-      final metricsForTarget = copyWith(contentSize: targetSize);
-      final prevTargetOffset = targetEntry._targetOffset;
-      if (prevTargetOffset != null) {
-        return prevTargetOffset.resolve(metricsForTarget);
-      }
-
-      final initialOffset = targetEntry.initialOffset.resolve(
-        metricsForTarget,
-      );
-      final effectiveInitialOffset = targetEntry.snapGrid.getSnapOffset(
-        metricsForTarget,
-        initialOffset,
-        0,
-      );
-      return effectiveInitialOffset.resolve(metricsForTarget);
-    }
-
     beginActivity(
       _RouteTransitionSheetActivity(
-        destinationRouteOffset: targetOffsetResolver,
+        destinationEntry: targetEntry,
         animation: effectiveAnimation,
         animationCurve: effectiveCurve,
       ),
@@ -211,41 +183,42 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
   void didEndTransition(_PagedSheetEntry entry) {
     _currentEntry = entry;
     didChangeInternalStateOfEntry(entry);
-    if (hasMetrics) {
+    if (entry._contentSize != null) {
       goIdle();
+    } else {
+      beginActivity(_PostRouteTransitionSheetActivity(newEntry: entry));
     }
   }
 }
 
-class _InitialSheetOffset implements SheetOffset {
-  _InitialSheetOffset(this.model);
-
-  final _PagedSheetModel model;
+class _NoNavigatorActivity extends SheetActivity<_PagedSheetModel> {
+  @override
+  bool get shouldIgnorePointer => true;
 
   @override
-  double resolve(ViewportLayout metrics) {
-    assert(
-      !model.hasMetrics,
-      '$runtimeType should only be used '
-      'in the initialization phase of the model',
-    );
-    final offset = model._currentEntry?.initialOffset ?? const SheetOffset(1);
-    return offset.resolve(metrics);
+  double dryApplyNewLayout(ViewportLayout layout) =>
+      owner.hasMetrics ? owner.offset : 0;
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    if (!owner.hasMetrics) {
+      owner.offset = 0;
+    }
   }
 }
 
 class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
   _RouteTransitionSheetActivity({
-    required this.destinationRouteOffset,
+    required this.destinationEntry,
     required this.animation,
     required this.animationCurve,
   });
 
-  final ValueGetter<double?> destinationRouteOffset;
+  final _PagedSheetEntry destinationEntry;
   final Animation<double> animation;
   final Curve animationCurve;
-  late final double _startPixelOffset;
   late final Animation<double> _effectiveAnimation;
+  late final double _startOffset;
 
   @override
   bool get shouldIgnorePointer => true;
@@ -257,7 +230,7 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
       owner.hasMetrics,
       '$runtimeType can not be the initial activity of the model.',
     );
-    _startPixelOffset = owner.offset;
+    _startOffset = owner.offset;
     owner.config = owner.config.copyWith(snapGrid: _kDefaultSnapGrid);
     _effectiveAnimation = animation.drive(CurveTween(curve: animationCurve))
       ..addListener(_onAnimationTick);
@@ -270,13 +243,28 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
   }
 
   void _onAnimationTick() {
-    final fraction = _effectiveAnimation.value;
-    final destOffset = destinationRouteOffset();
-
-    if (destOffset != null) {
-      owner.offset = lerpDouble(_startPixelOffset, destOffset, fraction)!;
-      owner.didUpdateMetrics();
+    final targetSize = destinationEntry._contentSize;
+    if (targetSize == null) {
+      // The new route is not yet laid out.
+      return;
     }
+
+    final layoutAfterTransition = owner.copyWith(contentSize: targetSize);
+    final preferredEndOffset =
+        destinationEntry._lastSettledOffset ?? destinationEntry.initialOffset;
+    final endOffset = destinationEntry.snapGrid.getSnapOffset(
+      layoutAfterTransition,
+      preferredEndOffset.resolve(layoutAfterTransition),
+      0,
+    );
+
+    owner
+      ..offset = lerpDouble(
+        _startOffset,
+        endOffset.resolve(layoutAfterTransition),
+        _effectiveAnimation.value,
+      )!
+      ..didUpdateMetrics();
   }
 
   @override
@@ -286,6 +274,37 @@ class _RouteTransitionSheetActivity extends SheetActivity<_PagedSheetModel> {
 
   @override
   void applyNewLayout(ViewportLayout? oldLayout) {}
+}
+
+class _PostRouteTransitionSheetActivity
+    extends SheetActivity<_PagedSheetModel> {
+  _PostRouteTransitionSheetActivity({required this.newEntry});
+
+  final _PagedSheetEntry newEntry;
+
+  @override
+  bool get shouldIgnorePointer => true;
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) =>
+      _effectiveInitialOffset(layout).resolve(layout);
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    final targetOffset = _effectiveInitialOffset(owner);
+    owner
+      ..offset = targetOffset.resolve(owner)
+      ..didUpdateMetrics()
+      ..goIdle(targetOffset: targetOffset);
+  }
+
+  SheetOffset _effectiveInitialOffset(ViewportLayout layout) {
+    return newEntry.snapGrid.getSnapOffset(
+      layout,
+      newEntry.initialOffset.resolve(layout),
+      velocity,
+    );
+  }
 }
 
 class PagedSheet extends StatelessWidget {
