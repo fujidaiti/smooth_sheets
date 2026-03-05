@@ -62,11 +62,38 @@ abstract class SheetActivity<T extends SheetModel> {
 
   bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
+  /// Returns the offset that [owner] would have if
+  /// [applyNewLayout] were called with the given [layout].
+  ///
+  /// This method is **dry** because it does not mutate the state
+  /// of [owner].
+  ///
+  /// Used to determine the adjusted sheet position when layout factors change,
+  /// such as when the content size changes. This is also called before
+  /// [owner] receives its initial offset on the first build, so it should
+  /// check `owner.hasMetrics` if the computation relies on the current offset.
+  ///
+  /// By default, this method returns the current offset, meaning the layout
+  /// change does not affect the sheet position.
   double dryApplyNewLayout(ViewportLayout layout) => owner.offset;
 
-  void applyNewLayout(ViewportLayout oldLayout) {
-    owner.offset = dryApplyNewLayout(owner);
-  }
+  /// Adjusts [owner]'s state in response to a new viewport layout.
+  ///
+  /// [oldLayout] is the layout before the change; [owner] already holds the
+  /// new layout at this point. If [oldLayout] is `null`, the sheet is being
+  /// laid out for the first time, meaning [owner] does not yet have an offset
+  /// and this method is responsible for setting it.
+  ///
+  /// If this method changes [owner]'s offset, the new offset must equal
+  /// the value returned by [dryApplyNewLayout] for the new layout.
+  ///
+  /// It's also fine to initiate another activity in this method,
+  /// however, note that the new activity will not receive a call to
+  /// [applyNewLayout] until the next layout change.
+  ///
+  /// By default, this method does nothing, meaning the layout change does not
+  /// affect the sheet position.
+  void applyNewLayout(ViewportLayout? oldLayout) {}
 
   @protected
   bool debugAssertMounted() {
@@ -95,6 +122,49 @@ abstract class SheetActivity<T extends SheetModel> {
       return true;
     }());
     return true;
+  }
+}
+
+/// A special [SheetActivity] dedicated to initialize [owner]'s offset
+/// on the first build.
+///
+/// Supposed to be used as the initial activity of a [SheetModel] and
+/// should not be used for any other purpose.
+@internal
+class InitialSheetActivity<T extends SheetModel> extends SheetActivity<T> {
+  InitialSheetActivity({required this.preferredInitialOffset});
+
+  final SheetOffset preferredInitialOffset;
+
+  @override
+  void init(T owner) {
+    super.init(owner);
+    assert(
+      !owner.hasMetrics,
+      '$runtimeType should only be used as the initial activity.',
+    );
+  }
+
+  @override
+  double dryApplyNewLayout(ViewportLayout layout) {
+    assert(!owner.hasMetrics);
+    return _effectiveInitialOffset(layout).resolve(layout);
+  }
+
+  @override
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    assert(!owner.hasMetrics);
+    final initialOffset = _effectiveInitialOffset(owner);
+    owner.offset = initialOffset.resolve(owner);
+    owner.goIdle(targetOffset: initialOffset);
+  }
+
+  SheetOffset _effectiveInitialOffset(ViewportLayout layout) {
+    return owner.snapGrid.getSnapOffset(
+      layout,
+      preferredInitialOffset.resolve(layout),
+      0,
+    );
   }
 }
 
@@ -129,9 +199,8 @@ class AnimatedSheetActivity extends SheetActivity
   late final double _endOffset;
 
   @override
-  // ignore: avoid_renaming_method_parameters
-  void init(SheetModel delegate) {
-    super.init(delegate);
+  void init(SheetModel owner) {
+    super.init(owner);
     _startOffset = owner.offset;
     _endOffset = destination.resolve(owner);
   }
@@ -160,7 +229,8 @@ class AnimatedSheetActivity extends SheetActivity
   }
 
   @override
-  void applyNewLayout(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    if (oldLayout == null) return;
     final newEndOffset = destination.resolve(owner);
     if (newEndOffset != _endOffset) {
       final remainingDuration =
@@ -208,7 +278,8 @@ class BallisticSheetActivity extends SheetActivity
   }
 
   @override
-  void applyNewLayout(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    if (oldLayout == null) return;
     final destination = owner.snapGrid.getSnapOffset(
       oldLayout,
       owner.offset,
@@ -317,12 +388,13 @@ class SettlingSheetActivity extends SheetActivity {
     _elapsedDuration = elapsedDuration;
 
     if (newOffset == destination) {
-      owner.goIdle();
+      owner.goIdle(targetOffset: this.destination);
     }
   }
 
   @override
-  void applyNewLayout(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
+    if (oldLayout == null) return;
     _invalidateVelocity();
   }
 
@@ -354,26 +426,41 @@ class SettlingSheetActivity extends SheetActivity {
   }
 }
 
-// TODO: Rename to `StableSheetActivity` or similar.
 @internal
 class IdleSheetActivity<T extends SheetModel> extends SheetActivity<T> {
-  late SheetOffset targetOffset;
+  IdleSheetActivity({required this.targetOffset});
+
+  final SheetOffset targetOffset;
 
   @override
+  // ignore: unnecessary_overrides
   void init(T owner) {
     super.init(owner);
-    targetOffset = owner.hasMetrics
-        ? owner.snapGrid.getSnapOffset(owner, owner.offset, 0)
-        : owner.initialOffset;
+    // ignore: lines_longer_than_80_chars
+    // TODO: Enable this assertion once the floating point precision issue is resolved.
+    // assert(() {
+    //   final resolvedTargetOffset = targetOffset.resolve(owner);
+    //   if (!FloatComp.distance(
+    //     owner.devicePixelRatio,
+    //   ).isApprox(owner.offset, resolvedTargetOffset)) {
+    //     throw AssertionError(
+    //       'The sheet should already be at the target offset '
+    //       'when starting an $runtimeType. Expected offset is '
+    //       '$resolvedTargetOffset, but the actual offset is ${owner.offset}.',
+    //     );
+    //   }
+    //   return true;
+    // }());
   }
 
   @override
-  double dryApplyNewLayout(ViewportLayout layout) =>
-      targetOffset.resolve(layout);
+  double dryApplyNewLayout(ViewportLayout layout) {
+    return targetOffset.resolve(layout);
+  }
 
   /// Updates [SheetMetrics.offset] to maintain the [targetOffset].
   @override
-  void applyNewLayout(ViewportLayout oldLayout) {
+  void applyNewLayout(ViewportLayout? oldLayout) {
     final newOffset = dryApplyNewLayout(owner);
     if (newOffset != owner.offset) {
       owner

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
+import 'activity.dart';
 import 'controller.dart';
 import 'draggable.dart';
 import 'gesture_proxy.dart';
@@ -44,11 +45,10 @@ class _DraggableScrollableSheetModel
   _DraggableScrollableSheetModel(
     super.context,
     super.config, {
-    required this.initialOffset,
-  });
-
-  @override
-  final SheetOffset initialOffset;
+    required SheetOffset initialOffset,
+  }) {
+    beginActivity(InitialSheetActivity(preferredInitialOffset: initialOffset));
+  }
 
   @override
   SheetScrollConfiguration get scrollConfiguration =>

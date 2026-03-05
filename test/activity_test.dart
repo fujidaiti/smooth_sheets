@@ -42,7 +42,6 @@ void main() {
     test('should animate to the destination', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 300,
-        initialPosition: const SheetOffset.absolute(300),
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(300),
         ),
@@ -82,7 +81,7 @@ void main() {
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 250,
-        initialPosition: const SheetOffset.absolute(250),
+
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(250),
         ),
@@ -145,6 +144,7 @@ void main() {
       when(mockSheetModel.context).thenReturn(mockSheetContext);
       when(mockSheetModel.physics).thenReturn(mockPhysics);
       when(mockSheetModel.offset).thenReturn(350);
+      when(mockSheetModel.hasMetrics).thenReturn(true);
 
       final activity = BallisticSheetActivity(simulation: mockSimulation);
       tester.addTearDown(activity.dispose);
@@ -187,7 +187,7 @@ void main() {
     setUp(() {
       (ownerMetrics, owner) = createMockSheetModel(
         offset: 300,
-        initialPosition: const SheetOffset(0.5),
+
         snapGrid: SheetSnapGrid.stepless(
           minOffset: const SheetOffset.absolute(300),
         ),
@@ -279,7 +279,7 @@ void main() {
 
       ownerMetrics.offset = 540;
       internalOnTickCallback!(const Duration(milliseconds: 1000));
-      verify(owner.goIdle());
+      verify(owner.goIdle(targetOffset: const SheetOffset(1)));
     });
 
     test('Should absorb viewport changes', () {
@@ -318,38 +318,33 @@ void main() {
 
   group('IdleSheetActivity', () {
     test(
-      'should keep the only 50% of the content visible when keyboard appears',
+      'should keep the only 20% of the content visible when keyboard appears',
       () {
         final (ownerMetrics, owner) = createMockSheetModel(
           offset: 160,
-          initialPosition: const SheetOffset(0.2),
           snapGrid: SheetSnapGrid(
             snaps: [const SheetOffset(0.2), const SheetOffset(1)],
           ),
           contentSize: const Size(400, 800),
           viewportSize: const Size(400, 900),
-          contentMargin: EdgeInsets.only(bottom: 50),
           devicePixelRatio: 1,
           physics: kDefaultSheetPhysics,
         );
+        final activity = IdleSheetActivity(targetOffset: const SheetOffset(0.2))
+          ..init(owner);
 
         final oldMeasurements = ownerMetrics.copyWith();
         ownerMetrics
           ..contentMargin = EdgeInsets.only(bottom: 50)
-          ..contentSize = const Size(400, 850)
           ..contentBaseline = 50;
-
-        IdleSheetActivity()
-          ..init(owner)
-          ..applyNewLayout(oldMeasurements);
-        expect(ownerMetrics.offset, 220);
+        activity.applyNewLayout(oldMeasurements);
+        expect(ownerMetrics.offset, 210);
       },
     );
 
     test('should maintain previous position when content size changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 250,
-        initialPosition: const SheetOffset(0.5),
         snapGrid: SheetSnapGrid(
           snaps: [const SheetOffset(0.5), const SheetOffset(1)],
         ),
@@ -358,13 +353,13 @@ void main() {
         devicePixelRatio: 1,
         physics: kDefaultSheetPhysics,
       );
-      expect(ownerMetrics.offset, 250);
+
+      final activity = IdleSheetActivity(targetOffset: const SheetOffset(0.5))
+        ..init(owner);
 
       final oldMeasurements = owner.copyWith();
       ownerMetrics.contentSize = Size(400, 600);
-      IdleSheetActivity()
-        ..init(owner)
-        ..applyNewLayout(oldMeasurements);
+      activity.applyNewLayout(oldMeasurements);
       expect(owner.offset, 300);
       // Still in the idle activity.
       verifyNever(owner.beginActivity(any));

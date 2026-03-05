@@ -202,9 +202,7 @@ abstract class SheetModelView with SheetMetrics implements Listenable {
 abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     with ChangeNotifier {
   /// Creates an object that manages the position of a sheet.
-  SheetModel(this.context, C config) : _config = config {
-    goIdle();
-  }
+  SheetModel(this.context, C config) : _config = config;
 
   @override
   Size get viewportSize => _layout!.viewportSize;
@@ -255,10 +253,6 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   @override
   bool get shouldIgnorePointer => activity.shouldIgnorePointer;
-
-  // ignore: lines_longer_than_80_chars
-  // TODO: Remote this field. The initial offset should be determined by the activity.
-  SheetOffset get initialOffset;
 
   /// A handle to the owner of this object.
   final SheetContext context;
@@ -327,19 +321,23 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     final (minOffset, maxOffset) = snapGrid.getBoundaries(layout);
     _minOffset = minOffset.resolve(layout);
     _maxOffset = maxOffset.resolve(layout);
-    if (_offset == null) {
-      offset = initialOffset.resolve(layout);
-    }
-    assert(hasMetrics);
 
-    final oldOffset = offset;
-    if (oldLayout != null) {
-      activity.applyNewLayout(oldLayout);
-    }
+    double? debugDryApplyNewLayoutResult;
+    assert(() {
+      debugDryApplyNewLayoutResult = dryApplyNewLayout(layout);
+      return true;
+    }());
+    final oldOffset = _offset;
     assert(
-      offset == dryApplyNewLayout(layout),
-      'applyNewLayout must update the offset to the value '
-      'that dryApplyLayout would return.',
+      (oldOffset == null && oldLayout == null) ||
+          (oldOffset != null && oldLayout != null),
+    );
+    activity.applyNewLayout(oldLayout);
+    assert(hasMetrics);
+    assert(
+      offset == debugDryApplyNewLayoutResult,
+      'applyNewLayout must update the offset to the same value '
+      'as dryApplyNewLayout returns for the same layout.',
     );
 
     // Notify the rect listeners only when the layout has changed
@@ -364,22 +362,33 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   /// [offset] is updated to the value that this method returns.
   @nonVirtual
   double dryApplyNewLayout(ViewportLayout layout) {
-    if (!hasMetrics) {
-      return initialOffset.resolve(layout);
-    }
-
-    SheetMetrics? oldMetrics;
+    ViewportLayout? oldLayout;
+    double? oldMinOffset;
+    double? oldMaxOffset;
+    double? oldOffset;
     SheetActivity? oldActivity;
     assert(() {
-      oldMetrics = copyWith();
+      oldLayout = _layout;
+      oldMinOffset = _minOffset;
+      oldMaxOffset = _maxOffset;
+      oldOffset = _offset;
       oldActivity = activity;
       return true;
     }());
 
     final result = activity.dryApplyNewLayout(layout);
     assert(
-      (oldMetrics == null || oldMetrics == copyWith()) &&
-          (oldActivity == null || identical(oldActivity, activity)),
+      // ignore: lines_longer_than_80_chars
+      // TODO: Make the layout class immutable so that we can compare the old and new layouts by the equality operator.
+      oldLayout?.viewportSize == _layout?.viewportSize &&
+          oldLayout?.viewportPadding == _layout?.viewportPadding &&
+          oldLayout?.contentSize == _layout?.contentSize &&
+          oldLayout?.contentBaseline == _layout?.contentBaseline &&
+          oldLayout?.contentMargin == _layout?.contentMargin &&
+          oldMinOffset == _minOffset &&
+          oldMaxOffset == _maxOffset &&
+          oldOffset == _offset &&
+          identical(activity, oldActivity),
       'SheetActivity.dryApplyNewLayout must not change the state of the model.',
     );
     return result;
@@ -397,8 +406,12 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     _rectNotifier.removeListener(listener);
   }
 
-  void goIdle() {
-    beginActivity(IdleSheetActivity());
+  void goIdle({SheetOffset? targetOffset}) {
+    beginActivity(
+      IdleSheetActivity(
+        targetOffset: targetOffset ?? snapGrid.getSnapOffset(this, offset, 0),
+      ),
+    );
   }
 
   void goBallistic(double velocity) {
