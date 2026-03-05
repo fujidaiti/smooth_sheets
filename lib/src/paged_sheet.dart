@@ -70,6 +70,10 @@ class _PagedSheetModelConfig extends SheetModelConfig {
 class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     with ScrollAwareSheetModelMixin<_PagedSheetModelConfig> {
   _PagedSheetModel(super.context, super.config) {
+    // This activity only initializes the offset to 0 to satisfy the SheetModel
+    // contract. It waits for didEndTransition callback to be called with the
+    // initial route entry, which eventually updates the offset to the correct
+    // value for that route.
     beginActivity(_InitialActivity());
   }
 
@@ -186,14 +190,14 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     if (entry._contentSize != null) {
       goIdle();
     } else {
-      // The new route size is not yet available, so we can't determine the
-      // final sheet offset. This can happen, e.g., when the initial route is
-      // pushed to the Navigator stack, or when the route changed without
-      // animation via e.g., Navigator.replace().
+      // The new route size is not yet available, so we cannot determine the
+      // final sheet offset here. This can occur when the initial route is
+      // pushed to the Navigator stack, or when the route changes without
+      // animation (e.g., via Navigator.replace()).
       //
       // In these cases, didEndTransition is called before the layout phase
       // where the new route is first laid out.
-      // _PostTransitionWithoutAnimationActivity waits for the size to be
+      // _PostTransitionWithoutAnimationActivity waits for the size to become
       // available, then updates the offset to the correct value and goes idle.
       beginActivity(_PostTransitionWithoutAnimationActivity(newEntry: entry));
     }
