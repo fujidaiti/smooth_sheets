@@ -186,6 +186,15 @@ class _PagedSheetModel extends SheetModel<_PagedSheetModelConfig>
     if (entry._contentSize != null) {
       goIdle();
     } else {
+      // The new route size is not yet available, so we can't determine the
+      // final sheet offset. This can happen, e.g., when the initial route is
+      // pushed to the Navigator stack, or when the route changed without
+      // animation via e.g., Navigator.replace().
+      //
+      // In these cases, didEndTransition is called before the layout phase
+      // where the new route is first laid out.
+      // _PostTransitionWithoutAnimationActivity waits for the size to be
+      // available, then updates the offset to the correct value and goes idle.
       beginActivity(_PostTransitionWithoutAnimationActivity(newEntry: entry));
     }
   }
