@@ -1130,6 +1130,10 @@ void main() {
   });
 }
 
+class _TestIdleSheetActivity extends SheetActivity {
+  /* This activity literally does nothing. */
+}
+
 class _TestSheetModelConfig extends SheetModelConfig {
   const _TestSheetModelConfig()
     : super(
@@ -1159,6 +1163,11 @@ class _TestSheetModel extends SheetModel {
   @override
   bool get shouldIgnorePointer =>
       debugShouldIgnorePointerOverride ?? super.shouldIgnorePointer;
+
+  @override
+  void goIdle({SheetOffset? targetOffset}) {
+    beginActivity(_TestIdleSheetActivity());
+  }
 }
 
 class _TestSheetDecoration implements SheetDecoration {
