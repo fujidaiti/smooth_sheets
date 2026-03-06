@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/decorations.dart';
@@ -9,6 +11,7 @@ import 'package:smooth_sheets/src/snap_grid.dart';
 import 'package:smooth_sheets/src/viewport.dart';
 
 import 'src/flutter_test_x.dart';
+import 'src/keyboard_inset_simulation.dart';
 import 'src/matchers.dart';
 
 void main() {
@@ -110,6 +113,75 @@ void main() {
         tester.getRect(find.byId('sheet')).top,
         100,
         reason: 'The sheet should settle back to the initial position',
+      );
+    },
+  );
+
+  // https://github.com/fujidaiti/smooth_sheets/issues/391
+  testWidgets(
+    'SteplessSnapGrid should maintain visible extent when keyboard appears',
+    (tester) async {
+      const keyboardHeight = 200.0;
+      final sheetKey = GlobalKey();
+      final keyboardSimulationKey = GlobalKey<KeyboardInsetSimulationState>();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: KeyboardInsetSimulation(
+            key: keyboardSimulationKey,
+            keyboardHeight: keyboardHeight,
+            child: Builder(
+              builder: (context) {
+                return SheetViewport(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.viewInsetsOf(context).bottom,
+                  ),
+                  child: Sheet(
+                    key: sheetKey,
+                    initialOffset: SheetOffset.absolute(150),
+                    snapGrid: SheetSnapGrid.stepless(),
+                    child: SizedBox(
+                      height: 300,
+                      width: double.infinity,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        tester.getRect(find.byKey(sheetKey)),
+        Rect.fromLTWH(0, 450, 800, 300),
+        reason: 'The sheet should be at the initial offset',
+      );
+
+      unawaited(
+        keyboardSimulationKey.currentState!.showKeyboard(
+          const Duration(milliseconds: 250),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byKey(sheetKey)),
+        Rect.fromLTWH(0, 250, 800, 300),
+        reason:
+            'The sheet should move up by the keyboard height '
+            'while maintaining the visible extent',
+      );
+
+      unawaited(
+        keyboardSimulationKey.currentState!.hideKeyboard(
+          const Duration(milliseconds: 250),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byKey(sheetKey)),
+        Rect.fromLTWH(0, 450, 800, 300),
+        reason: 'The sheet should move back down to the initial offset',
       );
     },
   );

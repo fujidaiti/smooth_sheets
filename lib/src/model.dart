@@ -26,7 +26,10 @@ abstract interface class SheetOffset {
   const factory SheetOffset(double factor) = RelativeSheetOffset;
 
   /// {@macro AbsoluteSheetOffset}
-  const factory SheetOffset.absolute(double value) = AbsoluteSheetOffset;
+  const factory SheetOffset.absolute(
+    double value, {
+    bool relativeToBaseline,
+  }) = AbsoluteSheetOffset;
 
   /// {@macro ViewportRelativeSheetOffset}
   const factory SheetOffset.proportionalToViewport(double factor) =
@@ -80,27 +83,44 @@ class AbsoluteSheetOffset implements SheetOffset {
   ///
   /// For example, `AbsoluteSheetOffset(200)` represents a position
   /// where 200 offset from the top of the sheet content are visible.
+  ///
+  /// If [relativeToBaseline] is `true`, the [value] is interpreted as
+  /// relative to the content baseline, so the resolved position is
+  /// `value + contentBaseline`. This is useful for maintaining the
+  /// visual position when the content baseline changes (e.g., when
+  /// the on-screen keyboard appears).
   /// {@endtemplate}
-  const AbsoluteSheetOffset(this.value) : assert(value >= 0);
+  const AbsoluteSheetOffset(
+    this.value, {
+    this.relativeToBaseline = false,
+  });
 
   /// The position in offset.
   final double value;
 
+  /// Whether the [value] is relative to the content baseline.
+  final bool relativeToBaseline;
+
   @override
-  double resolve(_) => value;
+  double resolve(ViewportLayout metrics) =>
+      relativeToBaseline ? value + metrics.contentBaseline : value;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AbsoluteSheetOffset &&
           runtimeType == other.runtimeType &&
-          value == other.value);
+          value == other.value &&
+          relativeToBaseline == other.relativeToBaseline);
 
   @override
-  int get hashCode => Object.hash(runtimeType, value);
+  int get hashCode => Object.hash(runtimeType, value, relativeToBaseline);
 
   @override
-  String toString() => 'AbsoluteSheetOffset(value: $value)';
+  String toString() =>
+      'AbsoluteSheetOffset('
+      'value: $value, '
+      'relativeToBaseline: $relativeToBaseline)';
 }
 
 /// A [SheetOffset] that is defined by a factor of the viewport size.
