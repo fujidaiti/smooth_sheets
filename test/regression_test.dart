@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/decorations.dart';
@@ -9,6 +11,7 @@ import 'package:smooth_sheets/src/snap_grid.dart';
 import 'package:smooth_sheets/src/viewport.dart';
 
 import 'src/flutter_test_x.dart';
+import 'src/keyboard_inset_simulation.dart';
 import 'src/matchers.dart';
 
 void main() {
@@ -111,6 +114,60 @@ void main() {
         100,
         reason: 'The sheet should settle back to the initial position',
       );
+    },
+  );
+
+  // https://github.com/fujidaiti/smooth_sheets/issues/391
+  testWidgets(
+    'SteplessSnapGrid should maintain visible extent when keyboard appears',
+    (tester) async {
+      const keyboardHeight = 200.0;
+      final sheetKey = GlobalKey();
+      final keyboardSimulationKey = GlobalKey<KeyboardInsetSimulationState>();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: KeyboardInsetSimulation(
+            key: keyboardSimulationKey,
+            keyboardHeight: keyboardHeight,
+            child: Builder(
+              builder: (context) {
+                return SheetViewport(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.viewInsetsOf(context).bottom,
+                  ),
+                  child: Sheet(
+                    key: sheetKey,
+                    initialOffset: SheetOffset(0.5),
+                    snapGrid: SheetSnapGrid.stepless(),
+                    child: Container(color: Colors.white, height: 500),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      // Screen is 800x600, content is 500px, initial offset is 0.5 (250px).
+      // The top of the sheet should be at 600 - 250 = 350.
+      expect(tester.getRect(find.byKey(sheetKey)).top, 350);
+
+      // Show the keyboard.
+      unawaited(
+        keyboardSimulationKey.currentState!.showKeyboard(
+          const Duration(milliseconds: 250),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // After the keyboard (200px) appears, the content is constrained to
+      // 400px (600 - 200). The visible extent should remain at 0.5 of the
+      // content height: 400 * 0.5 = 200px visible. With contentBaseline = 200,
+      // the offset resolves to 200 + 200 = 400, so the sheet top = 600 - 400
+      // = 200. Without the fix, the sheet would stay at its old absolute
+      // position (top = 350), ignoring the keyboard.
+      expect(tester.getRect(find.byKey(sheetKey)).top, 200);
     },
   );
 }

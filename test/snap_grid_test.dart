@@ -95,10 +95,22 @@ void main() {
       expect(result, SheetOffset(1));
     });
 
-    test('getSnapOffset: returns current offset '
+    test('getSnapOffset: returns a relative offset '
         'when the current offset is within bounds', () {
       final result = snap.getSnapOffset(testLayout, 250, 0);
-      expect(result, SheetOffset.absolute(250));
+      expect(result, isA<RelativeSheetOffset>());
+      expect(result.resolve(testLayout), 250);
+    });
+
+    test('getSnapOffset: returned offset adapts to layout changes', () {
+      // Content height 500, baseline 0, offset 250 → factor = 0.5
+      final result = snap.getSnapOffset(testLayout, 250, 0);
+
+      // With keyboard (baseline increases by 200), the resolved offset should
+      // shift up to maintain the same visible extent:
+      // 500 * 0.5 + 200 = 450
+      final layoutWithKeyboard = testLayout.copyWith(contentBaseline: 200);
+      expect(result.resolve(layoutWithKeyboard), 450);
     });
 
     test('getBoundaries: always returns min and max offsets', () {

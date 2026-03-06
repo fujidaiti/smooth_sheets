@@ -78,7 +78,9 @@ class SteplessSnapGrid implements SheetSnapGrid {
     } else if (offset >= maximum) {
       return maxOffset;
     } else {
-      return SheetOffset.absolute(offset);
+      final factor =
+          (offset - layout.contentBaseline) / layout.contentSize.height;
+      return SheetOffset(factor);
     }
   }
 }
