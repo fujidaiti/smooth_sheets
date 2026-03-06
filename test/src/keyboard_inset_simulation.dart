@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -66,10 +68,17 @@ class KeyboardInsetSimulationState extends State<KeyboardInsetSimulation>
   @override
   Widget build(BuildContext context) {
     final inheritedMediaQuery = MediaQuery.of(context);
+    final currentKeyboardHeight = _controller.value;
     return MediaQuery(
       data: inheritedMediaQuery.copyWith(
         viewInsets: inheritedMediaQuery.viewInsets.copyWith(
-          bottom: _controller.value,
+          bottom: currentKeyboardHeight,
+        ),
+        padding: inheritedMediaQuery.padding.copyWith(
+          bottom: math.max(
+            inheritedMediaQuery.viewPadding.bottom - currentKeyboardHeight,
+            0,
+          ),
         ),
       ),
       child: widget.child,
