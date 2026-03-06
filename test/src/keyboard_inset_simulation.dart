@@ -36,6 +36,11 @@ class KeyboardInsetSimulationState extends State<KeyboardInsetSimulation>
     return _controller.animateTo(widget.keyboardHeight, duration: duration);
   }
 
+  Future<void> hideKeyboard(Duration duration) {
+    assert(_controller.isCompleted);
+    return _controller.animateBack(0, duration: duration);
+  }
+
   @override
   void initState() {
     super.initState();
