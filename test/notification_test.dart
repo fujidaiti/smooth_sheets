@@ -384,11 +384,11 @@ void main() {
       final reportedNotifications = <SheetNotification>[];
       final pageA = PagedSheetPage<dynamic>(
         key: const ValueKey('pageA'),
-        child: const SizedBox(height: 300),
+        child: SizedBox.fromSize(size: Size.fromHeight(300)),
       );
       final pageB = PagedSheetPage<dynamic>(
         key: const ValueKey('pageB'),
-        child: const SizedBox(height: 400),
+        child: SizedBox.fromSize(size: Size.fromHeight(400)),
       );
       final pagesNotifier = ValueNotifier([pageA]);
 

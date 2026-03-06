@@ -127,7 +127,11 @@ void main() {
       await tester.pumpWidget(env.testWidget);
       await tester.fling(find.byKey(Key('a')), Offset(0, 50), 500);
       await tester.pumpAndSettle();
-      expect(env.getSheetRect(tester).top, testScreenSize.height - 100);
+      expect(
+        env.getSheetRect(tester).top,
+        testScreenSize.height - 100,
+        reason: 'The sheet should snap to the nearest snap point',
+      );
 
       unawaited(
         env.getNavigator().push(
@@ -140,8 +144,128 @@ void main() {
 
       await tester.pumpAndSettle();
       await tester.drag(find.byKey(Key('b')), Offset(0, 100));
-      expect(env.getSheetRect(tester).top, testScreenSize.height - 400);
+      expect(
+        env.getSheetRect(tester).top,
+        testScreenSize.height - 400,
+        reason:
+            'The sheet should stay at the point where it was dragged to, '
+            'because the second page has a stepless snap grid.',
+      );
     });
+
+    testWidgets(
+      'Per-route snap grids are respected on first build for each route',
+      (tester) async {
+        final env = boilerplate(
+          initialRoute: () {
+            return PagedSheetRoute(
+              initialOffset: SheetOffset(0.8),
+              snapGrid: SheetSnapGrid(
+                snaps: [SheetOffset(0.5), SheetOffset(1)],
+              ),
+              builder: (_) => _TestPage(height: 600),
+            );
+          },
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          env.getSheetRect(tester),
+          Rect.fromLTWH(0, 0, 800, 600),
+          reason:
+              'Sheet should snap to nearest snap point (offset=1.0) '
+              'from the initial offset (offset=0.8)',
+        );
+
+        unawaited(
+          env.getNavigator().push(
+            PagedSheetRoute(
+              initialOffset: SheetOffset(0.3),
+              snapGrid: SheetSnapGrid(
+                snaps: [SheetOffset(0.2), SheetOffset(1)],
+              ),
+              builder: (_) => _TestPage(height: 300),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          env.getSheetRect(tester),
+          Rect.fromLTWH(0, 540, 800, 300),
+          reason:
+              'The second page should snap to the offset=0.2 snap point, '
+              'not the initialOffset=0.3',
+        );
+      },
+    );
+
+    testWidgets(
+      'Per-route snap grid is respected even after a route transition '
+      'without animation',
+      (tester) async {
+        late PagedSheetRoute<dynamic> initialRoute;
+        final navigatorKey = GlobalKey<NavigatorState>();
+        const sheetKey = Key('sheet');
+        final testWidget = Directionality(
+          textDirection: TextDirection.ltr,
+          child: SheetViewport(
+            child: PagedSheet(
+              key: sheetKey,
+              navigator: Navigator(
+                key: navigatorKey,
+                onGenerateRoute: (_) {
+                  initialRoute = PagedSheetRoute(
+                    initialOffset: SheetOffset(0.8),
+                    snapGrid: SheetSnapGrid(
+                      snaps: [SheetOffset(0.5), SheetOffset(1)],
+                    ),
+                    builder: (_) => _TestPage(key: Key('a'), height: 600),
+                  );
+                  return initialRoute;
+                },
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+        expect(
+          tester.getRect(find.byKey(sheetKey)),
+          Rect.fromLTWH(0, 0, 800, 600),
+          reason:
+              'The sheet should snap to the offset=1.0 snap point, '
+              'not the initialOffset=0.8',
+        );
+
+        final newRoute = PagedSheetRoute<dynamic>(
+          initialOffset: SheetOffset(0.3),
+          snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.2), SheetOffset(1)]),
+          builder: (_) => _TestPage(key: Key('b'), height: 300),
+        );
+        // Navigator.replace changes the route without transition animation.
+        navigatorKey.currentState!.replace(
+          oldRoute: initialRoute,
+          newRoute: newRoute,
+        );
+
+        await tester.pump();
+        expect(
+          tester.getRect(find.byKey(sheetKey)),
+          Rect.fromLTWH(0, 540, 800, 300),
+          reason:
+              'The route b should snap to the offset=0.2 snap point '
+              'immediately, not the initialOffset=0.3',
+        );
+
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byKey(sheetKey)),
+          Rect.fromLTWH(0, 540, 800, 300),
+          reason: 'No visual change should occur after the first frame.',
+        );
+        expect(find.byKey(Key('b')), findsOneWidget);
+      },
+    );
 
     testWidgets('Pointer events should be ignored during a transition', (
       tester,
@@ -248,7 +372,7 @@ void main() {
           reason: 'The first page should be draggable.',
         );
 
-        // await gesture.up();
+        await gesture.up();
         await tester.pumpAndSettle();
         unawaited(
           env.getNavigator().push(
@@ -419,10 +543,13 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
       expect(env.getSheetRect(tester).height, 450);
 
-      await tester.pumpAndSettle();
+      await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
       expect(env.getSheetRect(tester).height, 500);
 
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')), findsOneWidget);
     });
@@ -462,10 +589,13 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 225);
       expect(env.getSheetRect(tester).height, 225);
 
-      await tester.pumpAndSettle();
+      await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
       expect(env.getSheetRect(tester).height, 200);
 
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
       expect(find.byKey(Key('a')).hitTestable(), findsNothing);
       expect(find.byKey(Key('b')).hitTestable(), findsNothing);
       expect(find.byKey(Key('c')), findsOneWidget);
@@ -496,10 +626,13 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
       expect(env.getSheetRect(tester).height, 350);
 
-      await tester.pumpAndSettle();
+      await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
       expect(env.getSheetRect(tester).height, 300);
 
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(find.byKey(Key('b')), findsNothing);
     });
@@ -551,10 +684,13 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
       expect(env.getSheetRect(tester).height, 275);
 
-      await tester.pumpAndSettle();
+      await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
       expect(env.getSheetRect(tester).height, 300);
 
+      await tester.pumpAndSettle();
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
       expect(find.byKey(Key('a')), findsOneWidget);
       expect(find.byKey(Key('b')), findsNothing);
       expect(find.byKey(Key('c')), findsNothing);
@@ -753,6 +889,8 @@ void main() {
         expect(env.getSheetRect(tester), rectAt(0.5));
         await tester.pump(Duration(milliseconds: 75));
         expect(env.getSheetRect(tester), rectAt(0.75));
+        await tester.pump(Duration(milliseconds: 75));
+        expect(env.getSheetRect(tester), rectAt(1));
         await tester.pumpAndSettle();
         expect(env.getSheetRect(tester), rectAt(1));
       },
@@ -864,6 +1002,10 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
       expect(env.getSheetRect(tester).height, 450);
 
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
+
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
       expect(env.getSheetRect(tester).height, 500);
@@ -917,6 +1059,10 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 225);
       expect(env.getSheetRect(tester).height, 225);
 
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
+
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
       expect(env.getSheetRect(tester).height, 200);
@@ -950,6 +1096,10 @@ void main() {
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 350);
       expect(env.getSheetRect(tester).height, 350);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
@@ -1009,6 +1159,10 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
       expect(env.getSheetRect(tester).height, 275);
 
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      expect(env.getSheetRect(tester).height, 300);
+
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
       expect(env.getSheetRect(tester).height, 300);
@@ -1044,6 +1198,10 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 450);
       expect(env.getSheetRect(tester).height, 450);
 
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      expect(env.getSheetRect(tester).height, 500);
+
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
       expect(env.getSheetRect(tester).height, 500);
@@ -1075,6 +1233,10 @@ void main() {
       await tester.pump(Duration(milliseconds: 75));
       expect(env.getSheetRect(tester).top, testScreenSize.height - 275);
       expect(env.getSheetRect(tester).height, 275);
+
+      await tester.pump(Duration(milliseconds: 75));
+      expect(env.getSheetRect(tester).top, testScreenSize.height - 200);
+      expect(env.getSheetRect(tester).height, 200);
 
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 200);

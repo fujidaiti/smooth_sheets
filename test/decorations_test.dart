@@ -255,9 +255,10 @@ class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
   _TestSheetModel({
     required _TestSheetModelConfig config,
     this.initialOffset = const SheetOffset(1),
-  }) : super(MockSheetContext(), config);
+  }) : super(MockSheetContext(), config) {
+    beginActivity(InitialSheetActivity(preferredInitialOffset: initialOffset));
+  }
 
-  @override
   final SheetOffset initialOffset;
 
   bool? debugShouldIgnorePointerOverride;
@@ -267,7 +268,7 @@ class _TestSheetModel extends SheetModel<_TestSheetModelConfig> {
       debugShouldIgnorePointerOverride ?? super.shouldIgnorePointer;
 
   @override
-  void goIdle() {
+  void goIdle({SheetOffset? targetOffset}) {
     beginActivity(_TestIdleSheetActivity());
   }
 }

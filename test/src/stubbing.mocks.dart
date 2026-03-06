@@ -44,72 +44,67 @@ class _FakeEdgeInsets_1 extends _i1.SmartFake implements _i3.EdgeInsets {
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetOffset_2 extends _i1.SmartFake implements _i4.SheetOffset {
-  _FakeSheetOffset_2(Object parent, Invocation parentInvocation)
+class _FakeSheetContext_2 extends _i1.SmartFake implements _i4.SheetContext {
+  _FakeSheetContext_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetContext_3 extends _i1.SmartFake implements _i4.SheetContext {
-  _FakeSheetContext_3(Object parent, Invocation parentInvocation)
+class _FakeSheetPhysics_3 extends _i1.SmartFake implements _i5.SheetPhysics {
+  _FakeSheetPhysics_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetPhysics_4 extends _i1.SmartFake implements _i5.SheetPhysics {
-  _FakeSheetPhysics_4(Object parent, Invocation parentInvocation)
+class _FakeSheetSnapGrid_4 extends _i1.SmartFake implements _i6.SheetSnapGrid {
+  _FakeSheetSnapGrid_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetSnapGrid_5 extends _i1.SmartFake implements _i6.SheetSnapGrid {
-  _FakeSheetSnapGrid_5(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeSheetActivity_6<T extends _i4.SheetModel<_i4.SheetModelConfig>>
+class _FakeSheetActivity_5<T extends _i4.SheetModel<_i4.SheetModelConfig>>
     extends _i1.SmartFake
     implements _i7.SheetActivity<T> {
-  _FakeSheetActivity_6(Object parent, Invocation parentInvocation)
+  _FakeSheetActivity_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeRect_7 extends _i1.SmartFake implements _i2.Rect {
-  _FakeRect_7(Object parent, Invocation parentInvocation)
+class _FakeRect_6 extends _i1.SmartFake implements _i2.Rect {
+  _FakeRect_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDrag_8 extends _i1.SmartFake implements _i8.Drag {
-  _FakeDrag_8(Object parent, Invocation parentInvocation)
+class _FakeDrag_7 extends _i1.SmartFake implements _i8.Drag {
+  _FakeDrag_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeSheetMetrics_9 extends _i1.SmartFake implements _i4.SheetMetrics {
-  _FakeSheetMetrics_9(Object parent, Invocation parentInvocation)
+class _FakeSheetMetrics_8 extends _i1.SmartFake implements _i4.SheetMetrics {
+  _FakeSheetMetrics_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTickerProvider_10 extends _i1.SmartFake
+class _FakeTickerProvider_9 extends _i1.SmartFake
     implements _i3.TickerProvider {
-  _FakeTickerProvider_10(Object parent, Invocation parentInvocation)
+  _FakeTickerProvider_9(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAnimation_11<T> extends _i1.SmartFake implements _i3.Animation<T> {
-  _FakeAnimation_11(Object parent, Invocation parentInvocation)
+class _FakeAnimation_10<T> extends _i1.SmartFake implements _i3.Animation<T> {
+  _FakeAnimation_10(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTickerFuture_12 extends _i1.SmartFake implements _i3.TickerFuture {
-  _FakeTickerFuture_12(Object parent, Invocation parentInvocation)
+class _FakeTickerFuture_11 extends _i1.SmartFake implements _i3.TickerFuture {
+  _FakeTickerFuture_11(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeFuture_13<T> extends _i1.SmartFake implements _i9.Future<T> {
-  _FakeFuture_13(Object parent, Invocation parentInvocation)
+class _FakeFuture_12<T> extends _i1.SmartFake implements _i9.Future<T> {
+  _FakeFuture_12(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeDiagnosticsNode_14 extends _i1.SmartFake
+class _FakeDiagnosticsNode_13 extends _i1.SmartFake
     implements _i3.DiagnosticsNode {
-  _FakeDiagnosticsNode_14(Object parent, Invocation parentInvocation)
+  _FakeDiagnosticsNode_13(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 
   @override
@@ -119,16 +114,16 @@ class _FakeDiagnosticsNode_14 extends _i1.SmartFake
   }) => super.toString();
 }
 
-class _FakeTicker_15 extends _i1.SmartFake implements _i11.Ticker {
-  _FakeTicker_15(Object parent, Invocation parentInvocation)
+class _FakeTicker_14 extends _i1.SmartFake implements _i11.Ticker {
+  _FakeTicker_14(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 
   @override
   String toString({bool? debugIncludeStack = false}) => super.toString();
 }
 
-class _FakeTolerance_16 extends _i1.SmartFake implements _i3.Tolerance {
-  _FakeTolerance_16(Object parent, Invocation parentInvocation)
+class _FakeTolerance_15 extends _i1.SmartFake implements _i3.Tolerance {
+  _FakeTolerance_15(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -229,21 +224,10 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
           as bool);
 
   @override
-  _i4.SheetOffset get initialOffset =>
-      (super.noSuchMethod(
-            Invocation.getter(#initialOffset),
-            returnValue: _FakeSheetOffset_2(
-              this,
-              Invocation.getter(#initialOffset),
-            ),
-          )
-          as _i4.SheetOffset);
-
-  @override
   _i4.SheetContext get context =>
       (super.noSuchMethod(
             Invocation.getter(#context),
-            returnValue: _FakeSheetContext_3(this, Invocation.getter(#context)),
+            returnValue: _FakeSheetContext_2(this, Invocation.getter(#context)),
           )
           as _i4.SheetContext);
 
@@ -259,7 +243,7 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   _i5.SheetPhysics get physics =>
       (super.noSuchMethod(
             Invocation.getter(#physics),
-            returnValue: _FakeSheetPhysics_4(this, Invocation.getter(#physics)),
+            returnValue: _FakeSheetPhysics_3(this, Invocation.getter(#physics)),
           )
           as _i5.SheetPhysics);
 
@@ -267,7 +251,7 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   _i6.SheetSnapGrid get snapGrid =>
       (super.noSuchMethod(
             Invocation.getter(#snapGrid),
-            returnValue: _FakeSheetSnapGrid_5(
+            returnValue: _FakeSheetSnapGrid_4(
               this,
               Invocation.getter(#snapGrid),
             ),
@@ -279,7 +263,7 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
       (super.noSuchMethod(
             Invocation.getter(#activity),
             returnValue:
-                _FakeSheetActivity_6<_i4.SheetModel<_i4.SheetModelConfig>>(
+                _FakeSheetActivity_5<_i4.SheetModel<_i4.SheetModelConfig>>(
                   this,
                   Invocation.getter(#activity),
                 ),
@@ -302,7 +286,7 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   _i2.Rect get rect =>
       (super.noSuchMethod(
             Invocation.getter(#rect),
-            returnValue: _FakeRect_7(this, Invocation.getter(#rect)),
+            returnValue: _FakeRect_6(this, Invocation.getter(#rect)),
           )
           as _i2.Rect);
 
@@ -310,7 +294,7 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   _i2.Rect get contentRect =>
       (super.noSuchMethod(
             Invocation.getter(#contentRect),
-            returnValue: _FakeRect_7(this, Invocation.getter(#contentRect)),
+            returnValue: _FakeRect_6(this, Invocation.getter(#contentRect)),
           )
           as _i2.Rect);
 
@@ -354,8 +338,8 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  void goIdle() => super.noSuchMethod(
-    Invocation.method(#goIdle, []),
+  void goIdle({_i4.SheetOffset? targetOffset}) => super.noSuchMethod(
+    Invocation.method(#goIdle, [], {#targetOffset: targetOffset}),
     returnValueForMissingStub: null,
   );
 
@@ -379,7 +363,7 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   ) =>
       (super.noSuchMethod(
             Invocation.method(#drag, [details, dragCancelCallback]),
-            returnValue: _FakeDrag_8(
+            returnValue: _FakeDrag_7(
               this,
               Invocation.method(#drag, [details, dragCancelCallback]),
             ),
@@ -435,7 +419,7 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
               #contentMargin: contentMargin,
               #devicePixelRatio: devicePixelRatio,
             }),
-            returnValue: _FakeSheetMetrics_9(
+            returnValue: _FakeSheetMetrics_8(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,
@@ -517,11 +501,8 @@ class MockSheetContext extends _i1.Mock implements _i4.SheetContext {
   _i3.TickerProvider get vsync =>
       (super.noSuchMethod(
             Invocation.getter(#vsync),
-            returnValue: _FakeTickerProvider_10(
-              this,
-              Invocation.getter(#vsync),
-            ),
-            returnValueForMissingStub: _FakeTickerProvider_10(
+            returnValue: _FakeTickerProvider_9(this, Invocation.getter(#vsync)),
+            returnValueForMissingStub: _FakeTickerProvider_9(
               this,
               Invocation.getter(#vsync),
             ),
@@ -582,8 +563,8 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
   _i2.Rect get rect =>
       (super.noSuchMethod(
             Invocation.getter(#rect),
-            returnValue: _FakeRect_7(this, Invocation.getter(#rect)),
-            returnValueForMissingStub: _FakeRect_7(
+            returnValue: _FakeRect_6(this, Invocation.getter(#rect)),
+            returnValueForMissingStub: _FakeRect_6(
               this,
               Invocation.getter(#rect),
             ),
@@ -594,8 +575,8 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
   _i2.Rect get contentRect =>
       (super.noSuchMethod(
             Invocation.getter(#contentRect),
-            returnValue: _FakeRect_7(this, Invocation.getter(#contentRect)),
-            returnValueForMissingStub: _FakeRect_7(
+            returnValue: _FakeRect_6(this, Invocation.getter(#contentRect)),
+            returnValueForMissingStub: _FakeRect_6(
               this,
               Invocation.getter(#contentRect),
             ),
@@ -701,7 +682,7 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
               #contentBaseline: contentBaseline,
               #devicePixelRatio: devicePixelRatio,
             }),
-            returnValue: _FakeSheetMetrics_9(
+            returnValue: _FakeSheetMetrics_8(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,
@@ -715,7 +696,7 @@ class MockSheetMetrics extends _i1.Mock implements _i4.SheetMetrics {
                 #devicePixelRatio: devicePixelRatio,
               }),
             ),
-            returnValueForMissingStub: _FakeSheetMetrics_9(
+            returnValueForMissingStub: _FakeSheetMetrics_8(
               this,
               Invocation.method(#copyWith, [], {
                 #offset: offset,
@@ -769,11 +750,11 @@ class MockAnimationController extends _i1.Mock
   _i3.Animation<double> get view =>
       (super.noSuchMethod(
             Invocation.getter(#view),
-            returnValue: _FakeAnimation_11<double>(
+            returnValue: _FakeAnimation_10<double>(
               this,
               Invocation.getter(#view),
             ),
-            returnValueForMissingStub: _FakeAnimation_11<double>(
+            returnValueForMissingStub: _FakeAnimation_10<double>(
               this,
               Invocation.getter(#view),
             ),
@@ -877,11 +858,11 @@ class MockAnimationController extends _i1.Mock
   _i3.TickerFuture forward({double? from}) =>
       (super.noSuchMethod(
             Invocation.method(#forward, [], {#from: from}),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(#forward, [], {#from: from}),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(#forward, [], {#from: from}),
             ),
@@ -892,11 +873,11 @@ class MockAnimationController extends _i1.Mock
   _i3.TickerFuture reverse({double? from}) =>
       (super.noSuchMethod(
             Invocation.method(#reverse, [], {#from: from}),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(#reverse, [], {#from: from}),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(#reverse, [], {#from: from}),
             ),
@@ -907,11 +888,11 @@ class MockAnimationController extends _i1.Mock
   _i3.TickerFuture toggle({double? from}) =>
       (super.noSuchMethod(
             Invocation.method(#toggle, [], {#from: from}),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(#toggle, [], {#from: from}),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(#toggle, [], {#from: from}),
             ),
@@ -930,7 +911,7 @@ class MockAnimationController extends _i1.Mock
               [target],
               {#duration: duration, #curve: curve},
             ),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(
                 #animateTo,
@@ -938,7 +919,7 @@ class MockAnimationController extends _i1.Mock
                 {#duration: duration, #curve: curve},
               ),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(
                 #animateTo,
@@ -961,7 +942,7 @@ class MockAnimationController extends _i1.Mock
               [target],
               {#duration: duration, #curve: curve},
             ),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(
                 #animateBack,
@@ -969,7 +950,7 @@ class MockAnimationController extends _i1.Mock
                 {#duration: duration, #curve: curve},
               ),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(
                 #animateBack,
@@ -996,7 +977,7 @@ class MockAnimationController extends _i1.Mock
               #period: period,
               #count: count,
             }),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(#repeat, [], {
                 #min: min,
@@ -1006,7 +987,7 @@ class MockAnimationController extends _i1.Mock
                 #count: count,
               }),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(#repeat, [], {
                 #min: min,
@@ -1031,7 +1012,7 @@ class MockAnimationController extends _i1.Mock
               #springDescription: springDescription,
               #animationBehavior: animationBehavior,
             }),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(#fling, [], {
                 #velocity: velocity,
@@ -1039,7 +1020,7 @@ class MockAnimationController extends _i1.Mock
                 #animationBehavior: animationBehavior,
               }),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(#fling, [], {
                 #velocity: velocity,
@@ -1054,11 +1035,11 @@ class MockAnimationController extends _i1.Mock
   _i3.TickerFuture animateWith(_i3.Simulation? simulation) =>
       (super.noSuchMethod(
             Invocation.method(#animateWith, [simulation]),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(#animateWith, [simulation]),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(#animateWith, [simulation]),
             ),
@@ -1069,11 +1050,11 @@ class MockAnimationController extends _i1.Mock
   _i3.TickerFuture animateBackWith(_i3.Simulation? simulation) =>
       (super.noSuchMethod(
             Invocation.method(#animateBackWith, [simulation]),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(#animateBackWith, [simulation]),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(#animateBackWith, [simulation]),
             ),
@@ -1137,11 +1118,11 @@ class MockAnimationController extends _i1.Mock
   _i3.Animation<U> drive<U>(_i3.Animatable<U>? child) =>
       (super.noSuchMethod(
             Invocation.method(#drive, [child]),
-            returnValue: _FakeAnimation_11<U>(
+            returnValue: _FakeAnimation_10<U>(
               this,
               Invocation.method(#drive, [child]),
             ),
-            returnValueForMissingStub: _FakeAnimation_11<U>(
+            returnValueForMissingStub: _FakeAnimation_10<U>(
               this,
               Invocation.method(#drive, [child]),
             ),
@@ -1240,7 +1221,7 @@ class MockTickerFuture extends _i1.Mock implements _i3.TickerFuture {
                   ),
                   (R v) => _i9.Future<R>.value(v),
                 ) ??
-                _FakeFuture_13<R>(
+                _FakeFuture_12<R>(
                   this,
                   Invocation.method(#then, [onValue], {#onError: onError}),
                 ),
@@ -1252,7 +1233,7 @@ class MockTickerFuture extends _i1.Mock implements _i3.TickerFuture {
                   ),
                   (R v) => _i9.Future<R>.value(v),
                 ) ??
-                _FakeFuture_13<R>(
+                _FakeFuture_12<R>(
                   this,
                   Invocation.method(#then, [onValue], {#onError: onError}),
                 ),
@@ -1355,11 +1336,11 @@ class MockTicker extends _i1.Mock implements _i11.Ticker {
   _i3.TickerFuture start() =>
       (super.noSuchMethod(
             Invocation.method(#start, []),
-            returnValue: _FakeTickerFuture_12(
+            returnValue: _FakeTickerFuture_11(
               this,
               Invocation.method(#start, []),
             ),
-            returnValueForMissingStub: _FakeTickerFuture_12(
+            returnValueForMissingStub: _FakeTickerFuture_11(
               this,
               Invocation.method(#start, []),
             ),
@@ -1370,11 +1351,11 @@ class MockTicker extends _i1.Mock implements _i11.Ticker {
   _i3.DiagnosticsNode describeForError(String? name) =>
       (super.noSuchMethod(
             Invocation.method(#describeForError, [name]),
-            returnValue: _FakeDiagnosticsNode_14(
+            returnValue: _FakeDiagnosticsNode_13(
               this,
               Invocation.method(#describeForError, [name]),
             ),
-            returnValueForMissingStub: _FakeDiagnosticsNode_14(
+            returnValueForMissingStub: _FakeDiagnosticsNode_13(
               this,
               Invocation.method(#describeForError, [name]),
             ),
@@ -1423,11 +1404,11 @@ class MockTickerProvider extends _i1.Mock implements _i3.TickerProvider {
   _i11.Ticker createTicker(_i11.TickerCallback? onTick) =>
       (super.noSuchMethod(
             Invocation.method(#createTicker, [onTick]),
-            returnValue: _FakeTicker_15(
+            returnValue: _FakeTicker_14(
               this,
               Invocation.method(#createTicker, [onTick]),
             ),
-            returnValueForMissingStub: _FakeTicker_15(
+            returnValueForMissingStub: _FakeTicker_14(
               this,
               Invocation.method(#createTicker, [onTick]),
             ),
@@ -1443,8 +1424,8 @@ class MockSimulation extends _i1.Mock implements _i3.Simulation {
   _i3.Tolerance get tolerance =>
       (super.noSuchMethod(
             Invocation.getter(#tolerance),
-            returnValue: _FakeTolerance_16(this, Invocation.getter(#tolerance)),
-            returnValueForMissingStub: _FakeTolerance_16(
+            returnValue: _FakeTolerance_15(this, Invocation.getter(#tolerance)),
+            returnValueForMissingStub: _FakeTolerance_15(
               this,
               Invocation.getter(#tolerance),
             ),

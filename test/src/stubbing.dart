@@ -94,7 +94,6 @@ class MutableSheetMetrics with SheetMetrics {
 
 (MutableSheetMetrics, MockSheetModel) createMockSheetModel({
   required double offset,
-  required SheetOffset initialPosition,
   required Size contentSize,
   required Size viewportSize,
   EdgeInsets contentMargin = EdgeInsets.zero,
@@ -138,7 +137,6 @@ class MutableSheetMetrics with SheetMetrics {
     position.contentBaseline,
   ).thenAnswer((_) => metricsRegistry.contentBaseline);
   when(position.offset).thenAnswer((_) => metricsRegistry.offset);
-  when(position.initialOffset).thenAnswer((_) => initialPosition);
   when(position.minOffset).thenAnswer((_) => metricsRegistry.minOffset);
   when(position.maxOffset).thenAnswer((_) => metricsRegistry.maxOffset);
   when(
