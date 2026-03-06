@@ -138,9 +138,12 @@ void main() {
                   ),
                   child: Sheet(
                     key: sheetKey,
-                    initialOffset: SheetOffset(0.5),
+                    initialOffset: SheetOffset.absolute(150),
                     snapGrid: SheetSnapGrid.stepless(),
-                    child: Container(color: Colors.white, height: 500),
+                    child: SizedBox(
+                      height: 300,
+                      width: double.infinity,
+                    ),
                   ),
                 );
               },
@@ -149,25 +152,37 @@ void main() {
         ),
       );
 
-      // Screen is 800x600, content is 500px, initial offset is 0.5 (250px).
-      // The top of the sheet should be at 600 - 250 = 350.
-      expect(tester.getRect(find.byKey(sheetKey)).top, 350);
+      expect(
+        tester.getRect(find.byKey(sheetKey)),
+        Rect.fromLTWH(0, 450, 800, 300),
+        reason: 'The sheet should be at the initial offset',
+      );
 
-      // Show the keyboard.
       unawaited(
         keyboardSimulationKey.currentState!.showKeyboard(
           const Duration(milliseconds: 250),
         ),
       );
       await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byKey(sheetKey)),
+        Rect.fromLTWH(0, 250, 800, 300),
+        reason:
+            'The sheet should move up by the keyboard height '
+            'while maintaining the visible extent',
+      );
 
-      // After the keyboard (200px) appears, the content is constrained to
-      // 400px (600 - 200). The visible extent should remain at 0.5 of the
-      // content height: 400 * 0.5 = 200px visible. With contentBaseline = 200,
-      // the offset resolves to 200 + 200 = 400, so the sheet top = 600 - 400
-      // = 200. Without the fix, the sheet would stay at its old absolute
-      // position (top = 350), ignoring the keyboard.
-      expect(tester.getRect(find.byKey(sheetKey)).top, 200);
+      unawaited(
+        keyboardSimulationKey.currentState!.hideKeyboard(
+          const Duration(milliseconds: 250),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byKey(sheetKey)),
+        Rect.fromLTWH(0, 450, 800, 300),
+        reason: 'The sheet should move back down to the initial offset',
+      );
     },
   );
 }
