@@ -1,6 +1,24 @@
 # Changelog
 
-## 0.17.0 - 2026-02-22
+## 0.18.0 - 2026-03-01
+- feat: Add global dragConfiguration to PagedSheet ([#500](https://github.com/fujidaiti/smooth_sheets/pull/500)) - [402acd3](https://github.com/fujidaiti/smooth_sheets/commit/402acd3bdb6bc5b68d8684aa6c09ee6306a1c05e)
+- fix: `Navigator.replace` does not update position and size of PagedSheet ([#508](https://github.com/fujidaiti/smooth_sheets/pull/508)) - [9b38b6c](https://github.com/fujidaiti/smooth_sheets/commit/9b38b6c0c64cb824303d3436af0dcb106adb62d4)
+- fix: Account for viewPadding in SheetContentScaffold bar constraints ([#507](https://github.com/fujidaiti/smooth_sheets/pull/507)) - [e133442](https://github.com/fujidaiti/smooth_sheets/commit/e1334420d3a55bceee334ef4a6fb660b76c70f3c)
+- fix: Ballistic animation ends abruptly right after releasing over-dragged sheet ([#506](https://github.com/fujidaiti/smooth_sheets/pull/506)) - [4c4bf56](https://github.com/fujidaiti/smooth_sheets/commit/4c4bf560368dc588ee6df7ee5332661f72ce553a)
+
+
+> [!IMPORTANT]
+> - The `dragConfiguration` properties on `Sheet`,
+`PagedSheetRoute`, and `PagedSheetPage` are now non-nullable. Use
+`SheetDragConfiguration.disabled` instead of null.
+> - The default `hitTestBehavior` in
+`SheetDragConfiguration` has changed from `HitTestBehavior.translucent`
+to `HitTestBehavior.opaque`.
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.18.0) for more details.
+
+## 0.17.0 - 2026-02-23
 - feat: Add Sheet.padding for flexible padding control ([#479](https://github.com/fujidaiti/smooth_sheets/pull/479)) - [3f057a0](https://github.com/fujidaiti/smooth_sheets/commit/3f057a006c3f968316a1edc91412890d195961ee)
 
 
