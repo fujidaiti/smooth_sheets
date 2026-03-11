@@ -230,7 +230,13 @@ void main() {
       (tester) async {
         final env = boilerplate(
           initialOffset: SheetOffset.absolute(600),
-          physics: BouncingSheetPhysics(resistance: 0, bounceExtent: 50),
+          physics: BouncingSheetPhysics(
+            spring: SpringDescription(
+              mass: 1.0,
+              stiffness: 480,
+              damping: 15.0,
+            ),
+          ),
         );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
@@ -310,7 +316,13 @@ void main() {
       (tester) async {
         final env = boilerplate(
           initialOffset: SheetOffset.absolute(600),
-          physics: BouncingSheetPhysics(resistance: 0, bounceExtent: 50),
+          physics: BouncingSheetPhysics(
+            spring: SpringDescription(
+              mass: 1.0,
+              stiffness: 480,
+              damping: 15.0,
+            ),
+          ),
         );
         await tester.pumpWidget(env.testWidget);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);

@@ -108,7 +108,8 @@ mixin SheetPhysicsMixin on SheetPhysics {
         // is in the opposite direction of the destination, as flinging up an
         // over-dragged sheet or flinging down an under-dragged sheet tends to
         // cause unstable motion.
-        velocity.sign == direction ? velocity : 0.0,
+        // velocity.sign == direction ? velocity : 0.0,
+        velocity,
       );
     }
 
@@ -126,33 +127,22 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 /// A [SheetPhysics] that allows the sheet to go beyond the offset bounds
 /// defined by [SheetMetrics.minOffset] and [SheetMetrics.maxOffset].
 ///
+/// The [spring] controls both the drag resistance and the snap-back animation:
+/// a stiffer spring makes overdragging harder and snap-back faster, while a
+/// softer spring makes overdragging easier and snap-back gentler.
+///
 /// See also:
 /// - [Physics and SnapGrid example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/physics_and_snap_grid.dart),
 ///   which shows how this physics works with a [SheetSnapGrid].
 /// - [Tweak bouncing effect example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/tweak_bouncing_effect.dart),
-///   which shows how [bounceExtent] and [resistance] affect the bouncing
-///   behavior.
+///   which shows how the [spring] affects the bouncing behavior.
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
     this.spring = kDefaultSheetSpring,
-    this.bounceExtent = 120,
-    this.resistance = 6,
-  }) : assert(bounceExtent >= 0);
+  });
 
-  /// Factor that controls how easy/hard it is to overdrag the sheet.
-  ///
-  /// The higher this value, the harder it is to reach the offset
-  /// of [SheetMetrics.maxOffset] plus [bounceExtent] pixels if dragged upwards,
-  /// or the offset of [SheetMetrics.minOffset] minus [bounceExtent] pixels
-  /// if dragged downwards.
-  ///
-  /// This value can be negative.
-  final double resistance;
-
-  /// The maximum number of pixels that the sheet can be overdragged.
-  ///
-  /// See also [resistance], which controls how easy/hard it is to overdrag the sheet.
-  final double bounceExtent;
+  /// Scaling factor used to derive the effective bounce extent from the spring.
+  static const _kOverdragScaleFactor = 24000.0;
 
   @override
   final SpringDescription spring;
@@ -195,6 +185,13 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       return delta;
     }
 
+    // The maximum overdrag distance, derived from the spring parameters.
+    // A stiffer spring (higher stiffness or lower mass) yields a smaller
+    // bounce extent, making the sheet harder to overdrag.
+    // With the default spring (mass=0.5, stiffness=100), this gives 120px.
+    final effectiveBounceExtent =
+        spring.mass / spring.stiffness * _kOverdragScaleFactor;
+
     var newOffset = currentOffset + zeroFrictionDelta;
     var consumedDelta = zeroFrictionDelta;
     while (consumedDelta.abs() < delta.abs()) {
@@ -210,18 +207,16 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
       final overflowPastEnd = math.max(newOffset + fragment - maxOffset, 0.0);
       final overflowPast = math.max(overflowPastStart, overflowPastEnd);
       assert(overflowPast >= 0);
-      final overflowFraction = (overflowPast / bounceExtent).clamp(0.0, 1.0);
 
-      // The more the sheet is overdragged, the harder it is to drag further.
-      final double frictionFactor;
-      if (cmp.isNotApprox(resistance, 0)) {
-        frictionFactor =
-            (1.0 - math.exp(-1 * resistance * overflowFraction)) /
-            (1.0 - math.exp(-1 * resistance));
-      } else {
-        // Linear map
-        frictionFactor = overflowFraction;
-      }
+      // Linear friction: the fraction of each fragment that is absorbed
+      // increases linearly from 0 (at the boundary) to 1 (at the effective
+      // bounce extent). This means the applied offset per fragment is
+      // `fragment * (1 - frictionFactor)`, which approaches zero as the
+      // sheet nears its maximum overdrag distance.
+      final frictionFactor = (overflowPast / effectiveBounceExtent).clamp(
+        0.0,
+        1.0,
+      );
 
       newOffset += fragment * (1.0 - frictionFactor);
       consumedDelta += fragment;
