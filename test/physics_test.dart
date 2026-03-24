@@ -172,8 +172,24 @@ void main() {
   });
 
   group('BouncingSheetPhysics', () {
+    // This spring gives an effective bounce extent of 50px:
+    // mass / stiffness * 24000 = 1.0 / 480 * 24000 = 50
+    const springWith50pxBounce = SpringDescription(
+      mass: 1.0,
+      stiffness: 480,
+      damping: 15.0,
+    );
+
+    // This spring gives an effective bounce extent of 30px:
+    // mass / stiffness * 24000 = 1.0 / 800 * 24000 = 30
+    const springWith30pxBounce = SpringDescription(
+      mass: 1.0,
+      stiffness: 800,
+      damping: 15.0,
+    );
+
     test('progressively applies friction if position is out of bounds', () {
-      const physics = BouncingSheetPhysics(resistance: 0, bounceExtent: 50);
+      const physics = BouncingSheetPhysics(spring: springWith50pxBounce);
 
       final overDraggedPosition = _referenceSheetMetrics.copyWith(
         offset: _referenceSheetMetrics.maxOffset + 10,
@@ -187,9 +203,9 @@ void main() {
     });
 
     test(
-      'does not allow to go beyond offset limits plus/minus bounceExtent',
+      'does not allow to go beyond offset limits plus/minus effective bounce extent',
       () {
-        const physics = BouncingSheetPhysics(resistance: 0, bounceExtent: 30);
+        const physics = BouncingSheetPhysics(spring: springWith30pxBounce);
 
         final overDraggedPosition = _referenceSheetMetrics.copyWith(
           offset: _referenceSheetMetrics.maxOffset + 20,
@@ -210,14 +226,14 @@ void main() {
     );
 
     test('applies friction even if position is on boundary', () {
-      const physics = BouncingSheetPhysics(resistance: 0, bounceExtent: 50);
+      const physics = BouncingSheetPhysics(spring: springWith50pxBounce);
 
       expect(physics.applyPhysicsToOffset(10, _metricsAtTopEdge), 8);
       expect(physics.applyPhysicsToOffset(-10, _metricsAtBottomEdge), -8);
     });
 
     test('can apply a reasonable friction to extremely large offset', () {
-      const physics = BouncingSheetPhysics(resistance: 0, bounceExtent: 50);
+      const physics = BouncingSheetPhysics(spring: springWith50pxBounce);
 
       expect(
         physics.applyPhysicsToOffset(300, _metricsAtTopEdge),
@@ -227,6 +243,33 @@ void main() {
         physics.applyPhysicsToOffset(-300, _metricsAtBottomEdge),
         moreOrLessEquals(-33.42, epsilon: 0.01),
       );
+    });
+
+    test('stiffer spring produces more drag resistance', () {
+      const softSpring = SpringDescription(
+        mass: 0.5,
+        stiffness: 50,
+        damping: 10.0,
+      );
+      const stiffSpring = SpringDescription(
+        mass: 0.5,
+        stiffness: 200,
+        damping: 10.0,
+      );
+      const softPhysics = BouncingSheetPhysics(spring: softSpring);
+      const stiffPhysics = BouncingSheetPhysics(spring: stiffSpring);
+
+      final softResult = softPhysics.applyPhysicsToOffset(
+        50,
+        _metricsAtTopEdge,
+      );
+      final stiffResult = stiffPhysics.applyPhysicsToOffset(
+        50,
+        _metricsAtTopEdge,
+      );
+
+      // Stiffer spring should result in less overdrag (more resistance).
+      expect(stiffResult, lessThan(softResult));
     });
   });
 }

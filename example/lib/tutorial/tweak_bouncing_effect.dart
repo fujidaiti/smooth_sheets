@@ -15,8 +15,10 @@ class _Home extends StatefulWidget {
 class _HomeState extends State<_Home> {
   late final SheetController _controller;
 
-  double _bounceExtent = 120;
-  double _resistance = 6;
+  double _stiffness = 100;
+  double _mass = 0.5;
+  double _dampingRatio = 1.1;
+
   @override
   void initState() {
     super.initState();
@@ -31,35 +33,54 @@ class _HomeState extends State<_Home> {
 
   @override
   Widget build(BuildContext context) {
+    final spring = SpringDescription.withDampingRatio(
+      mass: _mass,
+      stiffness: _stiffness,
+      ratio: _dampingRatio,
+    );
+
     return Stack(
       children: [
         Scaffold(
           body: SafeArea(
             child: Column(
               children: [
-                Text('Bounce Extent: ${_bounceExtent.round().toInt()}'),
+                Text('Stiffness: ${_stiffness.round()}'),
                 Slider(
-                  value: _bounceExtent,
-                  min: 0,
-                  max: 200,
-                  divisions: 10,
-                  label: '${_bounceExtent.round().toInt()}',
+                  value: _stiffness,
+                  min: 10,
+                  max: 500,
+                  divisions: 49,
+                  label: '${_stiffness.round()}',
                   onChanged: (value) {
                     setState(() {
-                      _bounceExtent = value;
+                      _stiffness = value;
                     });
                   },
                 ),
-                Text('Resistance: ${_resistance.round().toInt()}'),
+                Text('Mass: ${_mass.toStringAsFixed(1)}'),
                 Slider(
-                  value: _resistance,
-                  min: -10,
-                  max: 50,
-                  divisions: 60,
-                  label: '${_resistance.round().toInt()}',
+                  value: _mass,
+                  min: 0.1,
+                  max: 2.0,
+                  divisions: 19,
+                  label: _mass.toStringAsFixed(1),
                   onChanged: (value) {
                     setState(() {
-                      _resistance = value;
+                      _mass = value;
+                    });
+                  },
+                ),
+                Text('Damping Ratio: ${_dampingRatio.toStringAsFixed(1)}'),
+                Slider(
+                  value: _dampingRatio,
+                  min: 0.1,
+                  max: 2.0,
+                  divisions: 19,
+                  label: _dampingRatio.toStringAsFixed(1),
+                  onChanged: (value) {
+                    setState(() {
+                      _dampingRatio = value;
                     });
                   },
                 ),
@@ -70,10 +91,7 @@ class _HomeState extends State<_Home> {
         SheetViewport(
           child: _Sheet(
             controller: _controller,
-            physics: BouncingSheetPhysics(
-              resistance: _resistance,
-              bounceExtent: _bounceExtent,
-            ),
+            physics: BouncingSheetPhysics(spring: spring),
           ),
         ),
       ],
@@ -92,6 +110,7 @@ class _Sheet extends StatelessWidget {
     return Sheet(
       physics: physics,
       controller: controller,
+      snapGrid: const SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]),
       child: Container(
         height: 500,
         color: Colors.red,
