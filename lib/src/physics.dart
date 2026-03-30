@@ -3,8 +3,15 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart'
+    show
+        BouncingScrollPhysics,
+        Curves,
+        ScrollSpringSimulation,
+        Simulation,
+        SpringDescription;
 
+import 'internal/double_utils.dart';
 import 'internal/float_comp.dart';
 import 'model.dart';
 import 'snap_grid.dart';
@@ -14,7 +21,7 @@ import 'snap_grid.dart';
 /// This spring has the same configuration as the resulting spring
 /// from the [SpringDescription.withDampingRatio] constructor with
 /// a ratio of `1.1`, a mass of `0.5`, and a stiffness of `100.0`.
-const kDefaultSheetSpring = SpringDescription(
+const _kDefaultSheetSpring = SpringDescription(
   mass: 0.5,
   stiffness: 100.0,
   // Use a pre-calculated value to define the spring as a const variable.
@@ -54,7 +61,7 @@ abstract class SheetPhysics {
 
 /// A mixin that provides default implementations for [SheetPhysics] methods.
 mixin SheetPhysicsMixin on SheetPhysics {
-  SpringDescription get spring => kDefaultSheetSpring;
+  SpringDescription get spring => _kDefaultSheetSpring;
 
   @override
   double computeOverflow(double delta, SheetMetrics metrics) {
@@ -117,7 +124,7 @@ mixin SheetPhysicsMixin on SheetPhysics {
 }
 
 class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
-  const ClampingSheetPhysics({this.spring = kDefaultSheetSpring});
+  const ClampingSheetPhysics({this.spring = _kDefaultSheetSpring});
 
   @override
   final SpringDescription spring;
@@ -127,14 +134,15 @@ class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
 /// defined by [SheetMetrics.minOffset] and [SheetMetrics.maxOffset].
 ///
 /// See also:
-/// - [Physics and SnapGrid example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/physics_and_snap_grid.dart),
-///   which shows how this physics works with a [SheetSnapGrid].
-/// - [Tweak bouncing effect example](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/tweak_bouncing_effect.dart),
-///   which shows how [bounceExtent] and [resistance] affect the bouncing
-///   behavior.
+/// - [Physics and SnapGrid example][1], which shows how this physics works
+///   with a [SheetSnapGrid].
+/// - [Tweak bouncing effect example][2], which shows how [bounceExtent] and
+///   [resistance] affect the bouncing behavior.
+///
+/// [1]: https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/physics_and_snap_grid.dart
+/// [2]: https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/tweak_bouncing_effect.dart
 class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const BouncingSheetPhysics({
-    this.spring = kDefaultSheetSpring,
     this.bounceExtent = 120,
     this.resistance = 6,
   }) : assert(bounceExtent >= 0);
@@ -155,7 +163,7 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   final double bounceExtent;
 
   @override
-  final SpringDescription spring;
+  SpringDescription get spring => _kDefaultSheetSpring;
 
   @override
   double computeOverflow(double delta, SheetMetrics metrics) {
@@ -228,5 +236,43 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
     }
 
     return newOffset - currentOffset;
+  }
+
+  @override
+  Simulation? createBallisticSimulation(
+    double velocity,
+    SheetMetrics metrics,
+    SheetSnapGrid snapGrid,
+  ) {
+    final snap = snapGrid
+        .getSnapOffset(metrics, metrics.offset, velocity)
+        .resolve(metrics);
+
+    if (FloatComp.distance(
+      metrics.devicePixelRatio,
+    ).isApprox(snap, metrics.offset)) {
+      return null;
+    }
+
+    final overdragPastStart = math.max(metrics.minOffset - metrics.offset, 0.0);
+    final overdragPastEnd = math.max(metrics.offset - metrics.maxOffset, 0.0);
+    final overdragPast = math.max(overdragPastStart, overdragPastEnd);
+    final overdragFraction = bounceExtent != 0
+        ? math.min(overdragPast / bounceExtent, 1.0)
+        : 1.0;
+
+    const maxVelocityCoefficient = 200.0;
+    final maxVelocityNorm = bounceExtent / resistance * maxVelocityCoefficient;
+    final effectiveMaxVelocityNorm =
+        maxVelocityNorm *
+        (1.0 - Curves.easeOutExpo.transform(overdragFraction));
+    final effectiveVelocity = velocity.clampAbs(effectiveMaxVelocityNorm);
+
+    return ScrollSpringSimulation(
+      spring,
+      metrics.offset,
+      snap,
+      effectiveVelocity,
+    );
   }
 }
