@@ -33,3 +33,32 @@ Sheet(
 #### Default `HitTestBehavior` changed from `translucent` to `opaque` 💥
 
 The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitTestBehavior.translucent` to `HitTestBehavior.opaque`, so that the sheet can be dragged even from transparent areas such as padding.
+
+## BouncingSheetPhysics no longer accepts custom spring 💥
+
+The `spring` parameter has been removed from `BouncingSheetPhysics`'s constructor as part of a fix for #435. If you were using a custom spring, you can extend `BouncingSheetPhysics` and override the `spring` getter to return your custom spring.
+
+**BEFORE:**
+
+```dart
+BouncingSheetPhysics(spring: customSpring);
+```
+
+**AFTER:**
+
+```dart
+class MyPhysics extends BouncingSheetPhysics {
+  MyPhysics({super.bounceExtent, super.resistance});
+
+  @override
+  SpringDescription get spring => customSpring;
+}
+```
+
+## Other changes
+
+- Fix inconsistent BouncingSheetPhysics resistance in over-drag vs. ballistic animation (#435)
+
+## Other breaking changes 💥
+
+- `kDefaultSheetSpring` has been removed from the public API.
