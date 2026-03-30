@@ -261,12 +261,23 @@ class BouncingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
         ? math.min(overdragPast / bounceExtent, 1.0)
         : 1.0;
 
+    // A lower bounceExtent or higher resistance reduces the maximum
+    // initial velocity of the ballistic animation. This ensures that a sheet
+    // that is harder to overdrag also bounces less when flung up or down.
+    //
+    // If the sheet is overdragged and the fling velocity is toward the opposite
+    // direction of the snap point, the maximum velocity is also reduced based
+    // on how much the sheet is overdragged (the further the sheet is
+    // overdragged, the more the maximum velocity is reduced).
     const maxVelocityCoefficient = 200.0;
-    final maxVelocityNorm = bounceExtent / resistance * maxVelocityCoefficient;
-    final effectiveMaxVelocityNorm =
-        maxVelocityNorm *
-        (1.0 - Curves.easeOutExpo.transform(overdragFraction));
-    final effectiveVelocity = velocity.clampAbs(effectiveMaxVelocityNorm);
+    final maxVelocityLimit = bounceExtent / resistance * maxVelocityCoefficient;
+    final snapDirection = (snap - metrics.offset).sign;
+    final velocityEasingFactor = velocity.sign == snapDirection
+        ? 0.0
+        : Curves.easeOutExpo.transform(overdragFraction);
+    final effectiveVelocity = velocity.clampAbs(
+      maxVelocityLimit * (1.0 - velocityEasingFactor),
+    );
 
     return ScrollSpringSimulation(
       spring,
