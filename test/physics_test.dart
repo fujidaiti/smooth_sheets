@@ -229,4 +229,59 @@ void main() {
       );
     });
   });
+
+  group('BouncingSheetPhysics.createBallisticSimulation', () {
+    test('initial velocity is clamped to a certain limit', () {
+      // 1. create a physics with a certain bounceExtent and resistance
+      // 2. call createBallisticSimulation with a small velocity
+      // 3. verify the initial velocity isn't clamped
+
+      // 4. call createBallisticSimulation with a large velocity
+      // 5. verify the initial velocity is clamped to a certain limit
+    });
+
+    test('lower bounceExtent lowers the velocity limit', () {
+      // 1. create a physics with a bounceExtent lower than the one used in the previous test, and a resistance same as the previous test
+      // 2. call createBallisticSimulation with a large velocity
+      // 3. verify the initial velocity is clamped to a lower limit than the previous test
+    });
+
+    test('higher bounceExtent raises the velocity limit', () {
+      // 1. create a physics with a bounceExtent higher than the one used in the first test, and a resistance same as the first test
+      // 2. call createBallisticSimulation with a large velocity
+      // 3. verify the initial velocity is clamped to a higher limit than the first
+    });
+
+    test('higher resistance lowers the velocity limit', () {
+      // 1. create a physics with a resistance higher than the one used in the first test, and a bounceExtent same as the first test
+      // 2. call createBallisticSimulation with a large velocity
+      // 3. verify the initial velocity is clamped to a lower limit than the first
+    });
+
+    test('lower resistance raises the velocity limit', () {
+      // 1. create a physics with a resistance lower than the one used in the first test, and a bounceExtent same as the first test
+      // 2. call createBallisticSimulation with a large velocity
+      // 3. verify the initial velocity is clamped to a higher limit than the first
+    });
+
+    test(
+      'flinging overdragged sheet toward the opposite direction of '
+      'a snap position lowers the velocity limit furthermore',
+      () {
+        // 1. create a physics with the same configuration as the first test
+        // 2. call createBallisticSimulation with a large velocity toward the opposite direction of a snap position
+        // 3. verify the initial velocity is clamped to a lower limit than the first
+      },
+    );
+
+    test(
+      'flinging overdragged sheet toward a snap position clamps '
+      'the velocity to the same limit as flinging non-overdragged sheet',
+      () {
+        // 1. create a physics with the same configuration as the first test
+        // 2. call createBallisticSimulation with a large velocity toward a snap position
+        // 3. verify the initial velocity is not clamped to the same limit as the first test
+      },
+    );
+  });
 }
