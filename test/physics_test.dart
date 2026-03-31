@@ -229,4 +229,114 @@ void main() {
       );
     });
   });
+
+  group('BouncingSheetPhysics.createBallisticSimulation', () {
+    const snapGrid = SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]);
+    const inputMetrics = ImmutableSheetMetrics(
+      offset: 450,
+      minOffset: 300,
+      maxOffset: 600,
+      contentSize: Size(400, 600),
+      contentBaseline: 0,
+      size: Size(400, 600),
+      viewportSize: Size(400, 700),
+      viewportPadding: EdgeInsets.zero,
+      contentMargin: EdgeInsets.zero,
+      devicePixelRatio: 1,
+    );
+
+    test('small input velocity is used as-is', () {
+      final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+      final simulation = physics.createBallisticSimulation(
+        -1000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-1000));
+    });
+
+    test('large input velocity is clamped to a certain limit', () {
+      final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-2000));
+    });
+
+    test('lower bounceExtent lowers the velocity limit', () {
+      final physics = BouncingSheetPhysics(bounceExtent: 50, resistance: 10);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-1000));
+    });
+
+    test('higher bounceExtent raises the velocity limit', () {
+      final physics = BouncingSheetPhysics(bounceExtent: 200, resistance: 10);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-4000));
+    });
+
+    test('higher resistance lowers the velocity limit', () {
+      final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 20);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-1000));
+    });
+
+    test('lower resistance raises the velocity limit', () {
+      final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 5);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-4000));
+    });
+
+    test(
+      'flinging overdragged sheet toward the opposite direction of '
+      'a snap position lowers the velocity limit furthermore',
+      () {
+        final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+        final overdraggedMetrics = inputMetrics.copyWith(offset: 650);
+        final simulation = physics.createBallisticSimulation(
+          5000,
+          overdraggedMetrics,
+          snapGrid,
+        );
+        expect(
+          overdraggedMetrics.offset,
+          greaterThan(overdraggedMetrics.maxOffset),
+        );
+        expect(simulation?.dx(0), lessThan(2000));
+      },
+    );
+
+    test(
+      'flinging overdragged sheet toward a snap position clamps '
+      'the velocity to the same limit as flinging non-overdragged sheet',
+      () {
+        final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+        final overdraggedMetrics = inputMetrics.copyWith(offset: 650);
+        final simulation = physics.createBallisticSimulation(
+          -5000,
+          overdraggedMetrics,
+          snapGrid,
+        );
+        expect(simulation?.dx(0), moreOrLessEquals(-2000));
+      },
+    );
+  });
 }
