@@ -231,6 +231,10 @@ void main() {
   });
 
   group('BouncingSheetPhysics.createBallisticSimulation', () {
+    // In this group, use the following setup for all tests unless otherwise specified:
+    // - snap grid: SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)])
+    // - input offset: SheetOffset(0.75)
+    // - fling direction: toward the bottom snap position (SheetOffset(0.5)), meaning the velocity is a positive value
     test('initial velocity is clamped to a certain limit', () {
       // 1. create a physics with a certain bounceExtent and resistance
       // 2. call createBallisticSimulation with a small velocity
@@ -268,6 +272,8 @@ void main() {
       'flinging overdragged sheet toward the opposite direction of '
       'a snap position lowers the velocity limit furthermore',
       () {
+        // input offset: above the top snap position (SheetOffset(1) + alpha)
+        // fling velocity: a large velocity toward the upper direction, meaning the velocity is a negative value
         // 1. create a physics with the same configuration as the first test
         // 2. call createBallisticSimulation with a large velocity toward the opposite direction of a snap position
         // 3. verify the initial velocity is clamped to a lower limit than the first
@@ -278,6 +284,8 @@ void main() {
       'flinging overdragged sheet toward a snap position clamps '
       'the velocity to the same limit as flinging non-overdragged sheet',
       () {
+        // input offset: above the top snap position (SheetOffset(1) + alpha)
+        // fling velocity: a large velocity toward the bottom direction, meaning the velocity is a positive value
         // 1. create a physics with the same configuration as the first test
         // 2. call createBallisticSimulation with a large velocity toward a snap position
         // 3. verify the initial velocity is not clamped to the same limit as the first test
