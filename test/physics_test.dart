@@ -309,8 +309,7 @@ void main() {
       'flinging overdragged sheet toward the opposite direction of '
       'a snap position lowers the velocity limit furthermore',
       () {
-        final physics =
-            BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+        final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
         final overdraggedMetrics = inputMetrics.copyWith(offset: 650);
         final simulation = physics.createBallisticSimulation(
           5000,
@@ -329,8 +328,7 @@ void main() {
       'flinging overdragged sheet toward a snap position clamps '
       'the velocity to the same limit as flinging non-overdragged sheet',
       () {
-        final physics =
-            BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+        final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
         final overdraggedMetrics = inputMetrics.copyWith(offset: 650);
         final simulation = physics.createBallisticSimulation(
           -5000,
