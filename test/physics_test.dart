@@ -231,52 +231,97 @@ void main() {
   });
 
   group('BouncingSheetPhysics.createBallisticSimulation', () {
-    // In this group, use the following setup for all tests unless otherwise specified:
-    // - snap grid: SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)])
-    // - input offset: SheetOffset(0.75)
-    // - fling direction: toward the bottom snap position (SheetOffset(0.5)), meaning the velocity is a positive value
-    test('initial velocity is clamped to a certain limit', () {
-      // 1. create a physics with a certain bounceExtent and resistance
-      // 2. call createBallisticSimulation with a small velocity
-      // 3. verify the initial velocity isn't clamped
+    const snapGrid = SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]);
+    const inputMetrics = ImmutableSheetMetrics(
+      offset: 450,
+      minOffset: 300,
+      maxOffset: 600,
+      contentSize: Size(400, 600),
+      contentBaseline: 0,
+      size: Size(400, 600),
+      viewportSize: Size(400, 700),
+      viewportPadding: EdgeInsets.zero,
+      contentMargin: EdgeInsets.zero,
+      devicePixelRatio: 1,
+    );
 
-      // 4. call createBallisticSimulation with a large velocity
-      // 5. verify the initial velocity is clamped to a certain limit
+    test('small input velocity is used as-is', () {
+      final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+      final simulation = physics.createBallisticSimulation(
+        -1000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-1000));
+    });
+
+    test('large input velocity is clamped to a certain limit', () {
+      final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-2000));
     });
 
     test('lower bounceExtent lowers the velocity limit', () {
-      // 1. create a physics with a bounceExtent lower than the one used in the previous test, and a resistance same as the previous test
-      // 2. call createBallisticSimulation with a large velocity
-      // 3. verify the initial velocity is clamped to a lower limit than the previous test
+      final physics = BouncingSheetPhysics(bounceExtent: 50, resistance: 10);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-1000));
     });
 
     test('higher bounceExtent raises the velocity limit', () {
-      // 1. create a physics with a bounceExtent higher than the one used in the first test, and a resistance same as the first test
-      // 2. call createBallisticSimulation with a large velocity
-      // 3. verify the initial velocity is clamped to a higher limit than the first
+      final physics = BouncingSheetPhysics(bounceExtent: 200, resistance: 10);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-4000));
     });
 
     test('higher resistance lowers the velocity limit', () {
-      // 1. create a physics with a resistance higher than the one used in the first test, and a bounceExtent same as the first test
-      // 2. call createBallisticSimulation with a large velocity
-      // 3. verify the initial velocity is clamped to a lower limit than the first
+      final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 20);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-1000));
     });
 
     test('lower resistance raises the velocity limit', () {
-      // 1. create a physics with a resistance lower than the one used in the first test, and a bounceExtent same as the first test
-      // 2. call createBallisticSimulation with a large velocity
-      // 3. verify the initial velocity is clamped to a higher limit than the first
+      final physics = BouncingSheetPhysics(bounceExtent: 100, resistance: 5);
+      final simulation = physics.createBallisticSimulation(
+        -5000,
+        inputMetrics,
+        snapGrid,
+      );
+      expect(simulation?.dx(0), moreOrLessEquals(-4000));
     });
 
     test(
       'flinging overdragged sheet toward the opposite direction of '
       'a snap position lowers the velocity limit furthermore',
       () {
-        // input offset: above the top snap position (SheetOffset(1) + alpha)
-        // fling velocity: a large velocity toward the upper direction, meaning the velocity is a negative value
-        // 1. create a physics with the same configuration as the first test
-        // 2. call createBallisticSimulation with a large velocity toward the opposite direction of a snap position
-        // 3. verify the initial velocity is clamped to a lower limit than the first
+        final physics =
+            BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+        final overdraggedMetrics = inputMetrics.copyWith(offset: 650);
+        final simulation = physics.createBallisticSimulation(
+          5000,
+          overdraggedMetrics,
+          snapGrid,
+        );
+        expect(
+          overdraggedMetrics.offset,
+          greaterThan(overdraggedMetrics.maxOffset),
+        );
+        expect(simulation?.dx(0), lessThan(2000));
       },
     );
 
@@ -284,11 +329,15 @@ void main() {
       'flinging overdragged sheet toward a snap position clamps '
       'the velocity to the same limit as flinging non-overdragged sheet',
       () {
-        // input offset: above the top snap position (SheetOffset(1) + alpha)
-        // fling velocity: a large velocity toward the bottom direction, meaning the velocity is a positive value
-        // 1. create a physics with the same configuration as the first test
-        // 2. call createBallisticSimulation with a large velocity toward a snap position
-        // 3. verify the initial velocity is not clamped to the same limit as the first test
+        final physics =
+            BouncingSheetPhysics(bounceExtent: 100, resistance: 10);
+        final overdraggedMetrics = inputMetrics.copyWith(offset: 650);
+        final simulation = physics.createBallisticSimulation(
+          -5000,
+          overdraggedMetrics,
+          snapGrid,
+        );
+        expect(simulation?.dx(0), moreOrLessEquals(-2000));
       },
     );
   });
