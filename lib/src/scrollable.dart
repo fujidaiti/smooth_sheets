@@ -689,8 +689,8 @@ class SheetScrollable extends StatefulWidget {
 }
 
 class _SheetScrollableState extends State<SheetScrollable> {
-  late ScrollController _scrollController;
   ScrollAwareSheetModelMixin? _model;
+  late _SheetScrollController _scrollController;
 
   @override
   void initState() {
@@ -702,6 +702,7 @@ class _SheetScrollableState extends State<SheetScrollable> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _model = SheetModelOwner.of(context)! as ScrollAwareSheetModelMixin;
+    _scrollController._updateDelegate(_model);
   }
 
   @override
@@ -711,14 +712,13 @@ class _SheetScrollableState extends State<SheetScrollable> {
         widget.keepScrollOffset != oldWidget.keepScrollOffset ||
         widget.initialScrollOffset != oldWidget.initialScrollOffset) {
       _scrollController.dispose();
-      _scrollController = createController();
+      _scrollController = createController().._updateDelegate(_model);
     }
   }
 
   @factory
   _SheetScrollController createController() {
     return _SheetScrollController(
-      delegate: () => _model,
       debugLabel: widget.debugLabel,
       initialScrollOffset: widget.initialScrollOffset,
       keepScrollOffset: widget.keepScrollOffset,
@@ -727,7 +727,6 @@ class _SheetScrollableState extends State<SheetScrollable> {
 
   @override
   void dispose() {
-    _model = null;
     _scrollController.dispose();
     super.dispose();
   }
@@ -792,11 +791,11 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
          },
        );
 
-  /// Getter of a [_SheetScrollPositionDelegate] for this scroll position.
+  /// The [_SheetScrollPositionDelegate] for this scroll position.
   ///
   /// This property is set by [_SheetScrollController] when attaching
   /// this object to the controller, and it is unset when detaching.
-  ValueGetter<_SheetScrollPositionDelegate?>? _delegate;
+  _SheetScrollPositionDelegate? _delegate;
 
   /// Whether the scroll view should prevent its contents from receiving
   /// pointer events.
@@ -814,7 +813,7 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
   @override
   void absorb(ScrollPosition other) {
     if (other is SheetScrollPosition) {
-      _delegate?.call()?.replaceScrollPosition(
+      _delegate?.replaceScrollPosition(
         oldPosition: other,
         newPosition: this,
       );
@@ -824,11 +823,10 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void goIdle({bool calledByDelegate = false}) {
-    final delegate = _delegate?.call();
-    if (delegate != null &&
-        delegate.hasPrimaryScrollPosition &&
+    if (_delegate != null &&
+        _delegate!.hasPrimaryScrollPosition &&
         !calledByDelegate) {
-      delegate.goIdleWithScrollPosition();
+      _delegate!.goIdleWithScrollPosition();
     } else {
       beginActivity(IdleScrollActivity(this));
     }
@@ -839,9 +837,8 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
     VoidCallback holdCancelCallback, {
     bool calledByDelegate = false,
   }) {
-    final delegate = _delegate?.call();
-    if (!calledByDelegate && delegate != null) {
-      return delegate.holdWithScrollPosition(
+    if (!calledByDelegate && _delegate != null) {
+      return _delegate!.holdWithScrollPosition(
         scrollPosition: this,
         holdCancelCallback: holdCancelCallback,
         heldPreviousVelocity: activity!.velocity,
@@ -857,9 +854,8 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
     VoidCallback dragCancelCallback, {
     bool calledByDelegate = false,
   }) {
-    final delegate = _delegate?.call();
-    if (!calledByDelegate && delegate != null) {
-      return delegate.dragWithScrollPosition(
+    if (!calledByDelegate && _delegate != null) {
+      return _delegate!.dragWithScrollPosition(
         scrollPosition: this,
         dragCancelCallback: dragCancelCallback,
         details: details,
@@ -871,11 +867,10 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void goBallistic(double velocity, {bool calledByOwner = false}) {
-    final delegate = _delegate?.call();
-    if (delegate != null &&
-        delegate.hasPrimaryScrollPosition &&
+    if (_delegate != null &&
+        _delegate!.hasPrimaryScrollPosition &&
         !calledByOwner) {
-      delegate.goBallisticWithScrollPosition(
+      _delegate!.goBallisticWithScrollPosition(
         velocity: velocity,
         scrollPosition: this,
       );
@@ -1082,13 +1077,22 @@ class _SheetHoldScrollActivity extends ScrollActivity {
 
 class _SheetScrollController extends ScrollController {
   _SheetScrollController({
-    required this.delegate,
     super.debugLabel,
     super.initialScrollOffset,
     super.keepScrollOffset,
   });
 
-  final ValueGetter<_SheetScrollPositionDelegate?> delegate;
+  // Always update this field through _updateDelegate from
+  // outside of this class.
+  _SheetScrollPositionDelegate? _delegate;
+
+  void _updateDelegate(_SheetScrollPositionDelegate? newDelegate) {
+    if (newDelegate != _delegate) {
+      positions.forEach(_detachDelegateFrom);
+      _delegate = newDelegate;
+      positions.forEach(_attachDelegateTo);
+    }
+  }
 
   @override
   ScrollPosition createScrollPosition(
@@ -1108,21 +1112,38 @@ class _SheetScrollController extends ScrollController {
 
   @override
   void attach(ScrollPosition position) {
-    assert(position is SheetScrollPosition);
     super.attach(position);
-    if (delegate() case final it?) {
-      it.addScrollPosition(position as SheetScrollPosition);
-      position._delegate = delegate;
-    }
+    _attachDelegateTo(position);
   }
 
   @override
   void detach(ScrollPosition position) {
-    assert(position is SheetScrollPosition);
     super.detach(position);
-    if (delegate() case final it?) {
-      it.removeScrollPosition(position as SheetScrollPosition);
+    _detachDelegateFrom(position);
+  }
+
+  void _attachDelegateTo(ScrollPosition position) {
+    position as SheetScrollPosition;
+    assert(position._delegate == null);
+    if (_delegate != null) {
+      _delegate!.addScrollPosition(position);
+      position._delegate = _delegate;
+    }
+  }
+
+  void _detachDelegateFrom(ScrollPosition position) {
+    position as SheetScrollPosition;
+    if (_delegate != null) {
+      assert(position._delegate == _delegate);
+      _delegate!.removeScrollPosition(position);
       position._delegate = null;
     }
+  }
+
+  @override
+  void dispose() {
+    positions.forEach(_detachDelegateFrom);
+    _delegate = null;
+    super.dispose();
   }
 }
