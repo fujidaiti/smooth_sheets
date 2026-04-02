@@ -670,19 +670,62 @@ class HoldScrollDrivenSheetActivity
   }
 }
 
+/// Wires an ancestor sheet and its scrollable content below this widget.
+///
+/// Intended to be placed below the sheet and above the scrollable widgets in
+/// the widget tree. The scroll [controller] should be attached to those
+/// scrollables, which enables them to control the sheet position by scrolling
+/// themselves.
+///
+/// This widget exposes the [controller] to its subtree via
+/// [PrimaryScrollController], meaning the [controller] will be automatically
+/// attached to the descendant scrollables unless they are not aware of
+/// [PrimaryScrollController] or explicitly given another scroll controller.
+///
+/// ```dart
+/// SheetScrollable(
+///   controller: myScrollController,
+///   child: ListView(
+///     controller: myScrollController, // This line is optional
+///     children: [...],
+///   ),
+/// );
+/// ```
+///
+/// Sharing the same [controller] between multiple scrollables and creating
+/// multiple [SheetScrollable]s for each scrollables are both valid, e.g.,
+/// a [PageView] with [ListView]s in each page. The latter use case is useful
+/// when each scrollable needs to have its own scroll controller:
+///
+/// ```dart
+/// PageView(
+///   children: [
+///     SheetScrollable(
+///       controller: scrollControllerForPage1,
+///       child: ListView(...),
+///     ),
+///     SheetScrollable(
+///       controller: scrollControllerForPage2,
+///       child: ListView(...),
+///     ),
+///   ],
+/// );
+/// ```
 class SheetScrollable extends StatefulWidget {
+  /// Creates a widget that wires an ancestor sheet and its scrollable content
+  /// below this widget.
   const SheetScrollable({
     super.key,
-    this.debugLabel,
-    this.keepScrollOffset = true,
-    this.initialScrollOffset = 0,
-    required this.builder,
+    required this.controller,
+    required this.child,
   });
 
-  final String? debugLabel;
-  final bool keepScrollOffset;
-  final double initialScrollOffset;
-  final ScrollableWidgetBuilder builder;
+  /// The scroll controller that should be attached to the [child] scrollable,
+  /// or its descendant scrollables.
+  final SheetScrollController controller;
+
+  /// A subtree to which this widget exposes the [controller].
+  final Widget child;
 
   @override
   State<SheetScrollable> createState() => _SheetScrollableState();
@@ -690,50 +733,117 @@ class SheetScrollable extends StatefulWidget {
 
 class _SheetScrollableState extends State<SheetScrollable> {
   ScrollAwareSheetModelMixin? _model;
-  late _SheetScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = createController();
-  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _model = SheetModelOwner.of(context)! as ScrollAwareSheetModelMixin;
-    _scrollController._updateDelegate(_model);
+    final inheritedModel = SheetModelOwner.of(context);
+    if (inheritedModel is ScrollAwareSheetModelMixin) {
+      _model = inheritedModel;
+      widget.controller._updateDelegate(inheritedModel);
+    } else {
+      _model = null;
+      widget.controller._updateDelegate(null);
+    }
   }
 
   @override
   void didUpdateWidget(SheetScrollable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.debugLabel != oldWidget.debugLabel ||
-        widget.keepScrollOffset != oldWidget.keepScrollOffset ||
-        widget.initialScrollOffset != oldWidget.initialScrollOffset) {
-      _scrollController.dispose();
-      _scrollController = createController().._updateDelegate(_model);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller._updateDelegate(null);
+      widget.controller._updateDelegate(_model);
     }
-  }
-
-  @factory
-  _SheetScrollController createController() {
-    return _SheetScrollController(
-      debugLabel: widget.debugLabel,
-      initialScrollOffset: widget.initialScrollOffset,
-      keepScrollOffset: widget.keepScrollOffset,
-    );
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    widget.controller._updateDelegate(null);
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) =>
-      widget.builder(context, _scrollController);
+  Widget build(BuildContext context) {
+    return PrimaryScrollController(
+      controller: widget.controller,
+      child: widget.child,
+    );
+  }
+}
+
+/// The [ScrollController] for scrollable content in a sheet.
+class SheetScrollController extends ScrollController {
+  /// Creates a scroll controller for scrollable content in a sheet.
+  SheetScrollController({
+    super.debugLabel,
+    super.initialScrollOffset,
+    super.keepScrollOffset,
+  });
+
+  // Always update this field through _updateDelegate from
+  // outside of this class.
+  _SheetScrollPositionDelegate? _delegate;
+
+  void _updateDelegate(_SheetScrollPositionDelegate? newDelegate) {
+    if (newDelegate != _delegate) {
+      positions.forEach(_detachDelegateFrom);
+      _delegate = newDelegate;
+      positions.forEach(_attachDelegateTo);
+    }
+  }
+
+  @override
+  ScrollPosition createScrollPosition(
+    ScrollPhysics physics,
+    ScrollContext context,
+    ScrollPosition? oldPosition,
+  ) {
+    return SheetScrollPosition(
+      initialPixels: initialScrollOffset,
+      keepScrollOffset: keepScrollOffset,
+      debugLabel: debugLabel,
+      context: context,
+      oldPosition: oldPosition,
+      physics: physics,
+    );
+  }
+
+  @override
+  void attach(ScrollPosition position) {
+    super.attach(position);
+    _attachDelegateTo(position);
+  }
+
+  @override
+  void detach(ScrollPosition position) {
+    super.detach(position);
+    _detachDelegateFrom(position);
+  }
+
+  void _attachDelegateTo(ScrollPosition position) {
+    position as SheetScrollPosition;
+    assert(position._delegate == null);
+    if (_delegate != null) {
+      _delegate!.addScrollPosition(position);
+      position._delegate = _delegate;
+    }
+  }
+
+  void _detachDelegateFrom(ScrollPosition position) {
+    position as SheetScrollPosition;
+    if (_delegate != null) {
+      assert(position._delegate == _delegate);
+      _delegate!.removeScrollPosition(position);
+      position._delegate = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    positions.forEach(_detachDelegateFrom);
+    _delegate = null;
+    super.dispose();
+  }
 }
 
 /// Delegate of a [SheetScrollPosition].
@@ -793,7 +903,7 @@ class SheetScrollPosition extends ScrollPositionWithSingleContext {
 
   /// The [_SheetScrollPositionDelegate] for this scroll position.
   ///
-  /// This property is set by [_SheetScrollController] when attaching
+  /// This property is set by [SheetScrollController] when attaching
   /// this object to the controller, and it is unset when detaching.
   _SheetScrollPositionDelegate? _delegate;
 
@@ -1073,77 +1183,4 @@ class _SheetHoldScrollActivity extends ScrollActivity {
 
   @override
   double get velocity => 0.0;
-}
-
-class _SheetScrollController extends ScrollController {
-  _SheetScrollController({
-    super.debugLabel,
-    super.initialScrollOffset,
-    super.keepScrollOffset,
-  });
-
-  // Always update this field through _updateDelegate from
-  // outside of this class.
-  _SheetScrollPositionDelegate? _delegate;
-
-  void _updateDelegate(_SheetScrollPositionDelegate? newDelegate) {
-    if (newDelegate != _delegate) {
-      positions.forEach(_detachDelegateFrom);
-      _delegate = newDelegate;
-      positions.forEach(_attachDelegateTo);
-    }
-  }
-
-  @override
-  ScrollPosition createScrollPosition(
-    ScrollPhysics physics,
-    ScrollContext context,
-    ScrollPosition? oldPosition,
-  ) {
-    return SheetScrollPosition(
-      initialPixels: initialScrollOffset,
-      keepScrollOffset: keepScrollOffset,
-      debugLabel: debugLabel,
-      context: context,
-      oldPosition: oldPosition,
-      physics: physics,
-    );
-  }
-
-  @override
-  void attach(ScrollPosition position) {
-    super.attach(position);
-    _attachDelegateTo(position);
-  }
-
-  @override
-  void detach(ScrollPosition position) {
-    super.detach(position);
-    _detachDelegateFrom(position);
-  }
-
-  void _attachDelegateTo(ScrollPosition position) {
-    position as SheetScrollPosition;
-    assert(position._delegate == null);
-    if (_delegate != null) {
-      _delegate!.addScrollPosition(position);
-      position._delegate = _delegate;
-    }
-  }
-
-  void _detachDelegateFrom(ScrollPosition position) {
-    position as SheetScrollPosition;
-    if (_delegate != null) {
-      assert(position._delegate == _delegate);
-      _delegate!.removeScrollPosition(position);
-      position._delegate = null;
-    }
-  }
-
-  @override
-  void dispose() {
-    positions.forEach(_detachDelegateFrom);
-    _delegate = null;
-    super.dispose();
-  }
 }
