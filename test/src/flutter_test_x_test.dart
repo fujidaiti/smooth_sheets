@@ -445,36 +445,65 @@ void main() {
       expect(dragUpdateDetailsHistory.first.delta, Offset(0, 20));
     });
 
-    testWidgets(
-      'target widget does not receive the full drag delta when there are '
-      'multiple gesture recognizers in the hit-test path',
-      (tester) async {
-        var onTapCalled = false;
-        await tester.pumpWidget(
-          GestureDetector(
-            onTap: () => onTapCalled = true,
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: Colors.white,
-              child: Center(
-                child: SizedBox.fromSize(
-                  size: Size.square(200),
-                  child: testWidget,
-                ),
+    group('includeDragSlop', () {
+      late bool onTapCalled;
+
+      setUp(() {
+        onTapCalled = false;
+        testWidget = GestureDetector(
+          onTap: () => onTapCalled = true,
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.white,
+            child: Center(
+              child: SizedBox.fromSize(
+                size: Size.square(200),
+                child: testWidget,
               ),
             ),
           ),
         );
-        await tester.dragDownward(find.byKey(Key('draggable')), deltaY: 100);
-        expect(onTapCalled, isFalse);
-        expect(dragUpdateDetailsHistory, hasLength(1));
-        expect(
-          dragUpdateDetailsHistory.first.delta,
-          Offset(0, 100 - kDragSlopDefault),
-        );
-      },
-    );
+      });
+
+      testWidgets(
+        'target widget does not receive the full drag if includeDragSlop '
+        'is false',
+        (tester) async {
+          await tester.pumpWidget(testWidget);
+          await tester.dragDownward(
+            find.byKey(Key('draggable')),
+            deltaY: 100,
+            includeDragSlop: false,
+          );
+          expect(onTapCalled, isFalse);
+          expect(dragUpdateDetailsHistory, hasLength(1));
+          expect(
+            dragUpdateDetailsHistory.first.delta,
+            Offset(0, 100 - kDragSlopDefault),
+          );
+        },
+      );
+
+      testWidgets(
+        'target widget receives the full drag if includeDragSlop '
+        'is true',
+        (tester) async {
+          await tester.pumpWidget(testWidget);
+          await tester.dragDownward(
+            find.byKey(Key('draggable')),
+            deltaY: 100,
+            includeDragSlop: true,
+          );
+          expect(onTapCalled, isFalse);
+          expect(dragUpdateDetailsHistory, hasLength(1));
+          expect(
+            dragUpdateDetailsHistory.first.delta,
+            Offset(0, 100),
+          );
+        },
+      );
+    });
   });
 
   group('testWithVsync', () {

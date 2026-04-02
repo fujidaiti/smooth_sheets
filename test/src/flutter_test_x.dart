@@ -296,11 +296,21 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
   /// event (step 1 above, the onStart is also triggered at this point) and
   /// receives both the drag segments from the subsequent pointer move events.
   /// In this case, the target scrollable can consume the entire drag delta.
+  ///
+  /// Setting [includeDragSlop] to true automatically adds [t.kDragSlopDefault]
+  /// to the drag delta, which ensures that the target widget receives the
+  /// entire [deltaY]. Use this flag with caution, as the target widget will
+  /// simply receive [deltaY] plus [t.kDragSlopDefault] if there is only one
+  /// gesture recognizer in the hit-test path as described above.
   /// {@endtemplate}
   Future<void> dragUpward(
     t.FinderBase<Element> finder, {
     required double deltaY,
-  }) => drag(finder, Offset(0, -deltaY));
+    bool includeDragSlop = false,
+  }) => drag(
+    finder,
+    Offset(0, includeDragSlop ? -deltaY - t.kDragSlopDefault : -deltaY),
+  );
 
   /// Attempts to drag the given widget downward by the given [deltaY],
   /// by starting a drag in the middle of the widget.
@@ -309,7 +319,11 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
   Future<void> dragDownward(
     t.FinderBase<Element> finder, {
     required double deltaY,
-  }) => drag(finder, Offset(0, deltaY));
+    bool includeDragSlop = false,
+  }) => drag(
+    finder,
+    Offset(0, includeDragSlop ? deltaY + t.kDragSlopDefault : deltaY),
+  );
 
   /// Returns the local rectangle of the widget specified by the [finder].
   ///
