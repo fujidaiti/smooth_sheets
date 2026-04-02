@@ -34,6 +34,63 @@ Sheet(
 
 The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitTestBehavior.translucent` to `HitTestBehavior.opaque`, so that the sheet can be dragged even from transparent areas such as padding.
 
+## New way to manage scroll controllers 💥
+
+Previously, there was no way to manage a scroll controller for a scrollable widget inside the sheet from outside of that sheet. A [workaround][] was to use [SheetScrollable][] and capture the controller in the builder callback, but this approach was not aligned with the widget's lifecycle.
+
+With the refined `SheetScrollable`, you can now create a `SheetScrollController` outside the sheet (a specialized `ScrollController`), and attach it to `SheetScrollable` just as you would with a regular `ScrollController`.
+
+[workaround]: https://github.com/fujidaiti/smooth_sheets/discussions/112#discussioncomment-9323770
+[SheetScrollable]: https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetScrollable-class.html
+
+**BEFORE:**
+
+```dart
+ScrollController? scrollController;
+
+Widget build(BuildContext context) {
+  return Sheet(
+    child: SheetScrollable(
+      builder: (context, controller) {
+        scrollController = controller;
+        return ListView(
+          controller: controller,
+          children: [...],
+        );
+      },
+    ),
+  );
+}
+```
+
+**AFTER:**
+
+```dart
+late final SheetScrollController scrollController;
+
+@override
+void initState() {
+  super.initState();
+  scrollController = SheetScrollController();
+}
+
+void dispose() {
+  scrollController.dispose();
+  super.dispose();
+}
+
+Widget build(BuildContext context) {
+  return Sheet(
+    child: SheetScrollable(
+      controller: scrollController,
+      child: ListView(
+        children: [...],
+      ),
+    ),
+  );
+}
+```
+
 ## BouncingSheetPhysics no longer accepts custom spring 💥
 
 The `spring` parameter has been removed from `BouncingSheetPhysics`'s constructor as part of a fix for #435. If you were using a custom spring, you can extend `BouncingSheetPhysics` and override the `spring` getter to return your custom spring.
