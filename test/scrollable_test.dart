@@ -762,6 +762,144 @@ void main() {
     });
   });
 
+  testWidgets(
+    'Multiple SheetScrollable allows scrollables to have '
+    'independent scroll controllers',
+    (tester) async {
+      late ScrollController scrollController1;
+      late ScrollController scrollController2;
+
+      final testWidget = Directionality(
+        textDirection: TextDirection.ltr,
+        child: SheetViewport(
+          child: _TestSheet(
+            key: Key('sheet'),
+            scrollConfiguration: SheetScrollConfiguration(),
+            initialOffset: SheetOffset.absolute(500),
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(500), SheetOffset(1)],
+            ),
+            child: PageView(
+              children: [
+                _AlwaysKeepAlive(
+                  child: SheetScrollable(
+                    builder: (_, controller) {
+                      scrollController1 = controller;
+                      return SingleChildScrollView(
+                        controller: controller,
+                        physics: ClampingScrollPhysics(),
+                        child: SizedBox.fromSize(
+                          size: Size.fromHeight(1000),
+                          child: Text('page-1'),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                _AlwaysKeepAlive(
+                  child: SheetScrollable(
+                    initialScrollOffset: 50,
+                    builder: (_, controller) {
+                      scrollController2 = controller;
+                      return SingleChildScrollView(
+                        controller: controller,
+                        physics: ClampingScrollPhysics(),
+                        child: SizedBox.fromSize(
+                          size: Size.fromHeight(1000),
+                          child: Text('page-2'),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // Sheet is initially minimized
+      await tester.pumpWidget(testWidget);
+      expect(scrollController1.offset, 0);
+      expect(find.text('page-1'), findsOneWidget);
+      expect(
+        tester.getRect(find.byId('sheet')),
+        Rect.fromLTWH(0, 100, 800, 600),
+      );
+
+      // Drag sheet upward to expand it
+      await tester.dragUpward(
+        find.byId('sheet'),
+        deltaY: 200,
+        includeDragSlop: true,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byId('sheet')),
+        Rect.fromLTWH(0, 0, 800, 600),
+      );
+      expect(scrollController1.offset, 100);
+
+      // Swipe to the second page
+      await tester.fling(find.byId('sheet'), Offset(-50, 0), 1000);
+      await tester.pumpAndSettle();
+      expect(find.text('page-1'), findsNothing);
+      expect(find.text('page-2'), findsOneWidget);
+      expect(scrollController2.offset, 50);
+      expect(
+        tester.getRect(find.byId('sheet')),
+        Rect.fromLTWH(0, 0, 800, 600),
+      );
+
+      // Drag sheet downward to minimize it
+      await tester.dragDownward(
+        find.byId('sheet'),
+        deltaY: 150,
+        includeDragSlop: true,
+      );
+      await tester.pumpAndSettle();
+      expect(scrollController2.offset, 0);
+      expect(
+        scrollController1.offset,
+        100,
+        reason: 'Scrolling on the second page should not affect the first page',
+      );
+      expect(
+        tester.getRect(find.byId('sheet')),
+        Rect.fromLTWH(0, 100, 800, 600),
+      );
+
+      // Swipe back to the first page
+      await tester.fling(find.byId('sheet'), Offset(50, 0), 1000);
+      await tester.pumpAndSettle();
+      expect(find.text('page-1'), findsOneWidget);
+      expect(find.text('page-2'), findsNothing);
+
+      // Drag sheet upward again
+      await tester.dragUpward(
+        find.byId('sheet'),
+        deltaY: 200,
+        includeDragSlop: true,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byId('sheet')),
+        Rect.fromLTWH(0, 0, 800, 600),
+      );
+      expect(
+        scrollController1.offset,
+        200,
+        reason:
+            'Should be able to drag the sheet and '
+            'scroll the first page continuously',
+      );
+      expect(
+        scrollController2.offset,
+        0,
+        reason: 'Scrolling on the first page should not affect the second page',
+      );
+    },
+  );
 }
 
 class _TestModelConfig extends SheetModelConfig {
@@ -830,5 +968,26 @@ class _TestSheet extends StatelessWidget {
       ),
       child: BareSheet(child: child),
     );
+  }
+}
+
+class _AlwaysKeepAlive extends StatefulWidget {
+  const _AlwaysKeepAlive({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_AlwaysKeepAlive> createState() => _AlwaysKeepAliveState();
+}
+
+class _AlwaysKeepAliveState extends State<_AlwaysKeepAlive>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }
