@@ -407,15 +407,16 @@ void main() {
 
   group('WidgetTesterX.dragUpward and dragDownward', () {
     late Widget testWidget;
-    DragUpdateDetails? dragUpdateDetails;
+    late List<DragUpdateDetails> dragUpdateDetailsHistory;
 
     setUp(() {
-      dragUpdateDetails = null;
-      testWidget = MaterialApp(
-        home: GestureDetector(
-          onPanUpdate: (details) {
-            dragUpdateDetails = details;
-          },
+      dragUpdateDetailsHistory = [];
+      testWidget = Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.white,
+        child: GestureDetector(
+          onPanUpdate: dragUpdateDetailsHistory.add,
           child: Container(
             key: Key('draggable'),
             width: 200,
@@ -431,7 +432,8 @@ void main() {
     ) async {
       await tester.pumpWidget(testWidget);
       await tester.dragUpward(find.byKey(Key('draggable')), deltaY: 20);
-      expect(dragUpdateDetails?.delta, Offset(0, -20));
+      expect(dragUpdateDetailsHistory, hasLength(1));
+      expect(dragUpdateDetailsHistory.first.delta, Offset(0, -20));
     });
 
     testWidgets('dragDownward should drag widget downward by deltaY', (
@@ -439,8 +441,40 @@ void main() {
     ) async {
       await tester.pumpWidget(testWidget);
       await tester.dragDownward(find.byKey(Key('draggable')), deltaY: 20);
-      expect(dragUpdateDetails?.delta, Offset(0, 20));
+      expect(dragUpdateDetailsHistory, hasLength(1));
+      expect(dragUpdateDetailsHistory.first.delta, Offset(0, 20));
     });
+
+    testWidgets(
+      'target widget does not receive the full drag delta when there are '
+      'multiple gesture recognizers in the hit-test path',
+      (tester) async {
+        var onTapCalled = false;
+        await tester.pumpWidget(
+          GestureDetector(
+            onTap: () => onTapCalled = true,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: Colors.white,
+              child: Center(
+                child: SizedBox.fromSize(
+                  size: Size.square(200),
+                  child: testWidget,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.dragDownward(find.byKey(Key('draggable')), deltaY: 100);
+        expect(onTapCalled, isFalse);
+        expect(dragUpdateDetailsHistory, hasLength(1));
+        expect(
+          dragUpdateDetailsHistory.first.delta,
+          Offset(0, 100 - kDragSlopDefault),
+        );
+      },
+    );
   });
 
   group('testWithVsync', () {
