@@ -1,3 +1,4 @@
+/// @docImport 'package:flutter/gestures.dart';
 /// @docImport 'package:flutter/scheduler.dart';
 library;
 
@@ -263,17 +264,66 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
 
   /// Attempts to drag the given widget upward by the given [deltaY],
   /// by starting a drag in the middle of the widget.
+  ///
+  /// {@template WidgetTesterX.dragUpward}
+  /// The target widget may not fully receive the specified drag delta if
+  /// there are multiple gesture recognizers in the hit-test path (e.g.,
+  /// a [DragGestureRecognizer] for the scrollable). For example, if the target
+  /// widget is a scrollable and there is a clickable button on the center of
+  /// that scrollable, the delta it receives will be reduced by
+  /// [t.kDragSlopDefault]. This is because:
+  ///
+  /// 1. the test environment initiates a pointer down event at the center of
+  ///    the scrollable, which is also the center of the button. Since there are
+  ///    at least two gesture recognizers, no one has won the gesture arena at
+  ///    this point.
+  /// 2. As stated in the documentation of [drag], the test environment splits
+  ///    the drag delta into two segments ([t.kDragSlopDefault] and the rest)
+  ///    and sequentially emits them as separate pointer move events.
+  /// 3. When the first pointer move event is dispatched, the recognizer of the
+  ///    scrollable wins the gesture arena, causing a gesture callback to be
+  ///    triggered (e.g., the [DragGestureRecognizer]'s onStart callback).
+  ///    Note that the fist segment of the drag delta ([t.kDragSlopDefault]) is
+  ///    consumed at this point, but the recognizer cannot know this value since
+  ///    [DragStartDetails] does not include the drag delta.
+  /// 4. The subsequent pointer move event then triggers the onUpdate callback
+  ///    of the [DragGestureRecognizer] with the rest of the drag delta. This is
+  ///    the first time the recognizer receives the drag delta, but the value is
+  ///    reduced by [t.kDragSlopDefault] (due to the step 3).
+  ///
+  /// If there is only one gesture recognizer in the hit-test path,
+  /// the recognizer wons the gesture arena immediately at the pointer down
+  /// event (step 1 above, the onStart is also triggered at this point) and
+  /// receives both the drag segments from the subsequent pointer move events.
+  /// In this case, the target scrollable can consume the entire drag delta.
+  ///
+  /// Setting [includeDragSlop] to true automatically adds [t.kDragSlopDefault]
+  /// to the drag delta, which ensures that the target widget receives the
+  /// entire [deltaY]. Use this flag with caution, as the target widget will
+  /// simply receive [deltaY] plus [t.kDragSlopDefault] if there is only one
+  /// gesture recognizer in the hit-test path as described above.
+  /// {@endtemplate}
   Future<void> dragUpward(
     t.FinderBase<Element> finder, {
     required double deltaY,
-  }) => drag(finder, Offset(0, -deltaY));
+    bool includeDragSlop = false,
+  }) => drag(
+    finder,
+    Offset(0, includeDragSlop ? -deltaY - t.kDragSlopDefault : -deltaY),
+  );
 
   /// Attempts to drag the given widget downward by the given [deltaY],
   /// by starting a drag in the middle of the widget.
+  ///
+  /// {@macro WidgetTesterX.dragUpward}
   Future<void> dragDownward(
     t.FinderBase<Element> finder, {
     required double deltaY,
-  }) => drag(finder, Offset(0, deltaY));
+    bool includeDragSlop = false,
+  }) => drag(
+    finder,
+    Offset(0, includeDragSlop ? deltaY + t.kDragSlopDefault : deltaY),
+  );
 
   /// Returns the local rectangle of the widget specified by the [finder].
   ///

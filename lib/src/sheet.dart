@@ -133,7 +133,7 @@ class Sheet extends StatelessWidget {
 }
 
 @internal
-class DraggableScrollableSheetContent extends StatelessWidget {
+class DraggableScrollableSheetContent extends StatefulWidget {
   const DraggableScrollableSheetContent({
     super.key,
     required this.scrollConfiguration,
@@ -148,20 +148,49 @@ class DraggableScrollableSheetContent extends StatelessWidget {
   final Widget child;
 
   @override
+  State<DraggableScrollableSheetContent> createState() =>
+      _DraggableScrollableSheetContentState();
+}
+
+class _DraggableScrollableSheetContentState
+    extends State<DraggableScrollableSheetContent> {
+  SheetScrollController? _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.scrollConfiguration != null) {
+      _scrollController = _createScrollController();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(DraggableScrollableSheetContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.scrollConfiguration != null) {
+      _scrollController ??= _createScrollController();
+    }
+  }
+
+  SheetScrollController _createScrollController() {
+    return SheetScrollController();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget result = SheetDraggable(
-      configuration: dragConfiguration,
-      child: child,
+      configuration: widget.dragConfiguration,
+      child: widget.child,
     );
-    if (scrollConfiguration != null) {
-      final child = result;
-      result = SheetScrollable(
-        builder: (context, controller) {
-          return PrimaryScrollController(controller: controller, child: child);
-        },
-      );
+    if (_scrollController case final controller?) {
+      result = SheetScrollable(controller: controller, child: result);
     }
-
     return result;
   }
 }

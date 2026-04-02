@@ -173,7 +173,7 @@ void main() {
     testWidgets('in a plain ListView', (tester) async {
       const targetKey = Key('Target');
       final controller = SheetController();
-      late ScrollController scrollController;
+      final scrollController = SheetScrollController();
 
       await tester.pumpWidget(
         _TestApp(
@@ -181,18 +181,15 @@ void main() {
             child: Sheet(
               scrollConfiguration: const SheetScrollConfiguration(),
               controller: controller,
-              child: Builder(
-                builder: (context) {
-                  // TODO(fujita): Refactor this line after #116 is resolved.
-                  scrollController = PrimaryScrollController.of(context);
-                  return _TestSheetContent(
-                    key: targetKey,
-                    itemCount: 1000,
-                    height: null,
-                    // The items need to be clickable to cause the issue.
-                    onTapItem: (index) {},
-                  );
-                },
+              child: SheetScrollable(
+                controller: scrollController,
+                child: _TestSheetContent(
+                  key: targetKey,
+                  itemCount: 1000,
+                  height: null,
+                  // The items need to be clickable to cause the issue.
+                  onTapItem: (index) {},
+                ),
               ),
             ),
           ),
@@ -235,36 +232,33 @@ void main() {
 
     // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/214
     testWidgets('in a PageView with multiple ListViews', (tester) async {
-      late final ScrollController scrollController;
+      final scrollController = SheetScrollController();
 
       await tester.pumpWidget(
         _TestApp(
           child: SheetViewport(
             child: Sheet(
               scrollConfiguration: const SheetScrollConfiguration(),
-              child: Builder(
-                builder: (context) {
-                  // TODO(fujita): Refactor this line after #116 is resolved.
-                  scrollController = PrimaryScrollController.of(context);
-                  return Material(
-                    child: PageView(
-                      controller: PageController(),
-                      children: [
-                        for (var i = 0; i < 2; i++)
-                          ListView.builder(
-                            key: Key('ListView #$i'),
-                            itemCount: 100,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                onTap: () {},
-                                title: Text('Item $index'),
-                              );
-                            },
-                          ),
-                      ],
-                    ),
-                  );
-                },
+              child: SheetScrollable(
+                controller: scrollController,
+                child: Material(
+                  child: PageView(
+                    controller: PageController(),
+                    children: [
+                      for (var i = 0; i < 2; i++)
+                        ListView.builder(
+                          key: Key('ListView #$i'),
+                          itemCount: 100,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              onTap: () {},
+                              title: Text('Item $index'),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -391,28 +385,31 @@ void main() {
   // - https://github.com/fujidaiti/smooth_sheets/issues/207
   // - https://github.com/fujidaiti/smooth_sheets/issues/212
   group('Infinite ballistic scroll activity test', () {
-    late ScrollController scrollController;
+    late SheetScrollController scrollController;
     late ScrollAwareSheetModelMixin sheetPosition;
     late Widget testWidget;
 
     setUp(() {
+      scrollController = SheetScrollController();
       testWidget = SheetViewport(
         child: Sheet(
           scrollConfiguration: const SheetScrollConfiguration(),
-          child: Builder(
-            builder: (context) {
-              scrollController = PrimaryScrollController.of(context);
-              sheetPosition =
-                  SheetModelOwner.of(context)! as ScrollAwareSheetModelMixin;
-              return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Container(
-                  color: Colors.white,
-                  width: double.infinity,
-                  height: 1200,
-                ),
-              );
-            },
+          child: SheetScrollable(
+            controller: scrollController,
+            child: Builder(
+              builder: (context) {
+                sheetPosition =
+                    SheetModelOwner.of(context)! as ScrollAwareSheetModelMixin;
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Container(
+                    color: Colors.white,
+                    width: double.infinity,
+                    height: 1200,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       );
