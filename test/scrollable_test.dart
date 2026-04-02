@@ -31,16 +31,18 @@ void main() {
             scrollSyncMode: SheetScrollHandlingBehavior.always,
           ),
           physics: sheetPhysics,
-          builder: (context, controller) {
-            return SizedBox.fromSize(
-              size: Size.fromHeight(600),
-              child: SingleChildScrollView(
-                physics: scrollPhysics,
-                controller: controller,
-                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
-              ),
-            );
-          },
+          child: SheetScrollable(
+            builder: (context, controller) {
+              return SizedBox.fromSize(
+                size: Size.fromHeight(600),
+                child: SingleChildScrollView(
+                  physics: scrollPhysics,
+                  controller: controller,
+                  child: SizedBox.fromSize(size: Size.fromHeight(1000)),
+                ),
+              );
+            },
+          ),
         ),
       );
 
@@ -126,18 +128,20 @@ void main() {
             scrollSyncMode: SheetScrollHandlingBehavior.always,
           ),
           physics: physics,
-          builder: (context, controller) {
-            scrollController = controller;
-            return SizedBox.fromSize(
-              size: Size.fromHeight(600),
-              child: SingleChildScrollView(
-                key: Key('scrollable'),
-                physics: BouncingScrollPhysics(),
-                controller: controller,
-                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
-              ),
-            );
-          },
+          child: SheetScrollable(
+            builder: (context, controller) {
+              scrollController = controller;
+              return SizedBox.fromSize(
+                size: Size.fromHeight(600),
+                child: SingleChildScrollView(
+                  key: Key('scrollable'),
+                  physics: BouncingScrollPhysics(),
+                  controller: controller,
+                  child: SizedBox.fromSize(size: Size.fromHeight(1000)),
+                ),
+              );
+            },
+          ),
         ),
       );
 
@@ -362,16 +366,18 @@ void main() {
             scrollSyncMode: SheetScrollHandlingBehavior.always,
           ),
           physics: BouncingSheetPhysics(),
-          builder: (context, controller) {
-            scrollController = controller;
-            return SizedBox.fromSize(
-              size: Size.fromHeight(600),
-              child: SingleChildScrollView(
-                controller: controller,
-                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
-              ),
-            );
-          },
+          child: SheetScrollable(
+            builder: (context, controller) {
+              scrollController = controller;
+              return SizedBox.fromSize(
+                size: Size.fromHeight(600),
+                child: SingleChildScrollView(
+                  controller: controller,
+                  child: SizedBox.fromSize(size: Size.fromHeight(1000)),
+                ),
+              );
+            },
+          ),
         ),
       );
 
@@ -427,18 +433,20 @@ void main() {
           snapGrid: SteplessSnapGrid(),
           scrollConfiguration: scrollConfiguration,
           physics: BouncingSheetPhysics(),
-          builder: (context, controller) {
-            scrollControllerRef.value = controller;
-            return SizedBox.fromSize(
-              size: Size.fromHeight(300),
-              child: SingleChildScrollView(
-                key: Key('scrollable'),
-                physics: BouncingScrollPhysics(),
-                controller: controller,
-                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
-              ),
-            );
-          },
+          child: SheetScrollable(
+            builder: (context, controller) {
+              scrollControllerRef.value = controller;
+              return SizedBox.fromSize(
+                size: Size.fromHeight(300),
+                child: SingleChildScrollView(
+                  key: Key('scrollable'),
+                  physics: BouncingScrollPhysics(),
+                  controller: controller,
+                  child: SizedBox.fromSize(size: Size.fromHeight(1000)),
+                ),
+              );
+            },
+          ),
         ),
       );
       return (testWidget: testWidget, scrollControllerRef: scrollControllerRef);
@@ -553,18 +561,20 @@ void main() {
           snapGrid: SingleSnapGrid(snap: SheetOffset(1)),
           scrollConfiguration: scrollConfiguration,
           physics: sheetPhysics,
-          builder: (context, controller) {
-            scrollController = controller;
-            return SizedBox.fromSize(
-              size: Size.fromHeight(300),
-              child: SingleChildScrollView(
-                key: Key('scrollable'),
-                physics: scrollPhysics,
-                controller: controller,
-                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
-              ),
-            );
-          },
+          child: SheetScrollable(
+            builder: (context, controller) {
+              scrollController = controller;
+              return SizedBox.fromSize(
+                size: Size.fromHeight(300),
+                child: SingleChildScrollView(
+                  key: Key('scrollable'),
+                  physics: scrollPhysics,
+                  controller: controller,
+                  child: SizedBox.fromSize(size: Size.fromHeight(1000)),
+                ),
+              );
+            },
+          ),
         ),
       );
 
@@ -751,6 +761,7 @@ void main() {
       expect(env.getScrollOffset(), 0);
     });
   });
+
 }
 
 class _TestModelConfig extends SheetModelConfig {
@@ -796,7 +807,7 @@ class _TestSheet extends StatelessWidget {
     required this.initialOffset,
     required this.snapGrid,
     this.physics = kDefaultSheetPhysics,
-    required this.builder,
+    required this.child,
   });
 
   final SheetController? controller;
@@ -804,7 +815,7 @@ class _TestSheet extends StatelessWidget {
   final SheetScrollConfiguration scrollConfiguration;
   final SheetPhysics physics;
   final SheetSnapGrid snapGrid;
-  final ScrollableWidgetBuilder builder;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -817,7 +828,7 @@ class _TestSheet extends StatelessWidget {
         snapGrid: snapGrid,
         scrollConfiguration: scrollConfiguration,
       ),
-      child: BareSheet(child: SheetScrollable(builder: builder)),
+      child: BareSheet(child: child),
     );
   }
 }
