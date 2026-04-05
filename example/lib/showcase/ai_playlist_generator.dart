@@ -81,9 +81,9 @@ final _sheetShellRoute = ShellRoute(
 final _introRoute = GoRoute(
   path: 'intro',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(
+    return PagedSheetPage(
       // Use a custom transition builder.
-      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+      transitionsBuilder: _createTransitionBuilder(context),
       child: _IntroPage(),
     );
   },
@@ -93,8 +93,8 @@ final _introRoute = GoRoute(
 final _genreRoute = GoRoute(
   path: 'genre',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(
-      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+    return PagedSheetPage(
+      transitionsBuilder: _createTransitionBuilder(context),
       child: _SelectGenrePage(),
     );
   },
@@ -104,8 +104,8 @@ final _genreRoute = GoRoute(
 final _moodRoute = GoRoute(
   path: 'mood',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(
-      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+    return PagedSheetPage(
+      transitionsBuilder: _createTransitionBuilder(context),
       child: _SelectMoodPage(),
     );
   },
@@ -115,8 +115,8 @@ final _moodRoute = GoRoute(
 final _seedTrackRoute = GoRoute(
   path: 'seed-track',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(
-      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+    return PagedSheetPage(
+      transitionsBuilder: _createTransitionBuilder(context),
       scrollConfiguration: SheetScrollConfiguration(),
       child: _SelectSeedTrackPage(),
     );
@@ -127,8 +127,8 @@ final _seedTrackRoute = GoRoute(
 final _confirmRoute = GoRoute(
   path: 'confirm',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(
-      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+    return PagedSheetPage(
+      transitionsBuilder: _createTransitionBuilder(context),
       scrollConfiguration: SheetScrollConfiguration(),
       initialOffset: SheetOffset(0.7),
       snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.7), SheetOffset(1)]),
@@ -141,8 +141,8 @@ final _confirmRoute = GoRoute(
 final _generateRoute = GoRoute(
   path: 'generate',
   pageBuilder: (context, state) {
-    return const PagedSheetPage(
-      transitionsBuilder: _fadeAndSlideTransitionWithIOSBackGesture,
+    return PagedSheetPage(
+      transitionsBuilder: _createTransitionBuilder(context),
       child: _GeneratingPage(),
     );
   },
@@ -656,20 +656,27 @@ class _SharedSheetBottomBar extends StatelessWidget {
   }
 }
 
+RouteTransitionsBuilder? _createTransitionBuilder(BuildContext conatext) {
+  return switch (Theme.of(conatext).platform) {
+    TargetPlatform.iOS => _fadeAndSlideTransitionWithIOSBackGesture,
+    // Use the default transition on the other platforms.
+    _ => null,
+  };
+}
+
 Widget _fadeAndSlideTransitionWithIOSBackGesture(
   BuildContext context,
   Animation<double> animation,
   Animation<double> secondaryAnimation,
   Widget child,
 ) {
-  final PageTransitionsTheme theme = Theme.of(context).pageTransitionsTheme;
   return FadeTransition(
     opacity: CurveTween(curve: Curves.easeInExpo).animate(animation),
     child: FadeTransition(
       opacity: Tween(begin: 1.0, end: 0.0)
           .chain(CurveTween(curve: Curves.easeOutExpo))
           .animate(secondaryAnimation),
-      child: theme.buildTransitions(
+      child: const CupertinoPageTransitionsBuilder().buildTransitions(
         ModalRoute.of(context) as PageRoute,
         context,
         animation,
