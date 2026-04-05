@@ -864,6 +864,103 @@ void main() {
     });
 
     testWidgets(
+      'When Android predictive back gesture is performed',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+      (tester) async {
+        final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
+        await tester.pumpWidget(env.testWidget);
+        env.pushRoute('b', 500);
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.startAndroidBackGesture(touchOffset: [5.0, 300]);
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.updateAndroidBackGestureProgress(
+          x: 100.0,
+          y: 300,
+          progress: 0.3,
+        );
+        await tester.pump();
+        expect(
+          env.getSheetRect(tester).top,
+          testScreenSize.height - 500,
+          reason:
+              'Sheet position should not change while gesture is in progress.',
+        );
+
+        await tester.updateAndroidBackGestureProgress(
+          x: 200.0,
+          y: 300,
+          progress: 0.6,
+        );
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        final sheetTopHistory = <double>[];
+        await tester.commitAndroidBackGesture();
+        await tester.pump();
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(Key('a')), findsOneWidget);
+        expect(find.byKey(Key('b')), findsNothing);
+        expect(sheetTopHistory, isMonotonicallyIncreasing);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      },
+    );
+
+    testWidgets(
+      'When Android predictive back gesture is canceled',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+      (tester) async {
+        final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
+        await tester.pumpWidget(env.testWidget);
+        env.pushRoute('b', 500);
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.startAndroidBackGesture(touchOffset: [5.0, 300]);
+        await tester.pump();
+
+        await tester.updateAndroidBackGestureProgress(
+          x: 100.0,
+          y: 300,
+          progress: 0.3,
+        );
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.cancelAndroidBackGesture();
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.pump(Duration(milliseconds: 100));
+        expect(
+          env.getSheetRect(tester).top,
+          testScreenSize.height - 500,
+          reason:
+              'Sheet is already at the target position, so it should not '
+              'move while the route pop transition is running.',
+        );
+
+        await tester.pumpAndSettle();
+        expect(find.byKey(Key('a')), findsNothing);
+        expect(find.byKey(Key('b')), findsOneWidget);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      },
+    );
+
+    testWidgets(
       'Should use the same curve for offset and size transition animations',
       (tester) async {
         const nonLinearCurve = Curves.easeIn;
@@ -1359,6 +1456,108 @@ void main() {
       expect(find.byKey(Key('b')), findsOneWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
     });
+
+    testWidgets(
+      'When Android predictive back gesture is performed',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+      (tester) async {
+        final pageA = createPage(name: 'a', height: 300);
+        final pageB = createPage(name: 'b', height: 500);
+        final env = boilerplate(initialPages: [pageA, pageB]);
+        await tester.pumpWidget(env.testWidget);
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.startAndroidBackGesture(touchOffset: [5.0, 300]);
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.updateAndroidBackGestureProgress(
+          x: 100.0,
+          y: 300,
+          progress: 0.3,
+        );
+        await tester.pump();
+        expect(
+          env.getSheetRect(tester).top,
+          testScreenSize.height - 500,
+          reason:
+              'Sheet position should not change while gesture is in progress.',
+        );
+
+        await tester.updateAndroidBackGestureProgress(
+          x: 200.0,
+          y: 300,
+          progress: 0.6,
+        );
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        final sheetTopHistory = <double>[];
+        await tester.commitAndroidBackGesture();
+        await tester.pump();
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        sheetTopHistory.add(env.getSheetRect(tester).top);
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(Key('a')), findsOneWidget);
+        expect(find.byKey(Key('b')), findsNothing);
+        expect(sheetTopHistory, isMonotonicallyIncreasing);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      },
+    );
+
+    testWidgets(
+      'When Android predictive back gesture is canceled',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+      (tester) async {
+        final pageA = createPage(name: 'a', height: 300);
+        final pageB = createPage(name: 'b', height: 500);
+        final env = boilerplate(initialPages: [pageA, pageB]);
+        await tester.pumpWidget(env.testWidget);
+        await tester.pumpAndSettle();
+        expect(find.byKey(Key('a')).hitTestable(), findsNothing);
+        expect(find.byKey(Key('b')), findsOneWidget);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.startAndroidBackGesture(touchOffset: [5.0, 300]);
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.updateAndroidBackGestureProgress(
+          x: 100.0,
+          y: testScreenSize.height - 250,
+          progress: 0.3,
+        );
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.cancelAndroidBackGesture();
+        await tester.pump();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        await tester.pump(Duration(milliseconds: 100));
+        expect(
+          env.getSheetRect(tester).top,
+          testScreenSize.height - 500,
+          reason:
+              'Sheet is already at the target position, so it should not '
+              'move while the route pop transition is running.',
+        );
+
+        await tester.pumpAndSettle();
+        expect(find.byKey(Key('a')), findsNothing);
+        expect(find.byKey(Key('b')), findsOneWidget);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+      },
+    );
   });
 
   group('Drag Configuration Test', () {

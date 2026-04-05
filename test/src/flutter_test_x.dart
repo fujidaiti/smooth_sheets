@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart' as t;
 import 'package:meta/meta.dart';
@@ -14,9 +15,14 @@ export 'package:flutter_test/flutter_test.dart' hide find;
 @isTest
 void testWidgets(
   String description,
-  Future<void> Function(WidgetTesterX) callback,
-) {
-  t.testWidgets(description, (t) => callback(WidgetTesterX(t)));
+  Future<void> Function(WidgetTesterX) callback, {
+  t.TestVariant<Object?> variant = const t.DefaultTestVariant(),
+}) {
+  t.testWidgets(
+    description,
+    (t) => callback(WidgetTesterX(t)),
+    variant: variant,
+  );
 }
 
 /// Runs a test with a clock that can be programmatically advanced.
@@ -324,6 +330,88 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
     finder,
     Offset(0, includeDragSlop ? deltaY + t.kDragSlopDefault : deltaY),
   );
+
+  /// Simulates sending a platform message to notify the start of
+  /// Android's predictive back gesture.
+  ///
+  /// Calling this method will cause
+  /// [WidgetsBindingObserver.handleStartBackGesture] to be invoked
+  /// by the framework.
+  Future<void> startAndroidBackGesture({
+    required List<double> touchOffset,
+    double progress = 0.0,
+    int swipeEdge = 0,
+  }) async {
+    await self.binding.defaultBinaryMessenger.handlePlatformMessage(
+      'flutter/backgesture',
+      const StandardMethodCodec().encodeMethodCall(
+        MethodCall('startBackGesture', <String, dynamic>{
+          'touchOffset': touchOffset,
+          'progress': progress,
+          'swipeEdge': swipeEdge,
+        }),
+      ),
+      (ByteData? _) {},
+    );
+  }
+
+  /// Simulates sending a platform message to notify the progress of
+  /// Android's predictive back gesture.
+  ///
+  /// Calling this method will cause
+  /// [WidgetsBindingObserver.handleUpdateBackGestureProgress] to be invoked
+  /// by the framework.
+  Future<void> updateAndroidBackGestureProgress({
+    required double x,
+    required double y,
+    required double progress,
+    int swipeEdge = 0,
+  }) async {
+    await self.binding.defaultBinaryMessenger.handlePlatformMessage(
+      'flutter/backgesture',
+      const StandardMethodCodec().encodeMethodCall(
+        MethodCall('updateBackGestureProgress', <String, dynamic>{
+          'x': x,
+          'y': y,
+          'progress': progress,
+          'swipeEdge': swipeEdge,
+        }),
+      ),
+      (ByteData? _) {},
+    );
+  }
+
+  /// Simulates sending a platform message to notify the completion of
+  /// Android's predictive back gesture.
+  ///
+  /// Calling this method will cause
+  /// [WidgetsBindingObserver.handleCommitBackGesture] to be invoked
+  /// by the framework.
+  Future<void> commitAndroidBackGesture() async {
+    await self.binding.defaultBinaryMessenger.handlePlatformMessage(
+      'flutter/backgesture',
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall('commitBackGesture'),
+      ),
+      (ByteData? _) {},
+    );
+  }
+
+  /// Simulates sending a platform message to notify the cancellation of
+  /// Android's predictive back gesture.
+  ///
+  /// Calling this method will cause
+  /// [WidgetsBindingObserver.handleCancelBackGesture] to be invoked
+  /// by the framework.
+  Future<void> cancelAndroidBackGesture() async {
+    await self.binding.defaultBinaryMessenger.handlePlatformMessage(
+      'flutter/backgesture',
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall('cancelBackGesture'),
+      ),
+      (ByteData? _) {},
+    );
+  }
 
   /// Returns the local rectangle of the widget specified by the [finder].
   ///
