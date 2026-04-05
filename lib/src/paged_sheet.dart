@@ -7,6 +7,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
 import 'activity.dart';
@@ -641,14 +642,22 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
     if (transitionsBuilder case final builder?) {
       return builder(context, animation, secondaryAnimation, child);
     }
-    final theme = Theme.of(context).pageTransitionsTheme;
-    return theme.buildTransitions<T>(
-      this,
-      context,
-      animation,
-      secondaryAnimation,
-      child,
-    );
+    final theme = Theme.of(context);
+    return switch (theme.platform) {
+      TargetPlatform.android => _AndroidTransitionWithAnimationLessBackGesture(
+        route: this,
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        child: child,
+      ),
+      _ => theme.pageTransitionsTheme.buildTransitions(
+        this,
+        context,
+        animation,
+        secondaryAnimation,
+        child,
+      ),
+    };
   }
 }
 
@@ -785,5 +794,91 @@ class _PageBasedPagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
     Animation<double> secondaryAnimation,
   ) {
     return page.child;
+  }
+}
+
+/// A transition that enables Android's predictive back gesture to pop routes
+/// within the nested [Navigator], without modifying route transition progress
+/// during the gesture.
+///
+/// This is a workaround for the issue where [TransitionRoute.animation]
+/// jumps from a mid-transition value to 1.0 when the back gesture is committed,
+/// causing an abrupt pop-transition animation.
+///
+/// The root cause is that [TransitionRoute.handleUpdateBackGestureProgress]
+/// updates the [TransitionRoute.controller]'s value as the gesture progresses,
+/// but [TransitionRoute.handleCommitBackGesture] triggers the transition
+/// animation via [AnimationController.reverse] with 1.0 as the starting point,
+/// regardless of the current [TransitionRoute.controller]'s value.
+///
+/// The default back gesture handler behaves this way, but is incompatible with
+/// [PagedSheet]'s size transition. This transition widget therefore suppresses
+/// that gesture-driven transition progress while still allowing the gesture to
+/// commit a route pop.
+class _AndroidTransitionWithAnimationLessBackGesture extends StatefulWidget {
+  const _AndroidTransitionWithAnimationLessBackGesture({
+    required this.route,
+    required this.animation,
+    required this.secondaryAnimation,
+    required this.child,
+  });
+
+  final PageRoute<dynamic> route;
+  final Animation<double> animation;
+  final Animation<double> secondaryAnimation;
+  final Widget child;
+
+  @override
+  State<_AndroidTransitionWithAnimationLessBackGesture> createState() =>
+      _AndroidTransitionWithAnimationLessBackGestureState();
+}
+
+class _AndroidTransitionWithAnimationLessBackGestureState
+    extends State<_AndroidTransitionWithAnimationLessBackGesture>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  bool handleStartBackGesture(PredictiveBackEvent backEvent) {
+    return !backEvent.isButtonEvent &&
+        widget.route.isCurrent &&
+        !widget.route.isFirst;
+  }
+
+  @override
+  void handleCancelBackGesture() {
+    _handleEndBackGesture(isCommitted: false);
+  }
+
+  @override
+  void handleCommitBackGesture() {
+    _handleEndBackGesture(isCommitted: true);
+  }
+
+  void _handleEndBackGesture({required bool isCommitted}) {
+    if (isCommitted && widget.route.isCurrent) {
+      widget.route.navigator?.pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const FadeForwardsPageTransitionsBuilder().buildTransitions(
+      widget.route,
+      context,
+      widget.animation,
+      widget.secondaryAnimation,
+      widget.child,
+    );
   }
 }
