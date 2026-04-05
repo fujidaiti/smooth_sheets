@@ -644,12 +644,13 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
     }
     final theme = Theme.of(context);
     return switch (theme.platform) {
-      TargetPlatform.android => _AndroidTransitionWithAnimationLessBackGesture(
-        route: this,
-        animation: animation,
-        secondaryAnimation: secondaryAnimation,
-        child: child,
-      ),
+      TargetPlatform.android =>
+        _FadeForwardPageTransitionWithAnimationLessBackGesture(
+          route: this,
+          animation: animation,
+          secondaryAnimation: secondaryAnimation,
+          child: child,
+        ),
       _ => theme.pageTransitionsTheme.buildTransitions(
         this,
         context,
@@ -815,8 +816,9 @@ class _PageBasedPagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
 /// [PagedSheet]'s size transition. This transition widget therefore suppresses
 /// that gesture-driven transition progress while still allowing the gesture to
 /// commit a route pop.
-class _AndroidTransitionWithAnimationLessBackGesture extends StatefulWidget {
-  const _AndroidTransitionWithAnimationLessBackGesture({
+class _FadeForwardPageTransitionWithAnimationLessBackGesture
+    extends StatefulWidget {
+  const _FadeForwardPageTransitionWithAnimationLessBackGesture({
     required this.route,
     required this.animation,
     required this.secondaryAnimation,
@@ -829,12 +831,12 @@ class _AndroidTransitionWithAnimationLessBackGesture extends StatefulWidget {
   final Widget child;
 
   @override
-  State<_AndroidTransitionWithAnimationLessBackGesture> createState() =>
-      _AndroidTransitionWithAnimationLessBackGestureState();
+  State<_FadeForwardPageTransitionWithAnimationLessBackGesture> createState() =>
+      _FadeForwardPageTransitionWithAnimationLessBackGestureState();
 }
 
-class _AndroidTransitionWithAnimationLessBackGestureState
-    extends State<_AndroidTransitionWithAnimationLessBackGesture>
+class _FadeForwardPageTransitionWithAnimationLessBackGestureState
+    extends State<_FadeForwardPageTransitionWithAnimationLessBackGesture>
     with WidgetsBindingObserver {
   @override
   void initState() {
