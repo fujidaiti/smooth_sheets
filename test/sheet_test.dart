@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
@@ -127,6 +128,102 @@ void main() {
           scrollController.offset,
           greaterThan(200),
           reason: 'Scrollable should have scrolled',
+        );
+      },
+    );
+  });
+
+  group('deviceKinds', () {
+    Widget boilerplate({
+      required SheetDragConfiguration dragConfiguration,
+    }) {
+      return SheetViewport(
+        child: Sheet(
+          key: Key('sheet'),
+          initialOffset: SheetOffset(1),
+          snapGrid: SheetSnapGrid(
+            snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+          ),
+          dragConfiguration: dragConfiguration,
+          child: SizedBox.fromSize(
+            size: Size.fromHeight(300),
+          ),
+        ),
+      );
+    }
+
+    testWidgets(
+      'Sheet with deviceKinds: {mouse} responds to mouse drags',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            dragConfiguration: SheetDragConfiguration(
+              deviceKinds: {PointerDeviceKind.mouse},
+            ),
+          ),
+        );
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.drag(
+          find.byId('sheet'),
+          Offset(0, 150),
+          kind: PointerDeviceKind.mouse,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'Sheet should have moved with mouse drag',
+        );
+      },
+    );
+
+    testWidgets(
+      'Sheet with deviceKinds: {mouse} ignores touch drags',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            dragConfiguration: SheetDragConfiguration(
+              deviceKinds: {PointerDeviceKind.mouse},
+            ),
+          ),
+        );
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.drag(
+          find.byId('sheet'),
+          Offset(0, 150),
+          kind: PointerDeviceKind.touch,
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'Sheet should not have moved with touch drag',
+        );
+      },
+    );
+
+    testWidgets(
+      'Sheet with default deviceKinds (null) uses ScrollConfiguration',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(dragConfiguration: SheetDragConfiguration()),
+        );
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        // Default ScrollConfiguration includes touch.
+        await tester.drag(
+          find.byId('sheet'),
+          Offset(0, 150),
+          kind: PointerDeviceKind.touch,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'Sheet should respond to touch with default config',
         );
       },
     );

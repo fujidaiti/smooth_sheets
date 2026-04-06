@@ -437,12 +437,14 @@ class _RouteAwareSheetDraggableState extends State<_RouteAwareSheetDraggable>
     implements SheetDragConfiguration {
   late _PagedSheetModel _model;
 
+  SheetDragConfiguration get _effectiveConfig =>
+      _model._currentEntry?.dragConfiguration ?? widget.defaultConfiguration;
+
   @override
-  HitTestBehavior? get hitTestBehavior {
-    final effectiveConfig =
-        _model._currentEntry?.dragConfiguration ?? widget.defaultConfiguration;
-    return effectiveConfig.hitTestBehavior;
-  }
+  HitTestBehavior? get hitTestBehavior => _effectiveConfig.hitTestBehavior;
+
+  @override
+  Set<PointerDeviceKind>? get deviceKinds => _effectiveConfig.deviceKinds;
 
   @override
   void didChangeDependencies() {
