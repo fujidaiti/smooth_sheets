@@ -528,8 +528,6 @@ class PagedSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final routeThemeData = PagedSheetRouteTheme.of(context);
-
     Widget content = NavigatorResizable(
       interpolationCurve: transitionCurve,
       child: _NavigatorEventDispatcher(child: navigator),
@@ -545,7 +543,7 @@ class PagedSheet extends StatelessWidget {
         physics: physics,
         gestureProxy: SheetGestureProxy.maybeOf(context),
         offsetInterpolationCurve: transitionCurve,
-        routeThemeData: routeThemeData,
+        routeThemeData: PagedSheetRouteTheme.of(context),
       ),
       child: BareSheet(
         decoration: decoration,
@@ -724,6 +722,9 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   void install() {
     super.install();
     _model = SheetModelOwner.of(navigator!.context)! as _PagedSheetModel;
+    controller!
+      ..duration = transitionDuration
+      ..reverseDuration = reverseTransitionDuration;
   }
 
   @override
@@ -736,6 +737,9 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   void changedExternalState() {
     super.changedExternalState();
     _model = SheetModelOwner.of(navigator!.context)! as _PagedSheetModel;
+    controller!
+      ..duration = transitionDuration
+      ..reverseDuration = reverseTransitionDuration;
   }
 
   @override
