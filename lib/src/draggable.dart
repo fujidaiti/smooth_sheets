@@ -14,6 +14,7 @@ abstract class SheetDragConfiguration {
   /// The [hitTestBehavior] defaults to [HitTestBehavior.opaque].
   const factory SheetDragConfiguration({
     HitTestBehavior hitTestBehavior,
+    Set<PointerDeviceKind>? deviceKinds,
   }) = _StaticSheetDragConfiguration;
 
   /// A [SheetDragConfiguration] that disables dragging.
@@ -25,27 +26,38 @@ abstract class SheetDragConfiguration {
   ///
   /// Returning `null` means dragging is disabled.
   HitTestBehavior? get hitTestBehavior;
+
+  /// The pointer device kinds that the sheet responds to.
+  ///
+  /// When `null`, the sheet uses the drag devices from the nearest
+  /// ancestor [ScrollConfiguration].
+  Set<PointerDeviceKind>? get deviceKinds;
 }
 
 @immutable
 class _StaticSheetDragConfiguration implements SheetDragConfiguration {
   const _StaticSheetDragConfiguration({
     this.hitTestBehavior = HitTestBehavior.opaque,
+    this.deviceKinds,
   });
 
   @override
   final HitTestBehavior hitTestBehavior;
 
   @override
+  final Set<PointerDeviceKind>? deviceKinds;
+
+  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is _StaticSheetDragConfiguration &&
             runtimeType == other.runtimeType &&
-            hitTestBehavior == other.hitTestBehavior;
+            hitTestBehavior == other.hitTestBehavior &&
+            setEquals(deviceKinds, other.deviceKinds);
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, hitTestBehavior);
+  int get hashCode => Object.hash(runtimeType, hitTestBehavior, deviceKinds);
 }
 
 @immutable
@@ -56,6 +68,9 @@ class _SheetDragConfigurationDisabled implements SheetDragConfiguration {
 
   @override
   HitTestBehavior? get hitTestBehavior => null;
+
+  @override
+  Set<PointerDeviceKind>? get deviceKinds => null;
 
   @override
   bool operator ==(Object other) {
@@ -90,21 +105,30 @@ class _SheetDraggableState extends State<SheetDraggable> {
   SheetModel? _model;
   Drag? _currentDrag;
 
+  Set<PointerDeviceKind> get _effectiveDeviceKinds =>
+      widget.configuration.deviceKinds ??
+      ScrollConfiguration.of(context).dragDevices;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _model = SheetModelOwner.of(context);
-    final dragDevices = ScrollConfiguration.of(context).dragDevices;
-    _gestureRecognizer?.supportedDevices = dragDevices;
+    _gestureRecognizer?.supportedDevices = _effectiveDeviceKinds;
     _gestureRecognizer ??=
         VerticalDragGestureRecognizer(
             debugOwner: kDebugMode ? runtimeType : null,
-            supportedDevices: dragDevices,
+            supportedDevices: _effectiveDeviceKinds,
           )
           ..onStart = _handleDragStart
           ..onUpdate = _handleDragUpdate
           ..onEnd = _handleDragEnd
           ..onCancel = _handleDragCancel;
+  }
+
+  @override
+  void didUpdateWidget(SheetDraggable oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _gestureRecognizer?.supportedDevices = _effectiveDeviceKinds;
   }
 
   @override
