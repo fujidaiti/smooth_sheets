@@ -29,8 +29,8 @@ abstract class SheetDragConfiguration {
 
   /// The pointer device kinds that the sheet responds to.
   ///
-  /// When `null`, the sheet uses the drag devices from the ambient
-  /// [ScrollConfiguration].
+  /// When `null`, the sheet uses the drag devices from the nearest
+  /// ancestor [ScrollConfiguration].
   Set<PointerDeviceKind>? get deviceKinds;
 }
 
