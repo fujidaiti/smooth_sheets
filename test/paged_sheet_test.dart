@@ -1648,6 +1648,56 @@ void main() {
     }
 
     testWidgets(
+      'Sheet-level drag config does not affect per-route draggability (enabled / disabled)',
+      (tester) async {
+        final env = boilerplate(
+          sheetDragConfiguration: SheetDragConfiguration(),
+          initialRoute: () =>
+              createRoute(dragConfiguration: SheetDragConfiguration.disabled),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(
+          find.byId('sheet'),
+          Offset(0, 50),
+          1000,
+          // The sheet shouldn't even receive gesture events.
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'The sheet should not move',
+        );
+      },
+    );
+
+    testWidgets(
+      'Sheet-level drag config does not affect per-route draggability (disabled / enabled)',
+      (tester) async {
+        final env = boilerplate(
+          sheetDragConfiguration: SheetDragConfiguration.disabled,
+          initialRoute: () =>
+              createRoute(dragConfiguration: SheetDragConfiguration()),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'The sheet should snap to the lower snap point',
+        );
+      },
+    );
+
+    testWidgets(
       'Shared elements are draggable when current route is also draggable',
       (tester) async {
         final env = boilerplateForSharedElementTest(
