@@ -1560,7 +1560,7 @@ void main() {
     );
   });
 
-  group('Drag Configuration Test', () {
+  group('PagedSheet.dragConfiguration Test', () {
     ({
       Widget testWidget,
       Key sheetKey,
@@ -1568,7 +1568,7 @@ void main() {
     })
     boilerplate({
       required ValueGetter<Route<dynamic>> initialRoute,
-      required SheetDragConfiguration globalDragConfiguration,
+      required SheetDragConfiguration sheetDragConfiguration,
       Widget Function(BuildContext, Widget)? sharedContentBuilder,
     }) {
       final navigatorKey = GlobalKey<NavigatorState>();
@@ -1578,7 +1578,7 @@ void main() {
         child: SheetViewport(
           child: PagedSheet(
             key: sheetKey,
-            dragConfiguration: globalDragConfiguration,
+            dragConfiguration: sheetDragConfiguration,
             builder: sharedContentBuilder,
             navigator: Navigator(
               key: navigatorKey,
@@ -1613,169 +1613,17 @@ void main() {
       );
     }
 
-    testWidgets(
-      'Per-route config takes precedence over global config '
-      '(when both enabled)',
-      (tester) async {
-        final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration(),
-          initialRoute: () =>
-              createRoute(dragConfiguration: SheetDragConfiguration()),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
-        await tester.pumpAndSettle();
-        expect(
-          tester.getRect(find.byId('sheet')).top,
-          500,
-          reason: 'The sheet should snap to the lower snap point',
-        );
-      },
-    );
-
-    testWidgets(
-      'Per-route config takes precedence over global config '
-      '(when global is enabled and per-route is disabled)',
-      (tester) async {
-        final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration(),
-          initialRoute: () =>
-              createRoute(dragConfiguration: SheetDragConfiguration.disabled),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(
-          find.byId('sheet'),
-          Offset(0, 50),
-          1000,
-          // The sheet shouldn't even receive gesture events.
-          warnIfMissed: false,
-        );
-        await tester.pumpAndSettle();
-        expect(
-          tester.getRect(find.byId('sheet')).top,
-          300,
-          reason: 'The sheet should not move',
-        );
-      },
-    );
-
-    testWidgets(
-      'Per-route config takes precedence over global config '
-      '(when global is disabled and per-route is enabled)',
-      (tester) async {
-        final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration.disabled,
-          initialRoute: () =>
-              createRoute(dragConfiguration: SheetDragConfiguration()),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
-        await tester.pumpAndSettle();
-        expect(
-          tester.getRect(find.byId('sheet')).top,
-          500,
-          reason: 'The sheet should snap to the lower snap point',
-        );
-      },
-    );
-
-    testWidgets(
-      'Per-route config takes precedence over global config '
-      '(when both global and per-route are disabled)',
-      (tester) async {
-        final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration.disabled,
-          initialRoute: () =>
-              createRoute(dragConfiguration: SheetDragConfiguration.disabled),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(
-          find.byId('sheet'),
-          Offset(0, 50),
-          1000,
-          warnIfMissed: false,
-        );
-        await tester.pumpAndSettle();
-        expect(
-          tester.getRect(find.byId('sheet')).top,
-          300,
-          reason: 'The sheet should not move',
-        );
-      },
-    );
-
-    testWidgets(
-      'Per-route config falls back to global when per-route is null '
-      '(when drag is enabled globally)',
-      (tester) async {
-        final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration(),
-          initialRoute: () => createRoute(dragConfiguration: null),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
-        await tester.pumpAndSettle();
-        expect(
-          tester.getRect(find.byId('sheet')).top,
-          500,
-          reason: 'The sheet should snap to the lower snap point',
-        );
-      },
-    );
-
-    testWidgets(
-      'Per-route config falls back to global when per-route is null '
-      '(when global is disabled)',
-      (tester) async {
-        final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration.disabled,
-          initialRoute: () => createRoute(dragConfiguration: null),
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(
-          find.byId('sheet'),
-          Offset(0, 50),
-          1000,
-          warnIfMissed: false,
-        );
-        await tester.pumpAndSettle();
-        expect(
-          tester.getRect(find.byId('sheet')).top,
-          300,
-          reason: 'The sheet should not move',
-        );
-      },
-    );
-
     ({
       Widget testWidget,
       Key sheetKey,
       ValueGetter<NavigatorState> getNavigator,
     })
     boilerplateForSharedElementTest({
-      required SheetDragConfiguration globalDragConfiguration,
+      required SheetDragConfiguration sheetDragConfiguration,
       required SheetDragConfiguration? perRouteDragConfiguration,
     }) {
       return boilerplate(
-        globalDragConfiguration: globalDragConfiguration,
+        sheetDragConfiguration: sheetDragConfiguration,
         sharedContentBuilder: (_, child) {
           return SheetContentScaffold(
             extendBodyBehindTopBar: true,
@@ -1800,65 +1648,11 @@ void main() {
     }
 
     testWidgets(
-      'Shared elements are affected by global config '
-      'if per-route config is not specified (enabled globally)',
-      (tester) async {
-        final env = boilerplateForSharedElementTest(
-          globalDragConfiguration: SheetDragConfiguration(),
-          perRouteDragConfiguration: null,
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(find.byId('top-bar'), Offset(0, 50), 1000);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byId('sheet')).top, 500);
-
-        await tester.fling(find.byId('bottom-bar'), Offset(0, -50), 1000);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-      },
-    );
-
-    testWidgets(
-      'Shared elements are affected by global config '
-      'if per-route config is not specified (disabled globally)',
-      (tester) async {
-        final env = boilerplateForSharedElementTest(
-          globalDragConfiguration: SheetDragConfiguration.disabled,
-          perRouteDragConfiguration: null,
-        );
-
-        await tester.pumpWidget(env.testWidget);
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(
-          find.byId('top-bar'),
-          Offset(0, 50),
-          1000,
-          warnIfMissed: false,
-        );
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-
-        await tester.fling(
-          find.byId('bottom-bar'),
-          Offset(0, 50),
-          1000,
-          warnIfMissed: false,
-        );
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byId('sheet')).top, 300);
-      },
-    );
-
-    testWidgets(
-      'Shared elements are also affected by per-route config '
+      'Shared elements are affected by per-route config '
       'if specified (enabled / enabled)',
       (tester) async {
         final env = boilerplateForSharedElementTest(
-          globalDragConfiguration: SheetDragConfiguration(),
+          sheetDragConfiguration: SheetDragConfiguration(),
           perRouteDragConfiguration: SheetDragConfiguration(),
         );
 
@@ -1876,11 +1670,11 @@ void main() {
     );
 
     testWidgets(
-      'Shared elements are also affected by per-route config '
+      'Shared elements are affected by per-route config '
       'if specified (enabled / disabled)',
       (tester) async {
         final env = boilerplateForSharedElementTest(
-          globalDragConfiguration: SheetDragConfiguration(),
+          sheetDragConfiguration: SheetDragConfiguration(),
           perRouteDragConfiguration: SheetDragConfiguration.disabled,
         );
 
@@ -1908,11 +1702,11 @@ void main() {
     );
 
     testWidgets(
-      'Shared elements are also affected by per-route config '
+      'Shared elements are affected by per-route config '
       'if specified (disabled / enabled)',
       (tester) async {
         final env = boilerplateForSharedElementTest(
-          globalDragConfiguration: SheetDragConfiguration.disabled,
+          sheetDragConfiguration: SheetDragConfiguration.disabled,
           perRouteDragConfiguration: SheetDragConfiguration(),
         );
 
@@ -1930,11 +1724,11 @@ void main() {
     );
 
     testWidgets(
-      'Shared elements are also affected by per-route config '
+      'Shared elements are affected by per-route config '
       'if specified (disabled / disabled)',
       (tester) async {
         final env = boilerplateForSharedElementTest(
-          globalDragConfiguration: SheetDragConfiguration.disabled,
+          sheetDragConfiguration: SheetDragConfiguration.disabled,
           perRouteDragConfiguration: SheetDragConfiguration.disabled,
         );
 
@@ -1958,6 +1752,269 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.getRect(find.byId('sheet')).top, 300);
+      },
+    );
+
+    testWidgets(
+      'PagedSheet.dragConfiguration does not affect route drag behavior '
+      'when theme is present',
+      (tester) async {
+        final navigatorKey = GlobalKey<NavigatorState>();
+        final testWidget = Directionality(
+          textDirection: TextDirection.ltr,
+          child: SheetViewport(
+            child: PagedSheetRouteTheme(
+              data: PagedSheetRouteThemeData.from(
+                dragConfiguration: SheetDragConfiguration(),
+              ),
+              child: PagedSheet(
+                key: Key('sheet'),
+                dragConfiguration: SheetDragConfiguration.disabled,
+                navigator: Navigator(
+                  key: navigatorKey,
+                  onGenerateRoute: (_) {
+                    return PagedSheetRoute(
+                      initialOffset: SheetOffset(1),
+                      snapGrid: SheetSnapGrid(
+                        snaps: [
+                          SheetOffset.absolute(100),
+                          SheetOffset(1),
+                        ],
+                      ),
+                      builder: (_) => _TestPage(height: 300),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        // Route should be draggable (inherits from theme, not sheet)
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'Route should be draggable via theme config',
+        );
+      },
+    );
+
+    testWidgets(
+      'PagedSheet.dragConfiguration controls shared elements '
+      'regardless of theme',
+      (tester) async {
+        final navigatorKey = GlobalKey<NavigatorState>();
+        final testWidget = Directionality(
+          textDirection: TextDirection.ltr,
+          child: SheetViewport(
+            child: PagedSheetRouteTheme(
+              data: PagedSheetRouteThemeData.from(
+                dragConfiguration: SheetDragConfiguration(),
+              ),
+              child: PagedSheet(
+                key: Key('sheet'),
+                dragConfiguration: SheetDragConfiguration.disabled,
+                builder: (_, child) {
+                  return SheetContentScaffold(
+                    extendBodyBehindTopBar: true,
+                    extendBodyBehindBottomBar: true,
+                    topBar: Container(
+                      key: const Key('top-bar'),
+                      color: Colors.red,
+                      height: 50,
+                    ),
+                    body: child,
+                  );
+                },
+                navigator: Navigator(
+                  key: navigatorKey,
+                  onGenerateRoute: (_) {
+                    return PagedSheetRoute(
+                      initialOffset: SheetOffset(1),
+                      dragConfiguration: SheetDragConfiguration(),
+                      snapGrid: SheetSnapGrid(
+                        snaps: [
+                          SheetOffset.absolute(100),
+                          SheetOffset(1),
+                        ],
+                      ),
+                      builder: (_) => _TestPage(height: 300),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        // Route content should be draggable (route has explicit config)
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 500);
+      },
+    );
+  });
+
+  group('PagedSheetRouteTheme Inheritance Test', () {
+    ({
+      Widget testWidget,
+      ValueGetter<NavigatorState> getNavigator,
+    })
+    boilerplate({
+      required ValueGetter<Route<dynamic>> initialRoute,
+      PagedSheetRouteThemeData? themeData,
+      SheetDragConfiguration sheetDragConfiguration =
+          const SheetDragConfiguration(),
+    }) {
+      final navigatorKey = GlobalKey<NavigatorState>();
+      Widget sheet = PagedSheet(
+        key: Key('sheet'),
+        dragConfiguration: sheetDragConfiguration,
+        navigator: Navigator(
+          key: navigatorKey,
+          onGenerateRoute: (_) {
+            return initialRoute();
+          },
+        ),
+      );
+
+      if (themeData != null) {
+        sheet = PagedSheetRouteTheme(data: themeData, child: sheet);
+      }
+
+      final testWidget = Directionality(
+        textDirection: TextDirection.ltr,
+        child: SheetViewport(child: sheet),
+      );
+
+      return (
+        testWidget: testWidget,
+        getNavigator: () => navigatorKey.currentState!,
+      );
+    }
+
+    PagedSheetRoute<dynamic> createRoute({
+      Key? contentKey,
+      SheetOffset? initialOffset,
+      SheetSnapGrid? snapGrid,
+      SheetScrollConfiguration? scrollConfiguration,
+      SheetDragConfiguration? dragConfiguration,
+      Duration? transitionDuration,
+      RouteTransitionsBuilder? transitionsBuilder,
+      double height = 300,
+      bool isScrollable = false,
+    }) {
+      return PagedSheetRoute(
+        initialOffset: initialOffset,
+        snapGrid: snapGrid,
+        scrollConfiguration: scrollConfiguration,
+        dragConfiguration: dragConfiguration,
+        transitionDuration: transitionDuration,
+        transitionsBuilder: transitionsBuilder,
+        builder: (_) => _TestPage(
+          key: contentKey,
+          height: height,
+          isScrollable: isScrollable,
+        ),
+      );
+    }
+
+    // --- dragConfiguration inheritance ---
+
+    testWidgets(
+      'Route inherits dragConfiguration from theme',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            dragConfiguration: SheetDragConfiguration(),
+          ),
+          initialRoute: () => createRoute(
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'Route should be draggable via theme',
+        );
+      },
+    );
+
+    testWidgets(
+      'PagedSheet.dragConfiguration is independent from route theme',
+      (tester) async {
+        final env = boilerplate(
+          sheetDragConfiguration: SheetDragConfiguration(),
+          themeData: PagedSheetRouteThemeData.from(
+            dragConfiguration: SheetDragConfiguration.disabled,
+          ),
+          initialRoute: () => createRoute(
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        // Route inherits disabled from theme, so should not be draggable
+        await tester.fling(
+          find.byId('sheet'),
+          Offset(0, 50),
+          1000,
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'Route should NOT be draggable (theme has disabled)',
+        );
+      },
+    );
+
+    testWidgets(
+      'Per-route dragConfiguration takes precedence over theme',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            dragConfiguration: SheetDragConfiguration.disabled,
+          ),
+          initialRoute: () => createRoute(
+            dragConfiguration: SheetDragConfiguration(),
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'Per-route config should override theme',
+        );
       },
     );
 
@@ -1965,9 +2022,14 @@ void main() {
       'Each route can have different drag configurations',
       (tester) async {
         final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration(),
+          themeData: PagedSheetRouteThemeData.from(
+            dragConfiguration: SheetDragConfiguration(),
+          ),
           initialRoute: () => createRoute(
             dragConfiguration: SheetDragConfiguration(),
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+            ),
           ),
         );
 
@@ -2011,12 +2073,11 @@ void main() {
           reason: 'The second route should not be draggable',
         );
 
-        // Push route C: inherits global
+        // Push route C: inherits from theme (enabled)
         unawaited(
           env.getNavigator().push(
             PagedSheetRoute(
               initialOffset: SheetOffset(1),
-              dragConfiguration: null,
               snapGrid: SheetSnapGrid(
                 snaps: [SheetOffset.absolute(100), SheetOffset(1)],
               ),
@@ -2032,7 +2093,7 @@ void main() {
         expect(
           tester.getRect(find.byId('sheet')).top,
           500,
-          reason: 'The third route should be draggable',
+          reason: 'The third route should be draggable (from theme)',
         );
       },
     );
@@ -2042,7 +2103,9 @@ void main() {
       (tester) async {
         var tapCount = 0;
         final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration.disabled,
+          themeData: PagedSheetRouteThemeData.from(
+            dragConfiguration: SheetDragConfiguration.disabled,
+          ),
           initialRoute: () => PagedSheetRoute(
             builder: (_) => SizedBox(
               height: 300,
@@ -2071,7 +2134,9 @@ void main() {
         addTearDown(scrollController.dispose);
 
         final env = boilerplate(
-          globalDragConfiguration: SheetDragConfiguration.disabled,
+          themeData: PagedSheetRouteThemeData.from(
+            dragConfiguration: SheetDragConfiguration.disabled,
+          ),
           initialRoute: () => PagedSheetRoute(
             dragConfiguration: SheetDragConfiguration.disabled,
             builder: (_) => SizedBox(
@@ -2097,6 +2162,365 @@ void main() {
           scrollController.offset,
           greaterThan(200),
           reason: 'Scrollable should have scrolled',
+        );
+      },
+    );
+
+    // --- scrollConfiguration inheritance ---
+
+    testWidgets(
+      'Route inherits scrollConfiguration from theme when not specified',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            scrollConfiguration: SheetScrollConfiguration(),
+          ),
+          initialRoute: () => createRoute(
+            contentKey: Key('page'),
+            isScrollable: true,
+            height: 300,
+            snapGrid: SheetSnapGrid.stepless(),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        final topBefore = tester.getRect(find.byId('sheet')).top;
+
+        // Scroll the content — if scroll-sheet integration is active,
+        // overscroll should move the sheet.
+        await tester.fling(find.byId('page'), Offset(0, 200), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          greaterThan(topBefore),
+          reason: 'Scroll-sheet integration should be active (from theme)',
+        );
+      },
+    );
+
+    testWidgets(
+      'Route explicitly disables scroll with '
+      'SheetScrollConfiguration.disabled',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            scrollConfiguration: SheetScrollConfiguration(),
+          ),
+          initialRoute: () => createRoute(
+            contentKey: Key('page'),
+            scrollConfiguration: SheetScrollConfiguration.disabled,
+            isScrollable: true,
+            height: 300,
+            snapGrid: SheetSnapGrid.stepless(),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        final topBefore = tester.getRect(find.byId('sheet')).top;
+
+        await tester.fling(find.byId('page'), Offset(0, 200), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          topBefore,
+          reason: 'Scroll should not affect sheet position',
+        );
+      },
+    );
+
+    testWidgets(
+      'Route overrides scrollConfiguration from theme',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            scrollConfiguration: SheetScrollConfiguration.disabled,
+          ),
+          initialRoute: () => createRoute(
+            contentKey: Key('page'),
+            scrollConfiguration: SheetScrollConfiguration(),
+            isScrollable: true,
+            height: 300,
+            snapGrid: SheetSnapGrid.stepless(),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        final topBefore = tester.getRect(find.byId('sheet')).top;
+
+        await tester.fling(find.byId('page'), Offset(0, 200), 1000);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          greaterThan(topBefore),
+          reason: 'Route override should enable scroll-sheet integration',
+        );
+      },
+    );
+
+    // --- snapGrid inheritance ---
+
+    testWidgets(
+      'Route inherits snapGrid from theme when not specified',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+            ),
+          ),
+          initialRoute: () => createRoute(height: 300),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 500);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          500,
+          reason: 'Should snap to the lower snap point from theme',
+        );
+      },
+    );
+
+    testWidgets(
+      'Route overrides snapGrid from theme',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+            ),
+          ),
+          initialRoute: () => createRoute(
+            height: 300,
+            snapGrid: SheetSnapGrid.single(snap: SheetOffset(1)),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        await tester.fling(find.byId('sheet'), Offset(0, 50), 500);
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'Route override with single snap should spring back',
+        );
+      },
+    );
+
+    // --- initialOffset inheritance ---
+
+    testWidgets(
+      'Route inherits initialOffset from theme when not specified',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            initialOffset: SheetOffset(0.5),
+            snapGrid: SheetSnapGrid.stepless(),
+          ),
+          initialRoute: () => createRoute(height: 300),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          450,
+          reason: 'Should be half-expanded (600 - 300*0.5 = 450)',
+        );
+      },
+    );
+
+    testWidgets(
+      'Route overrides initialOffset from theme',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            initialOffset: SheetOffset(0.5),
+            snapGrid: SheetSnapGrid.stepless(),
+          ),
+          initialRoute: () => createRoute(
+            height: 300,
+            initialOffset: SheetOffset(1),
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'Should be fully expanded (route override)',
+        );
+      },
+    );
+
+    // --- transitionDuration inheritance ---
+
+    testWidgets(
+      'Route inherits transitionDuration from theme when not specified',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            transitionDuration: Duration(milliseconds: 500),
+          ),
+          initialRoute: () => createRoute(
+            contentKey: Key('a'),
+            height: 300,
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+
+        unawaited(
+          env.getNavigator().push(
+            createRoute(contentKey: Key('b'), height: 400),
+          ),
+        );
+        await tester.pump();
+
+        // At 250ms, transition should still be in progress
+        await tester.pump(Duration(milliseconds: 250));
+        expect(find.byId('a'), findsOneWidget);
+
+        // At 500ms total, transition should be complete
+        await tester.pump(Duration(milliseconds: 250));
+        await tester.pumpAndSettle();
+        expect(find.byId('b'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Route overrides transitionDuration from theme',
+      (tester) async {
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            transitionDuration: Duration(milliseconds: 500),
+          ),
+          initialRoute: () => createRoute(
+            contentKey: Key('a'),
+            height: 300,
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+
+        unawaited(
+          env.getNavigator().push(
+            createRoute(
+              contentKey: Key('b'),
+              height: 400,
+              transitionDuration: Duration(milliseconds: 100),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        // At 150ms, transition should be complete (route override = 100ms)
+        await tester.pump(Duration(milliseconds: 150));
+        await tester.pumpAndSettle();
+        expect(find.byId('b'), findsOneWidget);
+      },
+    );
+
+    // --- transitionsBuilder inheritance ---
+
+    testWidgets(
+      'Route inherits transitionsBuilder from theme when not specified',
+      (tester) async {
+        const themeTransitionKey = Key('theme-transition');
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            transitionsBuilder: (context, animation, _, child) {
+              return Opacity(
+                key: themeTransitionKey,
+                opacity: animation.value,
+                child: child,
+              );
+            },
+          ),
+          initialRoute: () => createRoute(
+            contentKey: Key('a'),
+            height: 300,
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+
+        unawaited(
+          env.getNavigator().push(
+            createRoute(contentKey: Key('b'), height: 400),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(Duration(milliseconds: 150));
+
+        expect(
+          find.byKey(themeTransitionKey),
+          findsWidgets,
+          reason: 'Theme transition builder should be used',
+        );
+      },
+    );
+
+    testWidgets(
+      'Route overrides transitionsBuilder from theme',
+      (tester) async {
+        const themeTransitionKey = Key('theme-transition');
+        const routeTransitionKey = Key('route-transition');
+        final env = boilerplate(
+          themeData: PagedSheetRouteThemeData.from(
+            transitionsBuilder: (context, animation, _, child) {
+              return Opacity(
+                key: themeTransitionKey,
+                opacity: animation.value,
+                child: child,
+              );
+            },
+          ),
+          initialRoute: () => createRoute(
+            contentKey: Key('a'),
+            height: 300,
+          ),
+        );
+
+        await tester.pumpWidget(env.testWidget);
+
+        unawaited(
+          env.getNavigator().push(
+            createRoute(
+              contentKey: Key('b'),
+              height: 400,
+              transitionsBuilder: (context, animation, _, child) {
+                return RotationTransition(
+                  key: routeTransitionKey,
+                  turns: animation,
+                  child: child,
+                );
+              },
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(Duration(milliseconds: 150));
+
+        // During transition, both routes are visible. Route B should use
+        // RotationTransition (its own builder), proving it overrides theme.
+        expect(
+          find.byKey(routeTransitionKey),
+          findsWidgets,
+          reason: 'Route transition builder should override theme',
+        );
+
+        // After transition completes, only route B's transition should remain.
+        await tester.pumpAndSettle();
+        expect(find.byId('b'), findsOneWidget);
+        expect(
+          find.byKey(routeTransitionKey),
+          findsOneWidget,
+          reason: 'Route B should use its own transition builder',
         );
       },
     );

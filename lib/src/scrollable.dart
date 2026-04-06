@@ -43,15 +43,29 @@ enum SheetScrollHandlingBehavior {
   onlyFromTop,
 }
 
-@immutable
-class SheetScrollConfiguration {
-  const SheetScrollConfiguration({
-    this.scrollSyncMode = SheetScrollHandlingBehavior.always,
-    this.delegateUnhandledOverscrollToChild = false,
-  });
+/// {@template smooth_sheets.scrollable.SheetScrollConfiguration}
+/// Defines how the sheet integrates with scrollable content.
+///
+/// Use [SheetScrollConfiguration.disabled] to explicitly opt out of
+/// scroll-sheet integration. This is distinct from `null`, which means
+/// "inherit from theme" in the context of `PagedSheetRoute`.
+/// {@endtemplate}
+abstract class SheetScrollConfiguration {
+  /// Creates a [SheetScrollConfiguration] with the given scroll behavior.
+  const factory SheetScrollConfiguration({
+    SheetScrollHandlingBehavior scrollSyncMode,
+    bool delegateUnhandledOverscrollToChild,
+  }) = _SheetScrollConfigurationImpl;
+
+  /// A [SheetScrollConfiguration] that disables scroll-sheet integration.
+  ///
+  /// Use this to explicitly opt out of scroll-sheet integration while
+  /// allowing `null` to mean "inherit from theme."
+  static const SheetScrollConfiguration disabled =
+      _SheetScrollConfigurationDisabled.instance;
 
   /// {@macro smooth_sheets.scrollable.SheetScrollHandlingBehavior}
-  final SheetScrollHandlingBehavior scrollSyncMode;
+  SheetScrollHandlingBehavior get scrollSyncMode;
 
   /// Whether to delegate unhandled overscroll to the child scrollable.
   ///
@@ -73,7 +87,64 @@ class SheetScrollConfiguration {
   /// - [tutorial/pull_to_refresh_in_sheet](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/pull_to_refresh_in_sheet.dart),
   ///   which shows how to use this flag to implement pull-to-refresh
   ///   in a sheet.
+  bool get delegateUnhandledOverscrollToChild;
+}
+
+@immutable
+class _SheetScrollConfigurationImpl implements SheetScrollConfiguration {
+  const _SheetScrollConfigurationImpl({
+    this.scrollSyncMode = SheetScrollHandlingBehavior.always,
+    this.delegateUnhandledOverscrollToChild = false,
+  });
+
+  @override
+  final SheetScrollHandlingBehavior scrollSyncMode;
+
+  @override
   final bool delegateUnhandledOverscrollToChild;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is _SheetScrollConfigurationImpl &&
+            runtimeType == other.runtimeType &&
+            scrollSyncMode == other.scrollSyncMode &&
+            delegateUnhandledOverscrollToChild ==
+                other.delegateUnhandledOverscrollToChild;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    scrollSyncMode,
+    delegateUnhandledOverscrollToChild,
+  );
+}
+
+@immutable
+class _SheetScrollConfigurationDisabled implements SheetScrollConfiguration {
+  const _SheetScrollConfigurationDisabled._();
+
+  static const instance = _SheetScrollConfigurationDisabled._();
+
+  @override
+  SheetScrollHandlingBehavior get scrollSyncMode =>
+      SheetScrollHandlingBehavior.always;
+
+  @override
+  bool get delegateUnhandledOverscrollToChild => false;
+
+  @override
+  bool operator ==(Object other) {
+    assert(
+      identical(this, instance),
+      'There should only be one instance of disabled configuration',
+    );
+    return identical(this, other);
+  }
+
+  @override
+  int get hashCode => identityHashCode(this);
 }
 
 @internal

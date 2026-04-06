@@ -81,11 +81,7 @@ final _sheetShellRoute = ShellRoute(
 final _introRoute = GoRoute(
   path: 'intro',
   pageBuilder: (context, state) {
-    return PagedSheetPage(
-      // Use a custom transition builder.
-      transitionsBuilder: _createTransitionBuilder(context),
-      child: _IntroPage(),
-    );
+    return PagedSheetPage(child: _IntroPage());
   },
   routes: [_genreRoute],
 );
@@ -93,10 +89,7 @@ final _introRoute = GoRoute(
 final _genreRoute = GoRoute(
   path: 'genre',
   pageBuilder: (context, state) {
-    return PagedSheetPage(
-      transitionsBuilder: _createTransitionBuilder(context),
-      child: _SelectGenrePage(),
-    );
+    return PagedSheetPage(child: _SelectGenrePage());
   },
   routes: [_moodRoute],
 );
@@ -104,10 +97,7 @@ final _genreRoute = GoRoute(
 final _moodRoute = GoRoute(
   path: 'mood',
   pageBuilder: (context, state) {
-    return PagedSheetPage(
-      transitionsBuilder: _createTransitionBuilder(context),
-      child: _SelectMoodPage(),
-    );
+    return PagedSheetPage(child: _SelectMoodPage());
   },
   routes: [_seedTrackRoute],
 );
@@ -116,7 +106,6 @@ final _seedTrackRoute = GoRoute(
   path: 'seed-track',
   pageBuilder: (context, state) {
     return PagedSheetPage(
-      transitionsBuilder: _createTransitionBuilder(context),
       scrollConfiguration: SheetScrollConfiguration(),
       child: _SelectSeedTrackPage(),
     );
@@ -128,7 +117,6 @@ final _confirmRoute = GoRoute(
   path: 'confirm',
   pageBuilder: (context, state) {
     return PagedSheetPage(
-      transitionsBuilder: _createTransitionBuilder(context),
       scrollConfiguration: SheetScrollConfiguration(),
       initialOffset: SheetOffset(0.7),
       snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.7), SheetOffset(1)]),
@@ -141,10 +129,7 @@ final _confirmRoute = GoRoute(
 final _generateRoute = GoRoute(
   path: 'generate',
   pageBuilder: (context, state) {
-    return PagedSheetPage(
-      transitionsBuilder: _createTransitionBuilder(context),
-      child: _GeneratingPage(),
-    );
+    return PagedSheetPage(child: _GeneratingPage());
   },
 );
 
@@ -209,24 +194,29 @@ class _SheetShell extends StatelessWidget {
           }
         }
       },
-      child: PagedSheet(
-        decoration: MaterialSheetDecoration(
-          size: SheetSize.stretch,
-          borderRadius: BorderRadius.circular(16),
-          clipBehavior: Clip.antiAlias,
-          color: Theme.of(context).colorScheme.surface,
+      child: PagedSheetRouteTheme(
+        data: PagedSheetRouteThemeData.from(
+          transitionsBuilder: _createTransitionBuilder(context),
         ),
-        builder: (context, child) {
-          return SheetContentScaffold(
-            bottomBarVisibility: const BottomBarVisibility.always(),
-            extendBodyBehindTopBar: true,
-            extendBodyBehindBottomBar: true,
-            topBar: const _SharedSheetTopBar(),
-            body: child,
-            bottomBar: const _SharedSheetBottomBar(),
-          );
-        },
-        navigator: navigator,
+        child: PagedSheet(
+          decoration: MaterialSheetDecoration(
+            size: SheetSize.stretch,
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
+            color: Theme.of(context).colorScheme.surface,
+          ),
+          builder: (context, child) {
+            return SheetContentScaffold(
+              bottomBarVisibility: const BottomBarVisibility.always(),
+              extendBodyBehindTopBar: true,
+              extendBodyBehindBottomBar: true,
+              topBar: const _SharedSheetTopBar(),
+              body: child,
+              bottomBar: const _SharedSheetBottomBar(),
+            );
+          },
+          navigator: navigator,
+        ),
       ),
     );
   }

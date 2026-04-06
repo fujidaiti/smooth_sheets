@@ -2,11 +2,72 @@
 
 The first stable release of `smooth_sheets`! (Breaking changes are denoted with a 💥.)
 
-## Global Drag Configuration for PagedSheet
+## `PagedSheetRouteTheme` — Inheritable Route Defaults
 
-`PagedSheet` now accepts a `dragConfiguration` parameter that sets the default drag behavior for all routes in the sheet. Individual routes can still override this via their own `dragConfiguration`. See the [documentation][1] for details.
+A new `PagedSheetRouteTheme` `InheritedWidget` lets you set shared defaults for all routes in a `PagedSheet`. Place it above `PagedSheet` to configure `scrollConfiguration`, `dragConfiguration`, `initialOffset`, `snapGrid`, `transitionDuration`, and `transitionsBuilder` once, instead of repeating them on every route.
 
-[1]: https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/PagedSheet/dragConfiguration.html
+```dart
+PagedSheetRouteTheme(
+  data: PagedSheetRouteThemeData.from(
+    transitionsBuilder: myTransitionBuilder,
+    snapGrid: mySnapGrid,
+  ),
+  child: PagedSheet(
+    navigator: Navigator(...),
+  ),
+)
+```
+
+Routes inherit from the theme when their parameter is `null`. Per-route values always take precedence.
+
+#### `PagedSheet.dragConfiguration` is now sheet-level only 💥
+
+`PagedSheet.dragConfiguration` now exclusively controls drag behavior for shared elements (built by `PagedSheet.builder`). It no longer serves as a fallback for routes. Route drag defaults are set via `PagedSheetRouteTheme`.
+
+**BEFORE:** Routes with `dragConfiguration: null` inherited from `PagedSheet.dragConfiguration`.
+
+**AFTER:** Routes with `dragConfiguration: null` inherit from `PagedSheetRouteTheme.data.dragConfiguration` (defaults to enabled).
+
+If you relied on `PagedSheet.dragConfiguration` to set route defaults, wrap your `PagedSheet` with `PagedSheetRouteTheme` instead:
+
+```dart
+PagedSheetRouteTheme(
+  data: PagedSheetRouteThemeData.from(
+    dragConfiguration: SheetDragConfiguration.disabled,
+  ),
+  child: PagedSheet(...),
+)
+```
+
+#### `scrollConfiguration: null` on routes now means "inherit" 💥
+
+Previously, `scrollConfiguration: null` on a `PagedSheetRoute` or `PagedSheetPage` meant "no scroll-sheet integration." Now it means "inherit from `PagedSheetRouteTheme`." To explicitly disable scroll-sheet integration, use `SheetScrollConfiguration.disabled`:
+
+**BEFORE:**
+
+```dart
+PagedSheetRoute(
+  scrollConfiguration: null, // No scroll-sheet integration
+  builder: (_) => MyContent(),
+)
+```
+
+**AFTER:**
+
+```dart
+PagedSheetRoute(
+  scrollConfiguration: SheetScrollConfiguration.disabled,
+  builder: (_) => MyContent(),
+)
+```
+
+#### `SheetScrollConfiguration.disabled` sentinel
+
+A new `SheetScrollConfiguration.disabled` constant explicitly opts out of scroll-sheet integration, following the same pattern as `SheetDragConfiguration.disabled`.
+
+#### Route parameters are now nullable 💥
+
+`initialOffset`, `snapGrid`, and `transitionDuration` on `PagedSheetRoute` and `PagedSheetPage` are now nullable. When `null`, they inherit from `PagedSheetRouteTheme`. The built-in defaults (when no theme is provided) are unchanged.
 
 #### `Sheet.dragConfiguration` is now non-nullable 💥
 

@@ -112,7 +112,8 @@ class Sheet extends StatelessWidget {
         decoration: decoration,
         padding: padding,
         child: DraggableScrollableSheetContent(
-          scrollConfiguration: scrollConfiguration,
+          scrollConfiguration:
+              scrollConfiguration ?? SheetScrollConfiguration.disabled,
           dragConfiguration: dragConfiguration,
           child: child,
         ),
@@ -141,7 +142,7 @@ class DraggableScrollableSheetContent extends StatefulWidget {
     required this.child,
   });
 
-  final SheetScrollConfiguration? scrollConfiguration;
+  final SheetScrollConfiguration scrollConfiguration;
 
   final SheetDragConfiguration dragConfiguration;
 
@@ -156,10 +157,13 @@ class _DraggableScrollableSheetContentState
     extends State<DraggableScrollableSheetContent> {
   SheetScrollController? _scrollController;
 
+  bool get _isScrollEnabled =>
+      widget.scrollConfiguration != SheetScrollConfiguration.disabled;
+
   @override
   void initState() {
     super.initState();
-    if (widget.scrollConfiguration != null) {
+    if (_isScrollEnabled) {
       _scrollController = _createScrollController();
     }
   }
@@ -173,7 +177,7 @@ class _DraggableScrollableSheetContentState
   @override
   void didUpdateWidget(DraggableScrollableSheetContent oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.scrollConfiguration != null) {
+    if (_isScrollEnabled) {
       _scrollController ??= _createScrollController();
     }
   }
