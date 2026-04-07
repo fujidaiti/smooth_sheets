@@ -43,15 +43,20 @@ enum SheetScrollHandlingBehavior {
   onlyFromTop,
 }
 
-@immutable
-class SheetScrollConfiguration {
-  const SheetScrollConfiguration({
-    this.scrollSyncMode = SheetScrollHandlingBehavior.always,
-    this.delegateUnhandledOverscrollToChild = false,
-  });
+/// Defines how the sheet integrates with scrollable content.
+abstract class SheetScrollConfiguration {
+  /// Creates a [SheetScrollConfiguration] with the given scroll behavior.
+  const factory SheetScrollConfiguration({
+    SheetScrollHandlingBehavior scrollSyncMode,
+    bool delegateUnhandledOverscrollToChild,
+  }) = _StaticSheetScrollConfiguration;
+
+  /// A [SheetScrollConfiguration] that disables scroll-sheet integration.
+  static const SheetScrollConfiguration disabled =
+      _SheetScrollConfigurationDisabled.instance;
 
   /// {@macro smooth_sheets.scrollable.SheetScrollHandlingBehavior}
-  final SheetScrollHandlingBehavior scrollSyncMode;
+  SheetScrollHandlingBehavior get scrollSyncMode;
 
   /// Whether to delegate unhandled overscroll to the child scrollable.
   ///
@@ -73,13 +78,69 @@ class SheetScrollConfiguration {
   /// - [tutorial/pull_to_refresh_in_sheet](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/pull_to_refresh_in_sheet.dart),
   ///   which shows how to use this flag to implement pull-to-refresh
   ///   in a sheet.
+  bool get delegateUnhandledOverscrollToChild;
+}
+
+@immutable
+class _StaticSheetScrollConfiguration implements SheetScrollConfiguration {
+  const _StaticSheetScrollConfiguration({
+    this.scrollSyncMode = SheetScrollHandlingBehavior.always,
+    this.delegateUnhandledOverscrollToChild = false,
+  });
+
+  @override
+  final SheetScrollHandlingBehavior scrollSyncMode;
+
+  @override
   final bool delegateUnhandledOverscrollToChild;
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is _StaticSheetScrollConfiguration &&
+            runtimeType == other.runtimeType &&
+            scrollSyncMode == other.scrollSyncMode &&
+            delegateUnhandledOverscrollToChild ==
+                other.delegateUnhandledOverscrollToChild;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    scrollSyncMode,
+    delegateUnhandledOverscrollToChild,
+  );
+}
+
+@immutable
+class _SheetScrollConfigurationDisabled implements SheetScrollConfiguration {
+  const _SheetScrollConfigurationDisabled._();
+
+  static const instance = _SheetScrollConfigurationDisabled._();
+
+  @override
+  SheetScrollHandlingBehavior get scrollSyncMode =>
+      SheetScrollHandlingBehavior.always;
+
+  @override
+  bool get delegateUnhandledOverscrollToChild => false;
+
+  @override
+  bool operator ==(Object other) {
+    assert(
+      identical(this, instance),
+      'There should only be one instance of disabled configuration',
+    );
+    return identical(this, other);
+  }
+
+  @override
+  int get hashCode => identityHashCode(this);
 }
 
 @internal
 mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     implements _SheetScrollPositionDelegate {
-  /// {@macro smooth_sheets.scrollable.SheetScrollConfiguration}
   SheetScrollConfiguration get scrollConfiguration;
 
   // TODO: Stop scroll animations when a non-scrollable activity starts.

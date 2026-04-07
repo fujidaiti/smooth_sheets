@@ -1,38 +1,56 @@
 # v1.0.0 Release Notes
 
-The first stable release of `smooth_sheets`! (Breaking changes are denoted with a 💥.)
+The first stable release of smooth_sheets!
 
-## Global Drag Configuration for PagedSheet
+Breaking changes are marked with a 💥. Please follow the migration guides.
 
-`PagedSheet` now accepts a `dragConfiguration` parameter that sets the default drag behavior for all routes in the sheet. Individual routes can still override this via their own `dragConfiguration`. See the [documentation][1] for details.
+## PagedSheetRouteTheme — Inheritable Route Defaults
 
-[1]: https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/PagedSheet/dragConfiguration.html
+A new `PagedSheetRouteTheme` lets you set shared defaults for all routes in a `PagedSheet`. Place it above `PagedSheet` to configure `scrollConfiguration`, `dragConfiguration`, `initialOffset`, `snapGrid`, `transitionDuration`, and `transitionsBuilder` once, instead of repeating them on every route.
 
-#### `Sheet.dragConfiguration` is now non-nullable 💥
+```dart
+PagedSheetRouteTheme(
+  data: PagedSheetRouteThemeData(
+    transitionsBuilder: myTransitionBuilder,
+    snapGrid: mySnapGrid,
+  ),
+  child: PagedSheet(
+    navigator: Navigator(...),
+  ),
+)
+```
 
-The `dragConfiguration` properties on `Sheet`, `PagedSheetRoute`, and `PagedSheetPage` are now non-nullable. If you were passing `null` to disable dragging, use `SheetDragConfiguration.disabled` instead.
+Routes inherit from the theme when their parameter is `null`. Per-route values always take precedence.
+
+#### `scrollConfiguration: null` on routes now means "inherit" 💥
+
+Previously, `scrollConfiguration: null` on a `PagedSheetRoute` or `PagedSheetPage` meant "no scroll-sheet integration." Now it means "inherit from `PagedSheetRouteTheme`." To explicitly disable scroll-sheet integration, use `SheetScrollConfiguration.disabled`:
 
 **BEFORE:**
 
 ```dart
-Sheet(
-  dragConfiguration: null, // Disabled dragging
-  child: MyContent(),
+PagedSheetRoute(
+  scrollConfiguration: null, // No scroll-sheet integration
+  builder: (_) => MyContent(),
 )
 ```
 
 **AFTER:**
 
 ```dart
-Sheet(
-  dragConfiguration: SheetDragConfiguration.disabled,
-  child: MyContent(),
+PagedSheetRoute(
+  scrollConfiguration: SheetScrollConfiguration.disabled,
+  builder: (_) => MyContent(),
 )
 ```
 
-#### Default `HitTestBehavior` changed from `translucent` to `opaque` 💥
+#### `dragConfiguration: null` on routes now means "inherit" 💥
 
-The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitTestBehavior.translucent` to `HitTestBehavior.opaque`, so that the sheet can be dragged even from transparent areas such as padding.
+The same rule as `scrollConfiguration` is now applied to `dragConfiguration` on `PagedSheetRoute` and `PagedSheetPage`. Specify `SheetDragConfiguration.disabled` instead of `null` to disable dragging for a route.
+
+#### Route parameters are now nullable
+
+`initialOffset`, `snapGrid`, and `transitionDuration` on `PagedSheetRoute` and `PagedSheetPage` are now nullable. When `null`, they inherit from `PagedSheetRouteTheme`. The built-in defaults (when no theme is provided) are unchanged.
 
 ## New way to manage scroll controllers 💥
 
@@ -114,8 +132,36 @@ class MyPhysics extends BouncingSheetPhysics {
 
 ## Other changes
 
-- Fix inconsistent BouncingSheetPhysics resistance in over-drag vs. ballistic animation (#435)
+### `Sheet.dragConfiguration` is now non-nullable 💥
 
-## Other breaking changes 💥
+Similar to `PagedSheet`, the `dragConfiguration` property on `Sheet` is now non-nullable. If you were passing `null` to disable dragging, use `SheetDragConfiguration.disabled` instead.
 
-- `kDefaultSheetSpring` has been removed from the public API.
+**BEFORE:**
+
+```dart
+Sheet(
+  dragConfiguration: null, // Disabled dragging
+  child: MyContent(),
+)
+```
+
+**AFTER:**
+
+```dart
+Sheet(
+  dragConfiguration: SheetDragConfiguration.disabled,
+  child: MyContent(),
+)
+```
+
+### Default `HitTestBehavior` changed from `translucent` to `opaque` 💥
+
+The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitTestBehavior.translucent` to `HitTestBehavior.opaque`, so that the sheet out of box can be dragged even from transparent areas such as padding.
+
+### And more...
+
+### And more...
+
+- Fix inconsistent `BouncingSheetPhysics` resistance in over-drag vs. ballistic animation (#435)
+- `PagedSheet`'s shared elements (e.g., app-bar and bottom-bar) are now also affected by the current route's drag configuration (#500)
+- `kDefaultSheetSpring` has been removed from the public API 💥
