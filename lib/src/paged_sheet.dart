@@ -36,35 +36,58 @@ const _kDefaultSnapGrid = SteplessSnapGrid(
 class PagedSheetRouteThemeData {
   /// Creates a [PagedSheetRouteThemeData] with the given defaults.
   const PagedSheetRouteThemeData({
-    this.scrollConfiguration = SheetScrollConfiguration.disabled,
-    this.dragConfiguration = const SheetDragConfiguration(),
-    this.transitionDuration = const Duration(milliseconds: 300),
-    this.initialOffset = const SheetOffset(1),
-    this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset(1)),
+    this.scrollConfiguration,
+    this.dragConfiguration,
+    this.transitionDuration,
+    this.initialOffset,
+    this.snapGrid,
     this.transitionsBuilder,
   });
 
-  static const _default = PagedSheetRouteThemeData();
-
   /// The default scroll configuration for routes.
-  final SheetScrollConfiguration scrollConfiguration;
+  ///
+  /// {@template PagedSheetRouteThemeData.scrollConfiguration.fallback}
+  /// Falls back to [SheetScrollConfiguration.disabled].
+  /// {@endtemplate}
+  final SheetScrollConfiguration? scrollConfiguration;
 
   /// The default drag configuration for routes.
   ///
   /// This is independent from [PagedSheet.dragConfiguration], which controls
   /// the sheet-level drag behavior for shared elements.
-  final SheetDragConfiguration dragConfiguration;
+  ///
+  /// {@template PagedSheetRouteThemeData.dragConfiguration.fallback}
+  /// Falls back to [SheetDragConfiguration.new] with default values.
+  /// {@endtemplate}
+  final SheetDragConfiguration? dragConfiguration;
 
   /// The default transition duration for routes.
-  final Duration transitionDuration;
+  ///
+  /// {@template PagedSheetRouteThemeData.transitionDuration.fallback}
+  /// Falls back to 300 milliseconds.
+  /// {@endtemplate}
+  final Duration? transitionDuration;
 
   /// The default initial offset for routes.
-  final SheetOffset initialOffset;
+  ///
+  /// {@template PagedSheetRouteThemeData.initialOffset.fallback}
+  /// Falls back to `SheetOffset(1)`.
+  /// {@endtemplate}
+  final SheetOffset? initialOffset;
 
   /// The default snap grid for routes.
-  final SheetSnapGrid snapGrid;
+  ///
+  /// {@template PagedSheetRouteThemeData.snapGrid.fallback}
+  /// Falls back to a [SingleSnapGrid] with a single snap at `SheetOffset(1)`.
+  /// {@endtemplate}
+  final SheetSnapGrid? snapGrid;
 
   /// The default transitions builder for routes.
+  ///
+  /// {@template PagedSheetRouteThemeData.transitionsBuilder.fallback}
+  /// Falls back to null, which means using the default transitions builder
+  /// based on the current [ThemeData.platform].
+  /// {@endtemplate}
   final RouteTransitionsBuilder? transitionsBuilder;
 
   @override
@@ -90,6 +113,75 @@ class PagedSheetRouteThemeData {
     snapGrid,
     transitionsBuilder,
   );
+}
+
+class _ResolvedPagedSheetRouteThemeData extends PagedSheetRouteThemeData {
+  const _ResolvedPagedSheetRouteThemeData._({
+    required super.scrollConfiguration,
+    required super.dragConfiguration,
+    required super.initialOffset,
+    required super.snapGrid,
+    required super.transitionDuration,
+    required super.transitionsBuilder,
+  });
+
+  const _ResolvedPagedSheetRouteThemeData.fallback()
+    : super(
+        scrollConfiguration: SheetScrollConfiguration.disabled,
+        dragConfiguration: const SheetDragConfiguration(),
+        initialOffset: const SheetOffset(1),
+        snapGrid: const SheetSnapGrid.single(snap: SheetOffset(1)),
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: null,
+      );
+
+  factory _ResolvedPagedSheetRouteThemeData.resolve(
+    PagedSheetRouteThemeData theme,
+    BuildContext context,
+  ) {
+    const fallbackTheme = _ResolvedPagedSheetRouteThemeData.fallback();
+    final inheritedTheme = PagedSheetRouteTheme.of(context);
+    return _ResolvedPagedSheetRouteThemeData._(
+      scrollConfiguration:
+          theme.scrollConfiguration ??
+          inheritedTheme?.scrollConfiguration ??
+          fallbackTheme.scrollConfiguration,
+      dragConfiguration:
+          theme.dragConfiguration ??
+          inheritedTheme?.dragConfiguration ??
+          fallbackTheme.dragConfiguration,
+      initialOffset:
+          theme.initialOffset ??
+          inheritedTheme?.initialOffset ??
+          fallbackTheme.initialOffset,
+      snapGrid:
+          theme.snapGrid ?? inheritedTheme?.snapGrid ?? fallbackTheme.snapGrid,
+      transitionDuration:
+          theme.transitionDuration ??
+          inheritedTheme?.transitionDuration ??
+          fallbackTheme.transitionDuration,
+      transitionsBuilder:
+          theme.transitionsBuilder ??
+          inheritedTheme?.transitionsBuilder ??
+          fallbackTheme.transitionsBuilder,
+    );
+  }
+
+  @override
+  SheetScrollConfiguration get scrollConfiguration =>
+      super.scrollConfiguration!;
+
+  @override
+  SheetDragConfiguration get dragConfiguration => super.dragConfiguration!;
+
+  @override
+  SheetOffset get initialOffset => super.initialOffset!;
+
+  @override
+  SheetSnapGrid get snapGrid => super.snapGrid!;
+
+  @override
+  Duration get transitionDuration => super.transitionDuration!;
 }
 
 /// An [InheritedWidget] that provides default route parameter values
@@ -121,12 +213,11 @@ class PagedSheetRouteTheme extends InheritedWidget {
   final PagedSheetRouteThemeData data;
 
   /// Returns the [PagedSheetRouteThemeData] from the nearest
-  /// [PagedSheetRouteTheme] ancestor, or the built-in defaults if none exists.
-  static PagedSheetRouteThemeData of(BuildContext context) {
+  /// [PagedSheetRouteTheme] ancestor.
+  static PagedSheetRouteThemeData? of(BuildContext context) {
     return context
-            .dependOnInheritedWidgetOfExactType<PagedSheetRouteTheme>()
-            ?.data ??
-        PagedSheetRouteThemeData._default;
+        .dependOnInheritedWidgetOfExactType<PagedSheetRouteTheme>()
+        ?.data;
   }
 
   @override
@@ -668,38 +759,29 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   _BasePagedSheetRoute({super.settings});
 
   _PagedSheetModel? _model;
+  late _ResolvedPagedSheetRouteThemeData _resolvedTheme;
 
-  SheetOffset? get _localInitialOffset;
-  SheetSnapGrid? get _localSnapGrid;
-  SheetScrollConfiguration? get _localScrollConfiguration;
-  SheetDragConfiguration? get _localDragConfiguration;
-  Duration? get _localTransitionDuration;
-  RouteTransitionsBuilder? get _localTransitionsBuilder;
-
-  PagedSheetRouteThemeData get _themeData =>
-      PagedSheetRouteTheme.of(navigator!.context);
+  PagedSheetRouteThemeData get _theme;
 
   @override
-  SheetOffset get initialOffset =>
-      _localInitialOffset ?? _themeData.initialOffset;
+  SheetOffset get initialOffset => _resolvedTheme.initialOffset;
 
   @override
-  SheetSnapGrid get snapGrid => _localSnapGrid ?? _themeData.snapGrid;
+  SheetSnapGrid get snapGrid => _resolvedTheme.snapGrid;
 
   @override
   SheetScrollConfiguration get scrollConfiguration =>
-      _localScrollConfiguration ?? _themeData.scrollConfiguration;
+      _resolvedTheme.scrollConfiguration;
 
   @override
   SheetDragConfiguration get dragConfiguration =>
-      _localDragConfiguration ?? _themeData.dragConfiguration;
+      _resolvedTheme.dragConfiguration;
 
   @override
-  Duration get transitionDuration =>
-      _localTransitionDuration ?? _themeData.transitionDuration;
+  Duration get transitionDuration => _resolvedTheme.transitionDuration;
 
   RouteTransitionsBuilder? get _resolvedTransitionsBuilder =>
-      _localTransitionsBuilder ?? _themeData.transitionsBuilder;
+      _resolvedTheme.transitionsBuilder;
 
   @override
   Color? get barrierColor => null;
@@ -709,11 +791,15 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
 
   @override
   void install() {
-    super.install();
     _model = SheetModelOwner.of(navigator!.context)! as _PagedSheetModel;
-    controller!
-      ..duration = transitionDuration
-      ..reverseDuration = reverseTransitionDuration;
+    // Resolves the effective theme before calling super.install() to ensure
+    // that super.createAnimation() uses transitionDuration from
+    // the resolved theme.
+    _resolvedTheme = _ResolvedPagedSheetRouteThemeData.resolve(
+      _theme,
+      navigator!.context,
+    );
+    super.install();
   }
 
   @override
@@ -725,6 +811,10 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   @override
   void changedExternalState() {
     super.changedExternalState();
+    _resolvedTheme = _ResolvedPagedSheetRouteThemeData.resolve(
+      _theme,
+      navigator!.context,
+    );
     controller!
       ..duration = transitionDuration
       ..reverseDuration = reverseTransitionDuration;
@@ -814,38 +904,17 @@ class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
     SheetSnapGrid? snapGrid,
     RouteTransitionsBuilder? transitionsBuilder,
     required this.builder,
-  }) : _scrollConfiguration = scrollConfiguration,
-       _dragConfiguration = dragConfiguration,
-       _transitionDuration = transitionDuration,
-       _initialOffset = initialOffset,
-       _snapGrid = snapGrid,
-       _transitionsBuilder = transitionsBuilder;
-
-  final SheetOffset? _initialOffset;
-  final SheetSnapGrid? _snapGrid;
-  final Duration? _transitionDuration;
-  final SheetScrollConfiguration? _scrollConfiguration;
-  final SheetDragConfiguration? _dragConfiguration;
-  final RouteTransitionsBuilder? _transitionsBuilder;
+  }) : _theme = PagedSheetRouteThemeData(
+         scrollConfiguration: scrollConfiguration,
+         dragConfiguration: dragConfiguration,
+         transitionDuration: transitionDuration,
+         initialOffset: initialOffset,
+         snapGrid: snapGrid,
+         transitionsBuilder: transitionsBuilder,
+       );
 
   @override
-  SheetOffset? get _localInitialOffset => _initialOffset;
-
-  @override
-  SheetSnapGrid? get _localSnapGrid => _snapGrid;
-
-  @override
-  SheetScrollConfiguration? get _localScrollConfiguration =>
-      _scrollConfiguration;
-
-  @override
-  SheetDragConfiguration? get _localDragConfiguration => _dragConfiguration;
-
-  @override
-  Duration? get _localTransitionDuration => _transitionDuration;
-
-  @override
-  RouteTransitionsBuilder? get _localTransitionsBuilder => _transitionsBuilder;
+  final PagedSheetRouteThemeData _theme;
 
   @override
   final bool maintainState;
@@ -863,57 +932,34 @@ class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
 }
 
 class PagedSheetPage<T> extends Page<T> {
-  const PagedSheetPage({
+  PagedSheetPage({
     super.key,
     super.name,
     super.arguments,
     super.restorationId,
     this.maintainState = true,
-    this.scrollConfiguration,
-    this.dragConfiguration,
-    this.transitionDuration,
-    this.initialOffset,
-    this.snapGrid,
     this.physics = kDefaultSheetPhysics,
-    this.transitionsBuilder,
+    SheetScrollConfiguration? scrollConfiguration,
+    SheetDragConfiguration? dragConfiguration,
+    SheetOffset? initialOffset,
+    SheetSnapGrid? snapGrid,
+    Duration? transitionDuration,
+    RouteTransitionsBuilder? transitionsBuilder,
     required this.child,
-  });
+  }) : _theme = PagedSheetRouteThemeData(
+         scrollConfiguration: scrollConfiguration,
+         dragConfiguration: dragConfiguration,
+         transitionDuration: transitionDuration,
+         initialOffset: initialOffset,
+         snapGrid: snapGrid,
+         transitionsBuilder: transitionsBuilder,
+       );
 
-  /// The initial offset for the route created by this page.
-  ///
-  /// If `null`, inherits from the nearest [PagedSheetRouteTheme] ancestor.
-  final SheetOffset? initialOffset;
-
-  /// The snap grid for the route created by this page.
-  ///
-  /// If `null`, inherits from the nearest [PagedSheetRouteTheme] ancestor.
-  final SheetSnapGrid? snapGrid;
+  final PagedSheetRouteThemeData _theme;
 
   final SheetPhysics physics;
 
   final bool maintainState;
-
-  /// The transition duration for the route created by this page.
-  ///
-  /// If `null`, inherits from the nearest [PagedSheetRouteTheme] ancestor.
-  final Duration? transitionDuration;
-
-  final RouteTransitionsBuilder? transitionsBuilder;
-
-  /// Overrides the [PagedSheetRouteTheme]'s drag configuration for the route
-  /// associated with this page.
-  ///
-  /// If `null` (default), inherits from the nearest [PagedSheetRouteTheme].
-  /// Set to [SheetDragConfiguration.disabled] to explicitly disable
-  /// dragging for the route.
-  final SheetDragConfiguration? dragConfiguration;
-
-  /// The scroll configuration for the route created by this page.
-  ///
-  /// If `null`, inherits from the nearest [PagedSheetRouteTheme] ancestor.
-  /// Set to [SheetScrollConfiguration.disabled] to explicitly disable
-  /// scroll-sheet integration.
-  final SheetScrollConfiguration? scrollConfiguration;
 
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
@@ -934,24 +980,7 @@ class _PageBasedPagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
   bool get maintainState => page.maintainState;
 
   @override
-  SheetOffset? get _localInitialOffset => page.initialOffset;
-
-  @override
-  SheetSnapGrid? get _localSnapGrid => page.snapGrid;
-
-  @override
-  SheetScrollConfiguration? get _localScrollConfiguration =>
-      page.scrollConfiguration;
-
-  @override
-  SheetDragConfiguration? get _localDragConfiguration => page.dragConfiguration;
-
-  @override
-  Duration? get _localTransitionDuration => page.transitionDuration;
-
-  @override
-  RouteTransitionsBuilder? get _localTransitionsBuilder =>
-      page.transitionsBuilder;
+  PagedSheetRouteThemeData get _theme => page._theme;
 
   @override
   Widget buildContent(
