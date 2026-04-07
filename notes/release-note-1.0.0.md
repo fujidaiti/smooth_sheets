@@ -1,6 +1,6 @@
 # v1.0.0 Release Notes
 
-The first stable release of smooth_sheets!
+The first stable release of smooth_sheets! This version mainly focuses on bug fixes to stabilize the pacakage, but some small new features have also shipped as well.
 
 Breaking changes are marked with a 💥. Please follow the migration guides.
 
@@ -109,27 +109,6 @@ Widget build(BuildContext context) {
 }
 ```
 
-## BouncingSheetPhysics no longer accepts custom spring 💥
-
-The `spring` parameter has been removed from `BouncingSheetPhysics`'s constructor as part of a fix for #435. If you were using a custom spring, you can extend `BouncingSheetPhysics` and override the `spring` getter to return your custom spring.
-
-**BEFORE:**
-
-```dart
-BouncingSheetPhysics(spring: customSpring);
-```
-
-**AFTER:**
-
-```dart
-class MyPhysics extends BouncingSheetPhysics {
-  MyPhysics({super.bounceExtent, super.resistance});
-
-  @override
-  SpringDescription get spring => customSpring;
-}
-```
-
 ## Other changes
 
 ### `Sheet.dragConfiguration` is now non-nullable 💥
@@ -154,14 +133,41 @@ Sheet(
 )
 ```
 
+### BouncingSheetPhysics no longer accepts custom spring 💥
+
+The `spring` parameter has been removed from `BouncingSheetPhysics`'s constructor as part of a fix for #435. If you were using a custom spring, you can extend `BouncingSheetPhysics` and override the `spring` getter to return your custom spring.
+
+**BEFORE:**
+
+```dart
+BouncingSheetPhysics(spring: customSpring);
+```
+
+**AFTER:**
+
+```dart
+class MyPhysics extends BouncingSheetPhysics {
+  MyPhysics({super.bounceExtent, super.resistance});
+
+  @override
+  SpringDescription get spring => customSpring;
+}
+```
+
 ### Default `HitTestBehavior` changed from `translucent` to `opaque` 💥
 
 The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitTestBehavior.translucent` to `HitTestBehavior.opaque`, so that the sheet out of box can be dragged even from transparent areas such as padding.
 
 ### And more...
 
-### And more...
-
-- Fix inconsistent `BouncingSheetPhysics` resistance in over-drag vs. ballistic animation (#435)
-- `PagedSheet`'s shared elements (e.g., app-bar and bottom-bar) are now also affected by the current route's drag configuration (#500)
 - `kDefaultSheetSpring` has been removed from the public API 💥
+- `PagedSheet`'s shared elements (e.g., app-bar and bottom-bar) are now also affected by the current route's drag configuration (#500) 💥
+- feat: Use drag devices from inherited scroll config ([#513](https://github.com/fujidaiti/smooth_sheets/pull/513)) - [0796b1a](https://github.com/fujidaiti/smooth_sheets/commit/0796b1a8719a26338ddfa3a66961cd5c1f1d609e)
+- feat: Add deviceKinds to SheetDragConfiguration ([#528](https://github.com/fujidaiti/smooth_sheets/pull/528)) - [5a76bba](https://github.com/fujidaiti/smooth_sheets/commit/5a76bba06fde14473c570c76abfa637e8b576c87)
+- fix: Android predictive back gesture triggers jaggy route pop animation in PagedSheet ([#526](https://github.com/fujidaiti/smooth_sheets/pull/526)) - [6dd9f3f](https://github.com/fujidaiti/smooth_sheets/commit/6dd9f3f4daa2b0f0f8f90df16a152c101a7c8a7c)
+- fix: Assertion error occurs when predictive back gesture commits route pop on Android ([#525](https://github.com/fujidaiti/smooth_sheets/pull/525)) - [77fe2c0](https://github.com/fujidaiti/smooth_sheets/commit/77fe2c0aa9394207c51edd254076b2e93907d2a0)
+- fix: Inconsistent BouncingSheetPhysics resistance in over-drag vs. ballistic animation ([#522](https://github.com/fujidaiti/smooth_sheets/pull/522)) - [0e74132](https://github.com/fujidaiti/smooth_sheets/commit/0e741324d30e9af9256e1ce2570a940645acc11f)
+- fix: `SteplessSnapGrid` ignores on-screen keyboard appearance ([#515](https://github.com/fujidaiti/smooth_sheets/pull/515)) - [b872c74](https://github.com/fujidaiti/smooth_sheets/commit/b872c74f332bb6e484ac225ca482dede02d7c4b9)
+- fix: `Navigator.replace` does not update position and size of PagedSheet ([#508](https://github.com/fujidaiti/smooth_sheets/pull/508)) - [9b38b6c](https://github.com/fujidaiti/smooth_sheets/commit/9b38b6c0c64cb824303d3436af0dcb106adb62d4)
+- fix: Account for viewPadding in SheetContentScaffold bar constraints ([#507](https://github.com/fujidaiti/smooth_sheets/pull/507)) - [e133442](https://github.com/fujidaiti/smooth_sheets/commit/e1334420d3a55bceee334ef4a6fb660b76c70f3c)
+- fix: Ballistic animation ends abruptly right after releasing over-dragged sheet ([#506](https://github.com/fujidaiti/smooth_sheets/pull/506)) - [4c4bf56](https://github.com/fujidaiti/smooth_sheets/commit/4c4bf560368dc588ee6df7ee5332661f72ce553a)
