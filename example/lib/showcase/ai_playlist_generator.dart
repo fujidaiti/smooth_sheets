@@ -196,7 +196,7 @@ class _SheetShell extends StatelessWidget {
         }
       },
       child: PagedSheetRouteTheme(
-        data: PagedSheetRouteThemeData.from(
+        data: PagedSheetRouteThemeData(
           transitionsBuilder: switch (Theme.of(context).platform) {
             TargetPlatform.iOS => _fadeAndSlideTransitionWithIOSBackGesture,
             // Use the default transition on the other platforms.

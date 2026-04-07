@@ -35,7 +35,7 @@ const _kDefaultSnapGrid = SteplessSnapGrid(
 @immutable
 class PagedSheetRouteThemeData {
   /// Creates a [PagedSheetRouteThemeData] with the given defaults.
-  const PagedSheetRouteThemeData.from({
+  const PagedSheetRouteThemeData({
     this.scrollConfiguration = SheetScrollConfiguration.disabled,
     this.dragConfiguration = const SheetDragConfiguration(),
     this.transitionDuration = const Duration(milliseconds: 300),
@@ -44,7 +44,7 @@ class PagedSheetRouteThemeData {
     this.transitionsBuilder,
   });
 
-  static const _default = PagedSheetRouteThemeData.from();
+  static const _default = PagedSheetRouteThemeData();
 
   /// The default scroll configuration for routes.
   final SheetScrollConfiguration scrollConfiguration;
@@ -100,7 +100,7 @@ class PagedSheetRouteThemeData {
 ///
 /// ```dart
 /// PagedSheetRouteTheme(
-///   data: PagedSheetRouteThemeData.from(
+///   data: PagedSheetRouteThemeData(
 ///     transitionsBuilder: myTransitionBuilder,
 ///     snapGrid: mySnapGrid,
 ///   ),

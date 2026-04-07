@@ -1938,7 +1938,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               dragConfiguration: SheetDragConfiguration.disabled,
             ),
             child: env.testWidget,
@@ -1966,7 +1966,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               dragConfiguration: SheetDragConfiguration.disabled,
             ),
             child: env.testWidget,
@@ -1997,7 +1997,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               scrollConfiguration: SheetScrollConfiguration.disabled,
             ),
             child: env.testWidget,
@@ -2032,7 +2032,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               scrollConfiguration: SheetScrollConfiguration.disabled,
             ),
             child: env.testWidget,
@@ -2058,7 +2058,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               snapGrid: SheetSnapGrid(
                 snaps: [SheetOffset.absolute(100), SheetOffset(1)],
               ),
@@ -2092,7 +2092,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               snapGrid: SheetSnapGrid(
                 snaps: [SheetOffset.absolute(100), SheetOffset(1)],
               ),
@@ -2125,7 +2125,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               initialOffset: SheetOffset(0.5),
               snapGrid: SheetSnapGrid.stepless(),
             ),
@@ -2153,7 +2153,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               initialOffset: SheetOffset(0.5),
               snapGrid: SheetSnapGrid.stepless(),
             ),
@@ -2173,7 +2173,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               transitionDuration: Duration(seconds: 1),
             ),
             child: env.testWidget,
@@ -2207,7 +2207,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               transitionDuration: Duration(seconds: 1),
             ),
             child: env.testWidget,
@@ -2242,7 +2242,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               transitionsBuilder: (context, animation, _, child) {
                 return Opacity(
                   key: themeTransitionKey,
@@ -2296,7 +2296,7 @@ void main() {
 
         await tester.pumpWidget(
           PagedSheetRouteTheme(
-            data: PagedSheetRouteThemeData.from(
+            data: PagedSheetRouteThemeData(
               transitionsBuilder: (context, animation, _, child) {
                 final route = ModalRoute.of(context)!;
                 return Opacity(

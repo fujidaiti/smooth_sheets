@@ -8,7 +8,7 @@ A new `PagedSheetRouteTheme` `InheritedWidget` lets you set shared defaults for 
 
 ```dart
 PagedSheetRouteTheme(
-  data: PagedSheetRouteThemeData.from(
+  data: PagedSheetRouteThemeData(
     transitionsBuilder: myTransitionBuilder,
     snapGrid: mySnapGrid,
   ),
@@ -32,7 +32,7 @@ If you relied on `PagedSheet.dragConfiguration` to set route defaults, wrap your
 
 ```dart
 PagedSheetRouteTheme(
-  data: PagedSheetRouteThemeData.from(
+  data: PagedSheetRouteThemeData(
     dragConfiguration: SheetDragConfiguration.disabled,
   ),
   child: PagedSheet(...),
