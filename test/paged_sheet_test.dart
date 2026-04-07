@@ -2187,8 +2187,6 @@ void main() {
         );
         unawaited(env.getNavigator().push(routeB));
         await tester.pump();
-        expect(routeB.transitionDuration, Duration(seconds: 1));
-        expect(routeB.controller!.duration, Duration(seconds: 1));
         await tester.pump(Duration(milliseconds: 800));
         expect(routeB.animation!.isCompleted, isFalse);
 

@@ -43,24 +43,15 @@ enum SheetScrollHandlingBehavior {
   onlyFromTop,
 }
 
-/// {@template smooth_sheets.scrollable.SheetScrollConfiguration}
 /// Defines how the sheet integrates with scrollable content.
-///
-/// Use [SheetScrollConfiguration.disabled] to explicitly opt out of
-/// scroll-sheet integration. This is distinct from `null`, which means
-/// "inherit from theme" in the context of `PagedSheetRoute`.
-/// {@endtemplate}
 abstract class SheetScrollConfiguration {
   /// Creates a [SheetScrollConfiguration] with the given scroll behavior.
   const factory SheetScrollConfiguration({
     SheetScrollHandlingBehavior scrollSyncMode,
     bool delegateUnhandledOverscrollToChild,
-  }) = _SheetScrollConfigurationImpl;
+  }) = _StaticSheetScrollConfiguration;
 
   /// A [SheetScrollConfiguration] that disables scroll-sheet integration.
-  ///
-  /// Use this to explicitly opt out of scroll-sheet integration while
-  /// allowing `null` to mean "inherit from theme."
   static const SheetScrollConfiguration disabled =
       _SheetScrollConfigurationDisabled.instance;
 
@@ -91,8 +82,8 @@ abstract class SheetScrollConfiguration {
 }
 
 @immutable
-class _SheetScrollConfigurationImpl implements SheetScrollConfiguration {
-  const _SheetScrollConfigurationImpl({
+class _StaticSheetScrollConfiguration implements SheetScrollConfiguration {
+  const _StaticSheetScrollConfiguration({
     this.scrollSyncMode = SheetScrollHandlingBehavior.always,
     this.delegateUnhandledOverscrollToChild = false,
   });
@@ -106,7 +97,7 @@ class _SheetScrollConfigurationImpl implements SheetScrollConfiguration {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is _SheetScrollConfigurationImpl &&
+        other is _StaticSheetScrollConfiguration &&
             runtimeType == other.runtimeType &&
             scrollSyncMode == other.scrollSyncMode &&
             delegateUnhandledOverscrollToChild ==
@@ -150,7 +141,6 @@ class _SheetScrollConfigurationDisabled implements SheetScrollConfiguration {
 @internal
 mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     implements _SheetScrollPositionDelegate {
-  /// {@macro smooth_sheets.scrollable.SheetScrollConfiguration}
   SheetScrollConfiguration get scrollConfiguration;
 
   // TODO: Stop scroll animations when a non-scrollable activity starts.

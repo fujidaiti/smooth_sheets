@@ -62,7 +62,7 @@ class Sheet extends StatelessWidget {
     this.physics,
     this.snapGrid = const SheetSnapGrid.single(snap: SheetOffset(1)),
     this.controller,
-    this.scrollConfiguration,
+    this.scrollConfiguration = SheetScrollConfiguration.disabled,
     this.dragConfiguration = const SheetDragConfiguration(),
     this.decoration = const DefaultSheetDecoration(),
     this.padding = EdgeInsets.zero,
@@ -80,7 +80,11 @@ class Sheet extends StatelessWidget {
   /// An object that can be used to control and observe the sheet height.
   final SheetController? controller;
 
-  final SheetScrollConfiguration? scrollConfiguration;
+  /// Controls how the sheet integrates with scrollable content.
+  ///
+  /// Set to [SheetScrollConfiguration.disabled] to prevent the sheet position
+  /// from being synchronized with scrolls in the scrollables.
+  final SheetScrollConfiguration scrollConfiguration;
 
   /// Controls how the sheet responds to drag gestures.
   ///
@@ -105,15 +109,13 @@ class Sheet extends StatelessWidget {
         physics: physics ?? kDefaultSheetPhysics,
         snapGrid: snapGrid,
         gestureProxy: SheetGestureProxy.maybeOf(context),
-        scrollConfiguration:
-            scrollConfiguration ?? const SheetScrollConfiguration(),
+        scrollConfiguration: scrollConfiguration,
       ),
       child: BareSheet(
         decoration: decoration,
         padding: padding,
         child: DraggableScrollableSheetContent(
-          scrollConfiguration:
-              scrollConfiguration ?? SheetScrollConfiguration.disabled,
+          scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,
           child: child,
         ),
@@ -157,13 +159,10 @@ class _DraggableScrollableSheetContentState
     extends State<DraggableScrollableSheetContent> {
   SheetScrollController? _scrollController;
 
-  bool get _isScrollEnabled =>
-      widget.scrollConfiguration != SheetScrollConfiguration.disabled;
-
   @override
   void initState() {
     super.initState();
-    if (_isScrollEnabled) {
+    if (widget.scrollConfiguration != SheetScrollConfiguration.disabled) {
       _scrollController = _createScrollController();
     }
   }
@@ -177,7 +176,7 @@ class _DraggableScrollableSheetContentState
   @override
   void didUpdateWidget(DraggableScrollableSheetContent oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_isScrollEnabled) {
+    if (widget.scrollConfiguration != SheetScrollConfiguration.disabled) {
       _scrollController ??= _createScrollController();
     }
   }

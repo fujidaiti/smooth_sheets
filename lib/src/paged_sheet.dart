@@ -27,11 +27,11 @@ const _kDefaultSnapGrid = SteplessSnapGrid(
   maxOffset: SheetOffset(1),
 );
 
-/// Holds default values for inheritable route parameters in a [PagedSheet].
+/// Holds default values for inheritable [PagedSheetRoute] and [PagedSheetPage]
+/// parameters in a [PagedSheet].
 ///
 /// Routes that don't specify a parameter will inherit the value from the
-/// nearest [PagedSheetRouteTheme] ancestor. If no ancestor exists, the
-/// built-in defaults from [PagedSheetRouteThemeData.from] are used.
+/// nearest [PagedSheetRouteTheme] ancestor.
 @immutable
 class PagedSheetRouteThemeData {
   /// Creates a [PagedSheetRouteThemeData] with the given defaults.
@@ -47,9 +47,6 @@ class PagedSheetRouteThemeData {
   static const _default = PagedSheetRouteThemeData.from();
 
   /// The default scroll configuration for routes.
-  ///
-  /// Defaults to [SheetScrollConfiguration.disabled], meaning routes do not
-  /// integrate with scrollable content unless overridden.
   final SheetScrollConfiguration scrollConfiguration;
 
   /// The default drag configuration for routes.
@@ -68,8 +65,6 @@ class PagedSheetRouteThemeData {
   final SheetSnapGrid snapGrid;
 
   /// The default transitions builder for routes.
-  ///
-  /// Defaults to `null`, meaning the platform default transition is used.
   final RouteTransitionsBuilder? transitionsBuilder;
 
   @override
@@ -98,7 +93,7 @@ class PagedSheetRouteThemeData {
 }
 
 /// An [InheritedWidget] that provides default route parameter values
-/// for routes in a [PagedSheet].
+/// for [PagedSheetRoute]s and [PagedSheetPage]s in a [PagedSheet].
 ///
 /// Place this widget above a [PagedSheet] to set shared defaults for all
 /// routes. Individual routes can still override any parameter.
@@ -473,19 +468,23 @@ class PagedSheet extends StatelessWidget {
     required this.navigator,
   });
 
-  /// The drag configuration for the sheet itself (shared elements).
+  /// The drag configuration for this sheet.
   ///
-  /// This controls drag behavior for shared elements built by the [builder]
-  /// callback. It is completely independent from
-  /// [PagedSheetRouteTheme.data]'s drag configuration, which provides
-  /// defaults for routes.
+  /// This controls drag behavior for the sheet itself and shared elements built
+  /// by the [builder] callback. Set to [SheetDragConfiguration.disabled] to
+  /// disable dragging for shared elements.
   ///
-  /// When a route is active, the route's drag configuration (resolved via
-  /// [PagedSheetRouteTheme]) controls both the route content and shared
-  /// elements. This value is only used when no route is active.
+  /// Note that this value does not affect the drag behavior of individual
+  /// routes. Even if this is set to [SheetDragConfiguration.disabled], routes
+  /// with non-[SheetDragConfiguration.disabled] drag configuration can still
+  /// be dragged except for the shared elements.
   ///
-  /// Set to [SheetDragConfiguration.disabled] to disable dragging for
-  /// shared elements when no route is active.
+  /// However, the opposite is not true: if the current route's drag
+  /// configuration is [SheetDragConfiguration.disabled], the shared elements
+  /// will also not be draggable even if this is set to
+  /// a non-[SheetDragConfiguration.disabled] value. This behavior is useful
+  /// in cases where the sheet has a shared top bar and you want to entirely
+  /// disable dragging for a certain route including the shared top bar.
   final SheetDragConfiguration dragConfiguration;
 
   final SheetController? controller;
@@ -771,13 +770,12 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    final resolvedScrollConfig =
-        scrollConfiguration ?? _routeThemeData.scrollConfiguration;
     return ResizableNavigatorRouteContentBoundary(
       child: _RouteContentLayoutObserver(
         onContentSizeChanged: (size) => _contentSize = size,
         child: DraggableScrollableSheetContent(
-          scrollConfiguration: resolvedScrollConfig,
+          scrollConfiguration:
+              scrollConfiguration ?? _routeThemeData.scrollConfiguration,
           // _CurrentRouteAwareSheetDraggable already handles drag gestures
           // within the route content, so we eliminate per-route SheetDraggable.
           dragConfiguration: SheetDragConfiguration.disabled,

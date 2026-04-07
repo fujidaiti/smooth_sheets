@@ -81,7 +81,7 @@ final _sheetShellRoute = ShellRoute(
 final _introRoute = GoRoute(
   path: 'intro',
   pageBuilder: (context, state) {
-    return PagedSheetPage(child: _IntroPage());
+    return PagedSheetPage(key: state.pageKey, child: _IntroPage());
   },
   routes: [_genreRoute],
 );
@@ -89,7 +89,7 @@ final _introRoute = GoRoute(
 final _genreRoute = GoRoute(
   path: 'genre',
   pageBuilder: (context, state) {
-    return PagedSheetPage(child: _SelectGenrePage());
+    return PagedSheetPage(key: state.pageKey, child: _SelectGenrePage());
   },
   routes: [_moodRoute],
 );
@@ -97,7 +97,7 @@ final _genreRoute = GoRoute(
 final _moodRoute = GoRoute(
   path: 'mood',
   pageBuilder: (context, state) {
-    return PagedSheetPage(child: _SelectMoodPage());
+    return PagedSheetPage(key: state.pageKey, child: _SelectMoodPage());
   },
   routes: [_seedTrackRoute],
 );
@@ -106,6 +106,7 @@ final _seedTrackRoute = GoRoute(
   path: 'seed-track',
   pageBuilder: (context, state) {
     return PagedSheetPage(
+      key: state.pageKey,
       scrollConfiguration: SheetScrollConfiguration(),
       child: _SelectSeedTrackPage(),
     );
@@ -117,7 +118,7 @@ final _confirmRoute = GoRoute(
   path: 'confirm',
   pageBuilder: (context, state) {
     return PagedSheetPage(
-      scrollConfiguration: SheetScrollConfiguration(),
+      key: state.pageKey,
       initialOffset: SheetOffset(0.7),
       snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.7), SheetOffset(1)]),
       child: _ConfirmPage(),
@@ -129,7 +130,7 @@ final _confirmRoute = GoRoute(
 final _generateRoute = GoRoute(
   path: 'generate',
   pageBuilder: (context, state) {
-    return PagedSheetPage(child: _GeneratingPage());
+    return PagedSheetPage(key: state.pageKey, child: _GeneratingPage());
   },
 );
 
@@ -196,7 +197,11 @@ class _SheetShell extends StatelessWidget {
       },
       child: PagedSheetRouteTheme(
         data: PagedSheetRouteThemeData.from(
-          transitionsBuilder: _createTransitionBuilder(context),
+          transitionsBuilder: switch (Theme.of(context).platform) {
+            TargetPlatform.iOS => _fadeAndSlideTransitionWithIOSBackGesture,
+            // Use the default transition on the other platforms.
+            _ => null,
+          },
         ),
         child: PagedSheet(
           decoration: MaterialSheetDecoration(
@@ -644,14 +649,6 @@ class _SharedSheetBottomBar extends StatelessWidget {
       ),
     );
   }
-}
-
-RouteTransitionsBuilder? _createTransitionBuilder(BuildContext conatext) {
-  return switch (Theme.of(conatext).platform) {
-    TargetPlatform.iOS => _fadeAndSlideTransitionWithIOSBackGesture,
-    // Use the default transition on the other platforms.
-    _ => null,
-  };
 }
 
 Widget _fadeAndSlideTransitionWithIOSBackGesture(
