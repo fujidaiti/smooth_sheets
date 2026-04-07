@@ -29,9 +29,6 @@ const _kDefaultSnapGrid = SteplessSnapGrid(
 
 /// Holds default values for inheritable [PagedSheetRoute] and [PagedSheetPage]
 /// parameters in a [PagedSheet].
-///
-/// Routes that don't specify a parameter will inherit the value from the
-/// nearest [PagedSheetRouteTheme] ancestor.
 @immutable
 class PagedSheetRouteThemeData {
   /// Creates a [PagedSheetRouteThemeData] with the given defaults.
@@ -768,9 +765,6 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   @override
   Duration get transitionDuration => _resolvedTheme.transitionDuration;
 
-  RouteTransitionsBuilder? get _resolvedTransitionsBuilder =>
-      _resolvedTheme.transitionsBuilder;
-
   @override
   Color? get barrierColor => null;
 
@@ -781,8 +775,8 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   void install() {
     _model = SheetModelOwner.of(navigator!.context)! as _PagedSheetModel;
     // Resolves the effective theme before calling super.install() to ensure
-    // that super.createAnimation() uses transitionDuration from
-    // the resolved theme.
+    // that super.createAnimation() uses transitionDuration from the resolved
+    // theme.
     _resolvedTheme = _ResolvedPagedSheetRouteThemeData.resolve(
       _theme,
       navigator!.context,
@@ -859,7 +853,7 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    if (_resolvedTransitionsBuilder case final builder?) {
+    if (_resolvedTheme.transitionsBuilder case final builder?) {
       return builder(context, animation, secondaryAnimation, child);
     }
     final theme = Theme.of(context);

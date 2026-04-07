@@ -20,7 +20,6 @@ class _DraggableScrollableSheetModelConfig extends SheetModelConfig {
     required this.scrollConfiguration,
   });
 
-  /// {@macro smooth_sheets.scrollable.SheetScrollConfiguration}
   final SheetScrollConfiguration scrollConfiguration;
 
   @override
@@ -83,7 +82,7 @@ class Sheet extends StatelessWidget {
   /// Controls how the sheet integrates with scrollable content.
   ///
   /// Set to [SheetScrollConfiguration.disabled] to prevent the sheet position
-  /// from being synchronized with scrolls in the scrollables.
+  /// from being synchronized with scroll views inside the sheet.
   final SheetScrollConfiguration scrollConfiguration;
 
   /// Controls how the sheet responds to drag gestures.
