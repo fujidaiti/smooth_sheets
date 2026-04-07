@@ -134,7 +134,7 @@ class MyPhysics extends BouncingSheetPhysics {
 
 ### `Sheet.dragConfiguration` is now non-nullable 💥
 
-Similar to `PagedSheet`, the `dragConfiguration` properties on `Sheet` is now non-nullable. If you were passing `null` to disable dragging, use `SheetDragConfiguration.disabled` instead.
+Similar to `PagedSheet`, the `dragConfiguration` property on `Sheet` is now non-nullable. If you were passing `null` to disable dragging, use `SheetDragConfiguration.disabled` instead.
 
 **BEFORE:**
 
@@ -160,6 +160,8 @@ The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitT
 
 ### And more...
 
+### And more...
+
 - Fix inconsistent `BouncingSheetPhysics` resistance in over-drag vs. ballistic animation (#435)
-- `PagedSheet`'s shared elemeents (e.g., app-bar and bottom-bar) are now also affected by the current route's drag configuration (#500)
+- `PagedSheet`'s shared elements (e.g., app-bar and bottom-bar) are now also affected by the current route's drag configuration (#500)
 - `kDefaultSheetSpring` has been removed from the public API 💥

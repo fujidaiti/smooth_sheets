@@ -2244,8 +2244,9 @@ void main() {
           PagedSheetRouteTheme(
             data: PagedSheetRouteThemeData(
               transitionsBuilder: (context, animation, _, child) {
+                final route = ModalRoute.of(context)!;
                 return Opacity(
-                  key: themeTransitionKey,
+                  key: route.isFirst ? null : themeTransitionKey,
                   opacity: animation.value,
                   child: child,
                 );
