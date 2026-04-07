@@ -1,10 +1,9 @@
 # Changelog
 
-## 0.18.0 - 2026-04-07
+## 1.0.0 - 2026-04-08
 - feat: Add PagedSheetRouteTheme to make per-route parameters inheritable ([#527](https://github.com/fujidaiti/smooth_sheets/pull/527)) - [8a215f7](https://github.com/fujidaiti/smooth_sheets/commit/8a215f7052803ffa27fbc502fe7047d88af7f6af)
 - feat: Add deviceKinds to SheetDragConfiguration ([#528](https://github.com/fujidaiti/smooth_sheets/pull/528)) - [5a76bba](https://github.com/fujidaiti/smooth_sheets/commit/5a76bba06fde14473c570c76abfa637e8b576c87)
 - feat: Allow to manage scroll controllers outside the sheet ([#523](https://github.com/fujidaiti/smooth_sheets/pull/523)) - [3c57c32](https://github.com/fujidaiti/smooth_sheets/commit/3c57c32182d0d24e49af156a0a32c589e610898a)
-- feat: Add global dragConfiguration to PagedSheet ([#500](https://github.com/fujidaiti/smooth_sheets/pull/500)) - [402acd3](https://github.com/fujidaiti/smooth_sheets/commit/402acd3bdb6bc5b68d8684aa6c09ee6306a1c05e)
 - fix: Android predictive back gesture triggers jaggy route pop animation in PagedSheet ([#526](https://github.com/fujidaiti/smooth_sheets/pull/526)) - [6dd9f3f](https://github.com/fujidaiti/smooth_sheets/commit/6dd9f3f4daa2b0f0f8f90df16a152c101a7c8a7c)
 - fix: Assertion error occurs when predictive back gesture commits route pop on Android ([#525](https://github.com/fujidaiti/smooth_sheets/pull/525)) - [77fe2c0](https://github.com/fujidaiti/smooth_sheets/commit/77fe2c0aa9394207c51edd254076b2e93907d2a0)
 - fix: Inconsistent BouncingSheetPhysics resistance in over-drag vs. ballistic animation ([#522](https://github.com/fujidaiti/smooth_sheets/pull/522)) - [0e74132](https://github.com/fujidaiti/smooth_sheets/commit/0e741324d30e9af9256e1ce2570a940645acc11f)
