@@ -2,47 +2,24 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-/// Caches [FloatComp] instances for different epsilon values to avoid
-/// object creations for every comparison. Although these instances may never
-/// be released, the memory overhead is negligible as the device pixel ratio
-/// rarely changes during the app's lifetime.
-final _instanceForEpsilon = <double, FloatComp>{};
-
-// ignore: lines_longer_than_80_chars
-// TODO: Reimplement this class as an extension type of [double] to avoid object creation.
 /// A comparator for floating-point numbers in a certain precision.
 ///
 /// [FloatComp.distance] and [FloatComp.velocity] determine the [epsilon] based
 /// on the given device pixel ratio, which is the number of physical pixels per
 /// logical pixel.
 @internal
-class FloatComp {
-  /// Creates a [FloatComp] with the given [epsilon].
-  factory FloatComp({required double epsilon}) {
-    return _instanceForEpsilon[epsilon] ??= FloatComp._(epsilon);
-  }
-
+extension type FloatComp._(double epsilon) {
   /// Creates a [FloatComp] for comparing distances.
   ///
   /// The [devicePixelRatio] is the number of physical pixels per logical
   /// pixel. This is typically obtained by [MediaQuery.devicePixelRatioOf].
-  factory FloatComp.distance(double devicePixelRatio) {
-    return FloatComp(epsilon: 1e-3 / devicePixelRatio);
-  }
+  FloatComp.distance(double devicePixelRatio) : this._(1e-3 / devicePixelRatio);
 
   /// Creates a [FloatComp] for comparing velocities.
   ///
   /// The [devicePixelRatio] is the number of physical pixels per logical
   /// pixel. This is typically obtained by [MediaQuery.devicePixelRatioOf].
-  factory FloatComp.velocity(double devicePixelRatio) {
-    return FloatComp(epsilon: 1e-4 / devicePixelRatio);
-  }
-
-  const FloatComp._(this.epsilon);
-
-  /// The maximum difference between two floating-point numbers to consider
-  /// them approximately equal.
-  final double epsilon;
+  FloatComp.velocity(double devicePixelRatio) : this._(1e-4 / devicePixelRatio);
 
   /// Returns `true` if [a] is approximately equal to [b].
   bool isApprox(double a, double b) => nearEqual(a, b, epsilon);
