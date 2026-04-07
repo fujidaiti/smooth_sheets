@@ -48,9 +48,6 @@ class PagedSheetRouteThemeData {
 
   /// The default drag configuration for routes.
   ///
-  /// This is independent from [PagedSheet.dragConfiguration], which controls
-  /// the sheet-level drag behavior for shared elements.
-  ///
   /// Falls back to [SheetDragConfiguration.new] with default values.
   final SheetDragConfiguration? dragConfiguration;
 
@@ -508,7 +505,6 @@ class _PostTransitionWithoutAnimationActivity
 class PagedSheet extends StatelessWidget {
   const PagedSheet({
     super.key,
-    this.dragConfiguration = const SheetDragConfiguration(),
     this.controller,
     this.physics = kDefaultSheetPhysics,
     this.transitionCurve = Curves.easeInOutCubic,
@@ -517,25 +513,6 @@ class PagedSheet extends StatelessWidget {
     this.builder,
     required this.navigator,
   });
-
-  /// The drag configuration for this sheet.
-  ///
-  /// This controls drag behavior for the sheet itself and shared elements built
-  /// by the [builder] callback. Set to [SheetDragConfiguration.disabled] to
-  /// disable dragging for shared elements.
-  ///
-  /// Note that this value does not affect the drag behavior of individual
-  /// routes. Even if this is set to [SheetDragConfiguration.disabled], routes
-  /// with non-[SheetDragConfiguration.disabled] drag configuration can still
-  /// be dragged except for the shared elements.
-  ///
-  /// However, the opposite is not true: if the current route's drag
-  /// configuration is [SheetDragConfiguration.disabled], the shared elements
-  /// will also not be draggable even if this is set to
-  /// a non-[SheetDragConfiguration.disabled] value. This behavior is useful
-  /// in cases where the sheet has a shared top bar and you want to entirely
-  /// disable dragging for a certain route including the shared top bar.
-  final SheetDragConfiguration dragConfiguration;
 
   final SheetController? controller;
 
@@ -596,22 +573,15 @@ class PagedSheet extends StatelessWidget {
       child: BareSheet(
         decoration: decoration,
         padding: padding,
-        child: _RouteAwareSheetDraggable(
-          defaultConfiguration: dragConfiguration,
-          child: content,
-        ),
+        child: _RouteAwareSheetDraggable(child: content),
       ),
     );
   }
 }
 
 class _RouteAwareSheetDraggable extends StatefulWidget {
-  const _RouteAwareSheetDraggable({
-    required this.defaultConfiguration,
-    required this.child,
-  });
+  const _RouteAwareSheetDraggable({required this.child});
 
-  final SheetDragConfiguration defaultConfiguration;
   final Widget child;
 
   @override
@@ -624,7 +594,8 @@ class _RouteAwareSheetDraggableState extends State<_RouteAwareSheetDraggable>
   late _PagedSheetModel _model;
 
   SheetDragConfiguration get _effectiveConfig =>
-      _model._currentEntry?.dragConfiguration ?? widget.defaultConfiguration;
+      _model._currentEntry?.dragConfiguration ??
+      SheetDragConfiguration.disabled;
 
   @override
   HitTestBehavior? get hitTestBehavior => _effectiveConfig.hitTestBehavior;
