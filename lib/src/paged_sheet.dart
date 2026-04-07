@@ -46,9 +46,7 @@ class PagedSheetRouteThemeData {
 
   /// The default scroll configuration for routes.
   ///
-  /// {@template PagedSheetRouteThemeData.scrollConfiguration.fallback}
   /// Falls back to [SheetScrollConfiguration.disabled].
-  /// {@endtemplate}
   final SheetScrollConfiguration? scrollConfiguration;
 
   /// The default drag configuration for routes.
@@ -56,38 +54,28 @@ class PagedSheetRouteThemeData {
   /// This is independent from [PagedSheet.dragConfiguration], which controls
   /// the sheet-level drag behavior for shared elements.
   ///
-  /// {@template PagedSheetRouteThemeData.dragConfiguration.fallback}
   /// Falls back to [SheetDragConfiguration.new] with default values.
-  /// {@endtemplate}
   final SheetDragConfiguration? dragConfiguration;
 
   /// The default transition duration for routes.
   ///
-  /// {@template PagedSheetRouteThemeData.transitionDuration.fallback}
   /// Falls back to 300 milliseconds.
-  /// {@endtemplate}
   final Duration? transitionDuration;
 
   /// The default initial offset for routes.
   ///
-  /// {@template PagedSheetRouteThemeData.initialOffset.fallback}
   /// Falls back to `SheetOffset(1)`.
-  /// {@endtemplate}
   final SheetOffset? initialOffset;
 
   /// The default snap grid for routes.
   ///
-  /// {@template PagedSheetRouteThemeData.snapGrid.fallback}
   /// Falls back to a [SingleSnapGrid] with a single snap at `SheetOffset(1)`.
-  /// {@endtemplate}
   final SheetSnapGrid? snapGrid;
 
   /// The default transitions builder for routes.
   ///
-  /// {@template PagedSheetRouteThemeData.transitionsBuilder.fallback}
   /// Falls back to null, which means using the default transitions builder
   /// based on the current [ThemeData.platform].
-  /// {@endtemplate}
   final RouteTransitionsBuilder? transitionsBuilder;
 
   @override
@@ -811,6 +799,7 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   @override
   void changedExternalState() {
     super.changedExternalState();
+    _model = SheetModelOwner.of(navigator!.context)! as _PagedSheetModel;
     _resolvedTheme = _ResolvedPagedSheetRouteThemeData.resolve(
       _theme,
       navigator!.context,
@@ -893,7 +882,12 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
   }
 }
 
+/// A [Route] for [PagedSheet].
 class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
+  /// Creates a [PagedSheetRoute].
+  ///
+  /// See [PagedSheetRouteThemeData] for [PagedSheet] related parameters
+  /// such as [scrollConfiguration], and [dragConfiguration].
   PagedSheetRoute({
     super.settings,
     this.maintainState = true,
@@ -931,14 +925,18 @@ class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
   }
 }
 
+/// A [Page] for [PagedSheet].
 class PagedSheetPage<T> extends Page<T> {
+  /// Creates a [PagedSheetPage].
+  ///
+  /// See [PagedSheetRouteThemeData] for [PagedSheet] related parameters
+  /// such as [scrollConfiguration], and [dragConfiguration].
   PagedSheetPage({
     super.key,
     super.name,
     super.arguments,
     super.restorationId,
     this.maintainState = true,
-    this.physics = kDefaultSheetPhysics,
     SheetScrollConfiguration? scrollConfiguration,
     SheetDragConfiguration? dragConfiguration,
     SheetOffset? initialOffset,
@@ -956,8 +954,6 @@ class PagedSheetPage<T> extends Page<T> {
        );
 
   final PagedSheetRouteThemeData _theme;
-
-  final SheetPhysics physics;
 
   final bool maintainState;
 
