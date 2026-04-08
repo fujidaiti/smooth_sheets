@@ -1,3 +1,12 @@
+# Creates a GitHub Release (and tag) when a version-bump commit lands on main.
+#
+# Triggered by pushes to main that touch pubspec.yaml. Detects a version change
+# by diffing pubspec.yaml between the previous and current commits; if the
+# version is unchanged, the workflow exits cleanly. Otherwise it creates a
+# GitHub Release at the merge commit, using notes/release-note-<version>.md as
+# the body.
+#
+# The release will trigger the publish.yaml to publish the package to pub.dev.
 name: Create Release
 
 on:
