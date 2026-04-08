@@ -20,6 +20,13 @@ See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v
 - feat: Add Sheet.padding for flexible padding control ([#479](https://github.com/fujidaiti/smooth_sheets/pull/479)) - [3f057a0](https://github.com/fujidaiti/smooth_sheets/commit/3f057a006c3f968316a1edc91412890d195961ee)
 
 
+> [!IMPORTANT]
+> - `shrinkChildToAvoidDynamicOverlap` and `shrinkChildToAvoidStaticOverlap` have been removed from `Sheet`, `PagedSheet`. Use the `padding` parameter instead.
+> - `viewportDynamicOverlap` and `viewportStaticOverlap` have been removed from `ViewportLayout`, `SheetLayoutSpec`, `SheetMetrics`, and related classes.
+> - `staticOverlap`, `dynamicOverlap`, `contentDynamicOverlap`, and `contentStaticOverlap` getters have been removed from `SheetMetrics`.
+> - `SheetLayoutSpec.contentBaseline` getter has been removed.
+
+
 See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.17.0) for more details.
 
 ## 0.16.0 - 2026-01-12
@@ -30,11 +37,24 @@ See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v
 - fix: Unexpected bouncing animation with ClampingScrollPhysics ([#363](https://github.com/fujidaiti/smooth_sheets/pull/363)) ([#432](https://github.com/fujidaiti/smooth_sheets/pull/432)) - [29ba25d](https://github.com/fujidaiti/smooth_sheets/commit/29ba25d688a03f2a81ef87ac45f45eb39936c5ab)
 
 
+> [!IMPORTANT]
+> - The `padding` properties have been removed from modal
+sheet routes and pages.
+> - `BouncingBehavior` and its subclasses have been removed.
+> - `behavior` and `frictionCurve` have been removed.
+> - `SheetScrollConfiguration.thresholdVelocityToInterruptBallisticScroll` was removed.
+
+
 See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.16.0) for more details.
 
 ## 0.15.0 - 2025-09-09
 - feat: Changed SwipeDismissSensitivity to use a SheetOffset as the minimum drag value ([#415](https://github.com/fujidaiti/smooth_sheets/pull/415)) - [aba6f2f](https://github.com/fujidaiti/smooth_sheets/commit/aba6f2f5c9c416b8934eeec80710acfb19ce6885)
 - fix: NavigatorEventObserver assertion error when pop during push transition ([#416](https://github.com/fujidaiti/smooth_sheets/pull/416)) - [4004500](https://github.com/fujidaiti/smooth_sheets/commit/40045009b2da1081106a0970fea1330e47a8906d)
+
+
+> [!IMPORTANT]
+> - Added `SwipeDismissSensitivity.dismissalOffset` and `SwipeDismissSensitivity.minDragDistance` was removed instead.
+> - Requires Flutter SDK 3.29 or higher.
 
 
 See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.15.0) for more details.
