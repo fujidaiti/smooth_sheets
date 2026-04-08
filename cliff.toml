@@ -16,18 +16,6 @@ body = """
         - {% if commit.group != "none" %}{{ commit.group }}: {% endif %}{{ commit.message | upper_first }} \
         - [{{ commit.id | truncate(length=7, end="") }}](https://github.com/fujidaiti/smooth_sheets/commit/{{ commit.id }})
 {% endfor %}\
-{% set breaking_commits = commits | filter(attribute="breaking", value=true) %}\
-{% if breaking_commits | length > 0 %}\
-\n
-> [!IMPORTANT]
-{% for commit in breaking_commits %}\
-    {% for footer in commit.footers %}\
-        {% if footer.breaking %}\
-> - {{ footer.value }}
-        {% endif %}\
-    {% endfor %}\
-{% endfor %}\
-{% endif %}\
 \n
 See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/{{ version }}) for more details.
 \n
