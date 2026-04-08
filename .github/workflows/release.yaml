@@ -1,0 +1,94 @@
+# Creates a GitHub Release (and tag) when a version-bump commit lands on main.
+#
+# Triggered by pushes to main that touch pubspec.yaml. Detects a version change
+# by diffing pubspec.yaml between the previous and current commits; if the
+# version is unchanged, the workflow exits cleanly. Otherwise it creates a
+# GitHub Release at the merge commit, using notes/release-note-<version>.md as
+# the body.
+#
+# The release will trigger the publish.yaml to publish the package to pub.dev.
+name: Create Release
+
+on:
+  push:
+    branches: [main]
+    paths: ['pubspec.yaml']
+
+permissions:
+  contents: write
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.version.outputs.changed }}
+      raw: ${{ steps.version.outputs.raw }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetching the last 2 commits is sufficient to compare pubspec.yaml for version changes
+          fetch-depth: 2
+
+      - name: Detect version change
+        id: version
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -e
+          NEW=$(yq '.version' pubspec.yaml)
+          OLD=$(git show "${BEFORE_SHA}:pubspec.yaml" 2>/dev/null | yq '.version' || echo "")
+
+          echo "Old version: ${OLD}"
+          echo "New version: ${NEW}"
+
+          if [ "$OLD" = "$NEW" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "raw=${NEW}" >> $GITHUB_OUTPUT
+            echo "tag=v${NEW}" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Verify release note exists
+        if: steps.version.outputs.changed == 'true'
+        env:
+          RAW: ${{ steps.version.outputs.raw }}
+        run: |
+          set -e
+          NOTE="notes/release-note-${RAW}.md"
+          if [ ! -f "$NOTE" ]; then
+            echo "::error::Missing release note file: $NOTE"
+            exit 1
+          fi
+        shell: bash
+
+  release:
+    runs-on: ubuntu-latest
+    needs: detect
+    if: needs.detect.outputs.changed == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.NORELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.NORELEASE_BOT_PRIVATE_KEY }}
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG: ${{ needs.detect.outputs.tag }}
+          RAW: ${{ needs.detect.outputs.raw }}
+        run: |
+          set -e
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes-file "notes/release-note-${RAW}.md" \
+            --target "$GITHUB_SHA"
+        shell: bash
