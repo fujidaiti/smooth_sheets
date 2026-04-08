@@ -93,16 +93,28 @@ jobs:
           # Fetch all history and tags for git-cliff and version calculation
           fetch-depth: 0
           
-      - name: Generate CHANGELOG using git-cliff
+      - name: Snapshot current CHANGELOG
+        run: cp CHANGELOG.md .old/CHANGELOG.md
+
+      - name: Generate new CHANGELOG section using git-cliff
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --bump
+          args: --bump --unreleased
         env:
-          OUTPUT: CHANGELOG.md
+          OUTPUT: NEW_CHANGELOG.md
 
-      - name: Append old CHANGELOG
-        run: cat .old/CHANGELOG.md >> CHANGELOG.md
+      - name: Prepend new section to CHANGELOG
+        run: |
+          set -e
+          {
+            echo "# Changelog"
+            echo
+            tail -n +3 NEW_CHANGELOG.md
+            tail -n +3 .old/CHANGELOG.md
+          } > CHANGELOG.md
+          rm NEW_CHANGELOG.md
+        shell: bash
 
       - name: Bump package version
         uses: mikefarah/yq@v4
@@ -128,34 +140,41 @@ jobs:
           git config --global user.email "${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
 
       - name: Create and Push Branch
+        id: create-branch
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEXT_VERSION: ${{ needs.check.outputs.next_version }}
         run: |
-          BRANCH_NAME="release/${NEXT_VERSION}"
+          BRANCH_NAME="release/${NEXT_VERSION}-$(date -u +%Y%m%d%H%M%S)"
           git checkout -b $BRANCH_NAME
-          git add pubspec.yaml CHANGELOG.md
+          git add pubspec.yaml CHANGELOG.md .old/CHANGELOG.md
           git commit -m "Bump package version to ${NEXT_VERSION}"
           git push origin $BRANCH_NAME
-          
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
       - name: Generate PR description
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
           args: --unreleased --strip=all
         env:
-          OUTPUT: pr-description.txt
+          OUTPUT: pr-description.raw.txt
+
+      - name: Strip version header from PR description
+        run: tail -n +2 pr-description.raw.txt > pr-description.txt
+        shell: bash
 
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEXT_VERSION: ${{ needs.check.outputs.next_version }}
           LATEST_TAG: ${{ needs.check.outputs.latest_tag }}
+          BRANCH_NAME: ${{ steps.create-branch.outputs.branch_name }}
         run: |
           PR_TITLE="chore(pkg): Bump package version to ${NEXT_VERSION} [bot]"
           gh pr create \
             --base main \
-            --head "release/${NEXT_VERSION}" \
+            --head "${BRANCH_NAME}" \
             --title "${PR_TITLE}" \
             --body-file pr-description.txt \
             --reviewer "${{ github.repository_owner }}"
