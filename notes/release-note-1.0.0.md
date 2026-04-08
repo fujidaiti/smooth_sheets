@@ -162,7 +162,7 @@ The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitT
 
 - `kDefaultSheetSpring` has been removed from the public API 💥
 - `PagedSheet`'s shared elements (e.g., app-bar and bottom-bar) are now also affected by the current route's drag configuration (#500) 💥
-- feat: Use drag devices from inherited scroll config ([#513](https://github.com/fujidaiti/smooth_sheets/pull/513)) - [0796b1a](https://github.com/fujidaiti/smooth_sheets/commit/0796b1a8719a26338ddfa3a66961cd5c1f1d609e) by [@Zekfad](https://github.com/fujidaiti/smooth_sheets/commits?author=Zekfad)
+- feat: Use drag devices from inherited scroll config ([#513](https://github.com/fujidaiti/smooth_sheets/pull/513)) - [0796b1a](https://github.com/fujidaiti/smooth_sheets/commit/0796b1a8719a26338ddfa3a66961cd5c1f1d609e) by [@Zekfad](https://github.com/Zekfad)
 - feat: Add deviceKinds to SheetDragConfiguration ([#528](https://github.com/fujidaiti/smooth_sheets/pull/528)) - [5a76bba](https://github.com/fujidaiti/smooth_sheets/commit/5a76bba06fde14473c570c76abfa637e8b576c87)
 - fix: Android predictive back gesture triggers jaggy route pop animation in PagedSheet ([#526](https://github.com/fujidaiti/smooth_sheets/pull/526)) - [6dd9f3f](https://github.com/fujidaiti/smooth_sheets/commit/6dd9f3f4daa2b0f0f8f90df16a152c101a7c8a7c)
 - fix: Assertion error occurs when predictive back gesture commits route pop on Android ([#525](https://github.com/fujidaiti/smooth_sheets/pull/525)) - [77fe2c0](https://github.com/fujidaiti/smooth_sheets/commit/77fe2c0aa9394207c51edd254076b2e93907d2a0)
