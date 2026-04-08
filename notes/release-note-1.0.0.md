@@ -1,6 +1,8 @@
 # v1.0.0 Release Notes
 
-The first stable release of smooth_sheets! This version mainly focuses on bug fixes to stabilize the package, but some small new features have also shipped. Breaking changes are marked with a 💥 — please follow the migration guides.
+The first stable release of smooth_sheets!
+
+This version mainly focuses on bug fixes to stabilize the package, but some small new features have also shipped. Breaking changes are marked with a 💥 — please follow the migration guides.
 
 ## Add PagedSheetRouteTheme for inheritable route defaults
 
