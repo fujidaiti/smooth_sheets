@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 - 2026-04-08
+## 1.0.0 - 2026-04-09
 - feat: Add PagedSheetRouteTheme to make per-route parameters inheritable ([#527](https://github.com/fujidaiti/smooth_sheets/pull/527)) - [8a215f7](https://github.com/fujidaiti/smooth_sheets/commit/8a215f7052803ffa27fbc502fe7047d88af7f6af)
 - feat: Add deviceKinds to SheetDragConfiguration ([#528](https://github.com/fujidaiti/smooth_sheets/pull/528)) - [5a76bba](https://github.com/fujidaiti/smooth_sheets/commit/5a76bba06fde14473c570c76abfa637e8b576c87)
 - feat: Allow to manage scroll controllers outside the sheet ([#523](https://github.com/fujidaiti/smooth_sheets/pull/523)) - [3c57c32](https://github.com/fujidaiti/smooth_sheets/commit/3c57c32182d0d24e49af156a0a32c589e610898a)
