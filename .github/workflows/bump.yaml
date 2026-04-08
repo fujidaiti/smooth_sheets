@@ -121,6 +121,17 @@ jobs:
         with:
           cmd: yq -i '.version = "${{ needs.check.outputs.raw_next_version }}"' pubspec.yaml
 
+      - name: Ensure release note exists
+        env:
+          RAW_VERSION: ${{ needs.check.outputs.raw_next_version }}
+        run: |
+          set -e
+          NOTE="notes/release-note-${RAW_VERSION}.md"
+          if [ ! -f "$NOTE" ]; then
+            echo "# v${RAW_VERSION} release note" > "$NOTE"
+          fi
+        shell: bash
+
       - name: Generate GitHub App token
         id: app-token
         uses: actions/create-github-app-token@v1
@@ -144,10 +155,11 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEXT_VERSION: ${{ needs.check.outputs.next_version }}
+          RAW_NEXT_VERSION: ${{ needs.check.outputs.raw_next_version }}
         run: |
           BRANCH_NAME="release/${NEXT_VERSION}-$(date -u +%Y%m%d%H%M%S)"
           git checkout -b $BRANCH_NAME
-          git add pubspec.yaml CHANGELOG.md .old/CHANGELOG.md
+          git add pubspec.yaml CHANGELOG.md .old/CHANGELOG.md notes/release-note-${RAW_NEXT_VERSION}.md
           git commit -m "Bump package version to ${NEXT_VERSION}"
           git push origin $BRANCH_NAME
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
