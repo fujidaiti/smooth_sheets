@@ -1,10 +1,8 @@
 # v1.0.0 Release Notes
 
-The first stable release of smooth_sheets! This version mainly focuses on bug fixes to stabilize the pacakage, but some small new features have also shipped as well.
+The first stable release of smooth_sheets! This version mainly focuses on bug fixes to stabilize the package, but some small new features have also shipped. Breaking changes are marked with a 💥 — please follow the migration guides.
 
-Breaking changes are marked with a 💥. Please follow the migration guides.
-
-## PagedSheetRouteTheme — Inheritable Route Defaults
+## Add PagedSheetRouteTheme for inheritable route defaults
 
 A new `PagedSheetRouteTheme` lets you set shared defaults for all routes in a `PagedSheet`. Place it above `PagedSheet` to configure `scrollConfiguration`, `dragConfiguration`, `initialOffset`, `snapGrid`, `transitionDuration`, and `transitionsBuilder` once, instead of repeating them on every route.
 
@@ -54,9 +52,9 @@ The same rule as `scrollConfiguration` is now applied to `dragConfiguration` on 
 
 ## New way to manage scroll controllers 💥
 
-Previously, there was no way to manage a scroll controller for a scrollable widget inside the sheet from outside of that sheet. A [workaround][] was to use [SheetScrollable][] and capture the controller in the builder callback, but this approach was not aligned with the widget's lifecycle.
+Previously, there was no way to manage a scroll controller for a scrollable widget inside a sheet from outside of it. A [workaround][] was to use [SheetScrollable][] and capture the controller in the builder callback, but this approach was not aligned with the widget's lifecycle.
 
-With the refined `SheetScrollable`, you can now create a `SheetScrollController` outside the sheet (a specialized `ScrollController`), and attach it to `SheetScrollable` just as you would with a regular `ScrollController`.
+With the updated `SheetScrollable`, you can now create a `SheetScrollController` outside the sheet (a specialized `ScrollController`) and attach it to `SheetScrollable`, just as you would with a regular `ScrollController`.
 
 [workaround]: https://github.com/fujidaiti/smooth_sheets/discussions/112#discussioncomment-9323770
 [SheetScrollable]: https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetScrollable-class.html
@@ -135,7 +133,7 @@ Sheet(
 
 ### BouncingSheetPhysics no longer accepts custom spring 💥
 
-The `spring` parameter has been removed from `BouncingSheetPhysics`'s constructor as part of a fix for #435. If you were using a custom spring, you can extend `BouncingSheetPhysics` and override the `spring` getter to return your custom spring.
+The `spring` parameter has been removed from the `BouncingSheetPhysics` constructor as part of a fix for #435. If you were using a custom spring, you can extend `BouncingSheetPhysics` and override the `spring` getter to return your custom value.
 
 **BEFORE:**
 
@@ -156,7 +154,7 @@ class MyPhysics extends BouncingSheetPhysics {
 
 ### Default `HitTestBehavior` changed from `translucent` to `opaque` 💥
 
-The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitTestBehavior.translucent` to `HitTestBehavior.opaque`, so that the sheet out of box can be dragged even from transparent areas such as padding.
+The default `hitTestBehavior` in `SheetDragConfiguration` has changed from `HitTestBehavior.translucent` to `HitTestBehavior.opaque`, so that the sheet can be dragged out of the box even from transparent areas such as padding.
 
 ### And more...
 
