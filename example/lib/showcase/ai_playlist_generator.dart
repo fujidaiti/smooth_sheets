@@ -121,6 +121,7 @@ final _confirmRoute = GoRoute(
       key: state.pageKey,
       initialOffset: SheetOffset(0.7),
       snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.7), SheetOffset(1)]),
+      scrollConfiguration: const SheetScrollConfiguration(),
       child: _ConfirmPage(),
     );
   },
