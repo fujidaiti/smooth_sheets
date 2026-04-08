@@ -129,9 +129,6 @@ jobs:
           NOTE="notes/release-note-${RAW_VERSION}.md"
           if [ ! -f "$NOTE" ]; then
             echo "# v${RAW_VERSION} release note" > "$NOTE"
-            echo "Created stub release note at $NOTE"
-          else
-            echo "Release note already exists at $NOTE"
           fi
         shell: bash
 
