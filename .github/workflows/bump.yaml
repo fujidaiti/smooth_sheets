@@ -156,7 +156,7 @@ jobs:
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --bump --unreleased --strip=all
+          args: --unreleased --strip=all
         env:
           OUTPUT: pr-description.raw.txt
 
