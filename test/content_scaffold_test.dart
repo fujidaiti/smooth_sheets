@@ -726,6 +726,51 @@ void main() {
       await tester.pumpWidget(env.testWidget);
       expect(inheritedPadding, EdgeInsets.zero);
     });
+
+    testWidgets(
+      'Reports layout overflow when content exceeds available size',
+      (tester) async {
+        final env = boilerplate(
+          builder: (context) {
+            return ConstrainedBox(
+              constraints: BoxConstraints.tightFor(
+                height: 150,
+              ),
+              child: SheetContentScaffold(
+                key: Key('scaffold'),
+                topBar: SizedBox(height: 50),
+                body: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 100,
+                      color: Colors.red,
+                    ),
+                  ],
+                ),
+                bottomBar: SizedBox(height: 50),
+              ),
+            );
+          },
+        );
+
+        final errors = await tester.pumpWidgetAndCaptureErrors(env.testWidget);
+        expect(
+          tester.getSize(find.byId('scaffold')),
+          Size(testScreenSize.width, 150),
+        );
+        expect(
+          errors,
+          contains(
+            isA<FlutterErrorDetails>().having(
+              (e) => e.exception.toString(),
+              'exception',
+              contains('A RenderFlex overflowed by 50 pixels on the bottom'),
+            ),
+          ),
+        );
+      },
+    );
   });
 
   group('SheetContentScaffold - bottom-bar visibility', () {
