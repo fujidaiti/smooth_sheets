@@ -364,7 +364,9 @@ class _ScaffoldLayout
 }
 
 class _RenderScaffoldLayout extends RenderBox
-    with SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox> {
+    with
+        SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox>,
+        DebugOverflowIndicatorMixin {
   _RenderScaffoldLayout({
     required bool extendBodyBehindTopBar,
     required bool extendBodyBehindBottomBar,
@@ -376,6 +378,9 @@ class _RenderScaffoldLayout extends RenderBox
        _ignoreBottomInset = ignoreBottomInset,
        _sheetLayoutSpec = sheetLayoutSpec,
        _viewportViewInsets = viewportViewInsets;
+
+  Rect _containerRect = Rect.zero;
+  Rect _childRect = Rect.zero;
 
   bool get extendBodyBehindTopBar => _extendBodyBehindTopBar;
   bool _extendBodyBehindTopBar;
@@ -569,7 +574,12 @@ class _RenderScaffoldLayout extends RenderBox
     positionChild(_ScaffoldSlot.bottomBar, Offset(0, bottomBarTop));
 
     // Finally, lay out the scaffold itself.
-    size = Size(constraints.maxWidth, bodyMargin.vertical + bodyHeight);
+    final contentHeight = bodyMargin.vertical + bodyHeight;
+    size = constraints.constrain(
+      Size(constraints.maxWidth, contentHeight),
+    );
+    _containerRect = Offset.zero & size;
+    _childRect = Offset.zero & Size(size.width, contentHeight);
   }
 
   @override
@@ -585,6 +595,11 @@ class _RenderScaffoldLayout extends RenderBox
     paintChild(_ScaffoldSlot.body);
     paintChild(_ScaffoldSlot.topBar);
     paintChild(_ScaffoldSlot.bottomBar);
+
+    assert(() {
+      paintOverflowIndicator(context, offset, _containerRect, _childRect);
+      return true;
+    }());
   }
 
   @override
