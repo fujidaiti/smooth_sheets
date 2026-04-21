@@ -114,11 +114,6 @@ See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v
 
 See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.11.1) for more details.
 
-## 0.1.0 - 2024-01-02
-
-
-See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.1.0) for more details.
-
 ## 0.11.0 Apr 5, 2025
 
 **This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/notes/migration-guide-0.11.x.md) for more details.
