@@ -87,8 +87,15 @@ jobs:
           RAW: ${{ needs.detect.outputs.raw }}
         run: |
           set -e
+          # Strip the leading h1 heading and any following blank lines
+          # from the release note, since GitHub already renders the
+          # release title as h1.
+          NOTE_FILE="notes/release-note-${RAW}.md"
+          TRIMMED=$(tail -n +2 "$NOTE_FILE" | sed '/./,$!d')
+          echo "$TRIMMED" > /tmp/trimmed-note.md
+
           gh release create "$TAG" \
             --title "$TAG" \
-            --notes-file "notes/release-note-${RAW}.md" \
+            --notes-file /tmp/trimmed-note.md \
             --target "$GITHUB_SHA"
         shell: bash
