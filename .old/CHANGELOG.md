@@ -1,3 +1,119 @@
+# Changelog
+
+## 1.0.0 - 2026-04-09
+- feat: Add PagedSheetRouteTheme to make per-route parameters inheritable ([#527](https://github.com/fujidaiti/smooth_sheets/pull/527)) - [8a215f7](https://github.com/fujidaiti/smooth_sheets/commit/8a215f7052803ffa27fbc502fe7047d88af7f6af)
+- feat: Add deviceKinds to SheetDragConfiguration ([#528](https://github.com/fujidaiti/smooth_sheets/pull/528)) - [5a76bba](https://github.com/fujidaiti/smooth_sheets/commit/5a76bba06fde14473c570c76abfa637e8b576c87)
+- feat: Allow to manage scroll controllers outside the sheet ([#523](https://github.com/fujidaiti/smooth_sheets/pull/523)) - [3c57c32](https://github.com/fujidaiti/smooth_sheets/commit/3c57c32182d0d24e49af156a0a32c589e610898a)
+- fix: Android predictive back gesture triggers jaggy route pop animation in PagedSheet ([#526](https://github.com/fujidaiti/smooth_sheets/pull/526)) - [6dd9f3f](https://github.com/fujidaiti/smooth_sheets/commit/6dd9f3f4daa2b0f0f8f90df16a152c101a7c8a7c)
+- fix: Assertion error occurs when predictive back gesture commits route pop on Android ([#525](https://github.com/fujidaiti/smooth_sheets/pull/525)) - [77fe2c0](https://github.com/fujidaiti/smooth_sheets/commit/77fe2c0aa9394207c51edd254076b2e93907d2a0)
+- fix: Inconsistent BouncingSheetPhysics resistance in over-drag vs. ballistic animation ([#522](https://github.com/fujidaiti/smooth_sheets/pull/522)) - [0e74132](https://github.com/fujidaiti/smooth_sheets/commit/0e741324d30e9af9256e1ce2570a940645acc11f)
+- fix: Use drag devices from inherited scroll config ([#513](https://github.com/fujidaiti/smooth_sheets/pull/513)) - [0796b1a](https://github.com/fujidaiti/smooth_sheets/commit/0796b1a8719a26338ddfa3a66961cd5c1f1d609e)
+- fix: `SteplessSnapGrid` ignores on-screen keyboard appearance ([#515](https://github.com/fujidaiti/smooth_sheets/pull/515)) - [b872c74](https://github.com/fujidaiti/smooth_sheets/commit/b872c74f332bb6e484ac225ca482dede02d7c4b9)
+- fix: `Navigator.replace` does not update position and size of PagedSheet ([#508](https://github.com/fujidaiti/smooth_sheets/pull/508)) - [9b38b6c](https://github.com/fujidaiti/smooth_sheets/commit/9b38b6c0c64cb824303d3436af0dcb106adb62d4)
+- fix: Account for viewPadding in SheetContentScaffold bar constraints ([#507](https://github.com/fujidaiti/smooth_sheets/pull/507)) - [e133442](https://github.com/fujidaiti/smooth_sheets/commit/e1334420d3a55bceee334ef4a6fb660b76c70f3c)
+- fix: Ballistic animation ends abruptly right after releasing over-dragged sheet ([#506](https://github.com/fujidaiti/smooth_sheets/pull/506)) - [4c4bf56](https://github.com/fujidaiti/smooth_sheets/commit/4c4bf560368dc588ee6df7ee5332661f72ce553a)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.0.0) for more details.
+
+## 0.17.0 - 2026-02-23
+- feat: Add Sheet.padding for flexible padding control ([#479](https://github.com/fujidaiti/smooth_sheets/pull/479)) - [3f057a0](https://github.com/fujidaiti/smooth_sheets/commit/3f057a006c3f968316a1edc91412890d195961ee)
+
+
+> [!IMPORTANT]
+> - `shrinkChildToAvoidDynamicOverlap` and `shrinkChildToAvoidStaticOverlap` have been removed from `Sheet`, `PagedSheet`. Use the `padding` parameter instead.
+> - `viewportDynamicOverlap` and `viewportStaticOverlap` have been removed from `ViewportLayout`, `SheetLayoutSpec`, `SheetMetrics`, and related classes.
+> - `staticOverlap`, `dynamicOverlap`, `contentDynamicOverlap`, and `contentStaticOverlap` getters have been removed from `SheetMetrics`.
+> - `SheetLayoutSpec.contentBaseline` getter has been removed.
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.17.0) for more details.
+
+## 0.16.0 - 2026-01-12
+- feat: Allow modal sheet to have dynamic viewport padding ([#458](https://github.com/fujidaiti/smooth_sheets/pull/458)) - [0dd7041](https://github.com/fujidaiti/smooth_sheets/commit/0dd7041df9024cf6f393f8d1b828932f48530406)
+- feat: Add custom barrier support for modal sheets - [b846084](https://github.com/fujidaiti/smooth_sheets/commit/b84608417e8f9a2f5727310421fb4dcfe29e581f)
+- feat: Simplify BouncingSheetPhysics configuration ([#467](https://github.com/fujidaiti/smooth_sheets/pull/467)) - [fe2d73f](https://github.com/fujidaiti/smooth_sheets/commit/fe2d73f41b6a1f692eeddd89f1c785d7b758dee6)
+- fix: Remove thresholdVelocityToInterruptBallisticScroll ([#464](https://github.com/fujidaiti/smooth_sheets/pull/464)) - [2fdd3bd](https://github.com/fujidaiti/smooth_sheets/commit/2fdd3bd0ad2cce7243523cade885a4dd3075bd75)
+- fix: Unexpected bouncing animation with ClampingScrollPhysics ([#363](https://github.com/fujidaiti/smooth_sheets/pull/363)) ([#432](https://github.com/fujidaiti/smooth_sheets/pull/432)) - [29ba25d](https://github.com/fujidaiti/smooth_sheets/commit/29ba25d688a03f2a81ef87ac45f45eb39936c5ab)
+
+
+> [!IMPORTANT]
+> - The `padding` properties have been removed from modal
+sheet routes and pages.
+> - `BouncingBehavior` and its subclasses have been removed.
+> - `behavior` and `frictionCurve` have been removed.
+> - `SheetScrollConfiguration.thresholdVelocityToInterruptBallisticScroll` was removed.
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.16.0) for more details.
+
+## 0.15.0 - 2025-09-09
+- feat: Changed SwipeDismissSensitivity to use a SheetOffset as the minimum drag value ([#415](https://github.com/fujidaiti/smooth_sheets/pull/415)) - [aba6f2f](https://github.com/fujidaiti/smooth_sheets/commit/aba6f2f5c9c416b8934eeec80710acfb19ce6885)
+- fix: NavigatorEventObserver assertion error when pop during push transition ([#416](https://github.com/fujidaiti/smooth_sheets/pull/416)) - [4004500](https://github.com/fujidaiti/smooth_sheets/commit/40045009b2da1081106a0970fea1330e47a8906d)
+
+
+> [!IMPORTANT]
+> - Added `SwipeDismissSensitivity.dismissalOffset` and `SwipeDismissSensitivity.minDragDistance` was removed instead.
+> - Requires Flutter SDK 3.29 or higher.
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.15.0) for more details.
+
+## 0.14.0 - 2025-07-14
+- feat: Add toning overlay effect to cupertino modal sheets ([#403](https://github.com/fujidaiti/smooth_sheets/pull/403)) - [2242916](https://github.com/fujidaiti/smooth_sheets/commit/2242916fa3617db6da4bf6f0f715df907f04ff3f)
+- feat: Add delegateUnhandledOverscrollToChild flag to enable pull-to-refresh in sheets ([#402](https://github.com/fujidaiti/smooth_sheets/pull/402)) - [4c40073](https://github.com/fujidaiti/smooth_sheets/commit/4c40073bfaca07a63a69323623a36d1465a5ff69)
+- fix: Sheet position not update when app window resized ([#400](https://github.com/fujidaiti/smooth_sheets/pull/400)) - [a8ea080](https://github.com/fujidaiti/smooth_sheets/commit/a8ea0803407c1fb8dca9b3087cf06f5f2ae8a1b8)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.14.0) for more details.
+
+## 0.13.0 - 2025-06-16
+- feat: Add SheetScrollHandlingBehavior for precise control over scroll gesture handling ([#393](https://github.com/fujidaiti/smooth_sheets/pull/393)) - [ee7f2a6](https://github.com/fujidaiti/smooth_sheets/commit/ee7f2a61beccbcc2f1c3268e007bba648b1bee80)
+- feat: Add utility functions to show modal sheets ([#380](https://github.com/fujidaiti/smooth_sheets/pull/380)) - [25a901c](https://github.com/fujidaiti/smooth_sheets/commit/25a901c461d1a6c80adea4fd95f32b3668cc4813)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.13.0) for more details.
+
+## 0.12.0 - 2025-05-19
+- feat: Add SheetPopScope to enable/disable the swipe gesture in modals from within build method ([#359](https://github.com/fujidaiti/smooth_sheets/pull/359)) - [6766534](https://github.com/fujidaiti/smooth_sheets/commit/6766534f7b2daca7d48f449bd155373fe800fa25)
+- fix: Crashes when popping a non-modal sheet route just below a modal sheet route ([#357](https://github.com/fujidaiti/smooth_sheets/pull/357)) - [cb9a174](https://github.com/fujidaiti/smooth_sheets/commit/cb9a174e58f7cd03bc4ef808d036d12e06a8f7cb)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.12.0) for more details.
+
+## 0.11.5 - 2025-05-12
+- fix: SheetNotification not dispatched during PagedSheet route transitions ([#352](https://github.com/fujidaiti/smooth_sheets/pull/352)) - [609ac4b](https://github.com/fujidaiti/smooth_sheets/commit/609ac4b6c68b208586efdc8c4102f68c119a7005)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.11.5) for more details.
+
+## 0.11.4 - 2025-05-05
+- fix: Assertion error when push CupertinoModalSheetRoute during closing animation ([#347](https://github.com/fujidaiti/smooth_sheets/pull/347)) - [0dbf6ee](https://github.com/fujidaiti/smooth_sheets/commit/0dbf6ee4f103525f58fca2c1b4eff009486d9ef5)
+- fix: Changing swipeDismissible dynamically causes a layout error ([#344](https://github.com/fujidaiti/smooth_sheets/pull/344)) - [3aeb05b](https://github.com/fujidaiti/smooth_sheets/commit/3aeb05be63b55c3d182a52fdf90305748ab73bf0)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.11.4) for more details.
+
+## 0.11.3 - 2025-04-21
+- fix: PagedSheet cannot be dragged when the drag starts at shared top/bottom bar built in builder callback ([#323](https://github.com/fujidaiti/smooth_sheets/pull/323)) - [2ba8d35](https://github.com/fujidaiti/smooth_sheets/commit/2ba8d35268f1dbce899804d8ce0fe7aa4cb8acbe)
+- fix: Unstable route transition in PagedSheet when pop a route during snapping animation ([#322](https://github.com/fujidaiti/smooth_sheets/pull/322)) - [62e96ee](https://github.com/fujidaiti/smooth_sheets/commit/62e96ee481b5421c87308274dc2047d5e0b8021d)
+- fix: PagedSheet ignores initialOffset when using auto_route and the first page is fullscreen ([#321](https://github.com/fujidaiti/smooth_sheets/pull/321)) - [cdecf41](https://github.com/fujidaiti/smooth_sheets/commit/cdecf417f9532d84951154cecff1dc64fb721fc6)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.11.3) for more details.
+
+## 0.11.2 - 2025-04-17
+- fix: Bottom bar is hidden despite `BottomBarVisibility.always(ignoreBottomInset: true)` ([#313](https://github.com/fujidaiti/smooth_sheets/pull/313)) - [faa7883](https://github.com/fujidaiti/smooth_sheets/commit/faa78833f442c35b8f12ef4afb6da382f2c7439f)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.11.2) for more details.
+
+## 0.11.1 - 2025-04-13
+- fix: Initial offset of PagedSheet is ignored when using auto_route ([#310](https://github.com/fujidaiti/smooth_sheets/pull/310)) - [fd83555](https://github.com/fujidaiti/smooth_sheets/commit/fd83555ad54ea8774f91dcad55ed545fa5ea6dd1)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v0.11.1) for more details.
+
 ## 0.11.0 Apr 5, 2025
 
 **This version contains breaking changes.** See the [migration guide](https://github.com/fujidaiti/smooth_sheets/blob/main/notes/migration-guide-0.11.x.md) for more details.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 - 2026-04-21
+- fix: Avoid constraint violation and report layout overflow in SheetContentScaffold ([#539](https://github.com/fujidaiti/smooth_sheets/pull/539)) - [488b569](https://github.com/fujidaiti/smooth_sheets/commit/488b569d0587bc7633e8b7cdb010d19b19aa5b98)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.0.1) for more details.
+
 ## 1.0.0 - 2026-04-09
 - feat: Add PagedSheetRouteTheme to make per-route parameters inheritable ([#527](https://github.com/fujidaiti/smooth_sheets/pull/527)) - [8a215f7](https://github.com/fujidaiti/smooth_sheets/commit/8a215f7052803ffa27fbc502fe7047d88af7f6af)
 - feat: Add deviceKinds to SheetDragConfiguration ([#528](https://github.com/fujidaiti/smooth_sheets/pull/528)) - [5a76bba](https://github.com/fujidaiti/smooth_sheets/commit/5a76bba06fde14473c570c76abfa637e8b576c87)
