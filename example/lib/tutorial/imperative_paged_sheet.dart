@@ -41,6 +41,9 @@ class _ExampleSheet extends StatelessWidget {
 
     // Wrap the nested navigator in a PagedSheet.
     return PagedSheet(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       decoration: MaterialSheetDecoration(
         size: SheetSize.stretch,
         borderRadius: BorderRadius.circular(20),
@@ -78,21 +81,41 @@ class _DraggablePage extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          color: Theme.of(context).colorScheme.secondaryContainer,
+        return SizedBox(
           width: constraints.maxWidth,
           height: constraints.maxHeight * 0.5,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              title,
-              const SizedBox(height: 32),
-              TextButton(
+          child: SheetContentScaffold(
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            body: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                title,
+                const SizedBox(height: 32),
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Type something',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+            bottomBarVisibility: BottomBarVisibility.always(
+              ignoreBottomInset: true,
+            ),
+            bottomBar: Container(
+              color: Colors.red,
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                MediaQuery.of(context).viewPadding.bottom,
+              ),
+              child: ElevatedButton(
                 onPressed: () => navigateToScrollablePage(context),
                 child: const Text('Next'),
               ),
-            ],
+            ),
           ),
         );
       },
