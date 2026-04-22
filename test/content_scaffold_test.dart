@@ -728,27 +728,28 @@ void main() {
     });
 
     testWidgets(
-      'Reports layout overflow when content exceeds available size',
+      'Edge case: unstable layout should not violate parent constraints',
       (tester) async {
+        // This test verifies that the scaffold does not violate its layout
+        // constraints even when the layout is unstable due to a floating-point
+        // precision issue. This can happen, for example, when the scaffold is
+        // used as the sheet's content with bottomBarVisibility set to
+        // always(ignoreBottomInset: true), and the sheet is extending the
+        // shrunk scaffold's height as the on-screen keyboard is disappearing.
+        // The bottom bar is also resized accordingly.
         final env = boilerplate(
           builder: (context) {
             return ConstrainedBox(
-              constraints: BoxConstraints.tightFor(
-                height: 150,
+              constraints: BoxConstraints.tight(
+                Size.fromHeight(427.327643681333),
               ),
               child: SheetContentScaffold(
-                key: Key('scaffold'),
-                topBar: SizedBox(height: 50),
-                body: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 100,
-                      color: Colors.red,
-                    ),
-                  ],
+                bottomBar: Container(
+                  color: Colors.white,
+                  width: double.infinity,
+                  height: 73.62690370255032,
                 ),
-                bottomBar: SizedBox(height: 50),
+                body: SizedBox.expand(),
               ),
             );
           },
@@ -756,18 +757,11 @@ void main() {
 
         final errors = await tester.pumpWidgetAndCaptureErrors(env.testWidget);
         expect(
-          tester.getSize(find.byId('scaffold')),
-          Size(testScreenSize.width, 150),
-        );
-        expect(
           errors,
-          contains(
-            isA<FlutterErrorDetails>().having(
-              (e) => e.exception.toString(),
-              'exception',
-              contains('A RenderFlex overflowed by 50 pixels on the bottom'),
-            ),
-          ),
+          isEmpty,
+          reason:
+              '"_RenderScaffoldLayout does not meet its constraints." '
+              'should not be thrown',
         );
       },
     );
