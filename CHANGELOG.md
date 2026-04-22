@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 - 2026-04-22
+- fix: False positive layout overflow assertion ([#545](https://github.com/fujidaiti/smooth_sheets/pull/545)) - [a1b2d03](https://github.com/fujidaiti/smooth_sheets/commit/a1b2d03dae33a1c71bb1c8c7128668ecb0299311)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.0.2) for more details.
+
 ## 1.0.1 - 2026-04-21
 - fix: Avoid constraint violation and report layout overflow in SheetContentScaffold ([#539](https://github.com/fujidaiti/smooth_sheets/pull/539)) - [488b569](https://github.com/fujidaiti/smooth_sheets/commit/488b569d0587bc7633e8b7cdb010d19b19aa5b98)
 
