@@ -731,8 +731,12 @@ void main() {
       'Edge case: unstable layout should not violate parent constraints',
       (tester) async {
         // This test verifies that the scaffold does not violate its layout
-        // constraints even when the layout is unstable due to floating-point
-        // precision issues. This can happen 
+        // constraints even when the layout is unstable due to a floating-point
+        // precision issue. This can happen, for example, when the scaffold is
+        // used as the sheet's content with bottomBarVisibility set to
+        // always(ignoreBottomInset: true), and the sheet is extending the
+        // shrunk scaffold's height as the on-screen keyboard is disappearing.
+        // The bottom bar is also resized accordingly.
         final env = boilerplate(
           builder: (context) {
             return ConstrainedBox(
