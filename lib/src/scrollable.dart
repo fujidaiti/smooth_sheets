@@ -537,17 +537,33 @@ class DragScrollDrivenSheetActivity
     }
   }
 
+  /// Sign that converts a screen-space "finger up" delta to the
+  /// drag-axis frame used by [SheetDragUpdateDetails.deltaY] and
+  /// [SheetDragEndDetails.velocityY].
+  ///
+  /// - For [AxisDirection.down], `deltaY > 0` means the finger moved down,
+  ///   so an upward drag corresponds to `-deltaY` and the sheet-frame input
+  ///   needed by [_applyScrollOffset] is `-deltaY`.
+  /// - For [AxisDirection.up] (a reversed scrollable), `deltaY > 0` means
+  ///   the finger moved up, so the sheet-frame input is `deltaY`.
+  int get _sheetFrameSign =>
+      scrollPosition.axisDirection == AxisDirection.up ? 1 : -1;
+
   @override
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
-    switch (delta.dy) {
-      case < 0:
+    // `delta.dy` is in screen space (positive = finger moves down).
+    // Convert to the sheet frame where positive = "scroll forward / drag sheet
+    // up" so the branches below stay axis-direction agnostic.
+    final sheetFrameDy = -delta.dy;
+    switch (sheetFrameDy) {
+      case > 0:
         final draggablePixels =
             scrollPosition.extentAfter +
             max(0.0, owner.maxOffset - owner.offset);
         assert(draggablePixels >= 0);
-        return Offset(delta.dx, max(-1 * draggablePixels, delta.dy));
+        return Offset(delta.dx, max(-draggablePixels, delta.dy));
 
-      case > 0:
+      case < 0:
         final draggablePixels =
             scrollPosition.extentBefore +
             max(0.0, owner.offset - owner.minOffset);
@@ -561,11 +577,16 @@ class DragScrollDrivenSheetActivity
 
   @override
   void onDragUpdate(SheetDragUpdateDetails details) {
-    scrollPosition.userScrollDirection = details.deltaY > 0.0
+    // `details.deltaY` is in the drag-axis frame. Convert it to the sheet
+    // frame (positive = "scroll forward / drag sheet toward leading edge").
+    final sheetFrameDelta = _sheetFrameSign * details.deltaY;
+    // `userScrollDirection` follows Flutter's convention: forward means
+    // pixels grow toward the trailing edge of the axis.
+    scrollPosition.userScrollDirection = sheetFrameDelta < 0.0
         ? ScrollDirection.forward
         : ScrollDirection.reverse;
     final oldOffset = owner.offset;
-    final overflow = _applyScrollOffset(-1 * details.deltaY);
+    final overflow = _applyScrollOffset(sheetFrameDelta);
     if (owner.offset != oldOffset) {
       owner.didDragUpdateMetrics(details);
     }
@@ -579,7 +600,7 @@ class DragScrollDrivenSheetActivity
     owner
       ..didDragEnd(details)
       ..goBallisticWithScrollPosition(
-        velocity: -1 * details.velocityY,
+        velocity: _sheetFrameSign * details.velocityY,
         scrollPosition: scrollPosition,
       );
   }
