@@ -388,8 +388,13 @@ void main() {
     }
 
     testWidgets(
-      'Drag sheet upward, then start scrolling reversed content',
+      'Drag upward grows the sheet to max; reversed content stays at offset 0',
       (tester) async {
+        // In reverse mode, an upward finger gesture scrolls the content
+        // backward (offset decreases). When the offset is already 0, it
+        // cannot scroll at all, so the gesture should drive the sheet
+        // upward instead — and once the sheet is anchored at max, the
+        // remaining gesture should be absorbed by BouncingSheetPhysics.
         final env = boilerplate(initialOffset: SheetOffset.absolute(300));
 
         await tester.pumpWidget(env.testWidget);
@@ -412,59 +417,78 @@ void main() {
 
         await gesture.moveUpwardBy(50);
         await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
         expect(
           env.scrollController.offset,
-          50,
+          0,
           reason:
-              'Reversed list should scroll toward older content (pixels grow) '
-              'once the sheet is anchored at its max offset.',
+              'Reversed content at offset 0 cannot be scrolled by an upward '
+              'gesture (that direction is backward in reverse mode).',
+        );
+        expect(
+          tester.getRect(find.byKey(Key('sheet'))).top,
+          lessThan(0),
+          reason:
+              'With the sheet already at max and the list unable to scroll '
+              'backward, BouncingSheetPhysics should overscroll the sheet '
+              'upward.',
         );
 
-        await gesture.moveUpwardBy(100);
         await gesture.up();
         await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(env.scrollController.offset, 150);
       },
     );
 
     testWidgets(
-      'Scroll reversed content back, then start over-dragging sheet downward',
+      'Drag downward scrolls reversed content forward, then shrinks the sheet',
       (tester) async {
+        // In reverse mode, a downward finger gesture scrolls the content
+        // forward (offset grows). The sheet starts at its max offset, so
+        // the gesture should first scroll the content from 0 to
+        // maxScrollExtent, and only then start shrinking the sheet.
         final env = boilerplate(initialOffset: SheetOffset.absolute(600));
         await tester.pumpWidget(env.testWidget);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
         expect(env.scrollController.offset, 0);
-
-        env.scrollController.jumpTo(100);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(env.scrollController.offset, 100);
 
         final gesture = await tester.startDrag(
           tester.getCenter(find.byKey(Key('sheet'))),
           AxisDirection.down,
         );
-        await gesture.moveDownwardBy(50 - kDragSlopDefault);
+        await gesture.moveDownwardBy(100 - kDragSlopDefault);
         await tester.pumpAndSettle();
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(env.scrollController.offset, 50);
+        expect(
+          env.scrollController.offset,
+          100,
+          reason:
+              'Downward drag in reverse mode should scroll the content '
+              'forward.',
+        );
+
+        await gesture.moveDownwardBy(300);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+        expect(
+          env.scrollController.offset,
+          400,
+          reason: 'Content should reach maxScrollExtent before the sheet moves',
+        );
 
         await gesture.moveDownwardBy(50);
         await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(env.scrollController.offset, 0);
-
-        await gesture.moveDownwardBy(50);
-        await tester.pumpAndSettle();
-        expect(tester.getRect(find.byKey(Key('sheet'))).top, 50);
-        expect(env.scrollController.offset, 0);
+        expect(
+          tester.getRect(find.byKey(Key('sheet'))).top,
+          50,
+          reason:
+              'Once the content is fully scrolled forward, further downward '
+              'drag should shrink the sheet.',
+        );
+        expect(env.scrollController.offset, 400);
 
         await gesture.moveDownwardBy(100);
         await tester.pumpAndSettle();
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 150);
-        expect(env.scrollController.offset, 0);
+        expect(env.scrollController.offset, 400);
 
         await gesture.up();
         await tester.pumpAndSettle();
@@ -473,22 +497,27 @@ void main() {
     );
 
     testWidgets(
-      'Smooth transition from momentum scrolling (downward) to '
-      'sheet bouncing on a reversed list',
+      'Smooth transition from momentum scrolling (backward) to '
+      'sheet bouncing upward on a reversed list',
       (tester) async {
+        // Counterpart of the forward "Smooth transition from momentum
+        // scrolling (downward) to sheet bouncing" test. The sheet starts at
+        // its max offset; we pre-scroll the reversed content forward by
+        // dragging downward, then fling upward so the content unwinds back
+        // to offset 0 and the remaining momentum overscrolls the sheet
+        // upward via BouncingSheetPhysics.
         final env = boilerplate(initialOffset: SheetOffset.absolute(600));
         await tester.pumpWidget(env.testWidget);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
         expect(env.scrollController.offset, 0);
 
-        await tester.dragUpward(find.byKey(Key('sheet')), deltaY: 100);
+        await tester.dragDownward(find.byKey(Key('sheet')), deltaY: 100);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
         expect(
-          env.scrollController.position.extentBefore,
+          env.scrollController.offset,
           100,
           reason:
-              'On a reversed list, dragging upward should grow pixels toward '
-              'maxScrollExtent (older content above).',
+              'Pre-scroll the reversed content forward by dragging downward.',
         );
 
         final sheetTopHistory = <double>[];
@@ -500,14 +529,14 @@ void main() {
           scrollOffsetHistory.add(env.scrollController.offset);
         });
 
-        await tester.fling(find.byKey(Key('sheet')), Offset(0, 50), 1000);
+        await tester.fling(find.byKey(Key('sheet')), Offset(0, -50), 1000);
         await tester.pumpAndSettle();
-        expect(env.scrollController.position.extentBefore, 0);
+        expect(env.scrollController.offset, 0);
         expect(scrollOffsetHistory, isMonotonicallyDecreasing);
         expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
-        expect(sheetTopHistory.min, 0);
-        expect(sheetTopHistory.max, greaterThan(0));
-        expect(sheetTopHistory, fluctuationEquals([1, -1]));
+        expect(sheetTopHistory.max, 0);
+        expect(sheetTopHistory.min, lessThan(0));
+        expect(sheetTopHistory, fluctuationEquals([-1, 1]));
       },
     );
   });
@@ -548,6 +577,11 @@ void main() {
     testWidgets('BouncingSheetPhysics with ClampingScrollPhysics', (
       tester,
     ) async {
+      // The sheet is locked at its max offset; the reversed content is at
+      // offset 0. An upward drag in reverse mode would scroll the content
+      // backward (below 0), but ClampingScrollPhysics rejects that. The
+      // sheet's bouncing physics should absorb the gesture, overscrolling
+      // the sheet upward.
       final env = boilerplate(
         sheetPhysics: BouncingSheetPhysics(),
         scrollPhysics: ClampingScrollPhysics(),
@@ -560,22 +594,25 @@ void main() {
         sheetTopHistory.add(tester.getRect(find.byId('sheet')).top);
       });
 
-      await tester.dragDownward(find.byId('sheet'), deltaY: 100);
+      await tester.dragUpward(find.byId('sheet'), deltaY: 100);
       await tester.pumpAndSettle();
-      expect(sheetTopHistory.min, 0);
-      expect(sheetTopHistory.max, greaterThan(0));
+      expect(sheetTopHistory.max, 0);
+      expect(sheetTopHistory.min, lessThan(0));
       expect(
         sheetTopHistory,
-        fluctuationEquals([1, -1]),
+        fluctuationEquals([-1, 1]),
         reason:
-            'Sheet should move downward when overscrolling the reversed '
-            'scrollable, regardless of axis direction',
+            'Sheet should overscroll upward even if scroll physics does not '
+            'allow the reversed content to scroll backward',
       );
     });
 
     testWidgets('ClampingSheetPhysics with BouncingScrollPhysics', (
       tester,
     ) async {
+      // Mirror of the case above: the reversed content can bounce backward
+      // via BouncingScrollPhysics, but ClampingSheetPhysics keeps the sheet
+      // pinned at its max offset.
       final env = boilerplate(
         sheetPhysics: ClampingSheetPhysics(),
         scrollPhysics: BouncingScrollPhysics(),
@@ -588,14 +625,14 @@ void main() {
         sheetTopHistory.add(tester.getRect(find.byId('sheet')).top);
       });
 
-      await tester.dragDownward(find.byId('sheet'), deltaY: 100);
+      await tester.dragUpward(find.byId('sheet'), deltaY: 100);
       await tester.pumpAndSettle();
       expect(
         sheetTopHistory,
         everyElement(isZero),
         reason:
-            'Sheet should not move when the reversed scrollable absorbs the '
-            'gesture via its own bouncing physics',
+            'Sheet should stay put even if the reversed scrollable can '
+            'bounce backward via its own bouncing physics',
       );
     });
   });
