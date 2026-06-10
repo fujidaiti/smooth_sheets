@@ -210,4 +210,55 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  // Rebuilding the sheet subtree with a new key reuses the enclosing
+  // SheetViewport, so the new sheet's owner attaches its model in the build
+  // phase while the old owner is only unmounted in the finalization phase,
+  // after the layout pass. SheetModelOwnerState.dispose() used to detach
+  // whatever model was attached at that point via setModel(null), including
+  // the model it never owned, leaving the viewport with no model at all.
+  group('Swapping the sheet within the same viewport', () {
+    final viewportKey = GlobalKey<SheetViewportState>();
+
+    Widget buildApp(String sheetKey, {double contentHeight = 400}) {
+      return MaterialApp(
+        home: SheetViewport(
+          key: viewportKey,
+          child: Sheet(
+            key: ValueKey(sheetKey),
+            child: SizedBox(height: contentHeight),
+          ),
+        ),
+      );
+    }
+
+    testWidgets("should keep the new sheet's model attached", (tester) async {
+      await tester.pumpWidget(buildApp('old'));
+      await tester.pumpWidget(buildApp('new'));
+
+      expect(
+        viewportKey.currentState!.model.hasMetrics,
+        isTrue,
+        reason:
+            'Disposing the old owner should not detach the model that the '
+            'new owner attached to the same viewport',
+      );
+    });
+
+    testWidgets('should not crash when laid out on a later frame', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildApp('old'));
+      await tester.pumpWidget(buildApp('new'));
+
+      // The detached model is never reattached, so the next layout pass of the
+      // surviving sheet used to hit 'assert(_model._inner != null)' in
+      // _RenderSheetSkelton.performLayout, and a null check error on the
+      // subsequent _model._inner! dereference in release builds.
+      await tester.pumpWidget(buildApp('new', contentHeight: 300));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+    });
+  });
 }
