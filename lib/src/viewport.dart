@@ -261,6 +261,15 @@ class SheetViewportState extends State<SheetViewport> {
     _modelView.setModel(model);
   }
 
+  /// Detaches [model] from this viewport only if it is currently attached.
+  ///
+  /// Unlike `setModel(null)`, this does not detach a different model that
+  /// may have been attached after [model], e.g. by a new sheet that is
+  /// created in the same frame in which the owner of [model] is disposed.
+  void unsetModel(SheetModel model) {
+    _modelView.unsetModel(model);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -907,7 +916,27 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     (child.parentData! as BoxParentData).offset =
         _layoutSpec.contentMargin.topLeft;
 
-    assert(_model._inner != null);
+    final maxRect = _layoutSpec.maxSheetRect;
+    final maxSize = maxRect.size;
+    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
+
+    final model = _model._inner;
+    if (model == null) {
+      // No model is attached to the viewport at the moment, e.g. when this
+      // render object is laid out in the same frame in which the owner of
+      // the previously attached model was disposed. Fall back to a
+      // best-effort size instead of crashing; the layout pass that runs
+      // after a model is (re)attached will apply the proper layout.
+      size = BoxConstraints(
+        minWidth: maxSize.width,
+        maxWidth: maxSize.width,
+        minHeight: paddedChildSize.height,
+        maxHeight: maxSize.height,
+      ).constrain(Size.fromHeight(_preferredExtent ?? paddedChildSize.height));
+      _isPerformingLayout = false;
+      return;
+    }
+
     final viewportLayout = ImmutableViewportLayout(
       contentSize: Size.copy(child.size),
       viewportSize: _layoutSpec.viewportSize,
@@ -916,11 +945,8 @@ class _RenderSheetSkelton extends RenderShiftedBox {
           _layoutSpec.viewportSize.height - _layoutSpec.maxContentRect.bottom,
       contentMargin: _layoutSpec.contentMargin,
     );
-    final newOffset = _model._inner!.dryApplyNewLayout(viewportLayout);
+    final newOffset = model.dryApplyNewLayout(viewportLayout);
     _preferredExtent = _getPreferredExtent(newOffset, viewportLayout);
-    final maxRect = _layoutSpec.maxSheetRect;
-    final maxSize = maxRect.size;
-    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
     size = BoxConstraints(
       minWidth: maxSize.width,
       maxWidth: maxSize.width,
@@ -932,8 +958,8 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       viewportLayout: viewportLayout,
       size: Size.copy(size),
     );
-    _model._inner!.applyNewLayout(newLayout);
-    assert(_model._inner!.hasMetrics);
+    model.applyNewLayout(newLayout);
+    assert(model.hasMetrics);
     layoutNotifier.value = newLayout;
 
     _isPerformingLayout = false;
@@ -965,8 +991,13 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
 
   void setModel(SheetModel? newModel) {
     if (newModel != _inner) {
-      final oldOffset = _inner?.offset;
-      final oldRect = _inner?.rect;
+      // Only read the outgoing model's offset/rect when it actually has
+      // metrics; reading them before its initial layout throws a null-check
+      // error (SheetModel.offset/rect assert non-null internals). This can
+      // happen when the model is detached before it was ever laid out.
+      final hadMetrics = _inner?.hasMetrics ?? false;
+      final oldOffset = hadMetrics ? _inner!.offset : null;
+      final oldRect = hadMetrics ? _inner!.rect : null;
       _inner
         ?..removeListener(notifyListeners)
         ..removeRectListener(_rectNotifier.notifyListeners);
@@ -986,6 +1017,12 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
           _rectNotifier.notifyListeners();
         }
       }
+    }
+  }
+
+  void unsetModel(SheetModel model) {
+    if (_inner == model) {
+      setModel(null);
     }
   }
 
