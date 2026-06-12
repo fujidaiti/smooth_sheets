@@ -539,6 +539,87 @@ void main() {
         expect(sheetTopHistory, fluctuationEquals([-1, 1]));
       },
     );
+
+    testWidgets(
+      'Fling down an expanded reversed sheet collapses to the lower snap',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 0);
+
+        // Pre-scroll the reversed list to its maximum forward offset so
+        // a downward fling cannot be consumed by the list, and any
+        // remaining velocity must be handed off to the sheet ballistic.
+        env.scrollController.jumpTo(400);
+        await tester.pumpAndSettle();
+        expect(env.scrollController.offset, 400);
+
+        final sheetTopHistory = <double>[];
+        env.controller.addListener(() {
+          sheetTopHistory.add(tester.getRect(find.byKey(Key('sheet'))).top);
+        });
+
+        await tester.fling(find.byKey(Key('sheet')), Offset(0, 50), 2000);
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getRect(find.byKey(Key('sheet'))).top,
+          300,
+          reason: 'Sheet should snap down to the lower snap (300).',
+        );
+        expect(
+          env.scrollController.offset,
+          400,
+          reason: 'Reversed list cannot scroll further forward.',
+        );
+        expect(
+          sheetTopHistory,
+          isMonotonicallyIncreasing,
+          reason:
+              'Sheet top should descend monotonically — no sign flip in '
+              'the ballistic velocity hand-off.',
+        );
+      },
+    );
+
+    testWidgets(
+      'Fling up a collapsed reversed sheet expands to the upper snap',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(300));
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getRect(find.byKey(Key('sheet'))).top, 300);
+        // Reversed list at offset 0 cannot scroll backward (an upward
+        // gesture is "backward" in reverse mode), so the fling velocity
+        // should be handed off entirely to the sheet ballistic.
+        expect(env.scrollController.offset, 0);
+
+        final sheetTopHistory = <double>[];
+        env.controller.addListener(() {
+          sheetTopHistory.add(tester.getRect(find.byKey(Key('sheet'))).top);
+        });
+
+        await tester.fling(find.byKey(Key('sheet')), Offset(0, -50), 2000);
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getRect(find.byKey(Key('sheet'))).top,
+          0,
+          reason: 'Sheet should snap up to the upper snap (top=0).',
+        );
+        expect(
+          env.scrollController.offset,
+          0,
+          reason: 'Reversed list cannot scroll backward from offset 0.',
+        );
+        expect(
+          sheetTopHistory,
+          isMonotonicallyDecreasing,
+          reason:
+              'Sheet top should ascend monotonically — no sign flip in '
+              'the ballistic velocity hand-off.',
+        );
+      },
+    );
   });
 
   group('Reversed scroll edge behaviors', () {
