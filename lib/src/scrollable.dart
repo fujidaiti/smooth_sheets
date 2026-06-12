@@ -273,9 +273,30 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     required double velocity,
     required SheetScrollPosition scrollPosition,
   }) {
-    if (FloatComp.distance(
-      context.devicePixelRatio,
-    ).isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
+    final scroll = _SheetFrameScrollPosition(scrollPosition);
+    final cmp = FloatComp.distance(context.devicePixelRatio);
+
+    // The guard fires whenever the scroll position is at either
+    // extreme of its sheet-frame range: the residual velocity then
+    // cannot drive the scroll any further in at least one direction,
+    // so the sheet's own ballistic (with its snap grid) is the right
+    // owner of the hand-off.
+    //
+    // In axis-down (forward) mode these two extremes are
+    // `scrollPosition.pixels == minScrollExtent` (list at top) and
+    // `pixels == maxScrollExtent` (list at bottom); only the former
+    // was previously checked, but in practice the latter case rarely
+    // surfaces in forward mode because the user has to reach the
+    // bottom by scrolling, by which point the sheet is usually
+    // already at max.
+    //
+    // In axis-up (reversed) mode both extremes are reachable from
+    // typical start states: `sfMax` corresponds to `pixels == 0`
+    // (the natural starting position of a reversed list), and
+    // `sfMin` corresponds to `pixels == maxScrollExtent` (the back
+    // of the reversed list, after pre-scrolling forward).
+    if (cmp.isApprox(scroll.pixels, scroll.minScrollExtent) ||
+        cmp.isApprox(scroll.pixels, scroll.maxScrollExtent)) {
       final simulation = physics.createBallisticSimulation(
         velocity,
         this,
@@ -288,7 +309,6 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
       }
     }
 
-    final scroll = _SheetFrameScrollPosition(scrollPosition);
     // All values below are in the sheet frame: positive means "scroll
     // forward in the sheet's grow direction". For [AxisDirection.up]
     // (reversed) lists this is the opposite of the scroll position's own
@@ -305,7 +325,7 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
       // How many pixels the user can scroll and drag.
       maxScrollExtent: maxScrollExtentForScrollPhysics,
       // How many pixels the user has scrolled and dragged.
-      pixels: FloatComp.distance(context.devicePixelRatio).roundToEdgeIfApprox(
+      pixels: cmp.roundToEdgeIfApprox(
         // Round the scrollPixelsForScrollPhysics to 0.0 or the maxScrollExtent
         // if necessary to prevents issues with floating-point precision errors.
         // For example, issue #207 and #212 were caused by infinite recursion of
