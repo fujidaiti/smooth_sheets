@@ -828,22 +828,34 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
       return builder(context, animation, secondaryAnimation, child);
     }
     final theme = Theme.of(context);
-    return switch (theme.platform) {
-      TargetPlatform.android =>
-        _FadeForwardPageTransitionWithAnimationLessBackGesture(
+    if (theme.platform == TargetPlatform.android) {
+      final androidBuilder =
+          theme.pageTransitionsTheme.builders[TargetPlatform.android];
+      // Treat all framework-provided Material defaults for Android as
+      // "no explicit override" so the package keeps applying its own
+      // animation-less back gesture transition by default. The framework
+      // default varies by Flutter version (ZoomPageTransitionsBuilder on
+      // older versions, PredictiveBackPageTransitionsBuilder on current,
+      // FadeForwardsPageTransitionsBuilder in between).
+      if (androidBuilder == null ||
+          androidBuilder.runtimeType == FadeForwardsPageTransitionsBuilder ||
+          androidBuilder.runtimeType == ZoomPageTransitionsBuilder ||
+          androidBuilder.runtimeType == PredictiveBackPageTransitionsBuilder) {
+        return _FadeForwardPageTransitionWithAnimationLessBackGesture(
           route: this,
           animation: animation,
           secondaryAnimation: secondaryAnimation,
           child: child,
-        ),
-      _ => theme.pageTransitionsTheme.buildTransitions(
-        this,
-        context,
-        animation,
-        secondaryAnimation,
-        child,
-      ),
-    };
+        );
+      }
+    }
+    return theme.pageTransitionsTheme.buildTransitions(
+      this,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
   }
 }
 

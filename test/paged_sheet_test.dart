@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
@@ -862,6 +863,84 @@ void main() {
       expect(find.byKey(Key('b')), findsOneWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
     });
+
+    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/555.
+    // On Android, PagedSheetRoute used to always use its own built-in
+    // transition and silently ignore Theme.pageTransitionsTheme. It should
+    // honor a custom page transitions builder configured by the app.
+    testWidgets(
+      'On Android, routes should use the custom transition builder '
+      'registered in Theme.pageTransitionsTheme',
+      (tester) async {
+        final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
+        await tester.pumpWidget(
+          Theme(
+            data: ThemeData(
+              platform: TargetPlatform.android,
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: _MarkerPageTransitionsBuilder(),
+                },
+              ),
+            ),
+            child: env.testWidget,
+          ),
+        );
+
+        env.pushRoute('b', 500);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(_MarkerPageTransitionsBuilder.markerKey),
+          findsWidgets,
+          reason:
+              'PagedSheetRoute should delegate to the custom '
+              'PageTransitionsBuilder registered for Android.',
+        );
+      },
+    );
+
+    // Concrete #555 scenario: CupertinoPageTransitionsBuilder on Android
+    // should bring back the iOS-style edge swipe.
+    testWidgets(
+      'On Android with CupertinoPageTransitionsBuilder, '
+      'iOS-style swipe back gesture should work',
+      (tester) async {
+        final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
+        await tester.pumpWidget(
+          Theme(
+            data: ThemeData(
+              platform: TargetPlatform.android,
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                },
+              ),
+            ),
+            child: env.testWidget,
+          ),
+        );
+        env.pushRoute('b', 500);
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        final pointerLocation = Offset(5, testScreenSize.height - 250);
+        final gesture = await tester.startGesture(pointerLocation);
+        await gesture.moveBy(const Offset(50, 0));
+        await tester.pumpAndSettle();
+        expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+
+        await gesture.moveBy(const Offset(400, 0));
+        await tester.pumpAndSettle();
+        await gesture.up();
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(Key('a')), findsOneWidget);
+        expect(find.byKey(Key('b')), findsNothing);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      },
+    );
 
     testWidgets(
       'When Android predictive back gesture is performed',
@@ -2151,6 +2230,23 @@ void main() {
       },
     );
   });
+}
+
+class _MarkerPageTransitionsBuilder extends PageTransitionsBuilder {
+  const _MarkerPageTransitionsBuilder();
+
+  static const markerKey = Key('custom-transition-marker');
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return KeyedSubtree(key: markerKey, child: child);
+  }
 }
 
 class _TestPage extends StatelessWidget {
