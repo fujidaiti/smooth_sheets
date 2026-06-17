@@ -781,6 +781,7 @@ void main() {
       EdgeInsets viewportPadding = EdgeInsets.zero,
       double initialKeyboardHeight = 0,
       bool extendBodyBehindBottomBar = true,
+      Widget? body,
     }) {
       final modelOwnerKey = GlobalKey<SheetModelOwnerState>();
       final statefulKey = GlobalKey<TestStatefulWidgetState<double>>();
@@ -813,11 +814,13 @@ void main() {
                         key: Key('scaffold'),
                         bottomBarVisibility: visibility,
                         extendBodyBehindBottomBar: extendBodyBehindBottomBar,
-                        body: Container(
-                          key: Key('body'),
-                          color: Colors.white,
-                          height: double.infinity,
-                        ),
+                        body:
+                            body ??
+                            Container(
+                              key: Key('body'),
+                              color: Colors.white,
+                              height: double.infinity,
+                            ),
                         bottomBar: Container(
                           key: Key('bottomBar'),
                           color: Colors.white,
@@ -1136,6 +1139,19 @@ void main() {
         );
       },
     );
+
+    testWidgets('always - when body has zero height', (tester) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.always(),
+        extendBodyBehindBottomBar: false,
+        body: SizedBox.shrink(key: Key('body')),
+      );
+      await tester.pumpWidget(env.testWidget);
+
+      expect(env.getScaffoldRect(tester).size, Size(800, 50));
+      expect(env.getLocalBodyRect(tester), Rect.fromLTWH(0, 0, 800, 0));
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 0, 800, 50));
+    });
 
     testWidgets('controlled - throws when extendBodyBehindBottomBar is false', (
       tester,
