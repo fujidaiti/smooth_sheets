@@ -1,10 +1,7 @@
 import 'dart:async';
 
-// CupertinoPageTransitionsBuilder is re-exported from material.dart on some
-// Flutter versions (e.g. 3.41.x) but not others (e.g. 3.35.x, 3.44.x). Import
-// cupertino.dart explicitly so the test compiles across all supported
-// versions.
-// ignore: unnecessary_import
+// Flutter 3.44 stopped re-exporting CupertinoPageTransitionsBuilder from
+// material.dart, so import cupertino.dart explicitly.
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
