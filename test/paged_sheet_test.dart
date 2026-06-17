@@ -863,12 +863,90 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
     });
 
+    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/555.
+    // On Android, PagedSheetRoute used to always use its own built-in
+    // transition and silently ignore Theme.pageTransitionsTheme. It should
+    // honor a custom page transitions builder configured by the app.
+    testWidgets(
+      'On Android, routes should use the custom transition builder '
+      'registered in Theme.pageTransitionsTheme',
+      (tester) async {
+        final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
+        await tester.pumpWidget(
+          Theme(
+            data: ThemeData(
+              platform: TargetPlatform.android,
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: _MarkerPageTransitionsBuilder(),
+                },
+              ),
+            ),
+            child: env.testWidget,
+          ),
+        );
+
+        env.pushRoute('b', 500);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(_MarkerPageTransitionsBuilder.markerKey),
+          findsWidgets,
+          reason:
+              'PagedSheetRoute should delegate to the custom '
+              'PageTransitionsBuilder registered for Android.',
+        );
+      },
+    );
+
+    // Concrete #555 scenario: CupertinoPageTransitionsBuilder on Android
+    // should bring back the iOS-style edge swipe.
+    testWidgets(
+      'On Android with CupertinoPageTransitionsBuilder, '
+      'iOS-style swipe back gesture should work',
+      (tester) async {
+        final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
+        await tester.pumpWidget(
+          Theme(
+            data: ThemeData(
+              platform: TargetPlatform.android,
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+                  TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                },
+              ),
+            ),
+            child: env.testWidget,
+          ),
+        );
+        env.pushRoute('b', 500);
+        await tester.pumpAndSettle();
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+
+        final pointerLocation = Offset(5, testScreenSize.height - 250);
+        final gesture = await tester.startGesture(pointerLocation);
+        await gesture.moveBy(const Offset(50, 0));
+        await tester.pumpAndSettle();
+        expect(env.navigatorKey.currentState!.userGestureInProgress, isTrue);
+
+        await gesture.moveBy(const Offset(400, 0));
+        await tester.pumpAndSettle();
+        await gesture.up();
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(Key('a')), findsOneWidget);
+        expect(find.byKey(Key('b')), findsNothing);
+        expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
+      },
+    );
+
     testWidgets(
       'When Android predictive back gesture is performed',
       variant: TargetPlatformVariant.only(TargetPlatform.android),
       (tester) async {
         final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
-        await tester.pumpWidget(env.testWidget);
+        await tester.pumpWidget(_withPredictiveBackTheme(env.testWidget));
         env.pushRoute('b', 500);
         await tester.pumpAndSettle();
         expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
@@ -877,18 +955,14 @@ void main() {
         await tester.pump();
         expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
 
+        final dragHistory = <double>[env.getSheetRect(tester).top];
         await tester.updateAndroidBackGestureProgress(
           x: 100.0,
           y: 300,
           progress: 0.3,
         );
         await tester.pump();
-        expect(
-          env.getSheetRect(tester).top,
-          testScreenSize.height - 500,
-          reason:
-              'Sheet position should not change while gesture is in progress.',
-        );
+        dragHistory.add(env.getSheetRect(tester).top);
 
         await tester.updateAndroidBackGestureProgress(
           x: 200.0,
@@ -896,25 +970,43 @@ void main() {
           progress: 0.6,
         );
         await tester.pump();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+        dragHistory.add(env.getSheetRect(tester).top);
 
-        final sheetTopHistory = <double>[];
+        expect(
+          dragHistory,
+          isMonotonicallyIncreasing,
+          reason:
+              'Sheet height should follow the gesture progress, shrinking '
+              'toward the previous route as the user drags.',
+        );
+        expect(
+          dragHistory.last,
+          greaterThan(dragHistory.first),
+          reason: 'Sheet must actually move during the gesture.',
+        );
+
+        final commitHistory = <double>[env.getSheetRect(tester).top];
         await tester.commitAndroidBackGesture();
         await tester.pump();
-        sheetTopHistory.add(env.getSheetRect(tester).top);
+        commitHistory.add(env.getSheetRect(tester).top);
         await tester.pump(Duration(milliseconds: 50));
-        sheetTopHistory.add(env.getSheetRect(tester).top);
+        commitHistory.add(env.getSheetRect(tester).top);
         await tester.pump(Duration(milliseconds: 50));
-        sheetTopHistory.add(env.getSheetRect(tester).top);
+        commitHistory.add(env.getSheetRect(tester).top);
         await tester.pump(Duration(milliseconds: 50));
-        sheetTopHistory.add(env.getSheetRect(tester).top);
-        await tester.pump(Duration(milliseconds: 50));
-        sheetTopHistory.add(env.getSheetRect(tester).top);
+        commitHistory.add(env.getSheetRect(tester).top);
         await tester.pumpAndSettle();
 
         expect(find.byKey(Key('a')), findsOneWidget);
         expect(find.byKey(Key('b')), findsNothing);
-        expect(sheetTopHistory, isMonotonicallyIncreasing);
+        expect(
+          commitHistory,
+          isMonotonicallyIncreasing,
+          reason:
+              'On commit, the sheet must continue from the release point '
+              'monotonically toward the previous route height — no snap '
+              'back to the pre-gesture position before reversing.',
+        );
         expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
       },
     );
@@ -924,7 +1016,7 @@ void main() {
       variant: TargetPlatformVariant.only(TargetPlatform.android),
       (tester) async {
         final env = boilerplate(initialRoute: 'a', initialRouteHeight: 300);
-        await tester.pumpWidget(env.testWidget);
+        await tester.pumpWidget(_withPredictiveBackTheme(env.testWidget));
         env.pushRoute('b', 500);
         await tester.pumpAndSettle();
         expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
@@ -938,24 +1030,32 @@ void main() {
           progress: 0.3,
         );
         await tester.pump();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
-
-        await tester.cancelAndroidBackGesture();
-        await tester.pump();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
-
-        await tester.pump(Duration(milliseconds: 100));
+        final releasedTop = env.getSheetRect(tester).top;
         expect(
-          env.getSheetRect(tester).top,
-          testScreenSize.height - 500,
-          reason:
-              'Sheet is already at the target position, so it should not '
-              'move while the route pop transition is running.',
+          releasedTop,
+          greaterThan(testScreenSize.height - 500),
+          reason: 'Sheet must have moved during the gesture.',
         );
 
+        final cancelHistory = <double>[releasedTop];
+        await tester.cancelAndroidBackGesture();
+        await tester.pump();
+        cancelHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        cancelHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        cancelHistory.add(env.getSheetRect(tester).top);
         await tester.pumpAndSettle();
+
         expect(find.byKey(Key('a')), findsNothing);
         expect(find.byKey(Key('b')), findsOneWidget);
+        expect(
+          cancelHistory,
+          isMonotonicallyDecreasing,
+          reason:
+              'On cancel, the sheet must return to the current route height '
+              'smoothly from the release point.',
+        );
         expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
       },
     );
@@ -1464,7 +1564,7 @@ void main() {
         final pageA = createPage(name: 'a', height: 300);
         final pageB = createPage(name: 'b', height: 500);
         final env = boilerplate(initialPages: [pageA, pageB]);
-        await tester.pumpWidget(env.testWidget);
+        await tester.pumpWidget(_withPredictiveBackTheme(env.testWidget));
         await tester.pumpAndSettle();
         expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
 
@@ -1472,18 +1572,14 @@ void main() {
         await tester.pump();
         expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
 
+        final dragHistory = <double>[env.getSheetRect(tester).top];
         await tester.updateAndroidBackGestureProgress(
           x: 100.0,
           y: 300,
           progress: 0.3,
         );
         await tester.pump();
-        expect(
-          env.getSheetRect(tester).top,
-          testScreenSize.height - 500,
-          reason:
-              'Sheet position should not change while gesture is in progress.',
-        );
+        dragHistory.add(env.getSheetRect(tester).top);
 
         await tester.updateAndroidBackGestureProgress(
           x: 200.0,
@@ -1491,25 +1587,43 @@ void main() {
           progress: 0.6,
         );
         await tester.pump();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
+        dragHistory.add(env.getSheetRect(tester).top);
 
-        final sheetTopHistory = <double>[];
+        expect(
+          dragHistory,
+          isMonotonicallyIncreasing,
+          reason:
+              'Sheet height should follow the gesture progress, shrinking '
+              'toward the previous route as the user drags.',
+        );
+        expect(
+          dragHistory.last,
+          greaterThan(dragHistory.first),
+          reason: 'Sheet must actually move during the gesture.',
+        );
+
+        final commitHistory = <double>[env.getSheetRect(tester).top];
         await tester.commitAndroidBackGesture();
         await tester.pump();
-        sheetTopHistory.add(env.getSheetRect(tester).top);
+        commitHistory.add(env.getSheetRect(tester).top);
         await tester.pump(Duration(milliseconds: 50));
-        sheetTopHistory.add(env.getSheetRect(tester).top);
+        commitHistory.add(env.getSheetRect(tester).top);
         await tester.pump(Duration(milliseconds: 50));
-        sheetTopHistory.add(env.getSheetRect(tester).top);
+        commitHistory.add(env.getSheetRect(tester).top);
         await tester.pump(Duration(milliseconds: 50));
-        sheetTopHistory.add(env.getSheetRect(tester).top);
-        await tester.pump(Duration(milliseconds: 50));
-        sheetTopHistory.add(env.getSheetRect(tester).top);
+        commitHistory.add(env.getSheetRect(tester).top);
         await tester.pumpAndSettle();
 
         expect(find.byKey(Key('a')), findsOneWidget);
         expect(find.byKey(Key('b')), findsNothing);
-        expect(sheetTopHistory, isMonotonicallyIncreasing);
+        expect(
+          commitHistory,
+          isMonotonicallyIncreasing,
+          reason:
+              'On commit, the sheet must continue from the release point '
+              'monotonically toward the previous route height — no snap '
+              'back to the pre-gesture position before reversing.',
+        );
         expect(env.getSheetRect(tester).top, testScreenSize.height - 300);
       },
     );
@@ -1521,7 +1635,7 @@ void main() {
         final pageA = createPage(name: 'a', height: 300);
         final pageB = createPage(name: 'b', height: 500);
         final env = boilerplate(initialPages: [pageA, pageB]);
-        await tester.pumpWidget(env.testWidget);
+        await tester.pumpWidget(_withPredictiveBackTheme(env.testWidget));
         await tester.pumpAndSettle();
         expect(find.byKey(Key('a')).hitTestable(), findsNothing);
         expect(find.byKey(Key('b')), findsOneWidget);
@@ -1537,24 +1651,38 @@ void main() {
           progress: 0.3,
         );
         await tester.pump();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
-
-        await tester.cancelAndroidBackGesture();
+        await tester.updateAndroidBackGestureProgress(
+          x: 200.0,
+          y: testScreenSize.height - 250,
+          progress: 0.6,
+        );
         await tester.pump();
-        expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
-
-        await tester.pump(Duration(milliseconds: 100));
+        final releasedTop = env.getSheetRect(tester).top;
         expect(
-          env.getSheetRect(tester).top,
-          testScreenSize.height - 500,
-          reason:
-              'Sheet is already at the target position, so it should not '
-              'move while the route pop transition is running.',
+          releasedTop,
+          greaterThan(testScreenSize.height - 500),
+          reason: 'Sheet must have moved during the gesture.',
         );
 
+        final cancelHistory = <double>[releasedTop];
+        await tester.cancelAndroidBackGesture();
+        await tester.pump();
+        cancelHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        cancelHistory.add(env.getSheetRect(tester).top);
+        await tester.pump(Duration(milliseconds: 50));
+        cancelHistory.add(env.getSheetRect(tester).top);
         await tester.pumpAndSettle();
+
         expect(find.byKey(Key('a')), findsNothing);
         expect(find.byKey(Key('b')), findsOneWidget);
+        expect(
+          cancelHistory,
+          isMonotonicallyDecreasing,
+          reason:
+              'On cancel, the sheet must return to the current route height '
+              'smoothly from the release point.',
+        );
         expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
       },
     );
@@ -2151,6 +2279,42 @@ void main() {
       },
     );
   });
+}
+
+/// Wraps [child] in a [Theme] that pins the Android page transition to
+/// [PredictiveBackPageTransitionsBuilder]. The default builder varies across
+/// Flutter versions (Zoom → FadeForwards → PredictiveBack), and only the
+/// predictive-back builder forwards platform back-gesture events to the
+/// route's `handle*BackGesture` methods. Pinning it keeps these tests
+/// version-independent and exercises the actual contract under test.
+Widget _withPredictiveBackTheme(Widget child) {
+  return Theme(
+    data: ThemeData(
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        },
+      ),
+    ),
+    child: child,
+  );
+}
+
+class _MarkerPageTransitionsBuilder extends PageTransitionsBuilder {
+  const _MarkerPageTransitionsBuilder();
+
+  static const markerKey = Key('custom-transition-marker');
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return KeyedSubtree(key: markerKey, child: child);
+  }
 }
 
 class _TestPage extends StatelessWidget {

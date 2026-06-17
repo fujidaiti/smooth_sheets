@@ -7,7 +7,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:navigator_resizable/navigator_resizable.dart';
 
 import 'activity.dart';
@@ -827,23 +826,38 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
     if (_resolvedTheme.transitionsBuilder case final builder?) {
       return builder(context, animation, secondaryAnimation, child);
     }
-    final theme = Theme.of(context);
-    return switch (theme.platform) {
-      TargetPlatform.android =>
-        _FadeForwardPageTransitionWithAnimationLessBackGesture(
-          route: this,
-          animation: animation,
-          secondaryAnimation: secondaryAnimation,
-          child: child,
-        ),
-      _ => theme.pageTransitionsTheme.buildTransitions(
-        this,
-        context,
-        animation,
-        secondaryAnimation,
-        child,
-      ),
-    };
+    return Theme.of(context).pageTransitionsTheme.buildTransitions(
+      this,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
+  }
+
+  // Difference from `TransitionRoute.handleCommitBackGesture`: this override
+  // does NOT call `controller.reverse(from: controller.upperBound)` after
+  // pop. The framework's snap-back to 1.0 produces a visible jump in the
+  // sheet's height interpolation, because the sheet's size tracks the
+  // route animation. By letting `navigator.pop()` reverse the controller
+  // from its current value, the transition continues smoothly from the
+  // release point — matching Cupertino's swipe-back behavior.
+  @override
+  void handleCommitBackGesture() {
+    if (isCurrent) {
+      navigator?.pop();
+    }
+    final c = controller;
+    if (c != null && c.isAnimating) {
+      late final AnimationStatusListener listener;
+      listener = (_) {
+        navigator?.didStopUserGesture();
+        c.removeStatusListener(listener);
+      };
+      c.addStatusListener(listener);
+    } else {
+      navigator?.didStopUserGesture();
+    }
   }
 }
 
@@ -950,92 +964,5 @@ class _PageBasedPagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
     Animation<double> secondaryAnimation,
   ) {
     return page.child;
-  }
-}
-
-/// A transition that enables Android's predictive back gesture to pop routes
-/// within the nested [Navigator], without modifying route transition progress
-/// during the gesture.
-///
-/// This is a workaround for the issue where [TransitionRoute.animation]
-/// jumps from a mid-transition value to 1.0 when the back gesture is committed,
-/// causing an abrupt pop-transition animation.
-///
-/// The root cause is that [TransitionRoute.handleUpdateBackGestureProgress]
-/// updates the [TransitionRoute.controller]'s value as the gesture progresses,
-/// but [TransitionRoute.handleCommitBackGesture] triggers the transition
-/// animation via [AnimationController.reverse] with 1.0 as the starting point,
-/// regardless of the current [TransitionRoute.controller]'s value.
-///
-/// The default back gesture handler behaves this way, but is incompatible with
-/// [PagedSheet]'s size transition. This transition widget therefore suppresses
-/// that gesture-driven transition progress while still allowing the gesture to
-/// commit a route pop.
-class _FadeForwardPageTransitionWithAnimationLessBackGesture
-    extends StatefulWidget {
-  const _FadeForwardPageTransitionWithAnimationLessBackGesture({
-    required this.route,
-    required this.animation,
-    required this.secondaryAnimation,
-    required this.child,
-  });
-
-  final PageRoute<dynamic> route;
-  final Animation<double> animation;
-  final Animation<double> secondaryAnimation;
-  final Widget child;
-
-  @override
-  State<_FadeForwardPageTransitionWithAnimationLessBackGesture> createState() =>
-      _FadeForwardPageTransitionWithAnimationLessBackGestureState();
-}
-
-class _FadeForwardPageTransitionWithAnimationLessBackGestureState
-    extends State<_FadeForwardPageTransitionWithAnimationLessBackGesture>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  bool handleStartBackGesture(PredictiveBackEvent backEvent) {
-    return !backEvent.isButtonEvent &&
-        widget.route.isCurrent &&
-        !widget.route.isFirst;
-  }
-
-  @override
-  void handleCancelBackGesture() {
-    _handleEndBackGesture(isCommitted: false);
-  }
-
-  @override
-  void handleCommitBackGesture() {
-    _handleEndBackGesture(isCommitted: true);
-  }
-
-  void _handleEndBackGesture({required bool isCommitted}) {
-    if (isCommitted && widget.route.isCurrent) {
-      widget.route.navigator?.pop();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const FadeForwardsPageTransitionsBuilder().buildTransitions(
-      widget.route,
-      context,
-      widget.animation,
-      widget.secondaryAnimation,
-      widget.child,
-    );
   }
 }
