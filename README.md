@@ -10,10 +10,6 @@
 - **Works with imperative & declarative Navigator API**: No special navigation mechanism is required. The traditional ways such as `Navigator.push` is supported and it works with Navigator 2.0 packages like go_router as well.
 - **iOS flavor**: The modal sheets in the style of iOS 15 are supported.
 
-> [!CAUTION]
-> The pre-release versions (1.0.0-f324.x) have been deprecated and are no longer maintained.
-> We recommend using the non–pre-release versions (0.11.x or higher) for all developers.
-
 <br/>
 
 ## Showcases
@@ -100,6 +96,7 @@ Several resources are available for learning the functionalities of this package
 
 - Tutorials: See [example/lib/tutorial/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/tutorial) to learn the basic usage of the core components.
 - Showcases: More practical examples are available in [example/lib/showcase/](https://github.com/fujidaiti/smooth_sheets/tree/main/example/lib/showcase).
+- [API documentation](https://pub.dev/documentation/smooth_sheets/latest)
 
 <br/>
 
@@ -306,14 +303,5 @@ If you have a suggestion that would make this better, please fork the repo and c
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-<br/>
-
-## Links
-
-- [Roadmap](https://github.com/fujidaiti/smooth_sheets/issues?q=is%3Aissue+is%3Aopen+label%3A%22feature+request%22)
-- [API Documentation](https://pub.dev/documentation/smooth_sheets/latest/)
-- [pub.dev](https://pub.dev/packages/smooth_sheets)
-- [norelease.dev](https://pub.dev/publishers/norelease.dev/packages)
 
 <br/>
