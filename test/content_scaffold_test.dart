@@ -93,6 +93,30 @@ void main() {
         Rect.fromLTWH(0, 0, testScreenSize.width, 200),
       );
     });
+  
+    testWidgets('Body with zero-height in loose box-constraints', (tester) async {
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.loose(testScreenSize),
+            child: SheetContentScaffold(
+              key: Key('scaffold'),
+              body: SizedBox(key: bodyKey, height: 0),
+            ),
+          );
+        },
+      );
+
+      await tester.pumpWidget(env.testWidget);
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byId('scaffold'),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 0),
+      );
+    });
 
     testWidgets('TopBar-Body layout with tight box-constraints', (
       tester,
