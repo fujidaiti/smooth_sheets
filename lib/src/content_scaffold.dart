@@ -715,7 +715,7 @@ abstract class _RenderBottomBarVisibility extends RenderTransform {
               .clamp(
                 // Prevent the bar from being moved up
                 // when the content is fully outside of the viewport.
-                bottomBarSize.height - _model.contentSize.height,
+                min(0.0, bottomBarSize.height - _model.contentSize.height),
                 // We don't need to move the bar up
                 // when the content is fully visible within the viewport.
                 0.0,
