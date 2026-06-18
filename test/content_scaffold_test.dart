@@ -94,6 +94,32 @@ void main() {
       );
     });
 
+    testWidgets('Body with zero-height in loose box-constraints', (
+      tester,
+    ) async {
+      final bodyKey = UniqueKey();
+      final env = boilerplate(
+        builder: (context) {
+          return ConstrainedBox(
+            constraints: BoxConstraints.loose(testScreenSize),
+            child: SheetContentScaffold(
+              key: Key('scaffold'),
+              body: SizedBox(key: bodyKey, height: 0),
+            ),
+          );
+        },
+      );
+
+      await tester.pumpWidget(env.testWidget);
+      expect(
+        tester.getLocalRect(
+          find.byKey(bodyKey),
+          ancestor: find.byId('scaffold'),
+        ),
+        Rect.fromLTWH(0, 0, testScreenSize.width, 0),
+      );
+    });
+
     testWidgets('TopBar-Body layout with tight box-constraints', (
       tester,
     ) async {
@@ -781,6 +807,7 @@ void main() {
       EdgeInsets viewportPadding = EdgeInsets.zero,
       double initialKeyboardHeight = 0,
       bool extendBodyBehindBottomBar = true,
+      Widget? body,
     }) {
       final modelOwnerKey = GlobalKey<SheetModelOwnerState>();
       final statefulKey = GlobalKey<TestStatefulWidgetState<double>>();
@@ -813,11 +840,13 @@ void main() {
                         key: Key('scaffold'),
                         bottomBarVisibility: visibility,
                         extendBodyBehindBottomBar: extendBodyBehindBottomBar,
-                        body: Container(
-                          key: Key('body'),
-                          color: Colors.white,
-                          height: double.infinity,
-                        ),
+                        body:
+                            body ??
+                            Container(
+                              key: Key('body'),
+                              color: Colors.white,
+                              height: double.infinity,
+                            ),
                         bottomBar: Container(
                           key: Key('bottomBar'),
                           color: Colors.white,
@@ -1136,6 +1165,19 @@ void main() {
         );
       },
     );
+
+    testWidgets('always - when body has zero height', (tester) async {
+      final env = boilerplate(
+        visibility: BottomBarVisibility.always(),
+        extendBodyBehindBottomBar: false,
+        body: SizedBox.shrink(key: Key('body')),
+      );
+      await tester.pumpWidget(env.testWidget);
+
+      expect(env.getScaffoldRect(tester).size, Size(800, 50));
+      expect(env.getLocalBodyRect(tester), Rect.fromLTWH(0, 0, 800, 0));
+      expect(env.getLocalBottomBarRect(tester), Rect.fromLTWH(0, 0, 800, 50));
+    });
 
     testWidgets('controlled - throws when extendBodyBehindBottomBar is false', (
       tester,
