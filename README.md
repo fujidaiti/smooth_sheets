@@ -305,12 +305,3 @@ If you have a suggestion that would make this better, please fork the repo and c
 5. Open a Pull Request
 
 <br/>
-
-## Links
-
-- [Roadmap](https://github.com/fujidaiti/smooth_sheets/issues?q=is%3Aissue+is%3Aopen+label%3A%22feature+request%22)
-- [API Documentation](https://pub.dev/documentation/smooth_sheets/latest/)
-- [pub.dev](https://pub.dev/packages/smooth_sheets)
-- [norelease.dev](https://pub.dev/publishers/norelease.dev/packages)
-
-<br/>
