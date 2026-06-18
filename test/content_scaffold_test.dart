@@ -93,8 +93,10 @@ void main() {
         Rect.fromLTWH(0, 0, testScreenSize.width, 200),
       );
     });
-  
-    testWidgets('Body with zero-height in loose box-constraints', (tester) async {
+
+    testWidgets('Body with zero-height in loose box-constraints', (
+      tester,
+    ) async {
       final bodyKey = UniqueKey();
       final env = boilerplate(
         builder: (context) {
