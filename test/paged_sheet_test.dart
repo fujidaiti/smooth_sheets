@@ -1,7 +1,5 @@
 import 'dart:async';
 
-// Flutter 3.44 stopped re-exporting CupertinoPageTransitionsBuilder from
-// material.dart, so import cupertino.dart explicitly.
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -866,10 +864,6 @@ void main() {
       expect(env.getSheetRect(tester).top, testScreenSize.height - 500);
     });
 
-    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/555.
-    // On Android, PagedSheetRoute used to always use its own built-in
-    // transition and silently ignore Theme.pageTransitionsTheme. It should
-    // honor a custom page transitions builder configured by the app.
     testWidgets(
       'On Android, routes should use the custom transition builder '
       'registered in Theme.pageTransitionsTheme',

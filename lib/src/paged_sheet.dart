@@ -847,17 +847,23 @@ abstract class _BasePagedSheetRoute<T> extends PageRoute<T>
     if (isCurrent) {
       navigator?.pop();
     }
-    final c = controller;
-    if (c != null && c.isAnimating) {
-      late final AnimationStatusListener listener;
-      listener = (_) {
-        navigator?.didStopUserGesture();
-        c.removeStatusListener(listener);
-      };
-      c.addStatusListener(listener);
-    } else {
+
+    final controller = this.controller;
+    if (controller == null) return;
+    if (!controller.isAnimating) {
       navigator?.didStopUserGesture();
+      return;
     }
+
+    controller.reverse();
+    // Keep navigator.userGestureInProgress true during the animation
+    // since some transition builders depend on it.
+    late final AnimationStatusListener listener;
+    listener = (status) {
+      navigator?.didStopUserGesture();
+      controller.removeStatusListener(listener);
+    };
+    controller.addStatusListener(listener);
   }
 }
 
