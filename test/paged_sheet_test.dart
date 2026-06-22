@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
@@ -1589,6 +1590,7 @@ void main() {
     }
 
     PagedSheetRoute<dynamic> createRoute({
+      String? name,
       Key? contentKey,
       SheetOffset? initialOffset,
       SheetSnapGrid? snapGrid,
@@ -1600,6 +1602,7 @@ void main() {
       bool isScrollable = false,
     }) {
       return PagedSheetRoute(
+        settings: name != null ? RouteSettings(name: name) : null,
         initialOffset: initialOffset,
         snapGrid: snapGrid,
         scrollConfiguration: scrollConfiguration,
@@ -2008,6 +2011,52 @@ void main() {
         expect(find.byKey(themeTransitionKey), findsNothing);
       },
     );
+
+    testWidgets(
+      'Route transition falls back to ThemeData.pageTransitionsTheme',
+      variant: TargetPlatformVariant.all(),
+      (tester) async {
+        Key transitionKeyFor(Route<dynamic> route, TargetPlatform platform) {
+          assert(route.settings.name != null);
+          return ValueKey('$platform:${route.settings.name}');
+        }
+
+        final routeA = createRoute(name: 'routeA', height: 300);
+        final env = boilerplate(initialRoute: () => routeA);
+        await tester.pumpWidget(
+          Theme(
+            data: ThemeData(
+              pageTransitionsTheme: PageTransitionsTheme(
+                builders: {
+                  for (final platform in TargetPlatform.values)
+                    platform: _TransitionsBuilderCallback(
+                      (route, _, _, _, child) {
+                        return Container(
+                          key: transitionKeyFor(route, platform),
+                          child: child,
+                        );
+                      },
+                    ),
+                },
+              ),
+            ),
+            child: env.testWidget,
+          ),
+        );
+        expect(
+          find.byKey(transitionKeyFor(routeA, defaultTargetPlatform)),
+          findsOneWidget,
+        );
+
+        final routeB = createRoute(name: 'routeB', height: 400);
+        unawaited(env.getNavigator().push(routeB));
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(transitionKeyFor(routeB, defaultTargetPlatform)),
+          findsOneWidget,
+        );
+      },
+    );
   });
 
   group('Regression test', () {
@@ -2151,6 +2200,30 @@ void main() {
       },
     );
   });
+}
+
+class _TransitionsBuilderCallback extends PageTransitionsBuilder {
+  const _TransitionsBuilderCallback(this.builder);
+
+  final Widget Function(
+    PageRoute<dynamic> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  )
+  builder;
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return builder(route, context, animation, secondaryAnimation, child);
+  }
 }
 
 class _TestPage extends StatelessWidget {
