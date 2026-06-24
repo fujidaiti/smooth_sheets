@@ -502,6 +502,36 @@ class _PostTransitionWithoutAnimationActivity
   }
 }
 
+/// A sheet that hosts an embedded [Navigator] and animates its size and
+/// offset when the navigator transitions between routes.
+///
+/// Each route inside the [navigator] can specify its own [SheetSnapGrid],
+/// [SheetScrollConfiguration], and other parameters via [PagedSheetRoute] or
+/// [PagedSheetPage]. When a route transition occurs, [PagedSheet] smoothly
+/// interpolates the sheet's offset and size between the departing and arriving
+/// routes.
+///
+/// Share default route settings across all routes by placing a
+/// [PagedSheetRouteTheme] above the [PagedSheet]:
+///
+/// ```dart
+/// PagedSheetRouteTheme(
+///   data: PagedSheetRouteThemeData(
+///     scrollConfiguration: SheetScrollConfiguration.enabled(),
+///   ),
+///   child: PagedSheet(
+///     navigator: Navigator(
+///       onGenerateRoute: (settings) => PagedSheetRoute(
+///         builder: (context) => MyPage(),
+///       ),
+///     ),
+///   ),
+/// )
+/// ```
+///
+/// See also:
+/// - [PagedSheetRoute] and [PagedSheetPage], for per-route configuration.
+/// - [PagedSheetRouteTheme], to set shared defaults for all routes.
 class PagedSheet extends StatelessWidget {
   const PagedSheet({
     super.key,
@@ -514,14 +544,17 @@ class PagedSheet extends StatelessWidget {
     required this.navigator,
   });
 
+  /// An object that can be used to control and observe the sheet.
   final SheetController? controller;
 
+  /// How the sheet position responds to drag gestures and boundary conditions.
   final SheetPhysics physics;
 
   /// The [Curve] used for both the offset and size transition animations
   /// when navigating to a new route within the [navigator].
   final Curve transitionCurve;
 
+  /// Provides the visual appearance of the sheet.
   final SheetDecoration decoration;
 
   /// {@macro viewport.BareSheet.padding}
@@ -550,6 +583,10 @@ class PagedSheet extends StatelessWidget {
   /// ```
   final Widget Function(BuildContext, Widget)? builder;
 
+  /// The [Navigator] widget whose route stack determines the sheet's content.
+  ///
+  /// Routes inside the navigator should be [PagedSheetRoute] or
+  /// [PagedSheetPage] instances to integrate with the sheet's animations.
   final Widget navigator;
 
   @override

@@ -1,3 +1,6 @@
+/// @docImport 'sheet.dart';
+library;
+
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -5,15 +8,38 @@ import 'package:flutter/gestures.dart';
 
 import 'model.dart';
 
+/// Defines the positions to which a sheet can snap after a drag or fling.
+///
+/// Use one of the factory constructors to create an appropriate snap grid:
+/// - [SheetSnapGrid.new] (or [MultiSnapGrid]) for discrete snap positions.
+/// - [SheetSnapGrid.single] (or [SingleSnapGrid]) when only one position
+///   is needed.
+/// - [SheetSnapGrid.stepless] (or [SteplessSnapGrid]) to allow the sheet
+///   to rest at any offset between a minimum and maximum.
+///
+/// See also:
+/// - [Sheet.snapGrid], which accepts a [SheetSnapGrid].
 abstract interface class SheetSnapGrid {
+  /// Creates a snap grid with multiple discrete snap positions.
+  ///
+  /// When the user releases the sheet, it snaps to the nearest position in
+  /// [snaps]. If the release velocity exceeds [minFlingSpeed], it snaps in
+  /// the direction of the fling instead.
   const factory SheetSnapGrid({
     required List<SheetOffset> snaps,
     double minFlingSpeed,
   }) = MultiSnapGrid;
 
+  /// Creates a snap grid with a single snap position.
+  ///
+  /// The sheet always snaps to [snap] regardless of velocity.
   const factory SheetSnapGrid.single({required SheetOffset snap}) =
       SingleSnapGrid;
 
+  /// Creates a snap grid that allows the sheet to rest at any offset.
+  ///
+  /// The sheet can settle anywhere between [minOffset] and [maxOffset],
+  /// preserving the exact offset at the moment the user releases it.
   const factory SheetSnapGrid.stepless({
     SheetOffset minOffset,
     SheetOffset maxOffset,
@@ -31,6 +57,12 @@ abstract interface class SheetSnapGrid {
   (SheetOffset, SheetOffset) getBoundaries(ViewportLayout layout);
 }
 
+/// A [SheetSnapGrid] with exactly one snap position.
+///
+/// The sheet always returns to [snap] after a drag or fling, regardless of
+/// the release velocity.
+///
+/// Created via [SheetSnapGrid.single].
 class SingleSnapGrid implements SheetSnapGrid {
   const SingleSnapGrid({required this.snap});
 
@@ -51,6 +83,14 @@ class SingleSnapGrid implements SheetSnapGrid {
   }
 }
 
+/// A [SheetSnapGrid] that allows the sheet to settle at any offset between
+/// [minOffset] and [maxOffset].
+///
+/// Unlike [MultiSnapGrid], there are no discrete snap positions — the sheet
+/// stays wherever the user releases it, as long as it is within the allowed
+/// range.
+///
+/// Created via [SheetSnapGrid.stepless].
 class SteplessSnapGrid implements SheetSnapGrid {
   const SteplessSnapGrid({
     this.minOffset = const SheetOffset(0),

@@ -1,4 +1,6 @@
 /// @docImport 'decorations.dart';
+/// @docImport 'paged_sheet.dart';
+/// @docImport 'sheet.dart';
 library;
 
 import 'dart:math';
@@ -72,6 +74,8 @@ class SheetLayoutSpec {
   int get hashCode => Object.hash(viewportSize, viewportPadding, contentMargin);
 }
 
+/// A [ValueListenable] that holds the current [SheetLayout], or `null` before
+/// the sheet has been laid out.
 typedef SheetLayoutListenable = ValueListenable<SheetLayout?>;
 
 /// Stores the geometry of the viewport and the layout constraints
@@ -220,6 +224,25 @@ class _InheritedSheetMediaQuery extends InheritedWidget {
       layoutNotifier != oldWidget.layoutNotifier;
 }
 
+/// The layout region in which a sheet is positioned and sized.
+///
+/// [SheetViewport] is typically placed directly around a [Sheet] (or
+/// [PagedSheet]) to define the coordinate space the sheet occupies. It
+/// connects the sheet to the framework's layout and routing systems and
+/// exposes sheet metrics to descendant widgets via [SheetMediaQuery].
+///
+/// Only one [SheetViewport] can exist within the same route. When used inside a
+/// modal route, one is inserted automatically, so you only need to provide your
+/// own when you need to customize [padding].
+///
+/// ```dart
+/// SheetViewport(
+///   padding: EdgeInsets.only(
+///     bottom: MediaQuery.viewInsetsOf(context).bottom,
+///   ),
+///   child: Sheet(child: MyContent()),
+/// )
+/// ```
 class SheetViewport extends StatefulWidget {
   const SheetViewport({
     super.key,
@@ -495,9 +518,28 @@ class _SheetConstraints extends BoxConstraints {
   );
 }
 
+/// Controls the visual appearance and height behavior of a sheet.
+///
+/// A [SheetDecoration] wraps the sheet's child widget with a visual
+/// treatment (e.g., background color, border radius) and reports its
+/// preferred vertical extent, which determines how tall the decorated
+/// sheet should be.
+///
+/// Built-in implementations:
+/// - [MaterialSheetDecoration] — wraps the sheet in a [Material] widget.
+/// - [BoxSheetDecoration] — wraps the sheet in a [DecoratedBox].
+/// - [SheetDecorationBuilder] — delegates to a builder callback.
 @immutable
 abstract interface class SheetDecoration {
+  /// Returns the preferred height of the decorated sheet in pixels.
+  ///
+  /// The [offset] is the current sheet offset in pixels, and [layout] provides
+  /// the current viewport and content geometry.
   double preferredExtent(double offset, ViewportLayout layout);
+
+  /// Wraps [child] (the sheet's content) with the visual decoration.
+  ///
+  /// The returned widget must not change the layout size of [child].
   Widget build(BuildContext context, Widget child);
 }
 
