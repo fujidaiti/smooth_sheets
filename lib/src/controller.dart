@@ -1,9 +1,25 @@
+/// @docImport 'paged_sheet.dart';
+/// @docImport 'sheet.dart';
+library;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import 'model.dart';
 
+/// Controls and observes a [Sheet].
+///
+/// A [SheetController] can be passed to [Sheet.controller] (or
+/// [PagedSheet.controller]) to programmatically animate the sheet and to read
+/// the current [metrics].
+///
+/// The [value] property exposes the sheet's current offset in pixels, and
+/// changes to it are broadcast to all registered listeners.
+///
+/// See also:
+/// - [DefaultSheetController], which creates and exposes a [SheetController]
+///   to its descendants.
 class SheetController extends ChangeNotifier
     implements ValueListenable<double?> {
   SheetModel? _client;
@@ -64,6 +80,10 @@ class SheetController extends ChangeNotifier
     super.dispose();
   }
 
+  /// Animates the sheet to the given [to] offset.
+  ///
+  /// The animation runs for the given [duration] along the [curve].
+  /// Returns a [Future] that completes when the animation finishes.
   Future<void> animateTo(
     SheetOffset to, {
     Duration duration = const Duration(milliseconds: 300),
@@ -93,20 +113,44 @@ class SheetController extends ChangeNotifier
   }
 }
 
+/// A widget that creates a [SheetController] and makes it available to
+/// all descendants via [DefaultSheetController.of].
+///
+/// The controller is automatically disposed when this widget is removed from
+/// the tree.
+///
+/// ```dart
+/// DefaultSheetController(
+///   child: Sheet(
+///     child: MySheetContent(),
+///   ),
+/// )
+/// ```
+///
+/// See also:
+/// - [DefaultSheetController.of], which retrieves the nearest controller.
 class DefaultSheetController extends StatefulWidget {
   const DefaultSheetController({super.key, required this.child});
 
+  /// The widget below this widget in the tree.
+  ///
+  /// A [SheetController] is made available to all descendants.
   final Widget child;
 
   @override
   State<DefaultSheetController> createState() => _DefaultSheetControllerState();
 
+  /// Returns the nearest [SheetController] in the widget tree, or `null` if
+  /// no [DefaultSheetController] ancestor exists.
   static SheetController? maybeOf(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<SheetControllerScope>()
         ?.controller;
   }
 
+  /// Returns the nearest [SheetController] in the widget tree.
+  ///
+  /// Throws a [FlutterError] if no [DefaultSheetController] ancestor exists.
   static SheetController of(BuildContext context) {
     final controller = maybeOf(context);
 
