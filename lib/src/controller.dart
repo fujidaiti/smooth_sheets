@@ -116,9 +116,6 @@ class SheetController extends ChangeNotifier
 /// A widget that creates a [SheetController] and makes it available to
 /// all descendants via [DefaultSheetController.of].
 ///
-/// The controller is automatically disposed when this widget is removed from
-/// the tree.
-///
 /// ```dart
 /// DefaultSheetController(
 ///   child: Sheet(
@@ -133,8 +130,6 @@ class DefaultSheetController extends StatefulWidget {
   const DefaultSheetController({super.key, required this.child});
 
   /// The widget below this widget in the tree.
-  ///
-  /// A [SheetController] is made available to all descendants.
   final Widget child;
 
   @override
