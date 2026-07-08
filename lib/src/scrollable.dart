@@ -41,6 +41,17 @@ enum SheetScrollHandlingBehavior {
   /// view may perform overscroll-driven animations such as the bouncing effect
   /// for [BouncingScrollPhysics] as usual.
   onlyFromTop,
+
+  /// The scrollable content takes precedence over the sheet: the content
+  /// scrolls first, and only the overscroll left over at the content's edges
+  /// is handed to the sheet, moving it 1:1 with the drag.
+  ///
+  /// This produces a "content-first" feel — the list scrolls freely at any
+  /// sheet position, and dragging past the top of the list smoothly collapses
+  /// the sheet while dragging past the bottom smoothly expands it. It is the
+  /// mirror image of [always], where the sheet moves first (so the content only
+  /// scrolls once the sheet is fully expanded).
+  contentFirst,
 }
 
 /// Defines how the sheet integrates with scrollable content.
@@ -343,6 +354,7 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
   bool _shouldHandleScroll(ScrollPosition scrollPosition) =>
       switch (scrollConfiguration.scrollSyncMode) {
         SheetScrollHandlingBehavior.always => true,
+        SheetScrollHandlingBehavior.contentFirst => true,
         SheetScrollHandlingBehavior.onlyFromTop => scrollPosition.pixels == 0,
       };
 }
@@ -382,6 +394,11 @@ mixin _ScrollAwareSheetActivityMixin
     var newOffset = oldOffset;
     var delta = offset;
 
+    // In content-first mode the scrollable is drained before the sheet moves,
+    // which is the reverse of the default (sheet-first) upward handling below.
+    final contentFirst = owner.scrollConfiguration.scrollSyncMode ==
+        SheetScrollHandlingBehavior.contentFirst;
+
     if (offset > 0) {
       if (scrollPosition.pixels < minScrollPixels) {
         scrollPosition.correctPixels(
@@ -389,22 +406,41 @@ mixin _ScrollAwareSheetActivityMixin
         );
         delta -= scrollPosition.pixels - oldScrollPixels;
       }
-      // If the sheet is not at top, drag it up as much as possible
-      // until it reaches at 'maxOffset'.
-      if (cmp.isLessThan(newOffset, maxOffset)) {
-        final physicsAppliedDelta = _applyPhysicsToOffset(delta);
-        assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
-        newOffset = min(newOffset + physicsAppliedDelta, maxOffset);
-        delta -= newOffset - oldOffset;
-      }
-      // If the sheet is at the top, scroll the content up as much as possible.
-      if (cmp.isGreaterThanOrApprox(newOffset, maxOffset) &&
-          scrollPosition.extentAfter > 0) {
-        final oldScrollPixels = scrollPosition.pixels;
-        scrollPosition.correctPixels(
-          min(scrollPosition.pixels + delta, maxScrollPixels),
-        );
-        delta -= scrollPosition.pixels - oldScrollPixels;
+      if (contentFirst) {
+        // Scroll the content up first, then hand the leftover drag to the
+        // sheet so it expands 1:1 once the content reaches its bottom edge.
+        if (scrollPosition.extentAfter > 0) {
+          final oldScrollPixels = scrollPosition.pixels;
+          scrollPosition.correctPixels(
+            min(scrollPosition.pixels + delta, maxScrollPixels),
+          );
+          delta -= scrollPosition.pixels - oldScrollPixels;
+        }
+        if (cmp.isLessThan(newOffset, maxOffset)) {
+          final physicsAppliedDelta = _applyPhysicsToOffset(delta);
+          assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
+          newOffset = min(newOffset + physicsAppliedDelta, maxOffset);
+          delta -= newOffset - oldOffset;
+        }
+      } else {
+        // If the sheet is not at top, drag it up as much as possible
+        // until it reaches at 'maxOffset'.
+        if (cmp.isLessThan(newOffset, maxOffset)) {
+          final physicsAppliedDelta = _applyPhysicsToOffset(delta);
+          assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
+          newOffset = min(newOffset + physicsAppliedDelta, maxOffset);
+          delta -= newOffset - oldOffset;
+        }
+        // If the sheet is at the top, scroll the content up as much as
+        // possible.
+        if (cmp.isGreaterThanOrApprox(newOffset, maxOffset) &&
+            scrollPosition.extentAfter > 0) {
+          final oldScrollPixels = scrollPosition.pixels;
+          scrollPosition.correctPixels(
+            min(scrollPosition.pixels + delta, maxScrollPixels),
+          );
+          delta -= scrollPosition.pixels - oldScrollPixels;
+        }
       }
       // If the content cannot be scrolled up anymore, drag the sheet up
       // to make a bouncing effect (if needed).
