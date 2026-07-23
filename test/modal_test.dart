@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -757,6 +758,127 @@ void main() {
       await tester.pumpAndSettle();
       expect(env.modalRoute.animation!.isCompleted, isTrue);
       expect(env.modalRoute.effectiveCurve, Curves.easeInOut);
+    });
+  });
+
+  // Regression tests for https://github.com/fujidaiti/smooth_sheets/issues/570
+  group('Velocity-seeded spring settle after swipe gesture', () {
+    ({Widget testWidget, ModalSheetRoute<dynamic> modalRoute}) boilerplate({
+      required SwipeDismissSensitivity sensitivity,
+    }) {
+      final modalRoute = ModalSheetRoute<dynamic>(
+        swipeDismissible: true,
+        swipeDismissSensitivity: sensitivity,
+        builder: (context) {
+          return Sheet(
+            child: Container(
+              key: const Key('sheet'),
+              color: Colors.white,
+              width: double.infinity,
+              height: 600,
+            ),
+          );
+        },
+      );
+      return (
+        testWidget: _Boilerplate(modalRoute: modalRoute),
+        modalRoute: modalRoute,
+      );
+    }
+
+    testWidgets(
+      'a faster downward release dips the restore further before '
+      'springing back to fully-open',
+      (tester) async {
+        // Both flings are too slow/short to dismiss, so the sheet is restored.
+        const sensitivity = SwipeDismissSensitivity(
+          minFlingVelocityRatio: 5.0,
+          dismissalOffset: SheetOffset.absolute(0),
+        );
+
+        Future<double> restoreDip(double flingSpeed) async {
+          // Tear down any previous tree so the imperatively-pushed modal route
+          // does not survive into this run via Navigator element reuse.
+          await tester.pumpWidget(const SizedBox());
+          final env = boilerplate(sensitivity: sensitivity);
+          await tester.pumpWidget(env.testWidget);
+          await tester.tap(find.text('Open modal'));
+          await tester.pumpAndSettle();
+
+          await tester.fling(
+            find.byKey(const Key('sheet')),
+            const Offset(0, 150),
+            flingSpeed,
+          );
+
+          final animation = env.modalRoute.animation!;
+          // The lowest value reached while the sheet springs back up.
+          var minValue = animation.value;
+          var frames = 0;
+          while (!animation.isCompleted && frames < 200) {
+            minValue = min(minValue, animation.value);
+            await tester.pump(const Duration(milliseconds: 16));
+            frames++;
+          }
+          await tester.pumpAndSettle();
+          return minValue;
+        }
+
+        final dipFast = await restoreDip(600);
+        final dipSlow = await restoreDip(100);
+
+        expect(
+          dipFast,
+          lessThan(dipSlow),
+          reason:
+              'A faster downward release should carry the sheet further '
+              'down (a lower minimum value) before the spring restores it.',
+        );
+      },
+    );
+
+    testWidgets('a faster downward fling dismisses the modal sooner', (
+      tester,
+    ) async {
+      // Both flings are fast enough to dismiss the modal.
+      const sensitivity = SwipeDismissSensitivity(
+        minFlingVelocityRatio: 1.0,
+        dismissalOffset: SheetOffset.absolute(0),
+      );
+
+      Future<int> dismissTime(double flingSpeed) async {
+        await tester.pumpWidget(const SizedBox());
+        final env = boilerplate(sensitivity: sensitivity);
+        await tester.pumpWidget(env.testWidget);
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 150),
+          flingSpeed,
+        );
+
+        final sheet = find.byKey(const Key('sheet'));
+        var elapsed = 0;
+        while (sheet.evaluate().isNotEmpty && elapsed < 3200) {
+          await tester.pump(const Duration(milliseconds: 16));
+          elapsed += 16;
+        }
+        await tester.pumpAndSettle();
+        return elapsed;
+      }
+
+      final timeFast = await dismissTime(2400);
+      final timeSlow = await dismissTime(950);
+
+      expect(
+        timeFast,
+        lessThan(timeSlow),
+        reason:
+            'A faster downward fling should close the modal sooner '
+            'because the pop spring is seeded with the release velocity.',
+      );
     });
   });
 

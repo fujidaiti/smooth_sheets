@@ -1,7 +1,5 @@
-import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart' show SpringSimulation;
 import 'package:meta/meta.dart';
 
 import 'drag.dart';
@@ -10,8 +8,17 @@ import 'internal/float_comp.dart';
 import 'model.dart' show SheetOffset;
 import 'viewport.dart';
 
-const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
-const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
+/// The spring used to settle the transition animation after a swipe gesture,
+/// both when restoring the sheet to its neutral position and when dismissing.
+///
+/// This mirrors the default sheet spring in `physics.dart` (an overdamped
+/// spring with a damping ratio of 1.1), so the motion never oscillates past
+/// the fully-open or fully-closed extremes.
+final _kModalTransitionSpring = SpringDescription.withDampingRatio(
+  mass: 0.5,
+  stiffness: 100.0,
+  ratio: 1.1,
+);
 
 /// {@template modal_sheet_barrier_builder}
 /// A builder for creating a custom modal barrier.
@@ -217,6 +224,31 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   // Provides access to the AnimationController of this route that is
   // marked as protected, allowing it to be used by SheetDismissible.
   AnimationController get _controller => controller!;
+
+  /// The release velocity of a swipe-to-dismiss gesture, in transition
+  /// controller units (fraction of the viewport height per second).
+  ///
+  /// Set by [_SheetDismissibleState] right before it pops the route, and
+  /// consumed once by [createSimulation] to drive the pop transition with a
+  /// velocity-seeded spring. It is `null` for any non-gesture pop.
+  double? _swipeDismissVelocity;
+
+  @override
+  Simulation? createSimulation({required bool forward}) {
+    final velocity = _swipeDismissVelocity;
+    if (!forward && velocity != null) {
+      // Consume the velocity so subsequent pops fall back to the default
+      // reverse transition.
+      _swipeDismissVelocity = null;
+      return SpringSimulation(
+        _kModalTransitionSpring,
+        _controller.value,
+        0.0,
+        velocity,
+      );
+    }
+    return super.createSimulation(forward: forward);
+  }
 
   /// The curve used for the transition animation.
   ///
@@ -544,22 +576,20 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     final didPop = invokePop && _canPopByGesture;
 
     if (didPop) {
+      // Stash the release velocity so the route's createSimulation drives the
+      // pop transition with a velocity-seeded spring.
+      _route._swipeDismissVelocity = effectiveVelocity;
       _route.navigator!.pop();
     } else if (!_transitionController.isCompleted) {
-      // The route won't be popped, so animate the transition
-      // back to the origin.
-      final fraction = 1.0 - _transitionController.value;
-      final animationTime = max(
-        (_route.transitionDuration.inMilliseconds * fraction).floor(),
-        _minReleasedPageForwardAnimationTime,
-      );
-
+      // The route won't be popped, so spring the transition back to the origin,
+      // continuing the motion from the gesture's release velocity.
       const completedAnimationValue = 1.0;
-      unawaited(
-        _transitionController.animateTo(
+      _transitionController.animateWith(
+        SpringSimulation(
+          _kModalTransitionSpring,
+          _transitionController.value,
           completedAnimationValue,
-          duration: Duration(milliseconds: animationTime),
-          curve: _releasedPageForwardAnimationCurve,
+          effectiveVelocity,
         ),
       );
     }
