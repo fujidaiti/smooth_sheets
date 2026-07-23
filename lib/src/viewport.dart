@@ -964,28 +964,34 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
   final _rectNotifier = ChangeNotifier();
 
   void setModel(SheetModel? newModel) {
-    if (newModel != _inner) {
-      final oldOffset = _inner?.offset;
-      final oldRect = _inner?.rect;
-      _inner
-        ?..removeListener(notifyListeners)
-        ..removeRectListener(_rectNotifier.notifyListeners);
-      _inner = newModel
-        ?..addListener(notifyListeners)
-        ..addRectListener(_rectNotifier.notifyListeners);
+    if (newModel == _inner) {
+      return;
+    }
 
-      if (newModel case SheetModel(
-        hasMetrics: true,
-        :final offset,
-        :final rect,
-      )) {
-        if (offset != oldOffset) {
-          notifyListeners();
-        }
-        if (rect != oldRect) {
-          _rectNotifier.notifyListeners();
-        }
-      }
+    final double? oldOffset;
+    final Rect? oldRect;
+    if (_inner case final m? when m.hasMetrics) {
+      oldOffset = m.offset;
+      oldRect = m.rect;
+    } else {
+      oldOffset = oldRect = null;
+    }
+
+    _inner
+      ?..removeListener(notifyListeners)
+      ..removeRectListener(_rectNotifier.notifyListeners);
+    _inner = newModel
+      ?..addListener(notifyListeners)
+      ..addRectListener(_rectNotifier.notifyListeners);
+
+    if (newModel == null || !newModel.hasMetrics) {
+      return;
+    }
+    if (newModel.offset != oldOffset) {
+      notifyListeners();
+    }
+    if (newModel.rect != oldRect) {
+      _rectNotifier.notifyListeners();
     }
   }
 

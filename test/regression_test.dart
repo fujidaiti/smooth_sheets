@@ -185,4 +185,29 @@ void main() {
       );
     },
   );
+
+  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/349
+  testWidgets(
+    'Disposing the sheet before its first layout should not crash',
+    (tester) async {
+      // Build the sheet but stop before the layout phase so its model is
+      // attached to the viewport without having any metrics yet.
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SheetViewport(
+            child: Sheet(child: const SizedBox(height: 400)),
+          ),
+        ),
+        phase: EnginePhase.build,
+      );
+
+      // Tearing the sheet down now detaches a model that never had metrics.
+      // Reading the outgoing model's offset/rect in that state used to throw
+      // a "Null check operator used on a null value" error.
+      await tester.pumpWidget(const MaterialApp(home: SizedBox.shrink()));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
