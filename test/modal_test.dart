@@ -880,6 +880,50 @@ void main() {
             'because the pop spring is seeded with the release velocity.',
       );
     });
+
+    testWidgets('a canceled restore settles promptly, not asymptotically', (
+      tester,
+    ) async {
+      // A short, slow drag that does not dismiss, so the sheet is restored.
+      const sensitivity = SwipeDismissSensitivity(
+        minFlingVelocityRatio: 5.0,
+        dismissalOffset: SheetOffset.absolute(0),
+      );
+      final env = boilerplate(sensitivity: sensitivity);
+      await tester.pumpWidget(env.testWidget);
+      await tester.tap(find.text('Open modal'));
+      await tester.pumpAndSettle();
+
+      final gesture = await tester.press(find.byKey(const Key('sheet')));
+      await gesture.moveBy(const Offset(0, 120));
+      await gesture.up();
+
+      final animation = env.modalRoute.animation!;
+      expect(animation.isCompleted, isFalse);
+
+      // A raw overdamped spring would keep the animation running for roughly
+      // 900ms; the settle wrapper must terminate it well before that.
+      var elapsed = 0;
+      while (!animation.isCompleted && elapsed < 900) {
+        await tester.pump(const Duration(milliseconds: 16));
+        elapsed += 16;
+      }
+
+      expect(
+        animation.isCompleted,
+        isTrue,
+        reason: 'The restore settle should complete well under 900ms.',
+      );
+      expect(
+        elapsed,
+        lessThan(700),
+        reason:
+            'The settle wrapper should cut off the slow asymptotic tail of '
+            'the overdamped spring instead of running to full rest.',
+      );
+
+      await tester.pumpAndSettle();
+    });
   });
 
   // Regression tests for https://github.com/fujidaiti/smooth_sheets/issues/250

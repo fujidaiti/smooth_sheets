@@ -20,6 +20,49 @@ final _kModalTransitionSpring = SpringDescription.withDampingRatio(
   ratio: 1.1,
 );
 
+/// The distance, in transition controller units (fraction of the viewport
+/// height), within which [_SettleSpringSimulation] considers the spring to have
+/// reached its resting position and terminates.
+///
+/// An overdamped spring approaches its target asymptotically, so the last
+/// fraction of the motion is imperceptibly slow. Cutting it off at 1% of the
+/// viewport height keeps the visible motion intact while roughly halving how
+/// long the animation — and thus the pointer-input lock — lingers.
+const _kSettleDistanceTolerance = 0.01;
+
+/// A [Simulation] that drives an overdamped [SpringSimulation] but terminates
+/// as soon as the spring reaches its [end] position, rather than waiting for
+/// the spring's velocity to also settle within tolerance.
+///
+/// An overdamped spring approaches its resting position asymptotically, so
+/// [SpringSimulation.isDone] can stay `false` for up to a second after the
+/// motion is visually complete. When such a spring drives a modal route's
+/// transition, that keeps the animation running — and pointer input disabled —
+/// long after the sheet has settled. This wrapper reports completion the moment
+/// the position is within [_kSettleDistanceTolerance] of [end], so the
+/// perceived motion is unchanged but the gesture lock is released promptly.
+class _SettleSpringSimulation extends Simulation {
+  _SettleSpringSimulation(
+    SpringDescription spring,
+    double start,
+    this.end,
+    double velocity,
+  ) : _spring = SpringSimulation(spring, start, end, velocity);
+
+  final double end;
+  final SpringSimulation _spring;
+
+  @override
+  double x(double time) => isDone(time) ? end : _spring.x(time);
+
+  @override
+  double dx(double time) => isDone(time) ? 0.0 : _spring.dx(time);
+
+  @override
+  bool isDone(double time) =>
+      (end - _spring.x(time)).abs() < _kSettleDistanceTolerance;
+}
+
 /// {@template modal_sheet_barrier_builder}
 /// A builder for creating a custom modal barrier.
 ///
@@ -240,7 +283,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       // Consume the velocity so subsequent pops fall back to the default
       // reverse transition.
       _swipeDismissVelocity = null;
-      return SpringSimulation(
+      return _SettleSpringSimulation(
         _kModalTransitionSpring,
         _controller.value,
         0.0,
@@ -585,7 +628,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       // continuing the motion from the gesture's release velocity.
       const completedAnimationValue = 1.0;
       _transitionController.animateWith(
-        SpringSimulation(
+        _SettleSpringSimulation(
           _kModalTransitionSpring,
           _transitionController.value,
           completedAnimationValue,
