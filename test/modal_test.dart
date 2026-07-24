@@ -899,6 +899,100 @@ void main() {
     });
   });
 
+  // Regression tests for https://github.com/fujidaiti/smooth_sheets/issues/78
+  group('Modal barrier fade test', () {
+    const barrierColor = Colors.black54;
+    const sheetHeight = 100.0;
+
+    Widget boilerplate() {
+      return _Boilerplate(
+        modalRoute: ModalSheetRoute<dynamic>(
+          swipeDismissible: true,
+          barrierColor: barrierColor,
+          builder: (context) {
+            return Sheet(
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                width: double.infinity,
+                height: sheetHeight,
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    double currentBarrierAlpha(WidgetTester tester) {
+      final barrier = tester.widget<AnimatedModalBarrier>(
+        find.byType(AnimatedModalBarrier),
+      );
+      return barrier.color.value!.a;
+    }
+
+    testWidgets('barrier is fully opaque when the sheet is at rest', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(400, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(boilerplate());
+      await tester.tap(find.text('Open modal'));
+      await tester.pumpAndSettle();
+
+      expect(currentBarrierAlpha(tester), barrierColor.a);
+    });
+
+    testWidgets(
+      'barrier fully fades once a small sheet is dragged off by its own '
+      'height, even though that is far less than the full screen height',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(400, 900));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        await tester.pumpWidget(boilerplate());
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        final gesture = await tester.press(find.byKey(const Key('sheet')));
+        // Drag down by exactly the sheet's own height (100), which is only
+        // ~11% of the 900px screen height used by the route's transition.
+        await gesture.moveBy(const Offset(0, sheetHeight));
+
+        expect(currentBarrierAlpha(tester), closeTo(0, 0.01));
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'barrier fade tracks the fraction of the sheet dragged off, not the '
+      'fraction of the screen',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(400, 900));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        await tester.pumpWidget(boilerplate());
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        final gesture = await tester.press(find.byKey(const Key('sheet')));
+        // Drag down by half of the sheet's own height.
+        await gesture.moveBy(const Offset(0, sheetHeight / 2));
+
+        // The route's default barrierCurve (Curves.ease) is applied on top
+        // of the sheet-relative fraction, so the expected alpha is derived
+        // from that curve rather than a plain 50% of the full alpha.
+        final expectedAlpha = barrierColor.a * Curves.ease.transform(0.5);
+        expect(currentBarrierAlpha(tester), closeTo(expectedAlpha, 0.01));
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+  });
+
   group('ModalSheetRoute barrierBuilder test', () {
     Widget boilerplate({required ModalSheetRoute<dynamic> modalRoute}) {
       return MaterialApp(
