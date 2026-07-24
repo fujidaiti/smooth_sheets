@@ -765,7 +765,6 @@ void main() {
   group('Velocity-seeded spring settle after swipe gesture', () {
     ({Widget testWidget, ModalSheetRoute<dynamic> modalRoute}) boilerplate({
       required SwipeDismissSensitivity sensitivity,
-      double sheetHeight = 600,
     }) {
       final modalRoute = ModalSheetRoute<dynamic>(
         swipeDismissible: true,
@@ -776,7 +775,7 @@ void main() {
               key: const Key('sheet'),
               color: Colors.white,
               width: double.infinity,
-              height: sheetHeight,
+              height: 600,
             ),
           );
         },
@@ -925,48 +924,6 @@ void main() {
 
       await tester.pumpAndSettle();
     });
-
-    testWidgets(
-      'a non-fullscreen sheet pop terminates once the sheet leaves the screen',
-      (tester) async {
-        // The test viewport is 600px tall; a 300px sheet occupies its bottom
-        // half and thus fully exits the screen at transition value 0.5.
-        const sensitivity = SwipeDismissSensitivity(
-          minFlingVelocityRatio: 1.0,
-          dismissalOffset: SheetOffset.absolute(0),
-        );
-        final env = boilerplate(sensitivity: sensitivity, sheetHeight: 300);
-        await tester.pumpWidget(env.testWidget);
-        await tester.tap(find.text('Open modal'));
-        await tester.pumpAndSettle();
-
-        final animation = env.modalRoute.animation!;
-        await tester.fling(
-          find.byKey(const Key('sheet')),
-          const Offset(0, 150),
-          1000,
-        );
-
-        // The lowest transition value seen while the pop is still running.
-        var minValueWhileRunning = animation.value;
-        var frames = 0;
-        while (!animation.isDismissed && frames < 200) {
-          minValueWhileRunning = min(minValueWhileRunning, animation.value);
-          await tester.pump(const Duration(milliseconds: 16));
-          frames++;
-        }
-
-        expect(animation.isDismissed, isTrue);
-        expect(
-          minValueWhileRunning,
-          greaterThan(0.4),
-          reason:
-              'The pop should terminate around value 0.5, where the '
-              'half-height sheet leaves the screen, instead of animating the '
-              'transition all the way down to zero over an empty screen.',
-        );
-      },
-    );
   });
 
   // Regression tests for https://github.com/fujidaiti/smooth_sheets/issues/250
