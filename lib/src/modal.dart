@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
 import 'drag.dart';
@@ -219,19 +218,14 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   // marked as protected, allowing it to be used by SheetDismissible.
   AnimationController get _controller => controller!;
 
-  // The fraction of the sheet's own height that is currently visible on
-  // screen, in [0, 1]. Drives the barrier's fade so that it tracks the
-  // sheet's own visible extent instead of the fraction of the transition
-  // animation, which is scaled to the full viewport height and therefore
-  // fades too subtly for sheets that are much smaller than the screen.
-  // Kept in sync by _SheetDismissibleState.
-  final ValueNotifier<double> _sheetVisibleFraction = ValueNotifier(1);
-
-  @override
-  void dispose() {
-    _sheetVisibleFraction.dispose();
-    super.dispose();
-  }
+  // The sheet's own model, kept up to date by _SheetDismissibleState.
+  //
+  // Read (not listened to) by _SheetVisibleFractionTween to map the raw
+  // transition progress to the fraction of the sheet's own height that is
+  // currently visible on screen. This is only ever read while `animation`
+  // is notifying its listeners (i.e. while it's safe to do so), so there is
+  // no need to observe this model directly for changes.
+  SheetModelView? _sheetModel;
 
   /// The curve used for the transition animation.
   ///
@@ -301,10 +295,9 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         dismissible: barrierDismissible,
         semanticsLabel: barrierLabel,
         barrierSemanticsDismissible: semanticsDismissible,
-        color:
-            Animation<double>.fromValueListenable(
-              _sheetVisibleFraction,
-            ).drive(
+        color: animation!
+            .drive(_SheetVisibleFractionTween(this))
+            .drive(
               ColorTween(
                 begin: barrierColor.withValues(alpha: 0.0),
                 end: barrierColor,
@@ -319,6 +312,37 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         barrierSemanticsDismissible: semanticsDismissible,
       );
     }
+  }
+}
+
+/// Maps the raw transition progress (`0` to `1`) of a [ModalSheetRouteMixin]
+/// to the fraction of the sheet's own height that is currently visible on
+/// screen, also in `[0, 1]`.
+///
+/// The raw transition progress is scaled to the full viewport height (to
+/// keep the sheet tracking a drag-to-dismiss gesture 1:1 while the whole
+/// viewport slides off-screen), which makes it an unreliable measure of how
+/// much of the sheet itself remains visible when the sheet is much smaller
+/// than the viewport. See https://github.com/fujidaiti/smooth_sheets/issues/78.
+class _SheetVisibleFractionTween extends Animatable<double> {
+  const _SheetVisibleFractionTween(this._route);
+
+  final ModalSheetRouteMixin<dynamic> _route;
+
+  @override
+  double transform(double t) {
+    final model = _route._sheetModel;
+    if (model == null || !model.hasMetrics) {
+      return t;
+    }
+
+    final curvedProgress = _route.effectiveCurve.transform(t);
+    final slideShiftPixels = (1 - curvedProgress) * model.viewportSize.height;
+    final apparentVisiblePixels = model.offset - slideShiftPixels;
+    final sheetHeight = model.size.height;
+    return sheetHeight > 0
+        ? (apparentVisiblePixels / sheetHeight).clamp(0.0, 1.0)
+        : 0.0;
   }
 }
 
@@ -350,9 +374,6 @@ class _SheetDismissibleState extends State<_SheetDismissible>
   final GlobalKey<State<StatefulWidget>> _childGlobalKey = GlobalKey();
 
   late ModalSheetRouteMixin<dynamic> _route;
-
-  /// The sheet's own model, observed to compute [_updateSheetVisibleFraction].
-  SheetModelView? _observedSheetModel;
 
   AnimationController get _transitionController => _route._controller;
 
@@ -404,8 +425,6 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
   @override
   void dispose() {
-    _transitionController.removeListener(_updateSheetVisibleFraction);
-    _observedSheetModel?.removeListener(_updateSheetVisibleFraction);
     _popScopes.clear();
     super.dispose();
     _isDisposed = true;
@@ -431,65 +450,10 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
     _route = route! as ModalSheetRouteMixin<dynamic>;
 
-    _transitionController
-      ..removeListener(_updateSheetVisibleFraction)
-      ..addListener(_updateSheetVisibleFraction);
-
-    final sheetModel = SheetViewportState.of(context)?.model;
-    if (sheetModel != _observedSheetModel) {
-      _observedSheetModel?.removeListener(_updateSheetVisibleFraction);
-      _observedSheetModel = sheetModel
-        ?..addListener(_updateSheetVisibleFraction);
-    }
-
-    _updateSheetVisibleFraction();
-  }
-
-  /// Updates [ModalSheetRouteMixin._sheetVisibleFraction] with the fraction
-  /// of the sheet's own height that is currently visible on screen.
-  ///
-  /// This is computed rather than read directly from [_transitionController]
-  /// because that controller's value is scaled to the full viewport height
-  /// (to keep the sheet tracking the drag gesture 1:1 while the whole
-  /// viewport slides off-screen), which makes it an unreliable measure of
-  /// how much of the sheet itself remains visible when the sheet is much
-  /// smaller than the viewport. See https://github.com/fujidaiti/smooth_sheets/issues/78.
-  void _updateSheetVisibleFraction() {
-    final model = _observedSheetModel;
-    final double fraction;
-    if (model == null || !model.hasMetrics) {
-      fraction = _transitionController.value;
-    } else {
-      final curvedProgress = _route.effectiveCurve.transform(
-        _transitionController.value,
-      );
-      // Uses the model's own viewportSize rather than _navigatorSize here,
-      // since this may be invoked synchronously from a SheetModel layout
-      // notification, and reading an ancestor RenderBox's size mid-layout
-      // (as _navigatorSize does) is not permitted at that point.
-      final slideShiftPixels = (1 - curvedProgress) * model.viewportSize.height;
-      final apparentVisiblePixels = model.offset - slideShiftPixels;
-      final sheetHeight = model.size.height;
-      fraction = sheetHeight > 0
-          ? (apparentVisiblePixels / sheetHeight).clamp(0.0, 1.0)
-          : 0.0;
-    }
-
-    if (SchedulerBinding.instance.schedulerPhase ==
-        SchedulerPhase.persistentCallbacks) {
-      // This method may be invoked synchronously from a SheetModel layout
-      // notification (e.g. the sheet's initial layout, or a resize). Setting
-      // _sheetVisibleFraction directly in that case would trigger a rebuild
-      // of AnimatedModalBarrier in the middle of the current frame's layout
-      // phase, which Flutter disallows. Defer to the next frame instead.
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (!_isDisposed) {
-          _route._sheetVisibleFraction.value = fraction;
-        }
-      });
-    } else {
-      _route._sheetVisibleFraction.value = fraction;
-    }
+    // Only stored for _SheetVisibleFractionTween to read; not listened to,
+    // since it's only ever read while the route's transition animation is
+    // itself notifying its listeners. See ModalSheetRouteMixin._sheetModel.
+    _route._sheetModel = SheetViewportState.of(context)?.model;
   }
 
   set _isUserGestureInProgress(bool inProgress) {
