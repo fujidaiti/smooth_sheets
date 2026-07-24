@@ -46,10 +46,23 @@ class _SettleSpringSimulation extends Simulation {
     SpringDescription spring,
     double start,
     this.end,
-    double velocity,
-  ) : _spring = SpringSimulation(spring, start, end, velocity);
+    double velocity, {
+    double settleDistance = _kSettleDistanceTolerance,
+  }) : _settleDistance = settleDistance,
+       _spring = SpringSimulation(spring, start, end, velocity);
 
   final double end;
+
+  /// The distance from [end], in transition controller units, at which the
+  /// motion is considered finished.
+  ///
+  /// For a restore this is [_kSettleDistanceTolerance] (just the imperceptible
+  /// tail). For a dismiss it is the transition value at which the sheet has
+  /// fully left the screen — a non-fullscreen sheet exits before the value
+  /// reaches zero, so continuing to zero would only leave a non-interactive,
+  /// off-screen sheet blocking the screen.
+  final double _settleDistance;
+
   final SpringSimulation _spring;
 
   @override
@@ -59,8 +72,7 @@ class _SettleSpringSimulation extends Simulation {
   double dx(double time) => isDone(time) ? 0.0 : _spring.dx(time);
 
   @override
-  bool isDone(double time) =>
-      (end - _spring.x(time)).abs() < _kSettleDistanceTolerance;
+  bool isDone(double time) => (end - _spring.x(time)).abs() < _settleDistance;
 }
 
 /// {@template modal_sheet_barrier_builder}
@@ -276,18 +288,32 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   /// velocity-seeded spring. It is `null` for any non-gesture pop.
   double? _swipeDismissVelocity;
 
+  /// The transition value at which the sheet has fully left the screen during
+  /// a swipe-to-dismiss, expressed as a distance from the fully-closed value
+  /// (`0.0`).
+  ///
+  /// A non-fullscreen sheet exits the viewport before the transition reaches
+  /// zero (e.g. a sheet occupying half the screen disappears at value `0.5`),
+  /// so the pop spring is terminated here to avoid leaving a non-interactive,
+  /// off-screen sheet blocking the screen. Set together with
+  /// [_swipeDismissVelocity] and consumed once by [createSimulation].
+  double _swipeDismissSettleDistance = _kSettleDistanceTolerance;
+
   @override
   Simulation? createSimulation({required bool forward}) {
     final velocity = _swipeDismissVelocity;
     if (!forward && velocity != null) {
-      // Consume the velocity so subsequent pops fall back to the default
-      // reverse transition.
+      // Consume the stashed gesture state so subsequent pops fall back to the
+      // default reverse transition.
+      final settleDistance = _swipeDismissSettleDistance;
       _swipeDismissVelocity = null;
+      _swipeDismissSettleDistance = _kSettleDistanceTolerance;
       return _SettleSpringSimulation(
         _kModalTransitionSpring,
         _controller.value,
         0.0,
         velocity,
+        settleDistance: settleDistance,
       );
     }
     return super.createSimulation(forward: forward);
@@ -619,9 +645,12 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     final didPop = invokePop && _canPopByGesture;
 
     if (didPop) {
-      // Stash the release velocity so the route's createSimulation drives the
-      // pop transition with a velocity-seeded spring.
+      // Stash the release velocity and the value at which the sheet fully
+      // leaves the screen so the route's createSimulation drives the pop
+      // transition with a velocity-seeded spring that terminates as soon as the
+      // sheet is off-screen.
       _route._swipeDismissVelocity = effectiveVelocity;
+      _route._swipeDismissSettleDistance = _resolveDismissSettleDistance();
       _route.navigator!.pop();
     } else if (!_transitionController.isCompleted) {
       // The route won't be popped, so spring the transition back to the origin,
@@ -682,6 +711,36 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     }
 
     return true;
+  }
+
+  /// The transition value distance from fully-closed (`0.0`) at which the sheet
+  /// has completely left the screen.
+  ///
+  /// The pop transition slides the whole viewport down, so a sheet whose
+  /// visible height is `model.offset` pixels leaves the screen once the
+  /// viewport has been slid down by that many pixels — that is, at transition
+  /// value `1 - offset / viewportHeight`. Falls back to
+  /// [_kSettleDistanceTolerance] (fullscreen behavior) when the sheet metrics
+  /// are unavailable.
+  double _resolveDismissSettleDistance() {
+    final model = SheetViewportState.of(context)?.model;
+    if (model == null) {
+      return _kSettleDistanceTolerance;
+    }
+
+    final viewportHeight = model.viewportSize.height;
+    if (viewportHeight <= 0) {
+      return _kSettleDistanceTolerance;
+    }
+
+    final exitDistance = 1 - (model.offset / viewportHeight);
+    if (exitDistance < _kSettleDistanceTolerance) {
+      return _kSettleDistanceTolerance;
+    }
+    if (exitDistance > 1.0) {
+      return 1.0;
+    }
+    return exitDistance;
   }
 
   @override
