@@ -899,7 +899,6 @@ void main() {
     });
   });
 
-  // Regression tests for https://github.com/fujidaiti/smooth_sheets/issues/78
   group('Modal barrier fade test', () {
     const barrierColor = Colors.black54;
     const sheetHeight = 100.0;
@@ -1174,9 +1173,7 @@ void main() {
       expect(find.byKey(const Key('sheet')), findsOneWidget);
       expect(find.byType(AnimatedModalBarrier), findsOneWidget);
     });
-  });
 
-  group('barrierBuilder edge cases', () {
     testWidgets('onDismiss should only work when animation is completed', (
       tester,
     ) async {
