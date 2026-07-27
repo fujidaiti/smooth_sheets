@@ -237,6 +237,22 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       ? Curves.linear
       : transitionCurve;
 
+  // In the middle of a dismiss gesture drag, this returns Curves.linear so
+  // that the barrier's fade tracks the drag distance proportionally.
+  // Otherwise, super.barrierCurve (Curves.ease by default) is used, matching
+  // stock ModalRoute behavior for the non-drag open/close animation.
+  //
+  // Without this, the default easing curve is applied to the fraction of
+  // the sheet's own height that has been dragged off (rather than to the
+  // fraction of the full screen height, as it was designed for), which
+  // compresses most of its change into a short physical drag distance for
+  // sheets that are much smaller than the screen, making the fade feel like
+  // an abrupt jump instead of tracking the finger smoothly.
+  @override
+  Curve get barrierCurve => (navigator?.userGestureInProgress ?? false)
+      ? Curves.linear
+      : super.barrierCurve;
+
   Widget buildSheet(BuildContext context);
 
   Widget buildViewport(BuildContext context, Widget child) {
@@ -459,8 +475,16 @@ class _SheetDismissibleState extends State<_SheetDismissible>
   set _isUserGestureInProgress(bool inProgress) {
     if (inProgress && !_isUserGestureInProgress) {
       _route.navigator!.didStartUserGesture();
+      // Forces the barrier's OverlayEntry to rebuild so that it picks up
+      // the updated ModalSheetRouteMixin.barrierCurve (Curves.linear while
+      // dragging). Without this, buildModalBarrier() (and the CurveTween it
+      // bakes barrierCurve into) is only re-evaluated on the next unrelated
+      // internal state change, so the drag-time curve would never actually
+      // take effect.
+      _route.changedInternalState();
     } else if (!inProgress && _isUserGestureInProgress) {
       _route.navigator!.didStopUserGesture();
+      _route.changedInternalState();
     }
   }
 

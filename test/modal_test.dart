@@ -904,22 +904,24 @@ void main() {
     const barrierColor = Colors.black54;
     const sheetHeight = 100.0;
 
-    Widget boilerplate() {
-      return _Boilerplate(
-        modalRoute: ModalSheetRoute<dynamic>(
-          swipeDismissible: true,
-          barrierColor: barrierColor,
-          builder: (context) {
-            return Sheet(
-              child: Container(
-                key: const Key('sheet'),
-                color: Colors.white,
-                width: double.infinity,
-                height: sheetHeight,
-              ),
-            );
-          },
-        ),
+    ({Widget testWidget, ModalSheetRoute<dynamic> modalRoute}) boilerplate() {
+      final modalRoute = ModalSheetRoute<dynamic>(
+        swipeDismissible: true,
+        barrierColor: barrierColor,
+        builder: (context) {
+          return Sheet(
+            child: Container(
+              key: const Key('sheet'),
+              color: Colors.white,
+              width: double.infinity,
+              height: sheetHeight,
+            ),
+          );
+        },
+      );
+      return (
+        testWidget: _Boilerplate(modalRoute: modalRoute),
+        modalRoute: modalRoute,
       );
     }
 
@@ -936,7 +938,7 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(400, 900));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      await tester.pumpWidget(boilerplate());
+      await tester.pumpWidget(boilerplate().testWidget);
       await tester.tap(find.text('Open modal'));
       await tester.pumpAndSettle();
 
@@ -950,7 +952,7 @@ void main() {
         await tester.binding.setSurfaceSize(const Size(400, 900));
         addTearDown(() => tester.binding.setSurfaceSize(null));
 
-        await tester.pumpWidget(boilerplate());
+        await tester.pumpWidget(boilerplate().testWidget);
         await tester.tap(find.text('Open modal'));
         await tester.pumpAndSettle();
 
@@ -958,6 +960,7 @@ void main() {
         // Drag down by exactly the sheet's own height (100), which is only
         // ~11% of the 900px screen height used by the route's transition.
         await gesture.moveBy(const Offset(0, sheetHeight));
+        await tester.pump();
 
         expect(currentBarrierAlpha(tester), closeTo(0, 0.01));
 
@@ -973,21 +976,47 @@ void main() {
         await tester.binding.setSurfaceSize(const Size(400, 900));
         addTearDown(() => tester.binding.setSurfaceSize(null));
 
-        await tester.pumpWidget(boilerplate());
+        await tester.pumpWidget(boilerplate().testWidget);
         await tester.tap(find.text('Open modal'));
         await tester.pumpAndSettle();
 
         final gesture = await tester.press(find.byKey(const Key('sheet')));
         // Drag down by half of the sheet's own height.
         await gesture.moveBy(const Offset(0, sheetHeight / 2));
+        await tester.pump();
 
-        // The route's default barrierCurve (Curves.ease) is applied on top
-        // of the sheet-relative fraction, so the expected alpha is derived
-        // from that curve rather than a plain 50% of the full alpha.
-        final expectedAlpha = barrierColor.a * Curves.ease.transform(0.5);
+        // While a drag is in progress, barrierCurve is Curves.linear (see
+        // ModalSheetRouteMixin.barrierCurve), so the barrier fades exactly
+        // proportionally to the sheet-relative drag fraction, rather than
+        // through the app's default easing curve (which is only used for
+        // the non-drag open/close animation).
+        final expectedAlpha = barrierColor.a * 0.5;
         expect(currentBarrierAlpha(tester), closeTo(expectedAlpha, 0.01));
 
         await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'barrier fade still uses the default easing curve for the automatic '
+      'open animation, unaffected by the drag-time linear override',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(400, 900));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final env = boilerplate();
+        await tester.pumpWidget(env.testWidget);
+        await tester.tap(find.text('Open modal'));
+        await tester.pump();
+
+        // Advance partway through the (non-drag) open transition.
+        await tester.pump(const Duration(milliseconds: 150));
+
+        final t = env.modalRoute.animation!.value;
+        final expectedAlpha = barrierColor.a * Curves.ease.transform(t);
+        expect(currentBarrierAlpha(tester), closeTo(expectedAlpha, 0.01));
+
         await tester.pumpAndSettle();
       },
     );
