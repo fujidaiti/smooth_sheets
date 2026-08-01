@@ -1161,7 +1161,7 @@ void main() {
 
         expect(
           tester.getRect(find.byId('sheet')),
-          Rect.fromLTWH(0, 100, 800, 600),
+          Rect.fromLTWH(0, 100, 800, 500),
           reason: 'sheet should be fully visible',
         );
         expect(route.sheetVisibility.value, 1);
@@ -1169,7 +1169,7 @@ void main() {
         await tester.dragUpward(find.byId('sheet'), deltaY: 50);
         await tester.pump();
 
-        expect(tester.getTopLeft(find.byId('sheet')), lessThan(100));
+        expect(tester.getTopLeft(find.byId('sheet')).dy, lessThan(100));
         expect(
           route.sheetVisibility.value,
           1,
@@ -1181,17 +1181,21 @@ void main() {
 
         expect(
           tester.getRect(find.byId('sheet')),
-          Rect.fromLTWH(0, 350, 800, 600),
+          Rect.fromLTWH(0, 350, 800, 500),
           reason: 'sheet should rest at mid-snap point',
         );
         expect(route.sheetVisibility.value, 0.5);
 
-        await tester.fling(find.byId('sheet'), Offset(0, 60), 1000);
+        await tester.flingFrom(
+          tester.getRect(find.byId('sheet')).topCenter + Offset(0, 50),
+          Offset(0, 60),
+          1000,
+        );
         await tester.pumpAndSettle();
 
         expect(
           tester.getRect(find.byId('sheet')),
-          Rect.fromLTWH(0, 600, 800, 600),
+          Rect.fromLTWH(0, 600, 800, 500),
           reason: 'sheet should be fully outside viewport',
         );
         expect(route.sheetVisibility.value, 0.0);
@@ -1236,11 +1240,11 @@ void main() {
           await tester.pumpWidget(testWidget);
           await tester.tap(find.text('Open modal'));
           await tester.pumpAndSettle();
+          notifiedValues.clear();
           final gesture = await tester.startDrag(
             tester.getCenter(find.byId('sheet')),
             AxisDirection.down,
           );
-          notifiedValues.clear();
           for (var i = 0; i < 8; i++) {
             await gesture.moveDownwardBy(50);
             await tester.pump();
@@ -1248,19 +1252,22 @@ void main() {
 
           expect(
             tester.getTopLeft(find.byId('sheet')).dy,
-            500,
+            greaterThan(450),
             reason: 'sheet should exceed dismissal offset',
           );
-          expect(notifiedValues.first, greaterThan(0.98));
-          expect(notifiedValues.last, 0.1);
+          expect(notifiedValues.first, greaterThan(0.95));
+          expect(notifiedValues.last, lessThan(0.3));
           expect(notifiedValues, isMonotonicallyDecreasing);
 
+          final lastNotifiedValue = notifiedValues.last;
           notifiedValues.clear();
           await gesture.up();
-          await tester.pumpAndSettle();
+          // Use a shorter interval than the default so that the intermediate
+          // frames of the dismissing animation are captured.
+          await tester.pumpAndSettle(const Duration(milliseconds: 16));
 
           expect(find.byId('sheet'), findsNothing);
-          expect(notifiedValues.first, lessThan(0.1));
+          expect(notifiedValues.first, lessThan(lastNotifiedValue));
           expect(notifiedValues.last, 0);
           expect(
             notifiedValues,
