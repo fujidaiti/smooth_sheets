@@ -228,6 +228,22 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       ? Curves.linear
       : transitionCurve;
 
+  /// A notifier for the sheet's visibility in terms of a fraction between 0
+  /// and 1 inclusively.
+  late final SheetVisibilityNotifier sheetVisibility;
+
+  @override
+  void install() {
+    super.install();
+    sheetVisibility = SheetVisibilityNotifier();
+  }
+
+  @override
+  void dispose() {
+    sheetVisibility.dispose();
+    super.dispose();
+  }
+
   Widget buildSheet(BuildContext context);
 
   Widget buildViewport(BuildContext context, Widget child) {
@@ -242,10 +258,13 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   ) {
     return buildViewport(
       context,
-      _SheetDismissible(
-        enabled: swipeDismissible,
-        sensitivity: swipeDismissSensitivity,
-        child: buildSheet(context),
+      _SheetVisibilityObserver(
+        notifier: sheetVisibility,
+        child: _SheetDismissible(
+          enabled: swipeDismissible,
+          sensitivity: swipeDismissSensitivity,
+          child: buildSheet(context),
+        ),
       ),
     );
   }
@@ -814,5 +833,50 @@ class _SheetPopScopeState<T> extends State<SheetPopScope<T>> {
       onPopInvokedWithResult: widget.onPopInvokedWithResult,
       child: widget.child,
     );
+  }
+}
+
+class SheetVisibilityNotifier extends Animation<double> with ChangeNotifier {
+  @override
+  double get value => _visibility;
+  double _visibility = 0;
+
+  void _updateVisibility(double visibility) {
+    if (visibility != _visibility) {
+      _visibility = visibility;
+      notifyListeners();
+    }
+  }
+
+  @override
+  AnimationStatus get status => AnimationStatus.forward;
+
+  @override
+  void addStatusListener(AnimationStatusListener listener) {
+    // status will never change.
+  }
+
+  @override
+  void removeStatusListener(AnimationStatusListener listener) {
+    // status will never change.
+  }
+}
+
+class _SheetVisibilityObserver extends StatefulWidget {
+  const _SheetVisibilityObserver({required this.notifier, required this.child});
+
+  final SheetVisibilityNotifier notifier;
+  final Widget child;
+
+  @override
+  State<_SheetVisibilityObserver> createState() =>
+      _SheetVisibilityObserverState();
+}
+
+// TODO: observe route's animation value and inherited sheet model's offset, and update the visibility value
+class _SheetVisibilityObserverState extends State<_SheetVisibilityObserver> {
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
