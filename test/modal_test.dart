@@ -1196,7 +1196,7 @@ void main() {
         expect(
           tester.getRect(find.byId('sheet')),
           Rect.fromLTWH(0, 600, 800, 500),
-          reason: 'sheet should be fully outside viewport',
+          reason: 'entire sheet should be outside viewport',
         );
         expect(route.sheetVisibility.value, 0.0);
       });
@@ -1239,37 +1239,58 @@ void main() {
           await tester.tap(find.text('Open modal'));
           await tester.pumpAndSettle();
 
-          final notifiedValues = [route.sheetVisibility.value];
-          route.sheetVisibility.addListener(() {
-            notifiedValues.add(route.sheetVisibility.value);
-          });
           final gesture = await tester.startDrag(
             tester.getCenter(find.byId('sheet')),
             AxisDirection.down,
           );
-          for (var i = 0; i < 8; i++) {
-            await gesture.moveDownwardBy(50);
-            await tester.pump();
-          }
+          await gesture.moveDownwardBy(50 - kDragSlopDefault);
+          await tester.pump();
+          expect(route.sheetVisibility.value, moreOrLessEquals(0.9));
 
+          await gesture.moveDownwardBy(50);
+          await tester.pump();
+          expect(route.sheetVisibility.value, moreOrLessEquals(0.8));
+
+          await gesture.moveDownwardBy(50);
+          await tester.pump();
+          expect(route.sheetVisibility.value, moreOrLessEquals(0.7));
+
+          await gesture.moveDownwardBy(50);
+          await tester.pump();
+          expect(route.sheetVisibility.value, moreOrLessEquals(0.6));
+
+          await gesture.moveDownwardBy(50);
+          await tester.pump();
+          expect(route.sheetVisibility.value, moreOrLessEquals(0.5));
+
+          await gesture.moveDownwardBy(50);
+          await tester.pump();
+          expect(route.sheetVisibility.value, moreOrLessEquals(0.4));
+
+          await gesture.moveDownwardBy(50);
+          await tester.pump();
+          expect(route.sheetVisibility.value, moreOrLessEquals(0.3));
+
+          await gesture.moveDownwardBy(50);
+          await tester.pump();
+          expect(route.sheetVisibility.value, moreOrLessEquals(0.2));
           expect(
             tester.getTopLeft(find.byId('sheet')).dy,
-            greaterThan(450),
+            moreOrLessEquals(500),
             reason: 'sheet should exceed dismissal offset',
           );
-          expect(notifiedValues.first, 1.0);
-          expect(notifiedValues.last, lessThan(0.3));
-          expect(notifiedValues, isMonotonicallyDecreasing);
 
-          final lastNotifiedValue = notifiedValues.last;
-          notifiedValues.clear();
+          final notifiedValues = <double>[];
+          route.sheetVisibility.addListener(() {
+            notifiedValues.add(route.sheetVisibility.value);
+          });
           await gesture.up();
           // Use a shorter interval than the default so that the intermediate
           // frames of the dismissing animation are captured.
           await tester.pumpAndSettle(const Duration(milliseconds: 16));
 
           expect(find.byId('sheet'), findsNothing);
-          expect(notifiedValues.first, lessThan(lastNotifiedValue));
+          expect(notifiedValues.first, lessThan(0.2));
           expect(notifiedValues.last, 0);
           expect(
             notifiedValues,
