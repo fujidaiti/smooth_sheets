@@ -367,6 +367,107 @@ void main() {
     });
   });
 
+  testWidgets(
+    'Default modal barrier should fades in/out as sheet appears/disappears',
+    (tester) async {
+      const barrierLabel = 'test-barrier';
+      final capturedAlphas = <double>[];
+
+      void captureCurrentAlpha() {
+        final barrier = tester
+            .widgetList<ModalBarrier>(
+              find.byWidgetPredicate(
+                (w) => w is ModalBarrier && w.semanticsLabel == barrierLabel,
+              ),
+            )
+            .firstOrNull;
+        if (barrier?.color?.a case final a?) {
+          capturedAlphas.add(a);
+        }
+      }
+
+      final route = ModalSheetRoute<dynamic>(
+        barrierLabel: barrierLabel,
+        barrierColor: Color(0xFF000000), // alpha = 1.0
+        swipeDismissible: true,
+        swipeDismissSensitivity: SwipeDismissSensitivity(
+          dismissalOffset: SheetOffset(0.4),
+        ),
+        builder: (_) {
+          return Sheet(
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset(0.5), SheetOffset(1)],
+            ),
+            child: Container(
+              key: const Key('sheet'),
+              color: Colors.white,
+              width: double.infinity,
+              height: 600,
+            ),
+          );
+        },
+      );
+
+      await tester.pumpWidget(_Boilerplate(modalRoute: route));
+      await tester.tap(find.text('Open modal'));
+      do {
+        await tester.pump(Duration(milliseconds: 16));
+        captureCurrentAlpha();
+      } while (tester.binding.hasScheduledFrame);
+
+      expect(capturedAlphas.first, moreOrLessEquals(0, epsilon: 1e-1));
+      expect(capturedAlphas.last, 1);
+      expect(capturedAlphas, isMonotonicallyIncreasing);
+
+      capturedAlphas.clear();
+      final gesture = await tester.startDrag(
+        tester.getCenter(find.byId('sheet')),
+        AxisDirection.down,
+      );
+      await gesture.moveDownwardBy(50 - kDragSlopDefault);
+      captureCurrentAlpha();
+      for (var i = 0; i < 5; ++i) {
+        await gesture.moveDownwardBy(50);
+        captureCurrentAlpha();
+      }
+
+      expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
+      expect(
+        capturedAlphas,
+        everyElement(1),
+        reason: 'alpha should not change before transition starts',
+      );
+
+      // Drag the sheet down further, enough to dismiss it.
+      capturedAlphas.clear();
+      for (var i = 0; i < 5; ++i) {
+        await gesture.moveDownwardBy(20);
+        captureCurrentAlpha();
+      }
+
+      expect(route.animation!.value, lessThan(1));
+      expect(capturedAlphas.first, lessThan(1));
+      expect(capturedAlphas.last, moreOrLessEquals(1 / 3));
+      expect(
+        capturedAlphas,
+        isMonotonicallyDecreasing,
+        reason: 'alpha should start decreasing along with transition',
+      );
+
+      capturedAlphas.clear();
+      await gesture.up();
+      do {
+        await tester.pump(Duration(milliseconds: 16));
+        captureCurrentAlpha();
+      } while (tester.binding.hasScheduledFrame);
+
+      expect(find.byKey(const Key('sheet')), findsNothing);
+      expect(capturedAlphas.first, lessThan(1 / 3));
+      expect(capturedAlphas.last, moreOrLessEquals(0, epsilon: 1e-1));
+      expect(capturedAlphas, isMonotonicallyDecreasing);
+    },
+  );
+
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/233
   group('PopScope test', () {
     late bool isOnPopInvokedCalled;
