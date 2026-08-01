@@ -258,6 +258,21 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       ? Curves.linear
       : super.barrierCurve;
 
+  /// Reports how much of a modal sheet is currently visible on the viewport.
+  late final SheetVisibilityNotifier sheetVisibility;
+
+  @override
+  void install() {
+    super.install();
+    sheetVisibility = SheetVisibilityNotifier();
+  }
+
+  @override
+  void dispose() {
+    sheetVisibility.dispose();
+    super.dispose();
+  }
+
   Widget buildSheet(BuildContext context);
 
   Widget buildViewport(BuildContext context, Widget child) {
@@ -272,10 +287,13 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   ) {
     return buildViewport(
       context,
-      _SheetDismissible(
-        enabled: swipeDismissible,
-        sensitivity: swipeDismissSensitivity,
-        child: buildSheet(context),
+      _SheetVisibilityObserver(
+        route: this,
+        child: _SheetDismissible(
+          enabled: swipeDismissible,
+          sensitivity: swipeDismissSensitivity,
+          child: buildSheet(context),
+        ),
       ),
     );
   }
@@ -942,5 +960,141 @@ class _SheetPopScopeState<T> extends State<SheetPopScope<T>> {
       onPopInvokedWithResult: widget.onPopInvokedWithResult,
       child: widget.child,
     );
+  }
+}
+
+/// Reports how much of a modal sheet is currently visible on the viewport.
+///
+/// The [value] is the fraction (from 0 to 1, inclusively) of the sheet's
+/// height that lies within the viewport, for example:
+///
+/// - `0`: the sheet is entirely outside the viewport.
+/// - `0.5`: the upper half is visible; the rest is below the viewport.
+/// - `1`: the entire sheet is within the viewport.
+///
+/// It reflects both the route's transition animation (the push and
+/// pop animations, and the swipe-to-dismiss gesture) and the sheet's own
+/// position within the viewport (for example, dragging between snap points).
+///
+/// This object is an [Animation], so it can drive transition widgets directly.
+/// A typical use is to tie the modal barrier built by
+/// [ModalSheetRoute.barrierBuilder] to the sheet, so that the barrier fades
+/// out as the user drags the sheet down:
+///
+/// ```dart
+/// ModalSheetRoute<void>(
+///   builder: (context) => Sheet(child: ...),
+///   barrierBuilder: (route, onDismiss) {
+///     final visibility =
+///         (route as ModalSheetRouteMixin<void>).sheetVisibility;
+///     return AnimatedModalBarrier(
+///       onDismiss: onDismiss,
+///       color: visibility.drive(
+///         ColorTween(begin: Colors.transparent, end: Colors.black54),
+///       ),
+///     );
+///   },
+/// );
+/// ```
+///
+/// Listeners may be notified during the layout phase, since the sheet's
+/// position can change while the sheet is being laid out. Avoid calling
+/// [State.setState] from a listener; prefer rebuilding with an
+/// [AnimatedBuilder] or a transition widget instead.
+class SheetVisibilityNotifier extends Animation<double> with ChangeNotifier {
+  /// The fraction of the sheet's height that is visible in the viewport,
+  /// ranging from 0 (entirely hidden) to 1 (entirely visible).
+  @override
+  double get value => _visibility;
+  double _visibility = 0;
+
+  void _updateVisibility(double visibility) {
+    if (visibility != _visibility) {
+      _visibility = visibility;
+      notifyListeners();
+    }
+  }
+
+  /// Always [AnimationStatus.forward], regardless of the direction in which
+  /// the [value] is changing.
+  @override
+  AnimationStatus get status => AnimationStatus.forward;
+
+  @override
+  void addStatusListener(AnimationStatusListener listener) {
+    // status will never change.
+  }
+
+  @override
+  void removeStatusListener(AnimationStatusListener listener) {
+    // status will never change.
+  }
+}
+
+class _SheetVisibilityObserver extends StatefulWidget {
+  const _SheetVisibilityObserver({required this.route, required this.child});
+
+  final ModalSheetRouteMixin<dynamic> route;
+  final Widget child;
+
+  @override
+  State<_SheetVisibilityObserver> createState() =>
+      _SheetVisibilityObserverState();
+}
+
+class _SheetVisibilityObserverState extends State<_SheetVisibilityObserver> {
+  Animation<double> get _transition => widget.route.animation!;
+
+  SheetModelView? _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _transition.addListener(_updateVisibility);
+  }
+
+  @override
+  void dispose() {
+    _transition.removeListener(_updateVisibility);
+    _model?.removeListener(_updateVisibility);
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final model = SheetViewportState.of(context)!.model;
+    _model?.removeListener(_updateVisibility);
+    _model = model..addListener(_updateVisibility);
+    _updateVisibility();
+  }
+
+  void _updateVisibility() {
+    final model = _model;
+    if (model == null || !model.hasMetrics || widget.route.offstage) {
+      return;
+    }
+    final sheetHeight = model.size.height;
+    if (sheetHeight <= 0) {
+      widget.route.sheetVisibility._updateVisibility(0);
+      return;
+    }
+
+    // The route transition slides the entire viewport, and thus the sheet,
+    // downward by this amount. See ModalSheetRouteMixin.buildTransitions.
+    final viewportHeight = model.viewportSize.height;
+    final transitionProgress = widget.route.effectiveCurve.transform(
+      _transition.value,
+    );
+    final translation = (1 - transitionProgress) * viewportHeight;
+    final sheetTop = (viewportHeight - model.offset) + translation;
+    widget.route.sheetVisibility._updateVisibility(
+      ((viewportHeight - sheetTop) / sheetHeight).clamp(0.0, 1.0),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
