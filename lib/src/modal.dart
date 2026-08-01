@@ -228,8 +228,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
       ? Curves.linear
       : transitionCurve;
 
-  /// A notifier for the sheet's visibility in terms of a fraction between 0
-  /// and 1 inclusively.
+  /// Reports how much of a modal sheet is currently visible on the viewport.
   late final SheetVisibilityNotifier sheetVisibility;
 
   @override
@@ -836,7 +835,47 @@ class _SheetPopScopeState<T> extends State<SheetPopScope<T>> {
   }
 }
 
+/// Reports how much of a modal sheet is currently visible on the viewport.
+///
+/// The [value] is the fraction (from 0 to 1, inclusively) of the sheet's
+/// height that lies within the viewport, for example:
+///
+/// - `0`: the sheet is entirely outside the viewport.
+/// - `0.5`: the upper half is visible; the rest is below the viewport.
+/// - `1`: the entire sheet is within the viewport.
+///
+/// It reflects both the route's transition animation (the push and
+/// pop animations, and the swipe-to-dismiss gesture) and the sheet's own
+/// position within the viewport (for example, dragging between snap points).
+///
+/// This object is an [Animation], so it can drive transition widgets directly.
+/// A typical use is to tie the modal barrier built by
+/// [ModalSheetRoute.barrierBuilder] to the sheet, so that the barrier fades
+/// out as the user drags the sheet down:
+///
+/// ```dart
+/// ModalSheetRoute<void>(
+///   builder: (context) => Sheet(child: ...),
+///   barrierBuilder: (route, onDismiss) {
+///     final visibility =
+///         (route as ModalSheetRouteMixin<void>).sheetVisibility;
+///     return AnimatedModalBarrier(
+///       onDismiss: onDismiss,
+///       color: visibility.drive(
+///         ColorTween(begin: Colors.transparent, end: Colors.black54),
+///       ),
+///     );
+///   },
+/// );
+/// ```
+///
+/// Listeners may be notified during the layout phase, since the sheet's
+/// position can change while the sheet is being laid out. Avoid calling
+/// [State.setState] from a listener; prefer rebuilding with an
+/// [AnimatedBuilder] or a transition widget instead.
 class SheetVisibilityNotifier extends Animation<double> with ChangeNotifier {
+  /// The fraction of the sheet's height that is visible in the viewport,
+  /// ranging from 0 (entirely hidden) to 1 (entirely visible).
   @override
   double get value => _visibility;
   double _visibility = 0;
@@ -848,6 +887,8 @@ class SheetVisibilityNotifier extends Animation<double> with ChangeNotifier {
     }
   }
 
+  /// Always [AnimationStatus.forward], regardless of the direction in which
+  /// the [value] is changing.
   @override
   AnimationStatus get status => AnimationStatus.forward;
 
