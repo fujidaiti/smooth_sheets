@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
-import 'model.dart' show SheetOffset;
+import 'model.dart' show SheetModelView, SheetOffset;
 import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
@@ -259,7 +259,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     return buildViewport(
       context,
       _SheetVisibilityObserver(
-        notifier: sheetVisibility,
+        route: this,
         child: _SheetDismissible(
           enabled: swipeDismissible,
           sensitivity: swipeDismissSensitivity,
@@ -863,9 +863,9 @@ class SheetVisibilityNotifier extends Animation<double> with ChangeNotifier {
 }
 
 class _SheetVisibilityObserver extends StatefulWidget {
-  const _SheetVisibilityObserver({required this.notifier, required this.child});
+  const _SheetVisibilityObserver({required this.route, required this.child});
 
-  final SheetVisibilityNotifier notifier;
+  final ModalSheetRouteMixin<dynamic> route;
   final Widget child;
 
   @override
@@ -873,8 +873,57 @@ class _SheetVisibilityObserver extends StatefulWidget {
       _SheetVisibilityObserverState();
 }
 
-// TODO: observe route's animation value and inherited sheet model's offset, and update the visibility value
 class _SheetVisibilityObserverState extends State<_SheetVisibilityObserver> {
+  Animation<double> get _transition => widget.route.animation!;
+
+  SheetModelView? _model;
+
+  @override
+  void initState() {
+    super.initState();
+    _transition.addListener(_updateVisibility);
+  }
+
+  @override
+  void dispose() {
+    _transition.removeListener(_updateVisibility);
+    _model?.removeListener(_updateVisibility);
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final model = SheetViewportState.of(context)!.model;
+    _model?.removeListener(_updateVisibility);
+    _model = model..addListener(_updateVisibility);
+    _updateVisibility();
+  }
+
+  void _updateVisibility() {
+    final model = _model;
+    if (model == null || !model.hasMetrics || widget.route.offstage) {
+      return;
+    }
+    final sheetHeight = model.size.height;
+    if (sheetHeight <= 0) {
+      widget.route.sheetVisibility._updateVisibility(0);
+      return;
+    }
+
+    // The route transition slides the entire viewport, and thus the sheet,
+    // downward by this amount. See ModalSheetRouteMixin.buildTransitions.
+    final viewportHeight = model.viewportSize.height;
+    final transitionProgress = widget.route.effectiveCurve.transform(
+      _transition.value,
+    );
+    final translation = (1 - transitionProgress) * viewportHeight;
+    final sheetTop = (viewportHeight - model.offset) + translation;
+    widget.route.sheetVisibility._updateVisibility(
+      ((viewportHeight - sheetTop) / sheetHeight).clamp(0.0, 1.0),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return widget.child;

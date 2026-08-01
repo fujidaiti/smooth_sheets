@@ -1205,14 +1205,16 @@ void main() {
         'should notify listeners of visibility during push/pop animations',
         (tester) async {
           final (testWidget, route) = boilerplate();
-          final notifiedValues = <double>[];
-          route.sheetVisibility.addListener(() {
-            notifiedValues.add(route.sheetVisibility.value);
-          });
 
           await tester.pumpWidget(testWidget);
           await tester.tap(find.text('Open modal'));
-          await tester.pumpAndSettle();
+          await tester.pump();
+
+          final notifiedValues = [route.sheetVisibility.value];
+          route.sheetVisibility.addListener(() {
+            notifiedValues.add(route.sheetVisibility.value);
+          });
+          await tester.pumpAndSettle(Duration(milliseconds: 16));
 
           expect(notifiedValues.first, 0);
           expect(notifiedValues.last, 1);
@@ -1232,15 +1234,15 @@ void main() {
         'should notify listeners of visibility during swipe-to-dismiss gesture',
         (tester) async {
           final (testWidget, route) = boilerplate();
-          final notifiedValues = <double>[];
-          route.sheetVisibility.addListener(() {
-            notifiedValues.add(route.sheetVisibility.value);
-          });
 
           await tester.pumpWidget(testWidget);
           await tester.tap(find.text('Open modal'));
           await tester.pumpAndSettle();
-          notifiedValues.clear();
+
+          final notifiedValues = [route.sheetVisibility.value];
+          route.sheetVisibility.addListener(() {
+            notifiedValues.add(route.sheetVisibility.value);
+          });
           final gesture = await tester.startDrag(
             tester.getCenter(find.byId('sheet')),
             AxisDirection.down,
@@ -1255,7 +1257,7 @@ void main() {
             greaterThan(450),
             reason: 'sheet should exceed dismissal offset',
           );
-          expect(notifiedValues.first, greaterThan(0.95));
+          expect(notifiedValues.first, 1.0);
           expect(notifiedValues.last, lessThan(0.3));
           expect(notifiedValues, isMonotonicallyDecreasing);
 
