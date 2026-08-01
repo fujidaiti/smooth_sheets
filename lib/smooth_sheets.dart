@@ -10,7 +10,7 @@ export 'src/decorations.dart';
 export 'src/drag.dart' hide SheetDragController, SheetDragControllerTarget;
 export 'src/draggable.dart' show SheetDragConfiguration;
 export 'src/keyboard_dismissible.dart';
-export 'src/modal.dart' hide SheetVisibleFractionTween;
+export 'src/modal.dart';
 export 'src/modal_utils.dart';
 export 'src/model.dart'
     hide

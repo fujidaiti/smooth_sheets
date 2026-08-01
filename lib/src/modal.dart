@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
-import 'model.dart' show SheetMetrics, SheetModelView, SheetOffset;
+import 'model.dart' show SheetModelView, SheetOffset;
 import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
@@ -218,15 +219,6 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   // marked as protected, allowing it to be used by SheetDismissible.
   AnimationController get _controller => controller!;
 
-  // The sheet's own model, kept up to date by _SheetDismissibleState.
-  //
-  // Read (not listened to) via a SheetVisibleFractionTween.metrics getter to
-  // map the raw transition progress to the fraction of the sheet's own
-  // height that is currently visible on screen. This is only ever read
-  // while `animation` is notifying its listeners (i.e. while it's safe to
-  // do so), so there is no need to observe this model directly for changes.
-  SheetModelView? _sheetModel;
-
   /// The curve used for the transition animation.
   ///
   /// In the middle of a dismiss gesture drag,
@@ -236,27 +228,6 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   Curve get effectiveCurve => (navigator?.userGestureInProgress ?? false)
       ? Curves.linear
       : transitionCurve;
-
-  // Linear while the route's own dismiss-drag gesture is in progress (see
-  // effectiveCurve above), matching the finger motion. Otherwise,
-  // super.barrierCurve (Curves.ease by default) is used, matching stock
-  // ModalRoute behavior for the non-drag open/close animation.
-  //
-  // Note this only affects the fade once SheetVisibleFractionTween's
-  // fraction has started dropping below 1, which happens exactly when the
-  // route's dismiss-drag gesture engages -- before that (e.g. while a
-  // multi-snap sheet is only moving between its own snaps), the fraction
-  // stays at 1 regardless of the curve, so there's nothing to desync.
-  // Without this override, the default easing curve would apply to the
-  // fraction of the sheet's own height that has been dragged off (rather
-  // than to the fraction of the full screen height, as it was designed
-  // for), which compresses most of its change into a short physical drag
-  // distance for sheets much smaller than the screen, making the fade feel
-  // like an abrupt jump instead of tracking the finger smoothly. See #78.
-  @override
-  Curve get barrierCurve => (navigator?.userGestureInProgress ?? false)
-      ? Curves.linear
-      : super.barrierCurve;
 
   /// Reports how much of a modal sheet is currently visible on the viewport.
   late final SheetVisibilityNotifier sheetVisibility;
@@ -334,26 +305,20 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         dismissible: barrierDismissible,
         semanticsLabel: barrierLabel,
         barrierSemanticsDismissible: semanticsDismissible,
-        color: animation!
-            // Curves.linear during a drag, transitionCurve otherwise; must
-            // be re-read on every transform (rather than fixed at
-            // construction time like a plain CurveTween would), since it
-            // can change mid-animation as a gesture starts or ends.
-            .drive(_DynamicCurveTween(() => effectiveCurve))
-            .drive(
-              SheetVisibleFractionTween(
-                metrics: () {
-                  final model = _sheetModel;
-                  return model != null && model.hasMetrics ? model : null;
-                },
-              ),
-            )
-            .drive(
-              ColorTween(
-                begin: barrierColor.withValues(alpha: 0.0),
-                end: barrierColor,
-              ).chain(CurveTween(curve: barrierCurve)),
-            ),
+        // Driven by how much of the sheet is on screen rather than by the
+        // route's transition progress, so that the barrier fades in step
+        // with the sheet even when the sheet is much shorter than the
+        // viewport the transition is scaled to. See #78.
+        //
+        // barrierCurve is deliberately not applied: it is meant to shape a
+        // fade driven by the transition, and reshaping visibility with it
+        // makes the barrier lag behind the finger during a drag.
+        color: sheetVisibility.drive(
+          ColorTween(
+            begin: barrierColor.withValues(alpha: 0.0),
+            end: barrierColor,
+          ),
+        ),
       );
     } else {
       return ModalBarrier(
@@ -363,76 +328,6 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         barrierSemanticsDismissible: semanticsDismissible,
       );
     }
-  }
-}
-
-/// Applies a [Curve] that is looked up fresh on every [transform] call,
-/// rather than being fixed once at construction time like a plain
-/// [CurveTween] would be.
-///
-/// This matters when the curve itself can change over the lifetime of the
-/// underlying animation (e.g. [ModalSheetRouteMixin.effectiveCurve], which
-/// switches to [Curves.linear] mid-animation as a dismiss gesture starts or
-/// ends).
-class _DynamicCurveTween extends Animatable<double> {
-  const _DynamicCurveTween(this.curve);
-
-  final ValueGetter<Curve> curve;
-
-  @override
-  double transform(double t) => curve().transform(t);
-}
-
-/// Maps a (possibly curved) transition progress (`0` to `1`) of a
-/// [ModalSheetRouteMixin] to the fraction of the sheet that is currently
-/// visible on screen, also in `[0, 1]`, where `1` means "as visible as it
-/// was before the pop transition started displacing it".
-///
-/// A sheet resting at a snap smaller than its max height (e.g. a peeking
-/// sheet) is only partially visible on screen even when nothing is being
-/// dismissed; that partial visibility is not what this fraction measures.
-/// Instead, it measures how much of *that* (possibly already-partial)
-/// visible extent remains on screen once the pop transition's slide-shift
-/// is applied on top of it, which is why it stays at `1` for as long as
-/// `curvedProgress` does (i.e. while the sheet is only moving between its
-/// own snaps) and only starts dropping once the pop transition actually
-/// begins pushing the sheet off-screen.
-///
-/// The pop transition's slide-shift is scaled to the full viewport height
-/// (to keep the sheet tracking a drag-to-dismiss gesture 1:1 while the
-/// whole viewport slides off-screen), which would make the raw transition
-/// progress an unreliable measure of how much of the sheet itself remains
-/// visible when the sheet is much smaller than the viewport -- this tween
-/// corrects for that. See
-/// https://github.com/fujidaiti/smooth_sheets/issues/78.
-///
-/// Exposed only for testing; not part of the public API.
-@internal
-class SheetVisibleFractionTween extends Animatable<double> {
-  const SheetVisibleFractionTween({required this.metrics});
-
-  /// Returns the sheet's current metrics, or `null` if it has not been
-  /// laid out yet.
-  final ValueGetter<SheetMetrics?> metrics;
-
-  @override
-  double transform(double curvedProgress) {
-    final metrics = this.metrics();
-    if (metrics == null) {
-      return curvedProgress;
-    }
-
-    // How visible the sheet was before the pop transition's slide-shift is
-    // taken into account. Note this is the sheet's *current offset*, not
-    // its max height: a sheet resting at a smaller snap is already only
-    // partially visible, and that baseline visibility (not the sheet's
-    // full height) is what "fully visible" (fraction 1) is relative to.
-    final visibleHeightBeforeShift = metrics.offset;
-    final slideShiftPixels = (1 - curvedProgress) * metrics.viewportSize.height;
-    final apparentVisiblePixels = visibleHeightBeforeShift - slideShiftPixels;
-    return visibleHeightBeforeShift > 0
-        ? (apparentVisiblePixels / visibleHeightBeforeShift).clamp(0.0, 1.0)
-        : 0.0;
   }
 }
 
@@ -539,27 +434,13 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     );
 
     _route = route! as ModalSheetRouteMixin<dynamic>;
-
-    // Only stored for SheetVisibleFractionTween.metrics to read; not
-    // listened to, since it's only ever read while the route's transition
-    // animation is itself notifying its listeners. See
-    // ModalSheetRouteMixin._sheetModel.
-    _route._sheetModel = SheetViewportState.of(context)?.model;
   }
 
   set _isUserGestureInProgress(bool inProgress) {
     if (inProgress && !_isUserGestureInProgress) {
       _route.navigator!.didStartUserGesture();
-      // Forces the barrier's OverlayEntry to rebuild so that it picks up
-      // the updated ModalSheetRouteMixin.barrierCurve (Curves.linear while
-      // dragging). Without this, buildModalBarrier() (and the CurveTween it
-      // bakes barrierCurve into) is only re-evaluated on the next unrelated
-      // internal state change, so the drag-time curve would never actually
-      // take effect.
-      _route.changedInternalState();
     } else if (!inProgress && _isUserGestureInProgress) {
       _route.navigator!.didStopUserGesture();
-      _route.changedInternalState();
     }
   }
 
@@ -997,10 +878,10 @@ class _SheetPopScopeState<T> extends State<SheetPopScope<T>> {
 /// );
 /// ```
 ///
-/// Listeners may be notified during the layout phase, since the sheet's
-/// position can change while the sheet is being laid out. Avoid calling
-/// [State.setState] from a listener; prefer rebuilding with an
-/// [AnimatedBuilder] or a transition widget instead.
+/// The sheet's position can change while the sheet is being laid out, in
+/// which case [value] is updated immediately but listeners are not notified
+/// until the end of the frame, so that they are free to rebuild without
+/// scheduling a build during the frame that is already in progress.
 class SheetVisibilityNotifier extends Animation<double> with ChangeNotifier {
   /// The fraction of the sheet's height that is visible in the viewport,
   /// ranging from 0 (entirely hidden) to 1 (entirely visible).
@@ -1008,11 +889,38 @@ class SheetVisibilityNotifier extends Animation<double> with ChangeNotifier {
   double get value => _visibility;
   double _visibility = 0;
 
+  bool _isDisposed = false;
+  bool _isNotificationDeferred = false;
+
   void _updateVisibility(double visibility) {
-    if (visibility != _visibility) {
-      _visibility = visibility;
-      notifyListeners();
+    if (visibility == _visibility) {
+      return;
     }
+    _visibility = visibility;
+
+    final phase = SchedulerBinding.instance.schedulerPhase;
+    if (phase != SchedulerPhase.persistentCallbacks) {
+      notifyListeners();
+    } else if (!_isNotificationDeferred) {
+      // The sheet's position is resolved during layout, so notifying here
+      // would make listeners schedule a build during the frame that is
+      // already being built. Widgets that animate by rebuilding, such as
+      // the AnimatedModalBarrier that ModalSheetRouteMixin drives from this
+      // notifier, cannot do that; defer to the end of the frame instead.
+      _isNotificationDeferred = true;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _isNotificationDeferred = false;
+        if (!_isDisposed) {
+          notifyListeners();
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   /// Always [AnimationStatus.forward], regardless of the direction in which
