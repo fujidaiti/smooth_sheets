@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:smooth_sheets/src/modal.dart' show SheetVisibleFractionTween;
+import 'package:smooth_sheets/src/model.dart' show ImmutableSheetMetrics;
 
 import 'src/flutter_test_x.dart';
 import 'src/test_stateful_widget.dart';
@@ -1019,6 +1021,221 @@ void main() {
         await tester.pumpAndSettle();
       },
     );
+
+    testWidgets(
+      'barrier stays fully opaque while a drag is only moving the sheet '
+      'between its own snaps, and only starts fading once the '
+      'route-level dismiss transition engages',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(400, 900));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final modalRoute = ModalSheetRoute<dynamic>(
+          swipeDismissible: true,
+          barrierColor: barrierColor,
+          builder: (context) {
+            return Sheet(
+              // Two snap points (min 0.5, max 1), so minOffset != maxOffset,
+              // unlike the single-snap sheet used by the other tests in
+              // this group. This lets the sheet absorb some of the drag
+              // itself (via its own offset) before handing off to the
+              // route's dismiss gesture.
+              snapGrid: const SheetSnapGrid(
+                snaps: [SheetOffset(0.5), SheetOffset(1)],
+              ),
+              child: Container(
+                key: const Key('sheet'),
+                color: Colors.white,
+                width: double.infinity,
+                height: sheetHeight,
+              ),
+            );
+          },
+        );
+
+        await tester.pumpWidget(_Boilerplate(modalRoute: modalRoute));
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        expect(currentBarrierAlpha(tester), barrierColor.a);
+
+        final gesture = await tester.press(find.byKey(const Key('sheet')));
+
+        // Drag by 25px, well within the sheet's own snap range (offset can
+        // move from 100 down to 50 before the route engages), so this
+        // delta is fully absorbed by the sheet's own offset (100 -> 75) --
+        // the route's transition value must not move at all. Moving
+        // between its own snaps like this isn't a dismissal, so the
+        // barrier must stay fully opaque here, even though the sheet
+        // itself is already partially off-screen.
+        await gesture.moveBy(const Offset(0, 25));
+        await tester.pump();
+
+        expect(modalRoute.animation!.value, 1.0);
+        expect(currentBarrierAlpha(tester), closeTo(barrierColor.a, 0.01));
+
+        // Drag by another 25px (50px total), reaching the sheet's
+        // minOffset exactly. Still fully absorbed by the sheet's own
+        // offset, so the route's transition value still hasn't moved, and
+        // the barrier is still fully opaque.
+        await gesture.moveBy(const Offset(0, 25));
+        await tester.pump();
+
+        expect(modalRoute.animation!.value, 1.0);
+        expect(currentBarrierAlpha(tester), closeTo(barrierColor.a, 0.01));
+
+        // Drag by another 25px (75px total). The sheet has no more room to
+        // absorb the delta (already at its minOffset), so the remainder
+        // now shifts the route's transition value: the pop transition has
+        // begun, and the barrier starts fading in sync with it, tracking
+        // how much of the sheet's currently-visible 50px extent has been
+        // pushed off-screen -- half of it (25px), in this case.
+        await gesture.moveBy(const Offset(0, 25));
+        await tester.pump();
+
+        expect(modalRoute.animation!.value, lessThan(1.0));
+        expect(
+          currentBarrierAlpha(tester),
+          closeTo(barrierColor.a * 0.5, 0.01),
+        );
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+  });
+
+  group('SheetVisibleFractionTween test', () {
+    SheetMetrics metrics({
+      required double offset,
+      required double sheetHeight,
+      required double viewportHeight,
+    }) {
+      return ImmutableSheetMetrics(
+        offset: offset,
+        minOffset: 0,
+        maxOffset: sheetHeight,
+        devicePixelRatio: 1,
+        contentBaseline: 0,
+        contentSize: Size(0, sheetHeight),
+        size: Size(0, sheetHeight),
+        viewportPadding: EdgeInsets.zero,
+        viewportSize: Size(0, viewportHeight),
+        contentMargin: EdgeInsets.zero,
+      );
+    }
+
+    // Note: the input to `transform` here is the *curved* progress (e.g.
+    // Curves.linear during a drag), not the route's raw animation value.
+    // Curve application happens in a separate stage in buildModalBarrier();
+    // see the 'Modal barrier fade test' group above for coverage of the
+    // fully composed pipeline.
+
+    test('returns the curved progress unchanged when metrics is null', () {
+      final tween = SheetVisibleFractionTween(metrics: () => null);
+
+      for (final curvedProgress in [0.0, 0.25, 0.5, 0.75, 1.0]) {
+        expect(tween.transform(curvedProgress), curvedProgress);
+      }
+    });
+
+    test(
+      'returns 1 at rest (curvedProgress=1) regardless of the '
+      'sheet-to-viewport ratio or how much of the sheet itself is '
+      'currently visible',
+      () {
+        for (final viewportHeight in [200.0, 900.0, 5000.0]) {
+          for (final offset in [20.0, 50.0, 100.0]) {
+            final tween = SheetVisibleFractionTween(
+              metrics: () => metrics(
+                offset: offset,
+                sheetHeight: 100,
+                viewportHeight: viewportHeight,
+              ),
+            );
+
+            // Even a sheet that is only partially visible on its own (e.g.
+            // resting at a snap smaller than its max height) is "fully
+            // visible" by this tween's own definition as long as nothing
+            // is displacing it (curvedProgress=1).
+            expect(tween.transform(1), 1.0);
+          }
+        }
+      },
+    );
+
+    test(
+      'fraction is proportional to the sheet\'s current offset (how '
+      'visible it already was), not its max height or the viewport height',
+      () {
+        // A small sheet (100px max height) on a much larger viewport
+        // (900px). Half of the viewport-scaled progress (curvedProgress=
+        // 0.5) means the route has shifted the whole viewport down by
+        // 450px, which is far more than the sheet's own height (100px), so
+        // the sheet should already be fully hidden (fraction clamped to 0).
+        final smallSheetTween = SheetVisibleFractionTween(
+          metrics: () =>
+              metrics(offset: 100, sheetHeight: 100, viewportHeight: 900),
+        );
+        expect(smallSheetTween.transform(0.5), 0.0);
+
+        // Dragging by only 50px (curvedProgress = 1 - 50/900) should fade
+        // the small sheet by exactly half (50 out of its own 100px height).
+        expect(smallSheetTween.transform(1 - 50 / 900), closeTo(0.5, 1e-9));
+
+        // A sheet as tall as the viewport (900px) should instead track the
+        // viewport-scaled progress 1:1.
+        final fullHeightSheetTween = SheetVisibleFractionTween(
+          metrics: () =>
+              metrics(offset: 900, sheetHeight: 900, viewportHeight: 900),
+        );
+        expect(fullHeightSheetTween.transform(0.5), closeTo(0.5, 1e-9));
+
+        // A sheet resting at a smaller snap (offset=50) than its max height
+        // (100), so it's already only half-visible on its own even before
+        // any displacement. Once displaced, the fraction is measured
+        // against that 50px of *current* visibility, not the 100px max
+        // height: dragging by 25px (half of the 50px currently visible)
+        // fades it by exactly half.
+        final peekingSheetTween = SheetVisibleFractionTween(
+          metrics: () =>
+              metrics(offset: 50, sheetHeight: 100, viewportHeight: 900),
+        );
+        expect(
+          peekingSheetTween.transform(1 - 25 / 900),
+          closeTo(0.5, 1e-9),
+        );
+      },
+    );
+
+    test('clamps to 0 when the apparent visible pixels are negative', () {
+      final tween = SheetVisibleFractionTween(
+        metrics: () =>
+            metrics(offset: 20, sheetHeight: 100, viewportHeight: 900),
+      );
+
+      // curvedProgress=0 => full 900px shift, way more than the 20px
+      // currently offset.
+      expect(tween.transform(0), 0.0);
+    });
+
+    test('clamps to 1 when curvedProgress overshoots past 1', () {
+      final tween = SheetVisibleFractionTween(
+        // e.g. an overshoot during a spring-back animation.
+        metrics: () =>
+            metrics(offset: 100, sheetHeight: 100, viewportHeight: 900),
+      );
+
+      expect(tween.transform(1.1), 1.0);
+    });
+
+    test('returns 0 when the sheet has zero offset', () {
+      final tween = SheetVisibleFractionTween(
+        metrics: () => metrics(offset: 0, sheetHeight: 0, viewportHeight: 900),
+      );
+
+      expect(tween.transform(1), 0.0);
+    });
   });
 
   group('ModalSheetRoute barrierBuilder test', () {
