@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
-import 'model.dart' show SheetMetrics, SheetModelView, SheetOffset;
+import 'model.dart';
 import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
