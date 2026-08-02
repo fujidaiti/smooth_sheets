@@ -299,19 +299,12 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     final barrierColor = this.barrierColor;
     if (barrierColor != null && barrierColor.a != 0 && !offstage) {
       assert(barrierColor != barrierColor.withValues(alpha: 0));
-      return _DefaultModalBarrier(
-        // onDismiss: onDismiss,
-        // dismissible: barrierDismissible,
-        // semanticsLabel: barrierLabel,
-        // barrierSemanticsDismissible: semanticsDismissible,
-        // color: animation!.drive(
-        //   ColorTween(
-        //     begin: barrierColor.withValues(alpha: 0.0),
-        //     end: barrierColor,
-        //   ).chain(CurveTween(curve: barrierCurve)),
-        // ),
-        color: barrierColor,
-        route: this,
+      return AnimatedModalBarrier(
+        onDismiss: onDismiss,
+        dismissible: barrierDismissible,
+        semanticsLabel: barrierLabel,
+        barrierSemanticsDismissible: semanticsDismissible,
+        color: animation!.drive(_DefaultModalBarrierColorTween(route: this)),
       );
     } else {
       return ModalBarrier(
@@ -1037,5 +1030,24 @@ class _DefaultModalBarrierState extends State<_DefaultModalBarrier> {
       color: lerpedColor,
       semanticsLabel: 'test-barrier',
     );
+  }
+}
+
+class _DefaultModalBarrierColorTween extends Animatable<Color> {
+  _DefaultModalBarrierColorTween({required this.route});
+
+  final ModalSheetRouteMixin<dynamic> route;
+
+  @override
+  Color transform(double t) {
+    var opacity = route.sheetVisibility.value;
+    if (route.sheetVisibility.swipeToDismissThreshold case final threshold
+        when threshold > 0) {
+      opacity = (opacity / threshold).clamp(0.0, 1.0);
+    }
+    if (!route.navigator!.userGestureInProgress) {
+      opacity = route.barrierCurve.transform(opacity);
+    }
+    return Color.lerp(const Color(0x00000000), route.barrierColor, opacity)!;
   }
 }
