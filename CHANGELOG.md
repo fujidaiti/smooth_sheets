@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.1.0 - 2026-08-02
-- feat: Add SheetVisibilityNotifier to observe how much of a modal sheet is visible ([#576](https://github.com/fujidaiti/smooth_sheets/pull/576)) - [d8b826b](https://github.com/fujidaiti/smooth_sheets/commit/d8b826bee73eb637a3da041c7d00ec5040fd5504)
+- feat: Add ModalSheetRouteMixin.sheetVisibility to observe how much of a modal sheet is visible in a modal route ([#576](https://github.com/fujidaiti/smooth_sheets/pull/576)) - [d8b826b](https://github.com/fujidaiti/smooth_sheets/commit/d8b826bee73eb637a3da041c7d00ec5040fd5504)
 - fix: Modal barrier fade too subtle for small sheets ([#577](https://github.com/fujidaiti/smooth_sheets/pull/577)) - [473daa9](https://github.com/fujidaiti/smooth_sheets/commit/473daa966fef628e005037ea144f549602742bb1)
 - fix: Null check operator error in _LazySheetModelView.setModel due to uninitialized old model offset ([#571](https://github.com/fujidaiti/smooth_sheets/pull/571)) - [bbdc96c](https://github.com/fujidaiti/smooth_sheets/commit/bbdc96c102677937d838a6a7541304b9e842b154)
 
