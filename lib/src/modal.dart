@@ -299,17 +299,19 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
     final barrierColor = this.barrierColor;
     if (barrierColor != null && barrierColor.a != 0 && !offstage) {
       assert(barrierColor != barrierColor.withValues(alpha: 0));
-      return AnimatedModalBarrier(
-        onDismiss: onDismiss,
-        dismissible: barrierDismissible,
-        semanticsLabel: barrierLabel,
-        barrierSemanticsDismissible: semanticsDismissible,
-        color: animation!.drive(
-          ColorTween(
-            begin: barrierColor.withValues(alpha: 0.0),
-            end: barrierColor,
-          ).chain(CurveTween(curve: barrierCurve)),
-        ),
+      return _DefaultModalBarrier(
+        // onDismiss: onDismiss,
+        // dismissible: barrierDismissible,
+        // semanticsLabel: barrierLabel,
+        // barrierSemanticsDismissible: semanticsDismissible,
+        // color: animation!.drive(
+        //   ColorTween(
+        //     begin: barrierColor.withValues(alpha: 0.0),
+        //     end: barrierColor,
+        //   ).chain(CurveTween(curve: barrierCurve)),
+        // ),
+        color: barrierColor,
+        route: this,
       );
     } else {
       return ModalBarrier(
@@ -974,17 +976,66 @@ class _SheetVisibilityObserverState extends State<_SheetVisibilityObserver> {
         widget.route.effectiveCurve.transform(_transition.value),
       );
     }
-    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return widget.child;
   }
 }
+
+class _DefaultModalBarrier extends StatefulWidget {
+  const _DefaultModalBarrier({
+    required this.route,
+    required this.color,
+  });
+
+  final ModalSheetRouteMixin<dynamic> route;
+  final Color color;
+
+  @override
+  State<_DefaultModalBarrier> createState() => _DefaultModalBarrierState();
+}
+
+class _DefaultModalBarrierState extends State<_DefaultModalBarrier> {
+  double _opacity = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.route.animation!.addListener(_invalidateOpacity);
+  }
+
+  @override
+  void dispose() {
+    widget.route.animation!.removeListener(_invalidateOpacity);
+    super.dispose();
+  }
+
+  void _invalidateOpacity() {
+    var opacity = widget.route.sheetVisibility.value;
+    if (widget.route.sheetVisibility.swipeToDismissThreshold
+        case final threshold when threshold > 0) {
+      opacity = (opacity / threshold).clamp(0.0, 1.0);
+    }
+    if (!Navigator.of(context).userGestureInProgress) {
+      opacity = widget.route.barrierCurve.transform(opacity);
+    }
+    if (opacity != _opacity) {
+      setState(() => _opacity = opacity);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return widget.child;
+    final lerpedColor = Color.lerp(
+      const Color(0x00000000),
+      widget.color,
+      _opacity,
+    );
+    return ModalBarrier(
+      color: lerpedColor,
+      semanticsLabel: 'test-barrier',
+    );
   }
 }

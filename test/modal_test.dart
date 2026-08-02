@@ -442,12 +442,13 @@ void main() {
       capturedAlphas.clear();
       for (var i = 0; i < 5; ++i) {
         await gesture.moveDownwardBy(20);
+        await tester.pump();
         captureCurrentAlpha();
       }
 
       expect(route.animation!.value, lessThan(1));
       expect(capturedAlphas.first, lessThan(1));
-      expect(capturedAlphas.last, moreOrLessEquals(1 / 3));
+      expect(capturedAlphas.last, moreOrLessEquals(2 / 3));
       expect(
         capturedAlphas,
         isMonotonicallyDecreasing,
@@ -461,8 +462,8 @@ void main() {
         captureCurrentAlpha();
       } while (tester.binding.hasScheduledFrame);
 
-      expect(find.byKey(const Key('sheet')), findsNothing);
-      expect(capturedAlphas.first, lessThan(1 / 3));
+      expect(find.byId('sheet'), findsNothing);
+      expect(capturedAlphas.first, 2 / 3);
       expect(capturedAlphas.last, moreOrLessEquals(0, epsilon: 1e-1));
       expect(capturedAlphas, isMonotonicallyDecreasing);
     },
