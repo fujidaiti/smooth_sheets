@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.3 - 2026-06-21
+- fix: Assertion error in SheetContentScaffold when height is zero ([#558](https://github.com/fujidaiti/smooth_sheets/pull/558)) - [ba7bd77](https://github.com/fujidaiti/smooth_sheets/commit/ba7bd775cd0d39c89a18ec50e58feaf78c30669c)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.0.3) for more details.
+
 ## 1.0.2 - 2026-04-22
 - fix: False positive layout overflow assertion ([#545](https://github.com/fujidaiti/smooth_sheets/pull/545)) - [a1b2d03](https://github.com/fujidaiti/smooth_sheets/commit/a1b2d03dae33a1c71bb1c8c7128668ecb0299311)
 
