@@ -304,7 +304,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         dismissible: barrierDismissible,
         semanticsLabel: barrierLabel,
         barrierSemanticsDismissible: semanticsDismissible,
-        color: animation!.drive(_DefaultModalBarrierColorTween(route: this)),
+        color: _DefaultModalBarrierColorAnimation(route: this),
       );
     } else {
       return ModalBarrier(
@@ -1033,21 +1033,53 @@ class _DefaultModalBarrierState extends State<_DefaultModalBarrier> {
   }
 }
 
-class _DefaultModalBarrierColorTween extends Animatable<Color> {
-  _DefaultModalBarrierColorTween({required this.route});
+@internal
+@visibleForTesting
+const Curve kDefaultModalBarrierCurve = Curves.ease;
+
+class _DefaultModalBarrierColorAnimation extends Animation<Color> {
+  _DefaultModalBarrierColorAnimation({required this.route});
 
   final ModalSheetRouteMixin<dynamic> route;
 
   @override
-  Color transform(double t) {
+  void addListener(VoidCallback listener) =>
+      route.animation!.addListener(listener);
+
+  @override
+  void removeListener(VoidCallback listener) =>
+      route.animation!.removeListener(listener);
+
+  @override
+  void addStatusListener(AnimationStatusListener listener) =>
+      route.animation!.addStatusListener(listener);
+
+  @override
+  void removeStatusListener(AnimationStatusListener listener) =>
+      route.animation!.removeStatusListener(listener);
+
+  @override
+  AnimationStatus get status => route.animation!.status;
+
+  @override
+  Color get value {
+    if (!route.navigator!.userGestureInProgress) {
+      return Color.lerp(
+        route.barrierColor!.withAlpha(0),
+        route.barrierColor,
+        kDefaultModalBarrierCurve.transform(route.animation!.value),
+      )!;
+    }
+
     var opacity = route.sheetVisibility.value;
     if (route.sheetVisibility.swipeToDismissThreshold case final threshold
         when threshold > 0) {
       opacity = (opacity / threshold).clamp(0.0, 1.0);
     }
-    if (!route.navigator!.userGestureInProgress) {
-      opacity = route.barrierCurve.transform(opacity);
-    }
-    return Color.lerp(const Color(0x00000000), route.barrierColor, opacity)!;
+    return Color.lerp(
+      route.barrierColor!.withAlpha(0),
+      route.barrierColor,
+      opacity,
+    )!;
   }
 }
