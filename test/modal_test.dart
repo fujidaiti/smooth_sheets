@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
-import 'package:smooth_sheets/src/modal.dart';
 
 import 'src/flutter_test_x.dart';
 import 'src/matchers.dart';
@@ -427,7 +426,7 @@ void main() {
           final alpha = captureCurrentAlpha(tester);
           final expectedProgres = i / 10;
           expect(route.animation!.value, moreOrLessEquals(expectedProgres));
-          expect(alpha, kDefaultModalBarrierCurve.transform(expectedProgres));
+          expect(alpha, route.barrierCurve.transform(expectedProgres));
         }
 
         await tester.pumpAndSettle();
@@ -442,7 +441,7 @@ void main() {
           final alpha = captureCurrentAlpha(tester);
           final expectedProgress = i / 10;
           expect(route.animation!.value, moreOrLessEquals(expectedProgress));
-          expect(alpha, kDefaultModalBarrierCurve.transform(expectedProgress));
+          expect(alpha, route.barrierCurve.transform(expectedProgress));
         }
 
         await tester.pumpAndSettle();

@@ -304,7 +304,13 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         dismissible: barrierDismissible,
         semanticsLabel: barrierLabel,
         barrierSemanticsDismissible: semanticsDismissible,
-        color: _DefaultModalBarrierColorAnimation(route: this),
+        color: _DefaultModalBarrierColorAnimation(
+          transitionProgress: animation!,
+          userGestureInProgress: () => navigator!.userGestureInProgress,
+          sheetVisibility: sheetVisibility,
+          curve: barrierCurve,
+          color: barrierColor,
+        ),
       );
     } else {
       return ModalBarrier(
@@ -977,109 +983,53 @@ class _SheetVisibilityObserverState extends State<_SheetVisibilityObserver> {
   }
 }
 
-class _DefaultModalBarrier extends StatefulWidget {
-  const _DefaultModalBarrier({
-    required this.route,
-    required this.color,
-  });
-
-  final ModalSheetRouteMixin<dynamic> route;
-  final Color color;
-
-  @override
-  State<_DefaultModalBarrier> createState() => _DefaultModalBarrierState();
-}
-
-class _DefaultModalBarrierState extends State<_DefaultModalBarrier> {
-  double _opacity = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.route.animation!.addListener(_invalidateOpacity);
-  }
-
-  @override
-  void dispose() {
-    widget.route.animation!.removeListener(_invalidateOpacity);
-    super.dispose();
-  }
-
-  void _invalidateOpacity() {
-    var opacity = widget.route.sheetVisibility.value;
-    if (widget.route.sheetVisibility.swipeToDismissThreshold
-        case final threshold when threshold > 0) {
-      opacity = (opacity / threshold).clamp(0.0, 1.0);
-    }
-    if (!Navigator.of(context).userGestureInProgress) {
-      opacity = widget.route.barrierCurve.transform(opacity);
-    }
-    if (opacity != _opacity) {
-      setState(() => _opacity = opacity);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final lerpedColor = Color.lerp(
-      const Color(0x00000000),
-      widget.color,
-      _opacity,
-    );
-    return ModalBarrier(
-      color: lerpedColor,
-      semanticsLabel: 'test-barrier',
-    );
-  }
-}
-
-@internal
-@visibleForTesting
-const Curve kDefaultModalBarrierCurve = Curves.ease;
-
 class _DefaultModalBarrierColorAnimation extends Animation<Color> {
-  _DefaultModalBarrierColorAnimation({required this.route});
+  _DefaultModalBarrierColorAnimation({
+    required this.transitionProgress,
+    required this.userGestureInProgress,
+    required this.sheetVisibility,
+    required this.curve,
+    required this.color,
+  }) : _transparentColor = color.withAlpha(0);
 
-  final ModalSheetRouteMixin<dynamic> route;
+  final Animation<double> transitionProgress;
+  final ValueGetter<bool> userGestureInProgress;
+  final SheetVisibilityNotifier sheetVisibility;
+  final Curve curve;
+  final Color color;
+  final Color _transparentColor;
 
   @override
   void addListener(VoidCallback listener) =>
-      route.animation!.addListener(listener);
+      transitionProgress.addListener(listener);
 
   @override
   void removeListener(VoidCallback listener) =>
-      route.animation!.removeListener(listener);
+      transitionProgress.removeListener(listener);
 
   @override
   void addStatusListener(AnimationStatusListener listener) =>
-      route.animation!.addStatusListener(listener);
+      transitionProgress.addStatusListener(listener);
 
   @override
   void removeStatusListener(AnimationStatusListener listener) =>
-      route.animation!.removeStatusListener(listener);
+      transitionProgress.removeStatusListener(listener);
 
   @override
-  AnimationStatus get status => route.animation!.status;
+  AnimationStatus get status => transitionProgress.status;
 
   @override
   Color get value {
-    if (!route.navigator!.userGestureInProgress) {
-      return Color.lerp(
-        route.barrierColor!.withAlpha(0),
-        route.barrierColor,
-        kDefaultModalBarrierCurve.transform(route.animation!.value),
-      )!;
+    double opacity;
+    if (userGestureInProgress()) {
+      opacity = sheetVisibility.value;
+      if (sheetVisibility.swipeToDismissThreshold case final t when t > 0) {
+        opacity = (opacity / t).clamp(0.0, 1.0);
+      }
+    } else {
+      opacity = curve.transform(transitionProgress.value);
     }
 
-    var opacity = route.sheetVisibility.value;
-    if (route.sheetVisibility.swipeToDismissThreshold case final threshold
-        when threshold > 0) {
-      opacity = (opacity / threshold).clamp(0.0, 1.0);
-    }
-    return Color.lerp(
-      route.barrierColor!.withAlpha(0),
-      route.barrierColor,
-      opacity,
-    )!;
+    return Color.lerp(_transparentColor, color, opacity)!;
   }
 }
