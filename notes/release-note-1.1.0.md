@@ -2,7 +2,7 @@
 
 ## Add sheetVisibility to ModalSheetRouteMixin
 
-[ModalSheetRouteMixin.sheetVisibility] has been added, an `Animation<double>` that reports how much of the sheet is visible in a modal route.
+`ModalSheetRouteMixin.sheetVisibility` has been added, an `Animation<double>` that reports how much of the sheet is visible in a modal route.
 It can be used, for example, to easily create custom modal barriers that change its opacity or blurriness based on the sheet's visibility, something like this:
 
 https://github.com/user-attachments/assets/a9fef22c-7474-424a-824a-e8374eddd05c
