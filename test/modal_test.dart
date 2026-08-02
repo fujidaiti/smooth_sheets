@@ -367,6 +367,159 @@ void main() {
     });
   });
 
+  group('Default modal barrier', () {
+    const barrierLabel = 'test-barrier';
+    late List<double> capturedAlphas;
+    late ModalSheetRoute<dynamic> route;
+
+    setUp(() {
+      capturedAlphas = [];
+      route = ModalSheetRoute<dynamic>(
+        barrierLabel: barrierLabel,
+        barrierColor: Color(0xFF000000), // alpha = 1.0
+        transitionDuration: Duration(milliseconds: 300),
+        swipeDismissible: true,
+        swipeDismissSensitivity: SwipeDismissSensitivity(
+          dismissalOffset: SheetOffset(0.4),
+        ),
+        builder: (_) {
+          return Sheet(
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset(0.5), SheetOffset(1)],
+            ),
+            child: Container(
+              key: const Key('sheet'),
+              color: Colors.white,
+              width: double.infinity,
+              height: 600,
+            ),
+          );
+        },
+      );
+    });
+
+    double? captureCurrentAlpha(WidgetTester tester) {
+      final barrier = tester
+          .widgetList<ModalBarrier>(
+            find.byWidgetPredicate(
+              (w) => w is ModalBarrier && w.semanticsLabel == barrierLabel,
+            ),
+          )
+          .firstOrNull;
+
+      final alpha = barrier?.color?.a;
+      if (alpha != null) {
+        capturedAlphas.add(alpha);
+      }
+      return alpha;
+    }
+
+    testWidgets(
+      'should fade in/out along with push/pop animation',
+      (tester) async {
+        await tester.pumpWidget(_Boilerplate(modalRoute: route));
+        await tester.tap(find.text('Open modal'));
+        await tester.pump();
+
+        for (var i = 1; i <= 10; ++i) {
+          await tester.pump(Duration(milliseconds: 30));
+          final alpha = captureCurrentAlpha(tester);
+          final expectedProgres = i / 10;
+          expect(route.animation!.value, moreOrLessEquals(expectedProgres));
+          expect(alpha, route.barrierCurve.transform(expectedProgres));
+        }
+
+        await tester.pumpAndSettle();
+        expect(capturedAlphas.last, 1);
+        expect(capturedAlphas, isMonotonicallyIncreasing);
+
+        capturedAlphas.clear();
+        route.navigator!.pop();
+
+        for (var i = 10; i >= 0; --i) {
+          await tester.pump(Duration(milliseconds: 30));
+          final alpha = captureCurrentAlpha(tester);
+          final expectedProgress = i / 10;
+          expect(route.animation!.value, moreOrLessEquals(expectedProgress));
+          expect(alpha, route.barrierCurve.transform(expectedProgress));
+        }
+
+        await tester.pumpAndSettle();
+        expect(capturedAlphas.last, 0);
+        expect(capturedAlphas, isMonotonicallyDecreasing);
+      },
+    );
+
+    testWidgets(
+      'should start fading out after swipe-to-dismiss action is triggered',
+      (tester) async {
+        await tester.pumpWidget(_Boilerplate(modalRoute: route));
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+
+        capturedAlphas.clear();
+        final gesture = await tester.startDrag(
+          tester.getCenter(find.byId('sheet')),
+          AxisDirection.down,
+        );
+        await gesture.moveDownwardBy(50 - kDragSlopDefault);
+        captureCurrentAlpha(tester);
+        for (var i = 0; i < 5; ++i) {
+          await gesture.moveDownwardBy(50);
+          captureCurrentAlpha(tester);
+        }
+
+        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
+        expect(
+          capturedAlphas,
+          everyElement(1),
+          reason: 'alpha should not change before transition starts',
+        );
+
+        // Drag the sheet down further, enough to dismiss it.
+        capturedAlphas.clear();
+        for (var i = 0; i < 5; ++i) {
+          await gesture.moveDownwardBy(20);
+          await tester.pump();
+          captureCurrentAlpha(tester);
+        }
+
+        // We've dragged the minimized sheet down by 100px,
+        // which is 1/6 of the screen height.
+        expect(route.animation!.value, moreOrLessEquals(5 / 6));
+        expect(capturedAlphas.first, lessThan(1));
+        // At this point the visual sheet offset is 200px,
+        // which is 2/3 of the minimized sheet height.
+        expect(capturedAlphas.last, moreOrLessEquals(2 / 3));
+        expect(
+          capturedAlphas,
+          isMonotonicallyDecreasing,
+          reason: 'alpha should start decreasing along with transition',
+        );
+
+        capturedAlphas.clear();
+        await gesture.up();
+        await tester.pump();
+        for (var i = 1; i <= 5; ++i) {
+          await tester.pump(Duration(milliseconds: 20));
+          captureCurrentAlpha(tester);
+        }
+
+        // Although it's still in the middle of the transition,
+        // the sheet is no longer visible, and neither is the barrier.
+        expect(route.animation!.value, moreOrLessEquals(0.5));
+        expect(capturedAlphas.last, moreOrLessEquals(0));
+
+        await tester.pumpAndSettle();
+
+        expect(find.byId('sheet'), findsNothing);
+        expect(capturedAlphas.first, lessThan(2 / 3));
+        expect(capturedAlphas.last, moreOrLessEquals(0));
+        expect(capturedAlphas, isMonotonicallyDecreasing);
+      },
+    );
+  });
+
   // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/233
   group('PopScope test', () {
     late bool isOnPopInvokedCalled;

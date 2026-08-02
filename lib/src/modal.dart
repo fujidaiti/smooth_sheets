@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
-import 'model.dart' show SheetModelView, SheetOffset;
+import 'model.dart';
 import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
@@ -304,11 +304,12 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
         dismissible: barrierDismissible,
         semanticsLabel: barrierLabel,
         barrierSemanticsDismissible: semanticsDismissible,
-        color: animation!.drive(
-          ColorTween(
-            begin: barrierColor.withValues(alpha: 0.0),
-            end: barrierColor,
-          ).chain(CurveTween(curve: barrierCurve)),
+        color: _DefaultModalBarrierColorAnimation(
+          transitionProgress: animation!,
+          userGestureInProgress: () => navigator!.userGestureInProgress,
+          sheetVisibility: sheetVisibility,
+          curve: barrierCurve,
+          color: barrierColor,
         ),
       );
     } else {
@@ -880,11 +881,36 @@ class SheetVisibilityNotifier extends Animation<double> with ChangeNotifier {
   double get value => _visibility;
   double _visibility = 0;
 
+  /// Visibility threshold under which the swipe-to-dismiss action is triggered.
+  double get swipeToDismissThreshold => _threshold;
+  double _threshold = 1;
+
   void _updateVisibility(double visibility) {
     if (visibility != _visibility) {
       _visibility = visibility;
       notifyListeners();
     }
+  }
+
+  void didChangeVisualSheetPosition(
+    SheetMetrics metrics,
+    double transitionProgress,
+  ) {
+    final sheetHeight = metrics.size.height;
+    if (sheetHeight <= 0) {
+      _threshold = 1;
+      _updateVisibility(0);
+      return;
+    }
+    // The route transition slides the entire viewport, and thus the sheet,
+    // downward by this amount.
+    final viewportHeight = metrics.viewportSize.height;
+    final translation = (1 - transitionProgress) * viewportHeight;
+    final sheetTop = (viewportHeight - metrics.offset) + translation;
+    _threshold = (metrics.minOffset / sheetHeight).clamp(0.0, 1.0);
+    _updateVisibility(
+      ((viewportHeight - sheetTop) / sheetHeight).clamp(0.0, 1.0),
+    );
   }
 
   /// Always [AnimationStatus.forward], regardless of the direction in which
@@ -922,13 +948,13 @@ class _SheetVisibilityObserverState extends State<_SheetVisibilityObserver> {
   @override
   void initState() {
     super.initState();
-    _transition.addListener(_updateVisibility);
+    _transition.addListener(_invalidateVisibility);
   }
 
   @override
   void dispose() {
-    _transition.removeListener(_updateVisibility);
-    _model?.removeListener(_updateVisibility);
+    _transition.removeListener(_invalidateVisibility);
+    _model?.removeListener(_invalidateVisibility);
     super.dispose();
   }
 
@@ -936,37 +962,74 @@ class _SheetVisibilityObserverState extends State<_SheetVisibilityObserver> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final model = SheetViewportState.of(context)!.model;
-    _model?.removeListener(_updateVisibility);
-    _model = model..addListener(_updateVisibility);
-    _updateVisibility();
+    _model?.removeListener(_invalidateVisibility);
+    _model = model..addListener(_invalidateVisibility);
+    _invalidateVisibility();
   }
 
-  void _updateVisibility() {
+  void _invalidateVisibility() {
     final model = _model;
-    if (model == null || !model.hasMetrics || widget.route.offstage) {
-      return;
+    if (model != null && model.hasMetrics && !widget.route.offstage) {
+      widget.route.sheetVisibility.didChangeVisualSheetPosition(
+        model,
+        widget.route.effectiveCurve.transform(_transition.value),
+      );
     }
-    final sheetHeight = model.size.height;
-    if (sheetHeight <= 0) {
-      widget.route.sheetVisibility._updateVisibility(0);
-      return;
-    }
-
-    // The route transition slides the entire viewport, and thus the sheet,
-    // downward by this amount. See ModalSheetRouteMixin.buildTransitions.
-    final viewportHeight = model.viewportSize.height;
-    final transitionProgress = widget.route.effectiveCurve.transform(
-      _transition.value,
-    );
-    final translation = (1 - transitionProgress) * viewportHeight;
-    final sheetTop = (viewportHeight - model.offset) + translation;
-    widget.route.sheetVisibility._updateVisibility(
-      ((viewportHeight - sheetTop) / sheetHeight).clamp(0.0, 1.0),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return widget.child;
+  }
+}
+
+class _DefaultModalBarrierColorAnimation extends Animation<Color> {
+  _DefaultModalBarrierColorAnimation({
+    required this.transitionProgress,
+    required this.userGestureInProgress,
+    required this.sheetVisibility,
+    required this.curve,
+    required this.color,
+  }) : _transparentColor = color.withAlpha(0);
+
+  final Animation<double> transitionProgress;
+  final ValueGetter<bool> userGestureInProgress;
+  final SheetVisibilityNotifier sheetVisibility;
+  final Curve curve;
+  final Color color;
+  final Color _transparentColor;
+
+  @override
+  void addListener(VoidCallback listener) =>
+      transitionProgress.addListener(listener);
+
+  @override
+  void removeListener(VoidCallback listener) =>
+      transitionProgress.removeListener(listener);
+
+  @override
+  void addStatusListener(AnimationStatusListener listener) =>
+      transitionProgress.addStatusListener(listener);
+
+  @override
+  void removeStatusListener(AnimationStatusListener listener) =>
+      transitionProgress.removeStatusListener(listener);
+
+  @override
+  AnimationStatus get status => transitionProgress.status;
+
+  @override
+  Color get value {
+    double opacity;
+    if (userGestureInProgress()) {
+      opacity = sheetVisibility.value;
+      if (sheetVisibility.swipeToDismissThreshold case final t when t > 0) {
+        opacity = (opacity / t).clamp(0.0, 1.0);
+      }
+    } else {
+      opacity = curve.transform(transitionProgress.value);
+    }
+
+    return Color.lerp(_transparentColor, color, opacity)!;
   }
 }
