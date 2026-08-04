@@ -273,9 +273,30 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     required double velocity,
     required SheetScrollPosition scrollPosition,
   }) {
-    if (FloatComp.distance(
-      context.devicePixelRatio,
-    ).isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
+    final scroll = _SheetFrameScrollPosition(scrollPosition);
+    final cmp = FloatComp.distance(context.devicePixelRatio);
+
+    // The guard fires whenever the scroll position is at either
+    // extreme of its sheet-frame range: the residual velocity then
+    // cannot drive the scroll any further in at least one direction,
+    // so the sheet's own ballistic (with its snap grid) is the right
+    // owner of the hand-off.
+    //
+    // In axis-down (forward) mode these two extremes are
+    // `scrollPosition.pixels == minScrollExtent` (list at top) and
+    // `pixels == maxScrollExtent` (list at bottom); only the former
+    // was previously checked, but in practice the latter case rarely
+    // surfaces in forward mode because the user has to reach the
+    // bottom by scrolling, by which point the sheet is usually
+    // already at max.
+    //
+    // In axis-up (reversed) mode both extremes are reachable from
+    // typical start states: `sfMax` corresponds to `pixels == 0`
+    // (the natural starting position of a reversed list), and
+    // `sfMin` corresponds to `pixels == maxScrollExtent` (the back
+    // of the reversed list, after pre-scrolling forward).
+    if (cmp.isApprox(scroll.pixels, scroll.minScrollExtent) ||
+        cmp.isApprox(scroll.pixels, scroll.maxScrollExtent)) {
       final simulation = physics.createBallisticSimulation(
         velocity,
         this,
@@ -288,11 +309,14 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
       }
     }
 
-    final scrolledDistance = scrollPosition.pixels;
+    // All values below are in the sheet frame: positive means "scroll
+    // forward in the sheet's grow direction". For [AxisDirection.up]
+    // (reversed) lists this is the opposite of the scroll position's own
+    // pixel direction; [_SheetFrameScrollPosition] hides that distinction.
+    final scrolledDistance = scroll.pixels - scroll.minScrollExtent;
     final draggedDistance = offset - minOffset;
     final draggableDistance = maxOffset - minOffset;
-    final scrollableDistance =
-        scrollPosition.maxScrollExtent - scrollPosition.minScrollExtent;
+    final scrollableDistance = scroll.maxScrollExtent - scroll.minScrollExtent;
     final scrollPixelsForScrollPhysics = scrolledDistance + draggedDistance;
     final maxScrollExtentForScrollPhysics =
         draggableDistance + scrollableDistance;
@@ -301,7 +325,7 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
       // How many pixels the user can scroll and drag.
       maxScrollExtent: maxScrollExtentForScrollPhysics,
       // How many pixels the user has scrolled and dragged.
-      pixels: FloatComp.distance(context.devicePixelRatio).roundToEdgeIfApprox(
+      pixels: cmp.roundToEdgeIfApprox(
         // Round the scrollPixelsForScrollPhysics to 0.0 or the maxScrollExtent
         // if necessary to prevents issues with floating-point precision errors.
         // For example, issue #207 and #212 were caused by infinite recursion of
@@ -336,7 +360,23 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
       );
     } else {
       scrollPosition.goBallistic(velocity, calledByOwner: true);
-      goIdle();
+      // If the combined sheet+scroll simulation produced nothing, the sheet
+      // might still need a ballistic of its own — most commonly to snap back
+      // after the user released it away from a snap point. This matters in
+      // reverse mode where the user may release the gesture with the scroll
+      // position at [maxScrollExtent] (content fully scrolled forward), a
+      // state the original axis-frame check at the top of this method does
+      // not catch.
+      final sheetSimulation = physics.createBallisticSimulation(
+        velocity,
+        this,
+        snapGrid,
+      );
+      if (sheetSimulation != null) {
+        beginActivity(BallisticSheetActivity(simulation: sheetSimulation));
+      } else {
+        goIdle();
+      }
     }
   }
 
@@ -374,20 +414,24 @@ mixin _ScrollAwareSheetActivityMixin
     final cmp = FloatComp.distance(owner.context.devicePixelRatio);
     if (cmp.isApprox(offset, 0)) return 0;
 
+    // [scroll] presents the scroll position in the sheet frame so that the
+    // branches below can treat positive [offset] uniformly as "scroll
+    // forward in the sheet's grow direction", regardless of whether the
+    // underlying scrollable is reversed.
+    final scroll = _SheetFrameScrollPosition(scrollPosition);
     final maxOffset = owner.maxOffset;
     final oldOffset = owner.offset;
     final oldScrollPixels = scrollPosition.pixels;
-    final minScrollPixels = scrollPosition.minScrollExtent;
-    final maxScrollPixels = scrollPosition.maxScrollExtent;
+    final oldSheetFramePixels = scroll.pixels;
+    final sfMin = scroll.minScrollExtent;
+    final sfMax = scroll.maxScrollExtent;
     var newOffset = oldOffset;
     var delta = offset;
 
     if (offset > 0) {
-      if (scrollPosition.pixels < minScrollPixels) {
-        scrollPosition.correctPixels(
-          min(scrollPosition.pixels + delta, minScrollPixels),
-        );
-        delta -= scrollPosition.pixels - oldScrollPixels;
+      if (scroll.pixels < sfMin) {
+        scroll.correctPixels(min(scroll.pixels + delta, sfMin));
+        delta -= scroll.pixels - oldSheetFramePixels;
       }
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxOffset'.
@@ -397,18 +441,17 @@ mixin _ScrollAwareSheetActivityMixin
         newOffset = min(newOffset + physicsAppliedDelta, maxOffset);
         delta -= newOffset - oldOffset;
       }
-      // If the sheet is at the top, scroll the content up as much as possible.
+      // If the sheet is at the top, scroll the content forward (in sheet
+      // frame) as much as possible.
       if (cmp.isGreaterThanOrApprox(newOffset, maxOffset) &&
-          scrollPosition.extentAfter > 0) {
-        final oldScrollPixels = scrollPosition.pixels;
-        scrollPosition.correctPixels(
-          min(scrollPosition.pixels + delta, maxScrollPixels),
-        );
-        delta -= scrollPosition.pixels - oldScrollPixels;
+          scroll.extentAfter > 0) {
+        final localOldSfPixels = scroll.pixels;
+        scroll.correctPixels(min(scroll.pixels + delta, sfMax));
+        delta -= scroll.pixels - localOldSfPixels;
       }
-      // If the content cannot be scrolled up anymore, drag the sheet up
-      // to make a bouncing effect (if needed).
-      if (cmp.isApprox(scrollPosition.pixels, maxScrollPixels)) {
+      // If the content cannot be scrolled any further forward, drag the
+      // sheet up to make a bouncing effect (if needed).
+      if (cmp.isApprox(scroll.pixels, sfMax)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
         newOffset += physicsAppliedDelta;
@@ -423,18 +466,16 @@ mixin _ScrollAwareSheetActivityMixin
         newOffset = max(newOffset + physicsAppliedDelta, maxOffset);
         delta -= newOffset - oldOffset;
       }
-      // If the sheet is not beyond 'maxOffset', scroll the content down
-      // as much as possible.
+      // If the sheet is not beyond 'maxOffset', scroll the content backward
+      // (in sheet frame) as much as possible.
       if (cmp.isLessThanOrApprox(newOffset, maxOffset) &&
-          scrollPosition.extentBefore > 0) {
-        scrollPosition.correctPixels(
-          max(scrollPosition.pixels + delta, minScrollPixels),
-        );
-        delta -= scrollPosition.pixels - oldScrollPixels;
+          scroll.extentBefore > 0) {
+        scroll.correctPixels(max(scroll.pixels + delta, sfMin));
+        delta -= scroll.pixels - oldSheetFramePixels;
       }
-      // If the content cannot be scrolled down anymore, drag the sheet down
-      // to make a shrinking effect (if needed).
-      if (cmp.isApprox(scrollPosition.pixels, minScrollPixels)) {
+      // If the content cannot be scrolled any further backward, drag the
+      // sheet down to make a shrinking effect (if needed).
+      if (cmp.isApprox(scroll.pixels, sfMin)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newOffset += physicsAppliedDelta;
@@ -537,35 +578,47 @@ class DragScrollDrivenSheetActivity
     }
   }
 
+  /// Sign that converts a screen-space "finger up" delta to the
+  /// drag-axis frame used by [SheetDragUpdateDetails.deltaY] and
+  /// [SheetDragEndDetails.velocityY].
+  ///
+  /// - For [AxisDirection.down], `deltaY > 0` means the finger moved down,
+  ///   so an upward drag corresponds to `-deltaY` and the sheet-frame input
+  ///   needed by [_applyScrollOffset] is `-deltaY`.
+  /// - For [AxisDirection.up] (a reversed scrollable), `deltaY > 0` means
+  ///   the finger moved up, so the sheet-frame input is `deltaY`.
+  int get _sheetFrameSign =>
+      scrollPosition.axisDirection == AxisDirection.up ? 1 : -1;
+
   @override
   Offset computeMinPotentialDeltaConsumption(Offset delta) {
-    switch (delta.dy) {
-      case < 0:
-        final draggablePixels =
-            scrollPosition.extentAfter +
-            max(0.0, owner.maxOffset - owner.offset);
-        assert(draggablePixels >= 0);
-        return Offset(delta.dx, max(-1 * draggablePixels, delta.dy));
+    // `delta.dy` is in the drag-axis frame; convert to the sheet frame so
+    // the branches below stay axis-direction agnostic.
+    final sheetFrameDelta = _sheetFrameSign * delta.dy;
+    if (sheetFrameDelta == 0) return delta;
 
-      case > 0:
-        final draggablePixels =
-            scrollPosition.extentBefore +
-            max(0.0, owner.offset - owner.minOffset);
-        assert(draggablePixels >= 0);
-        return Offset(delta.dx, min(draggablePixels, delta.dy));
+    final scroll = _SheetFrameScrollPosition(scrollPosition);
+    final draggablePixels = sheetFrameDelta > 0
+        ? scroll.extentAfter + max(0.0, owner.maxOffset - owner.offset)
+        : scroll.extentBefore + max(0.0, owner.offset - owner.minOffset);
+    assert(draggablePixels >= 0);
 
-      case _:
-        return delta;
-    }
+    final clampedMagnitude = min(delta.dy.abs(), draggablePixels);
+    return Offset(delta.dx, clampedMagnitude * delta.dy.sign);
   }
 
   @override
   void onDragUpdate(SheetDragUpdateDetails details) {
-    scrollPosition.userScrollDirection = details.deltaY > 0.0
+    // `details.deltaY` is in the drag-axis frame. Convert it to the sheet
+    // frame (positive = "scroll forward / drag sheet toward leading edge").
+    final sheetFrameDelta = _sheetFrameSign * details.deltaY;
+    // `userScrollDirection` follows Flutter's convention: forward means
+    // pixels grow toward the trailing edge of the axis.
+    scrollPosition.userScrollDirection = sheetFrameDelta < 0.0
         ? ScrollDirection.forward
         : ScrollDirection.reverse;
     final oldOffset = owner.offset;
-    final overflow = _applyScrollOffset(-1 * details.deltaY);
+    final overflow = _applyScrollOffset(sheetFrameDelta);
     if (owner.offset != oldOffset) {
       owner.didDragUpdateMetrics(details);
     }
@@ -579,7 +632,7 @@ class DragScrollDrivenSheetActivity
     owner
       ..didDragEnd(details)
       ..goBallisticWithScrollPosition(
-        velocity: -1 * details.velocityY,
+        velocity: _sheetFrameSign * details.velocityY,
         scrollPosition: scrollPosition,
       );
   }
@@ -656,11 +709,10 @@ class BallisticScrollDrivenSheetActivity
       return;
     }
 
-    final scrollExtentBefore = scrollPosition.extentBefore;
-    final scrollExtentAfter = scrollPosition.extentAfter;
+    final scroll = _SheetFrameScrollPosition(scrollPosition);
     final shouldInterruptBallisticScroll =
-        (cmp.isApprox(scrollExtentBefore, 0) && velocity < 0) ||
-        (cmp.isApprox(scrollExtentAfter, 0) && velocity > 0);
+        (cmp.isApprox(scroll.extentBefore, 0) && velocity < 0) ||
+        (cmp.isApprox(scroll.extentAfter, 0) && velocity > 0);
     if (shouldInterruptBallisticScroll) {
       _end();
     }
@@ -943,6 +995,41 @@ abstract class _SheetScrollPositionDelegate {
     required double velocity,
     required SheetScrollPosition scrollPosition,
   });
+}
+
+/// A view of a [SheetScrollPosition] that exposes pixel values in the
+/// sheet's own coordinate frame.
+///
+/// In the sheet frame, positive pixel deltas always correspond to scrolling
+/// "forward in the sheet's grow direction" — i.e., toward the direction the
+/// sheet's leading edge would move if expanded. For an [AxisDirection.down]
+/// scrollable this matches the scroll position's own pixel direction; for an
+/// [AxisDirection.up] (reversed) scrollable, this view flips the pixel
+/// direction so the scroll-sync code can be written once and apply uniformly.
+class _SheetFrameScrollPosition {
+  _SheetFrameScrollPosition(this._position)
+    : _sign = _position.axisDirection == AxisDirection.up ? -1 : 1;
+
+  final SheetScrollPosition _position;
+  final int _sign;
+
+  double get pixels => _position.pixels * _sign;
+
+  double get minScrollExtent =>
+      _sign > 0 ? _position.minScrollExtent : -_position.maxScrollExtent;
+
+  double get maxScrollExtent =>
+      _sign > 0 ? _position.maxScrollExtent : -_position.minScrollExtent;
+
+  double get extentBefore =>
+      _sign > 0 ? _position.extentBefore : _position.extentAfter;
+
+  double get extentAfter =>
+      _sign > 0 ? _position.extentAfter : _position.extentBefore;
+
+  void correctPixels(double newSheetFramePixels) {
+    _position.correctPixels(newSheetFramePixels * _sign);
+  }
 }
 
 /// A [ScrollPosition] for a scrollable content in a sheet.
