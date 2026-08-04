@@ -1,3 +1,6 @@
+/// @docImport 'modal_utils.dart';
+library;
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -631,6 +634,20 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
   }
 }
 
+/// A [Page] that shows a modal sheet route using the iOS-style stacking
+/// transition.
+///
+/// When this page is pushed, the underlying route scales down and gains a
+/// rounded top corner, mimicking the sheet stacking behavior of iOS.
+///
+/// Use this with a [Navigator] that supports the [Page] API (e.g.,
+/// [Navigator.pages]) to show a Cupertino-style modal sheet as part of
+/// declarative navigation.
+///
+/// See also:
+/// - [CupertinoModalSheetRoute], for the imperative equivalent.
+/// - [showCupertinoModalSheet], a convenience function that pushes a
+///   [CupertinoModalSheetRoute].
 class CupertinoModalSheetPage<T> extends Page<T> {
   const CupertinoModalSheetPage({
     super.key,
@@ -653,23 +670,36 @@ class CupertinoModalSheetPage<T> extends Page<T> {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
 
+  /// A builder that customizes the [SheetViewport] wrapping the sheet.
+  ///
+  /// Use this to control the viewport padding (e.g., to push the sheet above
+  /// the keyboard). The `preferredTopInset` argument passed to the builder is
+  /// the recommended top padding for the viewport so the sheet is not covered
+  /// by the outgoing route's scaled-down content.
   final CupertinoSheetViewportBuilder? viewportBuilder;
 
   /// {@macro flutter.widgets.ModalRoute.maintainState}
   final bool maintainState;
 
+  /// The color of the modal barrier.
   final Color? barrierColor;
 
+  /// Whether tapping the modal barrier dismisses the sheet.
   final bool barrierDismissible;
 
+  /// Whether the sheet can be dismissed by swiping it down.
   final bool swipeDismissible;
 
+  /// Semantic label for the modal barrier used by accessibility tools.
   final String? barrierLabel;
 
+  /// Duration of the route entry/exit animation.
   final Duration transitionDuration;
 
+  /// The animation curve used for the route entry/exit transition.
   final Curve transitionCurve;
 
+  /// Fine-grained sensitivity settings for the swipe-to-dismiss gesture.
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
   /// {@macro cupertino._BaseCupertinoModalSheetRoute.overlayColor}
@@ -739,6 +769,22 @@ class _PageBasedCupertinoModalSheetRoute<T>
   }
 }
 
+/// A [PageRoute] that presents a sheet with the iOS-style stacking transition.
+///
+/// When this route is pushed, the underlying route scales down and gains a
+/// rounded top corner, mimicking the sheet stacking behavior of iOS.
+///
+/// ```dart
+/// Navigator.push(
+///   context,
+///   CupertinoModalSheetRoute(builder: (context) => MySheet()),
+/// );
+/// ```
+///
+/// See also:
+/// - [CupertinoModalSheetPage], the declarative equivalent for
+///   [Navigator.pages].
+/// - [showCupertinoModalSheet], a convenience function for this route.
 class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   CupertinoModalSheetRoute({
     super.settings,
@@ -756,8 +802,14 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.barrierBuilder,
   });
 
+  /// Builds the sheet widget shown in this route.
   final WidgetBuilder builder;
 
+  /// A builder that customizes the [SheetViewport] wrapping the sheet.
+  ///
+  /// Use this to control the viewport padding. The `preferredTopInset` argument
+  /// passed to the builder is the recommended top padding for the viewport so
+  /// the sheet is not covered by the outgoing route's scaled-down content.
   final CupertinoSheetViewportBuilder? viewportBuilder;
 
   @override

@@ -3,8 +3,28 @@ import 'package:flutter/material.dart';
 import 'model.dart';
 import 'viewport.dart';
 
-enum SheetSize { fit, stretch }
+/// Determines how a [SizedSheetDecoration] sizes the sheet vertically.
+enum SheetSize {
+  /// The sheet sizes itself to fit its content.
+  ///
+  /// The decorated widget's height matches the intrinsic height of the content.
+  fit,
 
+  /// The sheet stretches to fill the space from its current offset to the
+  /// top of the viewport.
+  ///
+  /// This is useful for creating a sheet whose visual background extends all
+  /// the way up as the user drags it higher.
+  stretch,
+}
+
+/// A base class for [SheetDecoration]s that adjust the sheet's height based
+/// on a [SheetSize] value.
+///
+/// Subclasses must implement [build] to provide the visual decoration.
+/// The [size] determines whether the sheet sizes itself to fit its content
+/// ([SheetSize.fit]) or stretches to fill the space between the sheet's
+/// bottom edge and the top of the viewport ([SheetSize.stretch]).
 abstract class SizedSheetDecoration implements SheetDecoration {
   const SizedSheetDecoration({required this.size});
 
@@ -113,6 +133,23 @@ class BoxSheetDecoration extends SizedSheetDecoration {
   }
 }
 
+/// A [SizedSheetDecoration] that delegates decoration to a builder callback.
+///
+/// Use this when the decoration depends on [BuildContext] or when you want
+/// to compose multiple widgets around the sheet content without creating
+/// a custom [SheetDecoration] subclass.
+///
+/// ```dart
+/// SheetDecorationBuilder(
+///   size: SheetSize.fit,
+///   builder: (context, child) {
+///     return ClipRRect(
+///       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+///       child: child,
+///     );
+///   },
+/// )
+/// ```
 class SheetDecorationBuilder extends SizedSheetDecoration {
   const SheetDecorationBuilder({required super.size, required this.builder});
 

@@ -1,3 +1,7 @@
+/// @docImport 'decorations.dart';
+/// @docImport 'paged_sheet.dart';
+library;
+
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -54,6 +58,26 @@ class _DraggableScrollableSheetModel
       config.scrollConfiguration;
 }
 
+/// A scrollable, draggable bottom sheet.
+///
+/// [Sheet] is the core widget of this library. It manages the sheet's
+/// position, integrates with scrollable content, and handles drag gestures.
+///
+/// ```dart
+/// Sheet(
+///   decoration: MaterialSheetDecoration(
+///     size: SheetSize.fit,
+///     borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+///   ),
+///   child: MySheetContent(),
+/// )
+/// ```
+///
+/// See also:
+/// - [SheetController], to programmatically control the sheet.
+/// - [SheetSnapGrid], to configure the snap positions.
+/// - [SheetPhysics], to configure drag and bounce behavior.
+/// - [PagedSheet], for a sheet with nested navigation.
 class Sheet extends StatelessWidget {
   const Sheet({
     super.key,
@@ -74,6 +98,10 @@ class Sheet extends StatelessWidget {
   /// {@macro SheetPosition.physics}
   final SheetPhysics? physics;
 
+  /// The positions to which this sheet can snap.
+  ///
+  /// Defaults to a [SingleSnapGrid] that snaps to fully-expanded
+  /// (`SheetOffset(1)`).
   final SheetSnapGrid snapGrid;
 
   /// An object that can be used to control and observe the sheet height.
@@ -91,6 +119,10 @@ class Sheet extends StatelessWidget {
   /// being dragged.
   final SheetDragConfiguration dragConfiguration;
 
+  /// Provides the visual appearance of the sheet.
+  ///
+  /// Use [MaterialSheetDecoration] or [BoxSheetDecoration] for common styles,
+  /// or implement [SheetDecoration] for custom appearances.
   final SheetDecoration decoration;
 
   /// {@macro viewport.BareSheet.padding}

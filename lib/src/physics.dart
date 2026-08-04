@@ -32,6 +32,19 @@ const _kDefaultSheetSpring = SpringDescription(
 /// The default [SheetPhysics] used by sheet widgets.
 const kDefaultSheetPhysics = BouncingSheetPhysics();
 
+/// Determines how a sheet responds to pointer events and boundary conditions.
+///
+/// When the user drags the sheet or releases it with a velocity,
+/// the physics object decides how much the sheet should move and
+/// whether it should bounce, clamp, or simulate ballistic motion.
+///
+/// Built-in implementations:
+/// - [ClampingSheetPhysics] prevents the sheet from going outside its bounds.
+/// - [BouncingSheetPhysics] allows the sheet to go slightly beyond its bounds
+///   with a rubber-band effect.
+///
+/// See also:
+/// - [kDefaultSheetPhysics], the default physics used when none is specified.
 abstract class SheetPhysics {
   const SheetPhysics();
 
@@ -46,12 +59,24 @@ abstract class SheetPhysics {
         _ => null,
       };
 
+  /// Returns the number of pixels that a drag of [delta] pixels would overflow
+  /// the bounds of the sheet.
+  ///
+  /// If the drag would not cause the sheet to exceed its bounds, returns 0.
   double computeOverflow(double delta, SheetMetrics metrics);
 
   // TODO: Change to return a tuple of (physicsAppliedOffset, overflow)
   // to avoid recomputation of the overflow.
+  /// Returns the actual offset change to apply when the user drags by [delta].
+  ///
+  /// Implementations may reduce the movement near boundaries (e.g., for a
+  /// rubber-band effect) or clamp it entirely.
   double applyPhysicsToOffset(double delta, SheetMetrics metrics);
 
+  /// Creates a [Simulation] that drives the sheet to a resting position
+  /// after the user releases it with the given [velocity].
+  ///
+  /// May return `null` if the sheet is already at a resting position.
   Simulation? createBallisticSimulation(
     double velocity,
     SheetMetrics metrics,
@@ -123,6 +148,13 @@ mixin SheetPhysicsMixin on SheetPhysics {
   }
 }
 
+/// A [SheetPhysics] that prevents the sheet from going beyond its offset
+/// bounds.
+///
+/// When the user drags past [SheetMetrics.minOffset] or
+/// [SheetMetrics.maxOffset], movement is clamped so the sheet stops at the
+/// boundary. After release, a spring simulation returns the sheet to the
+/// nearest snap position.
 class ClampingSheetPhysics extends SheetPhysics with SheetPhysicsMixin {
   const ClampingSheetPhysics({this.spring = _kDefaultSheetSpring});
 

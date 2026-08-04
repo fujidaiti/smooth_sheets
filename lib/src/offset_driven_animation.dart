@@ -3,6 +3,27 @@ import 'package:flutter/animation.dart';
 import 'controller.dart';
 import 'model.dart';
 
+/// An [Animation] whose value tracks the position of a sheet.
+///
+/// The animation value is `0.0` when the sheet is at [startOffset] and `1.0`
+/// when it is at [endOffset]. When the sheet is between these two offsets, the
+/// value is interpolated linearly.
+///
+/// If [startOffset] is `null`, [SheetMetrics.minOffset] is used as the start.
+/// If [endOffset] is `null`, [SheetMetrics.maxOffset] is used as the end.
+///
+/// [initialValue] is returned before the [SheetController] has a client (i.e.,
+/// before the sheet is laid out).
+///
+/// ```dart
+/// final animation = SheetOffsetDrivenAnimation(
+///   controller: sheetController,
+///   initialValue: 0.0,
+///   startOffset: SheetOffset(0.5),
+///   endOffset: SheetOffset(1.0),
+/// );
+/// // Use `animation` with FadeTransition, AnimatedBuilder, etc.
+/// ```
 class SheetOffsetDrivenAnimation extends Animation<double> {
   SheetOffsetDrivenAnimation({
     required SheetController controller,
@@ -13,8 +34,18 @@ class SheetOffsetDrivenAnimation extends Animation<double> {
        assert(initialValue >= 0.0 && initialValue <= 1.0);
 
   final SheetController _controller;
+
+  /// The animation value returned before the sheet is laid out.
   final double initialValue;
+
+  /// The sheet offset that corresponds to animation value `0.0`.
+  ///
+  /// Defaults to [SheetMetrics.minOffset] when `null`.
   final SheetOffset? startOffset;
+
+  /// The sheet offset that corresponds to animation value `1.0`.
+  ///
+  /// Defaults to [SheetMetrics.maxOffset] when `null`.
   final SheetOffset? endOffset;
 
   @override

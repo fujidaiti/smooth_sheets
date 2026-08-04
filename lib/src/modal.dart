@@ -1,3 +1,7 @@
+/// @docImport 'cupertino.dart';
+/// @docImport 'modal_utils.dart';
+library;
+
 import 'dart:async';
 import 'dart:math';
 
@@ -32,9 +36,33 @@ const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 typedef ModalSheetBarrierBuilder<T> =
     Widget Function(ModalRoute<T> route, VoidCallback onDismissCallback);
 
+/// Signature for builders that wrap a sheet in a custom [SheetViewport].
+///
+/// The [child] is the sheet widget. The returned widget must include a
+/// [SheetViewport] that contains [child].
 typedef SheetViewportBuilder =
     Widget Function(BuildContext context, Widget child);
 
+/// A [Page] that shows a modal sheet route using the standard material-style
+/// transition.
+///
+/// Use this with a [Navigator] that supports the [Page] API (e.g.,
+/// [Navigator.pages]) to show a modal sheet as part of declarative navigation.
+///
+/// ```dart
+/// Navigator(
+///   pages: [
+///     MaterialPage(child: HomeScreen()),
+///     if (showSheet)
+///       ModalSheetPage(child: MySheet()),
+///   ],
+///   onDidRemovePage: (page) { ... },
+/// )
+/// ```
+///
+/// See also:
+/// - [ModalSheetRoute], for the imperative equivalent.
+/// - [showModalSheet], a convenience function that pushes a [ModalSheetRoute].
 class ModalSheetPage<T> extends Page<T> {
   const ModalSheetPage({
     super.key,
@@ -58,25 +86,37 @@ class ModalSheetPage<T> extends Page<T> {
   /// The content to be shown in the [Route] created by this page.
   final Widget child;
 
+  /// A builder that wraps the default [SheetViewport] widget.
+  ///
+  /// Use this to customize the viewport — for example, to adjust the
+  /// padding dynamically based on the keyboard height.
   final SheetViewportBuilder? viewportBuilder;
 
   /// {@macro flutter.widgets.ModalRoute.maintainState}
   final bool maintainState;
 
+  /// Whether this page acts as a fullscreen dialog.
   final bool fullscreenDialog;
 
+  /// The color of the modal barrier.
   final Color? barrierColor;
 
+  /// Whether tapping the modal barrier dismisses the sheet.
   final bool barrierDismissible;
 
+  /// Semantic label for the modal barrier used by accessibility tools.
   final String? barrierLabel;
 
+  /// Whether the sheet can be dismissed by swiping it down.
   final bool swipeDismissible;
 
+  /// Duration of the route entry/exit animation.
   final Duration transitionDuration;
 
+  /// The animation curve used for the route entry/exit transition.
   final Curve transitionCurve;
 
+  /// Fine-grained sensitivity settings for the swipe-to-dismiss gesture.
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
   /// {@macro modal_sheet_barrier_builder}
@@ -141,6 +181,21 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   }
 }
 
+/// A [PageRoute] that presents a sheet with the standard material-style
+/// modal transition.
+///
+/// Use [showModalSheet] as a convenience, or push this route directly:
+///
+/// ```dart
+/// Navigator.push(
+///   context,
+///   ModalSheetRoute(builder: (context) => MySheet()),
+/// );
+/// ```
+///
+/// See also:
+/// - [ModalSheetPage], the declarative equivalent for [Navigator.pages].
+/// - [CupertinoModalSheetRoute], for the iOS-style stacking transition.
 class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   ModalSheetRoute({
     super.settings,
@@ -158,8 +213,13 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.barrierBuilder,
   });
 
+  /// Builds the sheet widget shown in this route.
   final WidgetBuilder builder;
 
+  /// A builder that wraps the default [SheetViewport] widget.
+  ///
+  /// Use this to customize the viewport — for example, to adjust the
+  /// padding dynamically based on the keyboard height.
   final SheetViewportBuilder? viewportBuilder;
 
   @override
