@@ -591,6 +591,21 @@ class _RenderScaffoldLayout extends RenderBox
   }
 
   @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    // Match paint order so a11y hit-testing that reverses the child list
+    // (e.g. iOS Voice Control) treats bars as above an overlapping body.
+    for (final slot in const [
+      _ScaffoldSlot.body,
+      _ScaffoldSlot.topBar,
+      _ScaffoldSlot.bottomBar,
+    ]) {
+      if (childForSlot(slot) case final child?) {
+        visitor(child);
+      }
+    }
+  }
+
+  @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     bool hitTestChild(_ScaffoldSlot slot) {
       if (childForSlot(slot) case final child?) {

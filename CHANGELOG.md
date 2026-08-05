@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+- fix: SheetContentScaffold semantics child order matches paint order so overlapping bars are not obscured by assistive technologies
+
+
 ## 1.1.0 - 2026-08-02
 - feat: Add ModalSheetRouteMixin.sheetVisibility to observe how much of a sheet is visible in a modal route ([#576](https://github.com/fujidaiti/smooth_sheets/pull/576)) - [d8b826b](https://github.com/fujidaiti/smooth_sheets/commit/d8b826bee73eb637a3da041c7d00ec5040fd5504)
 - fix: Modal barrier fade too subtle for small sheets ([#577](https://github.com/fujidaiti/smooth_sheets/pull/577)) - [473daa9](https://github.com/fujidaiti/smooth_sheets/commit/473daa966fef628e005037ea144f549602742bb1)

@@ -1708,6 +1708,75 @@ void main() {
     });
   });
 
+
+  group('SheetContentScaffold - Semantics', () {
+    testWidgets(
+      'Semantics child order matches paint order (body, topBar, bottomBar)',
+      (tester) async {
+        final semanticsHandle = tester.ensureSemantics();
+        final containerKey = UniqueKey();
+        try {
+          await tester.pumpWidget(
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: MediaQuery(
+                data: MediaQueryData(),
+                child: SheetMediaQuery(
+                  layoutNotifier: ValueNotifier(null),
+                  layoutSpec: SheetLayoutSpec(
+                    viewportSize: testScreenSize,
+                    viewportPadding: EdgeInsets.zero,
+                    contentMargin: EdgeInsets.zero,
+                  ),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SizedBox(
+                      width: testScreenSize.width,
+                      height: testScreenSize.height,
+                      child: Semantics(
+                        key: containerKey,
+                        container: true,
+                        explicitChildNodes: true,
+                        child: SheetContentScaffold(
+                          extendBodyBehindTopBar: true,
+                          extendBodyBehindBottomBar: true,
+                          topBar: Semantics(
+                            container: true,
+                            label: 'topBar',
+                            child: SizedBox(height: 50, width: double.infinity),
+                          ),
+                          bottomBar: Semantics(
+                            container: true,
+                            label: 'bottomBar',
+                            child: SizedBox(height: 50, width: double.infinity),
+                          ),
+                          body: Semantics(
+                            container: true,
+                            label: 'body',
+                            child: SizedBox.expand(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+
+          final labels = <String>[];
+          tester.getSemantics(find.byKey(containerKey)).visitChildren((child) {
+            labels.add(child.label);
+            return true;
+          });
+          expect(labels, ['body', 'topBar', 'bottomBar']);
+        } finally {
+          semanticsHandle.dispose();
+        }
+      },
+    );
+  });
+
   group('Intergration Test', () {
     testWidgets('Always visible shared bottom-bar in PagedSheet', (
       tester,
