@@ -257,7 +257,7 @@ class SheetViewportState extends State<SheetViewport> {
 
   SheetModelView get model => _modelView;
 
-  void setModel(SheetModel? model) {
+  void setModel(SheetModel model) {
     _modelView.setModel(model);
   }
 
