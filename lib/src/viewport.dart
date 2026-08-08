@@ -918,10 +918,6 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       return;
     }
 
-    final maxRect = _layoutSpec.maxSheetRect;
-    final maxSize = maxRect.size;
-    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
-
     final viewportLayout = ImmutableViewportLayout(
       contentSize: Size.copy(child.size),
       viewportSize: _layoutSpec.viewportSize,
@@ -932,6 +928,9 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     );
     final newOffset = model.dryApplyNewLayout(viewportLayout);
     _preferredExtent = _getPreferredExtent(newOffset, viewportLayout);
+    final maxRect = _layoutSpec.maxSheetRect;
+    final maxSize = maxRect.size;
+    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
     size = BoxConstraints(
       minWidth: maxSize.width,
       maxWidth: maxSize.width,
