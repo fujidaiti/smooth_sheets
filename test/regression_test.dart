@@ -215,8 +215,8 @@ void main() {
   // SheetViewport, so the new sheet's owner attaches its model in the build
   // phase while the old owner is only unmounted in the finalization phase,
   // after the layout pass. SheetModelOwnerState.dispose() used to detach
-  // whatever model was attached at that point via setModel(null), including
-  // the model it never owned, leaving the viewport with no model at all.
+  // whatever model was attached at that point, including the model it
+  // never owned, leaving the viewport with no model at all.
   group('Swapping the sheet within the same viewport', () {
     final viewportKey = GlobalKey<SheetViewportState>();
 

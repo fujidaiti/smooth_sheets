@@ -261,11 +261,6 @@ class SheetViewportState extends State<SheetViewport> {
     _modelView.setModel(model);
   }
 
-  /// Detaches [model] from this viewport only if it is currently attached.
-  ///
-  /// Unlike `setModel(null)`, this does not detach a different model that
-  /// may have been attached after [model], e.g. by a new sheet that is
-  /// created in the same frame in which the owner of [model] is disposed.
   void unsetModel(SheetModel model) {
     _modelView.unsetModel(model);
   }
