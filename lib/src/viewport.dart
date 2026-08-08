@@ -916,26 +916,16 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     (child.parentData! as BoxParentData).offset =
         _layoutSpec.contentMargin.topLeft;
 
-    final maxRect = _layoutSpec.maxSheetRect;
-    final maxSize = maxRect.size;
-    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
-
     final model = _model._inner;
     if (model == null) {
-      // No model is attached to the viewport at the moment, e.g. when this
-      // render object is laid out in the same frame in which the owner of
-      // the previously attached model was disposed. Fall back to a
-      // best-effort size instead of crashing; the layout pass that runs
-      // after a model is (re)attached will apply the proper layout.
-      size = BoxConstraints(
-        minWidth: maxSize.width,
-        maxWidth: maxSize.width,
-        minHeight: paddedChildSize.height,
-        maxHeight: maxSize.height,
-      ).constrain(Size.fromHeight(_preferredExtent ?? paddedChildSize.height));
+      size = constraints.constrain(Size.zero);
       _isPerformingLayout = false;
       return;
     }
+
+    final maxRect = _layoutSpec.maxSheetRect;
+    final maxSize = maxRect.size;
+    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
 
     final viewportLayout = ImmutableViewportLayout(
       contentSize: Size.copy(child.size),
