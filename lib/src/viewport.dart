@@ -257,15 +257,10 @@ class SheetViewportState extends State<SheetViewport> {
 
   SheetModelView get model => _modelView;
 
-  void setModel(SheetModel? model) {
+  void setModel(SheetModel model) {
     _modelView.setModel(model);
   }
 
-  /// Detaches [model] from this viewport only if it is currently attached.
-  ///
-  /// Unlike `setModel(null)`, this does not detach a different model that
-  /// may have been attached after [model], e.g. by a new sheet that is
-  /// created in the same frame in which the owner of [model] is disposed.
   void unsetModel(SheetModel model) {
     _modelView.unsetModel(model);
   }
@@ -916,23 +911,9 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     (child.parentData! as BoxParentData).offset =
         _layoutSpec.contentMargin.topLeft;
 
-    final maxRect = _layoutSpec.maxSheetRect;
-    final maxSize = maxRect.size;
-    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
-
     final model = _model._inner;
     if (model == null) {
-      // No model is attached to the viewport at the moment, e.g. when this
-      // render object is laid out in the same frame in which the owner of
-      // the previously attached model was disposed. Fall back to a
-      // best-effort size instead of crashing; the layout pass that runs
-      // after a model is (re)attached will apply the proper layout.
-      size = BoxConstraints(
-        minWidth: maxSize.width,
-        maxWidth: maxSize.width,
-        minHeight: paddedChildSize.height,
-        maxHeight: maxSize.height,
-      ).constrain(Size.fromHeight(_preferredExtent ?? paddedChildSize.height));
+      size = constraints.constrain(Size.zero);
       _isPerformingLayout = false;
       return;
     }
@@ -947,6 +928,9 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     );
     final newOffset = model.dryApplyNewLayout(viewportLayout);
     _preferredExtent = _getPreferredExtent(newOffset, viewportLayout);
+    final maxRect = _layoutSpec.maxSheetRect;
+    final maxSize = maxRect.size;
+    final paddedChildSize = _layoutSpec.contentMargin.inflateSize(child.size);
     size = BoxConstraints(
       minWidth: maxSize.width,
       maxWidth: maxSize.width,

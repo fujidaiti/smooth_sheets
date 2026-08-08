@@ -73,11 +73,6 @@ class SheetModelOwnerState<C extends SheetModelConfig>
   @override
   void dispose() {
     widget.controller?.detach(model);
-    // Use unsetModel instead of setModel(null) so that disposing this owner
-    // does not detach a model that another owner attached to the same
-    // viewport after this owner was deactivated (e.g. when a sheet is
-    // rebuilt within the same frame). Otherwise the viewport may be laid
-    // out without any model attached.
     _viewport?.unsetModel(model);
     model.dispose();
     _viewport = null;
