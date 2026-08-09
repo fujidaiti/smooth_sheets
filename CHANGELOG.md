@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 - 2026-08-09
+- fix: Avoid crash when a SheetModel is detached during layout ([#582](https://github.com/fujidaiti/smooth_sheets/pull/582)) - [5fe51cc](https://github.com/fujidaiti/smooth_sheets/commit/5fe51cc41e255574d37000677ea0518378bfec99)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.1.1) for more details.
+
 ## 1.1.0 - 2026-08-02
 - feat: Add ModalSheetRouteMixin.sheetVisibility to observe how much of a sheet is visible in a modal route ([#576](https://github.com/fujidaiti/smooth_sheets/pull/576)) - [d8b826b](https://github.com/fujidaiti/smooth_sheets/commit/d8b826bee73eb637a3da041c7d00ec5040fd5504)
 - fix: Modal barrier fade too subtle for small sheets ([#577](https://github.com/fujidaiti/smooth_sheets/pull/577)) - [473daa9](https://github.com/fujidaiti/smooth_sheets/commit/473daa966fef628e005037ea144f549602742bb1)
