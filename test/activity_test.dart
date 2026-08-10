@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mockito/mockito.dart';
@@ -12,8 +14,8 @@ class _TestAnimatedSheetActivity extends AnimatedSheetActivity {
   _TestAnimatedSheetActivity({
     required AnimationController controller,
     required super.destination,
-    required super.duration,
-    required super.curve,
+    required super.motion,
+    super.initialVelocity,
   }) : _controller = controller;
 
   final AnimationController _controller;
@@ -53,8 +55,10 @@ void main() {
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
         destination: const SheetOffset.absolute(700),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.linear,
+        motion: CurvedSheetMotion(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.linear,
+        ),
       )..init(owner);
 
       verify(
@@ -97,8 +101,10 @@ void main() {
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
         destination: const SheetOffset.absolute(700),
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
+        motion: CurvedSheetMotion(
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        ),
       )..init(owner);
 
       // What the controller reports a quarter of the way through the
@@ -119,6 +125,127 @@ void main() {
       );
     });
 
+    ({MockSheetModel owner, _TestAnimatedSheetActivity activity})
+    springActivity({
+      required double from,
+      required double to,
+      double velocity = 0,
+    }) {
+      final (_, owner) = createMockSheetModel(
+        offset: from,
+        snapGrid: SheetSnapGrid.stepless(
+          minOffset: SheetOffset.absolute(min(from, to)),
+        ),
+        contentSize: const Size(400, 700),
+        viewportSize: const Size(400, 900),
+        devicePixelRatio: 1,
+      );
+      when(controller.animateWith(any)).thenAnswer((_) => MockTickerFuture());
+
+      final activity = _TestAnimatedSheetActivity(
+        controller: controller,
+        destination: SheetOffset.absolute(to),
+        motion: const SpringSheetMotion(),
+        initialVelocity: velocity,
+      )..init(owner);
+
+      return (owner: owner, activity: activity);
+    }
+
+    Simulation capturedSimulation() =>
+        verify(controller.animateWith(captureAny)).captured.single
+            as Simulation;
+
+    test('should drive a spring motion with a simulation', () {
+      springActivity(from: 300, to: 700);
+      final simulation = capturedSimulation();
+
+      expect(simulation.x(0), moreOrLessEquals(0));
+      expect(simulation.dx(0), moreOrLessEquals(0));
+      expect(
+        simulation.x(5),
+        moreOrLessEquals(1),
+        reason: 'The simulation runs in normalized progress, not in pixels.',
+      );
+    });
+
+    test('should convert the initial velocity into progress per second', () {
+      // 400 pixels of travel, so 800 px/s is 2 progress units per second.
+      springActivity(from: 300, to: 700, velocity: 800);
+      expect(capturedSimulation().dx(0), moreOrLessEquals(2));
+    });
+
+    test('should keep the velocity sign when animating downwards', () {
+      // Travelling -400 px, already moving down at -800 px/s: still 2/s
+      // towards the destination.
+      springActivity(from: 700, to: 300, velocity: -800);
+      expect(capturedSimulation().dx(0), moreOrLessEquals(2));
+    });
+
+    test('should report its velocity in pixels per second', () {
+      final env = springActivity(from: 300, to: 700);
+      when(controller.velocity).thenReturn(2);
+      expect(
+        env.activity.velocity,
+        moreOrLessEquals(800),
+        reason:
+            'The controller runs in progress per second; the sheet moves in '
+            'pixels per second.',
+      );
+    });
+
+    // The curved counterpart of this is 'should absorb viewport changes'
+    // below, which hands the remaining duration to a SettlingSheetActivity.
+    // A spring has no remaining duration, so it re-aims instead.
+    test('should re-aim a spring motion when the destination moves', () {
+      final (ownerMetrics, owner) = createMockSheetModel(
+        offset: 250,
+        snapGrid: SheetSnapGrid.stepless(
+          minOffset: const SheetOffset.absolute(250),
+        ),
+        contentSize: const Size(400, 850),
+        viewportSize: const Size(400, 900),
+        devicePixelRatio: 1,
+      );
+      when(controller.animateWith(any)).thenAnswer((_) => MockTickerFuture());
+
+      final activity = _TestAnimatedSheetActivity(
+        controller: controller,
+        destination: const SheetOffset(1),
+        motion: const SpringSheetMotion(),
+      )..init(owner);
+
+      when(controller.value).thenReturn(0.25);
+      when(controller.velocity).thenReturn(0.5);
+      activity.onAnimationTick();
+
+      // The on-screen keyboard appears and pushes the content up, moving the
+      // resolved destination.
+      final oldMeasurements = ownerMetrics.copyWith();
+      ownerMetrics
+        ..contentSize = const Size(400, 850)
+        ..contentMargin = EdgeInsets.only(bottom: 50)
+        ..contentBaseline = 50;
+
+      activity.applyNewLayout(oldMeasurements);
+
+      verifyNever(owner.settleTo(any, any));
+      final captured =
+          verify(
+                owner.animateTo(
+                  const SheetOffset(1),
+                  motion: anyNamed('motion'),
+                  velocity: captureAnyNamed('velocity'),
+                ),
+              ).captured.single
+              as double;
+      expect(
+        captured,
+        greaterThan(0),
+        reason: 'The current speed should carry across the re-aim.',
+      );
+    });
+
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 250,
@@ -134,8 +261,10 @@ void main() {
       final activity = _TestAnimatedSheetActivity(
         controller: controller,
         destination: const SheetOffset(1),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.linear,
+        motion: CurvedSheetMotion(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.linear,
+        ),
       )..init(owner);
 
       when(controller.value).thenReturn(0.0);
