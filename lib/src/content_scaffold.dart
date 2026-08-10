@@ -295,7 +295,7 @@ class SheetContentScaffold extends StatelessWidget {
   }
 }
 
-enum _ScaffoldSlot { topBar, bottomBar, body }
+enum _ScaffoldSlot { body, topBar, bottomBar }
 
 class _ScaffoldLayout
     extends SlottedMultiChildRenderObjectWidget<_ScaffoldSlot, RenderBox> {
@@ -588,21 +588,6 @@ class _RenderScaffoldLayout extends RenderBox
     paintChild(_ScaffoldSlot.body);
     paintChild(_ScaffoldSlot.topBar);
     paintChild(_ScaffoldSlot.bottomBar);
-  }
-
-  @override
-  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
-    // Match paint order so a11y hit-testing that reverses the child list
-    // (e.g. iOS Voice Control) treats bars as above an overlapping body.
-    for (final slot in const [
-      _ScaffoldSlot.body,
-      _ScaffoldSlot.topBar,
-      _ScaffoldSlot.bottomBar,
-    ]) {
-      if (childForSlot(slot) case final child?) {
-        visitor(child);
-      }
-    }
   }
 
   @override

@@ -1708,7 +1708,6 @@ void main() {
     });
   });
 
-
   group('SheetContentScaffold - Semantics', () {
     testWidgets(
       'Semantics child order matches paint order (body, topBar, bottomBar)',
