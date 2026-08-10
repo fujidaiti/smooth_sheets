@@ -217,9 +217,12 @@ class AnimatedSheetActivity extends SheetActivity
 
   @override
   void onAnimationTick() {
-    final progress = curve.transform(controller.value);
+    // AnimationController.animateTo() drives the controller with an
+    // interpolation simulation that has already applied the curve, so
+    // controller.value is the curved progress. Applying the curve again
+    // here would compose it with itself.
     owner
-      ..offset = lerpDouble(_startOffset, _endOffset, progress)!
+      ..offset = lerpDouble(_startOffset, _endOffset, controller.value)!
       ..didUpdateMetrics();
   }
 

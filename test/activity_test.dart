@@ -78,6 +78,47 @@ void main() {
       expect(ownerMetrics.offset, 700);
     });
 
+    // Regression test: the curve was applied twice, once by
+    // AnimationController.animateTo() and once again in onAnimationTick(),
+    // so the sheet followed `curve o curve` instead of `curve`. It went
+    // unnoticed because the other tests here use the idempotent
+    // Curves.linear.
+    test('should not apply the curve on top of the controller value', () {
+      final (ownerMetrics, owner) = createMockSheetModel(
+        offset: 300,
+        snapGrid: SheetSnapGrid.stepless(
+          minOffset: const SheetOffset.absolute(300),
+        ),
+        contentSize: const Size(400, 700),
+        viewportSize: const Size(400, 900),
+        devicePixelRatio: 1,
+      );
+
+      final activity = _TestAnimatedSheetActivity(
+        controller: controller,
+        destination: const SheetOffset.absolute(700),
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      )..init(owner);
+
+      // What the controller reports a quarter of the way through the
+      // animation: the curve has already been applied to it.
+      final quarterWay = Curves.easeInOut.transform(0.25);
+      expect(quarterWay, moreOrLessEquals(0.1287, epsilon: 1e-4));
+
+      when(controller.value).thenReturn(quarterWay);
+      activity.onAnimationTick();
+
+      expect(
+        ownerMetrics.offset,
+        moreOrLessEquals(300 + 400 * quarterWay, epsilon: 1e-6),
+        reason:
+            'The offset should follow the curve once. Applying it twice '
+            'would put the sheet at '
+            '${300 + 400 * Curves.easeInOut.transform(quarterWay)}.',
+      );
+    });
+
     test('should absorb viewport changes', () {
       final (ownerMetrics, owner) = createMockSheetModel(
         offset: 250,
