@@ -257,8 +257,12 @@ class SheetViewportState extends State<SheetViewport> {
 
   SheetModelView get model => _modelView;
 
-  void setModel(SheetModel? model) {
+  void setModel(SheetModel model) {
     _modelView.setModel(model);
+  }
+
+  void unsetModel(SheetModel model) {
+    _modelView.unsetModel(model);
   }
 
   @override
@@ -907,7 +911,13 @@ class _RenderSheetSkelton extends RenderShiftedBox {
     (child.parentData! as BoxParentData).offset =
         _layoutSpec.contentMargin.topLeft;
 
-    assert(_model._inner != null);
+    final model = _model._inner;
+    if (model == null) {
+      size = constraints.constrain(Size.zero);
+      _isPerformingLayout = false;
+      return;
+    }
+
     final viewportLayout = ImmutableViewportLayout(
       contentSize: Size.copy(child.size),
       viewportSize: _layoutSpec.viewportSize,
@@ -916,7 +926,7 @@ class _RenderSheetSkelton extends RenderShiftedBox {
           _layoutSpec.viewportSize.height - _layoutSpec.maxContentRect.bottom,
       contentMargin: _layoutSpec.contentMargin,
     );
-    final newOffset = _model._inner!.dryApplyNewLayout(viewportLayout);
+    final newOffset = model.dryApplyNewLayout(viewportLayout);
     _preferredExtent = _getPreferredExtent(newOffset, viewportLayout);
     final maxRect = _layoutSpec.maxSheetRect;
     final maxSize = maxRect.size;
@@ -932,8 +942,8 @@ class _RenderSheetSkelton extends RenderShiftedBox {
       viewportLayout: viewportLayout,
       size: Size.copy(size),
     );
-    _model._inner!.applyNewLayout(newLayout);
-    assert(_model._inner!.hasMetrics);
+    model.applyNewLayout(newLayout);
+    assert(model.hasMetrics);
     layoutNotifier.value = newLayout;
 
     _isPerformingLayout = false;
@@ -992,6 +1002,12 @@ class _LazySheetModelView extends SheetModelView with ChangeNotifier {
     }
     if (newModel.rect != oldRect) {
       _rectNotifier.notifyListeners();
+    }
+  }
+
+  void unsetModel(SheetModel model) {
+    if (_inner == model) {
+      setModel(null);
     }
   }
 

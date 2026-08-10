@@ -73,7 +73,7 @@ class SheetModelOwnerState<C extends SheetModelConfig>
   @override
   void dispose() {
     widget.controller?.detach(model);
-    _viewport?.setModel(null);
+    _viewport?.unsetModel(model);
     model.dispose();
     _viewport = null;
     _model = null;
@@ -92,7 +92,7 @@ class SheetModelOwnerState<C extends SheetModelConfig>
     _devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     final viewport = SheetViewportState.of(context);
     if (viewport != _viewport) {
-      _viewport?.setModel(null);
+      _viewport?.unsetModel(model);
       _viewport = viewport?..setModel(model);
     }
   }
