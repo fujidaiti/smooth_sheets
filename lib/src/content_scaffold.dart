@@ -295,7 +295,7 @@ class SheetContentScaffold extends StatelessWidget {
   }
 }
 
-enum _ScaffoldSlot { topBar, bottomBar, body }
+enum _ScaffoldSlot { body, topBar, bottomBar }
 
 class _ScaffoldLayout
     extends SlottedMultiChildRenderObjectWidget<_ScaffoldSlot, RenderBox> {
