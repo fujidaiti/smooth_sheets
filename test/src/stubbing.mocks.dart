@@ -10,12 +10,13 @@ import 'package:flutter/cupertino.dart' as _i3;
 import 'package:flutter/foundation.dart' as _i10;
 import 'package:flutter/gestures.dart' as _i8;
 import 'package:flutter/scheduler.dart' as _i11;
-import 'package:flutter/src/animation/curves.dart' as _i14;
+import 'package:flutter/src/animation/curves.dart' as _i15;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i12;
 import 'package:smooth_sheets/src/activity.dart' as _i7;
-import 'package:smooth_sheets/src/drag.dart' as _i13;
+import 'package:smooth_sheets/src/drag.dart' as _i14;
 import 'package:smooth_sheets/src/model.dart' as _i4;
+import 'package:smooth_sheets/src/motion.dart' as _i13;
 import 'package:smooth_sheets/src/physics.dart' as _i5;
 import 'package:smooth_sheets/src/snap_grid.dart' as _i6;
 
@@ -379,14 +380,21 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   @override
   _i9.Future<void> animateTo(
     _i4.SheetOffset? newPosition, {
-    _i3.Curve? curve = _i3.Curves.easeInOut,
-    Duration? duration = const Duration(milliseconds: 300),
+    _i3.Curve? curve,
+    Duration? duration,
+    _i13.SheetMotion? motion,
+    double? velocity = 0.0,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #animateTo,
               [newPosition],
-              {#curve: curve, #duration: duration},
+              {
+                #curve: curve,
+                #duration: duration,
+                #motion: motion,
+                #velocity: velocity,
+              },
             ),
             returnValue: _i9.Future<void>.value(),
             returnValueForMissingStub: _i9.Future<void>.value(),
@@ -444,19 +452,19 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  void didDragStart(_i13.SheetDragStartDetails? details) => super.noSuchMethod(
+  void didDragStart(_i14.SheetDragStartDetails? details) => super.noSuchMethod(
     Invocation.method(#didDragStart, [details]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void didDragEnd(_i13.SheetDragEndDetails? details) => super.noSuchMethod(
+  void didDragEnd(_i14.SheetDragEndDetails? details) => super.noSuchMethod(
     Invocation.method(#didDragEnd, [details]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void didDragUpdateMetrics(_i13.SheetDragUpdateDetails? details) =>
+  void didDragUpdateMetrics(_i14.SheetDragUpdateDetails? details) =>
       super.noSuchMethod(
         Invocation.method(#didDragUpdateMetrics, [details]),
         returnValueForMissingStub: null,
@@ -903,7 +911,7 @@ class MockAnimationController extends _i1.Mock
   _i3.TickerFuture animateTo(
     double? target, {
     Duration? duration,
-    _i3.Curve? curve = _i14.Curves.linear,
+    _i3.Curve? curve = _i15.Curves.linear,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -934,7 +942,7 @@ class MockAnimationController extends _i1.Mock
   _i3.TickerFuture animateBack(
     double? target, {
     Duration? duration,
-    _i3.Curve? curve = _i14.Curves.linear,
+    _i3.Curve? curve = _i15.Curves.linear,
   }) =>
       (super.noSuchMethod(
             Invocation.method(

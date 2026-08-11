@@ -158,9 +158,20 @@ A sheet can be displayed as a modal sheet using `ModalSheetRoute` for imperative
 
 Furthermore, [the modal sheets in the style of iOS 15](https://medium.com/surf-dev/bottomsheet-in-ios-15-uisheetpresentationcontroller-and-its-capabilities-5e913661c9f) are also supported. For imperative navigation, use `CupertinoModalSheetRoute`, and for declarative navigation, use `CupertinoModalSheetPage`, respectively.
 
+By default, the open and close transitions are interpolated along a curve over a fixed duration. Pass a `SpringSheetMotion` as the `transitionMotion` to drive them with a spring simulation instead, the way iOS does. A spring is velocity aware, so the speed at which the user releases a swipe-to-dismiss gesture carries over into the animation that follows it, which a curve cannot do.
+
+```dart
+ModalSheetRoute<void>(
+  swipeDismissible: true,
+  transitionMotion: const SpringSheetMotion(),
+  builder: (context) => Sheet(child: ...),
+);
+```
+
 See also:
 
 - [SwipeDismissSensitivity](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SwipeDismissSensitivity-class.html), which can be used to tweak the sensitivity of the swipe-to-dismiss action.
+- [sheet_motion.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_motion.dart), which compares the curve driven transition with each of the iOS spring presets.
 - [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
 - [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
 - [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
@@ -195,6 +206,20 @@ See also:
 
 <br/>
 
+### SheetMotion
+
+A `SheetMotion` describes how a sheet travels from where it is to where it is going, and the same type configures both a modal sheet route's open and close transitions and `SheetController.animateTo`.
+
+`CurvedSheetMotion` interpolates along a `Curve` over a fixed `Duration`, which is the default. `SpringSheetMotion` hands the trajectory to a spring simulation instead, the way iOS does: because a spring is velocity aware, the speed at which the user releases a swipe carries over into the animation that follows it, which a curve cannot do. Presets mirroring the four `duration`/`bounce` pairs iOS itself uses are provided as `smooth`, `snappy`, `bouncy` and `interactive`.
+
+A motion always describes a normalized progress running from 0 to 1 rather than pixels, so it behaves identically over a 20 pixel move and a 600 pixel one.
+
+See also:
+
+- [sheet_motion.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_motion.dart), which compares the curve driven motion with each of the spring presets.
+
+<br/>
+
 ### SheetController
 
 <div align="center">
@@ -203,9 +228,19 @@ See also:
 
 Like [ScrollController](https://api.flutter.dev/flutter/widgets/ScrollController-class.html) for scrollable widget, the SheetController can be used to animate or observe the offset (position) of a sheet.
 
+`SheetController.animateTo` takes the same `SheetMotion` that a modal sheet route uses for its transition, so an imperative move can be driven by a spring as well:
+
+```dart
+controller.animateTo(
+  const SheetOffset(0.5),
+  motion: SpringSheetMotion.snappy(),
+);
+```
+
 See also:
 
 - [sheet_controller.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_controller.dart) for basic usage.
+- [sheet_motion.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_motion.dart), which compares the available motions.
 
 <br/>
 
