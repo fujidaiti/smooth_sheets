@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 - 2026-08-11
+- fix: Avoid crash when a SheetModel is detached during layout ([#582](https://github.com/fujidaiti/smooth_sheets/pull/582)) - [5fe51cc](https://github.com/fujidaiti/smooth_sheets/commit/5fe51cc41e255574d37000677ea0518378bfec99)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.1.1) for more details.
+
 ## Unreleased
 - fix: SheetContentScaffold semantics child order matches paint order so overlapping bars are not obscured by assistive technologies
 

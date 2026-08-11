@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+- fix: SheetContentScaffold semantics child order matches paint order so overlapping bars are not obscured by assistive technologies
+
+
+## 1.1.0 - 2026-08-02
+- feat: Add ModalSheetRouteMixin.sheetVisibility to observe how much of a sheet is visible in a modal route ([#576](https://github.com/fujidaiti/smooth_sheets/pull/576)) - [d8b826b](https://github.com/fujidaiti/smooth_sheets/commit/d8b826bee73eb637a3da041c7d00ec5040fd5504)
+- fix: Modal barrier fade too subtle for small sheets ([#577](https://github.com/fujidaiti/smooth_sheets/pull/577)) - [473daa9](https://github.com/fujidaiti/smooth_sheets/commit/473daa966fef628e005037ea144f549602742bb1)
+- fix: Null check operator error in _LazySheetModelView.setModel due to uninitialized old model offset ([#571](https://github.com/fujidaiti/smooth_sheets/pull/571)) - [bbdc96c](https://github.com/fujidaiti/smooth_sheets/commit/bbdc96c102677937d838a6a7541304b9e842b154)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.1.0) for more details.
+
 ## 1.0.3 - 2026-06-21
 - fix: Assertion error in SheetContentScaffold when height is zero ([#558](https://github.com/fujidaiti/smooth_sheets/pull/558)) - [ba7bd77](https://github.com/fujidaiti/smooth_sheets/commit/ba7bd775cd0d39c89a18ec50e58feaf78c30669c)
 
