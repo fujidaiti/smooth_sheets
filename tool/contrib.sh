@@ -13,6 +13,7 @@ git shortlog -n \
   --perl-regexp \
   --author="$EXCLUDE_PATTERN" \
   --format="%s - [%h](https://github.com/fujidaiti/smooth_sheets/commit/%h)" \
+  HEAD \
   | awk '
       # A divider between contributors
       /^[ \t]*$/ {

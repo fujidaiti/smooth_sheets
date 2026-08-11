@@ -121,6 +121,10 @@ jobs:
         with:
           cmd: yq -i '.version = "${{ needs.check.outputs.raw_next_version }}"' pubspec.yaml
 
+      - name: Generate CONTRIBUTORS.md
+        run: bash tool/contrib.sh > CONTRIBUTORS.md
+        shell: bash
+
       - name: Ensure release note exists
         env:
           RAW_VERSION: ${{ needs.check.outputs.raw_next_version }}
@@ -159,7 +163,7 @@ jobs:
         run: |
           BRANCH_NAME="release/${NEXT_VERSION}-$(date -u +%Y%m%d%H%M%S)"
           git checkout -b $BRANCH_NAME
-          git add pubspec.yaml CHANGELOG.md .old/CHANGELOG.md notes/release-note-${RAW_NEXT_VERSION}.md
+          git add pubspec.yaml CHANGELOG.md .old/CHANGELOG.md notes/release-note-${RAW_NEXT_VERSION}.md CONTRIBUTORS.md
           git commit -m "Bump package version to ${NEXT_VERSION}"
           git push origin $BRANCH_NAME
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
