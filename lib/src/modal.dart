@@ -1,7 +1,5 @@
-import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart' show SpringSimulation;
 import 'package:meta/meta.dart';
 
 import 'drag.dart';
@@ -10,8 +8,60 @@ import 'internal/float_comp.dart';
 import 'model.dart';
 import 'viewport.dart';
 
-const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
-const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
+/// The spring used to settle the transition animation after a swipe gesture,
+/// both when restoring the sheet to its neutral position and when dismissing.
+///
+/// This mirrors the default sheet spring in `physics.dart` (an overdamped
+/// spring with a damping ratio of 1.1), so the motion never oscillates past
+/// the fully-open or fully-closed extremes.
+final _kModalTransitionSpring = SpringDescription.withDampingRatio(
+  mass: 0.5,
+  stiffness: 100.0,
+  ratio: 1.1,
+);
+
+/// The distance, in transition controller units (fraction of the viewport
+/// height), within which [_SettleSpringSimulation] considers the spring to have
+/// reached its resting position and terminates.
+///
+/// An overdamped spring approaches its target asymptotically, so the last
+/// fraction of the motion is imperceptibly slow. Cutting it off at 1% of the
+/// viewport height keeps the visible motion intact while roughly halving how
+/// long the animation — and thus the pointer-input lock — lingers.
+const _kSettleDistanceTolerance = 0.01;
+
+/// A [Simulation] that drives an overdamped [SpringSimulation] but terminates
+/// as soon as the spring reaches its [end] position, rather than waiting for
+/// the spring's velocity to also settle within tolerance.
+///
+/// An overdamped spring approaches its resting position asymptotically, so
+/// [SpringSimulation.isDone] can stay `false` for up to a second after the
+/// motion is visually complete. When such a spring drives a modal route's
+/// transition, that keeps the animation running — and pointer input disabled —
+/// long after the sheet has settled. This wrapper reports completion the moment
+/// the position is within [_kSettleDistanceTolerance] of [end], so the
+/// perceived motion is unchanged but the gesture lock is released promptly.
+class _SettleSpringSimulation extends Simulation {
+  _SettleSpringSimulation(
+    SpringDescription spring,
+    double start,
+    this.end,
+    double velocity,
+  ) : _spring = SpringSimulation(spring, start, end, velocity);
+
+  final double end;
+  final SpringSimulation _spring;
+
+  @override
+  double x(double time) => isDone(time) ? end : _spring.x(time);
+
+  @override
+  double dx(double time) => isDone(time) ? 0.0 : _spring.dx(time);
+
+  @override
+  bool isDone(double time) =>
+      (end - _spring.x(time)).abs() < _kSettleDistanceTolerance;
+}
 
 /// {@template modal_sheet_barrier_builder}
 /// A builder for creating a custom modal barrier.
@@ -217,6 +267,31 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   // Provides access to the AnimationController of this route that is
   // marked as protected, allowing it to be used by SheetDismissible.
   AnimationController get _controller => controller!;
+
+  /// The release velocity of a swipe-to-dismiss gesture, in transition
+  /// controller units (fraction of the viewport height per second).
+  ///
+  /// Set by [_SheetDismissibleState] right before it pops the route, and
+  /// consumed once by [createSimulation] to drive the pop transition with a
+  /// velocity-seeded spring. It is `null` for any non-gesture pop.
+  double? _swipeDismissVelocity;
+
+  @override
+  Simulation? createSimulation({required bool forward}) {
+    final velocity = _swipeDismissVelocity;
+    if (!forward && velocity != null) {
+      // Consume the velocity so subsequent pops fall back to the default
+      // reverse transition.
+      _swipeDismissVelocity = null;
+      return _SettleSpringSimulation(
+        _kModalTransitionSpring,
+        _controller.value,
+        0.0,
+        velocity,
+      );
+    }
+    return super.createSimulation(forward: forward);
+  }
 
   /// The curve used for the transition animation.
   ///
@@ -595,22 +670,20 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     final didPop = invokePop && _canPopByGesture;
 
     if (didPop) {
+      // Stash the release velocity so the route's createSimulation drives the
+      // pop transition with a velocity-seeded spring.
+      _route._swipeDismissVelocity = effectiveVelocity;
       _route.navigator!.pop();
     } else if (!_transitionController.isCompleted) {
-      // The route won't be popped, so animate the transition
-      // back to the origin.
-      final fraction = 1.0 - _transitionController.value;
-      final animationTime = max(
-        (_route.transitionDuration.inMilliseconds * fraction).floor(),
-        _minReleasedPageForwardAnimationTime,
-      );
-
+      // The route won't be popped, so spring the transition back to the origin,
+      // continuing the motion from the gesture's release velocity.
       const completedAnimationValue = 1.0;
-      unawaited(
-        _transitionController.animateTo(
+      _transitionController.animateWith(
+        _SettleSpringSimulation(
+          _kModalTransitionSpring,
+          _transitionController.value,
           completedAnimationValue,
-          duration: Duration(milliseconds: animationTime),
-          curve: _releasedPageForwardAnimationCurve,
+          effectiveVelocity,
         ),
       );
     }
