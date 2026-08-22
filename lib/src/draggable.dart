@@ -217,9 +217,7 @@ class _RenderDragGestureListener extends RenderProxyBoxWithHitTestBehavior {
 
   @override
   HitTestBehavior get behavior {
-    final value = dragConfiguration.hitTestBehavior;
-    assert(value != null, 'Should not be used when dragging is disabled');
-    return value!;
+    return dragConfiguration.hitTestBehavior ?? HitTestBehavior.deferToChild;
   }
 
   @override
