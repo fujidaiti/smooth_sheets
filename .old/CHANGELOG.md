@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 - 2026-08-11
+- fix: SheetContentScaffold semantics child order matches paint order so overlapping bars are not obscured by assistive technologies ([#583](https://github.com/fujidaiti/smooth_sheets/pull/583)) - [7039b9c
+](https://github.com/fujidaiti/smooth_sheets/commit/7039b9c8e6d142614a894460b36865bf497b3050)
+- fix: Avoid crash when a SheetModel is detached during layout ([#582](https://github.com/fujidaiti/smooth_sheets/pull/582)) - [5fe51cc](https://github.com/fujidaiti/smooth_sheets/commit/5fe51cc41e255574d37000677ea0518378bfec99)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.1.1) for more details.
+
 ## 1.1.0 - 2026-08-02
 - feat: Add ModalSheetRouteMixin.sheetVisibility to observe how much of a sheet is visible in a modal route ([#576](https://github.com/fujidaiti/smooth_sheets/pull/576)) - [d8b826b](https://github.com/fujidaiti/smooth_sheets/commit/d8b826bee73eb637a3da041c7d00ec5040fd5504)
 - fix: Modal barrier fade too subtle for small sheets ([#577](https://github.com/fujidaiti/smooth_sheets/pull/577)) - [473daa9](https://github.com/fujidaiti/smooth_sheets/commit/473daa966fef628e005037ea144f549602742bb1)
