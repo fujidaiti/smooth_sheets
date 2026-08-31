@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'cupertino.dart';
 import 'modal.dart';
+import 'motion.dart';
 import 'viewport.dart';
 
 /// Pushes a platform-appropriate modal sheet onto the navigator's stack.
@@ -31,8 +32,19 @@ Future<T?> showAdaptiveModalSheet<T>({
   bool swipeDismissible = false,
   String? barrierLabel,
   Color? barrierColor,
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   Duration? transitionDuration,
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   Curve? transitionCurve,
+
+  /// {@macro modal_sheet_transition_motion}
+  SheetMotion? transitionMotion,
   SwipeDismissSensitivity swipeDismissSensitivity =
       const SwipeDismissSensitivity(),
   RouteSettings? routeSettings,
@@ -51,6 +63,7 @@ Future<T?> showAdaptiveModalSheet<T>({
         barrierColor: barrierColor,
         transitionDuration: transitionDuration,
         transitionCurve: transitionCurve,
+        transitionMotion: transitionMotion,
         swipeDismissSensitivity: swipeDismissSensitivity,
         routeSettings: routeSettings,
       );
@@ -68,6 +81,7 @@ Future<T?> showAdaptiveModalSheet<T>({
         barrierColor: barrierColor,
         transitionDuration: transitionDuration,
         transitionCurve: transitionCurve,
+        transitionMotion: transitionMotion,
         swipeDismissSensitivity: swipeDismissSensitivity,
         routeSettings: routeSettings,
       );
@@ -97,8 +111,19 @@ Future<T?> showModalSheet<T>({
   bool fullscreenDialog = false,
   String? barrierLabel,
   Color? barrierColor,
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   Duration? transitionDuration,
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   Curve? transitionCurve,
+
+  /// {@macro modal_sheet_transition_motion}
+  SheetMotion? transitionMotion,
   SwipeDismissSensitivity swipeDismissSensitivity =
       const SwipeDismissSensitivity(),
   EdgeInsets viewportPadding = EdgeInsets.zero,
@@ -115,6 +140,7 @@ Future<T?> showModalSheet<T>({
     swipeDismissible: swipeDismissible,
     transitionDuration: transitionDuration ?? const Duration(milliseconds: 300),
     transitionCurve: transitionCurve ?? Curves.fastEaseInToSlowEaseOut,
+    transitionMotion: transitionMotion,
     swipeDismissSensitivity: swipeDismissSensitivity,
     viewportBuilder: (context, child) {
       return SheetViewport(padding: viewportPadding, child: child);
@@ -146,8 +172,19 @@ Future<T?> showCupertinoModalSheet<T>({
   bool swipeDismissible = false,
   String? barrierLabel,
   Color? barrierColor,
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   Duration? transitionDuration,
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   Curve? transitionCurve,
+
+  /// {@macro modal_sheet_transition_motion}
+  SheetMotion? transitionMotion,
   SwipeDismissSensitivity swipeDismissSensitivity =
       const SwipeDismissSensitivity(),
   RouteSettings? routeSettings,
@@ -162,6 +199,7 @@ Future<T?> showCupertinoModalSheet<T>({
     swipeDismissible: swipeDismissible,
     transitionDuration: transitionDuration ?? const Duration(milliseconds: 300),
     transitionCurve: transitionCurve ?? Curves.fastEaseInToSlowEaseOut,
+    transitionMotion: transitionMotion,
     swipeDismissSensitivity: swipeDismissSensitivity,
   );
 
