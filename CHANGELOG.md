@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.3 - 2026-09-06
+- build: Bump navigator_resizable from 3.0.2 to 3.1.0 ([#605](https://github.com/fujidaiti/smooth_sheets/pull/605)) - [f315d5d](https://github.com/fujidaiti/smooth_sheets/commit/f315d5ddf16eb1de6a722d020ff5d0616e2c4ed7)
+- build: Bump go_router from 17.5.0 to 18.0.0 in the dependencies group ([#602](https://github.com/fujidaiti/smooth_sheets/pull/602)) - [2bd6b60](https://github.com/fujidaiti/smooth_sheets/commit/2bd6b6035304c2af2ac7bfe02635b881ec51912d)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.1.3) for more details.
+
 ## 1.1.2 - 2026-08-23
 - fix: Avoid Widget Inspector crash on drag-disabled sheets ([#595](https://github.com/fujidaiti/smooth_sheets/pull/595)) - [beb86c7](https://github.com/fujidaiti/smooth_sheets/commit/beb86c703e6522dad7b9545a2920051b2fbf875f)
 

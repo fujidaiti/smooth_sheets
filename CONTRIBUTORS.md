@@ -7,6 +7,9 @@ Thank you for all contributors!
   - feat(pkg): Add custom barrier support for modal sheets - [b846084](https://github.com/fujidaiti/smooth_sheets/commit/b846084)
   - chore(pkg): fix typo in README regarding Navigator API (#471) - [7a56004](https://github.com/fujidaiti/smooth_sheets/commit/7a56004)
 
+- Abdullah (1):
+  - docs(pkg): add a README link to navigator_resizable (#604) - [16f4141](https://github.com/fujidaiti/smooth_sheets/commit/16f4141)
+
 - Amos (1):
   - Refactor: Replace Platform (dart:io) with TargetPlatform (#269) - [1166df3](https://github.com/fujidaiti/smooth_sheets/commit/1166df3)
 
