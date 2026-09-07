@@ -325,16 +325,36 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 
   SheetLayout? _layout;
 
+  // The activity that last received a call to `activity.applyNewLayout`.
+  //
+  // beginActivity() does not itself call applyNewLayout on the new activity;
+  // the new activity instead waits for the next call to this method (see the
+  // "It's also fine to initiate another activity..." note on
+  // SheetActivity.applyNewLayout). An activity whose `needsInitialLayout` is
+  // true relies on that call to perform one-time setup (typically giving
+  // `owner` its very first offset), so it must not be skipped even if the
+  // incoming layout happens to have the same values as the last layout this
+  // model processed -- which can otherwise happen when an intermediate
+  // widget/route briefly rebuilds with a placeholder that coincidentally has
+  // the same size as the final content. See
+  // https://github.com/fujidaiti/smooth_sheets/issues/594 and #315.
+  SheetActivity? _lastLayoutAppliedActivity;
+
   void applyNewLayout(SheetLayout layout) {
+    final needsInitialCall =
+        activity.needsInitialLayout &&
+        !identical(activity, _lastLayoutAppliedActivity);
     // ignore: lines_longer_than_80_chars
     // TODO: Make the layout class immutable so that we can compare the old and new layouts by the equality operator.
-    if (layout.viewportSize == _layout?.viewportSize &&
+    if (!needsInitialCall &&
+        layout.viewportSize == _layout?.viewportSize &&
         layout.viewportPadding == _layout?.viewportPadding &&
         layout.contentSize == _layout?.contentSize &&
         layout.contentBaseline == _layout?.contentBaseline &&
         layout.contentMargin == _layout?.contentMargin) {
       return;
     }
+    _lastLayoutAppliedActivity = activity;
 
     final oldLayout = _layout;
     _layout = layout;
