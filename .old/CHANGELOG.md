@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.2 - 2026-08-23
+- fix: Avoid Widget Inspector crash on drag-disabled sheets ([#595](https://github.com/fujidaiti/smooth_sheets/pull/595)) - [beb86c7](https://github.com/fujidaiti/smooth_sheets/commit/beb86c703e6522dad7b9545a2920051b2fbf875f)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.1.2) for more details.
+
 ## 1.1.1 - 2026-08-11
 - fix: SheetContentScaffold semantics child order matches paint order so overlapping bars are not obscured by assistive technologies ([#583](https://github.com/fujidaiti/smooth_sheets/pull/583)) - [7039b9c
 ](https://github.com/fujidaiti/smooth_sheets/commit/7039b9c8e6d142614a894460b36865bf497b3050)
