@@ -6,7 +6,7 @@
   - An assertion error when multiple routes are popped while a push transition is still running.
 - build: Bump the minimum supported Flutter SDK version to 3.41.0.
 
-See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.1.3) for more details.
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.2.0) for more details.
 
 ## 1.1.2 - 2026-08-23
 - fix: Avoid Widget Inspector crash on drag-disabled sheets ([#595](https://github.com/fujidaiti/smooth_sheets/pull/595)) - [beb86c7](https://github.com/fujidaiti/smooth_sheets/commit/beb86c703e6522dad7b9545a2920051b2fbf875f)
