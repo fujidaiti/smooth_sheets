@@ -1,9 +1,10 @@
 # Changelog
 
-## 1.1.3 - 2026-09-06
-- build: Bump navigator_resizable from 3.0.2 to 3.1.0 ([#605](https://github.com/fujidaiti/smooth_sheets/pull/605)) - [f315d5d](https://github.com/fujidaiti/smooth_sheets/commit/f315d5ddf16eb1de6a722d020ff5d0616e2c4ed7)
-- build: Bump go_router from 17.5.0 to 18.0.0 in the dependencies group ([#602](https://github.com/fujidaiti/smooth_sheets/pull/602)) - [2bd6b60](https://github.com/fujidaiti/smooth_sheets/commit/2bd6b6035304c2af2ac7bfe02635b881ec51912d)
-
+## 1.2.0 - 2026-09-07
+- build: Bump navigator_resizable from 3.0.2 to 3.1.0 to fix these issues: ([#605](https://github.com/fujidaiti/smooth_sheets/pull/605)) - [f315d5d](https://github.com/fujidaiti/smooth_sheets/commit/f315d5ddf16eb1de6a722d020ff5d0616e2c4ed7)
+  - A crash that occurs in the middle of a route transition.
+  - An assertion error when multiple routes are popped while a push transition is still running.
+- build: Bump the minimum supported Flutter SDK version to 3.41.0.
 
 See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.1.3) for more details.
 
