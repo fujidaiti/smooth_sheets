@@ -6,11 +6,14 @@ import 'package:meta/meta.dart';
 
 import 'drag.dart';
 import 'gesture_proxy.dart';
+import 'internal/animation_behavior.dart';
 import 'internal/float_comp.dart';
 import 'model.dart';
+import 'motion.dart';
 import 'viewport.dart';
 
 const _minReleasedPageForwardAnimationTime = 300; // Milliseconds.
+
 const Cubic _releasedPageForwardAnimationCurve = Curves.fastLinearToSlowEaseIn;
 
 /// {@template modal_sheet_barrier_builder}
@@ -47,8 +50,17 @@ class ModalSheetPage<T> extends Page<T> {
     this.fullscreenDialog = false,
     this.barrierLabel,
     this.barrierColor = Colors.black54,
+    @Deprecated(
+      'Use transitionMotion with a CurvedSheetMotion instead. '
+      'This feature was deprecated after v1.1.0.',
+    )
     this.transitionDuration = const Duration(milliseconds: 300),
+    @Deprecated(
+      'Use transitionMotion with a CurvedSheetMotion instead. '
+      'This feature was deprecated after v1.1.0.',
+    )
     this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    this.transitionMotion,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.viewportBuilder,
     this.barrierBuilder,
@@ -73,9 +85,37 @@ class ModalSheetPage<T> extends Page<T> {
 
   final bool swipeDismissible;
 
+  /// {@template modal_sheet_legacy_transition_duration}
+  /// How long the open and close transitions take.
+  ///
+  /// Superseded by [transitionMotion]; pass
+  /// `CurvedSheetMotion(duration: ...)` instead. Ignored entirely
+  /// when [transitionMotion] is non-null.
+  /// {@endtemplate}
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   final Duration transitionDuration;
 
+  /// {@template modal_sheet_legacy_transition_curve}
+  /// The curve along which the open and close transitions are interpolated.
+  ///
+  /// Superseded by [transitionMotion]; pass
+  /// `CurvedSheetMotion(curve: ...)` instead. Ignored entirely when
+  /// [transitionMotion] is non-null.
+  /// {@endtemplate}
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   final Curve transitionCurve;
+
+  /// {@macro modal_sheet_transition_motion}
+  ///
+  /// If null, a [CurvedSheetMotion] is built from the deprecated
+  /// [transitionDuration] and [transitionCurve].
+  final SheetMotion? transitionMotion;
 
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
@@ -116,10 +156,12 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
   bool get swipeDismissible => _page.swipeDismissible;
 
   @override
-  Curve get transitionCurve => _page.transitionCurve;
-
-  @override
-  Duration get transitionDuration => _page.transitionDuration;
+  SheetMotion get transitionMotion =>
+      _page.transitionMotion ??
+      CurvedSheetMotion(
+        duration: _page.transitionDuration,
+        curve: _page.transitionCurve,
+      );
 
   @override
   SwipeDismissSensitivity get swipeDismissSensitivity =>
@@ -152,11 +194,25 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
     this.barrierLabel,
     this.barrierColor = Colors.black54,
     this.swipeDismissible = false,
-    this.transitionDuration = const Duration(milliseconds: 300),
-    this.transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    @Deprecated(
+      'Use transitionMotion with a CurvedSheetMotion instead. '
+      'This feature was deprecated after v1.1.0.',
+    )
+    Duration transitionDuration = const Duration(milliseconds: 300),
+    @Deprecated(
+      'Use transitionMotion with a CurvedSheetMotion instead. '
+      'This feature was deprecated after v1.1.0.',
+    )
+    Curve transitionCurve = Curves.fastEaseInToSlowEaseOut,
+    SheetMotion? transitionMotion,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.barrierBuilder,
-  });
+  }) : transitionMotion =
+           transitionMotion ??
+           CurvedSheetMotion(
+             duration: transitionDuration,
+             curve: transitionCurve,
+           );
 
   final WidgetBuilder builder;
 
@@ -177,11 +233,9 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   @override
   final bool maintainState;
 
+  /// {@macro modal_sheet_transition_motion}
   @override
-  final Duration transitionDuration;
-
-  @override
-  final Curve transitionCurve;
+  final SheetMotion transitionMotion;
 
   @override
   final SwipeDismissSensitivity swipeDismissSensitivity;
@@ -204,7 +258,47 @@ class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
 mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   bool get swipeDismissible;
 
-  Curve get transitionCurve;
+  /// {@template modal_sheet_transition_motion}
+  /// Describes how the route's open and close transitions are animated.
+  ///
+  /// Defaults to a [CurvedSheetMotion], which interpolates the
+  /// transition along a [Curve] over a fixed [Duration].
+  ///
+  /// Set this to a [SpringSheetMotion] to drive the transition with
+  /// a spring simulation instead, the way iOS does. A spring is velocity
+  /// aware, so the speed at which the user releases a swipe-to-dismiss
+  /// gesture carries over into the animation:
+  ///
+  /// ```dart
+  /// ModalSheetRoute<void>(
+  ///   swipeDismissible: true,
+  ///   transitionMotion: const SheetMotion.spring(),
+  ///   builder: (context) => Sheet(child: ...),
+  /// );
+  /// ```
+  ///
+  /// The motion is captured when the route is installed. Changing it on a live
+  /// [Page] afterwards has no effect on the route that page already created,
+  /// because the shape of the animation controller — bounded for a curve,
+  /// unbounded for a simulation that can overshoot — is fixed at that point.
+  /// {@endtemplate}
+  SheetMotion get transitionMotion => const CurvedSheetMotion();
+
+  /// [transitionMotion] as it was when this route was installed.
+  ///
+  /// Everything that drives the transition reads this rather than
+  /// [transitionMotion], so that the motion cannot change out from under the
+  /// animation controller that was built for it. Falls back to the live value
+  /// before [install] has run.
+  SheetMotion get _motion => _installedMotion ?? transitionMotion;
+  SheetMotion? _installedMotion;
+
+  /// The curve of [transitionMotion], or [Curves.linear] if it is driven by
+  /// a simulation rather than a curve.
+  Curve get transitionCurve => _motion.curve;
+
+  @override
+  Duration get transitionDuration => _motion.duration;
 
   SwipeDismissSensitivity get swipeDismissSensitivity;
 
@@ -222,11 +316,80 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   ///
   /// In the middle of a dismiss gesture drag,
   /// this returns [Curves.linear] to match the finger motion.
+  ///
+  /// If [transitionMotion] is a [SpringSheetMotion], this always
+  /// returns [Curves.linear], because the simulation already describes the
+  /// entire trajectory and reshaping it with a curve would distort it.
   @nonVirtual
   @visibleForTesting
   Curve get effectiveCurve => (navigator?.userGestureInProgress ?? false)
       ? Curves.linear
-      : transitionCurve;
+      : _motion.curve;
+
+  /// The velocity at which the user released the most recent
+  /// swipe-to-dismiss gesture, in transition progress per second.
+  ///
+  /// Stashed by [_SheetDismissible] right before it pops the route, so that
+  /// [createSimulation] can hand it to the pop animation. Consumed, and thus
+  /// reset to null, by the next [createSimulation] call.
+  double? _dragEndVelocity;
+
+  @override
+  AnimationController createAnimationController() {
+    if (_motion.isBounded) {
+      return super.createAnimationController();
+    }
+
+    // A spring with bounce leaves the [0, 1] range before settling back onto
+    // its destination. A bounded controller would clamp those values, pinning
+    // the sheet against the boundary until the simulation comes back into
+    // range, so the overshoot has to be allowed through instead.
+    assert(
+      !debugTransitionCompleted(),
+      'Cannot reuse a $runtimeType after disposing it.',
+    );
+    return AnimationController.unbounded(
+      duration: transitionDuration,
+      reverseDuration: reverseTransitionDuration,
+      debugLabel: debugLabel,
+      vsync: navigator!,
+    );
+  }
+
+  @override
+  Animation<double> createAnimation() {
+    if (_motion.isBounded) {
+      return super.createAnimation();
+    }
+    return _springTransitionAnimation = _SpringTransitionAnimation(
+      _controller,
+    );
+  }
+
+  _SpringTransitionAnimation? _springTransitionAnimation;
+
+  @override
+  void didAdd() {
+    super.didAdd();
+    if (!_controller.value.isFinite) {
+      // TransitionRoute.didAdd() jumps the controller to its upper bound,
+      // which is infinite for the unbounded controller used by a spring.
+      _controller.value = 1;
+    }
+  }
+
+  @override
+  Simulation? createSimulation({required bool forward}) {
+    final velocity = _dragEndVelocity;
+    _dragEndVelocity = null;
+
+    final simulation = _motion.createSimulation(
+      start: controller!.value,
+      end: forward ? 1.0 : 0.0,
+      velocity: velocity ?? 0.0,
+    );
+    return simulation == null ? null : applyAnimationBehaviorTo(simulation);
+  }
 
   /// Reports how much of a modal sheet is currently visible on the viewport.
   ///
@@ -265,6 +428,9 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
 
   @override
   void install() {
+    // Must happen before super.install(), which calls
+    // createAnimationController() and therefore needs the captured motion.
+    _installedMotion = transitionMotion;
     super.install();
     _sheetVisibility = _SheetVisibilityNotifier();
   }
@@ -272,6 +438,7 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   @override
   void dispose() {
     _sheetVisibility.dispose();
+    _springTransitionAnimation?.dispose();
     super.dispose();
   }
 
@@ -309,9 +476,14 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   ) {
     final transitionTween = Tween(begin: const Offset(0, 1), end: Offset.zero);
     return SlideTransition(
-      position: animation.drive(
-        transitionTween.chain(CurveTween(curve: effectiveCurve)),
-      ),
+      // Curve.transform() rejects values outside [0, 1], which an
+      // unbounded motion produces, and its simulation already describes
+      // the whole trajectory anyway.
+      position: _motion.isBounded
+          ? animation.drive(
+              transitionTween.chain(CurveTween(curve: effectiveCurve)),
+            )
+          : animation.drive(transitionTween),
       child: child,
     );
   }
@@ -355,6 +527,72 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
   }
 }
 
+/// The view of the unbounded [AnimationController] that drives a spring
+/// driven route.
+///
+/// An [AnimationController] derives [AnimationStatus.completed] and
+/// [AnimationStatus.dismissed] from whether its value equals its bounds, and
+/// the bounds of an unbounded controller are infinite. Assigning a value
+/// directly — as [TransitionRoute.didAdd] and [TransitionRoute.didReplace] do
+/// for routes that appear without a transition — would therefore leave the
+/// route reporting [AnimationStatus.forward] forever, which in turn disables
+/// barrier taps and confuses the swipe-to-dismiss gesture.
+///
+/// This restores the missing statuses by reading them off the resting value
+/// instead. While the controller is animating, its own status is used, so the
+/// overshoot of a bouncy spring is still reported as an ongoing transition.
+class _SpringTransitionAnimation extends Animation<double>
+    with
+        AnimationEagerListenerMixin,
+        AnimationLocalListenersMixin,
+        AnimationLocalStatusListenersMixin {
+  _SpringTransitionAnimation(this._controller) {
+    _status = _computeStatus();
+    _controller
+      ..addListener(_onValueChanged)
+      ..addStatusListener(_onStatusChanged);
+  }
+
+  final AnimationController _controller;
+
+  @override
+  double get value => _controller.value;
+
+  @override
+  AnimationStatus get status => _status;
+  late AnimationStatus _status;
+
+  AnimationStatus _computeStatus() {
+    if (!_controller.isAnimating) {
+      if (_controller.value >= 1) return AnimationStatus.completed;
+      if (_controller.value <= 0) return AnimationStatus.dismissed;
+    }
+    return _controller.status;
+  }
+
+  void _onValueChanged() {
+    notifyListeners();
+    _invalidateStatus();
+  }
+
+  void _onStatusChanged(AnimationStatus _) => _invalidateStatus();
+
+  void _invalidateStatus() {
+    if (_computeStatus() case final newStatus when newStatus != _status) {
+      _status = newStatus;
+      notifyStatusListeners(newStatus);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller
+      ..removeListener(_onValueChanged)
+      ..removeStatusListener(_onStatusChanged);
+    super.dispose();
+  }
+}
+
 /// Enables swipe-to-dismiss functionality for a modal sheet route.
 ///
 /// Must be used as the content of a route that implements
@@ -385,6 +623,14 @@ class _SheetDismissibleState extends State<_SheetDismissible>
   late ModalSheetRouteMixin<dynamic> _route;
 
   AnimationController get _transitionController => _route._controller;
+
+  /// The status of the route transition.
+  ///
+  /// Read through [ModalRoute.animation] rather than off
+  /// [_transitionController] directly: a spring driven route uses an unbounded
+  /// controller, which cannot derive `completed`/`dismissed` from its own
+  /// infinite bounds. Only the animation restores them.
+  Animation<double> get _transition => _route.animation!;
 
   bool get _isUserGestureInProgress => _route.navigator!.userGestureInProgress;
 
@@ -483,7 +729,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     final minPDC = minPotentialDeltaConsumption.dy;
     assert(details.delta.dy * minPDC >= 0);
     final double effectiveDragDelta;
-    if (!_transitionController.isCompleted) {
+    if (!_transition.isCompleted) {
       // Dominantly use the full pixels if it is in the middle of a transition.
       effectiveDragDelta = dragDelta;
     } else if (dragDelta < 0 &&
@@ -504,7 +750,10 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     }
 
     final viewport = _navigatorSize.height;
-    final visibleViewport = viewport * _transitionController.value;
+    // The controller is unbounded when a spring drives the transition, so the
+    // value may briefly sit outside [0, 1] while the spring overshoots.
+    final visibleViewport =
+        viewport * _transitionController.value.clamp(0.0, 1.0);
     assert(0 <= visibleViewport && visibleViewport <= viewport);
     final newVisibleViewport = (visibleViewport + effectiveDragDelta).clamp(
       0,
@@ -595,24 +844,41 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     final didPop = invokePop && _canPopByGesture;
 
     if (didPop) {
+      // Hand the release velocity to the pop animation, which
+      // ModalSheetRouteMixin.createSimulation is about to build.
+      _route._dragEndVelocity = effectiveVelocity;
       _route.navigator!.pop();
-    } else if (!_transitionController.isCompleted) {
+    } else if (!_transition.isCompleted) {
       // The route won't be popped, so animate the transition
       // back to the origin.
-      final fraction = 1.0 - _transitionController.value;
-      final animationTime = max(
-        (_route.transitionDuration.inMilliseconds * fraction).floor(),
-        _minReleasedPageForwardAnimationTime,
+      const completedAnimationValue = 1.0;
+      final simulation = _route._motion.createSimulation(
+        start: _transitionController.value,
+        end: completedAnimationValue,
+        velocity: effectiveVelocity,
       );
 
-      const completedAnimationValue = 1.0;
-      unawaited(
-        _transitionController.animateTo(
-          completedAnimationValue,
-          duration: Duration(milliseconds: animationTime),
-          curve: _releasedPageForwardAnimationCurve,
-        ),
-      );
+      if (simulation != null) {
+        unawaited(
+          _transitionController.animateWith(
+            applyAnimationBehaviorTo(simulation),
+          ),
+        );
+      } else {
+        final fraction = 1.0 - _transitionController.value;
+        final animationTime = max(
+          (_route.transitionDuration.inMilliseconds * fraction).floor(),
+          _minReleasedPageForwardAnimationTime,
+        );
+
+        unawaited(
+          _transitionController.animateTo(
+            completedAnimationValue,
+            duration: Duration(milliseconds: animationTime),
+            curve: _releasedPageForwardAnimationCurve,
+          ),
+        );
+      }
     }
 
     // Reset the transition animation curve back to the default from linear
@@ -640,8 +906,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     // 3. The modal route is removed from the Navigator's subtree.
     // 4. Route.didPop() is called, initiating the pop transition animation
     //    by calling AnimationController.reverse().
-    if (_transitionController.isCompleted ||
-        _transitionController.isDismissed) {
+    if (_transition.isCompleted || _transition.isDismissed) {
       _isUserGestureInProgress = false;
     } else {
       late final AnimationStatusListener animationStatusCallback;
@@ -966,7 +1231,9 @@ class _SheetVisibilityObserverState extends State<_SheetVisibilityObserver> {
     if (model != null && model.hasMetrics && !widget.route.offstage) {
       widget.route._sheetVisibility.didChangeVisualSheetPosition(
         model,
-        widget.route.effectiveCurve.transform(_transition.value),
+        widget.route.effectiveCurve.transform(
+          _transition.value.clamp(0.0, 1.0),
+        ),
       );
     }
   }
@@ -1021,7 +1288,7 @@ class _DefaultModalBarrierColorAnimation extends Animation<Color> {
         opacity = (opacity / t).clamp(0.0, 1.0);
       }
     } else {
-      opacity = curve.transform(transitionProgress.value);
+      opacity = curve.transform(transitionProgress.value.clamp(0.0, 1.0));
     }
 
     return Color.lerp(_transparentColor, color, opacity)!;

@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import 'model.dart';
+import 'motion.dart';
 
 class SheetController extends ChangeNotifier
     implements ValueListenable<double?> {
@@ -64,13 +65,52 @@ class SheetController extends ChangeNotifier
     super.dispose();
   }
 
+  /// Animates the sheet to the given offset.
+  ///
+  /// The returned future completes when the animation ends, whether it
+  /// reached [to] or was interrupted by another activity such as a drag.
+  ///
+  /// [motion] describes how the sheet travels there. It defaults to
+  /// [kDefaultSheetAnimationMotion]; pass a [SpringSheetMotion] to move the
+  /// sheet with a spring simulation instead of a curve:
+  ///
+  /// ```dart
+  /// controller.animateTo(
+  ///   const SheetOffset(0.5),
+  ///   motion: SpringSheetMotion.snappy(),
+  /// );
+  /// ```
+  ///
+  /// [velocity] is the speed the sheet is already moving at, in pixels per
+  /// second, with positive values meaning the offset is increasing. Only a
+  /// [SpringSheetMotion] can carry it over into the animation.
   Future<void> animateTo(
     SheetOffset to, {
-    Duration duration = const Duration(milliseconds: 300),
-    Curve curve = Curves.easeInOut,
+    @Deprecated(
+      'Use motion instead. Note that CurvedSheetMotion defaults to '
+      'Curves.fastEaseInToSlowEaseOut; pass kDefaultSheetAnimationMotion '
+      'to keep the easing animateTo has always used. '
+      'This feature was deprecated after v1.1.0.',
+    )
+    Duration? duration,
+    @Deprecated(
+      'Use motion instead. Note that CurvedSheetMotion defaults to '
+      'Curves.fastEaseInToSlowEaseOut; pass kDefaultSheetAnimationMotion '
+      'to keep the easing animateTo has always used. '
+      'This feature was deprecated after v1.1.0.',
+    )
+    Curve? curve,
+    SheetMotion? motion,
+    double velocity = 0,
   }) {
     assert(_client != null);
-    return _client!.animateTo(to, duration: duration, curve: curve);
+    return _client!.animateTo(
+      to,
+      duration: duration,
+      curve: curve,
+      motion: motion,
+      velocity: velocity,
+    );
   }
 
   @override

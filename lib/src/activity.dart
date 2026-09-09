@@ -7,7 +7,10 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import 'drag.dart';
+import 'internal/animation_behavior.dart';
+import 'internal/float_comp.dart';
 import 'model.dart';
+import 'motion.dart';
 import 'physics.dart';
 
 @internal
@@ -169,8 +172,7 @@ class InitialSheetActivity<T extends SheetModel> extends SheetActivity<T> {
 }
 
 /// An activity that animates the [SheetModel]'s `offset` to a destination
-/// position determined by [destination], using the specified [curve] and
-/// [duration].
+/// position determined by [destination], following [motion].
 ///
 /// This activity accepts the destination position as an [SheetOffset], allowing
 /// the concrete end position (in offset) to be updated during the animation
@@ -179,30 +181,50 @@ class InitialSheetActivity<T extends SheetModel> extends SheetActivity<T> {
 ///
 /// When the bottom viewport inset changes, typically due to the appearance
 /// or disappearance of the on-screen keyboard, this activity updates the
-/// sheet position to maintain its visual position unchanged. If the
-/// end position changes, it starts a [SettlingSheetActivity] for the
-/// remaining duration to ensure the animation duration remains consistent.
+/// sheet position to maintain its visual position unchanged. If the end
+/// position changes, a [CurvedSheetMotion] hands the remaining duration to a
+/// [SettlingSheetActivity] so that the total duration stays consistent, while
+/// a [SpringSheetMotion] re-aims at the new destination, carrying its current
+/// velocity across.
 @internal
 class AnimatedSheetActivity extends SheetActivity
     with ControlledSheetActivityMixin {
   AnimatedSheetActivity({
     required this.destination,
-    required this.duration,
-    required this.curve,
-  }) : assert(duration > Duration.zero);
+    required this.motion,
+    this.initialVelocity = 0,
+  }) : assert(
+         motion is! CurvedSheetMotion || motion.duration > Duration.zero,
+         'A curve driven motion needs a positive duration.',
+       );
 
   final SheetOffset destination;
-  final Duration duration;
-  final Curve curve;
+
+  /// How the sheet travels from its current offset to [destination].
+  final SheetMotion motion;
+
+  /// The speed the sheet is already moving at, in pixels per second, with
+  /// positive values meaning the offset is increasing.
+  ///
+  /// Only a [SpringSheetMotion] can carry this over into the animation; a
+  /// [CurvedSheetMotion] always starts from rest.
+  final double initialVelocity;
 
   late final double _startOffset;
   late final double _endOffset;
 
+  /// The distance the animation covers, which is also the factor that
+  /// converts between the normalized progress a [SheetMotion] describes and
+  /// the pixels the sheet actually moves.
+  double get _travel => _endOffset - _startOffset;
+
   @override
   void init(SheetModel owner) {
-    super.init(owner);
+    // Must be resolved before super.init(), which starts the animation, and
+    // a spring needs _travel to normalize its initial velocity.
     _startOffset = owner.offset;
     _endOffset = destination.resolve(owner);
+    super.init(owner);
   }
 
   @override
@@ -212,14 +234,39 @@ class AnimatedSheetActivity extends SheetActivity
 
   @override
   TickerFuture onAnimationStart() {
-    return controller.animateTo(1.0, duration: duration, curve: curve);
+    final simulation = motion.createSimulation(
+      start: 0,
+      end: 1,
+      // SheetMotion describes a normalized progress, so the velocity has to
+      // be divided by the distance that progress spans. _travel is never
+      // zero: SheetModel.animateTo() returns early when the sheet is already
+      // at the destination.
+      velocity: initialVelocity / _travel,
+    );
+    return simulation == null
+        ? controller.animateTo(
+            1,
+            duration: motion.duration,
+            curve: motion.curve,
+          )
+        : controller.animateWith(applyAnimationBehaviorTo(simulation));
   }
+
+  /// The speed of the sheet in pixels per second.
+  ///
+  /// [controller] runs in normalized progress, so its own velocity is in
+  /// progress per second and has to be scaled back up.
+  @override
+  double get velocity => controller.velocity * _travel;
 
   @override
   void onAnimationTick() {
-    final progress = curve.transform(controller.value);
+    // AnimationController.animateTo() drives the controller with an
+    // interpolation simulation that has already applied the curve, so
+    // controller.value is the curved progress. Applying the curve again
+    // here would compose it with itself.
     owner
-      ..offset = lerpDouble(_startOffset, _endOffset, progress)!
+      ..offset = lerpDouble(_startOffset, _endOffset, controller.value)!
       ..didUpdateMetrics();
   }
 
@@ -232,10 +279,28 @@ class AnimatedSheetActivity extends SheetActivity
   void applyNewLayout(ViewportLayout? oldLayout) {
     if (oldLayout == null) return;
     final newEndOffset = destination.resolve(owner);
-    if (newEndOffset != _endOffset) {
+    if (FloatComp.distance(
+      owner.devicePixelRatio,
+    ).isApprox(newEndOffset, _endOffset)) {
+      return;
+    }
+
+    if (motion.createSimulation(start: 0, end: 1, velocity: 0) == null) {
       final remainingDuration =
-          duration - (controller.lastElapsedDuration ?? Duration.zero);
+          motion.duration - (controller.lastElapsedDuration ?? Duration.zero);
       owner.settleTo(destination, remainingDuration);
+    } else {
+      // A simulation has no clock left to hand over, so aim it at the new
+      // destination instead, carrying the current speed for continuity.
+      //
+      // This has to begin a whole new activity rather than restart this
+      // one's controller: a canceled TickerFuture never completes, so the
+      // whenComplete(onAnimationEnd) registered by
+      // ControlledSheetActivityMixin.init would never fire, leaving the
+      // caller of animateTo() waiting forever.
+      unawaited(
+        owner.animateTo(destination, motion: motion, velocity: velocity),
+      );
     }
   }
 }

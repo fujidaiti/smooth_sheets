@@ -21,6 +21,7 @@ export 'src/model.dart'
         SheetModel,
         SheetModelConfig,
         SheetModelView;
+export 'src/motion.dart';
 export 'src/notification.dart';
 export 'src/offset_driven_animation.dart';
 export 'src/paged_sheet.dart';

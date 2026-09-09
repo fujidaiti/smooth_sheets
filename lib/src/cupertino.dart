@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'internal/double_utils.dart';
 import 'modal.dart';
 import 'model.dart';
+import 'motion.dart';
 import 'viewport.dart';
 
 const _sheetTopInset = 12.0;
@@ -376,11 +377,15 @@ class _OutgoingTransitionController extends Animation<double>
 
     final oldValue = _value;
     final sheetMetrics = _lastReportedSheetMetrics;
+    // _value is documented to stay within [0, 1], and the incoming route's
+    // animation is unbounded when a simulation that can overshoot drives it,
+    // so the contract is enforced rather than assumed.
+    final transitionProgress = route.secondaryAnimation!.value.clamp(0.0, 1.0);
     if (sheetMetrics == null) {
-      _value = route.secondaryAnimation!.value;
+      _value = transitionProgress;
     } else {
       _value = min(
-        route.secondaryAnimation!.value,
+        transitionProgress,
         sheetMetrics.offset
             .inverseLerp(sheetMetrics.minOffset, sheetMetrics.maxOffset)
             .clamp(0, 1),
@@ -642,8 +647,17 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.swipeDismissible = false,
     this.barrierLabel,
     this.barrierColor = _barrierColor,
+    @Deprecated(
+      'Use transitionMotion with a CurvedSheetMotion instead. '
+      'This feature was deprecated after v1.1.0.',
+    )
     this.transitionDuration = _transitionDuration,
+    @Deprecated(
+      'Use transitionMotion with a CurvedSheetMotion instead. '
+      'This feature was deprecated after v1.1.0.',
+    )
     this.transitionCurve = _incomingTransitionCurve,
+    this.transitionMotion,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.overlayColor,
     this.viewportBuilder,
@@ -666,9 +680,25 @@ class CupertinoModalSheetPage<T> extends Page<T> {
 
   final String? barrierLabel;
 
+  /// {@macro modal_sheet_legacy_transition_duration}
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   final Duration transitionDuration;
 
+  /// {@macro modal_sheet_legacy_transition_curve}
+  @Deprecated(
+    'Use transitionMotion with a CurvedSheetMotion instead. '
+    'This feature was deprecated after v1.1.0.',
+  )
   final Curve transitionCurve;
+
+  /// {@macro modal_sheet_transition_motion}
+  ///
+  /// If null, a [CurvedSheetMotion] is built from the deprecated
+  /// [transitionDuration] and [transitionCurve].
+  final SheetMotion? transitionMotion;
 
   final SwipeDismissSensitivity swipeDismissSensitivity;
 
@@ -707,10 +737,12 @@ class _PageBasedCupertinoModalSheetRoute<T>
   bool get swipeDismissible => _page.swipeDismissible;
 
   @override
-  Curve get transitionCurve => _page.transitionCurve;
-
-  @override
-  Duration get transitionDuration => _page.transitionDuration;
+  SheetMotion get transitionMotion =>
+      _page.transitionMotion ??
+      CurvedSheetMotion(
+        duration: _page.transitionDuration,
+        curve: _page.transitionCurve,
+      );
 
   @override
   SwipeDismissSensitivity get swipeDismissSensitivity =>
@@ -749,12 +781,26 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
     this.swipeDismissible = false,
     this.barrierLabel,
     this.barrierColor = _barrierColor,
-    this.transitionDuration = _transitionDuration,
-    this.transitionCurve = _incomingTransitionCurve,
+    @Deprecated(
+      'Use transitionMotion with a CurvedSheetMotion instead. '
+      'This feature was deprecated after v1.1.0.',
+    )
+    Duration transitionDuration = _transitionDuration,
+    @Deprecated(
+      'Use transitionMotion with a CurvedSheetMotion instead. '
+      'This feature was deprecated after v1.1.0.',
+    )
+    Curve transitionCurve = _incomingTransitionCurve,
+    SheetMotion? transitionMotion,
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.overlayColor,
     this.barrierBuilder,
-  });
+  }) : transitionMotion =
+           transitionMotion ??
+           CurvedSheetMotion(
+             duration: transitionDuration,
+             curve: transitionCurve,
+           );
 
   final WidgetBuilder builder;
 
@@ -775,11 +821,9 @@ class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   @override
   final bool maintainState;
 
+  /// {@macro modal_sheet_transition_motion}
   @override
-  final Duration transitionDuration;
-
-  @override
-  final Curve transitionCurve;
+  final SheetMotion transitionMotion;
 
   @override
   final SwipeDismissSensitivity swipeDismissSensitivity;
