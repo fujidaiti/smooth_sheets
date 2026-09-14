@@ -1,4 +1,6 @@
 /// @docImport 'controller.dart';
+/// @docImport 'snap_grid.dart';
+/// @docImport 'viewport.dart';
 library;
 
 import 'package:flutter/cupertino.dart';
@@ -563,6 +565,11 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
 }
 
 // TODO: Make this an immutable data class.
+/// Describes the geometry of the viewport and the sheet's content within it.
+///
+/// Instances of [ViewportLayout] are passed to [SheetSnapGrid.getSnapOffset],
+/// [SheetDecoration.preferredExtent], and other layout-aware APIs to allow
+/// them to make decisions based on the current viewport and content dimensions.
 abstract interface class ViewportLayout {
   /// {@template ViewportLayout.viewportSize}
   /// The size of the *viewport*, which is the rectangle
@@ -592,6 +599,7 @@ abstract interface class ViewportLayout {
   double get contentBaseline;
 }
 
+/// Extends [ViewportLayout] with the current sheet size.
 abstract interface class SheetLayout extends ViewportLayout {
   /// The size of the sheet.
   Size get size;
