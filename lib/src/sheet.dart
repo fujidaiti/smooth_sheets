@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 
 import 'activity.dart';
 import 'controller.dart';
+import 'drag_handle.dart';
 import 'draggable.dart';
 import 'gesture_proxy.dart';
 import 'model.dart';
@@ -65,6 +66,7 @@ class Sheet extends StatelessWidget {
     this.dragConfiguration = const SheetDragConfiguration(),
     this.decoration = const DefaultSheetDecoration(),
     this.padding = EdgeInsets.zero,
+    this.dragHandle = const SheetDragHandle(),
     required this.child,
   });
 
@@ -96,6 +98,13 @@ class Sheet extends StatelessWidget {
   /// {@macro viewport.BareSheet.padding}
   final EdgeInsets padding;
 
+  /// A grabber shown centered at the top of the sheet, overlaid on the
+  /// [child]. Dragging it drags the sheet like any other part of the surface.
+  ///
+  /// Defaults to an animated [SheetDragHandle] that morphs between a chevron
+  /// and a bar as the sheet moves. Set to `null` to hide it.
+  final Widget? dragHandle;
+
   /// The content of the sheet.
   final Widget child;
 
@@ -116,7 +125,25 @@ class Sheet extends StatelessWidget {
         child: DraggableScrollableSheetContent(
           scrollConfiguration: scrollConfiguration,
           dragConfiguration: dragConfiguration,
-          child: child,
+          child: dragHandle == null
+              ? child
+              : Stack(
+                  children: [
+                    child,
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: dragHandle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
