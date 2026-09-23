@@ -73,6 +73,23 @@ class SheetController extends ChangeNotifier
     return _client!.animateTo(to, duration: duration, curve: curve);
   }
 
+  /// Immediately sets the sheet position to [to] without animation.
+  ///
+  /// Unlike [animateTo], this jumps to the target on the same frame, making it
+  /// suitable for driving the sheet directly from a drag gesture (finger
+  /// following).
+  ///
+  /// It also retargets the idle activity to [to] so a layout change (e.g. the
+  /// sheet content resizing in response to the new offset) does not snap the
+  /// sheet back to its previous snap position. Call [animateTo] on release to
+  /// settle to a final position.
+  void jumpTo(SheetOffset to) {
+    assert(_client != null);
+    _client!
+      ..offset = to.resolve(_client!)
+      ..goIdle(targetOffset: to);
+  }
+
   @override
   void notifyListeners() {
     _immediateListeners.notifyListeners();
