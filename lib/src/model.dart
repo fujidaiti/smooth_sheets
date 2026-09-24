@@ -11,6 +11,7 @@ import 'activity.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'model_owner.dart';
+import 'motion.dart';
 import 'notification.dart';
 import 'physics.dart';
 import 'snap_grid.dart';
@@ -477,16 +478,35 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
   /// interrupted prematurely.
   Future<void> animateTo(
     SheetOffset newPosition, {
-    Curve curve = Curves.easeInOut,
-    Duration duration = const Duration(milliseconds: 300),
+    @Deprecated(
+      'Use motion instead. Note that CurvedSheetMotion defaults to '
+      'Curves.fastEaseInToSlowEaseOut; pass kDefaultSheetAnimationMotion '
+      'to keep the easing animateTo has always used. '
+      'This feature was deprecated after v1.1.0.',
+    )
+    Curve? curve,
+    @Deprecated(
+      'Use motion instead. Note that CurvedSheetMotion defaults to '
+      'Curves.fastEaseInToSlowEaseOut; pass kDefaultSheetAnimationMotion '
+      'to keep the easing animateTo has always used. '
+      'This feature was deprecated after v1.1.0.',
+    )
+    Duration? duration,
+    SheetMotion? motion,
+    double velocity = 0,
   }) {
     if (offset == newPosition.resolve(this)) {
       return Future.value();
     } else {
       final activity = AnimatedSheetActivity(
         destination: newPosition,
-        duration: duration,
-        curve: curve,
+        motion:
+            motion ??
+            CurvedSheetMotion(
+              duration: duration ?? kDefaultSheetAnimationMotion.duration,
+              curve: curve ?? kDefaultSheetAnimationMotion.curve,
+            ),
+        initialVelocity: velocity,
       );
 
       beginActivity(activity);
