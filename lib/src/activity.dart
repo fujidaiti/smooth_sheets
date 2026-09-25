@@ -62,6 +62,23 @@ abstract class SheetActivity<T extends SheetModel> {
 
   bool isCompatibleWith(SheetModel newOwner) => newOwner is T;
 
+  /// Whether this activity must receive a call to [applyNewLayout] as soon
+  /// as it starts, even if the incoming layout has the exact same values as
+  /// the last layout the model processed.
+  ///
+  /// [SheetModel.applyNewLayout] skips calling [applyNewLayout] on the
+  /// current activity when the incoming layout is identical (by value) to
+  /// the previous one, as an optimization to avoid redundant work. This is
+  /// safe for activities that only react to genuine layout changes (e.g.
+  /// ballistic or settling animations), but activities that use
+  /// [applyNewLayout] to perform one-time setup -- most commonly, giving
+  /// [owner] its very first offset -- must still run even when the layout
+  /// coincidentally matches the previous one (which can happen, for example,
+  /// while a nested [Navigator] is still resolving its first route, one
+  /// frame after this activity started). Such activities should override
+  /// this to return `true`.
+  bool get needsInitialLayout => false;
+
   /// Returns the offset that [owner] would have if
   /// [applyNewLayout] were called with the given [layout].
   ///
@@ -135,6 +152,9 @@ class InitialSheetActivity<T extends SheetModel> extends SheetActivity<T> {
   InitialSheetActivity({required this.preferredInitialOffset});
 
   final SheetOffset preferredInitialOffset;
+
+  @override
+  bool get needsInitialLayout => true;
 
   @override
   void init(T owner) {
