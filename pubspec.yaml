@@ -20,7 +20,9 @@ dependencies:
   navigator_resizable: ^3.1.0
 # Dependencies for testing
 dev_dependencies:
-  auto_route: ^11.1.0
+  # Pinned below 11.2.0: that version uses PageView.scrollCacheExtent,
+  # which does not exist in the lowest supported Flutter SDK.
+  auto_route: ">=11.1.0 <11.2.0"
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter
