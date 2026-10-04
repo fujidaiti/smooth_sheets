@@ -20,7 +20,9 @@ dependencies:
   navigator_resizable: ^3.1.0
 # Dependencies for testing
 dev_dependencies:
-  auto_route: ^11.1.0
+  # auto_route 11.2.0 uses ScrollCacheExtent, which is unavailable in Flutter 3.41.0,
+  # while still declaring flutter: ">=3.16.0".
+  auto_route: ">=11.1.0 <11.2.0"
   build_runner: ^2.4.9
   flutter_test:
     sdk: flutter
