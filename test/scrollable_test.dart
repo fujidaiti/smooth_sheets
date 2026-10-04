@@ -18,14 +18,18 @@ void main() {
     ({Widget testWidget, SheetController controller}) boilerplate({
       required SheetPhysics sheetPhysics,
       required ScrollPhysics scrollPhysics,
+      required SheetOffset initialOffset,
+      required SheetSnapGrid snapGrid,
+      required double sheetHeight,
+      required double contentHeight,
     }) {
       final controller = SheetController();
       final testWidget = SheetViewport(
         child: _TestSheet(
           key: Key('sheet'),
           controller: controller,
-          initialOffset: SheetOffset(1),
-          snapGrid: SheetSnapGrid.single(snap: SheetOffset(1)),
+          initialOffset: initialOffset,
+          snapGrid: snapGrid,
           scrollConfiguration: SheetScrollConfiguration(
             scrollSyncMode: SheetScrollHandlingBehavior.always,
           ),
@@ -33,10 +37,10 @@ void main() {
           child: SheetScrollable(
             controller: SheetScrollController(),
             child: SizedBox.fromSize(
-              size: Size.fromHeight(600),
+              size: Size.fromHeight(sheetHeight),
               child: SingleChildScrollView(
                 physics: scrollPhysics,
-                child: SizedBox.fromSize(size: Size.fromHeight(1000)),
+                child: SizedBox.fromSize(size: Size.fromHeight(contentHeight)),
               ),
             ),
           ),
@@ -52,6 +56,10 @@ void main() {
       final env = boilerplate(
         sheetPhysics: BouncingSheetPhysics(),
         scrollPhysics: ClampingScrollPhysics(),
+        initialOffset: SheetOffset(1),
+        snapGrid: SheetSnapGrid.single(snap: SheetOffset(1)),
+        sheetHeight: 600,
+        contentHeight: 1000,
       );
       await tester.pumpWidget(env.testWidget);
       expect(tester.getRect(find.byId('sheet')).top, 0);
@@ -80,6 +88,10 @@ void main() {
       final env = boilerplate(
         sheetPhysics: ClampingSheetPhysics(),
         scrollPhysics: BouncingScrollPhysics(),
+        initialOffset: SheetOffset(1),
+        snapGrid: SheetSnapGrid.single(snap: SheetOffset(1)),
+        sheetHeight: 600,
+        contentHeight: 1000,
       );
       await tester.pumpWidget(env.testWidget);
       expect(tester.getRect(find.byId('sheet')).top, 0);
@@ -99,6 +111,46 @@ void main() {
             'scroll physics allows it',
       );
     });
+
+    testWidgets(
+      'ClampingSheetPhysics with BouncingScrollPhysics: '
+      'when content does not overflow and drag delta is large',
+      (tester) async {
+        final env = boilerplate(
+          sheetPhysics: ClampingSheetPhysics(),
+          scrollPhysics: BouncingScrollPhysics(),
+          initialOffset: SheetOffset.absolute(250),
+          snapGrid: SheetSnapGrid(
+            snaps: [SheetOffset.absolute(250), SheetOffset(1)],
+          ),
+          sheetHeight: 500,
+          contentHeight: 500,
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(
+          tester.getRect(find.byId('sheet')),
+          Rect.fromLTWH(0, 350, 800, 500),
+        );
+
+        final gesture = await tester.startDrag(
+          tester.getCenter(find.byId('sheet')),
+          AxisDirection.up,
+        );
+        await tester.pump();
+        await gesture.moveUpwardBy(100 - kDragSlopDefault);
+        await tester.pump();
+        await gesture.moveUpwardBy(100);
+        await tester.pump();
+        await gesture.moveUpwardBy(100);
+        await tester.pump();
+
+        expect(
+          tester.getRect(find.byId('sheet')),
+          Rect.fromLTWH(0, 100, 800, 500),
+          reason: 'Sheet should not go beyond maxOffset',
+        );
+      },
+    );
   });
 
   group('Scroll sync test', () {

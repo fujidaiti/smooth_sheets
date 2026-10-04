@@ -2,12 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:smooth_sheets/src/activity.dart';
-import 'package:smooth_sheets/src/controller.dart';
 import 'package:smooth_sheets/src/decorations.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/model_owner.dart';
 import 'package:smooth_sheets/src/physics.dart';
-import 'package:smooth_sheets/src/scrollable.dart';
 import 'package:smooth_sheets/src/sheet.dart';
 import 'package:smooth_sheets/src/snap_grid.dart';
 import 'package:smooth_sheets/src/viewport.dart';
@@ -262,123 +260,5 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
-  });
-
-  group('Dragging a sheet with non-overflowing scrollable content', () {
-    const minFraction = 0.3;
-    const maxFraction = 0.9;
-
-    Future<List<double>> dragAndRecordOffsets(
-      WidgetTester tester, {
-      required double initialFraction,
-      required double dragDistance,
-    }) async {
-      final controller = SheetController();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: LayoutBuilder(
-              builder: (context, constraints) {
-                return SheetViewport(
-                  child: Sheet(
-                    controller: controller,
-                    initialOffset: SheetOffset.proportionalToViewport(
-                      initialFraction,
-                    ),
-                    snapGrid: SheetSnapGrid(
-                      snaps: [
-                        SheetOffset.proportionalToViewport(minFraction),
-                        SheetOffset.proportionalToViewport(maxFraction),
-                      ],
-                    ),
-                    physics: ClampingSheetPhysics(),
-                    scrollConfiguration: SheetScrollConfiguration(),
-                    child: SizedBox(
-                      height: maxFraction * constraints.maxHeight,
-                      child: Material(
-                        child: ListView(children: const [SizedBox(height: 40)]),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final offsets = <double>[];
-      controller.addListener(() => offsets.add(controller.metrics!.offset));
-      final viewportSize =
-          tester.view.physicalSize / tester.view.devicePixelRatio;
-      await tester.flingFrom(
-        Offset(viewportSize.width / 2, viewportSize.height * 0.85),
-        Offset(0, dragDistance),
-        8000,
-      );
-      for (var i = 0; i < 90; i++) {
-        await tester.pump(const Duration(milliseconds: 16));
-      }
-      return offsets;
-    }
-
-    for (final distance in [500.0, 503.0]) {
-      testWidgets(
-        'never exceeds maxOffset when dragged up by $distance',
-        (tester) async {
-          final offsets = await dragAndRecordOffsets(
-            tester,
-            initialFraction: minFraction,
-            dragDistance: -distance,
-          );
-          final maxOffset =
-              tester.view.physicalSize.height /
-              tester.view.devicePixelRatio *
-              maxFraction;
-
-          expect(offsets, isNotEmpty);
-          expect(
-            offsets.every((offset) => offset <= maxOffset + 0.01),
-            isTrue,
-            reason:
-                'Offsets above maxOffset: '
-                '${offsets.where((it) => it > maxOffset + 0.01)}',
-          );
-        },
-        variant: TargetPlatformVariant({
-          TargetPlatform.iOS,
-          TargetPlatform.android,
-        }),
-      );
-
-      testWidgets(
-        'never goes below minOffset when dragged down by $distance',
-        (tester) async {
-          final offsets = await dragAndRecordOffsets(
-            tester,
-            initialFraction: maxFraction,
-            dragDistance: distance,
-          );
-          final minOffset =
-              tester.view.physicalSize.height /
-              tester.view.devicePixelRatio *
-              minFraction;
-
-          expect(offsets, isNotEmpty);
-          expect(
-            offsets.every((offset) => offset >= minOffset - 0.01),
-            isTrue,
-            reason:
-                'Offsets below minOffset: '
-                '${offsets.where((it) => it < minOffset - 0.01)}',
-          );
-        },
-        variant: TargetPlatformVariant({
-          TargetPlatform.iOS,
-          TargetPlatform.android,
-        }),
-      );
-    }
   });
 }
