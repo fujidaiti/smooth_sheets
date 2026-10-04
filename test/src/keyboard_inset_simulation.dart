@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
 
 /// A widget that simulates [MediaQueryData.viewInsets] as if the keyboard
 /// is shown.
