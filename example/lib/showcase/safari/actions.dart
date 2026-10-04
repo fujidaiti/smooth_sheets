@@ -1,6 +1,6 @@
 import 'package:cookbook/showcase/safari/common.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 void showEditActionsSheet(BuildContext context) {

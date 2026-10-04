@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:smooth_sheets/src/activity.dart';
+import 'package:smooth_sheets/src/content_scaffold.dart';
 import 'package:smooth_sheets/src/decorations.dart';
 import 'package:smooth_sheets/src/model.dart';
 import 'package:smooth_sheets/src/model_owner.dart';
@@ -210,6 +211,46 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  // https://github.com/fujidaiti/smooth_sheets/issues/617
+  group('Material widgets from package:material_ui', () {
+    testWidgets(
+      'should find the Material ancestor provided by MaterialSheetDecoration',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SheetViewport(
+              child: Sheet(
+                decoration: MaterialSheetDecoration(size: SheetSize.stretch),
+                child: ListTile(title: Text('Item')),
+              ),
+            ),
+          ),
+        );
+
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'should find the Material ancestor provided by SheetContentScaffold',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SheetViewport(
+              child: Sheet(
+                child: SheetContentScaffold(
+                  body: ListTile(title: Text('Item')),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(tester.takeException(), isNull);
+      },
+    );
+  });
 
   // Rebuilding the sheet subtree with a new key reuses the enclosing
   // SheetViewport, so the new sheet's owner attaches its model in the build

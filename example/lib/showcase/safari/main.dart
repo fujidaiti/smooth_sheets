@@ -1,5 +1,5 @@
 import 'package:cookbook/showcase/safari/home.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 
 void main() {
   runApp(const _SafariApp());

@@ -1,6 +1,6 @@
 import 'package:cookbook/showcase/todo_list/models.dart';
 import 'package:cookbook/showcase/todo_list/todo_editor.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(const _TodoListExample());
