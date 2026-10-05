@@ -366,8 +366,11 @@ mixin _ScrollAwareSheetActivityMixin
 
   set scrollPosition(SheetScrollPosition value);
 
-  double _applyPhysicsToOffset(double offset) {
-    return owner.physics.applyPhysicsToOffset(offset, owner);
+  double _applyPhysicsToOffset(double delta, double currentOffset) {
+    return owner.physics.applyPhysicsToOffset(
+      delta,
+      owner.copyWith(offset: currentOffset),
+    );
   }
 
   double _applyScrollOffset(double offset) {
@@ -392,7 +395,7 @@ mixin _ScrollAwareSheetActivityMixin
       // If the sheet is not at top, drag it up as much as possible
       // until it reaches at 'maxOffset'.
       if (cmp.isLessThan(newOffset, maxOffset)) {
-        final physicsAppliedDelta = _applyPhysicsToOffset(delta);
+        final physicsAppliedDelta = _applyPhysicsToOffset(delta, newOffset);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
         newOffset = min(newOffset + physicsAppliedDelta, maxOffset);
         delta -= newOffset - oldOffset;
@@ -409,7 +412,7 @@ mixin _ScrollAwareSheetActivityMixin
       // If the content cannot be scrolled up anymore, drag the sheet up
       // to make a bouncing effect (if needed).
       if (cmp.isApprox(scrollPosition.pixels, maxScrollPixels)) {
-        final physicsAppliedDelta = _applyPhysicsToOffset(delta);
+        final physicsAppliedDelta = _applyPhysicsToOffset(delta, newOffset);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta, delta));
         newOffset += physicsAppliedDelta;
         delta -= physicsAppliedDelta;
@@ -418,7 +421,7 @@ mixin _ScrollAwareSheetActivityMixin
       // If the sheet is beyond 'maxOffset', drag it down as much
       // as possible until it reaches at 'maxOffset'.
       if (cmp.isGreaterThan(newOffset, maxOffset)) {
-        final physicsAppliedDelta = _applyPhysicsToOffset(delta);
+        final physicsAppliedDelta = _applyPhysicsToOffset(delta, newOffset);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newOffset = max(newOffset + physicsAppliedDelta, maxOffset);
         delta -= newOffset - oldOffset;
@@ -435,7 +438,7 @@ mixin _ScrollAwareSheetActivityMixin
       // If the content cannot be scrolled down anymore, drag the sheet down
       // to make a shrinking effect (if needed).
       if (cmp.isApprox(scrollPosition.pixels, minScrollPixels)) {
-        final physicsAppliedDelta = _applyPhysicsToOffset(delta);
+        final physicsAppliedDelta = _applyPhysicsToOffset(delta, newOffset);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newOffset += physicsAppliedDelta;
         delta -= physicsAppliedDelta;
