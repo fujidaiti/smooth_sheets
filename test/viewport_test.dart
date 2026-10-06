@@ -1171,8 +1171,7 @@ class _TestSheetModel extends SheetModel {
 }
 
 class _TestSheetDecoration implements SheetDecoration {
-  const _TestSheetDecoration({required double preferredExtent})
-    : _preferredExtent = preferredExtent;
+  const _TestSheetDecoration({required this._preferredExtent});
 
   final double _preferredExtent;
 

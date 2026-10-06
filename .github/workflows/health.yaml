@@ -78,7 +78,7 @@ jobs:
         run: dart format . -o none --set-exit-if-changed
 
       - name: Analyze
-        run: dart analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
 
   testing:
     needs: setup

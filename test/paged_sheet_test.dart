@@ -64,11 +64,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(env.getSheetRect(tester).top, testScreenSize.height - 100);
 
-      unawaited(
-        env.getNavigator().push(
-          PagedSheetRoute(
-            builder: (_) => _TestPage(key: Key('b'), height: 500),
-          ),
+      env.getNavigator().push(
+        PagedSheetRoute<dynamic>(
+          builder: (_) => _TestPage(key: Key('b'), height: 500),
         ),
       );
 
@@ -96,13 +94,11 @@ void main() {
       await tester.pumpWidget(env.testWidget);
       expect(env.getSheetRect(tester).top, testScreenSize.height - 100);
 
-      unawaited(
-        env.getNavigator().push(
-          PagedSheetRoute(
-            snapGrid: SheetSnapGrid.stepless(),
-            initialOffset: SheetOffset(0.5),
-            builder: (_) => _TestPage(key: Key('b'), height: 500),
-          ),
+      env.getNavigator().push(
+        PagedSheetRoute<dynamic>(
+          snapGrid: SheetSnapGrid.stepless(),
+          initialOffset: SheetOffset(0.5),
+          builder: (_) => _TestPage(key: Key('b'), height: 500),
         ),
       );
 
@@ -133,12 +129,10 @@ void main() {
         reason: 'The sheet should snap to the nearest snap point',
       );
 
-      unawaited(
-        env.getNavigator().push(
-          PagedSheetRoute(
-            snapGrid: SheetSnapGrid.stepless(),
-            builder: (_) => _TestPage(key: Key('b'), height: 500),
-          ),
+      env.getNavigator().push(
+        PagedSheetRoute<dynamic>(
+          snapGrid: SheetSnapGrid.stepless(),
+          builder: (_) => _TestPage(key: Key('b'), height: 500),
         ),
       );
 
@@ -177,15 +171,13 @@ void main() {
               'from the initial offset (offset=0.8)',
         );
 
-        unawaited(
-          env.getNavigator().push(
-            PagedSheetRoute(
-              initialOffset: SheetOffset(0.3),
-              snapGrid: SheetSnapGrid(
-                snaps: [SheetOffset(0.2), SheetOffset(1)],
-              ),
-              builder: (_) => _TestPage(height: 300),
+        env.getNavigator().push(
+          PagedSheetRoute<dynamic>(
+            initialOffset: SheetOffset(0.3),
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset(0.2), SheetOffset(1)],
             ),
+            builder: (_) => _TestPage(height: 300),
           ),
         );
         await tester.pumpAndSettle();
@@ -280,12 +272,10 @@ void main() {
       );
 
       await tester.pumpWidget(env.testWidget);
-      unawaited(
-        env.getNavigator().push(
-          PagedSheetRoute(
-            snapGrid: SheetSnapGrid.stepless(),
-            builder: (_) => _TestPage(key: Key('b'), height: 500),
-          ),
+      env.getNavigator().push(
+        PagedSheetRoute<dynamic>(
+          snapGrid: SheetSnapGrid.stepless(),
+          builder: (_) => _TestPage(key: Key('b'), height: 500),
         ),
       );
 
@@ -325,13 +315,11 @@ void main() {
 
         await gesture.up();
         await tester.pumpAndSettle();
-        unawaited(
-          env.getNavigator().push(
-            PagedSheetRoute(
-              snapGrid: SheetSnapGrid.stepless(),
-              dragConfiguration: SheetDragConfiguration.disabled,
-              builder: (_) => _TestPage(key: Key('b'), height: 300),
-            ),
+        env.getNavigator().push(
+          PagedSheetRoute<dynamic>(
+            snapGrid: SheetSnapGrid.stepless(),
+            dragConfiguration: SheetDragConfiguration.disabled,
+            builder: (_) => _TestPage(key: Key('b'), height: 300),
           ),
         );
         await tester.pumpAndSettle();
@@ -374,14 +362,12 @@ void main() {
 
         await gesture.up();
         await tester.pumpAndSettle();
-        unawaited(
-          env.getNavigator().push(
-            PagedSheetRoute(
-              snapGrid: SheetSnapGrid.stepless(),
-              scrollConfiguration: null,
-              builder: (_) =>
-                  _TestPage(key: Key('b'), height: 300, isScrollable: true),
-            ),
+        env.getNavigator().push(
+          PagedSheetRoute<dynamic>(
+            snapGrid: SheetSnapGrid.stepless(),
+            scrollConfiguration: null,
+            builder: (_) =>
+                _TestPage(key: Key('b'), height: 300, isScrollable: true),
           ),
         );
         await tester.pumpAndSettle();
@@ -1875,7 +1861,7 @@ void main() {
           height: 400,
           transitionDuration: null,
         );
-        unawaited(env.getNavigator().push(routeB));
+        env.getNavigator().push(routeB);
         await tester.pump();
         await tester.pump(Duration(milliseconds: 800));
         expect(routeB.animation!.isCompleted, isFalse);
@@ -1914,7 +1900,7 @@ void main() {
           transitionDuration: Duration(milliseconds: 100),
           transitionsBuilder: null,
         );
-        unawaited(env.getNavigator().push(routeB));
+        env.getNavigator().push(routeB);
         await tester.pump();
 
         await tester.pump(Duration(milliseconds: 110));
@@ -1946,14 +1932,12 @@ void main() {
           ),
         );
 
-        unawaited(
-          env.getNavigator().push(
-            createRoute(
-              contentKey: Key('b'),
-              height: 400,
-              transitionDuration: Duration(milliseconds: 300),
-              transitionsBuilder: null,
-            ),
+        env.getNavigator().push(
+          createRoute(
+            contentKey: Key('b'),
+            height: 400,
+            transitionDuration: Duration(milliseconds: 300),
+            transitionsBuilder: null,
           ),
         );
         await tester.pump();
@@ -2000,7 +1984,7 @@ void main() {
             child: env.testWidget,
           ),
         );
-        unawaited(env.getNavigator().push(routeB));
+        env.getNavigator().push(routeB);
 
         await tester.pump();
         await tester.pump(Duration(milliseconds: 150));
@@ -2038,15 +2022,13 @@ void main() {
           ),
         );
 
-        unawaited(
-          navigatorKey.currentState!.push(
-            PagedSheetRoute(
-              snapGrid: SheetSnapGrid(
-                minFlingSpeed: 50,
-                snaps: [SheetOffset(0.5), SheetOffset(1)],
-              ),
-              builder: (_) => _TestPage(key: Key('b'), height: 600),
+        navigatorKey.currentState!.push(
+          PagedSheetRoute<dynamic>(
+            snapGrid: SheetSnapGrid(
+              minFlingSpeed: 50,
+              snaps: [SheetOffset(0.5), SheetOffset(1)],
             ),
+            builder: (_) => _TestPage(key: Key('b'), height: 600),
           ),
         );
 
