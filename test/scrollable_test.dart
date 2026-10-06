@@ -581,6 +581,170 @@ void main() {
     );
   });
 
+  group('onlyFromTop: catching a content bouncing past its top edge', () {
+    ({Widget testWidget, SheetScrollController scrollController}) boilerplate({
+      SheetSnapGrid snapGrid = const SteplessSnapGrid(),
+    }) {
+      final scrollController = SheetScrollController();
+      final testWidget = SheetViewport(
+        child: _TestSheet(
+          key: Key('sheet'),
+          initialOffset: SheetOffset(1),
+          snapGrid: snapGrid,
+          scrollConfiguration: SheetScrollConfiguration(
+            scrollSyncMode: SheetScrollHandlingBehavior.onlyFromTop,
+          ),
+          physics: BouncingSheetPhysics(),
+          child: SheetScrollable(
+            controller: scrollController,
+            child: SizedBox.fromSize(
+              size: Size.fromHeight(300),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: ListView.builder(
+                  key: Key('scrollable'),
+                  physics: BouncingScrollPhysics(),
+                  itemCount: 20,
+                  itemExtent: 50,
+                  itemBuilder: (context, index) =>
+                      SizedBox.expand(key: ValueKey('item-$index')),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      return (testWidget: testWidget, scrollController: scrollController);
+    }
+
+    Future<void> flingToTopBounce(
+      WidgetTesterX tester,
+      SheetScrollController scrollController,
+    ) async {
+      await tester.dragUpward(find.byId('scrollable'), deltaY: 100);
+      await tester.pumpAndSettle();
+      expect(scrollController.offset, 100);
+
+      await tester.fling(find.byId('scrollable'), Offset(0, 400), 3000);
+      for (var i = 0; i < 120 && scrollController.offset >= -10; i++) {
+        await tester.pump(Duration(milliseconds: 8));
+      }
+      expect(scrollController.offset, lessThan(-10));
+    }
+
+    double sheetTop(WidgetTesterX tester) =>
+        tester.getTopLeft(find.byId('sheet')).dy;
+
+    double contentTop(WidgetTesterX tester) =>
+        tester.getTopLeft(find.byId('item-0')).dy;
+
+    testWidgets('releasing without a drag lets the content settle at the top', (
+      tester,
+    ) async {
+      final env = boilerplate();
+      await tester.pumpWidget(env.testWidget);
+      await flingToTopBounce(tester, env.scrollController);
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byId('sheet')),
+      );
+      await tester.pump(Duration(milliseconds: 100));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(sheetTop(tester), 300);
+      expect(env.scrollController.offset, 0);
+      expect(contentTop(tester), 300);
+    });
+
+    testWidgets(
+      'dragging down moves the sheet and the content follows the finger',
+      (tester) async {
+        final env = boilerplate();
+        await tester.pumpWidget(env.testWidget);
+        await flingToTopBounce(tester, env.scrollController);
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
+        await gesture.moveDownwardBy(30);
+        await tester.pump();
+        expect(sheetTop(tester), greaterThan(300));
+
+        for (var i = 0; i < 5; i++) {
+          final sheetTopBefore = sheetTop(tester);
+          final contentTopBefore = contentTop(tester);
+          await gesture.moveDownwardBy(10);
+          await tester.pump();
+          expect(sheetTop(tester) - sheetTopBefore, closeTo(10, 0.01));
+          expect(contentTop(tester) - contentTopBefore, closeTo(10, 0.01));
+        }
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(env.scrollController.offset, 0);
+        expect(contentTop(tester), sheetTop(tester));
+      },
+    );
+
+    testWidgets(
+      'releasing a downward drag snaps the sheet and settles the content '
+      'at the top',
+      (tester) async {
+        final env = boilerplate(
+          snapGrid: SheetSnapGrid(snaps: [SheetOffset(0.5), SheetOffset(1)]),
+        );
+        await tester.pumpWidget(env.testWidget);
+        await flingToTopBounce(tester, env.scrollController);
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
+        await gesture.moveDownwardBy(30);
+        await tester.pump();
+        await gesture.moveDownwardBy(30);
+        await tester.pump();
+        expect(sheetTop(tester), greaterThan(300));
+        expect(env.scrollController.offset, lessThan(0));
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(sheetTop(tester), 300);
+        expect(env.scrollController.offset, 0);
+        expect(contentTop(tester), 300);
+      },
+    );
+
+    testWidgets(
+      'dragging up scrolls the content with the finger and keeps the sheet',
+      (tester) async {
+        final env = boilerplate();
+        await tester.pumpWidget(env.testWidget);
+        await flingToTopBounce(tester, env.scrollController);
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
+        await gesture.moveUpwardBy(30);
+        await tester.pump();
+
+        for (var i = 0; i < 10; i++) {
+          final contentTopBefore = contentTop(tester);
+          await gesture.moveUpwardBy(10);
+          await tester.pump();
+          expect(sheetTop(tester), 300);
+          final contentDelta = contentTop(tester) - contentTopBefore;
+          expect(contentDelta, lessThan(0));
+          expect(contentDelta, greaterThanOrEqualTo(-10.01));
+        }
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(sheetTop(tester), 300);
+        expect(env.scrollController.offset, greaterThan(0));
+      },
+    );
+  });
+
   group('delegateUnhandledOverscrollToChild', () {
     ({
       Widget testWidget,

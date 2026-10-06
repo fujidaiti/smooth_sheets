@@ -274,16 +274,17 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     required double velocity,
     required SheetScrollPosition scrollPosition,
   }) {
-    if (FloatComp.distance(
-      context.devicePixelRatio,
-    ).isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
+    if (FloatComp.distance(context.devicePixelRatio).isLessThanOrApprox(
+      scrollPosition.pixels,
+      scrollPosition.minScrollExtent,
+    )) {
       final simulation = physics.createBallisticSimulation(
         velocity,
         this,
         snapGrid,
       );
       if (simulation != null) {
-        scrollPosition.goIdle(calledByDelegate: true);
+        scrollPosition.goBallistic(0, calledByOwner: true);
         beginActivity(BallisticSheetActivity(simulation: simulation));
         return;
       }
@@ -344,7 +345,11 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
   bool _shouldHandleScroll(ScrollPosition scrollPosition) =>
       switch (scrollConfiguration.scrollSyncMode) {
         SheetScrollHandlingBehavior.always => true,
-        SheetScrollHandlingBehavior.onlyFromTop => scrollPosition.pixels == 0,
+        SheetScrollHandlingBehavior.onlyFromTop =>
+          FloatComp.distance(context.devicePixelRatio).isLessThanOrApprox(
+            scrollPosition.pixels,
+            scrollPosition.minScrollExtent,
+          ),
       };
 }
 
@@ -438,7 +443,7 @@ mixin _ScrollAwareSheetActivityMixin
       }
       // If the content cannot be scrolled down anymore, drag the sheet down
       // to make a shrinking effect (if needed).
-      if (cmp.isApprox(scrollPosition.pixels, minScrollPixels)) {
+      if (cmp.isLessThanOrApprox(scrollPosition.pixels, minScrollPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta, newOffset);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newOffset += physicsAppliedDelta;
