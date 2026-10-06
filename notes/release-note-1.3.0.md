@@ -1,30 +1,20 @@
 # v1.3.0 release note
 
-This version migrates smooth_sheets from the Material and Cupertino libraries bundled with Flutter to the [material_ui](https://pub.dev/packages/material_ui) and [cupertino_ui](https://pub.dev/packages/cupertino_ui) packages. Apps that have not migrated to material_ui yet need to migrate before upgrading. Breaking changes are marked with a 💥.
+## Migrate to material_ui ([#618](https://github.com/fujidaiti/smooth_sheets/pull/618))
 
-## 💥 Migrate to material_ui and cupertino_ui
-
-*Reported in [#617](https://github.com/fujidaiti/smooth_sheets/issues/617), fixed in [#618](https://github.com/fujidaiti/smooth_sheets/pull/618)*
-
-smooth_sheets now uses material_ui instead of `package:flutter/material.dart`. As a result, Material widgets from material_ui, such as `ListTile`, now work inside sheets. Previously, they threw the following error:
+This version migrates the package to [material_ui](https://pub.dev/packages/material_ui). If your app still uses `package:flutter/material.dart` from the SDK, you may encounter runtime errors due to incompatibilities between widgets from the two Material packages, for example:
 
 ```console
 No Material widget found.
 ListTile widgets require a Material widget ancestor within the closest LookupBoundary.
 ```
 
-On the other hand, apps that still use `package:flutter/material.dart` are affected the other way around: Material widgets inside a sheet can throw the same error, and sheets no longer follow the app's `Theme`. To migrate your app, follow [the material_ui migration guide](https://pub.dev/packages/material_ui#migrating-existing-code-to-this-package).
+Please follow [the material_ui migration guide](https://pub.dev/packages/material_ui#migrating-existing-code-to-this-package) to migrate your app to material_ui.
 
-smooth_sheets does not use any Cupertino APIs, so apps can use either `package:flutter/cupertino.dart` or cupertino_ui.
-
-### 💥 Minimum Flutter SDK version
+### Bump minimum SDK version
 
 The minimum supported Flutter SDK version is now 3.44.0, as required by material_ui.
 
-## 🐛 Bug Fixes
+## Other changes
 
-### Sheet exceeds its bounds when dragging non-overflowing scrollable content
-
-*Fixed in [#613](https://github.com/fujidaiti/smooth_sheets/pull/613)*
-
-When the content of a scrollable sheet was shorter than the sheet, a fast drag or fling could move the sheet past its maximum or minimum offset, even with `ClampingSheetPhysics`. For example, a bottom-anchored sheet could leave a visible gap under its bottom edge. The sheet now stays within its bounds.
+- Fix: sheet exceeds its bounds when dragging non-overflowing scrollable content ([#613](https://github.com/fujidaiti/smooth_sheets/pull/613))
