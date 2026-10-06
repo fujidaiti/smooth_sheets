@@ -3,16 +3,18 @@ description: "A new Flutter project."
 publish_to: "none"
 
 environment:
-  sdk: ">=3.10.0 <4.0.0"
+  sdk: ">=3.12.0 <4.0.0"
 
 dependencies:
   animations: ^3.0.0
   auto_route: ^10.0.1
   cupertino_icons: ^2.0.0
+  cupertino_ui: ^1.0.0
   faker: ^2.1.0
   flutter:
     sdk: flutter
   go_router: ^18.0.0
+  material_ui: ^1.0.0
 
   smooth_sheets:
     path: ../

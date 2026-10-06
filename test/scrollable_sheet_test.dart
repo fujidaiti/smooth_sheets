@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:smooth_sheets/src/controller.dart';
 import 'package:smooth_sheets/src/keyboard_dismissible.dart';
 import 'package:smooth_sheets/src/model.dart';

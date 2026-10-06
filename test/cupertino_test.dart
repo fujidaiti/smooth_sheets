@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/cupertino.dart';
 import 'package:smooth_sheets/src/gesture_proxy.dart';
