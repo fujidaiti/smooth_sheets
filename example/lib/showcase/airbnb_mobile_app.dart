@@ -80,7 +80,7 @@ class _MapButton extends StatelessWidget {
         // Collapse the sheet to reveal the map behind.
         sheetController.animateTo(
           SheetOffset.absolute(it.minOffset),
-          curve: Curves.fastOutSlowIn,
+          motion: const CurvedSheetMotion(curve: Curves.fastOutSlowIn),
         );
       }
     }
