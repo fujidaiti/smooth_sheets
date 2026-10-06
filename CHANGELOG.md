@@ -1,10 +1,10 @@
 # Changelog
 
-## 1.2.2 - 2026-10-06
+## 1.3.0 - 2026-10-06
 - build: Migrate to material_ui ([#618](https://github.com/fujidaiti/smooth_sheets/pull/618)) - [e07447c](https://github.com/fujidaiti/smooth_sheets/commit/e07447c74a5528639b38b2e06db2ab30d34bf3ef)
 
 
-See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.2.2) for more details.
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.3.0) for more details.
 
 ## 1.2.1 - 2026-10-06
 - fix: Prevent sheet from exceeding bounds when dragging non-overflowing scrollable content ([#613](https://github.com/fujidaiti/smooth_sheets/pull/613)) - [12e3a1c](https://github.com/fujidaiti/smooth_sheets/commit/12e3a1c0a5c25d901fc96adf5a652ad987c4ab86)
