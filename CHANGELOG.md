@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.3.0 - 2026-10-06
-- build: Migrate to material_ui ([#618](https://github.com/fujidaiti/smooth_sheets/pull/618)) - [e07447c](https://github.com/fujidaiti/smooth_sheets/commit/e07447c74a5528639b38b2e06db2ab30d34bf3ef)
+- Migrate to material_ui ([#618](https://github.com/fujidaiti/smooth_sheets/pull/618)) - [e07447c](https://github.com/fujidaiti/smooth_sheets/commit/e07447c74a5528639b38b2e06db2ab30d34bf3ef)
 
 
 See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.3.0) for more details.
