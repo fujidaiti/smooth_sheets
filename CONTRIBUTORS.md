@@ -25,6 +25,9 @@ Thank you for all contributors!
 - Yaroslav Vorobev (1):
   - fix(pkg): Use drag devices from inherited scroll config (#513) - [0796b1a](https://github.com/fujidaiti/smooth_sheets/commit/0796b1a)
 
+- Yauhen Sampir (1):
+  - fix(pkg): prevent sheet from exceeding bounds when dragging non-overflowing scrollable content (#613) - [12e3a1c](https://github.com/fujidaiti/smooth_sheets/commit/12e3a1c)
+
 - ice-orion (1):
   - feat: add swipe dismiss sensitivity params for modals (#222) - [9d07275](https://github.com/fujidaiti/smooth_sheets/commit/9d07275)
 
