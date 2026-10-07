@@ -186,9 +186,9 @@ class _ResolvedPagedSheetRouteThemeData extends PagedSheetRouteThemeData {
 class PagedSheetRouteTheme extends InheritedWidget {
   /// Creates a [PagedSheetRouteTheme].
   const PagedSheetRouteTheme({
-    super.key,
     required this.data,
     required super.child,
+    super.key,
   });
 
   /// The theme data for route defaults.
@@ -226,8 +226,8 @@ class _PagedSheetModelConfig extends SheetModelConfig {
   const _PagedSheetModelConfig({
     required super.physics,
     required super.gestureProxy,
-    super.snapGrid = _kDefaultSnapGrid,
     required this.offsetInterpolationCurve,
+    super.snapGrid = _kDefaultSnapGrid,
   });
 
   final Curve offsetInterpolationCurve;
@@ -504,6 +504,7 @@ class _PostTransitionWithoutAnimationActivity
 
 class PagedSheet extends StatelessWidget {
   const PagedSheet({
+    required this.navigator,
     super.key,
     this.controller,
     this.physics = kDefaultSheetPhysics,
@@ -511,7 +512,6 @@ class PagedSheet extends StatelessWidget {
     this.decoration = const DefaultSheetDecoration(),
     this.padding = EdgeInsets.zero,
     this.builder,
-    required this.navigator,
   });
 
   final SheetController? controller;
@@ -854,6 +854,7 @@ class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
   /// See [PagedSheetRouteThemeData] for [PagedSheet] related parameters
   /// such as [scrollConfiguration], and [dragConfiguration].
   PagedSheetRoute({
+    required this.builder,
     super.settings,
     this.maintainState = true,
     SheetScrollConfiguration? scrollConfiguration,
@@ -862,7 +863,6 @@ class PagedSheetRoute<T> extends _BasePagedSheetRoute<T> {
     SheetOffset? initialOffset,
     SheetSnapGrid? snapGrid,
     RouteTransitionsBuilder? transitionsBuilder,
-    required this.builder,
   }) : _theme = PagedSheetRouteThemeData(
          scrollConfiguration: scrollConfiguration,
          dragConfiguration: dragConfiguration,
@@ -897,6 +897,7 @@ class PagedSheetPage<T> extends Page<T> {
   /// See [PagedSheetRouteThemeData] for [PagedSheet] related parameters
   /// such as [scrollConfiguration], and [dragConfiguration].
   PagedSheetPage({
+    required this.child,
     super.key,
     super.name,
     super.arguments,
@@ -908,7 +909,6 @@ class PagedSheetPage<T> extends Page<T> {
     SheetSnapGrid? snapGrid,
     Duration? transitionDuration,
     RouteTransitionsBuilder? transitionsBuilder,
-    required this.child,
   }) : _theme = PagedSheetRouteThemeData(
          scrollConfiguration: scrollConfiguration,
          dragConfiguration: dragConfiguration,

@@ -14,11 +14,11 @@ typedef SheetModelFactory<C extends SheetModelConfig> =
 class SheetModelOwner<C extends SheetModelConfig> extends StatefulWidget {
   /// Creates a widget that hosts a [SheetModel].
   const SheetModelOwner({
-    super.key,
     required this.factory,
     required this.config,
-    this.controller,
     required this.child,
+    super.key,
+    this.controller,
   });
 
   /// The [SheetController] attached to the [SheetModel].

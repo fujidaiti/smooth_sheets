@@ -2136,7 +2136,7 @@ void main() {
 }
 
 class _TestPage extends StatelessWidget {
-  const _TestPage({super.key, required this.height, this.isScrollable = false});
+  const _TestPage({required this.height, super.key, this.isScrollable = false});
 
   final double height;
   final bool isScrollable;

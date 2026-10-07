@@ -628,6 +628,7 @@ abstract class _BaseCupertinoModalSheetRoute<T> extends PageRoute<T>
 
 class CupertinoModalSheetPage<T> extends Page<T> {
   const CupertinoModalSheetPage({
+    required this.child,
     super.key,
     super.name,
     super.arguments,
@@ -642,7 +643,6 @@ class CupertinoModalSheetPage<T> extends Page<T> {
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.overlayColor,
     this.viewportBuilder,
-    required this.child,
   });
 
   /// The content to be shown in the [Route] created by this page.
@@ -736,8 +736,8 @@ class _PageBasedCupertinoModalSheetRoute<T>
 
 class CupertinoModalSheetRoute<T> extends _BaseCupertinoModalSheetRoute<T> {
   CupertinoModalSheetRoute({
-    super.settings,
     required this.builder,
+    super.settings,
     this.viewportBuilder,
     this.maintainState = true,
     this.barrierDismissible = true,

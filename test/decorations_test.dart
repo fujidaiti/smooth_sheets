@@ -16,11 +16,11 @@ import 'src/stubbing.dart';
 
 void main() {
   ({Widget testWidget, ValueGetter<SheetModel> getModel}) boilerplate({
+    required Widget sheet,
     SheetOffset initialOffset = const SheetOffset(1),
     EdgeInsets viewportPadding = EdgeInsets.zero,
     EdgeInsets viewInsets = EdgeInsets.zero,
     EdgeInsets viewPadding = EdgeInsets.zero,
-    required Widget sheet,
   }) {
     final modelOwnerKey = GlobalKey<SheetModelOwnerState>();
     final testWidget = MediaQuery(

@@ -33,10 +33,11 @@ linter:
     unnecessary_parenthesis: false
     avoid_positional_boolean_parameters: false
     omit_obvious_property_types: false
+    # TODO: Enable this rule (https://github.com/fujidaiti/smooth_sheets/issues/626).
     public_member_api_docs: false
     prefer_expression_function_bodies: false
+    # TODO: Enable this rule (https://github.com/fujidaiti/smooth_sheets/issues/627).
     diagnostic_describe_all_properties: false
     prefer_asserts_with_message: false
-    always_put_required_named_parameters_first: false
     document_ignores: false
     unsafe_variance: false

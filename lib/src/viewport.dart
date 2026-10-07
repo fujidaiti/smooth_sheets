@@ -88,10 +88,10 @@ typedef SheetLayoutListenable = ValueListenable<SheetLayout?>;
 class SheetMediaQuery extends StatelessWidget {
   @visibleForTesting
   const SheetMediaQuery({
-    super.key,
     required this.layoutSpec,
     required this.layoutNotifier,
     required this.child,
+    super.key,
   });
 
   final SheetLayoutSpec layoutSpec;
@@ -222,9 +222,9 @@ class _InheritedSheetMediaQuery extends InheritedWidget {
 
 class SheetViewport extends StatefulWidget {
   const SheetViewport({
+    required this.child,
     super.key,
     this.padding = EdgeInsets.zero,
-    required this.child,
   });
 
   /// The inset the viewport applies to the [child].
@@ -597,10 +597,10 @@ class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
 @internal
 class BareSheet extends StatefulWidget {
   const BareSheet({
+    required this.child,
     super.key,
     this.padding = EdgeInsets.zero,
     this.decoration = const DefaultSheetDecoration(),
-    required this.child,
   });
 
   /// {@template viewport.BareSheet.padding}

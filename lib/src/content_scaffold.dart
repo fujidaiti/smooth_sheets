@@ -46,16 +46,16 @@ sealed class BottomBarVisibility {
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
   const factory BottomBarVisibility.controlled({
-    bool ignoreBottomInset,
     required Animation<double> animation,
+    bool ignoreBottomInset,
   }) = ControlledBottomBarVisibility;
 
   /// {@macro ConditionalBottomBarVisibility}
   ///
   /// {@macro SheetContentScaffoldBottomBarVisibility.ignoreBottomInset}
   const factory BottomBarVisibility.conditional({
-    bool ignoreBottomInset,
     required bool Function(SheetMetrics) isVisible,
+    bool ignoreBottomInset,
     Duration duration,
     Curve curve,
   }) = ConditionalBottomBarVisibility;
@@ -103,8 +103,8 @@ class AlwaysVisibleBottomBarVisibility extends BottomBarVisibility {
 /// {@endtemplate}
 class ControlledBottomBarVisibility extends BottomBarVisibility {
   const ControlledBottomBarVisibility({
-    super.ignoreBottomInset,
     required this.animation,
+    super.ignoreBottomInset,
   });
 
   final Animation<double> animation;
@@ -124,8 +124,8 @@ class ControlledBottomBarVisibility extends BottomBarVisibility {
 /// {@endtemplate}
 class ConditionalBottomBarVisibility extends BottomBarVisibility {
   const ConditionalBottomBarVisibility({
-    super.ignoreBottomInset,
     required this.isVisible,
+    super.ignoreBottomInset,
     this.initialIsVisible = true,
     this.duration = const Duration(milliseconds: 150),
     this.curve = Curves.easeInOut,
@@ -148,6 +148,7 @@ class ConditionalBottomBarVisibility extends BottomBarVisibility {
 class SheetContentScaffold extends StatelessWidget {
   /// Creates the basic layout of the content in a sheet.
   const SheetContentScaffold({
+    required this.body,
     super.key,
     this.extendBodyBehindBottomBar = false,
     this.extendBodyBehindTopBar = false,
@@ -155,7 +156,6 @@ class SheetContentScaffold extends StatelessWidget {
     this.backgroundColor,
     this.topBar,
     this.bottomBar,
-    required this.body,
   });
 
   /// Whether to extend the body behind the [bottomBar].
@@ -820,10 +820,10 @@ class _RenderControlledBottomBarVisibility extends _RenderBottomBarVisibility {
 class _ConditionalBottomBarVisibility extends StatefulWidget {
   const _ConditionalBottomBarVisibility({
     required this.getIsVisible,
+    required this.child,
     this.duration = const Duration(milliseconds: 150),
     this.curve = Curves.easeInOut,
     this.initialIsVisible = false,
-    required this.child,
   });
 
   final bool initialIsVisible;

@@ -95,7 +95,7 @@ class _ActionList extends StatelessWidget {
 }
 
 class _ActionListSection extends StatelessWidget {
-  const _ActionListSection({this.header, required this.children});
+  const _ActionListSection({required this.children, this.header});
 
   final Widget? header;
   final List<Widget> children;

@@ -780,9 +780,9 @@ class SheetScrollable extends StatefulWidget {
   /// Creates a widget that wires an ancestor sheet and its scrollable content
   /// below this widget.
   const SheetScrollable({
-    super.key,
     required this.controller,
     required this.child,
+    super.key,
   });
 
   /// The scroll controller that should be attached to the [child] scrollable,

@@ -28,9 +28,9 @@ class SheetKeyboardDismissible extends StatefulWidget {
   /// Creates a widget that dismisses the on-screen keyboard when the user
   /// drags the sheet below this widget.
   const SheetKeyboardDismissible({
-    super.key,
     required this.dismissBehavior,
     required this.child,
+    super.key,
   });
 
   /// Determines when the on-screen keyboard should be dismissed.

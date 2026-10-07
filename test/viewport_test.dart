@@ -19,9 +19,9 @@ void main() {
   group('SheetViewport', () {
     ({Widget testWidget}) boilerplate({
       required SheetModel model,
+      required Widget Function(Widget child) builder,
       EdgeInsets viewInsets = EdgeInsets.zero,
       EdgeInsets viewPadding = EdgeInsets.zero,
-      required Widget Function(Widget child) builder,
     }) {
       final testWidget = MediaQuery(
         data: MediaQueryData(

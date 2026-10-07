@@ -40,8 +40,8 @@ import 'src/stubbing.dart';
 }
 
 Widget _boilerplateSheet({
-  Key? key,
   required double height,
+  Key? key,
   SheetOffset initialOffset = const SheetOffset(1),
   SheetOffset maxOffset = const SheetOffset(1),
   SheetOffset minOffset = const SheetOffset(0),

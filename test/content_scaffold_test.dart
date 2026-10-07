@@ -16,10 +16,10 @@ import 'src/test_stateful_widget.dart';
 void main() {
   group('SheetContentScaffold - Core Layout', () {
     ({Widget testWidget}) boilerplate({
+      required WidgetBuilder builder,
       SheetLayoutSpec? parentLayoutSpec,
       EdgeInsets rootViewInsets = EdgeInsets.zero,
       EdgeInsets rootViewPadding = EdgeInsets.zero,
-      required WidgetBuilder builder,
     }) {
       final testWidget = MediaQuery(
         data: MediaQueryData(

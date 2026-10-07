@@ -35,7 +35,7 @@ class _Boilerplate extends StatelessWidget {
 }
 
 class _BoilerplateWithPagesApi extends StatefulWidget {
-  const _BoilerplateWithPagesApi({super.key, required this.initialPages});
+  const _BoilerplateWithPagesApi({required this.initialPages, super.key});
 
   final List<Page<dynamic>> initialPages;
 
