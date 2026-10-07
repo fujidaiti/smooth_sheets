@@ -306,7 +306,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
   /// or [ScrollDragController.cancel].
   @override
   void goBallistic(double velocity) {
-    if (_impl.lastDetails case final DragEndDetails rawDetails) {
+    if ((_impl.lastDetails as Object?) case final DragEndDetails rawDetails) {
       var endDetails = SheetDragEndDetails(
         axisDirection: _target.dragAxisDirection,
         velocityX: rawDetails.velocity.pixelsPerSecond.dx,
