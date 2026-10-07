@@ -289,50 +289,33 @@ void main() {
 /// when a field that is not specified in the constructor is used.
 class _TestSheetMetrics with SheetMetrics {
   const _TestSheetMetrics({
-    // ignore: unused_element_parameter
-    this._contentBaseline,
     this._contentSize,
-    // ignore: unused_element_parameter
-    this._devicePixelRatio,
-    // ignore: unused_element_parameter
-    this._maxOffset,
-    // ignore: unused_element_parameter
-    this._minOffset,
     this._offset,
     this._size,
-    // ignore: unused_element_parameter
-    this._contentMargin,
     this._viewportPadding,
     this._viewportSize,
   });
 
-  final double? _contentBaseline;
   final Size? _contentSize;
-  final double? _devicePixelRatio;
-  final double? _maxOffset;
-  final double? _minOffset;
   final double? _offset;
   final Size? _size;
-  final EdgeInsets? _contentMargin;
   final EdgeInsets? _viewportPadding;
   final Size? _viewportSize;
 
   @override
-  double get contentBaseline =>
-      _contentBaseline ?? (throw UnimplementedError());
+  double get contentBaseline => throw UnimplementedError();
 
   @override
   Size get contentSize => _contentSize ?? (throw UnimplementedError());
 
   @override
-  double get devicePixelRatio =>
-      _devicePixelRatio ?? (throw UnimplementedError());
+  double get devicePixelRatio => throw UnimplementedError();
 
   @override
-  double get maxOffset => _maxOffset ?? (throw UnimplementedError());
+  double get maxOffset => throw UnimplementedError();
 
   @override
-  double get minOffset => _minOffset ?? (throw UnimplementedError());
+  double get minOffset => throw UnimplementedError();
 
   @override
   double get offset => _offset ?? (throw UnimplementedError());
@@ -341,8 +324,7 @@ class _TestSheetMetrics with SheetMetrics {
   Size get size => _size ?? (throw UnimplementedError());
 
   @override
-  EdgeInsets get contentMargin =>
-      _contentMargin ?? (throw UnimplementedError());
+  EdgeInsets get contentMargin => throw UnimplementedError();
 
   @override
   EdgeInsets get viewportPadding =>
