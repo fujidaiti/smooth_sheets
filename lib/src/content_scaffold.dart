@@ -366,16 +366,12 @@ class _ScaffoldLayout
 class _RenderScaffoldLayout extends RenderBox
     with SlottedContainerRenderObjectMixin<_ScaffoldSlot, RenderBox> {
   _RenderScaffoldLayout({
-    required bool extendBodyBehindTopBar,
-    required bool extendBodyBehindBottomBar,
-    required bool ignoreBottomInset,
-    required SheetLayoutSpec sheetLayoutSpec,
-    required EdgeInsets viewportViewInsets,
-  }) : _extendBodyBehindTopBar = extendBodyBehindTopBar,
-       _extendBodyBehindBottomBar = extendBodyBehindBottomBar,
-       _ignoreBottomInset = ignoreBottomInset,
-       _sheetLayoutSpec = sheetLayoutSpec,
-       _viewportViewInsets = viewportViewInsets;
+    required this._extendBodyBehindTopBar,
+    required this._extendBodyBehindBottomBar,
+    required this._ignoreBottomInset,
+    required this._sheetLayoutSpec,
+    required this._viewportViewInsets,
+  });
 
   bool get extendBodyBehindTopBar => _extendBodyBehindTopBar;
   bool _extendBodyBehindTopBar;
@@ -652,11 +648,9 @@ class _ScaffoldBodyContainer extends StatelessWidget {
 
 abstract class _RenderBottomBarVisibility extends RenderTransform {
   _RenderBottomBarVisibility({
-    required SheetModelView model,
-    required SheetLayoutListenable layoutNotifier,
-  }) : _model = model,
-       _layoutNotifier = layoutNotifier,
-       super(transform: Matrix4.zero(), transformHitTests: true) {
+    required this._model,
+    required this._layoutNotifier,
+  }) : super(transform: Matrix4.zero(), transformHitTests: true) {
     _model.addListener(invalidateTranslationValues);
     _layoutNotifier.addListener(invalidateTranslationValues);
   }
@@ -796,8 +790,8 @@ class _RenderControlledBottomBarVisibility extends _RenderBottomBarVisibility {
   _RenderControlledBottomBarVisibility({
     required super.model,
     required super.layoutNotifier,
-    required Animation<double> visibility,
-  }) : _visibility = visibility {
+    required this._visibility,
+  }) {
     _visibility.addListener(invalidateTranslationValues);
   }
 

@@ -1,4 +1,10 @@
+include: all_lint_rules.yaml
+
 analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
   exclude:
     - build/**
     - android/**
@@ -7,7 +13,9 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
-include: package:pedantic_mono/analysis_options.yaml
+
+formatter:
+  trailing_commas: preserve
 
 linter:
   rules:
@@ -20,7 +28,15 @@ linter:
     flutter_style_todos: false
     cascade_invocations: false
     join_return_with_assignment: false
+    always_use_package_imports: false
     prefer_relative_imports: true
     unnecessary_parenthesis: false
     avoid_positional_boolean_parameters: false
     omit_obvious_property_types: false
+    public_member_api_docs: false
+    prefer_expression_function_bodies: false
+    diagnostic_describe_all_properties: false
+    prefer_asserts_with_message: false
+    always_put_required_named_parameters_first: false
+    document_ignores: false
+    unsafe_variance: false

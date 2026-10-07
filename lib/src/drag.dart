@@ -246,14 +246,13 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
   /// Creates an object that scrolls a scroll view as the user drags their
   /// finger across the screen.
   SheetDragController({
-    required SheetDragControllerTarget target,
+    required this._target,
     required SheetDragStartDetails details,
     required VoidCallback onDragCanceled,
     required double? carriedVelocity,
     required double? motionStartDistanceThreshold,
     required this.gestureProxy,
-  }) : _target = target,
-       _lastDetails = details,
+  }) : _lastDetails = details,
        pointerDeviceKind = details.kind {
     // Actual work is done by this object.
     _impl = ScrollDragController(
@@ -307,7 +306,7 @@ class SheetDragController implements Drag, ScrollActivityDelegate {
   /// or [ScrollDragController.cancel].
   @override
   void goBallistic(double velocity) {
-    if (_impl.lastDetails case final DragEndDetails rawDetails) {
+    if ((_impl.lastDetails as Object?) case final DragEndDetails rawDetails) {
       var endDetails = SheetDragEndDetails(
         axisDirection: _target.dragAxisDirection,
         velocityX: rawDetails.velocity.pixelsPerSecond.dx,

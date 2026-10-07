@@ -597,7 +597,7 @@ mixin ControlledSheetActivityMixin<T extends SheetModel> on SheetActivity<T> {
     super.init(owner);
     controller = createAnimationController()..addListener(onAnimationTick);
     // Won't trigger if we dispose 'animation' first.
-    onAnimationStart().whenComplete(onAnimationEnd);
+    unawaited(onAnimationStart().whenComplete(onAnimationEnd));
   }
 
   @override

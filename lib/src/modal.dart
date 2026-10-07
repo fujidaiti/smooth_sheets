@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
@@ -606,12 +605,10 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       );
 
       const completedAnimationValue = 1.0;
-      unawaited(
-        _transitionController.animateTo(
-          completedAnimationValue,
-          duration: Duration(milliseconds: animationTime),
-          curve: _releasedPageForwardAnimationCurve,
-        ),
+      _transitionController.animateTo(
+        completedAnimationValue,
+        duration: Duration(milliseconds: animationTime),
+        curve: _releasedPageForwardAnimationCurve,
       );
     }
 

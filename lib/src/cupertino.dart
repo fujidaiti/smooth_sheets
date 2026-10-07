@@ -44,9 +44,8 @@ class _ClipRRectTransition extends SingleChildRenderObjectWidget {
 }
 
 class _RenderClipRRectTransition extends RenderClipRRect {
-  _RenderClipRRectTransition({required Animation<double> radius})
-    : _radius = radius,
-      super(clipBehavior: Clip.antiAlias) {
+  _RenderClipRRectTransition({required this._radius})
+    : super(clipBehavior: Clip.antiAlias) {
     _radius.addListener(_invalidateBorderRadius);
   }
 
@@ -106,10 +105,9 @@ class _ToningOverlay extends SingleChildRenderObjectWidget {
 
 class _RenderToningOverlay extends RenderProxyBox {
   _RenderToningOverlay({
-    required Animation<double> animation,
-    required Color color,
-  }) : _animation = animation,
-       _color = color {
+    required this._animation,
+    required this._color,
+  }) {
     _animation.addListener(markNeedsPaint);
   }
 
@@ -199,13 +197,10 @@ class _TransformTransition extends SingleChildRenderObjectWidget {
 
 class _RenderTransformTransition extends RenderTransform {
   _RenderTransformTransition({
-    required Animation<double> animation,
-    required Tween<double> scaleTween,
-    required Tween<Offset> offsetTween,
-  }) : _animation = animation,
-       _scaleTween = scaleTween,
-       _offsetTween = offsetTween,
-       super(
+    required this._animation,
+    required this._scaleTween,
+    required this._offsetTween,
+  }) : super(
          transform: Matrix4.identity(),
          alignment: Alignment.topCenter,
          transformHitTests: true,

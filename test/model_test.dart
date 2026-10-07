@@ -289,26 +289,22 @@ void main() {
 /// when a field that is not specified in the constructor is used.
 class _TestSheetMetrics with SheetMetrics {
   const _TestSheetMetrics({
-    double? contentBaseline,
-    Size? contentSize,
-    double? devicePixelRatio,
-    double? maxOffset,
-    double? minOffset,
-    double? offset,
-    Size? size,
-    EdgeInsets? contentMargin,
-    EdgeInsets? viewportPadding,
-    Size? viewportSize,
-  }) : _contentBaseline = contentBaseline,
-       _contentSize = contentSize,
-       _devicePixelRatio = devicePixelRatio,
-       _maxOffset = maxOffset,
-       _minOffset = minOffset,
-       _offset = offset,
-       _size = size,
-       _contentMargin = contentMargin,
-       _viewportPadding = viewportPadding,
-       _viewportSize = viewportSize;
+    // ignore: unused_element_parameter
+    this._contentBaseline,
+    this._contentSize,
+    // ignore: unused_element_parameter
+    this._devicePixelRatio,
+    // ignore: unused_element_parameter
+    this._maxOffset,
+    // ignore: unused_element_parameter
+    this._minOffset,
+    this._offset,
+    this._size,
+    // ignore: unused_element_parameter
+    this._contentMargin,
+    this._viewportPadding,
+    this._viewportSize,
+  });
 
   final double? _contentBaseline;
   final Size? _contentSize;

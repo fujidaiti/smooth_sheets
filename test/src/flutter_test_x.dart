@@ -350,7 +350,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
           'swipeEdge': swipeEdge,
         }),
       ),
-      (ByteData? _) {},
+      (_) {},
     );
   }
 
@@ -376,7 +376,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
           'swipeEdge': swipeEdge,
         }),
       ),
-      (ByteData? _) {},
+      (_) {},
     );
   }
 
@@ -392,7 +392,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
       const StandardMethodCodec().encodeMethodCall(
         const MethodCall('commitBackGesture'),
       ),
-      (ByteData? _) {},
+      (_) {},
     );
   }
 
@@ -408,7 +408,7 @@ extension type WidgetTesterX(t.WidgetTester self) implements t.WidgetTester {
       const StandardMethodCodec().encodeMethodCall(
         const MethodCall('cancelBackGesture'),
       ),
-      (ByteData? _) {},
+      (_) {},
     );
   }
 

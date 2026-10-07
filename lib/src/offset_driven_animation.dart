@@ -5,12 +5,11 @@ import 'model.dart';
 
 class SheetOffsetDrivenAnimation extends Animation<double> {
   SheetOffsetDrivenAnimation({
-    required SheetController controller,
+    required this._controller,
     required this.initialValue,
     this.startOffset,
     this.endOffset,
-  }) : _controller = controller,
-       assert(initialValue >= 0.0 && initialValue <= 1.0);
+  }) : assert(initialValue >= 0.0 && initialValue <= 1.0);
 
   final SheetController _controller;
   final double initialValue;
