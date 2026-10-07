@@ -96,8 +96,8 @@ class MutableSheetMetrics with SheetMetrics {
   required double offset,
   required Size contentSize,
   required Size viewportSize,
-  EdgeInsets contentMargin = EdgeInsets.zero,
   required double devicePixelRatio,
+  EdgeInsets contentMargin = EdgeInsets.zero,
   SheetPhysics? physics,
   SheetSnapGrid snapGrid = const SheetSnapGrid.stepless(),
 }) {

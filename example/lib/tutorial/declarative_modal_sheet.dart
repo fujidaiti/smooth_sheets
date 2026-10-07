@@ -78,7 +78,7 @@ class _ExampleSheet extends StatelessWidget {
       onPopInvokedWithResult: (didPop, _) async {
         if (!didPop) {
           final shouldPop = await showConfirmationDialog(context);
-          if (shouldPop == true && context.mounted) {
+          if ((shouldPop ?? false) && context.mounted) {
             context.go('/');
           }
         }

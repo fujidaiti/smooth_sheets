@@ -17,9 +17,9 @@ void showEditBookmarkSheet(BuildContext context) {
 
 class EditBookmarkSheet extends StatelessWidget {
   const EditBookmarkSheet({
-    super.key,
     required this.pageUrl,
     required this.faviconUrl,
+    super.key,
   });
 
   final String pageUrl;

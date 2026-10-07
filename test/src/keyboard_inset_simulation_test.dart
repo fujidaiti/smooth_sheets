@@ -13,9 +13,9 @@ void main() {
   });
 
   Widget boilerplate({
+    required ValueSetter<MediaQueryData> onBuild,
     double keyboardHeight = 300,
     MediaQueryData? ancestorMediaQuery,
-    required ValueSetter<MediaQueryData> onBuild,
   }) {
     Widget child = KeyboardInsetSimulation(
       key: simulationKey,

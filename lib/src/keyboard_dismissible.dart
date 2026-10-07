@@ -28,9 +28,9 @@ class SheetKeyboardDismissible extends StatefulWidget {
   /// Creates a widget that dismisses the on-screen keyboard when the user
   /// drags the sheet below this widget.
   const SheetKeyboardDismissible({
-    super.key,
     required this.dismissBehavior,
     required this.child,
+    super.key,
   });
 
   /// Determines when the on-screen keyboard should be dismissed.
@@ -60,7 +60,7 @@ class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
           VerticalDirection.down => -1 * notification.dragDetails.deltaY,
         };
 
-        if (primaryFocus?.hasFocus == true &&
+        if ((primaryFocus?.hasFocus ?? false) &&
             _dismissBehavior.shouldDismissKeyboard(delta)) {
           primaryFocus!.unfocus();
         }
@@ -75,7 +75,7 @@ class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
           final dragDelta = notification.dragDetails?.delta.dy;
           if (notification.depth == 0 &&
               dragDelta != null &&
-              primaryFocus?.hasFocus == true &&
+              (primaryFocus?.hasFocus ?? false) &&
               _dismissBehavior.shouldDismissKeyboard(-1 * dragDelta)) {
             primaryFocus!.unfocus();
           }

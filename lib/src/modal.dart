@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
@@ -37,6 +36,7 @@ typedef SheetViewportBuilder =
 
 class ModalSheetPage<T> extends Page<T> {
   const ModalSheetPage({
+    required this.child,
     super.key,
     super.name,
     super.arguments,
@@ -52,7 +52,6 @@ class ModalSheetPage<T> extends Page<T> {
     this.swipeDismissSensitivity = const SwipeDismissSensitivity(),
     this.viewportBuilder,
     this.barrierBuilder,
-    required this.child,
   });
 
   /// The content to be shown in the [Route] created by this page.
@@ -143,9 +142,9 @@ class _PageBasedModalSheetRoute<T> extends PageRoute<T>
 
 class ModalSheetRoute<T> extends PageRoute<T> with ModalSheetRouteMixin<T> {
   ModalSheetRoute({
+    required this.builder,
     super.settings,
     super.fullscreenDialog,
-    required this.builder,
     this.viewportBuilder,
     this.maintainState = true,
     this.barrierDismissible = true,
@@ -361,9 +360,9 @@ mixin ModalSheetRouteMixin<T> on ModalRoute<T> {
 /// [ModalSheetRouteMixin], and must be an ancestor of the sheet.
 class _SheetDismissible extends StatefulWidget {
   const _SheetDismissible({
+    required this.child,
     this.enabled = true,
     this.sensitivity = const SwipeDismissSensitivity(),
-    required this.child,
   });
 
   final bool enabled;
@@ -606,12 +605,10 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       );
 
       const completedAnimationValue = 1.0;
-      unawaited(
-        _transitionController.animateTo(
-          completedAnimationValue,
-          duration: Duration(milliseconds: animationTime),
-          curve: _releasedPageForwardAnimationCurve,
-        ),
+      _transitionController.animateTo(
+        completedAnimationValue,
+        duration: Duration(milliseconds: animationTime),
+        curve: _releasedPageForwardAnimationCurve,
       );
     }
 
@@ -791,10 +788,10 @@ class SwipeDismissSensitivity {
 class SheetPopScope<T> extends StatefulWidget {
   /// Creates a widget that controls the pop behavior of a modal sheet.
   const SheetPopScope({
+    required this.child,
     super.key,
     this.canPop = true,
     this.onPopInvokedWithResult,
-    required this.child,
   });
 
   /// When false, blocks the current route from being popped.

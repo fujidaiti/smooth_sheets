@@ -3,8 +3,8 @@ import 'package:material_ui/material_ui.dart';
 
 class CupertinoAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CupertinoAppBar({
-    super.key,
     required this.title,
+    super.key,
     this.leading,
     this.trailing,
   });
@@ -41,7 +41,7 @@ class CupertinoAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class SiteIcon extends StatelessWidget {
-  const SiteIcon({super.key, required this.url});
+  const SiteIcon({required this.url, super.key});
 
   final String url;
 

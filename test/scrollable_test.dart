@@ -970,13 +970,13 @@ class _TestModel extends SheetModel<_TestModelConfig>
 
 class _TestSheet extends StatelessWidget {
   const _TestSheet({
-    super.key,
-    this.controller,
     required this.scrollConfiguration,
     required this.initialOffset,
     required this.snapGrid,
-    this.physics = kDefaultSheetPhysics,
     required this.child,
+    super.key,
+    this.controller,
+    this.physics = kDefaultSheetPhysics,
   });
 
   final SheetController? controller;

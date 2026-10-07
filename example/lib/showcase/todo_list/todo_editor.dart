@@ -343,7 +343,7 @@ class _FolderSelector extends StatelessWidget {
 class _EditingController extends ChangeNotifier {
   _EditingController() {
     title.addListener(() {
-      _canCompose.value = title.value?.isNotEmpty == true;
+      _canCompose.value = title.value?.isNotEmpty ?? false;
     });
   }
 

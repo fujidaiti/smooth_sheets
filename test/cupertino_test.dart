@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:smooth_sheets/src/activity.dart';
@@ -42,8 +40,8 @@ import 'src/stubbing.dart';
 }
 
 Widget _boilerplateSheet({
-  Key? key,
   required double height,
+  Key? key,
   SheetOffset initialOffset = const SheetOffset(1),
   SheetOffset maxOffset = const SheetOffset(1),
   SheetOffset minOffset = const SheetOffset(0),
@@ -67,17 +65,15 @@ void main() {
     testWidgets('and the initial sheet offset is at maximum', (tester) async {
       final env = _boilerplate(statusBarHeight: 64, homeKey: Key('previous'));
       await tester.pumpWidget(env.testWidget);
-      unawaited(
-        env.getNavigator().push(
-          CupertinoModalSheetRoute(
-            transitionDuration: Duration(milliseconds: 300),
-            builder: (context) => _boilerplateSheet(
-              key: Key('sheet'),
-              height: double.infinity,
-              initialOffset: SheetOffset(1),
-              minOffset: SheetOffset(1),
-              maxOffset: SheetOffset(1),
-            ),
+      env.getNavigator().push(
+        CupertinoModalSheetRoute<void>(
+          transitionDuration: Duration(milliseconds: 300),
+          builder: (context) => _boilerplateSheet(
+            key: Key('sheet'),
+            height: double.infinity,
+            initialOffset: SheetOffset(1),
+            minOffset: SheetOffset(1),
+            maxOffset: SheetOffset(1),
           ),
         ),
       );
@@ -113,18 +109,16 @@ void main() {
       final modelOwnerKey = GlobalKey<SheetModelOwnerState>();
       final env = _boilerplate(statusBarHeight: 64, homeKey: Key('previous'));
       await tester.pumpWidget(env.testWidget);
-      unawaited(
-        env.getNavigator().push(
-          CupertinoModalSheetRoute(
-            transitionDuration: Duration(milliseconds: 300),
-            builder: (context) => _boilerplateSheet(
-              key: Key('sheet'),
-              height: double.infinity,
-              initialOffset: SheetOffset(0.5),
-              minOffset: SheetOffset(0.5),
-              maxOffset: SheetOffset(1),
-              modelOwnerKey: modelOwnerKey,
-            ),
+      env.getNavigator().push(
+        CupertinoModalSheetRoute<void>(
+          transitionDuration: Duration(milliseconds: 300),
+          builder: (context) => _boilerplateSheet(
+            key: Key('sheet'),
+            height: double.infinity,
+            initialOffset: SheetOffset(0.5),
+            minOffset: SheetOffset(0.5),
+            maxOffset: SheetOffset(1),
+            modelOwnerKey: modelOwnerKey,
           ),
         ),
       );
@@ -168,32 +162,28 @@ void main() {
     testWidgets('and the initial sheet offset is at maximum', (tester) async {
       final env = _boilerplate(statusBarHeight: 64);
       await tester.pumpWidget(env.testWidget);
-      unawaited(
-        env.getNavigator().push(
-          CupertinoModalSheetRoute(
-            builder: (context) => _boilerplateSheet(
-              key: Key('previous'),
-              height: double.infinity,
-              initialOffset: SheetOffset(1),
-              minOffset: SheetOffset(1),
-              maxOffset: SheetOffset(1),
-            ),
+      env.getNavigator().push(
+        CupertinoModalSheetRoute<void>(
+          builder: (context) => _boilerplateSheet(
+            key: Key('previous'),
+            height: double.infinity,
+            initialOffset: SheetOffset(1),
+            minOffset: SheetOffset(1),
+            maxOffset: SheetOffset(1),
           ),
         ),
       );
       await tester.pumpAndSettle();
 
-      unawaited(
-        env.getNavigator().push(
-          CupertinoModalSheetRoute(
-            transitionDuration: Duration(milliseconds: 300),
-            builder: (context) => _boilerplateSheet(
-              key: Key('sheet'),
-              height: double.infinity,
-              initialOffset: SheetOffset(1),
-              minOffset: SheetOffset(1),
-              maxOffset: SheetOffset(1),
-            ),
+      env.getNavigator().push(
+        CupertinoModalSheetRoute<void>(
+          transitionDuration: Duration(milliseconds: 300),
+          builder: (context) => _boilerplateSheet(
+            key: Key('sheet'),
+            height: double.infinity,
+            initialOffset: SheetOffset(1),
+            minOffset: SheetOffset(1),
+            maxOffset: SheetOffset(1),
           ),
         ),
       );
@@ -245,34 +235,30 @@ void main() {
     testWidgets('and the initial sheet offset is at minimum', (tester) async {
       final env = _boilerplate(statusBarHeight: 64);
       await tester.pumpWidget(env.testWidget);
-      unawaited(
-        env.getNavigator().push(
-          CupertinoModalSheetRoute(
-            builder: (context) => _boilerplateSheet(
-              key: Key('previous'),
-              height: double.infinity,
-              initialOffset: SheetOffset(1),
-              minOffset: SheetOffset(1),
-              maxOffset: SheetOffset(1),
-            ),
+      env.getNavigator().push(
+        CupertinoModalSheetRoute<void>(
+          builder: (context) => _boilerplateSheet(
+            key: Key('previous'),
+            height: double.infinity,
+            initialOffset: SheetOffset(1),
+            minOffset: SheetOffset(1),
+            maxOffset: SheetOffset(1),
           ),
         ),
       );
       await tester.pumpAndSettle();
 
       final modelOwnerKey = GlobalKey<SheetModelOwnerState>();
-      unawaited(
-        env.getNavigator().push(
-          CupertinoModalSheetRoute(
-            transitionDuration: Duration(milliseconds: 300),
-            builder: (context) => _boilerplateSheet(
-              key: Key('sheet'),
-              modelOwnerKey: modelOwnerKey,
-              height: double.infinity,
-              initialOffset: SheetOffset(0.5),
-              minOffset: SheetOffset(0.5),
-              maxOffset: SheetOffset(1),
-            ),
+      env.getNavigator().push(
+        CupertinoModalSheetRoute<void>(
+          transitionDuration: Duration(milliseconds: 300),
+          builder: (context) => _boilerplateSheet(
+            key: Key('sheet'),
+            modelOwnerKey: modelOwnerKey,
+            height: double.infinity,
+            initialOffset: SheetOffset(0.5),
+            minOffset: SheetOffset(0.5),
+            maxOffset: SheetOffset(1),
           ),
         ),
       );

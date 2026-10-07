@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:material_ui/material_ui.dart';
 
 import 'flutter_test_x.dart';
@@ -517,7 +515,7 @@ void main() {
       tester.addTearDown(controller.dispose);
       expect(controller.status, AnimationStatus.dismissed);
 
-      unawaited(controller.forward());
+      controller.forward();
       await tester.flushMicrotasks();
       expect(controller.status, AnimationStatus.forward);
 

@@ -30,4 +30,3 @@ dev_dependencies:
     sdk: flutter
   go_router: ">=16.2.1 <19.0.0"
   mockito: ^5.4.4
-  pedantic_mono: ^1.23.0

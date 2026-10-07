@@ -7,9 +7,9 @@ import 'drag.dart';
 @internal
 class SheetGestureProxy extends StatefulWidget {
   const SheetGestureProxy({
-    super.key,
     required this.proxy,
     required this.child,
+    super.key,
   });
 
   final SheetGestureProxyMixin proxy;

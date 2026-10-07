@@ -14,7 +14,7 @@ import 'package:smooth_sheets/src/viewport.dart';
 import 'src/keyboard_inset_simulation.dart';
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({this.useMaterial = false, required this.child});
+  const _TestApp({required this.child, this.useMaterial = false});
 
   final bool useMaterial;
   final Widget child;
