@@ -15,6 +15,7 @@ analyzer:
     - linux/**
 
 formatter:
+  # TODO: Remove this option (https://github.com/fujidaiti/smooth_sheets/issues/628).
   trailing_commas: preserve
 
 linter:
