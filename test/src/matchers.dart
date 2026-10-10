@@ -136,7 +136,7 @@ class _FluctuationEquals extends Matcher {
 
   @override
   Description describeMismatch(
-    dynamic item,
+    item,
     Description mismatchDescription,
     Map<dynamic, dynamic> matchState,
     bool verbose,

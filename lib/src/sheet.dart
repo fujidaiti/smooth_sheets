@@ -56,6 +56,7 @@ class _DraggableScrollableSheetModel
 
 class Sheet extends StatelessWidget {
   const Sheet({
+    required this.child,
     super.key,
     this.initialOffset = const SheetOffset(1),
     this.physics,
@@ -65,7 +66,6 @@ class Sheet extends StatelessWidget {
     this.dragConfiguration = const SheetDragConfiguration(),
     this.decoration = const DefaultSheetDecoration(),
     this.padding = EdgeInsets.zero,
-    required this.child,
   });
 
   /// {@macro ScrollableSheetPosition.initialPosition}
@@ -137,10 +137,10 @@ class Sheet extends StatelessWidget {
 @internal
 class DraggableScrollableSheetContent extends StatefulWidget {
   const DraggableScrollableSheetContent({
-    super.key,
     required this.scrollConfiguration,
     required this.dragConfiguration,
     required this.child,
+    super.key,
   });
 
   final SheetScrollConfiguration scrollConfiguration;

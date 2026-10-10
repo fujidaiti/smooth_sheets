@@ -88,10 +88,10 @@ typedef SheetLayoutListenable = ValueListenable<SheetLayout?>;
 class SheetMediaQuery extends StatelessWidget {
   @visibleForTesting
   const SheetMediaQuery({
-    super.key,
     required this.layoutSpec,
     required this.layoutNotifier,
     required this.child,
+    super.key,
   });
 
   final SheetLayoutSpec layoutSpec;
@@ -222,9 +222,9 @@ class _InheritedSheetMediaQuery extends InheritedWidget {
 
 class SheetViewport extends StatefulWidget {
   const SheetViewport({
+    required this.child,
     super.key,
     this.padding = EdgeInsets.zero,
-    required this.child,
   });
 
   /// The inset the viewport applies to the [child].
@@ -342,13 +342,10 @@ class _SheetTranslate extends SingleChildRenderObjectWidget {
 class _RenderSheetTranslate extends RenderTransform {
   _RenderSheetTranslate({
     required SheetModelView model,
-    required EdgeInsets padding,
-    required EdgeInsets viewInsets,
-    required EdgeInsets viewPadding,
+    required this._padding,
+    required this._viewInsets,
+    required this._viewPadding,
   }) : _model = model,
-       _padding = padding,
-       _viewInsets = viewInsets,
-       _viewPadding = viewPadding,
        super(
          transform: Matrix4.zero()..setIdentity(),
          transformHitTests: true,
@@ -551,10 +548,9 @@ class _DebugAssertSheetDecorationUsage extends SingleChildRenderObjectWidget {
 
 class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
   _RenderDebugAssertSheetDecorationUsage({
-    required Type sheetDecorationType,
-    required SheetLayoutSpec expectedLayoutSpec,
-  }) : _sheetDecorationType = sheetDecorationType,
-       _expectedLayoutSpec = expectedLayoutSpec;
+    required this._sheetDecorationType,
+    required this._expectedLayoutSpec,
+  });
 
   Type _sheetDecorationType;
   // ignore: avoid_setters_without_getters
@@ -601,10 +597,10 @@ class _RenderDebugAssertSheetDecorationUsage extends RenderProxyBox {
 @internal
 class BareSheet extends StatefulWidget {
   const BareSheet({
+    required this.child,
     super.key,
     this.padding = EdgeInsets.zero,
     this.decoration = const DefaultSheetDecoration(),
-    required this.child,
   });
 
   /// {@template viewport.BareSheet.padding}
@@ -819,11 +815,9 @@ class _RenderSheetSkelton extends RenderShiftedBox {
   _RenderSheetSkelton({
     required this.layoutNotifier,
     required _LazySheetModelView model,
-    required SheetLayoutSpec layoutSpec,
-    required _GetPreferredExtent getPreferredExtent,
+    required this._layoutSpec,
+    required this._getPreferredExtent,
   }) : _model = model,
-       _layoutSpec = layoutSpec,
-       _getPreferredExtent = getPreferredExtent,
        super(null) {
     model.addListener(_invalidatePreferredExtent);
     _invalidatePreferredExtent();

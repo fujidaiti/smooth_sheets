@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:material_ui/material_ui.dart';
 import 'package:smooth_sheets/src/activity.dart';
 import 'package:smooth_sheets/src/content_scaffold.dart';
@@ -18,10 +16,10 @@ import 'src/test_stateful_widget.dart';
 void main() {
   group('SheetContentScaffold - Core Layout', () {
     ({Widget testWidget}) boilerplate({
+      required WidgetBuilder builder,
       SheetLayoutSpec? parentLayoutSpec,
       EdgeInsets rootViewInsets = EdgeInsets.zero,
       EdgeInsets rootViewPadding = EdgeInsets.zero,
-      required WidgetBuilder builder,
     }) {
       final testWidget = MediaQuery(
         data: MediaQueryData(
@@ -1831,7 +1829,7 @@ void main() {
       expect(bottomBarRect(), expectedBottomBarRect);
       expect(find.byId('first'), findsOneWidget);
 
-      unawaited(navigatorKey.currentState!.push(secondRoute));
+      navigatorKey.currentState!.push(secondRoute);
       await tester.pump();
       expect(bottomBarRect(), expectedBottomBarRect);
 
@@ -1846,7 +1844,7 @@ void main() {
       expect(find.byId('first'), findsNothing);
       expect(find.byId('second'), findsOneWidget);
 
-      unawaited(navigatorKey.currentState!.push(thirdRoute));
+      navigatorKey.currentState!.push(thirdRoute);
       await tester.pump();
       expect(bottomBarRect(), expectedBottomBarRect);
 

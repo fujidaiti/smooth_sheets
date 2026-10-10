@@ -10,11 +10,11 @@ import 'src/stubbing.dart';
 
 class _TestAnimatedSheetActivity extends AnimatedSheetActivity {
   _TestAnimatedSheetActivity({
-    required AnimationController controller,
+    required this._controller,
     required super.destination,
     required super.duration,
     required super.curve,
-  }) : _controller = controller;
+  });
 
   final AnimationController _controller;
 

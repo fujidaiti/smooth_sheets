@@ -16,9 +16,9 @@ import 'package:flutter_test/flutter_test.dart';
 /// change the `viewInsets` value.
 class KeyboardInsetSimulation extends StatefulWidget {
   const KeyboardInsetSimulation({
-    super.key,
     required this.keyboardHeight,
     required this.child,
+    super.key,
   });
 
   final double keyboardHeight;

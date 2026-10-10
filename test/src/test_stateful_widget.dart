@@ -7,9 +7,9 @@ import 'package:flutter/widgets.dart';
 /// to rebuild this widget with a new state.
 class TestStatefulWidget<T> extends StatefulWidget {
   const TestStatefulWidget({
-    super.key,
     required this.initialState,
     required this.builder,
+    super.key,
     this.didChangeDependencies,
   });
 

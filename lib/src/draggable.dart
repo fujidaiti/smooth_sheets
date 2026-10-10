@@ -87,9 +87,9 @@ class _SheetDragConfigurationDisabled implements SheetDragConfiguration {
 @internal
 class SheetDraggable extends StatefulWidget {
   const SheetDraggable({
-    super.key,
     required this.configuration,
     required this.child,
+    super.key,
   });
 
   final SheetDragConfiguration configuration;
