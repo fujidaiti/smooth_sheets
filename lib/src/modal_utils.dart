@@ -58,6 +58,7 @@ Future<T?> showAdaptiveModalSheet<T>({
     case TargetPlatform.fuchsia:
     case TargetPlatform.linux:
     case TargetPlatform.windows:
+    default:
       return showModalSheet<T>(
         context: context,
         builder: builder,
