@@ -274,9 +274,12 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     required double velocity,
     required SheetScrollPosition scrollPosition,
   }) {
-    if (FloatComp.distance(
-      context.devicePixelRatio,
-    ).isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent)) {
+    final cmp = FloatComp.distance(context.devicePixelRatio);
+    // A collapsed sheet can retain a nonzero content scroll offset (e.g. after
+    // being collapsed via its handle). Once scrolling stops, it must still
+    // settle on a sheet snap instead of remaining partially expanded.
+    if (cmp.isApprox(scrollPosition.pixels, scrollPosition.minScrollExtent) ||
+        (velocity == 0 && cmp.isNotApprox(offset, maxOffset))) {
       final simulation = physics.createBallisticSimulation(
         velocity,
         this,
