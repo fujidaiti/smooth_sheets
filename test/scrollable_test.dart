@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:smooth_sheets/src/activity.dart';
@@ -389,6 +391,71 @@ void main() {
         expect(sheetTopHistory.max, 0);
         // The sheet should bounce only once.
         expect(sheetTopHistory, fluctuationEquals([-1, 1]));
+      },
+    );
+
+    testWidgets(
+      'Sheet should snap when released if not fully expanded, '
+      'regardless of the scroll position (velocity: 0)',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        await tester.pumpWidget(env.testWidget);
+
+        // Collapse the sheet without resetting the content's scroll offset,
+        // e.g., by dragging a handle on top of the scrollview.
+        env.scrollController.jumpTo(200);
+        unawaited(env.controller.animateTo(SheetOffset.absolute(300)));
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+        expect(env.scrollController.offset, 200);
+
+        // Start dragging the sheet upward and stop at partway,
+        // between the two snap points.
+        final gesture = await tester.startDrag(
+          tester.getCenter(find.byId('sheet')),
+          AxisDirection.up,
+        );
+        await gesture.moveUpwardBy(100 - kDragSlopDefault);
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 200);
+        expect(env.scrollController.offset, 200);
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'The sheet should snap to the nearest snap offset',
+        );
+        expect(env.scrollController.offset, 200);
+      },
+    );
+
+    testWidgets(
+      'Sheet should snap when released if not fully expanded, '
+      'regardless of the scroll position (velocity: 200)',
+      (tester) async {
+        final env = boilerplate(initialOffset: SheetOffset.absolute(600));
+        await tester.pumpWidget(env.testWidget);
+
+        env.scrollController.jumpTo(200);
+        unawaited(env.controller.animateTo(SheetOffset.absolute(300)));
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+        expect(env.scrollController.offset, 200);
+
+        await tester.flingFrom(
+          tester.getCenter(find.byId('sheet')),
+          Offset(0, -50),
+          200,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          0,
+          reason: 'The sheet should snap to the next snap offset upward',
+        );
+        expect(env.scrollController.offset, 200);
       },
     );
   });
