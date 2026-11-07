@@ -58,6 +58,10 @@ Future<T?> showAdaptiveModalSheet<T>({
     case TargetPlatform.fuchsia:
     case TargetPlatform.linux:
     case TargetPlatform.windows:
+    // Fallback for TargetPlatform values that are not defined
+    // in the standard Flutter SDK (e.g., those added by custom SDK forks).
+    // ignore: unreachable_switch_default, no_default_cases
+    default:
       return showModalSheet<T>(
         context: context,
         builder: builder,
