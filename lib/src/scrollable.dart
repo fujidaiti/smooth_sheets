@@ -7,6 +7,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
@@ -291,7 +292,7 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
         snapGrid,
       );
       if (simulation != null) {
-        scrollPosition.goIdle(calledByDelegate: true);
+        scrollPosition.goBallistic(0, calledByOwner: true);
         beginActivity(BallisticSheetActivity(simulation: simulation));
         return;
       }
@@ -352,7 +353,11 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
   bool _shouldHandleScroll(ScrollPosition scrollPosition) =>
       switch (scrollConfiguration.scrollSyncMode) {
         SheetScrollHandlingBehavior.always => true,
-        SheetScrollHandlingBehavior.onlyFromTop => scrollPosition.pixels == 0,
+        SheetScrollHandlingBehavior.onlyFromTop => nearEqual(
+          scrollPosition.pixels,
+          scrollPosition.minScrollExtent,
+          kOnlyFromTopScrollTolerance,
+        ),
       };
 }
 
@@ -445,8 +450,8 @@ mixin _ScrollAwareSheetActivityMixin
         delta -= scrollPosition.pixels - oldScrollPixels;
       }
       // If the content cannot be scrolled down anymore, drag the sheet down
-      // to make a shrinking effect (if needed).
-      if (cmp.isApprox(scrollPosition.pixels, minScrollPixels)) {
+      // to make a overdragging effect, like bouncing (if needed).
+      if (cmp.isLessThanOrApprox(scrollPosition.pixels, minScrollPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta, newOffset);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
         newOffset += physicsAppliedDelta;

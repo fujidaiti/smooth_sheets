@@ -589,8 +589,8 @@ void main() {
     );
 
     testWidgets(
-      'onlyFromTop: sheet should move downward when scrollable is overscrolled '
-      'and the scroll starts from the top',
+      'onlyFromTop: if scroll starts from the top, '
+      'sheet and scroll positions should be synced as usual',
       (tester) async {
         final env = boilerplate(
           scrollConfiguration: SheetScrollConfiguration(
@@ -618,39 +618,8 @@ void main() {
     );
 
     testWidgets(
-      'onlyFromTop: sheet should not move downward when scrollable is '
-      'overscrolled but the scroll does not start from the top',
-      (tester) async {
-        final env = boilerplate(
-          scrollConfiguration: SheetScrollConfiguration(
-            scrollSyncMode: SheetScrollHandlingBehavior.onlyFromTop,
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        await tester.pumpAndSettle();
-        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
-        expect(env.scrollController.offset, 0);
-
-        await tester.dragUpward(find.byId('scrollable'), deltaY: 100);
-        await tester.pumpAndSettle();
-        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
-        expect(env.scrollController.offset, 100);
-
-        final gesture = await tester.startGesture(
-          tester.getCenter(find.byId('sheet')),
-        );
-        await gesture.moveDownwardBy(200);
-        await tester.pumpAndSettle();
-        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
-        expect(env.scrollController.offset, lessThan(0));
-        await gesture.up();
-      },
-    );
-
-    testWidgets(
-      'onlyFromTop: a drag starting while the scroll offset is settling within '
-      'the tolerance of the top should drag the sheet while keeping the '
-      'overscroll, and the overscroll should settle at the top after release',
+      'onlyFromTop: scroll position inside the torelance around 0 '
+      'should also be considered as top',
       (tester) async {
         final env = boilerplate(
           scrollConfiguration: SheetScrollConfiguration(
@@ -695,6 +664,7 @@ void main() {
         );
         await gesture.moveDownwardBy(100);
         await tester.pumpAndSettle();
+        expect(scrollOffsetHistory, hasLength(1));
         expect(
           tester.getTopLeft(find.byId('sheet')).dy,
           greaterThan(400),
@@ -714,6 +684,36 @@ void main() {
               'after releasing the sheet.',
         );
         expect(env.scrollController.offset, 0);
+      },
+    );
+
+    testWidgets(
+      'onlyFromTop: sheet should not move downward when scrollable is '
+      'overscrolled but the scroll does not start from the top',
+      (tester) async {
+        final env = boilerplate(
+          scrollConfiguration: SheetScrollConfiguration(
+            scrollSyncMode: SheetScrollHandlingBehavior.onlyFromTop,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        await tester.pumpAndSettle();
+        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
+        expect(env.scrollController.offset, 0);
+
+        await tester.dragUpward(find.byId('scrollable'), deltaY: 100);
+        await tester.pumpAndSettle();
+        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
+        expect(env.scrollController.offset, 100);
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
+        await gesture.moveDownwardBy(200);
+        await tester.pumpAndSettle();
+        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
+        expect(env.scrollController.offset, lessThan(0));
+        await gesture.up();
       },
     );
   });
