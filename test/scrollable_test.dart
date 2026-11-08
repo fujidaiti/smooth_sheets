@@ -646,6 +646,73 @@ void main() {
         await gesture.up();
       },
     );
+
+    testWidgets(
+      'onlyFromTop: a drag starting while the scroll offset is settling within '
+      'the tolerance of the top should be handled as a sheet drag, and the '
+      'scroll offset should gradually settle at the top during the drag',
+      (tester) async {
+        final env = boilerplate(
+          scrollConfiguration: SheetScrollConfiguration(
+            scrollSyncMode: SheetScrollHandlingBehavior.onlyFromTop,
+          ),
+        );
+        await tester.pumpWidget(env.testWidget);
+        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
+        expect(env.scrollController.offset, 0);
+
+        await tester.dragUpward(find.byId('scrollable'), deltaY: 100);
+        await tester.pumpAndSettle();
+        expect(env.scrollController.offset, 100);
+
+        // Overscroll the content past its top edge, then release it
+        // to start the bouncing-back animation.
+        await tester.dragDownward(find.byId('scrollable'), deltaY: 200);
+        expect(
+          env.scrollController.offset,
+          isNot(moreOrLessEquals(0, epsilon: kOnlyFromTopScrollTolerance)),
+        );
+        while (env.scrollController.offset.abs() >
+            kOnlyFromTopScrollTolerance) {
+          await tester.pump(Duration(milliseconds: 16));
+        }
+        expect(
+          env.scrollController.offset,
+          moreOrLessEquals(0, epsilon: kOnlyFromTopScrollTolerance),
+        );
+        expect(tester.getTopLeft(find.byId('sheet')).dy, 300);
+
+        // Catch the scrollview while it is still bouncing back,
+        // then drag it downward.
+        final gesture = await tester.startDrag(
+          tester.getCenter(find.byId('sheet')),
+          AxisDirection.down,
+        );
+        await gesture.moveDownwardBy(100);
+        final scrollOffsetHistory = [env.scrollController.offset];
+        env.scrollController.addListener(() {
+          scrollOffsetHistory.add(env.scrollController.offset);
+        });
+        await tester.pumpAndSettle();
+        expect(
+          tester.getTopLeft(find.byId('sheet')).dy,
+          greaterThan(400),
+          reason:
+              'The gesture, which is initiated when the scroll position is '
+              'not zero but inside the torelance, should be handled '
+              'as a sheet drag rather than a scroll.',
+        );
+        expect(
+          scrollOffsetHistory,
+          allOf(hasLength(greaterThan(2)), isMonotonicallyIncreasing),
+          reason:
+              'The scroll should gradually settle at the top '
+              'while dragging the sheet down',
+        );
+        expect(env.scrollController.offset, 0);
+        await gesture.up();
+      },
+    );
   });
 
   group('delegateUnhandledOverscrollToChild', () {
