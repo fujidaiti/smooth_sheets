@@ -44,6 +44,16 @@ enum SheetScrollHandlingBehavior {
   onlyFromTop,
 }
 
+/// The maximum overscroll distance past the top edge of the scrollable
+/// content that [SheetScrollHandlingBehavior.onlyFromTop] still treats as
+/// "at the top".
+///
+/// This allows the user to drag the sheet by catching the content while it
+/// is bouncing back to the top, e.g. with [BouncingScrollPhysics].
+@internal
+@visibleForTesting
+const double kOnlyFromTopScrollTolerance = kTouchSlop;
+
 /// Defines how the sheet integrates with scrollable content.
 abstract class SheetScrollConfiguration {
   /// Creates a [SheetScrollConfiguration] with the given scroll behavior.
