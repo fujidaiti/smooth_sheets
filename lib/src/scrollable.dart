@@ -450,7 +450,7 @@ mixin _ScrollAwareSheetActivityMixin
         delta -= scrollPosition.pixels - oldScrollPixels;
       }
       // If the content cannot be scrolled down anymore, drag the sheet down
-      // to make a overdragging effect, like bouncing (if needed).
+      // to make an overdrag-driven effect, like bouncing (if needed).
       if (cmp.isLessThanOrApprox(scrollPosition.pixels, minScrollPixels)) {
         final physicsAppliedDelta = _applyPhysicsToOffset(delta, newOffset);
         assert(cmp.isLessThanOrApprox(physicsAppliedDelta.abs(), delta.abs()));
