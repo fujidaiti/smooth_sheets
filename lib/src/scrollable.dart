@@ -274,10 +274,7 @@ mixin ScrollAwareSheetModelMixin<C extends SheetModelConfig> on SheetModel<C>
     required double velocity,
     required SheetScrollPosition scrollPosition,
   }) {
-    if (FloatComp.distance(context.devicePixelRatio).isLessThanOrApprox(
-      scrollPosition.pixels,
-      scrollPosition.minScrollExtent,
-    )) {
+    if (offset < maxOffset) {
       final simulation = physics.createBallisticSimulation(
         velocity,
         this,
