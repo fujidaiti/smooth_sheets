@@ -73,6 +73,16 @@ class SheetController extends ChangeNotifier
     return _client!.animateTo(to, duration: duration, curve: curve);
   }
 
+  /// Moves the sheet to [to] immediately, without animating.
+  ///
+  /// The sheet then holds [to] as its target position, re-resolving it
+  /// whenever the viewport or the content changes, until another movement
+  /// begins.
+  void jumpTo(SheetOffset to) {
+    assert(_client != null);
+    _client!.jumpTo(to);
+  }
+
   @override
   void notifyListeners() {
     _immediateListeners.notifyListeners();
