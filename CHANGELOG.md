@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.1 - 2026-11-09
+- build: Bump auto_route from 11.1.0 to 11.2.0 in the dependencies group ([#629](https://github.com/fujidaiti/smooth_sheets/pull/629)) - [2b59dcf](https://github.com/fujidaiti/smooth_sheets/commit/2b59dcfaa03a22c12d536f5b7d7faa94f25e9f12)
+- build: Replace pedantic_mono with an all-lint-rules options file ([#625](https://github.com/fujidaiti/smooth_sheets/pull/625)) - [5ec0cc5](https://github.com/fujidaiti/smooth_sheets/commit/5ec0cc5b8d8ea3f2fc97a4d451468a1e1e887a3d)
+- fix: Margin of error for scroll-top detection in scrollSyncMode: .onlyFromTop is too narrow ([#641](https://github.com/fujidaiti/smooth_sheets/pull/641)) - [e9e3e2b](https://github.com/fujidaiti/smooth_sheets/commit/e9e3e2b0109661c850ed9af8825606ccb8da5882)
+- fix: Crash when running on a platform not defined in TargetPlatform ([#639](https://github.com/fujidaiti/smooth_sheets/pull/639)) - [b0432a6](https://github.com/fujidaiti/smooth_sheets/commit/b0432a665592fac30dd3ec2803b49670dbb26e95)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.3.1) for more details.
+
 ## 1.3.0 - 2026-10-06
 - Migrate to material_ui ([#618](https://github.com/fujidaiti/smooth_sheets/pull/618)) - [e07447c](https://github.com/fujidaiti/smooth_sheets/commit/e07447c74a5528639b38b2e06db2ab30d34bf3ef)
 

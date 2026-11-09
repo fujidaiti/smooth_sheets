@@ -31,3 +31,6 @@ Thank you for all contributors!
 - ice-orion (1):
   - feat: add swipe dismiss sensitivity params for modals (#222) - [9d07275](https://github.com/fujidaiti/smooth_sheets/commit/9d07275)
 
+- zaihuo88 (1):
+  - fix(pkg): crash when running on a platform not defined in TargetPlatform (#639) - [b0432a6](https://github.com/fujidaiti/smooth_sheets/commit/b0432a6)
+
