@@ -125,6 +125,20 @@ jobs:
         run: bash tool/contrib.sh > CONTRIBUTORS.md
         shell: bash
 
+      - name: Generate commit list for release note
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --unreleased --strip=all
+        env:
+          OUTPUT: release-note-commits.md
+          # Overrides the body template in cliff.toml to list only the commits,
+          # without the version heading and the release note link.
+          # It is passed as an env var because the action splits args by spaces.
+          GIT_CLIFF_TEMPLATE: |
+            {% for commit in commits | sort(attribute="group") %}- {% if commit.group != "none" %}{{ commit.group }}: {% endif %}{{ commit.message | upper_first }} - [{{ commit.id | truncate(length=7, end="") }}](https://github.com/fujidaiti/smooth_sheets/commit/{{ commit.id }})
+            {% endfor %}
+
       - name: Ensure release note exists
         env:
           RAW_VERSION: ${{ needs.check.outputs.raw_next_version }}
@@ -132,8 +146,13 @@ jobs:
           set -e
           NOTE="notes/release-note-${RAW_VERSION}.md"
           if [ ! -f "$NOTE" ]; then
-            echo "# v${RAW_VERSION} release note" > "$NOTE"
+            {
+              echo "# v${RAW_VERSION} release note"
+              echo
+              cat release-note-commits.md
+            } > "$NOTE"
           fi
+          rm release-note-commits.md
         shell: bash
 
       - name: Generate GitHub App token
@@ -172,7 +191,7 @@ jobs:
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --unreleased --strip=all
+          args: --unreleased --bump --strip=all
         env:
           OUTPUT: pr-description.raw.txt
 
