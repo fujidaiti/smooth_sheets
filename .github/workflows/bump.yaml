@@ -132,7 +132,16 @@ jobs:
           set -e
           NOTE="notes/release-note-${RAW_VERSION}.md"
           if [ ! -f "$NOTE" ]; then
-            echo "# v${RAW_VERSION} release note" > "$NOTE"
+            {
+              echo "# v${RAW_VERSION} release note"
+              echo
+              # List the commits in the new CHANGELOG section.
+              awk -v header="## ${RAW_VERSION} " '
+                index($0, header) == 1 { found = 1; next }
+                found && /^## / { exit }
+                found && /^- / { print }
+              ' CHANGELOG.md
+            } > "$NOTE"
           fi
         shell: bash
 
