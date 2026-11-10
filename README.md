@@ -167,7 +167,7 @@ See also:
 - [declarative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/declarative_modal_sheet.dart), a tutorial of integration with declarative navigation using [go_router](https://pub.dev/packages/go_router) package.
 - [imperative_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/imperative_modal_sheet.dart), a tutorial of integration with imperative Navigator API.
 - [cupertino_modal_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/cupertino_modal_sheet.dart), a tutorial of iOS style modal sheets.
-- [ios_style_declarative_modal_paged_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/ios_style_declarative_modal_paged_sheet.dart), an example of iOS-style modal PagedSheet with go_router.
+- [ios_style_declarative_modal_navigation_sheet.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/ios_style_declarative_modal_navigation_sheet.dart), an example of iOS-style modal PagedSheet with go_router.
 - [showcase/todo_list](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/todo_list), which uses SheetDismissible to show a confirmation dialog when the user tries to discard the todo editing sheet without saving the content.
 
 <br/>
@@ -224,7 +224,6 @@ See also:
 
 - [SheetContentScaffold](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/SheetContentScaffold-class.html), the API documentation.
 - [BottomBarVisibility](https://pub.dev/documentation/smooth_sheets/latest/smooth_sheets/BottomBarVisibility-class.html), which controls the visibility of the bottom bar based on sheet metrics (including offset).
-- [tutorial/sheet_content_scaffold.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_content_scaffold.dart), which shows the basic usage of SheetContentScaffold.
 - [tutorial/bottom_bar_visibility.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/bottom_bar_visibility.dart), which shows the basic usage of the `bottomBarVisibility` property.
 
 <br/>
@@ -239,7 +238,7 @@ Formerly `SheetPositionDrivenAnimation`, this allows creating animations driven 
 
 See also:
 
-- [sheet_offset_driven_animation.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/sheet_offset_driven_animation.dart) for basic usage.
+- [offset_driven_animation.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/tutorial/offset_driven_animation.dart) for basic usage.
 - [airbnb_mobile_app.dart](https://github.com/fujidaiti/smooth_sheets/blob/main/example/lib/showcase/airbnb_mobile_app.dart), which shows how `SheetOffsetDrivenAnimation` can be used to hide/show UI elements based on the sheet's drag position.
 
 <br/>
