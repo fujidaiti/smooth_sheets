@@ -353,6 +353,12 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   );
 
   @override
+  void jumpTo(_i4.SheetOffset? offset) => super.noSuchMethod(
+    Invocation.method(#jumpTo, [offset]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   void settleTo(_i4.SheetOffset? offset, Duration? duration) =>
       super.noSuchMethod(
         Invocation.method(#settleTo, [offset, duration]),
