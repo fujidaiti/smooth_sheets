@@ -35,9 +35,8 @@ commit_preprocessors = [
 ]
 commit_parsers = [
   { message = '^feat\(pkg\)', group = "feat" },
-  { message = '^fix\(ci|example|env\)', skip = true },
+  { message = '^fix\((ci|example|env)\)', skip = true },
   { message = '^[fF]ix', group = "fix" },
-  { message = '^build\(pkg\)', group = "build" },
   { message = '^revert\(pkg\)', group = "revert" },
   { message = ".*", skip = true },
 ]
