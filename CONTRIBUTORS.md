@@ -7,6 +7,10 @@ Thank you for all contributors!
   - feat(pkg): Add custom barrier support for modal sheets - [b846084](https://github.com/fujidaiti/smooth_sheets/commit/b846084)
   - chore(pkg): fix typo in README regarding Navigator API (#471) - [7a56004](https://github.com/fujidaiti/smooth_sheets/commit/7a56004)
 
+- Yauhen Sampir (2):
+  - fix(pkg): prevent sheet from exceeding bounds when dragging non-overflowing scrollable content (#613) - [12e3a1c](https://github.com/fujidaiti/smooth_sheets/commit/12e3a1c)
+  - fix(pkg): Margin of error for scroll-top detection in scrollSyncMode: .onlyFromTop is too narrow (#641) - [e9e3e2b](https://github.com/fujidaiti/smooth_sheets/commit/e9e3e2b)
+
 - Abdullah (1):
   - docs(pkg): add a README link to navigator_resizable (#604) - [16f4141](https://github.com/fujidaiti/smooth_sheets/commit/16f4141)
 
@@ -25,9 +29,9 @@ Thank you for all contributors!
 - Yaroslav Vorobev (1):
   - fix(pkg): Use drag devices from inherited scroll config (#513) - [0796b1a](https://github.com/fujidaiti/smooth_sheets/commit/0796b1a)
 
-- Yauhen Sampir (1):
-  - fix(pkg): prevent sheet from exceeding bounds when dragging non-overflowing scrollable content (#613) - [12e3a1c](https://github.com/fujidaiti/smooth_sheets/commit/12e3a1c)
-
 - ice-orion (1):
   - feat: add swipe dismiss sensitivity params for modals (#222) - [9d07275](https://github.com/fujidaiti/smooth_sheets/commit/9d07275)
+
+- zaihuo88 (1):
+  - fix(pkg): crash when running on a platform not defined in TargetPlatform (#639) - [b0432a6](https://github.com/fujidaiti/smooth_sheets/commit/b0432a6)
 
