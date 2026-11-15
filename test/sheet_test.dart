@@ -237,6 +237,82 @@ void main() {
     );
   });
 
+  group('gestureSettings', () {
+    Widget boilerplate({required MediaQueryData mediaQueryData}) {
+      return MediaQuery(
+        data: mediaQueryData,
+        child: SheetViewport(
+          child: Sheet(
+            key: Key('sheet'),
+            initialOffset: SheetOffset(1),
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(100), SheetOffset(1)],
+            ),
+            // A competing recognizer keeps the vertical drag from being
+            // accepted before it exceeds the touch slop.
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragUpdate: (_) {},
+              child: SizedBox.fromSize(size: Size.fromHeight(300)),
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets(
+      'Honors the touch slop of the inherited MediaQuery',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            mediaQueryData: MediaQueryData(
+              gestureSettings: DeviceGestureSettings(touchSlop: 4),
+            ),
+          ),
+        );
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
+        await gesture.moveBy(Offset(0, 6));
+        await tester.pump();
+        await gesture.moveBy(Offset(0, 6));
+        await tester.pump();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          greaterThan(300),
+          reason: 'Sheet should have moved past the custom touch slop',
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+
+    testWidgets(
+      'Uses the default touch slop if the MediaQuery has no gesture settings',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(mediaQueryData: MediaQueryData()),
+        );
+        expect(tester.getRect(find.byId('sheet')).top, 300);
+
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byId('sheet')),
+        );
+        await gesture.moveBy(Offset(0, 12));
+        await tester.pump();
+        expect(
+          tester.getRect(find.byId('sheet')).top,
+          300,
+          reason: 'Sheet should not move within the default touch slop',
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
+  });
+
   group('Initial Build Layout Test', () {
     testWidgets(
       'snapGrid is respected on first build with multiple snap points',

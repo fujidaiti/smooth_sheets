@@ -122,6 +122,9 @@ class _SheetDraggableState extends State<SheetDraggable> {
           ..onUpdate = _handleDragUpdate
           ..onEnd = _handleDragEnd
           ..onCancel = _handleDragCancel;
+    _gestureRecognizer?.gestureSettings = MediaQuery.maybeGestureSettingsOf(
+      context,
+    );
   }
 
   @override
