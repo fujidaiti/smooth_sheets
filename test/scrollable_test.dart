@@ -936,6 +936,84 @@ void main() {
   });
 
   testWidgets(
+    'A non-primary scroll position relaying out '
+    'does not interrupt the sheet drag',
+    (tester) async {
+      final scrollController = SheetScrollController();
+      final hiddenContentHeight = ValueNotifier<double>(1000);
+      addTearDown(hiddenContentHeight.dispose);
+
+      await tester.pumpWidget(
+        SheetViewport(
+          child: _TestSheet(
+            key: Key('sheet'),
+            scrollConfiguration: SheetScrollConfiguration(
+              scrollSyncMode: SheetScrollHandlingBehavior.always,
+            ),
+            initialOffset: SheetOffset.absolute(300),
+            snapGrid: SheetSnapGrid(
+              snaps: [SheetOffset.absolute(300), SheetOffset.absolute(600)],
+            ),
+            child: SheetScrollable(
+              controller: scrollController,
+              child: SizedBox.fromSize(
+                size: Size.fromHeight(600),
+                child: Stack(
+                  textDirection: TextDirection.ltr,
+                  children: [
+                    Offstage(
+                      child: SingleChildScrollView(
+                        key: Key('hidden'),
+                        controller: scrollController,
+                        physics: ClampingScrollPhysics(),
+                        child: ValueListenableBuilder(
+                          valueListenable: hiddenContentHeight,
+                          builder: (context, height, _) =>
+                              SizedBox.fromSize(size: Size.fromHeight(height)),
+                        ),
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      key: Key('visible'),
+                      controller: scrollController,
+                      physics: ClampingScrollPhysics(),
+                      child: SizedBox.fromSize(size: Size.fromHeight(1000)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(scrollController.positions, hasLength(2));
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 300);
+
+      final gesture = await tester.startDrag(
+        tester.getCenter(find.byId('sheet')),
+        AxisDirection.up,
+      );
+      await gesture.moveUpwardBy(50 - kDragSlopDefault);
+      await tester.pump();
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 250);
+
+      hiddenContentHeight.value = 1200;
+      await tester.pump();
+
+      await gesture.moveUpwardBy(50);
+      await tester.pump();
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 200);
+
+      await gesture.moveUpwardBy(50);
+      await tester.pump();
+      expect(tester.getRect(find.byKey(Key('sheet'))).top, 150);
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    },
+  );
+
+  testWidgets(
     'Multiple SheetScrollable allows scrollables to have '
     'independent scroll controllers',
     (tester) async {
