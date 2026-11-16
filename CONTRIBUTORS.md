@@ -3,13 +3,18 @@
 
 Thank you for all contributors!
 
+- Yauhen Sampir (4):
+  - fix(pkg): prevent sheet from exceeding bounds when dragging non-overflowing scrollable content (#613) - [12e3a1c](https://github.com/fujidaiti/smooth_sheets/commit/12e3a1c)
+  - fix(pkg): Margin of error for scroll-top detection in scrollSyncMode: .onlyFromTop is too narrow (#641) - [e9e3e2b](https://github.com/fujidaiti/smooth_sheets/commit/e9e3e2b)
+  - fix(pkg): Sheet drag is lost when a non-primary scroll position relays out (#642) - [00ea771](https://github.com/fujidaiti/smooth_sheets/commit/00ea771)
+  - fix(pkg): SheetDraggable ignores the gesture settings of the MediaQuery (#644) - [5a8f742](https://github.com/fujidaiti/smooth_sheets/commit/5a8f742)
+
 - Blin Qipa (2):
   - feat(pkg): Add custom barrier support for modal sheets - [b846084](https://github.com/fujidaiti/smooth_sheets/commit/b846084)
   - chore(pkg): fix typo in README regarding Navigator API (#471) - [7a56004](https://github.com/fujidaiti/smooth_sheets/commit/7a56004)
 
-- Yauhen Sampir (2):
-  - fix(pkg): prevent sheet from exceeding bounds when dragging non-overflowing scrollable content (#613) - [12e3a1c](https://github.com/fujidaiti/smooth_sheets/commit/12e3a1c)
-  - fix(pkg): Margin of error for scroll-top detection in scrollSyncMode: .onlyFromTop is too narrow (#641) - [e9e3e2b](https://github.com/fujidaiti/smooth_sheets/commit/e9e3e2b)
+- Abderrahmane Messaadi (1):
+  - docs(pkg): Fix dead example links in the README (#650) - [cfbad52](https://github.com/fujidaiti/smooth_sheets/commit/cfbad52)
 
 - Abdullah (1):
   - docs(pkg): add a README link to navigator_resizable (#604) - [16f4141](https://github.com/fujidaiti/smooth_sheets/commit/16f4141)
@@ -19,6 +24,9 @@ Thank you for all contributors!
 
 - Bjarte Bore (1):
   - feat(pkg): Changed SwipeDismissSensitivity to use a SheetOffset as the minimum drag value (#415) - [aba6f2f](https://github.com/fujidaiti/smooth_sheets/commit/aba6f2f)
+
+- Daniel Ulbrich (1):
+  - fix(pkg): Avoid crash when a SheetModel is detached during layout (#582) - [5fe51cc](https://github.com/fujidaiti/smooth_sheets/commit/5fe51cc)
 
 - Jannik S. (1):
   - fix(pkg): Avoid crash when a SheetModel is detached during layout (#582) - [5fe51cc](https://github.com/fujidaiti/smooth_sheets/commit/5fe51cc)
