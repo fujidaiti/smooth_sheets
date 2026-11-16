@@ -29,4 +29,5 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   go_router: ">=16.2.1 <19.0.0"
+  listen: ^1.0.1
   mockito: ^5.4.4
