@@ -799,7 +799,9 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
       expect(env.getSheetTop(), 300);
-      expect(env.scrollController.offset, 0);
+      // The bounce-back simulation may not land exactly on 0
+      // due to floating-point rounding.
+      expect(env.scrollController.offset, moreOrLessEquals(0));
     });
 
     testWidgets('when true: ClampingSheetPhysics with ClampingScrollPhsics', (
