@@ -799,8 +799,6 @@ void main() {
       await gesture.up();
       await tester.pumpAndSettle();
       expect(env.getSheetTop(), 300);
-      // The bounce-back simulation may not land exactly on 0
-      // due to floating-point rounding.
       expect(env.scrollController.offset, moreOrLessEquals(0));
     });
 
