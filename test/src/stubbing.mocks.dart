@@ -11,8 +11,9 @@ import 'package:flutter/foundation.dart' as _i11;
 import 'package:flutter/gestures.dart' as _i8;
 import 'package:flutter/physics.dart' as _i12;
 import 'package:flutter/scheduler.dart' as _i9;
-import 'package:flutter/src/animation/curves.dart' as _i15;
+import 'package:flutter/src/animation/curves.dart' as _i16;
 import 'package:flutter/widgets.dart' as _i3;
+import 'package:listen/src/listen.dart' as _i15;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i13;
 import 'package:smooth_sheets/src/activity.dart' as _i7;
@@ -478,13 +479,13 @@ class MockSheetModel<C extends _i4.SheetModelConfig> extends _i1.Mock
   );
 
   @override
-  void addListener(_i2.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i15.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i2.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i15.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -906,7 +907,7 @@ class MockAnimationController extends _i1.Mock
   _i9.TickerFuture animateTo(
     double? target, {
     Duration? duration,
-    _i3.Curve? curve = _i15.Curves.linear,
+    _i3.Curve? curve = _i16.Curves.linear,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -937,7 +938,7 @@ class MockAnimationController extends _i1.Mock
   _i9.TickerFuture animateBack(
     double? target, {
     Duration? duration,
-    _i3.Curve? curve = _i15.Curves.linear,
+    _i3.Curve? curve = _i16.Curves.linear,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
