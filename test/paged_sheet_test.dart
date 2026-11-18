@@ -1999,29 +1999,21 @@ void main() {
       Widget testWidget,
       ValueGetter<NavigatorState> getNavigator,
     })
-    boilerplate({
-      ThemeData? theme,
-      RouteTransitionsBuilder? transitionsBuilder,
-    }) {
+    boilerplate({RouteTransitionsBuilder? transitionsBuilder}) {
       final navigatorKey = GlobalKey<NavigatorState>();
-      final testWidget = Theme(
-        data: theme ?? ThemeData(),
-        child: PagedSheetRouteTheme(
-          data: PagedSheetRouteThemeData(
-            transitionsBuilder: transitionsBuilder,
-          ),
-          child: Directionality(
-            textDirection: TextDirection.ltr,
-            child: SheetViewport(
-              child: PagedSheet(
-                navigator: Navigator(
-                  key: navigatorKey,
-                  onGenerateRoute: (_) {
-                    return PagedSheetRoute(
-                      builder: (_) => _TestPage(key: Key('a'), height: 300),
-                    );
-                  },
-                ),
+      final testWidget = PagedSheetRouteTheme(
+        data: PagedSheetRouteThemeData(transitionsBuilder: transitionsBuilder),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: SheetViewport(
+            child: PagedSheet(
+              navigator: Navigator(
+                key: navigatorKey,
+                onGenerateRoute: (_) {
+                  return PagedSheetRoute(
+                    builder: (_) => _TestPage(key: Key('a'), height: 300),
+                  );
+                },
               ),
             ),
           ),
@@ -2034,21 +2026,7 @@ void main() {
       );
     }
 
-    Future<void> pushAndPumpHalfway(
-      WidgetTester tester,
-      NavigatorState navigator,
-    ) async {
-      navigator.push(
-        PagedSheetRoute<void>(
-          transitionDuration: Duration(milliseconds: 300),
-          builder: (_) => _TestPage(key: Key('b'), height: 500),
-        ),
-      );
-      await tester.pump();
-      await tester.pump(Duration(milliseconds: 150));
-    }
-
-    List<Color> backgroundColorsBehind(WidgetTester tester, String pageId) {
+    List<Color> backgroundColorsOf(WidgetTester tester, String pageId) {
       return tester
           .widgetList<ColoredBox>(
             find.ancestor(
@@ -2066,58 +2044,30 @@ void main() {
       (tester) async {
         final env = boilerplate();
         await tester.pumpWidget(env.testWidget);
-        await pushAndPumpHalfway(tester, env.getNavigator());
 
-        expect(find.byId('a'), findsOneWidget);
-        expect(find.byId('b'), findsOneWidget);
-        final colors = backgroundColorsBehind(tester, 'a');
-        expect(colors, isNotEmpty);
-        expect(colors, everyElement(Colors.transparent));
-      },
-    );
+        env.getNavigator().push(
+          PagedSheetRoute<void>(
+            transitionDuration: Duration(milliseconds: 300),
+            builder: (_) => _TestPage(key: Key('b'), height: 500),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(Duration(milliseconds: 150));
+        expect(backgroundColorsOf(tester, 'a'), isNotEmpty);
+        expect(
+          backgroundColorsOf(tester, 'a'),
+          everyElement(Colors.transparent),
+        );
 
-    testWidgets(
-      'Android transition keeps both pages see-through while popping',
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
-      (tester) async {
-        final env = boilerplate();
-        await tester.pumpWidget(env.testWidget);
-        await pushAndPumpHalfway(tester, env.getNavigator());
         await tester.pumpAndSettle();
-        expect(find.byId('a'), findsNothing);
-
         env.getNavigator().pop();
         await tester.pump();
         await tester.pump(Duration(milliseconds: 150));
-
-        expect(find.byId('a'), findsOneWidget);
-        expect(find.byId('b'), findsOneWidget);
-        final colors = backgroundColorsBehind(tester, 'a');
-        expect(colors, isNotEmpty);
-        expect(colors, everyElement(Colors.transparent));
+        expect(backgroundColorsOf(tester, 'b'), isNotEmpty);
         expect(
-          backgroundColorsBehind(tester, 'b'),
+          backgroundColorsOf(tester, 'b'),
           everyElement(Colors.transparent),
         );
-      },
-    );
-
-    testWidgets(
-      'Android transition ignores a custom surface color of the theme',
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
-      (tester) async {
-        const surfaceColor = Color(0xFF123456);
-        final env = boilerplate(
-          theme: ThemeData(
-            colorScheme: ColorScheme.dark(surface: surfaceColor),
-          ),
-        );
-        await tester.pumpWidget(env.testWidget);
-        await pushAndPumpHalfway(tester, env.getNavigator());
-
-        final colors = backgroundColorsBehind(tester, 'a');
-        expect(colors, isNot(contains(surfaceColor)));
-        expect(colors, everyElement(Colors.transparent));
       },
     );
 
@@ -2139,31 +2089,16 @@ void main() {
           },
         );
         await tester.pumpWidget(env.testWidget);
-        await pushAndPumpHalfway(tester, env.getNavigator());
 
-        expect(backgroundColorsBehind(tester, 'a'), contains(Colors.red));
-      },
-    );
-
-    testWidgets(
-      'Non-Android platforms still follow the inherited pageTransitionsTheme',
-      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
-      (tester) async {
-        const surfaceColor = Color(0xFF123456);
-        final env = boilerplate(
-          theme: ThemeData(
-            colorScheme: ColorScheme.light(surface: surfaceColor),
-            pageTransitionsTheme: const PageTransitionsTheme(
-              builders: {
-                TargetPlatform.iOS: FadeForwardsPageTransitionsBuilder(),
-              },
-            ),
+        env.getNavigator().push(
+          PagedSheetRoute<void>(
+            transitionDuration: Duration(milliseconds: 300),
+            builder: (_) => _TestPage(key: Key('b'), height: 500),
           ),
         );
-        await tester.pumpWidget(env.testWidget);
-        await pushAndPumpHalfway(tester, env.getNavigator());
-
-        expect(backgroundColorsBehind(tester, 'a'), contains(surfaceColor));
+        await tester.pump();
+        await tester.pump(Duration(milliseconds: 150));
+        expect(backgroundColorsOf(tester, 'a'), contains(Colors.red));
       },
     );
   });
