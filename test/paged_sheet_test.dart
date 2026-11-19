@@ -1994,6 +1994,115 @@ void main() {
     );
   });
 
+  group('PagedSheet default transition background', () {
+    ({
+      Widget testWidget,
+      ValueGetter<NavigatorState> getNavigator,
+    })
+    boilerplate({RouteTransitionsBuilder? transitionsBuilder}) {
+      final navigatorKey = GlobalKey<NavigatorState>();
+      final testWidget = PagedSheetRouteTheme(
+        data: PagedSheetRouteThemeData(transitionsBuilder: transitionsBuilder),
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: SheetViewport(
+            child: PagedSheet(
+              navigator: Navigator(
+                key: navigatorKey,
+                onGenerateRoute: (_) {
+                  return PagedSheetRoute(
+                    builder: (_) => _TestPage(key: Key('a'), height: 300),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      return (
+        testWidget: testWidget,
+        getNavigator: () => navigatorKey.currentState!,
+      );
+    }
+
+    List<Color> backgroundColorsOf(WidgetTester tester, String pageId) {
+      return tester
+          .widgetList<ColoredBox>(
+            find.ancestor(
+              of: find.byId(pageId),
+              matching: find.byType(ColoredBox),
+            ),
+          )
+          .map((box) => box.color)
+          .toList();
+    }
+
+    testWidgets(
+      'Android transition does not fade through the surface color',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+      (tester) async {
+        final env = boilerplate();
+        await tester.pumpWidget(env.testWidget);
+
+        env.getNavigator().push(
+          PagedSheetRoute<void>(
+            transitionDuration: Duration(milliseconds: 300),
+            builder: (_) => _TestPage(key: Key('b'), height: 500),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(Duration(milliseconds: 150));
+        expect(backgroundColorsOf(tester, 'a'), isNotEmpty);
+        expect(
+          backgroundColorsOf(tester, 'a'),
+          everyElement(Colors.transparent),
+        );
+
+        await tester.pumpAndSettle();
+        env.getNavigator().pop();
+        await tester.pump();
+        await tester.pump(Duration(milliseconds: 150));
+        expect(backgroundColorsOf(tester, 'b'), isNotEmpty);
+        expect(
+          backgroundColorsOf(tester, 'b'),
+          everyElement(Colors.transparent),
+        );
+      },
+    );
+
+    testWidgets(
+      'Custom transitionsBuilder still controls the background color',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+      (tester) async {
+        final env = boilerplate(
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return const FadeForwardsPageTransitionsBuilder(
+              backgroundColor: Colors.red,
+            ).buildTransitions(
+              ModalRoute.of(context)! as PageRoute<dynamic>,
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            );
+          },
+        );
+        await tester.pumpWidget(env.testWidget);
+
+        env.getNavigator().push(
+          PagedSheetRoute<void>(
+            transitionDuration: Duration(milliseconds: 300),
+            builder: (_) => _TestPage(key: Key('b'), height: 500),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(Duration(milliseconds: 150));
+        expect(backgroundColorsOf(tester, 'a'), contains(Colors.red));
+      },
+    );
+  });
+
   group('Regression test', () {
     // https://github.com/fujidaiti/smooth_sheets/issues/309
     testWidgets(

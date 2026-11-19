@@ -1030,7 +1030,9 @@ class _FadeForwardPageTransitionWithAnimationLessBackGestureState
 
   @override
   Widget build(BuildContext context) {
-    return const FadeForwardsPageTransitionsBuilder().buildTransitions(
+    return const FadeForwardsPageTransitionsBuilder(
+      backgroundColor: Colors.transparent,
+    ).buildTransitions(
       widget.route,
       context,
       widget.animation,
