@@ -376,7 +376,6 @@ void main() {
   );
   */
 
-  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/345
   testWidgets(
     'PagedSheet should dispatch SheetUpdateNotification on page change '
     'with different initialOffset via Pages API',
