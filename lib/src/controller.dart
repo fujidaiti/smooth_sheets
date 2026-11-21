@@ -16,7 +16,10 @@ class SheetController extends ChangeNotifier
   final _immediateListeners = ChangeNotifier();
 
   @override
-  double? get value => _client?.offset;
+  double? get value => switch (_client) {
+    final it? when it.hasMetrics => it.offset,
+    _ => null,
+  };
 
   /// The current metrics of the sheet.
   SheetMetrics? get metrics => switch (_client) {
