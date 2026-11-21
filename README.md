@@ -76,6 +76,15 @@
 
 <br/>
 
+## Real-world examples
+
+- [Mainspring](https://apps.apple.com/us/app/habit-tracker-mainspring/id6467129951) ([Android](https://play.google.com/store/apps/details?id=com.naamapps.mainspring)) — habit tracker
+- [Joaia](https://apps.apple.com/us/app/joaia-ai-local-guides/id6477830563) ([Android](https://play.google.com/store/apps/details?id=ch.holoai.joaia)) — AI travel guide
+
+These were shared in [discussion #126](https://github.com/fujidaiti/smooth_sheets/discussions/126).
+
+<br/>
+
 ## Why use this?
 
 There are few packages on pub.dev that supports nested navigation with motion animation for page transitions. One of the great choices for this usecase is [wolt_modal_sheet](https://github.com/woltapp/wolt_modal_sheet), which this package is inspired by. Although smooth_sheet has similar features with wolt_modal_sheet, it is not intended to be a replacement of that package. Here is some differences between those 2 packages:
