@@ -74,7 +74,6 @@ class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
     // After unfocus(), the primary focus moves to the enclosing scope.
     // No keyboard is attached to a scope, so skip it. Otherwise, every
     // following drag update would unfocus the scope and call onDismiss again.
-    debugPrint("[656] focus type: ${focus?.runtimeType}");
     if (focus == null ||
         focus is FocusScopeNode ||
         !_dismissBehavior.shouldDismissKeyboard(userDragDelta)) {
