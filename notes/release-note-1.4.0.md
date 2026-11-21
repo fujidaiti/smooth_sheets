@@ -17,3 +17,7 @@ SheetKeyboardDismissible(
   child: Sheet(...),
 );
 ```
+
+| without `onDismiss` | with `onDismiss` |
+|---------------------|------------------|
+| https://github.com/user-attachments/assets/f112e93c-65ed-4745-a96c-6e75ea941728 | https://github.com/user-attachments/assets/5a213150-72a8-4852-a443-bb046881a98c |
