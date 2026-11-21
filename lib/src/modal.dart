@@ -577,7 +577,7 @@ class _SheetDismissibleState extends State<_SheetDismissible>
       invokePop = false;
     } else if (effectiveVelocity.abs() >
         widget.sensitivity.minFlingVelocityRatio) {
-      // Flings down with an enough speed.
+      // Flings down with enough speed.
       invokePop = true;
     } else {
       // Released while moving down slower than a fling, or not moving.
