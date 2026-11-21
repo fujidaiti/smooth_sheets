@@ -445,6 +445,16 @@ abstract class SheetModel<C extends SheetModelConfig> extends SheetModelView
     }
   }
 
+  /// Moves the sheet to [offset] immediately and keeps it there.
+  ///
+  /// The sheet becomes idle with [offset] as its target, so the position is
+  /// re-resolved whenever the viewport or the content changes.
+  void jumpTo(SheetOffset offset) {
+    beginActivity(IdleSheetActivity(targetOffset: offset));
+    this.offset = offset.resolve(this);
+    didUpdateMetrics();
+  }
+
   void settleTo(SheetOffset offset, Duration duration) {
     beginActivity(
       SettlingSheetActivity.withDuration(duration, destination: offset),
