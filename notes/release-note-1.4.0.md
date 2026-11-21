@@ -4,7 +4,7 @@
 
 ### Dismiss a Modal Sheet Together with the Keyboard
 
-_Reported in [#656](https://github.com/fujidaiti/smooth_sheets/issues/656), fixed in [#663](https://github.com/fujidaiti/smooth_sheets/pull/663)_
+_Requested in [#656](https://github.com/fujidaiti/smooth_sheets/issues/656), added in [#663](https://github.com/fujidaiti/smooth_sheets/pull/663)_
 
 Added the `onDismiss` callback to `SheetKeyboardDismissible`. It is called when the widget closes the on-screen keyboard because the user drags the sheet.
 
