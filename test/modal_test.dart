@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 import 'src/flutter_test_x.dart';
+import 'src/keyboard_inset_simulation.dart';
 import 'src/matchers.dart';
 import 'src/test_stateful_widget.dart';
 
@@ -358,6 +359,180 @@ void main() {
         expect(find.byKey(const Key('sheet')), findsOneWidget);
       },
     );
+
+    group('while the on-screen keyboard is open', () {
+      late GlobalKey<KeyboardInsetSimulationState> keyboardKey;
+      late FocusNode focusNode;
+
+      setUp(() {
+        keyboardKey = GlobalKey();
+        focusNode = FocusNode();
+      });
+
+      tearDown(() => focusNode.dispose());
+
+      Widget keyboardBoilerplate({
+        SheetKeyboardDismissBehavior? keyboardDismissBehavior,
+      }) {
+        return MaterialApp(
+          // The keyboard closes over 300ms when the text field loses focus,
+          // which is longer than a fling gesture.
+          builder: (context, child) => KeyboardInsetSimulation(
+            key: keyboardKey,
+            keyboardHeight: 300,
+            child: child!,
+          ),
+          home: Builder(
+            builder: (context) {
+              return Scaffold(
+                body: Center(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      ModalSheetRoute<dynamic>(
+                        swipeDismissible: true,
+                        swipeDismissSensitivity: const SwipeDismissSensitivity(
+                          minFlingVelocityRatio: 2.0,
+                          dismissalOffset: SheetOffset.absolute(0),
+                        ),
+                        builder: (context) {
+                          Widget result = Sheet(
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.viewInsetsOf(context).bottom,
+                            ),
+                            child: Material(
+                              key: const Key('sheet'),
+                              child: SizedBox(
+                                height: 240,
+                                child: TextField(focusNode: focusNode),
+                              ),
+                            ),
+                          );
+                          if (keyboardDismissBehavior != null) {
+                            result = SheetKeyboardDismissible(
+                              dismissBehavior: keyboardDismissBehavior,
+                              child: result,
+                            );
+                          }
+                          return result;
+                        },
+                      ),
+                    ),
+                    child: const Text('Open modal'),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      }
+
+      Future<void> openModalAndKeyboard(WidgetTester tester) async {
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(TextField));
+        unawaited(
+          keyboardKey.currentState!.showKeyboard(
+            const Duration(milliseconds: 250),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(focusNode.hasFocus, isTrue);
+        expect(
+          MediaQuery.viewInsetsOf(tester.element(find.byType(Scaffold))),
+          const EdgeInsets.only(bottom: 300),
+        );
+        focusNode.addListener(() {
+          if (!focusNode.hasFocus) {
+            unawaited(
+              keyboardKey.currentState!.hideKeyboard(
+                const Duration(milliseconds: 300),
+              ),
+            );
+          }
+        });
+      }
+
+      testWidgets(
+        'modal should be dismissed by a fling that closes the keyboard',
+        (tester) async {
+          await tester.pumpWidget(
+            keyboardBoilerplate(
+              keyboardDismissBehavior:
+                  const SheetKeyboardDismissBehavior.onDragDown(),
+            ),
+          );
+          await openModalAndKeyboard(tester);
+
+          await tester.fling(
+            find.byKey(const Key('sheet')),
+            const Offset(0, 200),
+            // The fling threshold is 2.0 * 600 = 1200 px/s.
+            2000,
+          );
+          expect(focusNode.hasFocus, isFalse);
+          await tester.pumpAndSettle();
+          expect(find.byKey(const Key('sheet')), findsNothing);
+        },
+      );
+
+      testWidgets(
+        'modal should not be dismissed by a fling that keeps the keyboard open',
+        (tester) async {
+          await tester.pumpWidget(keyboardBoilerplate());
+          await openModalAndKeyboard(tester);
+
+          await tester.fling(
+            find.byKey(const Key('sheet')),
+            const Offset(0, 200),
+            2000,
+          );
+          await tester.pumpAndSettle();
+          expect(focusNode.hasFocus, isTrue);
+          expect(find.byKey(const Key('sheet')), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'sheet should not move up after a release with zero velocity '
+        'once the keyboard has closed during the drag',
+        (tester) async {
+          await tester.pumpWidget(
+            keyboardBoilerplate(
+              keyboardDismissBehavior:
+                  const SheetKeyboardDismissBehavior.onDragDown(),
+            ),
+          );
+          await openModalAndKeyboard(tester);
+
+          final gesture = await tester.startGesture(
+            tester.getCenter(find.byKey(const Key('sheet'))),
+          );
+          for (var i = 0; i < 8; i++) {
+            await gesture.moveBy(const Offset(0, 10));
+            await tester.pump(const Duration(milliseconds: 16));
+          }
+          // Hold the sheet until the keyboard is fully closed.
+          await tester.pump(const Duration(milliseconds: 500));
+          expect(focusNode.hasFocus, isFalse);
+          expect(
+            MediaQuery.viewInsetsOf(tester.element(find.byType(Scaffold))),
+            EdgeInsets.zero,
+          );
+
+          await gesture.up();
+          var lastSheetTop = tester.getTopLeft(find.byKey(const Key('sheet')));
+          for (var i = 0; i < 60; i++) {
+            await tester.pump(const Duration(milliseconds: 16));
+            final sheetTop = tester.getTopLeft(find.byKey(const Key('sheet')));
+            expect(sheetTop.dy, greaterThanOrEqualTo(lastSheetTop.dy));
+            lastSheetTop = sheetTop;
+          }
+          await tester.pumpAndSettle();
+          expect(find.byKey(const Key('sheet')), findsOneWidget);
+        },
+      );
+    });
 
     testWidgets(
       'modal should not be dismissed if swipe-to-dismiss is disabled',

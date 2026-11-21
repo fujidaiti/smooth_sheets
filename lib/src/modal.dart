@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import 'drag.dart';
 import 'gesture_proxy.dart';
 import 'internal/float_comp.dart';
+import 'keyboard_dismissible.dart';
 import 'model.dart';
 import 'viewport.dart';
 
@@ -391,6 +392,23 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
   final List<_SheetPopScopeState<dynamic>> _popScopes = [];
 
+  /// Whether the open keyboard has prevented a downward drag from moving
+  /// the transition during the current drag gesture.
+  bool _wasTransitionBlockedByKeyboard = false;
+
+  /// Whether the on-screen keyboard is open and is expected to stay open.
+  ///
+  /// The view insets stay non-zero while the keyboard is closing, which
+  /// usually takes longer than a fling gesture. Therefore, the keyboard is
+  /// treated as closing once the primary focus is no longer on a node that
+  /// can hold it, for example, after [SheetKeyboardDismissible] unfocuses
+  /// a text field during the drag. In that case, the primary focus is on
+  /// a [FocusScopeNode] or on nothing.
+  bool get _isKeyboardStayingOpen =>
+      MediaQuery.viewInsetsOf(context).bottom > 0 &&
+      primaryFocus != null &&
+      primaryFocus is! FocusScopeNode;
+
   /// Whether the modal can be dismissed by the swipe gesture.
   ///
   /// The gesture is still available if [_isGestureEnabled] is true,
@@ -488,8 +506,14 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     } else if (dragDelta < 0 &&
         FloatComp.distance(
           MediaQuery.devicePixelRatioOf(context),
-        ).isNotApprox(dragDelta, minPDC) &&
-        MediaQuery.viewInsetsOf(context).bottom == 0) {
+        ).isNotApprox(dragDelta, minPDC)) {
+      if (MediaQuery.viewInsetsOf(context).bottom > 0) {
+        // The transition does not follow the drag while the keyboard is open.
+        // Remember that it would have, so that a fling can still dismiss
+        // the modal if the keyboard starts to close during the drag.
+        _wasTransitionBlockedByKeyboard = true;
+        return super.onDragUpdate(details, minPotentialDeltaConsumption);
+      }
       // If the drag is downwards and the sheet may not consume the full pixels,
       // then use the remaining pixels as the effective drag delta.
       effectiveDragDelta = switch (details.axisDirection) {
@@ -552,7 +576,10 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     required Velocity velocity,
     required VerticalDirection axisDirection,
   }) {
-    if (!_isUserGestureInProgress || _transitionController.isAnimating) {
+    final wasTransitionBlockedByKeyboard = _wasTransitionBlockedByKeyboard;
+    _wasTransitionBlockedByKeyboard = false;
+
+    if (_transitionController.isAnimating) {
       return false;
     }
 
@@ -565,9 +592,24 @@ class _SheetDismissibleState extends State<_SheetDismissible>
         -1 * velocity.pixelsPerSecond.dy / viewportHeight,
     };
 
+    if (!_isUserGestureInProgress) {
+      // The view insets are still non-zero at the release of a fling even if
+      // the keyboard started to close during the drag (for example, by
+      // SheetKeyboardDismissible), so the transition has not followed the
+      // drag. In that case, a downward fling that would have moved the
+      // transition without the keyboard still dismisses the modal.
+      final isKeyboardClosing =
+          MediaQuery.viewInsetsOf(context).bottom > 0 &&
+          !_isKeyboardStayingOpen;
+      if (!wasTransitionBlockedByKeyboard ||
+          !isKeyboardClosing ||
+          effectiveVelocity >= -widget.sensitivity.minFlingVelocityRatio) {
+        return false;
+      }
+    }
+
     final bool invokePop;
-    if (MediaQuery.viewInsetsOf(context).bottom > 0) {
-      // The on-screen keyboard is open.
+    if (_isKeyboardStayingOpen) {
       invokePop = false;
     } else if (FloatComp.velocity(
           MediaQuery.devicePixelRatioOf(context),
