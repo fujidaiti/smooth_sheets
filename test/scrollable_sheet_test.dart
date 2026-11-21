@@ -300,13 +300,20 @@ void main() {
 
   group('SheetKeyboardDismissible', () {
     late FocusNode focusNode;
-    late Widget testWidget;
 
     setUp(() {
       focusNode = FocusNode();
-      testWidget = _TestApp(
+    });
+
+    tearDown(() {
+      focusNode.dispose();
+    });
+
+    Widget boilerplate({VoidCallback? onDismiss}) {
+      return _TestApp(
         useMaterial: true,
         child: SheetKeyboardDismissible(
+          onDismiss: onDismiss,
           dismissBehavior: const SheetKeyboardDismissBehavior.onDrag(
             isContentScrollAware: true,
           ),
@@ -332,14 +339,10 @@ void main() {
           ),
         ),
       );
-    });
-
-    tearDown(() {
-      focusNode.dispose();
-    });
+    }
 
     testWidgets('should dismiss the keyboard when dragging', (tester) async {
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(boilerplate());
 
       await tester.showKeyboard(find.byType(TextField));
       expect(
@@ -358,7 +361,7 @@ void main() {
     });
 
     testWidgets('should dismiss the keyboard when scrolling', (tester) async {
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(boilerplate());
 
       final textField = find.byType(TextField).first;
       await tester.showKeyboard(textField);
@@ -376,6 +379,59 @@ void main() {
         reason: 'Upward scrolling should dismiss the keyboard.',
       );
     });
+
+    testWidgets('should call onDismiss once when dismissing the keyboard', (
+      tester,
+    ) async {
+      var onDismissCallCount = 0;
+      await tester.pumpWidget(
+        boilerplate(onDismiss: () => onDismissCallCount++),
+      );
+      await tester.showKeyboard(find.byType(TextField));
+
+      // A drag consists of multiple drag updates.
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(ListView)),
+      );
+      for (var i = 0; i < 5; i++) {
+        await gesture.moveBy(const Offset(0, 20));
+        await tester.pump();
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(focusNode.hasFocus, isFalse);
+      expect(onDismissCallCount, 1);
+    });
+
+    testWidgets('should not call onDismiss if the keyboard is not shown', (
+      tester,
+    ) async {
+      var onDismissCallCount = 0;
+      await tester.pumpWidget(
+        boilerplate(onDismiss: () => onDismissCallCount++),
+      );
+      expect(focusNode.hasFocus, isFalse);
+
+      await tester.drag(find.byType(ListView), const Offset(0, 40));
+      await tester.pumpAndSettle();
+      expect(onDismissCallCount, 0);
+    });
+
+    testWidgets(
+      'should not call onDismiss if the keyboard is dismissed by other means',
+      (tester) async {
+        var onDismissCallCount = 0;
+        await tester.pumpWidget(
+          boilerplate(onDismiss: () => onDismissCallCount++),
+        );
+        await tester.showKeyboard(find.byType(TextField));
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(focusNode.hasFocus, isFalse);
+        expect(onDismissCallCount, 0);
+      },
+    );
   });
 
   // Regression tests for:

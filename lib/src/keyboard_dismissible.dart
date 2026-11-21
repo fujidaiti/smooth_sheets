@@ -30,6 +30,7 @@ class SheetKeyboardDismissible extends StatefulWidget {
   const SheetKeyboardDismissible({
     required this.dismissBehavior,
     required this.child,
+    this.onDismiss,
     super.key,
   });
 
@@ -42,6 +43,23 @@ class SheetKeyboardDismissible extends StatefulWidget {
   /// The widget below this widget in the tree.
   final Widget child;
 
+  /// Called when this widget dismisses the on-screen keyboard.
+  ///
+  /// This is not called when the keyboard is closed by other means, such as
+  /// the done key of the keyboard or a call to [FocusNode.unfocus] by the app.
+  ///
+  /// For example, the following snippet dismisses a modal sheet together
+  /// with the keyboard when the user drags the sheet down:
+  ///
+  /// ```dart
+  /// return SheetKeyboardDismissible(
+  ///   dismissBehavior: const SheetKeyboardDismissBehavior.onDragDown(),
+  ///   onDismiss: () => Navigator.maybePop(context),
+  ///   child: Sheet(...),
+  /// );
+  /// ```
+  final VoidCallback? onDismiss;
+
   @override
   State<SheetKeyboardDismissible> createState() =>
       _SheetKeyboardDismissibleState();
@@ -51,6 +69,20 @@ class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
   SheetKeyboardDismissBehavior get _dismissBehavior =>
       widget.dismissBehavior ?? const DragSheetKeyboardDismissBehavior();
 
+  void _dismissKeyboardIfNeeded(double userDragDelta) {
+    final focus = primaryFocus;
+    // After unfocus(), the primary focus moves to the enclosing scope.
+    // No keyboard is attached to a scope, so skip it. Otherwise, every
+    // following drag update would unfocus the scope and call onDismiss again.
+    if (focus == null ||
+        focus is FocusScopeNode ||
+        !_dismissBehavior.shouldDismissKeyboard(userDragDelta)) {
+      return;
+    }
+    focus.unfocus();
+    widget.onDismiss?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget result = NotificationListener<SheetDragUpdateNotification>(
@@ -59,11 +91,7 @@ class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
           VerticalDirection.up => notification.dragDetails.deltaY,
           VerticalDirection.down => -1 * notification.dragDetails.deltaY,
         };
-
-        if ((primaryFocus?.hasFocus ?? false) &&
-            _dismissBehavior.shouldDismissKeyboard(delta)) {
-          primaryFocus!.unfocus();
-        }
+        _dismissKeyboardIfNeeded(delta);
         return false;
       },
       child: widget.child,
@@ -73,11 +101,8 @@ class _SheetKeyboardDismissibleState extends State<SheetKeyboardDismissible> {
       result = NotificationListener<ScrollUpdateNotification>(
         onNotification: (notification) {
           final dragDelta = notification.dragDetails?.delta.dy;
-          if (notification.depth == 0 &&
-              dragDelta != null &&
-              (primaryFocus?.hasFocus ?? false) &&
-              _dismissBehavior.shouldDismissKeyboard(-1 * dragDelta)) {
-            primaryFocus!.unfocus();
+          if (notification.depth == 0 && dragDelta != null) {
+            _dismissKeyboardIfNeeded(-1 * dragDelta);
           }
           return false;
         },
