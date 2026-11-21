@@ -276,6 +276,90 @@ void main() {
     );
 
     testWidgets(
+      'modal should be dismissed if drag distance is enough '
+      'and the release is slower than the fling threshold',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            sensitivity: const SwipeDismissSensitivity(
+              minFlingVelocityRatio: 5.0,
+              dismissalOffset: SheetOffset.absolute(500),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 101),
+          // The speed is far below the fling threshold (5.0 * 600 = 3000 px/s).
+          300,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'modal should not be dismissed if drag distance is not enough '
+      'and the release is slower than the fling threshold',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            sensitivity: const SwipeDismissSensitivity(
+              minFlingVelocityRatio: 5.0,
+              dismissalOffset: SheetOffset.absolute(500),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 99),
+          300,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'modal should not be dismissed if the release has an upward velocity, '
+      'even if the drag distance is enough',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            sensitivity: const SwipeDismissSensitivity(
+              minFlingVelocityRatio: 5.0,
+              dismissalOffset: SheetOffset.absolute(500),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        // Drag down 300px, pause, then fling up 50px before releasing.
+        await tester.flingFrom(
+          tester.getCenter(find.byKey(const Key('sheet'))),
+          const Offset(0, -50),
+          1000,
+          initialOffset: const Offset(0, 300),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+      },
+    );
+
+    testWidgets(
       'modal should not be dismissed if swipe-to-dismiss is disabled',
       (tester) async {
         await tester.pumpWidget(

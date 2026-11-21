@@ -569,15 +569,19 @@ class _SheetDismissibleState extends State<_SheetDismissible>
     if (MediaQuery.viewInsetsOf(context).bottom > 0) {
       // The on-screen keyboard is open.
       invokePop = false;
-    } else if (effectiveVelocity < 0) {
-      // Flings down.
-      invokePop =
-          effectiveVelocity.abs() > widget.sensitivity.minFlingVelocityRatio;
     } else if (FloatComp.velocity(
-      MediaQuery.devicePixelRatioOf(context),
-    ).isApprox(effectiveVelocity, 0)) {
+          MediaQuery.devicePixelRatioOf(context),
+        ).isNotApprox(effectiveVelocity, 0) &&
+        effectiveVelocity > 0) {
+      // Flings up.
+      invokePop = false;
+    } else if (effectiveVelocity.abs() >
+        widget.sensitivity.minFlingVelocityRatio) {
+      // Flings down with enough speed.
+      invokePop = true;
+    } else {
+      // Released while moving down slower than a fling, or not moving.
       assert(draggedDistance >= 0);
-      // Dragged down enough to dismiss.
       final viewPortState = SheetViewportState.of(context);
       final currentOffset = viewPortState!.model.offset;
 
@@ -586,9 +590,6 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 
       final apparentOffset = currentOffset - draggedDistance;
       invokePop = resolvedDismissalOffset > apparentOffset;
-    } else {
-      // Flings up.
-      invokePop = false;
     }
 
     final didPop = invokePop && _canPopByGesture;
@@ -671,11 +672,11 @@ class _SheetDismissibleState extends State<_SheetDismissible>
 /// Configuration for the swipe-to-dismiss sensitivity of [ModalSheetRoute],
 /// [ModalSheetPage], and related classes.
 ///
-/// The modal will be dismissed under the following conditions:
-/// - A downward fling gesture with the ratio of the velocity to the viewport
+/// The modal will be dismissed under one of the following conditions:
+/// - A downward fling gesture with a ratio of the velocity to the viewport
 ///   height that exceeds [minFlingVelocityRatio].
-/// - A drag gesture ending with zero velocity, where the downward distance
-///   exceeds the resolved [dismissalOffset].
+/// - A drag gesture that does not end with an upward velocity, where the
+///   sheet offset is below the [dismissalOffset] at the release.
 class SwipeDismissSensitivity {
   /// Creates a swipe-to-dismiss sensitivity configuration.
   const SwipeDismissSensitivity({
@@ -709,8 +710,9 @@ class SwipeDismissSensitivity {
   /// the sheet will dismiss if 200 pixels or less of the sheet is
   /// visible when the drag ends.
   ///
-  /// If the drag gesture ends with a non-zero velocity, it's treated as
-  /// a fling gesture, and this value is not used.
+  /// This value is not used if the drag gesture ends with an upward
+  /// velocity, or with a downward velocity that exceeds
+  /// [minFlingVelocityRatio].
   final SheetOffset dismissalOffset;
 }
 
