@@ -197,7 +197,6 @@ void main() {
       );
     });
 
-    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/399
     testWidgets("should maintain the child's visual position "
         'when the viewport height changes', (tester) async {
       final model = _TestSheetModel(initialOffset: SheetOffset(1));
