@@ -275,7 +275,6 @@ void main() {
       },
     );
 
-    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/655
     testWidgets(
       'modal should be dismissed if drag distance is enough '
       'and the release is slower than the fling threshold',
@@ -293,12 +292,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('sheet')), findsOneWidget);
 
-        // The speed is above kMinFlingVelocity, so the drag gesture
-        // reports a non-zero velocity, but it is far below the fling
-        // threshold (5.0 * 600 = 3000 px/s).
         await tester.fling(
           find.byKey(const Key('sheet')),
           const Offset(0, 101),
+          // The speed is far below the fling threshold (5.0 * 600 = 3000 px/s).
           300,
         );
         await tester.pumpAndSettle();
@@ -306,7 +303,6 @@ void main() {
       },
     );
 
-    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/655
     testWidgets(
       'modal should not be dismissed if drag distance is not enough '
       'and the release is slower than the fling threshold',
@@ -335,8 +331,8 @@ void main() {
     );
 
     testWidgets(
-      'modal should not be dismissed if drag distance is enough '
-      'but the release has an upward velocity',
+      'modal should not be dismissed if the release has an upward velocity, '
+      'even if the drag distance is enough',
       (tester) async {
         await tester.pumpWidget(
           boilerplate(
@@ -351,26 +347,13 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('sheet')), findsOneWidget);
 
-        // Drag down 300px, then move up 120px at 1000px/s before releasing.
-        // The sheet is still past the dismissal offset at the release.
-        // The upward movement lasts longer than the velocity tracker's
-        // sampling window, so the release velocity is purely upward.
-        const frame = Duration(milliseconds: 10);
-        var timeStamp = Duration.zero;
-        final gesture = await tester.startGesture(
+        // Drag down 300px, pause, then fling up 50px before releasing.
+        await tester.flingFrom(
           tester.getCenter(find.byKey(const Key('sheet'))),
+          const Offset(0, -50),
+          1000,
+          initialOffset: const Offset(0, 300),
         );
-        for (var i = 0; i < 30; i++) {
-          timeStamp += frame;
-          await gesture.moveBy(const Offset(0, 10), timeStamp: timeStamp);
-          await tester.pump();
-        }
-        for (var i = 0; i < 12; i++) {
-          timeStamp += frame;
-          await gesture.moveBy(const Offset(0, -10), timeStamp: timeStamp);
-          await tester.pump();
-        }
-        await gesture.up(timeStamp: timeStamp);
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('sheet')), findsOneWidget);
       },
