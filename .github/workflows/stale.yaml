@@ -18,7 +18,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           
           # Target both issues and PRs with the specific label
-          only-labels: 'waiting for customer response'
+          only-labels: "waiting for op's response"
 
           # Days before marking as stale
           days-before-stale: 30
