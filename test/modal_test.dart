@@ -386,7 +386,6 @@ void main() {
       },
     );
 
-    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/170
     testWidgets('swipeDismissible should be able to be changed dynamically', (
       tester,
     ) async {
@@ -604,7 +603,6 @@ void main() {
     );
   });
 
-  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/233
   group('PopScope test', () {
     late bool isOnPopInvokedCalled;
     late Widget testWidget;

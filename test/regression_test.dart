@@ -1,3 +1,4 @@
+// THIS IS A LEGACY FILE. DO NOT ADD NEW TESTS.
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
@@ -186,7 +187,7 @@ void main() {
     },
   );
 
-  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/349
+  // https://github.com/fujidaiti/smooth_sheets/issues/349
   testWidgets(
     'Disposing the sheet before its first layout should not crash',
     (tester) async {

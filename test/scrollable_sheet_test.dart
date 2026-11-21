@@ -90,7 +90,6 @@ void main() {
     );
   });
 
-  // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/14
   testWidgets('Opening keyboard does not interrupt sheet animation', (
     tester,
   ) async {
@@ -169,7 +168,6 @@ void main() {
   });
 
   group('Press-and-hold gesture should stop momentum scrolling', () {
-    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/190
     testWidgets('in a plain ListView', (tester) async {
       const targetKey = Key('Target');
       final controller = SheetController();
@@ -230,7 +228,6 @@ void main() {
       );
     });
 
-    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/214
     testWidgets('in a PageView with multiple ListViews', (tester) async {
       final scrollController = SheetScrollController();
 

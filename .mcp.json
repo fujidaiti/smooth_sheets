@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "maestro": {
+      "type": "stdio",
+      "command": "maestro",
+      "args": ["mcp"],
+      "env": {}
+    },
+    "dart": {
+      "command": "fvm",
+      "args": [
+        "dart",
+        "mcp-server",
+        "--enable",
+        "analysis,cli,dart_tooling_daemon,flutter_driver,flutter,flutter_app_lifecycle,package_deps"
+      ]
+    }
+  }
+}
