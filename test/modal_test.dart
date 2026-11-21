@@ -275,6 +275,107 @@ void main() {
       },
     );
 
+    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/655
+    testWidgets(
+      'modal should be dismissed if drag distance is enough '
+      'and the release is slower than the fling threshold',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            sensitivity: const SwipeDismissSensitivity(
+              minFlingVelocityRatio: 5.0,
+              dismissalOffset: SheetOffset.absolute(500),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        // The speed is above kMinFlingVelocity, so the drag gesture
+        // reports a non-zero velocity, but it is far below the fling
+        // threshold (5.0 * 600 = 3000 px/s).
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 101),
+          300,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsNothing);
+      },
+    );
+
+    // Regression test for https://github.com/fujidaiti/smooth_sheets/issues/655
+    testWidgets(
+      'modal should not be dismissed if drag distance is not enough '
+      'and the release is slower than the fling threshold',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            sensitivity: const SwipeDismissSensitivity(
+              minFlingVelocityRatio: 5.0,
+              dismissalOffset: SheetOffset.absolute(500),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        await tester.fling(
+          find.byKey(const Key('sheet')),
+          const Offset(0, 99),
+          300,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'modal should not be dismissed if drag distance is enough '
+      'but the release has an upward velocity',
+      (tester) async {
+        await tester.pumpWidget(
+          boilerplate(
+            sensitivity: const SwipeDismissSensitivity(
+              minFlingVelocityRatio: 5.0,
+              dismissalOffset: SheetOffset.absolute(500),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Open modal'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+
+        // Drag down 300px, then move up 120px at 1000px/s before releasing.
+        // The sheet is still past the dismissal offset at the release.
+        // The upward movement lasts longer than the velocity tracker's
+        // sampling window, so the release velocity is purely upward.
+        const frame = Duration(milliseconds: 10);
+        var timeStamp = Duration.zero;
+        final gesture = await tester.startGesture(
+          tester.getCenter(find.byKey(const Key('sheet'))),
+        );
+        for (var i = 0; i < 30; i++) {
+          timeStamp += frame;
+          await gesture.moveBy(const Offset(0, 10), timeStamp: timeStamp);
+          await tester.pump();
+        }
+        for (var i = 0; i < 12; i++) {
+          timeStamp += frame;
+          await gesture.moveBy(const Offset(0, -10), timeStamp: timeStamp);
+          await tester.pump();
+        }
+        await gesture.up(timeStamp: timeStamp);
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('sheet')), findsOneWidget);
+      },
+    );
+
     testWidgets(
       'modal should not be dismissed if swipe-to-dismiss is disabled',
       (tester) async {
