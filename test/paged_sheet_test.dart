@@ -2241,6 +2241,65 @@ void main() {
         expect(controller.value, lessThan(initialOffsetBeforeBottomDrag));
       },
     );
+
+    // https://github.com/fujidaiti/smooth_sheets/issues/665
+    testWidgets(
+      'Sheet offset lags behind the sheet height for one frame '
+      'when iOS swipe back gesture starts',
+      (tester) async {
+        final navigatorKey = GlobalKey<NavigatorState>();
+        const sheetKey = Key('sheet');
+
+        await tester.pumpWidget(
+          Theme(
+            data: ThemeData(platform: TargetPlatform.iOS),
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: SheetViewport(
+                child: PagedSheet(
+                  key: sheetKey,
+                  navigator: Navigator(
+                    key: navigatorKey,
+                    onGenerateRoute: (_) {
+                      return PagedSheetRoute(
+                        builder: (_) => _TestPage(key: Key('a'), height: 300),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        navigatorKey.currentState!.push(
+          PagedSheetRoute<void>(
+            builder: (_) => _TestPage(key: Key('b'), height: 500),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byKey(sheetKey)).bottom,
+          testScreenSize.height,
+        );
+
+        // Move the finger by a large distance on each frame, as in a fast
+        // swipe, so that the first frame of the transition already makes
+        // noticeable progress. If the offset and the height are in sync,
+        // the bottom of the sheet stays at the bottom of the screen.
+        final sheetBottomHistory = <double>[];
+        final gesture = await tester.startGesture(
+          Offset(5, testScreenSize.height - 250),
+        );
+        for (var i = 0; i < 4; i++) {
+          await gesture.moveBy(const Offset(40, 0));
+          await tester.pump();
+          sheetBottomHistory.add(tester.getRect(find.byKey(sheetKey)).bottom);
+        }
+        expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
+        expect(sheetBottomHistory, everyElement(testScreenSize.height));
+      },
+    );
   });
 }
 
