@@ -2244,10 +2244,11 @@ void main() {
 
     // https://github.com/fujidaiti/smooth_sheets/issues/665
     testWidgets(
-      'Bottom bar jumps for one frame when iOS swipe back gesture starts',
+      'Sheet offset lags behind the sheet height for one frame '
+      'when iOS swipe back gesture starts',
       (tester) async {
         final navigatorKey = GlobalKey<NavigatorState>();
-        const bottomBarKey = Key('bottomBar');
+        const sheetKey = Key('sheet');
 
         await tester.pumpWidget(
           Theme(
@@ -2256,18 +2257,7 @@ void main() {
               textDirection: TextDirection.ltr,
               child: SheetViewport(
                 child: PagedSheet(
-                  builder: (context, child) {
-                    return SheetContentScaffold(
-                      bottomBarVisibility: const BottomBarVisibility.always(),
-                      extendBodyBehindBottomBar: true,
-                      body: child,
-                      bottomBar: Container(
-                        key: bottomBarKey,
-                        height: 50,
-                        color: Colors.green,
-                      ),
-                    );
-                  },
+                  key: sheetKey,
                   navigator: Navigator(
                     key: navigatorKey,
                     onGenerateRoute: (_) {
@@ -2289,26 +2279,25 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(
-          tester.getRect(find.byKey(bottomBarKey)).bottom,
+          tester.getRect(find.byKey(sheetKey)).bottom,
           testScreenSize.height,
         );
 
         // Move the finger by a large distance on each frame, as in a fast
         // swipe, so that the first frame of the transition already makes
-        // noticeable progress.
-        final bottomBarBottomHistory = <double>[];
+        // noticeable progress. If the offset and the height are in sync,
+        // the bottom of the sheet stays at the bottom of the screen.
+        final sheetBottomHistory = <double>[];
         final gesture = await tester.startGesture(
           Offset(5, testScreenSize.height - 250),
         );
         for (var i = 0; i < 4; i++) {
           await gesture.moveBy(const Offset(40, 0));
           await tester.pump();
-          bottomBarBottomHistory.add(
-            tester.getRect(find.byKey(bottomBarKey)).bottom,
-          );
+          sheetBottomHistory.add(tester.getRect(find.byKey(sheetKey)).bottom);
         }
         expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
-        expect(bottomBarBottomHistory, everyElement(testScreenSize.height));
+        expect(sheetBottomHistory, everyElement(testScreenSize.height));
 
         await gesture.up();
         await tester.pumpAndSettle();

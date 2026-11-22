@@ -434,7 +434,14 @@ class _TransitionActivity extends SheetActivity<_PagedSheetModel> {
     // before the transition start is reported, and NavigatorResizable
     // reflects that value in the sheet's size in the same frame. Applying
     // the current value here keeps the offset in sync with the size.
-    _onAnimationTick();
+    //
+    // At value 0 the offset equals the start offset, so there is nothing to
+    // apply. Skipping it also avoids dispatching a redundant update
+    // notification when a transition starts during a build, such as when
+    // a page is removed from Navigator.pages.
+    if (_effectiveAnimation.value != 0) {
+      _onAnimationTick();
+    }
   }
 
   @override
