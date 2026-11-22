@@ -2245,37 +2245,35 @@ void main() {
     // https://github.com/fujidaiti/smooth_sheets/issues/665
     testWidgets(
       'Bottom bar jumps for one frame when iOS swipe back gesture starts',
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
       (tester) async {
         final navigatorKey = GlobalKey<NavigatorState>();
         const bottomBarKey = Key('bottomBar');
 
         await tester.pumpWidget(
-          Theme(
-            data: ThemeData(platform: TargetPlatform.iOS),
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: SheetViewport(
-                child: PagedSheet(
-                  builder: (context, child) {
-                    return SheetContentScaffold(
-                      bottomBarVisibility: const BottomBarVisibility.always(),
-                      extendBodyBehindBottomBar: true,
-                      body: child,
-                      bottomBar: Container(
-                        key: bottomBarKey,
-                        height: 50,
-                        color: Colors.green,
-                      ),
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: SheetViewport(
+              child: PagedSheet(
+                builder: (context, child) {
+                  return SheetContentScaffold(
+                    bottomBarVisibility: const BottomBarVisibility.always(),
+                    extendBodyBehindBottomBar: true,
+                    body: child,
+                    bottomBar: Container(
+                      key: bottomBarKey,
+                      height: 50,
+                      color: Colors.green,
+                    ),
+                  );
+                },
+                navigator: Navigator(
+                  key: navigatorKey,
+                  onGenerateRoute: (_) {
+                    return PagedSheetRoute(
+                      builder: (_) => _TestPage(key: Key('a'), height: 300),
                     );
                   },
-                  navigator: Navigator(
-                    key: navigatorKey,
-                    onGenerateRoute: (_) {
-                      return PagedSheetRoute(
-                        builder: (_) => _TestPage(key: Key('a'), height: 300),
-                      );
-                    },
-                  ),
                 ),
               ),
             ),
