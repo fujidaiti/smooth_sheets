@@ -464,9 +464,6 @@ class _TransitionActivity extends SheetActivity<_PagedSheetModel> {
       endOffset.resolve(layoutAfterTransition),
       _effectiveAnimation.value,
     )!;
-    // Skip redundant update notifications. This also matters when
-    // a transition starts during a build, such as when a page is removed
-    // from Navigator.pages, because init() calls this method.
     if (newOffset != owner.offset) {
       owner
         ..offset = newOffset
