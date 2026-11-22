@@ -11,14 +11,14 @@ topics:
   - bottom-sheet
 environment:
   sdk: ">=3.12.0 <4.0.0"
-  flutter: ">=3.44.0"
+  flutter: ">=3.50.0"
 dependencies:
   collection: ^1.17.1
   flutter:
     sdk: flutter
   material_ui: ^1.0.0
   meta: ^1.9.1
-  navigator_resizable: ">=3.1.0 <5.0.0"
+  navigator_resizable: ^4.0.0
 # Dependencies for testing
 dev_dependencies:
   # auto_route 11.2.0 uses ScrollCacheExtent, which is unavailable in Flutter 3.41.0,
