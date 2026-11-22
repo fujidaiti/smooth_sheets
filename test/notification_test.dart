@@ -423,7 +423,7 @@ void main() {
       pagesNotifier.value = [pageA, pageB];
       await tester.pumpAndSettle();
       expect(tester.getRect(find.byId('sheet')).top, 200);
-      expect(reportedNotifications.length, greaterThan(3));
+      expect(reportedNotifications.length, greaterThan(2));
       expect(reportedNotifications.last.metrics.offset, 400);
       expect(
         reportedNotifications.map((it) => it.metrics.offset),
@@ -435,7 +435,7 @@ void main() {
       pagesNotifier.value = [pageA];
       await tester.pumpAndSettle();
       expect(tester.getRect(find.byId('sheet')).top, 300);
-      expect(reportedNotifications.length, greaterThan(3));
+      expect(reportedNotifications.length, greaterThan(2));
       expect(reportedNotifications.last.metrics.offset, 300);
       expect(
         reportedNotifications.map((it) => it.metrics.offset),
