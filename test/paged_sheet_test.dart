@@ -2298,9 +2298,6 @@ void main() {
         }
         expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
         expect(sheetBottomHistory, everyElement(testScreenSize.height));
-
-        await gesture.up();
-        await tester.pumpAndSettle();
       },
     );
   });
