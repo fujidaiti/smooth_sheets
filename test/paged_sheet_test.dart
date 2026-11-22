@@ -2241,6 +2241,79 @@ void main() {
         expect(controller.value, lessThan(initialOffsetBeforeBottomDrag));
       },
     );
+
+    // https://github.com/fujidaiti/smooth_sheets/issues/665
+    testWidgets(
+      'Bottom bar jumps for one frame when iOS swipe back gesture starts',
+      (tester) async {
+        final navigatorKey = GlobalKey<NavigatorState>();
+        const bottomBarKey = Key('bottomBar');
+
+        await tester.pumpWidget(
+          Theme(
+            data: ThemeData(platform: TargetPlatform.iOS),
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: SheetViewport(
+                child: PagedSheet(
+                  builder: (context, child) {
+                    return SheetContentScaffold(
+                      bottomBarVisibility: const BottomBarVisibility.always(),
+                      extendBodyBehindBottomBar: true,
+                      body: child,
+                      bottomBar: Container(
+                        key: bottomBarKey,
+                        height: 50,
+                        color: Colors.green,
+                      ),
+                    );
+                  },
+                  navigator: Navigator(
+                    key: navigatorKey,
+                    onGenerateRoute: (_) {
+                      return PagedSheetRoute(
+                        builder: (_) => _TestPage(key: Key('a'), height: 300),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        navigatorKey.currentState!.push(
+          PagedSheetRoute<void>(
+            builder: (_) => _TestPage(key: Key('b'), height: 500),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester.getRect(find.byKey(bottomBarKey)).bottom,
+          testScreenSize.height,
+        );
+
+        // Move the finger by a large distance on each frame, as in a fast
+        // swipe, so that the first frame of the transition already makes
+        // noticeable progress.
+        final bottomBarBottomHistory = <double>[];
+        final gesture = await tester.startGesture(
+          Offset(5, testScreenSize.height - 250),
+        );
+        for (var i = 0; i < 4; i++) {
+          await gesture.moveBy(const Offset(40, 0));
+          await tester.pump();
+          bottomBarBottomHistory.add(
+            tester.getRect(find.byKey(bottomBarKey)).bottom,
+          );
+        }
+        expect(navigatorKey.currentState!.userGestureInProgress, isTrue);
+        expect(bottomBarBottomHistory, everyElement(testScreenSize.height));
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      },
+    );
   });
 }
 

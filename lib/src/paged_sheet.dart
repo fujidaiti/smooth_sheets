@@ -429,6 +429,12 @@ class _TransitionActivity extends SheetActivity<_PagedSheetModel> {
     owner.config = owner.config.copyWith(snapGrid: _kDefaultSnapGrid);
     _effectiveAnimation = animation.drive(CurveTween(curve: animationCurve))
       ..addListener(_onAnimationTick);
+    // The animation may have already progressed when this activity starts.
+    // For example, the iOS swipe back gesture changes the animation value
+    // before the transition start is reported, and NavigatorResizable
+    // reflects that value in the sheet's size in the same frame. Applying
+    // the current value here keeps the offset in sync with the size.
+    _onAnimationTick();
   }
 
   @override
