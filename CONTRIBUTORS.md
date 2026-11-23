@@ -34,6 +34,9 @@ Thank you for all contributors!
 - Kyle Thompson (1):
   - fix(pkg): Align SheetContentScaffold semantics order with paint order (#583) - [7039b9c](https://github.com/fujidaiti/smooth_sheets/commit/7039b9c)
 
+- Setyo Aji Imam Maliki (1):
+  - fix(pkg): PagedSheet's default Android transition fades through the surface color (#653) - [abdaa42](https://github.com/fujidaiti/smooth_sheets/commit/abdaa42)
+
 - Yaroslav Vorobev (1):
   - fix(pkg): Use drag devices from inherited scroll config (#513) - [0796b1a](https://github.com/fujidaiti/smooth_sheets/commit/0796b1a)
 

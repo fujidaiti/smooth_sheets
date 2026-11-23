@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.2 - 2026-11-16
+- fix: SheetDraggable ignores the gesture settings of the MediaQuery ([#644](https://github.com/fujidaiti/smooth_sheets/pull/644)) - [5a8f742](https://github.com/fujidaiti/smooth_sheets/commit/5a8f742b9849bc6cb8b98844a71a1ec0465a71e7)
+- fix: Sheet drag is lost when a non-primary scroll position relays out ([#642](https://github.com/fujidaiti/smooth_sheets/pull/642)) - [00ea771](https://github.com/fujidaiti/smooth_sheets/commit/00ea7716a8bdf1e21e24f1a0d3f986da59081d59)
+
+
+See [the release note](https://github.com/fujidaiti/smooth_sheets/releases/tag/v1.3.2) for more details.
+
 ## 1.3.1 - 2026-11-09
 - fix: Margin of error for scroll-top detection in scrollSyncMode: .onlyFromTop is too narrow ([#641](https://github.com/fujidaiti/smooth_sheets/pull/641)) - [e9e3e2b](https://github.com/fujidaiti/smooth_sheets/commit/e9e3e2b0109661c850ed9af8825606ccb8da5882)
 - fix: Crash when running on a platform not defined in TargetPlatform ([#639](https://github.com/fujidaiti/smooth_sheets/pull/639)) - [b0432a6](https://github.com/fujidaiti/smooth_sheets/commit/b0432a665592fac30dd3ec2803b49670dbb26e95)
